@@ -1,7 +1,7 @@
 ﻿#pragma rtGlobals    = 3
 #pragma TextEncoding = "UTF-8"
 #pragma IgorVersion  = 9
-#pragma rtFunctionErrors=1
+#pragma rtFunctionErrors=1 // DEGUB. Remove on release
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and later
 
 // ------------------------------------------------------- //
@@ -22,11 +22,11 @@
 // ------------------------------------------------------- //
 // v1.0
 //
-// The function/Wave MPMXP_ImportImageFromSingleDatFile(DataFile, FileNameStr) import a 2D wave from a
-// single .dat file created by UKSOFT2001 software in the MAXPEEM beamline.
-// MXP_ImportImageFromSingleDatFile calls the MPReadUKMetadataBlock(wv) function to get a string
-// of the Frame's metadata.
-//
+// Add some short description here.
+
+
+// TODO: The markups are placed inverted? Please check and correct, you might nee to reverse the y-axis or whatever.
+
 
 // Add to menu
 
@@ -191,8 +191,8 @@ Function/WAVE MXP_LoadSingleDATFile(string datafile, string FileNameStr, [int sk
 		timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
 		variable MetadataStart = MXPFileHeader.size + ImageHeaderSize
 		string mdatastr = datafile + "\n"
-		mdatastr += "Time stamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
-		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(datafile, MetadataStart, ImageDataStart)
+		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
+		mdatastr += MXP_StrGetAllMetadataInfoFromDAT(datafile, MetadataStart, ImageDataStart)
 	endif
 	
 	// Add image markups if any
@@ -257,12 +257,19 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 			else
 				FBinRead/F=4 numRef, buffer // drop the rest
 			endif
-			
 		elseif(buffer == 100)
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += "X(mm):" + num2str(buffer) + "\n"
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += "Y(mm):" + num2str(buffer) + "\n"
+		// added to be in line with Uwe's suggestions. Does not have any effect
+		elseif(buffer == 101)
+			FReadLine /T=(num2char(0)) numRef, strbuffer // old entry, drop
+		elseif(buffer == 102)
+			FBinRead/F=4 numRef, buffer // old entry, drop
+		elseif(buffer == 103)
+			FBinRead/F=4 numRef, buffer // old entry, drop
+		//	Remove 101, 102, 103 cases if you see abnormal behaviour		
 		elseif(buffer == 104)
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += "CamExp(s):" + num2str(buffer) + "\n"
@@ -274,43 +281,41 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 				MXPMetaDataStr += "CamMode: Sliding average\n"
 			else
 				MXPMetaDataStr += "Average images: " + num2str(buffer) + "\n"
-			endif
-						
+			endif				
 		elseif(buffer == 105)
 			FReadLine/T=(num2char(0)) numRef, strbuffer // drop title
-		elseif(buffer == 106) // C1G1
-			FReadLine /T=(num2char(0)) numRef, strbuffer 
+		elseif(buffer == 106) // C1G1 - MCH
+			FReadLine/T=(num2char(0)) numRef, strbuffer 
 			MXPMetaDataStr += "MCH" // MAXPEEM naming conversion
-			FReadLine /T=(num2char(0)) numRef, strbuffer
-			MXPMetaDataStr += "(" + strbuffer + "):"
+			FReadLine/T=(num2char(0)) numRef, strbuffer
+			MXPMetaDataStr += "(" + RemoveEnding(strbuffer) + "):" // Remove trailing 0x00
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += num2str(buffer) + "\n"
-		elseif(buffer == 107) // C1G2
-			FReadLine /T=(num2char(0)) numRef, strbuffer
+		elseif(buffer == 107) // C1G2 - COL
+			FReadLine/T=(num2char(0)) numRef, strbuffer
 			MXPMetaDataStr += "COL" // MAXPEEM naming conversion
-			FReadLine /T=(num2char(0)) numRef, strbuffer
-			MXPMetaDataStr += "(" + strbuffer + "):"
+			FReadLine/T=(num2char(0)) numRef, strbuffer
+			MXPMetaDataStr += "(" + RemoveEnding(strbuffer) + "):"
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += num2str(buffer) + "\n"
 		elseif(buffer == 108) // C2G1 not used at MAXPEEM
-			FReadLine /T=(num2char(0)) numRef, strbuffer
-			//MXPMetaDataStr += strbuffer
-			FReadLine /T=(num2char(0)) numRef, strbuffer
-			//MXPMetaDataStr += "(" + strbuffer + "):"
+			FReadLine/T=(num2char(0)) numRef, strbuffer 
+			//MXPMetaDataStr += "MCH" // MAXPEEM naming conversion
+			FReadLine/T=(num2char(0)) numRef, strbuffer
+			//MXPMetaDataStr += "(" + RemoveEnding(strbuffer) + "):"
 			FBinRead/F=4 numRef, buffer
 			//MXPMetaDataStr += num2str(buffer) + "\n"
-		elseif(buffer == 109) // C2G1
+		elseif(buffer == 109) // C2G1 - PCH
 			FReadLine /T=(num2char(0)) numRef, strbuffer
 			MXPMetaDataStr += "PCH" // MAXPEEM naming conversion
 			FReadLine /T=(num2char(0)) numRef, strbuffer
-			MXPMetaDataStr += "(" + strbuffer + "):"
+			MXPMetaDataStr += "(" + RemoveEnding(strbuffer) + "):"
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += num2str(buffer) + "\n"
 		elseif(buffer == 110)
-			FReadLine /T=(num2char(09))/ENCG={3,3,1} numRef, strbuffer // ascii tab = 09
+			FReadLine /T=(num2char(0))/ENCG={3,3,1} numRef, strbuffer // TODO: Fix the trailing tab and zeros!
+			MXPMetaDataStr += "FOV:" + strbuffer + ";"
 			FBinRead/F=4 numRef, buffer // drop FOV calculation factor
-			MXPMetaDataStr += "FOV:" + strbuffer + "\n"
-			FReadLine /T=(num2char(0)) numRef, strbuffer // read until you hit num2char(0)
 		elseif(buffer == 111) //drop
 			FBinRead/F=4 numRef, buffer // phi
 			FBinRead/F=4 numRef, buffer // theta
@@ -330,7 +335,7 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 		FGetPos numRef
 	while (V_filePos < MetadataEndPos)
 	
-	return MXPMetaDataStr
+	return MXPMetaDataStr//ConvertTextEncoding(MXPMetaDataStr, 1, 1, 3, 2)
 End
 
 Function/S MXP_StrGetImageMarkups(string filename)
@@ -373,7 +378,7 @@ Function/S MXP_StrGetImageMarkups(string filename)
 		variable markup_type
 		variable markup_lsize
 		string markup_text
-		string markupsList = ""
+		string markupsList = "Markups:"
 		string markupsString = ""
 		
 		FSetPos refNum, FilePos
@@ -397,13 +402,14 @@ Function/S MXP_StrGetImageMarkups(string filename)
 				FBinRead /F=2 refNum, readValue // always 0800
 				FReadLine /T=(num2char(0)) refNum, markup_text
 				
-				sprintf markupsString,"Markups: %u,%u,%u,%u,%u,%u,%u,%u,%s;",markup_x, markup_y, markup_radius, markup_color_R, markup_color_G, markup_color_B, markup_type, markup_lSize, markup_text
+				sprintf markupsString,"%u,%u,%u,%u,%u,%u,%u,%u,%s~",markup_x, markup_y, markup_radius, markup_color_R, markup_color_G, markup_color_B, markup_type, markup_lSize, markup_text
 				markupsList += markupsString
 			endif
 		while (marker != 0)
 	endif
-	
 	Close refNum
+	
+	markupsList = RemoveEnding(markupsList) + ";" // Replace the last tidle with a semicolon
 	return markupsList
 End
 
@@ -520,6 +526,7 @@ Function MXP_LoadMultiplyDATFiles(string datafile, [string filenames, int skipme
 
 End
 
+// TODO : Do we need to flip the image 
 Function MXP_AppendMarkupsToTopImage()
 	/// Draw the markups on an image display (drawn on the UserFront layer)
 	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
@@ -529,6 +536,7 @@ Function MXP_AppendMarkupsToTopImage()
 	string graphName = WinName(0, 1)
 	// Newlines and line feeds create problems with StringByKey, replace with ;
 	string markupsList = StringByKey("Markups", ReplaceString("\n",note(w), ";"))
+	
 	variable markup_x
 	variable markup_y
 	variable markup_radius
@@ -552,8 +560,8 @@ Function MXP_AppendMarkupsToTopImage()
 		xAxis = "top"
 	endif
 	
-	for(ii = 0; ii < ItemsInList(markupsList, ";"); ii++)
-		markup = StringFromList(ii, markupsList, ";")
+	for(ii = 0; ii < ItemsInList(markupsList, "~"); ii++)
+		markup = StringFromList(ii, markupsList, "~")
 		markup_x = str2num(StringFromList(0, markup, ","))
 		markup_y = str2num(StringFromList(1, markup, ","))
 		markup_radius = str2num(StringFromList(2, markup, ","))
@@ -570,7 +578,6 @@ Function MXP_AppendMarkupsToTopImage()
 	
 End
 
-// TODO: Fix this fuction
 Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataStartPos, variable MetadataEndPos)
 	// Read all metadata from a .dat file. Most metadata are stored in the form
 	// tag (units): values, so it's easy to parse using the StringByKey function.
@@ -642,13 +649,22 @@ Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataSt
 					break
 			endswitch
 			FBinRead/F=4 numRef, buffer
-			MXPMetaDataStr += ":" + num2str(buffer) + ";"
-			
+			if(strlen(nametag)) // there is a zero nametag! Exclude it
+				MXPMetaDataStr += ":" + num2str(buffer) + ";"
+			endif
 		elseif(buffer == 100)
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += "X(mm):" + num2str(buffer) + ";"
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += "Y(mm):" + num2str(buffer) + ";"
+		// added to be in line with Uwe's suggestions. Does not have any effect
+		elseif(buffer == 101)
+			FReadLine /T=(num2char(0)) numRef, strbuffer
+		elseif(buffer == 102)
+			FBinRead/F=4 numRef, buffer
+		elseif(buffer == 103)
+			FBinRead/F=4 numRef, buffer
+		//	Remove 101, 102, 103 cases if you see abnormal behaviour
 		elseif(buffer == 104)
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += "CamExp(s):" + num2str(buffer) + ";"
@@ -660,11 +676,10 @@ Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataSt
 				MXPMetaDataStr += "CamMode: Sliding average\n"
 			else
 				MXPMetaDataStr += "Average images: " + num2str(buffer) + ";"
-			endif
-						
+			endif			
 		elseif(buffer == 105)
 			FReadLine/T=(num2char(0)) numRef, strbuffer // drop title
-		elseif(buffer == 106) // C1G1				// TODO: Fix the name of gauges for MAXPEEM
+		elseif(buffer == 106) // C1G1
 			FReadLine /T=(num2char(0)) numRef, strbuffer 
 			MXPMetaDataStr += strbuffer
 			FReadLine /T=(num2char(0)) numRef, strbuffer
@@ -693,10 +708,9 @@ Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataSt
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += num2str(buffer) + ";"
 		elseif(buffer == 110)
-			FReadLine /T=(num2char(09))/ENCG={3,3,1} numRef, strbuffer // ascii tab = 09
-			FBinRead/F=4 numRef, buffer // drop FOV calculation factor
+			FReadLine /T=(num2char(0))/ENCG={3,3,1} numRef, strbuffer
 			MXPMetaDataStr += "FOV:" + strbuffer + ";"
-			FReadLine /T=(num2char(0)) numRef, strbuffer // read until you hit num2char(0)
+			FBinRead/F=4 numRef, buffer // drop FOV calculation factor
 		elseif(buffer == 111) //drop
 			FBinRead/F=4 numRef, buffer // phi
 			FBinRead/F=4 numRef, buffer // theta
