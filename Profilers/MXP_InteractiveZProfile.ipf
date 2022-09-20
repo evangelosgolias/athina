@@ -48,7 +48,7 @@ Function MXP_InitialiseZProfilerFolder()
 	if(stringmatch(AxisList(winNameStr),"*bottom*")) // Check if you have a NewImage left;top axes
 		sprintf msg, "Reopen as Newimage %s", imgNameTopWindowStr
 		KillWindow $winNameStr
-		NewImage/N=$winNameStr w3dref
+		NewImage/K=1/N=$winNameStr w3dref
 		ModifyGraph/W=$winNameStr width={Plan,1,top,left}
 	endif
 	
@@ -76,7 +76,9 @@ Function MXP_InitialiseZProfilerFolder()
 	string/G dfr:gMXP_w3dNameStr = NameOfWave(w3dref)
 	variable/G dfr:gMXP_ROI_dx = dx
 	variable/G dfr:gMXP_ROI_dy = dy
-	variable/G dfr:MXP_DoPlotSwitch
+	variable/G dfr:gMXP_DoPlotSwitch = 0
+	variable/G dfr:gMXP_colorcnt = 0
+
 End
 
 Function MXP_InitialiseZProfilerGraph()
@@ -137,9 +139,8 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 		case 2: // Kill the window
 			KillWaves/Z M_ROIMask
 			KillWindow/Z ZLineProfilesPlot
-			KillWindow/Z MXP_ZBeamProfilePanel
-			KillWaves/Z dfr:$LineProfileWaveStr // Cleanup
-			Killvariables/Z dfr:DoPlotSwitch
+			KillWindow/Z MXP_ZBeamLineProfilePanel
+			MXP_CleanGlobalWavesVarAndStrInFolder(dfr)
 			hookresult = 1
 			break
         case 7: // cursor moved
@@ -148,7 +149,7 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 							 axisxlen * 0.5 + s.pointNumber * dx, -(axisylen * 0.5) + s.yPointNumber * dy)
 			ImageGenerateROIMask $w3dNameStr // Here we need name of a wave, not a wave reference!
 			if(WaveExists(M_ROIMask))
-				MatrixOP/FREE/O/NTHR=2 buffer = sum(w3d*M_ROIMask) // Use two threads
+				MatrixOP/FREE/O/NTHR=0 buffer = sum(w3d*M_ROIMask) // Use two threads
 		   	 	MatrixOP/FREE/O profile_free = beam(buffer,0,0)
 		    		profile = profile_free
 		    endif
@@ -169,15 +170,14 @@ Function MXP_CreateProfilePanel()
 	NewPanel/N=MXP_ZBeamLineProfilePanel /W=(580,53,995,316) // Linked to MXPInitializeAreaIntegrationProfiler()
 	ModifyPanel cbRGB=(61166,61166,61166), frameStyle=3
 	SetDrawLayer UserBack
-	Button SaveProfileButton,pos={220.00,10.00},size={80.00,20.00},proc=MXP_SaveProfilePanel,title="Save Profile"
-	Button SaveProfileButton,help={"Save current profile"}
-	Button SaveProfileButton,valueColor=(1,12815,52428)
-	Button ShowCursorALayer,pos={28.00,10.00},size={80.00,20.00},proc=MXP_PanelShowCursorALayerAction,title="Layer <- A"
-	Button ShowCursorALayer,help={"Set cursor from layer n"},valueColor=(0,26214,13293)
-	CheckBox ShowProfile,pos={310.00,12.00},side=1,size={70.00,16.00},proc=MXP_ProfilePanelCheckbox,title="Plot profiles"
-	CheckBox ShowProfile,fSize=12,value= 0
-	Button ShowLayerCursorA,pos={122.00,10.00},size={80.00,20.00},proc=MXP_PanelShowLayerCursorAAction,title="Layer -> A"
-	Button ShowLayerCursorA,help={"Set layer from cursor A"},valueColor=(65535,0,0)
+	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveProfilePanel, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
+	CheckBox ShowProfile, pos={150.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ProfilePanelCheckbox,title="Plot profiles ", fSize=14, value= 0
+	CheckBox ShowSelectedAread, pos={270.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ProfilePanelCheckbox,title="Mark areas ", fSize=14, value= 0
+
+	//Button ShowCursorALayer,pos={28.00,10.00},size={80.00,20.00},proc=MXP_PanelShowCursorALayerAction,title="Layer <- A"
+	//Button ShowCursorALayer,help={"Set cursor from layer n"},valueColor=(0,26214,13293)
+	//Button ShowLayerCursorA,pos={122.00,10.00},size={80.00,20.00},proc=MXP_PanelShowLayerCursorAAction,title="Layer -> A"
+	//Button ShowLayerCursorA,help={"Set layer from cursor A"},valueColor=(65535,0,0)
 
 	DFREF dfr = root:Packages:MXP_datafldr:ZBeamProfiles
 	SVAR/SDFR=dfr gMXP_LineProfileWaveStr
@@ -205,15 +205,18 @@ Function MXP_SaveProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 	SVAR/Z w3dNameStr = dfr:gMXP_w3dNameStr
 	SVAR/Z w3dPath = dfr:gMXP_w3dPath
 	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
-	NVAR DoPlotSwitch = dfr:MXP_DoPlotSwitch
+	NVAR/Z DoPlotSwitch = dfr:gMXP_DoPlotSwitch
+	NVAR/Z colorcnt = dfr:gMXP_colorcnt
 	DFREF savedfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles:SavedProfiles")
+	
 	variable postfix = 0
+	variable red, green, blue
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			do
 				string saveWaveNameStr = w3dNameStr + "_prof" + num2str(postfix)
 				if(WaveExists(savedfr:$saveWaveNameStr) == 1)
-					postfix += 1
+					postfix++
 				else
 					Duplicate dfr:$LineProfileWaveStr, savedfr:$saveWaveNameStr
 							
@@ -221,10 +224,16 @@ Function MXP_SaveProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 					if(DoPlotSwitch)
 						if(WinType("MXP_LineProfileGraph") == 1)
 							AppendToGraph/W=MXP_LineProfileGraph savedfr:$saveWaveNameStr
+							[red, green, blue] = MXP_GetColor(colorcnt)
+							Modifygraph/W=MXP_LineProfileGraph rgb($saveWaveNameStr) = (red, green, blue)
+							colorcnt += 1 // i++ does not work with globals?
 						else
 							Display/N=MXP_LineProfileGraph savedfr:$saveWaveNameStr
+							[red, green, blue] = MXP_GetColor(colorcnt)
+							Modifygraph/W=MXP_LineProfileGraph rgb($saveWaveNameStr) = (red, green, blue)
 							AutopositionWindow/R=MXP_ZBeamLineProfilePanel MXP_LineProfileGraph
 							DoWindow/F MXP_LineProfileGraph
+							colorcnt += 1
 						endif
 					endif
 				break
@@ -235,45 +244,48 @@ Function MXP_SaveProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 	endswitch
 End
 
-Function MXP_PanelShowCursorALayerAction(STRUCT WMButtonAction &B_Struct): ButtonControl
-	/// 
-	DFREF dfr =root:Packages:MXP_datafldr:ZBeamProfiles
-	SVAR/Z w3dNameStr = dfr:gMXP_w3dNameStr
-	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
-	
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:
-			variable num = pcsr(A, "MXP_ZBeamLineProfilePanel#MXP_ZLineProfilesPlot")
-			if(numtype(num)!=2) // if pcsr returns NaN
-				ModifyImage/W=$WindowNameStr $w3dNameStr plane = num
-				variable/G dfr:gMXP_selectedZLayer = num
-			else
-				print "Cursor A not in graph"
-			endif
-		break
-	endswitch
-End
-
-
-Function MXP_PanelShowLayerCursorAAction(STRUCT WMButtonAction &B_Struct): ButtonControl
-	///
-	DFREF dfr =root:Packages:MXP_datafldr:ZBeamProfiles
-	SVAR/Z LineProfileWaveStr = dfr:gMXP_LineProfileWaveStr
-	NVAR/Z selectedZLayer = dfr:gMXP_selectedZLayer
-
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:
-			Cursor/W=MXP_ZBeamLineProfilePanel#MXP_ZLineProfilesPlot /P A $LineProfileWaveStr selectedZLayer
-		break
-	endswitch
-End
-End
+// 20.09.2022 Remove the two buttons below. Not very useful.
+//Function MXP_PanelShowCursorALayerAction(STRUCT WMButtonAction &B_Struct): ButtonControl
+//	/// 
+//	DFREF dfr =root:Packages:MXP_datafldr:ZBeamProfiles
+//	SVAR/Z w3dNameStr = dfr:gMXP_w3dNameStr
+//	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
+//	
+//	switch(B_Struct.eventCode)	// numeric switch
+//		case 2:
+//			variable num = pcsr(A, "MXP_ZBeamLineProfilePanel#MXP_ZLineProfilesPlot")
+//			if(numtype(num)!=2) // if pcsr returns NaN
+//				DoWindow/F $WindowNameStr // Make the window the top graph
+//				ModifyImage/W=$WindowNameStr $w3dNameStr plane = num
+//				variable/G dfr:gMXP_selectedZLayer = num
+//			else
+//				print "Cursor A not in graph"
+//			endif
+//		break
+//	endswitch
+//End
+//
+//
+//Function MXP_PanelShowLayerCursorAAction(STRUCT WMButtonAction &B_Struct): ButtonControl
+//	///
+//	DFREF dfr =root:Packages:MXP_datafldr:ZBeamProfiles
+//	SVAR/Z LineProfileWaveStr = dfr:gMXP_LineProfileWaveStr
+//	NVAR/Z selectedZLayer = dfr:gMXP_selectedZLayer
+//
+//	switch(B_Struct.eventCode)	// numeric switch
+//		case 2:
+//			DoWindow/W=MXP_ZBeamLineProfilePanel/F MXP_ZLineProfilesPlot
+//			Cursor/W=MXP_ZBeamLineProfilePanel#MXP_ZLineProfilesPlot /P A $LineProfileWaveStr selectedZLayer
+//		break
+//	endswitch
+//End
+//End
 
 
 Function MXP_ProfilePanelCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles")
-	NVAR/Z DoPlotSwitch = dfr:MXP_DoPlotSwitch
+	NVAR/Z DoPlotSwitch = dfr:gMXP_DoPlotSwitch
 	switch(cb.checked)
 		case 1:		// Mouse up
 			DoPlotSwitch = 1
@@ -284,6 +296,85 @@ Function MXP_ProfilePanelCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	endswitch
 
 	return 0
+End
+
+Function [variable red, variable green, variable blue] MXP_GetColor(variable colorIndex)
+	/// Give a RGB triplet for 16 distinct colors.
+	/// https://www.wavemetrics.com/forum/general/different-colors-different-waves
+    colorIndex = mod(colorIndex, 16)          // Wrap around if necessary
+    switch(colorIndex)
+        case 0:     // Time wave
+            red = 0; green = 0; blue = 0;                               // Black
+            break           
+        case 1:
+            red = 65535; green = 16385; blue = 16385;           // Red
+            break           
+        case 2:
+            red = 2; green = 39321; blue = 1;                       // Green
+            break          
+        case 3:
+            red = 0; green = 0; blue = 65535;                       // Blue
+            break
+        case 4:
+            red = 39321; green = 1; blue = 31457;                   // Purple
+            break
+        case 5:
+            red = 39321; green = 39321; blue = 39321;           // Gray
+            break
+        case 6:
+            red = 65535; green = 32768; blue = 32768;           // Salmon
+            break
+        case 7:
+            red = 0; green = 65535; blue = 0;                       // Lime
+            break
+        case 8:
+            red = 16385; green = 65535; blue = 65535;           // Turquoise
+            break
+        case 9:
+            red = 65535; green = 32768; blue = 58981;           // Light purple
+            break
+        case 10:
+            red = 39321; green = 26208; blue = 1;                   // Brown
+            break
+        case 11:
+            red = 52428; green = 34958; blue = 1;                   // Light brown
+            break
+        case 12:
+            red = 65535; green = 32764; blue = 16385;           // Orange
+            break
+        case 13:
+            red = 1; green = 52428; blue = 26586;                   // Teal
+            break
+        case 14:
+            red = 1; green = 3; blue = 39321;                       // Dark blue
+            break
+        case 15:
+            red = 65535; green = 49151; blue = 55704;           // Pink
+            break
+    endswitch
+End
+
+Function MXP_CleanGlobalWavesVarAndStrInFolder(DFREF dfr)
+	/// Move from current working directory to dfr
+	/// kill all global variables and strings and 
+	/// return to the working directory
+	
+	DFREF cwd = GetDataFolderDFR()
+	SetDataFolder dfr
+	KillWaves/A
+	KillVariables/A
+	KillStrings/A
+	SetDataFolder cwd
+End
+
+
+
+Function testit()
+	variable red, green, blue	
+	[red, green, blue] = IE_GetColor(12)
+	print red, green, blue
+	[red, green, blue] = IE_GetColor(7)
+	print red, green, blue
 End
 
 
