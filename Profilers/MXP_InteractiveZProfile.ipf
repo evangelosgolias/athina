@@ -9,13 +9,79 @@
 #include "::Utilities:MXP_FolderOperations"
 #include "::Plots and Graphs:MXP_Colors"
 
+
+
+/// TODO: 1 Add wname to metadata.
+/// 	    Function to redraw selected curves from browser to the image
+///		  2 Mark areas does not work
+///			
+
 Menu "GraphMarquee"
-	"Draw ROI", GetMarquee/K left,top; MXP_DrawImageROICursor(V_left, V_top, V_right, V_bottom)
+	"ROI z-profile", GetMarquee/K left,top; MXP_DrawImageROICursor(V_left, V_top, V_right, V_bottom)
 End
 
-//Menu "DataBrowserObjectsPopup", dynamic
-//	"Tag", FunctionCall()
-//End
+Menu "MAXPEEM"
+	Submenu "Profilers"
+		"z-profiler", MXP_MainMenuMLaunchZBeamProfiler()
+	End
+End
+Menu "DataBrowserObjectsPopup"
+	Submenu "MAXPEEM"
+		"Launch z-profiler", MXP_DBMLaunchZBeamProfiler()
+	End
+End
+
+Function MXP_MainMenuMLaunchZBeamProfiler()
+
+	// Create the modal data browser but do not display it
+	CreateBrowser/M prompt="Select a 3d wave to start the z-profiler:"
+	// Show waves but not variables in the modal data browser
+	ModifyBrowser/M showWaves=1, showVars=0, showStrs=0
+	// Set the modal data browser to sort by name 
+	ModifyBrowser/M sort=1, showWaves=1, showVars=0, showStrs=0
+	// Hide the info and plot panes in the modal data browser 
+	ModifyBrowser/M showInfo=0, showPlot=1
+	// Display the modal data browser, allowing the user to make a selection
+	ModifyBrowser/M showModalBrowser
+
+	if (V_Flag == 0)
+		return 0			// User cancelled
+	endif
+	// User selected a wave, check if it's 3d
+	string browserSelection = StringFromList(0, S_BrowserList)
+	Wave selected3DWave = $browserSelection
+	if(exists(browserSelection) && WaveDims(selected3DWave) == 3) // if it is a 3d wave
+		CheckDisplayed/A $browserSelection
+		if(V_flag)
+			print "Wave already displayed, now at FG"
+		else
+			NewImage/K=1 selected3DWave
+		endif
+		MXP_InitialiseZProfilerFolder()
+		MXP_InitialiseZProfilerGraph()
+		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles") // Change root folder if you want
+		SVAR winNameStr = dfr:gMXP_WindowNameStr
+		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
+	endif
+End
+
+Function MXP_DBMLaunchZBeamProfiler() // Launcher from DataBrowser menu
+		string browserSelection = GetBrowserSelection(0) // pick up the first object, no special error if more than one are selected
+		Wave selected3DWave = $browserSelection
+		if(exists(browserSelection) && WaveDims(selected3DWave) == 3) // if it is a 3d wave
+			CheckDisplayed/A $browserSelection
+			if(V_flag)
+				print "Wave already displayed, now at FG"
+			else
+				NewImage/K=1 selected3DWave
+			endif
+		MXP_InitialiseZProfilerFolder()
+		MXP_InitialiseZProfilerGraph()
+		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles") // Change root folder if you want
+		SVAR winNameStr = dfr:gMXP_WindowNameStr
+		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
+		endif
+End
 
 Function MXP_InitialiseZProfilerFolder()
 	/// All initialisation happens here. Folders, waves and local/global variables
@@ -138,7 +204,7 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
         	DrawAction delete
 			MXP_DrawImageROICursor(-axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
 							 axisxlen * 0.5 + s.pointNumber * dx, -(axisylen * 0.5) + s.yPointNumber * dy)
-			// We need to update the values here if we want to redraw
+			// We need to update the values here if we want to redraw later
 			V_left = -axisxlen * 0.5 + s.pointNumber * dx
         	V_top = axisylen * 0.5 + s.yPointNumber * dy
         	V_right = axisxlen * 0.5 + s.pointNumber * dx
@@ -152,7 +218,6 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 		    hookresult = 1
 	 		break
         case 5: // mouse up
-        	// Updathe the V_ values to redraw the oval if needed
 			KillWaves/Z M_ROIMask // Cleanup		
 			hookresult = 1
 			break
@@ -224,7 +289,7 @@ Function MXP_SaveProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 							Modifygraph/W=MXP_LineProfileGraph rgb($saveWaveNameStr) = (red, green, blue)
 							colorcnt += 1 // i++ does not work with globals?
 						else
-							Display/N=MXP_LineProfileGraph savedfr:$saveWaveNameStr
+							Display/K=1/N=MXP_LineProfileGraph savedfr:$saveWaveNameStr
 							[red, green, blue] = MXP_GetColor(colorcnt)
 							Modifygraph/W=MXP_LineProfileGraph rgb($saveWaveNameStr) = (red, green, blue)
 							AutopositionWindow/R=MXP_ZBeamLineProfilePanel MXP_LineProfileGraph
@@ -234,18 +299,19 @@ Function MXP_SaveProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 					endif
 					
 					if(MarkAreasSwitch)
-						if(!DoPlotSwitch) // Have beed not set above?
+						if(!DoPlotSwitch)
 							[red, green, blue] = MXP_GetColor(colorcnt)
+							colorcnt += 1
 						endif
 						DoWindow/F $WindowNameStr
 						MXP_DrawImageROI(V_left, V_top, V_right, V_bottom, red, green, blue)
 						SetDrawLayer/W= $WindowNameStr ProgFront // Return to ProgFront
 					endif
-					
-				break
-				endif
+				break // Stop if you go through the else branch
+				endif	
 			while(1)
-		sprintf recreateDrawStr, "DrawCmd:DrawOval %f, %f, %f, %f;DrawEnv:SetDrawEnv xcoord= top, ycoord= left;", V_left, V_top, V_right, V_bottom
+		sprintf recreateDrawStr, "waveName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d),fillpat = 0,linethick = 0.5 xcoord= top,ycoord= left;" + \
+								 "DrawCmd:DrawOval %f, %f, %f, %f", w3dNameStr, red, green, blue, V_left, V_top, V_right, V_bottom
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
 		break
 	endswitch
