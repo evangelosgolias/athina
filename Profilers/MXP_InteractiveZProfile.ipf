@@ -16,13 +16,14 @@
 ///		  2 Mark areas does not work
 ///			
 
-Menu "GraphMarquee"
+Menu "GraphMarquee", dynamic
 	"ROI z-profile", GetMarquee/K left,top; MXP_DrawImageROICursor(V_left, V_top, V_right, V_bottom)
+	"Clear ROI markings", MXP_CleanROIMarkings()
 End
 
 Menu "MAXPEEM"
 	Submenu "Profilers"
-		"z-profiler", MXP_MainMenuMLaunchZBeamProfiler()
+		"z-profiler", MXP_MainMenuLaunchZBeamProfiler()
 	End
 End
 Menu "DataBrowserObjectsPopup"
@@ -31,7 +32,7 @@ Menu "DataBrowserObjectsPopup"
 	End
 End
 
-Function MXP_MainMenuMLaunchZBeamProfiler()
+Function MXP_MainMenuLaunchZBeamProfiler()
 
 	// Create the modal data browser but do not display it
 	CreateBrowser/M prompt="Select a 3d wave to start the z-profiler:"
@@ -118,7 +119,7 @@ Function MXP_InitialiseZProfilerFolder()
     variable z0 = DimOffset(w3dref, 2)
     
     
-	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles") // Change root folder if you wan
+	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles") // Root folder here
 	string zprofilestr = "wZLineProfilesPlot"//NameOfWave(w3dref) + "_Zprofile"
 	Make/O/N=(nlayers) dfr:$zprofilestr /Wave = profile // Store the line profile 
 	SetScale/P x, z0, dz, profile
@@ -158,8 +159,12 @@ End
 
 Function MXP_DrawImageROICursor(variable left, variable top, variable right, variable bottom) // Function used by the hook
 	/// Here we use ProgFront to get a mask from ImageGenerateROIMask
-
+	
 	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine
+	string winNameStr = WinName(0, 1, 1)
+	// Have you closed the Z profiler window? If yes relaunch it.
+	MXP_InitialiseZProfilerGraph()
+	DoWindow/F $winNameStr // You need to have your imange stack as a top window
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 0.5, xcoord = top, ycoord = left
 	DrawOval left, top, right, bottom
@@ -172,10 +177,15 @@ Function MXP_DrawImageROI(variable left, variable top, variable right, variable 
 	DrawOval left, top, right, bottom
 End
 
+Function MXP_CleanROIMarkings()
+	SetDrawLayer UserFront
+	DrawAction delete
+End
+
 Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	    
-    Variable hookResult = 0
+    variable hookResult = 0
 	DFREF dfr = root:Packages:MXP_datafldr:ZBeamProfiles
 	NVAR/Z V_left, V_top, V_right, V_bottom
 	NVAR/Z dx = dfr:gMXP_ROI_dx
@@ -195,10 +205,10 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
     switch(s.eventCode)
 		case 2: // Kill the window
 			KillWaves/Z M_ROIMask
-			KillWindow/Z ZLineProfilesPlot
 			KillWindow/Z MXP_ZBeamLineProfilePanel
+			KillWindow/Z MXP_LineProfileGraph
 			MXP_CleanGlobalWavesVarAndStrInFolder(dfr)
-			hookresult = 1
+			//hookresult = 1
 			break
         case 7: // cursor moved
         	DrawAction delete
@@ -215,11 +225,11 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 		   	 	MatrixOP/FREE/O profile_free = beam(buffer,0,0) 
 		    		profile = profile_free
 		    endif
-		    hookresult = 1
+		    //hookresult = 1	// TODO: Return 0 here, i.e delete line?
 	 		break
         case 5: // mouse up
 			KillWaves/Z M_ROIMask // Cleanup		
-			hookresult = 1
+			//hookresult = 1
 			break
     endswitch
     return hookResult       // 0 if nothing done, else 1
@@ -350,181 +360,3 @@ Function MXP_ProfilePanelCheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : CheckB
 
 	return 0
 End
-
-// 20.09.2022 Remove the two buttons below. Not very useful.
-//Function MXP_PanelShowCursorALayerAction(STRUCT WMButtonAction &B_Struct): ButtonControl
-//	/// 
-//	DFREF dfr =root:Packages:MXP_datafldr:ZBeamProfiles
-//	SVAR/Z w3dNameStr = dfr:gMXP_w3dNameStr
-//	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
-//	
-//	switch(B_Struct.eventCode)	// numeric switch
-//		case 2:
-//			variable num = pcsr(A, "MXP_ZBeamLineProfilePanel#MXP_ZLineProfilesPlot")
-//			if(numtype(num)!=2) // if pcsr returns NaN
-//				DoWindow/F $WindowNameStr // Make the window the top graph
-//				ModifyImage/W=$WindowNameStr $w3dNameStr plane = num
-//				variable/G dfr:gMXP_selectedZLayer = num
-//			else
-//				print "Cursor A not in graph"
-//			endif
-//		break
-//	endswitch
-//End
-//
-//
-//Function MXP_PanelShowLayerCursorAAction(STRUCT WMButtonAction &B_Struct): ButtonControl
-//	///
-//	DFREF dfr =root:Packages:MXP_datafldr:ZBeamProfiles
-//	SVAR/Z LineProfileWaveStr = dfr:gMXP_LineProfileWaveStr
-//	NVAR/Z selectedZLayer = dfr:gMXP_selectedZLayer
-//
-//	switch(B_Struct.eventCode)	// numeric switch
-//		case 2:
-//			DoWindow/W=MXP_ZBeamLineProfilePanel/F MXP_ZLineProfilesPlot
-//			Cursor/W=MXP_ZBeamLineProfilePanel#MXP_ZLineProfilesPlot /P A $LineProfileWaveStr selectedZLayer
-//		break
-//	endswitch
-//End
-//End
-
-///// 19.09.2022 N.B: I haven't checkt the code below
-//===============================================================
-//
-// Functions to get multiple ROI using the drawing tools.
-// Operation acts on the top window. We use the same
-// window to plot the resulting profile (MXPCreateProfilePanel).
-//
-//===============================================================
-
-//Function MXPAreaProfileFromManyROI()
-//
-//	DoWindow MXPWave3DStackViewer
-//	// If Window has not been yet created
-//	if (V_flag == 0)
-//		//MXPInitializeAreaIntegrationProfiler()
-//	endif
-//	DoWindow/F MXPWave3DStackViewer // Bring the windows to the foreground, important for the commands that follow!
-//	SetDrawLayer ProgFront // ImageGenerateROIMask needs this layer
-//	SetDrawEnv linefgc= (65535,0,0),fillpat= 0, linethick = 0.5, xcoord= top,ycoord= left, save
-//	String graphName = WinName(0,1) // Name of the top graph window
-//	MXPUserDrawElements(graphName)
-//End
-
-
-Function MXP_UserDrawElements(string graphName)
-
-	DoWindow/F $graphName			// Bring graph to front
-	
-	if (V_Flag == 0)					// Verify that graph exists
-		Abort "MXPUserDrawElements: No such graph."
-		return -1
-	endif
-	Cursor/K J	//Removes cursor J from top graph
-	
-	ShowTools/A 	// Added for MXPAreaProfileFromManyROI()
-	
-	NewDataFolder/O root:tmp_PauseforDrawingDF
-	Variable/G root:tmp_PauseforDrawingDF:canceled= 0
-
-	NewPanel/K=2 /W=(139,341,382,450) as "Pause to draw elements"
-	DoWindow/C tmp_PauseforDrawing			// Set to an unlikely name
-	AutoPositionWindow/E/M=1/R=$graphName			// Put panel near the graph
-	
-	String wname = WaveName(graphName, 0, 1)
-	Struct WMButtonAction B_Struct
-
-	//Name of the image in graphName
-	String imgName = StringFromList(0,ImageNameList(graphName,";"))
-	
-	DrawText 5,20,"=== Draw ROI and then press Continue ==="
-	Button button0,pos={80,30},size={92,20},title="Continue"
-	Button button0,proc=MXPUserDrawElements_ContButtonProc,userdata=imgName
-	Button button1,pos={80,55},size={92,20}
-	Button button1,proc=MXPUserDrawElements_ClearButtonProc,userdata=graphName,title="Clear"
-	Button button2,pos={80,80},size={92,20}
-	Button button2,proc=MXPUserDrawElements_CancelButtonProc,title="Cancel"
-	
-	PauseForUser tmp_PauseforDrawing,$graphName
-
-	NVAR gCanceled= root:tmp_PauseforDrawingDF:canceled
-	Variable canceled= gCanceled			// Copy from global to local before global is killed
-	KillDataFolder root:tmp_PauseforDrawingDF
-	
-	HideTools/A  // Added for MXPAreaProfileFromManyROI()
-	
-	return canceled 
-End
-
-Function MXP_UserDrawElements_ContButtonProc(B_Struct) : ButtonControl
-	STRUCT WMButtonAction &B_Struct
-	
-	SVAR profilestr = root:Packages:MXP3DImageProfiles:MXPAreaLineProfile // Name of the line profile
-
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:
-				Wave M_ROIMask, W_PolyX, W_PolyY
-				Wave w3d = $("root:Packages:MXP3DImageProfiles:" + B_Struct.userdata)
-	 			Wave profile = $("root:Packages:MXP3DImageProfiles:" + profilestr)
-	 			Wave buffer = root:Packages:MXP3DImageProfiles:TempMXPMatrixOPBuffer_del
-		  		ImageGenerateROIMask/W=MXPWave3DStackViewer $B_Struct.userdata
-		     	MatrixOP/O buffer = sum(w3d * M_ROIMask)
-		     	MatrixOP/O profile = beam(buffer, 0 ,0)
-		      // Save the regions used to get the profile
-		      // See: MXP_DrawImageROICursor() for an important connection 
-		      // with this function. There, both waves have to get
-		      // killed (W_PolyX & W_PolyY) as the save routine will
-		      // associate a profile to multiply regions when it is called
-		      // and W_PolyX & W_PolyY are in the folder.
-		      
-		      // TODO: Change here to allow for literal wave names
-				String name_suffix
-				Prompt name_suffix, "Give suffix for W_PolyX(Y)_SUFFIX"	
-				DoPrompt "Enter SUFFIX ([a-z0-9_]):", name_suffix
-				String w_polyXstr = "W_PolyX_" + name_suffix
-				String w_polyYstr = "W_PolyY_" + name_suffix
-				String ROIMask_str = "ROIMask_" + name_suffix
-
-		      DrawAction/W=MXPWave3DStackViewer ExtractOutline
-		      if (WaveExists(W_PolyX) && WaveExists(W_PolyY))
-					if (!WaveExists(root:Packages:MXP3DImageProfiles:SavedAreaProfiles:$ROIMask_str))
-			      	Duplicate W_PolyX, root:Packages:MXP3DImageProfiles:SavedAreaProfiles:$w_polyXstr
-			      	Duplicate W_PolyY, root:Packages:MXP3DImageProfiles:SavedAreaProfiles:$w_polyYstr
-			      	Duplicate M_ROIMask, root:Packages:MXP3DImageProfiles:SavedAreaProfiles:$ROIMask_str
-			      else
-			      	print "Wave names exists, enter another suffix"
-			      endif
-		      endif
-		      
-			DoWindow/K tmp_PauseforDrawing			// Kill self
-		break
-	endswitch
-End
-
-Function MXP_UserDrawElements_ClearButtonProc(B_Struct) : ButtonControl
-	STRUCT WMButtonAction &B_Struct
-	
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2: 
-		DoWindow/F $B_Struct.userdata
-		DrawAction/W=$B_Struct.userdata delete // Clear the window
-		// Set again the drawing env parameters.
-		SetDrawLayer ProgFront // ImageGenerateROIMask needs this layer
-		SetDrawEnv linefgc= (65535,0,0),fillpat= 0, linethick = 0.5, xcoord= top,ycoord= left, save
-		break
-	endswitch
-End
-
-Function MXP_UserDrawElements_CancelButtonProc(B_Struct) : ButtonControl
-	STRUCT WMButtonAction &B_Struct
-	
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:
-			Variable/G root:tmp_PauseforDrawingDF:canceled= 1
-			DoWindow/K tmp_PauseforDrawing			// Kill self
-		break
-	endswitch
-	
-End
-
-//========================================================
