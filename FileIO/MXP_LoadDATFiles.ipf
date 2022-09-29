@@ -192,7 +192,7 @@ Function/WAVE MXP_LoadSingleDATFile(string datafile, string FileNameStr, [int sk
 		variable MetadataStart = MXPFileHeader.size + ImageHeaderSize
 		string mdatastr = datafile + "\n"
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
-		mdatastr += MXP_StrGetAllMetadataInfoFromDAT(datafile, MetadataStart, ImageDataStart)
+		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(datafile, MetadataStart, ImageDataStart)
 	endif
 	
 	// Add image markups if any
@@ -314,7 +314,7 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 			MXPMetaDataStr += num2str(buffer) + "\n"
 		elseif(buffer == 110)
 			FReadLine /T=(num2char(0))/ENCG={3,3,1} numRef, strbuffer // TODO: Fix the trailing tab and zeros!
-			MXPMetaDataStr += "FOV:" + strbuffer + ";"
+			MXPMetaDataStr += "FOV:" + strbuffer + "\n"
 			FBinRead/F=4 numRef, buffer // drop FOV calculation factor
 		elseif(buffer == 111) //drop
 			FBinRead/F=4 numRef, buffer // phi
@@ -335,7 +335,7 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 		FGetPos numRef
 	while (V_filePos < MetadataEndPos)
 	
-	return MXPMetaDataStr//ConvertTextEncoding(MXPMetaDataStr, 1, 1, 3, 2)
+	return MXPMetaDataStr // ConvertTextEncoding(MXPMetaDataStr, 1, 1, 3, 2)
 End
 
 Function/S MXP_StrGetImageMarkups(string filename)
