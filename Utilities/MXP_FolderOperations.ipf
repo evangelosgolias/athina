@@ -27,6 +27,22 @@ Function WM_ZapDataInFolderTree(string path)
 	SetDataFolder saveDF 
 End
 
+Function MXP_ZapAllDataFoldersInPath(string path) 
+	/// Kills all data folders in path.
+
+	string saveDF = GetDataFolder(1) 
+	SetDataFolder path
+
+	variable numDataFolders = CountObjects(":", 4), i
+
+	for(i=0; i<numDataFolders; i+=1)
+		string nextPath = GetIndexedObjName(":", 4, i) 
+		KillDataFolder $nextPath 
+	endfor
+
+	SetDataFolder saveDF 
+End
+
 Function/DF MXP_CreateDataFolderGetDFREF(string fullpath)
 	/// Create a data folder using fullpath and return a DF reference. 
 	/// If parent directories do not exist they will be created.
@@ -133,6 +149,37 @@ Function MXP_CleanGlobalWavesVarAndStrInFolder(DFREF dfr)
 	KillVariables/A
 	KillStrings/A
 	SetDataFolder cwd
+End
+
+Function MXP_DeleteEverythingButSomeFolders(string baseFolderPattern, string keepFolders)
+	/// Delete waves and child folders in folders that match baseFolderPattern but keep keepFolders
+	/// @param folderPattern string match folders pattern
+	/// @param keepFolders string keepfolder list separated by ;
+	
+	DFREF dfr = GetDataFolderDFR()
+	variable numDataFolders = CountObjectsDFR(dfr, 4), numChildDataFolders, i, j
+	variable numFoldersToKeep = ItemsInList(keepFolders)
+	
+	string iterParentDataFolderStr, iterChildDataFolderStr
+	for(i = 0; i < numDataFolders; i++)
+		iterParentDataFolderStr = GetIndexedObjNameDFR(dfr, 4, i)
+		if(stringmatch(iterParentDataFolderStr, baseFolderPattern))
+			SetDataFolder dfr:$iterParentDataFolderStr
+			KillWaves/A
+			KillVariables/A
+			KillStrings/A
+			numChildDataFolders = CountObjectsDFR(dfr:$iterParentDataFolderStr, 4)
+			for(j = 0; j < numChildDataFolders; j++)
+				iterChildDataFolderStr = GetIndexedObjNameDFR(dfr:$iterParentDataFolderStr, 4, j)
+				if(FindListItem(iterChildDataFolderStr, keepFolders) == -1)
+					KillDataFolder/Z $iterChildDataFolderStr
+				endif
+			endfor
+			break
+		endif
+		//WM_ZapDataInFolderTree(nextPath) 
+	endfor
+	SetDataFolder dfr
 End
 
 // ----------------

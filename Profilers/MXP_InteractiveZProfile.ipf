@@ -16,19 +16,14 @@
 ///		  2 Mark areas does not work
 ///			
 
-Menu "GraphMarquee", dynamic
-	"ROI z-profile", GetMarquee/K left,top; MXP_DrawImageROICursor(V_left, V_top, V_right, V_bottom)
+Menu "GraphMarquee"
+	"ROI z-profile", GetMarquee/K left, top; MXP_DrawImageROICursor(V_left, V_top, V_right, V_bottom)
 	"Clear ROI markings", MXP_CleanROIMarkings()
 End
 
 Menu "MAXPEEM"
 	Submenu "Profilers"
 		"z-profiler", MXP_MainMenuLaunchZBeamProfiler()
-	End
-End
-Menu "DataBrowserObjectsPopup"
-	Submenu "MAXPEEM"
-		"Launch z-profiler", MXP_DBMLaunchZBeamProfiler()
 	End
 End
 
@@ -53,41 +48,21 @@ Function MXP_MainMenuLaunchZBeamProfiler()
 	Wave selected3DWave = $browserSelection
 	if(exists(browserSelection) && WaveDims(selected3DWave) == 3) // if it is a 3d wave
 		CheckDisplayed/A $browserSelection
-		if(V_flag)
-			print "Wave already displayed, now at FG"
-		else
-			NewImage/K=1 selected3DWave
-		endif
+		NewImage/K=1 selected3DWave
 		MXP_InitialiseZProfilerFolder()
 		MXP_InitialiseZProfilerGraph()
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles") // Change root folder if you want
 		SVAR winNameStr = dfr:gMXP_WindowNameStr
 		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
+	else
+		Abort "z-profiler need a 3d wave"
 	endif
-End
-
-Function MXP_DBMLaunchZBeamProfiler() // Launcher from DataBrowser menu
-		string browserSelection = GetBrowserSelection(0) // pick up the first object, no special error if more than one are selected
-		Wave selected3DWave = $browserSelection
-		if(exists(browserSelection) && WaveDims(selected3DWave) == 3) // if it is a 3d wave
-			CheckDisplayed/A $browserSelection
-			if(V_flag)
-				print "Wave already displayed, now at FG"
-			else
-				NewImage/K=1 selected3DWave
-			endif
-		MXP_InitialiseZProfilerFolder()
-		MXP_InitialiseZProfilerGraph()
-		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles") // Change root folder if you want
-		SVAR winNameStr = dfr:gMXP_WindowNameStr
-		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
-		endif
 End
 
 Function MXP_InitialiseZProfilerFolder()
 	/// All initialisation happens here. Folders, waves and local/global variables
-	/// needed are created here.
-	/// Use a a 3D wave in top window
+	/// needed are created here. Use the 3D wave in top window.
+
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopWindowStr = RemoveEnding(ImageNameList("", ";"))
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopWindowStr) // full path of wave
@@ -98,7 +73,7 @@ Function MXP_InitialiseZProfilerFolder()
 	endif
 	
 	if(WaveDims(w3dref) != 3)
-		sprintf msg, "Z-profiler works with 3d waves only. Wave %s is in top window", imgNameTopWindowStr
+		sprintf msg, "Z-profiler works with 3d waves only.  Wave %s is in top window", imgNameTopWindowStr
 		Abort msg
 	endif
 	
@@ -152,7 +127,8 @@ Function MXP_StartZProfiler()
 	MXP_InitialiseZProfilerFolder()
 	MXP_InitialiseZProfilerGraph()
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles") // Change root folder if you want
-	SVAR winNameStr = dfr:gMXP_WindowNameStr
+	SVAR winNameStr = dfr:gMXP_WindowNameStr // Does not work for multiply windows
+	//string winNameStr = WinName(0, 1, 1)
 	SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
 End
 
@@ -237,25 +213,27 @@ End
 
 
 Function MXP_CreateProfilePanel()
-	 
+	
+	DFREF dfr = root:Packages:MXP_datafldr:ZBeamProfiles
+	SVAR/Z/SDFR=dfr gMXP_LineProfileWaveStr
+	if(!SVAR_Exists(gMXP_LineProfileWaveStr))
+		Abort "Launch z-profiler from the main or data browser contexual menu."
+	endif
+		 
 	NewPanel/N=MXP_ZBeamLineProfilePanel /W=(580,53,995,316) // Linked to MXPInitializeAreaIntegrationProfiler()
 	ModifyPanel cbRGB=(61166,61166,61166), frameStyle=3
 	SetDrawLayer UserBack
 	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveProfilePanel, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
 	CheckBox ShowProfile, pos={150.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ProfilePanelCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 0
 	CheckBox ShowSelectedAread, pos={270.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ProfilePanelCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 0
-
-	DFREF dfr = root:Packages:MXP_datafldr:ZBeamProfiles
-	SVAR/SDFR=dfr gMXP_LineProfileWaveStr
 	Wave profile = dfr:$gMXP_LineProfileWaveStr
-	
 	if (WaveExists(profile))
 		Display/N=MXP_ZLineProfilesPlot/W=(15,38,391,236)/HOST=#  profile
 		ModifyGraph rgb=(1,12815,52428), tick(left)=2, fSize=12, lsize=1.5
 		Label left "\\u#2 Intensity (arb. u.)";DelayUpdate
 		Label bottom "\\u#2 Energy (eV)"
 	else
-		Abort "Cannot find the line profile wave, check MXP_CreateProfilePanel()"
+		Abort "Unknown error!"
 	endif
 
 	SetDrawLayer UserFront
