@@ -33,7 +33,7 @@
 Menu "MAXPEEM", hideable
 	"Load .dat file .../1", MXP_LoadSingleDATFile("","")
 	"Load multiply .dat files .../2", MXP_LoadMultiplyDATFiles("")
-	"Load files from folder .../3",  MXP_LoadDATFilesFromFolder("", "*")
+	"Load files from folder in stack .../3",  MXP_LoadDATFilesFromFolder("", "*", switch3d=1) // Add promptin future release
 End
 
 
@@ -109,17 +109,15 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
     endif
     return 0
 End
-
-///< Function to load a single Elmitec binary .dat file.
-/// @param datafile string filename (including) pathname. 
-/// If "" a dialog opens to select the file.
-/// @param FileNameStr name of the imported wave. 
-/// If "" the wave name is the filename without the path and extention.
-/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
-/// @return wave reference
 		
-
-Function/WAVE MXP_LoadSingleDATFile(string datafile, string FileNameStr, [int skipmetadata])
+Function/WAVE MXP_LoadSingleDATFile(string datafileStr, string FileNameStr, [int skipmetadata])
+	///< Function to load a single Elmitec binary .dat file.
+	/// @param datafileStr string filename (including) pathname. 
+	/// If "" a dialog opens to select the file.
+	/// @param FileNameStr name of the imported wave. 
+	/// If "" the wave name is the filename without the path and extention.
+	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
+	/// @return wave reference
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
 	
@@ -128,25 +126,25 @@ Function/WAVE MXP_LoadSingleDATFile(string datafile, string FileNameStr, [int sk
 	string fileFilters = "dat File (*.dat):.dat;"
 	fileFilters += "All Files:.*;"
 
-   if (!strlen(datafile) && !strlen(FileNameStr)) 
+   if (!strlen(datafileStr) && !strlen(FileNameStr)) 
 		string message = "Select .dat file. \nFilename will be wave's name. (overwrite)\n "
    		Open/F=fileFilters/M=message/D/R numref
-   		datafile = S_filename
+   		datafileStr = S_filename
    		
-   		if(!strlen(datafile)) // user cancel?
+   		if(!strlen(datafileStr)) // user cancel?
    			Abort
    		endif
 
-   		Open/F=fileFilters/R numRef as datafile
-		FileNameStr = ParseFilePath(3, datafile, separatorchar, 0, 0)
+   		Open/F=fileFilters/R numRef as datafileStr
+		FileNameStr = ParseFilePath(3, datafileStr, separatorchar, 0, 0)
 		
-	elseif (strlen(datafile) && !strlen(FileNameStr))
+	elseif (strlen(datafileStr) && !strlen(FileNameStr))
 		message = "Select .dat file. \nWave names are filenames /O.\n "
-		Open/F=fileFilters/R numRef as datafile
-		FileNameStr = ParseFilePath(3, datafile, separatorchar, 0, 0)
+		Open/F=fileFilters/R numRef as datafileStr
+		FileNameStr = ParseFilePath(3, datafileStr, separatorchar, 0, 0)
 		
-	elseif (strlen(datafile) && strlen(FileNameStr))
-		Open/R numRef as datafile
+	elseif (strlen(datafileStr) && strlen(FileNameStr))
+		Open/R numRef as datafileStr
 	else
 		Abort "Path for datafile not specified (check MXP_ImportImageFromSingleDatFile)!"
 	endif
@@ -190,17 +188,18 @@ Function/WAVE MXP_LoadSingleDATFile(string datafile, string FileNameStr, [int sk
 		timestamp *= 1e-7 // t_i converted from 100ns to s
 		timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
 		variable MetadataStart = MXPFileHeader.size + ImageHeaderSize
-		string mdatastr = datafile + "\n"
+		string mdatastr = datafileStr + "\n"
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
-		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(datafile, MetadataStart, ImageDataStart)
+		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(datafileStr, MetadataStart, ImageDataStart)
 	endif
 	
 	// Add image markups if any
 	if(MXPImageHeader.attachedMarkupSize)
-		mdatastr += MXP_StrGetImageMarkups(datafile)
+		mdatastr += MXP_StrGetImageMarkups(datafileStr)
 	endif
-	
-	Note/K datWave, mdatastr
+	if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
+		Note/K datWave, mdatastr
+	endif
 	return datWave
 End
 
@@ -336,246 +335,6 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 	while (V_filePos < MetadataEndPos)
 	
 	return MXPMetaDataStr // ConvertTextEncoding(MXPMetaDataStr, 1, 1, 3, 2)
-End
-
-Function/S MXP_StrGetImageMarkups(string filename)
-	/// Read markups from a dat file. Then generate a list containing the markups parameters (positions, \
-	///  \size, color,line thickness, text), copied from https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
-	
-	variable refNum
-	string fileFilters = "Data Files (*.dat):.dat;"
-	Open /R /F=fileFilters refNum as filename
-	
-	// Read attachedRecipeSize
-	variable attachedRecipeSize = 0
-	FSetPos refNum, 46
-	FBinRead /F=2 refNum, attachedRecipeSize
-	
-	// Follow Elmitec's instructions
-	if (attachedRecipeSize != 0)
-		attachedRecipeSize = 128
-	endif
-	
-	// Read aAttachedMarkupSize
-	variable attachedMarkupSize
-	fsetpos refNum, (126 + attachedRecipeSize)
-	fbinread /F=2 refNum, attachedMarkupSize
-	attachedMarkupSize = (floor(attachedMarkupSize/128)+1)*128 // Follow Elmitec's instructions
-	
-	if(attachedMarkupSize)
-		variable markupStartPos = 104 + attachedRecipeSize + 288
-	
-		variable filePos = markupStartPos
-		variable readValue = 0	
-		
-		variable marker
-		variable markup_x
-		variable markup_y
-		variable markup_radius
-		variable markup_color_R
-		variable markup_color_G
-		variable markup_color_B
-		variable markup_type
-		variable markup_lsize
-		string markup_text
-		string markupsList = "Markups:"
-		string markupsString = ""
-		
-		FSetPos refNum, FilePos
-		FBinRead /F=2 refNum, readValue // Block size
-		FBinRead /F=2 refNum, readValue // Reserved
-		
-		do
-			FBinRead /F=2 refNum, marker
-			if (marker == 6)
-				FBinRead /F=2 refNum, markup_x
-				FBinRead /F=2 refNum, markup_y
-				FBinRead /F=2 refNum, markup_radius
-				FBinRead /F=2 refNum, readValue // always 0050
-				FBinRead /F=1/U refNum, markup_color_R; markup_color_R *= 257 // Make 65535 max
-				FBinRead /F=1/U refNum, markup_color_G; markup_color_G *= 257
-				FBinRead /F=1/U refNum, markup_color_B; markup_color_B *= 257
-				FBinRead /F=2 refNum, readValue // always 0000
-				FBinRead /F=2 refNum, readValue // always 0000
-				FBinRead /F=2 refNum, markup_type
-				FBinRead /F=1/U refNum, markup_lsize
-				FBinRead /F=2 refNum, readValue // always 0800
-				FReadLine /T=(num2char(0)) refNum, markup_text
-				
-				sprintf markupsString,"%u,%u,%u,%u,%u,%u,%u,%u,%s~",markup_x, markup_y, markup_radius, markup_color_R, markup_color_G, markup_color_B, markup_type, markup_lSize, markup_text
-				markupsList += markupsString
-			endif
-		while (marker != 0)
-	endif
-	Close refNum
-	
-	markupsList = RemoveEnding(markupsList) + ";" // Replace the last tidle with a semicolon
-	return markupsList
-End
-
-Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d, string wname3d])
-
-	/// Import .dat files that match a pattern from a folder. Waves are named after their filename.
-	/// @param folder string folder of the .dat files
-	/// @param pattern string pattern to filter .dat files, use "*" for all .dat files- empty string gives an error
-	/// @param stack3d int optional stack imported .dat files to the 3d wave, kill the imported waves
-	/// @param wname3d string optional name of the 3d wave, othewise defaults to MXP_w3d
-
-	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
-	wname3d = SelectString(ParamIsDefault(wname3d) ? 0: 1,"MXP_w3d", wname3d)
-	
-	string message = "Select a folder."
-	string fileFilters = "DAT Files (*.dat):.dat;"
-	fileFilters += "All Files:.*;"
-	
-	NewPath/O/Q/M=message MXP_DATFilesPathTMP
-	if (V_flag) // user cancel?
-		Abort
-	endif
-	PathInfo/S MXP_DATFilesPathTMP
-	folder = ParseFilePath(2, S_Path, ":", 0, 0)
-	
-	// Get all the .dat files. Use "????" for all files in IndexedFile third argument.
-	// Filter the matches with pattern at the second stage.
-	string allFiles = ListMatch(SortList(IndexedFile(MXP_DATFilesPathTMP, -1, ".dat"),";", 16), pattern)
-		
-	variable filesnr = ItemsInList(allFiles)
-
-	// If no files are selected (e.g match pattern return "") warn user
-	if (!filesnr)
-		Abort "No files match pattern: " + pattern
-	endif
-
-	// Handle the case where the 3d wave exists and find an appropriate name
-	if(stack3d && exists(wname3d) == 1)
-		do
-		printf "Wave %s exists in %s renaming to %s\n", wname3d, GetDataFolder(1), (wname3d + "_n")
-		wname3d += "_new"
-		while(exists(wname3d) == 1)
-	endif
-	
-	string fnameBuffer
-	variable ii	
-	for(ii = 0; ii < filesnr; ii += 1)
-		fnameBuffer = StringFromList(ii, allFiles)
-		string datafile2read = folder + fnameBuffer
-		if(stack3d) // Skip the metadata if you load to a 3dwave
-			Wave wname = MXP_LoadSingleDATFile(datafile2read, "", skipmetadata = 1)
-		else
-			Wave wname = MXP_LoadSingleDATFile(datafile2read, "", skipmetadata = 0)
-		endif
-	endfor
-
-	// It is assumed that all the imported waves have the same dimensions
-	variable nx = DimSize(wname, 0)
-	variable ny = DimSize(wname, 1)
-	if (stack3d)
-		Make/N=(nx, ny, filesnr) $wname3d /Wave=w3dref
-		string bufferWaveName
-		for(ii = 0; ii < filesnr; ii++)
-			bufferWaveName = RemoveEnding(StringFromList(ii, allFiles), ".dat") // allfiles: filename.dat
-			Wave w2dref = $(bufferWaveName)
-			w3dref[][][ii] = w2dref[p][q]
-			KillWaves/Z $(bufferWaveName)
-		endfor
-		//Add a note to the 3dwave about which files have been loaded
-		string note3d
-		sprintf note3d, "Timestamp: %s\nFolder: %s\nFiles: %s\n",(date() + " " + time()), folder, allFiles
-		Note/K w3dref, note3d
-	endif
-	KillPath/Z MXP_DATFilesPathTMP
-End
-
-
-
-Function MXP_LoadMultiplyDATFiles(string datafile, [string filenames, int skipmetadata])
-	/// Load multiply selected .dat files
-	/// @param datafile string Location of the files you want to load, if "" a dialog will pop	
-	/// @param filenames string optional string separated by ";". If you provide filenames and the
-	/// number of selected files  match the number of names in string then use then as wave names.
-	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
-	/// Note: the selected wave are sort alphanumerically so the first on the list takes the 
-	/// first name in filenames etc.
-	
-	filenames = SelectString(ParamIsDefault(filenames) ? 0: 1,"", filenames)
-	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata	
-	
-	variable numRef
-    string loadFiles
-
-	string message = "Select .dat files. \nFilenames define the wave names.\n"
-	message += "Import overwrites waves with the same name."
-	string fileFilters = "DAT File (*.dat):.dat;"
-	fileFilters += "All Files:.*;"
-
-	// Open multi-selection File dialog
-	// S_fileName contains all the selected files seperates with CR
-	Open/D/R/MULT=1/F=fileFilters/M=message numRef 
-	loadFiles = SortList(S_fileName, "\r", 16) 
-	variable nrloadFiles = ItemsInList(loadFiles, "\r")
-	variable nrFilenames = ItemsInList(filenames)
-	
-	variable ii = 0
-	for(ii = 0; ii < nrloadFiles; ii += 1)
-		if (nrloadFiles == nrFilenames)
-			MXP_LoadSingleDATFile(StringFromList(ii,loadFiles, "\r"), StringFromList(ii,filenames), skipmetadata = skipmetadata)
-		else
-			MXP_LoadSingleDATFile(StringFromList(ii,loadFiles, "\r"), StringFromList(ii,filenames), skipmetadata = skipmetadata)
-		endif
-	endfor
-
-End
-
-// TODO : Do we need to flip the image 
-Function MXP_AppendMarkupsToTopImage()
-	/// Draw the markups on an image display (drawn on the UserFront layer)
-	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
-	/// markups are drawn on the top graph
-	string imgNamestr = StringFromList(0,ImageNameList("",";"))
-	wave w = ImageNameToWaveRef("", imgNamestr)
-	string graphName = WinName(0, 1)
-	// Newlines and line feeds create problems with StringByKey, replace with ;
-	string markupsList = StringByKey("Markups", ReplaceString("\n",note(w), ";"))
-	
-	variable markup_x
-	variable markup_y
-	variable markup_radius
-	variable markup_color_R
-	variable markup_color_G
-	variable markup_color_B
-	variable markup_type
-	variable markup_lsize
-	string markup_text
-	string markup
-	
-	variable ii = 0
-	string xAxis = ""
-	
-	SetDrawLayer /W=$graphName userFront
-	
-	// Check whether the image is created from 'NewImage' or 'Display' commands (i.e. whether the top or bottom axis is used)
-	if (WhichListItem("bottom",AxisList(GraphName),";") != -1)
-		xAxis = "bottom"
-	else
-		xAxis = "top"
-	endif
-	
-	for(ii = 0; ii < ItemsInList(markupsList, "~"); ii++)
-		markup = StringFromList(ii, markupsList, "~")
-		markup_x = str2num(StringFromList(0, markup, ","))
-		markup_y = str2num(StringFromList(1, markup, ","))
-		markup_radius = str2num(StringFromList(2, markup, ","))
-		markup_color_R = str2num(StringFromList(3, markup, ","))
-		markup_color_G = str2num(StringFromList(4, markup, ","))
-		markup_color_B = str2num(StringFromList(5, markup, ","))
-		markup_lsize = str2num(StringFromList(7, markup, ","))
-		markup_text = StringFromList(8, markup, ",")		
-		SetDrawEnv/W=$GraphName fillpat = 0,linefgc = (markup_color_R, markup_color_G, markup_color_B), linethick = markup_lsize, ycoord = left, xcoord = $xAxis
-		DrawOval/W=$GraphName markup_x - markup_radius, markup_y - markup_radius, markup_x + markup_radius, markup_y + markup_radius
-		SetDrawEnv/W=$GraphName fsize = 16, textRGB = (markup_color_R, markup_color_G, markup_color_B), textxjust = 1, textyjust = 1, ycoord = left, xcoord = $xAxis
-		DrawText/W=$GraphName markup_x, markup_y, markup_text
-	endfor
-	
 End
 
 Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataStartPos, variable MetadataEndPos)
@@ -732,3 +491,251 @@ Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataSt
 	
 	return MXPMetaDataStr
 End
+
+Function/S MXP_StrGetImageMarkups(string filename)
+	/// Read markups from a dat file. Then generate a list containing the markups parameters (positions, \
+	///  \size, color,line thickness, text), copied from https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
+	
+	variable refNum
+	string fileFilters = "Data Files (*.dat):.dat;"
+	Open /R /F=fileFilters refNum as filename
+	
+	// Read attachedRecipeSize
+	variable attachedRecipeSize = 0
+	FSetPos refNum, 46
+	FBinRead /F=2 refNum, attachedRecipeSize
+	
+	// Follow Elmitec's instructions
+	if (attachedRecipeSize != 0)
+		attachedRecipeSize = 128
+	endif
+	
+	// Read aAttachedMarkupSize
+	variable attachedMarkupSize
+	fsetpos refNum, (126 + attachedRecipeSize)
+	fbinread /F=2 refNum, attachedMarkupSize
+	attachedMarkupSize = (floor(attachedMarkupSize/128)+1)*128 // Follow Elmitec's instructions
+	
+	if(attachedMarkupSize)
+		variable markupStartPos = 104 + attachedRecipeSize + 288
+	
+		variable filePos = markupStartPos
+		variable readValue = 0	
+		
+		variable marker
+		variable markup_x
+		variable markup_y
+		variable markup_radius
+		variable markup_color_R
+		variable markup_color_G
+		variable markup_color_B
+		variable markup_type
+		variable markup_lsize
+		string markup_text
+		string markupsList = "Markups:"
+		string markupsString = ""
+		
+		FSetPos refNum, FilePos
+		FBinRead /F=2 refNum, readValue // Block size
+		FBinRead /F=2 refNum, readValue // Reserved
+		
+		do
+			FBinRead /F=2 refNum, marker
+			if (marker == 6)
+				FBinRead /F=2 refNum, markup_x
+				FBinRead /F=2 refNum, markup_y
+				FBinRead /F=2 refNum, markup_radius
+				FBinRead /F=2 refNum, readValue // always 0050
+				FBinRead /F=1/U refNum, markup_color_R; markup_color_R *= 257 // Make 65535 max
+				FBinRead /F=1/U refNum, markup_color_G; markup_color_G *= 257
+				FBinRead /F=1/U refNum, markup_color_B; markup_color_B *= 257
+				FBinRead /F=2 refNum, readValue // always 0000
+				FBinRead /F=2 refNum, readValue // always 0000
+				FBinRead /F=2 refNum, markup_type
+				FBinRead /F=1/U refNum, markup_lsize
+				FBinRead /F=2 refNum, readValue // always 0800
+				FReadLine /T=(num2char(0)) refNum, markup_text
+				
+				sprintf markupsString,"%u,%u,%u,%u,%u,%u,%u,%u,%s~",markup_x, markup_y, markup_radius, markup_color_R, markup_color_G, markup_color_B, markup_type, markup_lSize, markup_text
+				markupsList += markupsString
+			endif
+		while (marker != 0)
+	endif
+	Close refNum
+	
+	markupsList = RemoveEnding(markupsList) + ";" // Replace the last tidle with a semicolon
+	return markupsList
+End
+
+// TODO : Do we need to flip the image ?
+Function MXP_AppendMarkupsToTopImage()
+	/// Draw the markups on an image display (drawn on the UserFront layer)
+	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
+	/// markups are drawn on the top graph
+	string imgNamestr = StringFromList(0,ImageNameList("",";"))
+	wave w = ImageNameToWaveRef("", imgNamestr)
+	string graphName = WinName(0, 1)
+	// Newlines and line feeds create problems with StringByKey, replace with ;
+	string markupsList = StringByKey("Markups", ReplaceString("\n",note(w), ";"))
+	
+	variable markup_x
+	variable markup_y
+	variable markup_radius
+	variable markup_color_R
+	variable markup_color_G
+	variable markup_color_B
+	variable markup_type
+	variable markup_lsize
+	string markup_text
+	string markup
+	
+	variable ii = 0
+	string xAxis = ""
+	
+	SetDrawLayer /W=$graphName userFront
+	
+	// Check whether the image is created from 'NewImage' or 'Display' commands (i.e. whether the top or bottom axis is used)
+	if (WhichListItem("bottom",AxisList(GraphName),";") != -1)
+		xAxis = "bottom"
+	else
+		xAxis = "top"
+	endif
+	
+	for(ii = 0; ii < ItemsInList(markupsList, "~"); ii++)
+		markup = StringFromList(ii, markupsList, "~")
+		markup_x = str2num(StringFromList(0, markup, ","))
+		markup_y = str2num(StringFromList(1, markup, ","))
+		markup_radius = str2num(StringFromList(2, markup, ","))
+		markup_color_R = str2num(StringFromList(3, markup, ","))
+		markup_color_G = str2num(StringFromList(4, markup, ","))
+		markup_color_B = str2num(StringFromList(5, markup, ","))
+		markup_lsize = str2num(StringFromList(7, markup, ","))
+		markup_text = StringFromList(8, markup, ",")		
+		SetDrawEnv/W=$GraphName fillpat = 0,linefgc = (markup_color_R, markup_color_G, markup_color_B), linethick = markup_lsize, ycoord = left, xcoord = $xAxis
+		DrawOval/W=$GraphName markup_x - markup_radius, markup_y - markup_radius, markup_x + markup_radius, markup_y + markup_radius
+		SetDrawEnv/W=$GraphName fsize = 16, textRGB = (markup_color_R, markup_color_G, markup_color_B), textxjust = 1, textyjust = 1, ycoord = left, xcoord = $xAxis
+		DrawText/W=$GraphName markup_x, markup_y, markup_text
+	endfor
+	
+End
+
+Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int switch3d, string wname3d])
+
+	/// Import .dat files that match a pattern from a folder. Waves are named after their filename.
+	/// @param folder string folder of the .dat files
+	/// @param pattern string pattern to filter .dat files, use "*" for all .dat files- empty string gives an error
+	/// @param switch3d int optional stack imported .dat files to the 3d wave, kill the imported waves
+	/// @param wname3d string optional name of the 3d wave, othewise defaults to MXP_w3d
+
+	switch3d = ParamIsDefault(switch3d) ? 0: switch3d
+	wname3d = SelectString(ParamIsDefault(wname3d) ? 0: 1,"stack3d", wname3d)
+	
+	string message = "Select a folder."
+	string fileFilters = "DAT Files (*.dat):.dat;"
+	fileFilters += "All Files:.*;"
+	
+	NewPath/O/Q/M=message MXP_DATFilesPathTMP
+	if (V_flag) // user cancel?
+		Abort
+	endif
+	PathInfo/S MXP_DATFilesPathTMP
+	folder = ParseFilePath(2, S_Path, ":", 0, 0)
+	
+	// Get all the .dat files. Use "????" for all files in IndexedFile third argument.
+	// Filter the matches with pattern at the second stage.
+	string allFiles = ListMatch(SortList(IndexedFile(MXP_DATFilesPathTMP, -1, ".dat"),";", 16), pattern)
+		
+	variable filesnr = ItemsInList(allFiles)
+
+	// If no files are selected (e.g match pattern return "") warn user
+	if (!filesnr)
+		Abort "No files match pattern: " + pattern
+	endif
+	variable cnt = 0
+	string odlwname = wname3d
+	// Handle the case where the 3d wave exists and find an appropriate name
+	if(switch3d && exists(wname3d) == 1)
+		do
+		printf "Wave %s exists in %s renaming to %s\n", wname3d, GetDataFolder(1), (wname3d + num2str(cnt))
+		wname3d = odlwname + num2str(cnt)
+		cnt++
+		while(exists(wname3d) == 1)
+	endif
+	
+	string fnameBuffer
+	variable ii	
+	for(ii = 0; ii < filesnr; ii += 1)
+		fnameBuffer = StringFromList(ii, allFiles)
+		string datafile2read = folder + fnameBuffer
+		if(switch3d) // Skip the metadata if you load to a 3dwave
+			Wave wname = MXP_LoadSingleDATFile(datafile2read, "", skipmetadata = 1)
+		else
+			Wave wname = MXP_LoadSingleDATFile(datafile2read, "", skipmetadata = 0)
+		endif
+	endfor
+
+	// It is assumed that all the imported waves have the same dimensions
+	variable nx = DimSize(wname, 0)
+	variable ny = DimSize(wname, 1)
+	if (switch3d)
+		Make/N=(nx, ny, filesnr) $wname3d /Wave=w3dref
+		string bufferWaveName
+		for(ii = 0; ii < filesnr; ii++)
+			bufferWaveName = RemoveEnding(StringFromList(ii, allFiles), ".dat") // allfiles: filename.dat
+			Wave w2dref = $(bufferWaveName)
+			w3dref[][][ii] = w2dref[p][q]
+			KillWaves/Z $(bufferWaveName)
+		endfor
+		//Add a note to the 3dwave about which files have been loaded
+		string note3d
+		sprintf note3d, "Timestamp: %s\nFolder: %s\nFiles: %s\n",(date() + " " + time()), folder, allFiles
+		Note/K w3dref, note3d
+	endif
+	KillPath/Z MXP_DATFilesPathTMP
+End
+
+Function MXP_LoadMultiplyDATFiles(string pathToFolderStr, [string filenames, int skipmetadata])
+	/// Load multiply selected .dat files
+	/// @param pathToFolderStr string Path to folder of the files you want to load, if "" a dialog will 
+	/// open to select files.	
+	/// @param filenames string optional string separated by ";". If you provide filenames and the
+	/// number of selected files  match the number of names in string then use then as wave names.
+	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
+	/// Note: the selected wave are sort alphanumerically so the first on the list takes the 
+	/// first name in filenames etc.
+	
+	filenames = SelectString(ParamIsDefault(filenames) ? 0: 1,"", filenames)
+	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata	
+	
+	variable numRef
+    string loadFiles
+
+	string message = "Select .dat files. \nFilenames define the wave names.\n"
+	message += "Import overwrites waves with the same name."
+	string fileFilters = "DAT File (*.dat):.dat;"
+	fileFilters += "All Files:.*;"
+
+	// Open multi-selection File dialog
+	// S_fileName contains all the selected files seperates with CR
+	if(strlen(pathToFolderStr))
+		NewPath/O MXP_LoadMultiplyDATFilesPath__ pathToFolderStr
+		Open/D/R/MULT=1/F=fileFilters/M=message/P=MXP_LoadMultiplyDATFilesPath__ numRef
+		KillPath/Z MXP_LoadMultiplyDATFilesPath__
+	else
+		Open/D/R/MULT=1/F=fileFilters/M=message numRef 
+	endif
+	loadFiles = SortList(S_fileName, "\r", 16) 
+	variable nrloadFiles = ItemsInList(loadFiles, "\r")
+	variable nrFilenames = ItemsInList(filenames)
+	
+	variable ii = 0
+	for(ii = 0; ii < nrloadFiles; ii += 1)
+		if (nrloadFiles == nrFilenames)
+			MXP_LoadSingleDATFile(StringFromList(ii,loadFiles, "\r"), StringFromList(ii,filenames), skipmetadata = skipmetadata)
+		else
+			MXP_LoadSingleDATFile(StringFromList(ii,loadFiles, "\r"), StringFromList(ii,filenames), skipmetadata = skipmetadata)
+		endif
+	endfor
+End
+
+

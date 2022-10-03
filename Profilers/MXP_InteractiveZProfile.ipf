@@ -11,9 +11,10 @@
 
 
 
-/// TODO: 1 Add wname to metadata.
-/// 	    Function to redraw selected curves from browser to the image
-///		  2 Mark areas does not work
+/// TODO: Can you extend functionality so you can have many windows but one panel?
+/// 	  Might be handy to user SetWindow userdata(UDName )=UDStr, to give the handle.
+///		  You need to improve the whole stability and functionality. There are issues
+///		  and the programs has bugs, lots.
 ///			
 
 Menu "GraphMarquee"
@@ -179,6 +180,7 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 	Wave/Z M_ROIMask
 	
     switch(s.eventCode)
+
 		case 2: // Kill the window
 			KillWaves/Z M_ROIMask
 			KillWindow/Z MXP_ZBeamLineProfilePanel
