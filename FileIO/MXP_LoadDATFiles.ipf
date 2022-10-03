@@ -31,7 +31,7 @@
 // Add to menu
 
 Menu "MAXPEEM", hideable
-	"Load .dat file .../1", MXP_LoadSingleDATFile("","")
+	"Load .dat file .../1", MXP_WAVELoadSingleDATFile("","")
 	"Load multiply .dat files .../2", MXP_LoadMultiplyDATFiles("")
 	"Load files from folder in stack .../3",  MXP_LoadDATFilesFromFolder("", "*", switch3d=1) // Add promptin future release
 End
@@ -99,7 +99,7 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
         PathInfo $pathNameStr
         string fileToOpen = S_path + fileNameStr
         try
-        MXP_LoadSingleDATFile(fileToOpen, "")
+        MXP_WAVELoadSingleDATFile(fileToOpen, "")
         AbortOnRTE
         catch
         	print "Are you sure you are not trying to load a text file with .dat extention?"
@@ -110,7 +110,7 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
     return 0
 End
 		
-Function/WAVE MXP_LoadSingleDATFile(string datafileStr, string FileNameStr, [int skipmetadata])
+Function/WAVE MXP_WAVELoadSingleDATFile(string datafileStr, string FileNameStr, [int skipmetadata])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param datafileStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
@@ -668,9 +668,9 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int switch3d
 		fnameBuffer = StringFromList(ii, allFiles)
 		string datafile2read = folder + fnameBuffer
 		if(switch3d) // Skip the metadata if you load to a 3dwave
-			Wave wname = MXP_LoadSingleDATFile(datafile2read, "", skipmetadata = 1)
+			Wave wname = MXP_WAVELoadSingleDATFile(datafile2read, "", skipmetadata = 1)
 		else
-			Wave wname = MXP_LoadSingleDATFile(datafile2read, "", skipmetadata = 0)
+			Wave wname = MXP_WAVELoadSingleDATFile(datafile2read, "", skipmetadata = 0)
 		endif
 	endfor
 
@@ -731,9 +731,9 @@ Function MXP_LoadMultiplyDATFiles(string pathToFolderStr, [string filenames, int
 	variable ii = 0
 	for(ii = 0; ii < nrloadFiles; ii += 1)
 		if (nrloadFiles == nrFilenames)
-			MXP_LoadSingleDATFile(StringFromList(ii,loadFiles, "\r"), StringFromList(ii,filenames), skipmetadata = skipmetadata)
+			MXP_WAVELoadSingleDATFile(StringFromList(ii,loadFiles, "\r"), StringFromList(ii,filenames), skipmetadata = skipmetadata)
 		else
-			MXP_LoadSingleDATFile(StringFromList(ii,loadFiles, "\r"), StringFromList(ii,filenames), skipmetadata = skipmetadata)
+			MXP_WAVELoadSingleDATFile(StringFromList(ii,loadFiles, "\r"), StringFromList(ii,filenames), skipmetadata = skipmetadata)
 		endif
 	endfor
 End

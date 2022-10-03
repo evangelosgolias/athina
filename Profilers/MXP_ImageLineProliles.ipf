@@ -10,6 +10,7 @@
 
 /// end of documentation
 
+//Under development
 Function dummy()
 SetWindow Graph0, hook(MyHook) = MXP_CursorHookFunctionLineProfiler // Set the hook
 End
