@@ -31,9 +31,10 @@
 // Add to menu
 
 Menu "MAXPEEM", hideable
-	"Load .dat file .../1", MXP_WAVELoadSingleDATFile("","")
+	"Load .dat file .../1", MXP_LoadSingleDATFile("", "")
 	"Load multiply .dat files .../2", MXP_LoadMultiplyDATFiles("")
-	"Load files from folder in stack .../3",  MXP_LoadDATFilesFromFolder("", "*", switch3d=1) // Add promptin future release
+	"Load files from folder in stack .../3",  MXP_LoadDATFilesFromFolder("", "*") // Add promptin future release
+	"Load files from folder in stack .../4",  MXP_LoadDATFilesFromFolder("", "*", switch3d = 1) // Add promptin future release
 End
 
 
@@ -99,8 +100,8 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
         PathInfo $pathNameStr
         string fileToOpen = S_path + fileNameStr
         try
-        MXP_WAVELoadSingleDATFile(fileToOpen, "")
-        AbortOnRTE
+        	MXP_LoadSingleDATFile(fileToOpen, "")
+        	AbortOnRTE
         catch
         	print "Are you sure you are not trying to load a text file with .dat extention?"
         	Abort
@@ -109,10 +110,11 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
     endif
     return 0
 End
-		
-Function/WAVE MXP_WAVELoadSingleDATFile(string datafileStr, string fileNameStr, [int skipmetadata])
+
+
+Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string fileNameStr, [int skipmetadata])
 	///< Function to load a single Elmitec binary .dat file.
-	/// @param datafileStr string filename (including) pathname. 
+	/// @param filepathStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
 	/// @param FileNameStr name of the imported wave. 
 	/// If "" the wave name is the filename without the path and extention.
@@ -125,28 +127,35 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string datafileStr, string fileNameStr, 
 	string separatorchar = ":"
 	string fileFilters = "dat File (*.dat):.dat;"
 	fileFilters += "All Files:.*;"
-
-   if (!strlen(datafileStr) && !strlen(fileNameStr)) 
-		string message = "Select .dat file. \nFilename will be wave's name. (overwrite)\n "
+	string message
+    if (!strlen(filepathStr) && !strlen(fileNameStr)) 
+		message = "Select .dat file. \nFilename will be wave's name. (overwrite)\n "
    		Open/F=fileFilters/M=message/D/R numref
-   		datafileStr = S_filename
+   		filepathStr = S_filename
    		
-   		if(!strlen(datafileStr)) // user cancel?
+   		if(!strlen(filepathStr)) // user cancel?
    			Abort
    		endif
 
-   		Open/F=fileFilters/R numRef as datafileStr
-		fileNameStr = ParseFilePath(3, datafileStr, separatorchar, 0, 0)
+   		Open/F=fileFilters/R numRef as filepathStr
+		fileNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
 		
-	elseif (strlen(datafileStr) && !strlen(fileNameStr))
+	elseif (strlen(filepathStr) && !strlen(fileNameStr))
 		message = "Select .dat file. \nWave names are filenames /O.\n "
-		Open/F=fileFilters/R numRef as datafileStr
-		fileNameStr = ParseFilePath(3, datafileStr, separatorchar, 0, 0)
+		Open/F=fileFilters/R numRef as filepathStr
+		fileNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
 		
-	elseif (strlen(datafileStr) && strlen(fileNameStr))
-		NewPath MXPPATH_LoadDATFile__ datafileStr
-		Open/R/P=MXPPATH_LoadDATFile__ numRef as datafileStr
-		KillPath/Z MXPPATH_LoadDATFile__ 
+	elseif (!strlen(filepathStr) && strlen(fileNameStr))
+		message = "Select .dat file. \n Destination wave will be overwritten\n "
+   		Open/F=fileFilters/M=message/D/R numref
+   		filepathStr = S_filename
+   		
+   		if(!strlen(filepathStr)) // user cancel?
+   			Abort
+   		endif
+   		
+		message = "Select .dat file. \nWave names are filenames /O.\n "
+		Open/F=fileFilters/R numRef as filepathStr
 	else
 		Abort "Path for datafile not specified (check MXP_ImportImageFromSingleDatFile)!"
 	endif
@@ -190,19 +199,120 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string datafileStr, string fileNameStr, 
 		timestamp *= 1e-7 // t_i converted from 100ns to s
 		timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
 		variable MetadataStart = MXPFileHeader.size + ImageHeaderSize
-		string mdatastr = datafileStr + "\n"
+		string mdatastr = filepathStr + "\n"
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
-		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(datafileStr, MetadataStart, ImageDataStart)
+		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
 	endif
 	
 	// Add image markups if any
 	if(MXPImageHeader.attachedMarkupSize)
-		mdatastr += MXP_StrGetImageMarkups(datafileStr)
+		mdatastr += MXP_StrGetImageMarkups(filepathStr)
 	endif
 	if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
 		Note/K datWave, mdatastr
 	endif
-	return datWave
+	return datwave
+End
+
+Function MXP_LoadSingleDATFile(string filepathStr, string fileNameStr, [int skipmetadata])
+	///< Function to load a single Elmitec binary .dat file.
+	/// @param filepathStr string filename (including) pathname. 
+	/// If "" a dialog opens to select the file.
+	/// @param FileNameStr name of the imported wave. 
+	/// If "" the wave name is the filename without the path and extention.
+	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
+	/// @return wave reference
+	
+	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
+	
+	variable numRef
+	string separatorchar = ":"
+	string fileFilters = "dat File (*.dat):.dat;"
+	fileFilters += "All Files:.*;"
+	string message
+    if (!strlen(filepathStr) && !strlen(fileNameStr)) 
+		message = "Select .dat file. \nFilename will be wave's name. (overwrite)\n "
+   		Open/F=fileFilters/M=message/D/R numref
+   		filepathStr = S_filename
+   		
+   		if(!strlen(filepathStr)) // user cancel?
+   			Abort
+   		endif
+
+   		Open/F=fileFilters/R numRef as filepathStr
+		fileNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
+		
+	elseif (strlen(filepathStr) && !strlen(fileNameStr))
+		message = "Select .dat file. \nWave names are filenames /O.\n "
+		Open/F=fileFilters/R numRef as filepathStr
+		fileNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
+		
+	elseif (!strlen(filepathStr) && strlen(fileNameStr))
+		message = "Select .dat file. \n Destination wave will be overwritten\n "
+   		Open/F=fileFilters/M=message/D/R numref
+   		filepathStr = S_filename
+   		
+   		if(!strlen(filepathStr)) // user cancel?
+   			Abort
+   		endif
+   		
+		message = "Select .dat file. \nWave names are filenames /O.\n "
+		Open/F=fileFilters/R numRef as filepathStr
+	else
+		Abort "Path for datafile not specified (check MXP_ImportImageFromSingleDatFile)!"
+	endif
+	
+	STRUCT UKFileHeader MXPFileHeader
+	STRUCT UKImageHeader MXPImageHeader
+	
+	FSetPos numRef, 0
+	FBinRead numRef, MXPFileHeader
+
+	// FileHeader: 104 bytes or 104 + 128 bytes if attachedRecipeSize>0
+	if(MXPFileHeader.attachedRecipeSize > 0)
+		MXPFileHeader.size += 128
+	endif
+	
+	variable ImageHeaderSize, timestamp
+			
+	FSetPos numRef, MXPFileHeader.size
+	FBinRead numRef, MXPImageHeader
+
+	//Elmitec files can have additional markup blocks hence the offsets of 128 bytes
+	
+	if(MXPImageHeader.attachedMarkupSize == 0)
+		//no markups
+		ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
+	else
+		//Markup blocks multiple of 128 bytes after image header
+		ImageHeaderSize = 288 + 128 * ((trunc(MXPImageHeader.attachedMarkupSize/128))+1)
+	endif
+	
+	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
+	Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $FileNameStr /WAVE=datWave
+	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + MXPImageHeader.LEEMdataVersion
+	FSetPos numRef, ImageDataStart
+	FBinRead/F=2 numRef, datWave
+	ImageTransform flipCols datWave // flip the y-axis
+	Close numRef
+	
+	if(!skipmetadata)
+		timestamp = MXPImageHeader.imagetime.LONG[0]+2^32 * MXPImageHeader.imagetime.LONG[1]
+		timestamp *= 1e-7 // t_i converted from 100ns to s
+		timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
+		variable MetadataStart = MXPFileHeader.size + ImageHeaderSize
+		string mdatastr = filepathStr + "\n"
+		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
+		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
+	endif
+	
+	// Add image markups if any
+	if(MXPImageHeader.attachedMarkupSize)
+		mdatastr += MXP_StrGetImageMarkups(filepathStr)
+	endif
+	if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
+		Note/K datWave, mdatastr
+	endif
 End
 
 Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable MetadataStartPos, variable MetadataEndPos)
@@ -569,7 +679,7 @@ Function/S MXP_StrGetImageMarkups(string filename)
 	return markupsList
 End
 
-// TODO : Do we need to flip the image ?
+// ** TODO **: Do we need to flip the image ?
 Function MXP_AppendMarkupsToTopImage()
 	/// Draw the markups on an image display (drawn on the UserFront layer)
 	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
@@ -730,12 +840,12 @@ Function MXP_LoadMultiplyDATFiles(string pathToFolderStr, [string filenames, int
 	variable nrloadFiles = ItemsInList(loadFiles, "\r")
 	variable nrFilenames = ItemsInList(filenames)
 	
-	variable ii = 0
-	for(ii = 0; ii < nrloadFiles; ii += 1)
+	variable i = 0
+	for(i = 0; i < nrloadFiles; i += 1)
 		if (nrloadFiles == nrFilenames)
-			MXP_WAVELoadSingleDATFile(StringFromList(ii,loadFiles, "\r"), StringFromList(ii,filenames), skipmetadata = skipmetadata)
+			MXP_WAVELoadSingleDATFile(StringFromList(i,loadFiles, "\r"), StringFromList(i, filenames), skipmetadata = skipmetadata)
 		else
-			MXP_WAVELoadSingleDATFile(StringFromList(ii,loadFiles, "\r"), StringFromList(ii,filenames), skipmetadata = skipmetadata)
+			MXP_WAVELoadSingleDATFile(StringFromList(i,loadFiles, "\r"), StringFromList(i, filenames), skipmetadata = skipmetadata)
 		endif
 	endfor
 End
