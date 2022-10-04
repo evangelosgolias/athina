@@ -33,7 +33,7 @@
 Menu "MAXPEEM", hideable
 	"Load .dat file .../1", MXP_LoadSingleDATFile("", "")
 	"Load multiply .dat files .../2", MXP_LoadMultiplyDATFiles("")
-	"Load files from folder in stack .../3",  MXP_LoadDATFilesFromFolder("", "*") // Add promptin future release
+	"Load files from folder .../3",  MXP_LoadDATFilesFromFolder("", "*") // Add promptin future release
 	"Load files from folder in stack .../4",  MXP_LoadDATFilesFromFolder("", "*", switch3d = 1) // Add promptin future release
 End
 
@@ -112,16 +112,19 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
 End
 
 
-Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string fileNameStr, [int skipmetadata])
+Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string fileNameStr, [int skipmetadata, int waveDataType])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
 	/// @param FileNameStr name of the imported wave. 
 	/// If "" the wave name is the filename without the path and extention.
 	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
+	/// @param waveDataType is optional and sets the Wavetype of the loaded wave to single 
+	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
 	/// @return wave reference
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
+	waveDataType = ParamIsDefault(waveDataType) ? 0: waveDataType
 	
 	variable numRef
 	string separatorchar = ":"
@@ -210,20 +213,31 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string fileNameStr, 
 	endif
 	if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
 		Note/K datWave, mdatastr
+	endif
+	
+	// Convert to SP or DP 	
+	if(waveDataType == 1)
+		Redimension/S datWave
+	endif
+	
+	if(waveDataType == 2)
+		Redimension/D datWave
 	endif
 	return datwave
 End
 
-Function MXP_LoadSingleDATFile(string filepathStr, string fileNameStr, [int skipmetadata])
+Function MXP_LoadSingleDATFile(string filepathStr, string fileNameStr, [int skipmetadata, int waveDataType])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
 	/// @param FileNameStr name of the imported wave. 
 	/// If "" the wave name is the filename without the path and extention.
 	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
-	/// @return wave reference
+	/// @param waveDataType is optional and sets the Wavetype of the loaded wave to single 
+	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
+	waveDataType = ParamIsDefault(waveDataType) ? 0: waveDataType
 	
 	variable numRef
 	string separatorchar = ":"
@@ -312,6 +326,15 @@ Function MXP_LoadSingleDATFile(string filepathStr, string fileNameStr, [int skip
 	endif
 	if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
 		Note/K datWave, mdatastr
+	endif
+	
+	// Convert to SP or DP 
+	if(waveDataType == 1)
+		Redimension/S datWave
+	endif
+	
+	if(waveDataType == 2)
+		Redimension/D datWave
 	endif
 End
 
