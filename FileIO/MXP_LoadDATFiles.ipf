@@ -110,7 +110,7 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
     return 0
 End
 		
-Function/WAVE MXP_WAVELoadSingleDATFile(string datafileStr, string FileNameStr, [int skipmetadata])
+Function/WAVE MXP_WAVELoadSingleDATFile(string datafileStr, string fileNameStr, [int skipmetadata])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param datafileStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
@@ -126,7 +126,7 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string datafileStr, string FileNameStr, 
 	string fileFilters = "dat File (*.dat):.dat;"
 	fileFilters += "All Files:.*;"
 
-   if (!strlen(datafileStr) && !strlen(FileNameStr)) 
+   if (!strlen(datafileStr) && !strlen(fileNameStr)) 
 		string message = "Select .dat file. \nFilename will be wave's name. (overwrite)\n "
    		Open/F=fileFilters/M=message/D/R numref
    		datafileStr = S_filename
@@ -136,15 +136,17 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string datafileStr, string FileNameStr, 
    		endif
 
    		Open/F=fileFilters/R numRef as datafileStr
-		FileNameStr = ParseFilePath(3, datafileStr, separatorchar, 0, 0)
+		fileNameStr = ParseFilePath(3, datafileStr, separatorchar, 0, 0)
 		
-	elseif (strlen(datafileStr) && !strlen(FileNameStr))
+	elseif (strlen(datafileStr) && !strlen(fileNameStr))
 		message = "Select .dat file. \nWave names are filenames /O.\n "
 		Open/F=fileFilters/R numRef as datafileStr
-		FileNameStr = ParseFilePath(3, datafileStr, separatorchar, 0, 0)
+		fileNameStr = ParseFilePath(3, datafileStr, separatorchar, 0, 0)
 		
-	elseif (strlen(datafileStr) && strlen(FileNameStr))
-		Open/R numRef as datafileStr
+	elseif (strlen(datafileStr) && strlen(fileNameStr))
+		NewPath MXPPATH_LoadDATFile__ datafileStr
+		Open/R/P=MXPPATH_LoadDATFile__ numRef as datafileStr
+		KillPath/Z MXPPATH_LoadDATFile__ 
 	else
 		Abort "Path for datafile not specified (check MXP_ImportImageFromSingleDatFile)!"
 	endif
