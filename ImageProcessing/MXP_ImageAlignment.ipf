@@ -20,16 +20,22 @@ Function MXP_ImageAlignmentByRegistration(WAVE w1, WAVE w2)
 	/// Only x, y translations are allowed.
 	/// @param w1 wave reference First wave (reference wave)
 	/// @param w2 wave reference Second wave (test wave)
+	string msg
+	sprintf msg, "ImageRegistration needs SP precision waves. Converting %s, %s to SP", NameOfWave(w1), NameOfWave(w2)
+	print msg
+	Redimension/S w1, w2
+	sprintf msg, "ImageRegistration with refWave = %s and testWave = %s.", NameOfWave(w1), NameOfWave(w2)
 	ImageRegistration/TRNS={1,1,0}/ROT={0,0,0}/SKEW={0,0,0}/TSTM=0 refWave = w1, testWave = w2
 	WAVE M_RegOut, M_RegOut, M_RegMaskOut
-	string w2Backup = NameofWave(w2) + "_bak"
-	Duplicate/O w2, $w2Backup
+	// Do you want to create a backup? Uncomment. 
+	//string w2Backup = NameofWave(w2) + "_bak"
+	//Duplicate/O w2, $w2Backup
 	Duplicate/O M_RegOut, w2	
 	KillWaves/Z M_RegOut, M_RegOut, M_RegMaskOut
 End
 
-//UNDER CONTSRUCTION
-Function MXP_ImageAlignment3DByRegistration(WAVE w3d, [int refLayer])
+//UNDER DEVELOPMENT
+Function MXP_ImageAlignment3DByRegistration(WAVE w3d, [variable layerN])
 	/// Align a 3d wave using ImageRegistration. By default the function will
 	/// use the 0-th layer as a wave reference, uncless user chooses otherwise 
 	/// Only x, y translations are allowed.
@@ -37,10 +43,11 @@ Function MXP_ImageAlignment3DByRegistration(WAVE w3d, [int refLayer])
 	/// @param refLayer int optional Select refWave = refLayer for ImageRegistration.
 
 	//TODO: Fix the function
-	refLayer = ParamIsDefault(refLayer) ? 0: refLayer // If you don't select reference layer then 0 is your choice
-	
-	//ImageRegistration/TRNS={1,1,0}/ROT={0,0,0}/SKEW={0,0,0}/TSTM=0 refwave = w1, testwave = w2
-	WAVE M_RegOut, M_RegOut, M_RegMaskOut
+	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then 0 is your choice
+	MatrixOP/FREE refLayerWave = layer(w3d, layerN) 
+	ImageRegistration/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/SKEW={0,0,0}/TSTM=0 refwave = refLayerWave, testwave = w3d
+	WAVE M_RegOut, M_RegMaskOut, M_RegParams
+	Duplicate/O M_RegOut, w3d
 End
 
 Function/WAVE MXP_WAVEImageAlignmentByCorrelation(WAVE w1, WAVE w2)
