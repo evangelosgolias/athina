@@ -27,17 +27,6 @@
 
 // TODO: The markups are placed inverted? Please check and correct, you might nee to reverse the y-axis or whatever.
 
-
-// Add to menu
-
-Menu "MAXPEEM", hideable
-	"Load .dat file .../1", MXP_LoadSingleDATFile("", "")
-	"Load multiply .dat files .../2", MXP_LoadMultiplyDATFiles("")
-	"Load files from folder .../3",  MXP_LoadDATFilesFromFolder("", "*") // Add promptin future release
-	"Load files from folder in stack .../4",  MXP_LoadDATFilesFromFolder("", "*", switch3d = 1) // Add promptin future release
-End
-
-
 // Constants definitions
 
 // End of constants definitions
@@ -448,7 +437,8 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 			MXPMetaDataStr += num2str(buffer) + "\n"
 		elseif(buffer == 110)
 			FReadLine /T=(num2char(0))/ENCG={3,3,1} numRef, strbuffer // TODO: Fix the trailing tab and zeros!
-			MXPMetaDataStr += "FOV:" + strbuffer + "\n"
+			sscanf strbuffer, "%dµm", buffer
+			MXPMetaDataStr += "FOV(µm):" + num2str(buffer) + "\n"
 			FBinRead/F=4 numRef, buffer // drop FOV calculation factor
 		elseif(buffer == 111) //drop
 			FBinRead/F=4 numRef, buffer // phi
@@ -602,8 +592,9 @@ Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataSt
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += num2str(buffer) + ";"
 		elseif(buffer == 110)
-			FReadLine /T=(num2char(0))/ENCG={3,3,1} numRef, strbuffer
-			MXPMetaDataStr += "FOV:" + strbuffer + ";"
+			FReadLine /T=(num2char(0))/ENCG={3,3,1} numRef, strbuffer // TODO: Fix the trailing tab and zeros!
+			sscanf strbuffer, "%dµm", buffer
+			MXPMetaDataStr += "FOV(µm):" + num2str(buffer) + "\n"
 			FBinRead/F=4 numRef, buffer // drop FOV calculation factor
 		elseif(buffer == 111) //drop
 			FBinRead/F=4 numRef, buffer // phi

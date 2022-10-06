@@ -1,14 +1,11 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals    = 3		
 #pragma IgorVersion  = 9
-#pragma rtFunctionErrors = 1 // Debug mode
+//#pragma rtFunctionErrors = 1 // Debug mode
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 
 #include <Image common>
 #include <Imageslider>
-#include "::Utilities:MXP_FolderOperations"
-#include "::Plots and Graphs:MXP_Colors"
-
 
 
 /// TODO: Can you extend functionality so you can have many windows but one panel?
@@ -16,17 +13,6 @@
 ///		  You need to improve the whole stability and functionality. There are issues
 ///		  and the programs has bugs, lots.
 ///			
-
-Menu "GraphMarquee"
-	"ROI z-profile", GetMarquee/K left, top; MXP_DrawImageROICursor(V_left, V_top, V_right, V_bottom)
-	"Clear ROI markings", MXP_CleanROIMarkings()
-End
-
-Menu "MAXPEEM"
-	Submenu "Profilers"
-		"z-profiler", MXP_MainMenuLaunchZBeamProfiler()
-	End
-End
 
 Function MXP_MainMenuLaunchZBeamProfiler()
 
@@ -219,7 +205,7 @@ Function MXP_CreateProfilePanel()
 	DFREF dfr = root:Packages:MXP_datafldr:ZBeamProfiles
 	SVAR/Z/SDFR=dfr gMXP_LineProfileWaveStr
 	if(!SVAR_Exists(gMXP_LineProfileWaveStr))
-		Abort "Launch z-profiler from the main or data browser contexual menu."
+		Abort "Launch z-profiler from the MAXPEEM > Plot menu and then use the 'Oval ROI z profile' Marquee Operation."
 	endif
 		 
 	NewPanel/N=MXP_ZBeamLineProfilePanel /W=(580,53,995,316) // Linked to MXPInitializeAreaIntegrationProfiler()

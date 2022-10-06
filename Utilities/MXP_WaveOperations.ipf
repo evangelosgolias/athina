@@ -1,5 +1,6 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
+#pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
 Function MXP_Make3DWaveUsingPattern(String wname3d, String pattern)
@@ -68,5 +69,17 @@ Function MXP_Make3DWaveDataBrowserSelection(String wname3d)
 		Wave t2dwred = $(StringFromList(i,listOfSelectedWaves))
 		w3dref[][][i] = t2dwred[p][q]
 	endfor
+End
 
+Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
+	avgImageName = SelectString(ParamIsDefault(avgImageName) ? 0: 1,"MXP_AvgStack", avgImageName)
+	ImageTransform averageImage w3d
+	WAVE M_AveImage
+	Duplicate/O M_AveImage, $avgImageName
+	KillWaves/Z M_AveImage
+	variable layers = DimSize(w3d, 2)
+	string w3dNoteStr = "Average of " + num2str(layers) + " images.\n"
+	w3dNoteStr += "Copy of " + NameOfWave(w3d) + "note:\n"
+	w3dNoteStr += note(w3d)
+	Note/K $avgImageName w3dNoteStr
 End

@@ -1,12 +1,9 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
+#pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
-// Menu launchers //
-Menu "MAXPEEM", hideable
-	"XMC(L)D.../5", MXP_MenuLoadTwoImagesInFolderRegisterForMagContrast()
-End
-Function MXP_MenuLoadTwoImagesInFolderRegisterForMagContrast()
+Function MXP_MenuLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 
 	variable numRef
 	string fileFilters = "dat File (*.dat):.dat;"
@@ -20,7 +17,7 @@ Function MXP_MenuLoadTwoImagesInFolderRegisterForMagContrast()
 		DoAlert/T="MAXPEEM would like you to know" 1, "Select two (2) .dat files only.\n" + \
 				"Do you want a another chance with the dialog selection?"
 		if(V_flag == 1)
-			MXP_MenuLoadTwoImagesInFolderRegisterForMagContrast()
+			MXP_MenuLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 		elseif(V_flag == 2)
 			Abort
 		else
@@ -31,39 +28,120 @@ Function MXP_MenuLoadTwoImagesInFolderRegisterForMagContrast()
 			  // as many times as the dialog will be displayed. Equavalenty, it can 
 			  // be placed in the if (V_flag == 1) branch.
 	endif
-	string selectedFilesStr = ""
-	selectedFilesStr += ParseFilePath(3, StringFromList(0, selectedFilesInDialogStr, "\r"), ":", 0, 0)
-	selectedFilesStr += ";"
-	selectedFilesStr += ParseFilePath(3, StringFromList(1, selectedFilesInDialogStr, "\r"), ":", 0, 0)
-	
-	string wavePathStr = ParseFilePath(1, StringFromList(0, selectedFilesInDialogStr, "\r"), ":", 1, 0)
-	string waveExtStr = ParseFilePath(4, StringFromList(0, selectedFilesInDialogStr, "\r"), ":", 0, 0)
-	// Extentions are needed to load the files correctly, adding the extra step so we are not restricted to .dat only
-	if(strlen(waveExtStr)) // add the dot
-		string waveExtensionStr = "." + waveExtStr
-	endif
-	string wave1Str = ParseFilePath(3, StringFromList(0, selectedFilesInDialogStr, "\r"), ":", 0, 0)
-	string wave2Str = ParseFilePath(3, StringFromList(1, selectedFilesInDialogStr, "\r"), ":", 0, 0)
+	//string selectedFilesStr = ""
+	selectedFilesInDialogStr = ReplaceString("\r", selectedFilesInDialogStr, ";")
+
+	string wave1Str = ParseFilePath(3, StringFromList(0, selectedFilesInDialogStr), ":", 0, 0)
+	string wave2Str = ParseFilePath(3, StringFromList(1, selectedFilesInDialogStr), ":", 0, 0)
+	string selectedFilesPopupStr = wave1Str + ";" + wave2Str
 	variable registerImageQ
 	string saveWaveName = ""
 	//Set defaults 
-	Prompt wave1Str, "img1", popup, selectedFilesStr
-	Prompt wave2Str, "img2", popup, selectedFilesStr
+	Prompt wave1Str, "img1", popup, selectedFilesPopupStr
+	Prompt wave2Str, "img2", popup, selectedFilesPopupStr
 	Prompt registerImageQ, "Automatic image registration?", popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt saveWaveName, "Name of the XMC(L)D wave (default: MXPxmcd)"
 	DoPrompt "XMC(L)D = (img1 - img2)/(img1 + img2)", wave1Str, wave2Str, registerImageQ, saveWaveName
-	WAVE wimg1 = MXP_WAVELoadSingleDATFile(wavePathStr + wave1Str + waveExtensionStr, "")
-	WAVE wimg2 = MXP_WAVELoadSingleDATFile(wavePathStr + wave2Str + waveExtensionStr, "")
-	Duplicate/O wimg2, SecWavBak // DELETE
+	WAVE wimg1 = MXP_WAVELoadSingleDATFile(StringFromList(0, selectedFilesInDialogStr), "")
+	WAVE wimg2 = MXP_WAVELoadSingleDATFile(StringFromList(1, selectedFilesInDialogStr), "")
+	// Make a note for the XMC(L)D image
+	string xmcdWaveNoteStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n"
+	xmcdWaveNoteStr += "img1: "
+	xmcdWaveNoteStr += note(wimg1)
+	xmcdWaveNoteStr += "\n"
+	xmcdWaveNoteStr += "\nimg2: "
+	xmcdWaveNoteStr += note(wimg2)
+		
+	if(!(WaveType(wimg1) & 0x02))
+		Redimension/S wimg1
+	endif
+	if(!(WaveType(wimg2) & 0x02))
+		Redimension/S wimg2
+	endif 
+	
+	Duplicate/FREE wimg2, wimg2copy
 	if(registerImageQ == 1)
-		MXP_ImageAlignmentByRegistration(wimg1, wimg2)
+		MXP_ImageAlignmentByRegistration(wimg1, wimg2copy)
 	endif
 	if(!strlen(saveWaveName))
 		saveWaveName = "MXPxmcd"
 	endif
-	MXP_CalculateXMCD(wimg1, wimg2, saveWaveName)
+	MXP_CalculateXMCD(wimg1, wimg2copy, saveWaveName)
+	Note/K $saveWaveName, xmcdWaveNoteStr
 End
 
+Function MXP_RegisterQCalculateXRayDichroism()	
+	
+	// Create the modal data browser but do not display it
+	CreateBrowser/M prompt="Select two wave for XMC(L)D calculation. "
+	// Show waves but not variables in the modal data browser
+	ModifyBrowser/M showWaves=1, showVars=0, showStrs=0
+	// Set the modal data browser to sort by name 
+	ModifyBrowser/M sort=1, showWaves=1, showVars=0, showStrs=0
+	// Hide the info and plot panes in the modal data browser 
+	ModifyBrowser/M showInfo=0, showPlot=1
+	// Display the modal data browser, allowing the user to make a selection
+	ModifyBrowser/M showModalBrowser
+	
+	if(!V_flag)
+		Abort
+	endif
+	
+	// S_fileName is a carriage-return-separated list of full paths to one or more files.
+	variable nrSelectedFiles = ItemsInList(S_BrowserList)
+	string selectedFilesInDialogStr = SortList(S_BrowserList, ";", 16)
+	if(nrSelectedFiles != 2)
+		DoAlert/T="MAXPEEM would like you to know" 1, "Select two (2) .dat files only.\n" + \
+				"Do you want a another chance with the browser selection?"
+		if(V_flag == 1)
+			MXP_RegisterQCalculateXRayDichroism()
+		elseif(V_flag == 2)
+			Abort
+		else
+			print "MXP_RegisterQCalculateXRayDichroism()! Abormal behavior."
+		endif
+		
+		Abort // Abort the running instance otherwise the code that follows will run 
+			  // as many times as the dialog will be displayed. Equavalenty, it can 
+			  // be placed in the if (V_flag == 1) branch.
+	endif
+	string wave1Str = ParseFilePath(0, StringFromList(0, selectedFilesInDialogStr), ":", 1, 0) // there might be dots in the filename
+	string wave2Str = ParseFilePath(0, StringFromList(1, selectedFilesInDialogStr), ":", 1, 0)
+	variable registerImageQ
+	string saveWaveName = ""
+	//Set defaults 
+	Prompt wave1Str, "img1", popup, selectedFilesInDialogStr
+	Prompt wave2Str, "img2", popup, selectedFilesInDialogStr
+	Prompt registerImageQ, "Automatic image registration?", popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt saveWaveName, "Name of the XMC(L)D wave (default: MXPxmcd)"
+	DoPrompt "XMC(L)D = (img1 - img2)/(img1 + img2)", wave1Str, wave2Str, registerImageQ, saveWaveName
+	WAVE wimg1 = $wave1Str
+	WAVE wimg2 = $wave2Str
+	// Make a note for the XMC(L)D image
+	string xmcdWaveNoteStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n"
+	xmcdWaveNoteStr += "img1: "
+	xmcdWaveNoteStr += note($wave1Str)
+	xmcdWaveNoteStr += "\n"
+	xmcdWaveNoteStr += "\nimg2: "
+	xmcdWaveNoteStr += note($wave2Str)
+	
+	if(!(WaveType(wimg1) & 0x02))
+		Redimension/S wimg1
+	endif
+	if(!(WaveType(wimg2) & 0x02))
+		Redimension/S wimg2
+	endif 
+	
+	Duplicate/FREE wimg2, wimg2copy
+	if(registerImageQ == 1)
+		MXP_ImageAlignmentByRegistration(wimg1, wimg2copy)
+	endif
+	if(!strlen(saveWaveName))
+		saveWaveName = "MXPxmcd"
+	endif
+	MXP_CalculateXMCD(wimg1, wimg2copy, saveWaveName)
+	Note/K $saveWaveName, xmcdWaveNoteStr
+End
 
 // -------------- //
 
@@ -82,7 +160,9 @@ Function MXP_CalculateXMCD(WAVE w1, WAVE w2, string wxmcdStr)
 	/// @param w1 WAVE Wave 1
 	/// @param w2 WAVE Wave 2
 	/// @param wxmcd string Wavemane of calcualted XMCD/XMLD
-	if(!(WaveType(w1) & 0x02 && WaveType(w2) & 0x02) || !(WaveType(w1) & 0x04 && WaveType(w2) & 0x04)) // if your waves are not 32-bit or 64-bit floats
+	
+	// Calculation of XMC(L)D using SP waves
+	if(!(WaveType(w1) & 0x02 && WaveType(w2) & 0x02))
 		Redimension/S w1, w2
 	endif
 	Duplicate/O w1, $wxmcdStr
