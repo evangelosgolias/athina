@@ -23,6 +23,7 @@ Function MXP_Make3DWaveUsingPattern(String wname3d, String pattern)
 		Wave t2dwred = $(StringFromList(ii,ListofMatchedWaves))
 		w3dref[][][ii] = t2dwred[p][q]
 	endfor
+	return 0
 End
 
 Function MXP_Make3DWaveDataBrowserSelection(String wname3d)
@@ -69,6 +70,7 @@ Function MXP_Make3DWaveDataBrowserSelection(String wname3d)
 		Wave t2dwred = $(StringFromList(i,listOfSelectedWaves))
 		w3dref[][][i] = t2dwred[p][q]
 	endfor
+	return 0
 End
 
 Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
@@ -82,4 +84,5 @@ Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
 	w3dNoteStr += "Copy of " + NameOfWave(w3d) + "note:\n"
 	w3dNoteStr += note(w3d)
 	Note/K $avgImageName w3dNoteStr
+	return 0
 End
