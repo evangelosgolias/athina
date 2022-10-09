@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
-Menu "Athina"
+Menu "MAXPEEM"
 
 	Submenu "Import!*"
 		".dat file...", MXP_LoadSingleDATFile("", "")
@@ -21,8 +21,8 @@ Menu "Athina"
 	End
 	
 	Submenu "Make!*"
-	"a stack from pattern", MXP_Launchake3DWaveUsingPattern()
-	"a stack from browser selection", MXP_LaunchMake3DWaveDataBrowserSelection()
+	"a stack from pattern!*", MXP_Launchake3DWaveUsingPattern()
+	"a stack from browser selection!*", MXP_LaunchMake3DWaveDataBrowserSelection()
 	End
 	
 	Submenu "Calculation!*"
@@ -33,7 +33,7 @@ Menu "Athina"
 	
 	Submenu "Profiles!*"
 		"z-profile...!*", MXP_MainMenuLaunchZBeamProfiler()
-		"z-profile (many areas)..."
+		"Line profile...", print "Now yet implemented"
 	End
 End
 

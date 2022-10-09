@@ -4,8 +4,33 @@
 
 
 Function MarqueeToMask(): GraphMarquee
-	GetMarquee/K left, top;
+	GetMarquee/K left, bottom;
 	MXP_CoordinatesToROIMask(V_left, V_top, V_right, V_bottom)
+End
+
+Function BackupTraces(): GraphMarquee
+	GetMarquee/K left, bottom;
+	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 3)
+End
+
+Function RestoreTraces(): GraphMarquee
+	GetMarquee/K left, bottom;
+	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 4)
+End
+
+Function PullToZero(): GraphMarquee
+	GetMarquee/K left, bottom;
+	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 0)
+End
+
+Function NormalizeToOne(): GraphMarquee
+	GetMarquee/K left, bottom;
+	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 1)
+End
+
+Function MaximumToOne(): GraphMarquee
+	GetMarquee/K left, bottom;
+	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 2)
 End
 
 Function MXP_CoordinatesToROIMask(variable left, variable top, variable right, variable bottom)
@@ -20,7 +45,7 @@ Function MXP_CoordinatesToROIMask(variable left, variable top, variable right, v
 	ImageGenerateROIMask $wnamestr
 	DrawAction  delete
 	SetDrawLayer UserFront
-	Wave M_ROIMask
+	WAVE M_ROIMask
 	Duplicate/O M_ROIMask, MXP_ROIMask
 	Redimension/S MXP_ROIMask
 	KillWaves/Z M_ROIMask
@@ -31,6 +56,8 @@ Function MXP_OperationsOnGraphTracesForXAS(variable left, variable right, variab
 	// Trace calculations using graph marquee
 	string waveListStr, traceNameStr
 	waveListStr = TraceNameList("", ";", 1 + 4)
+	string buffer, dfStr
+	DFREF currDFR = GetDataFolderDFR()
 	variable i = 0
 	do
 		traceNameStr = StringFromList(i, waveListStr)
@@ -46,11 +73,20 @@ Function MXP_OperationsOnGraphTracesForXAS(variable left, variable right, variab
 			case 1: // Normalise to one
 				wRef /= V_avg
 				break
-			case 2: // Pull to zero
-				//code
+			case 2: // Max to one
+				wRef /= V_max
 				break
-			case 3:
-				//Code
+			case 3: // Backup traces
+				dfStr = GetWavesDataFolder(TraceNameToWaveRef("", traceNameStr), 1)
+				SetDataFolder $dfStr
+				buffer = NameOfWave(wref) + "_undo"
+				Duplicate/O wref, $buffer
+				break
+			case 4: // Restore traces
+				dfStr = GetWavesDataFolder(TraceNameToWaveRef("", traceNameStr), 1)
+				SetDataFolder $dfStr
+				buffer = NameOfWave(wref) + "_undo"
+				Duplicate/O $buffer, wref
 				break
 			default:
 				print "Unkwokn MXP_OperatiosGraphTracesForXAS operationSelection"
@@ -58,4 +94,5 @@ Function MXP_OperationsOnGraphTracesForXAS(variable left, variable right, variab
 		endswitch
 		i++
 	while (1)
+	SetDataFolder currDFR
 End

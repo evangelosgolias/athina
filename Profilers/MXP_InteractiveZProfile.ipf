@@ -5,7 +5,6 @@
 
 #include <Imageslider>
 
-
 /// Profiler can now have several instances.
 
 Function MXP_MainMenuLaunchZBeamProfiler()
@@ -100,6 +99,21 @@ Function MXP_InitialiseZProfilerFolder()
 End
 
 Function MXP_DrawImageROICursor(variable left, variable top, variable right, variable bottom) // Function used by the hook
+	/// Here we use ProgFront to get a mask from ImageGenerateROIMask
+	
+	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine
+	string winNameStr = WinName(0, 1, 1)
+	// Have you closed the Z profiler window? If yes relaunch it.
+	//MXP_InitialiseZProfilerGraph() // Add this here?
+	DoWindow/F $winNameStr // You need to have your imange stack as a top window
+	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
+	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 0.5, xcoord = top, ycoord = left
+	DrawOval left, top, right, bottom
+	Cursor/I/L=0/C=(65535, 0, 0, 30000)/S=2 J $wnamestr 0.5 * (left + right), 0.5 * (top + bottom)
+	return 0
+End
+
+Function MXP_DrawRectangleImageROICursor(variable left, variable top, variable right, variable bottom) // Function used by the hook
 	/// Here we use ProgFront to get a mask from ImageGenerateROIMask
 	
 	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine
