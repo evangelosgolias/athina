@@ -185,7 +185,10 @@ Function/WAVE MXP_WAVEImageAlignmentByCorrelation(WAVE w1, WAVE w2, [variable pr
 	if(printMode)
 		print "dx=", dx,",dy=", dy
 	endif
-	return M_OffsetImage
+	Duplicate/FREE M_OffsetImage waveRef
+	KillWaves/Z M_OffsetImage
+	WaveClear M_OffsetImage
+	return waveRef
 End
 
 Function MXP_ImageAlignmentByCorrelation(WAVE w1, WAVE w2, string alignedImageStr, [variable printMode])

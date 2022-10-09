@@ -3,6 +3,14 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
+// Utilities
+
+Function MXP_WaveDimensionsQ(WAVE waveRef, int dimensions)
+	// Do not check for for dimensions < 0 or dimensions > 4 
+	return WaveDims(waveRef) == dimensions
+End
+
+/// Make waves ///
 Function MXP_Make3DWaveUsingPattern(String wname3d, String pattern)
 	// Make a 3d wave named wname3d using the RegEx pattern
 	// Give "*" to match all waves
@@ -74,6 +82,9 @@ Function MXP_Make3DWaveDataBrowserSelection(String wname3d)
 End
 
 Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
+	/// Average a 3d wave along z.
+	/// @param w3d WAVW Wave name to average (3d wave)
+	/// @param avgImageName string optional Name of the output wave, default MXP_AvgStack.
 	avgImageName = SelectString(ParamIsDefault(avgImageName) ? 0: 1,"MXP_AvgStack", avgImageName)
 	ImageTransform averageImage w3d
 	WAVE M_AveImage
