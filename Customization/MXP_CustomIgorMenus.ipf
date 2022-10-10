@@ -6,9 +6,9 @@
 Menu "MAXPEEM"
 
 	Submenu "Import!*"
-		".dat file...", MXP_LoadSingleDATFile("", "")
-		"multiply .dat files...", MXP_LoadMultiplyDATFiles("")
-		".dat files in folder...",  MXP_LoadDATFilesFromFolder("", "*") 
+		".dat file...", MXP_LoadSingleDATFile("", "", autoscale = 1)
+		".dat files...", MXP_LoadMultiplyDATFiles(autoscale = 1)
+		".dat files in folder...",  MXP_LoadDATFilesFromFolder("", "*") // scale
 		".dat files in folder to stack ...", MXP_LauncherLoadDATFilesFromFolder()
 	End
 	
@@ -34,6 +34,11 @@ Menu "MAXPEEM"
 	Submenu "Profiles!*"
 		"z-profile...!*", MXP_MainMenuLaunchZBeamProfiler()
 		"Line profile...", print "Now yet implemented"
+	End
+	
+	Submenu "Housekeeping"
+		"List big waves", print "Now yet implemented"
+		"Export and remove big waves", print "Now yet implemented"
 	End
 End
 

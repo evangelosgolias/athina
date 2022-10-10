@@ -33,6 +33,30 @@ Function MaximumToOne(): GraphMarquee
 	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 2)
 End
 
+Function ScaleThisImage(): GraphMarquee
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	variable getScaleXY
+	string cmdStr = "0, 0", setScaleZStr
+	string msgDialog = "Scale Z direction of stack"
+	string strPrompt = "Set firstVal,  lastVal in quotes (string).\n Leave \"\"  and press continue for autoscaling."
+	if(MXP_WaveDimensionsQ(waveRef, 2))
+		getScaleXY = NumberByKey("FOV(µm)", note(waveRef), ":", "\n")
+		SetScale/I x, 0, getScaleXY, waveRef
+		SetScale/I y, 0, getScaleXY, waveRef
+	elseif(MXP_WaveDimensionsQ(waveRef, 3))
+		// We deal with the x, y scale when we import the wave
+		//getScaleXY = NumberByKey("FOV(µm)", note(waveRef), ":", "\n")
+		//SetScale/I x, 0, getScaleXY, waveRef
+		//SetScale/I y, 0, getScaleXY, waveRef
+		setScaleZStr = MXP_GenericSingleStrPrompt(strPrompt, msgDialog)
+		if(strlen(setScaleZStr))
+		cmdStr = "SetScale/I z " + setScaleZStr + ", " + NameofWave(waveRef)
+		Execute/Z cmdStr
+		endif
+	endif
+End
 Function MXP_CoordinatesToROIMask(variable left, variable top, variable right, variable bottom)
 	/// Generate a SP Mask from Marquee
 	/// The graph should have left, top axes

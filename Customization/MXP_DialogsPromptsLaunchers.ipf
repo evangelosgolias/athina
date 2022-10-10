@@ -18,7 +18,7 @@ End
 
 Function MXP_LauncherLoadDATFilesFromFolder()
 	string wNameStr = MXP_GenericSingleStrPrompt("Stack name, empty string to auto-name", "Before the selection dialog opens...")
-	MXP_LoadDATFilesFromFolder("", "*", switch3d = 1, wname3d = wNameStr)
+	MXP_LoadDATFilesFromFolder("", "*", switch3d = 1, wname3d = wNameStr, autoscale = 1)
 
 End
 

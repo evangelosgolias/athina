@@ -97,7 +97,7 @@ Function MXP_ImageStackAlignmentByMaskRegistration(WAVE w3d, WAVE MaskWaveRef, [
 	variable i 
 	for(i = 0; i < layers; i++)
 		MatrixOP/FREE getfreelayer = layer(w3d, i)
-		ImageTransform/IOFF={dx[i], dy[i], 0} offsetImage getfreelayer
+		ImageTransform/IOFF={dx[i], dy[i], 0} offsetImage getfreelayer // dx or -dx? Check it
 		w3d[][][i] = getfreelayer[p][q]
 	endfor
 	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams
