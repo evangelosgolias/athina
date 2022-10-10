@@ -816,6 +816,7 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int switch3d
 		fnameBuffer = StringFromList(0, allFiles)
 		datafile2read = folder + fnameBuffer
 		Wave wname = MXP_WAVELoadSingleDATFile(datafile2read, "")
+		variable getScaleXY = NumberByKey("FOV(µm)", note(wname), ":", "\n")
 		KillWaves wname
 		WAVEClear wname
 	endif
@@ -850,7 +851,6 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int switch3d
 		Note/K w3dref, note3d
 	endif
 	if(autoscale)
-		variable getScaleXY = NumberByKey("FOV(µm)", note(w3dref), ":", "\n")
 		SetScale/I x, 0, getScaleXY, w3dref
 		SetScale/I y, 0, getScaleXY, w3dref
 	endif
