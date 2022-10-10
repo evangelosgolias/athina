@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+﻿ #pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
@@ -96,8 +96,8 @@ Function MXP_LaunchRegisterQCalculateXRayDichroism()
 			  // as many times as the dialog will be displayed. Equavalenty, it can 
 			  // be placed in the if (V_flag == 1) branch.
 	endif
-	string wave1Str = ParseFilePath(0, StringFromList(0, selectedWavesStr), ":", 1, 0) // there might be dots in the filename
-	string wave2Str = ParseFilePath(0, StringFromList(1, selectedWavesStr), ":", 1, 0)
+	string wave1Str = StringFromList(0, selectedWavesStr) // The last dat has been eliminated when importing waves, so we are ok
+	string wave2Str = StringFromList(1, selectedWavesStr)
 	string selectedWavesPopupStr = wave1Str + ";" + wave2Str
 	variable registerImageQ
 	string saveWaveName = ""
@@ -115,10 +115,10 @@ Function MXP_LaunchRegisterQCalculateXRayDichroism()
 	// Make a note for the XMC(L)D image
 	string xmcdWaveNoteStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n"
 	xmcdWaveNoteStr += "img1: "
-	xmcdWaveNoteStr += note($wave1Str)
+	xmcdWaveNoteStr += note(wimg1)
 	xmcdWaveNoteStr += "\n"
 	xmcdWaveNoteStr += "\nimg2: "
-	xmcdWaveNoteStr += note($wave2Str)
+	xmcdWaveNoteStr += note(wimg2)
 	
 	if(!(WaveType(wimg1) & 0x02))
 		Redimension/S wimg1

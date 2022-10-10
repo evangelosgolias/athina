@@ -23,15 +23,18 @@ Function MXP_ImageAlignmentByRegistration(WAVE w1, WAVE w2)
 	/// @param w1 wave reference First wave (reference wave)
 	/// @param w2 wave reference Second wave (test wave)
 	string msg
-	sprintf msg, "ImageRegistration needs SP precision waves. Converting %s, %s to SP", NameOfWave(w1), NameOfWave(w2)
-	print msg		
 	sprintf msg, "ImageRegistration with refWave = %s and testWave = %s.", NameOfWave(w1), NameOfWave(w2)
-		
+	print msg		
+
 	if(!(WaveType(w1) & 0x02))
+		sprintf msg, "ImageRegistration needs SP precision waves. Converting %s to SP", NameOfWave(w1)
+		print msg		
 		Redimension/S w1
 	endif
 	if(!(WaveType(w2) & 0x02))
-		Redimension/S w1
+		sprintf msg, "ImageRegistration needs SP precision waves. Converting %s to SP", NameOfWave(w2)
+		print msg	
+		Redimension/S w2
 	endif 
 	ImageRegistration/TRNS={1,1,0}/ROT={0,0,0}/SKEW={0,0,0}/TSTM=0 refWave = w1, testWave = w2
 	WAVE M_RegOut
@@ -159,6 +162,60 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, variab
 	return 0
 End
 
+Function MXP_ImageStackAlignmentByIterativeCorrelation(WAVE w3d,  [variable printMode, variable useThreads]) // EXPERIMENTAL 10.10.22
+	/// Align a 3d wave using (auto)correlation. By default the function will
+	/// use the 0-th layer as a wave reference, uncless user chooses otherwise. 
+	/// Only integer x, y translations are calculated.
+	/// @param w3d wave 3d we want to aligment
+	/// @param refLayer int optional Select refWave = refLayer for ImageRegistration.
+	/// @param printMode int optional print the drift corrections in pixels
+	/// @param useThreads int optional use MultiThread for some wave assignments
+
+	printMode = ParamIsDefault(printMode) ? 0: printMode // print if not 0
+	useThreads = ParamIsDefault(useThreads) ? 0: useThreads // print if not 0
+	variable x0, y0, x1, y1, dx, dy
+	variable layers = DimSize(w3d, 2)
+	Duplicate/O w3d, $NameOfWave(w3d)+"_undo"
+	//Now translate each wave in the stack
+	variable i 
+	if(printMode)
+		print "Ref. Layer = 0"
+		print "---- Drift ----"
+		print "layer  dx  dy"
+	endif
+
+	for(i = 1; i < layers; i++)
+			MatrixOP/FREE freeLayer = layer(w3d, i)
+			MatrixOP/FREE refLayerWave = layer(w3d, i-1)
+			MatrixOP/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
+			WaveStats/M=1/Q autocorrelationW
+			x0 = V_maxRowLoc
+			y0 = V_maxColLoc
+			MatrixOP/FREE correlationW = correlate(refLayerWave, freeLayer, 0)
+			WaveStats/M=1/Q correlationW
+			x1 = V_maxRowLoc
+			y1 = V_maxColLoc
+			dx = x1 - x0
+			dy = y1 - y0
+			if(printMode)
+				print i, dx, dy
+			endif
+			if(dx * dy) // Replace a slice only if you have to offset
+				ImageTransform/IOFF={-dx, -dy, 0} offsetImage freeLayer
+				Wave M_OffsetImage
+				if(useThreads)
+					MultiThread w3d[][][i] = M_OffsetImage[p][q] //Might be instable
+				else
+					w3d[][][i] = M_OffsetImage[p][q] //Might be instable
+				endif
+			endif
+			// interp2D(getfreelayer, x + dx, y + dy) works but we need an extra step MatrixOP/FREE XXX = zapNaNs()			
+	endfor
+	KillWaves/Z M_OffsetImage
+	WaveClear M_OffsetImage
+	return 0
+End
+
 Function/WAVE MXP_WAVEImageAlignmentByCorrelation(WAVE w1, WAVE w2, [variable printMode])
 	/// Align two images using Correlation/Autocorrelation operations. 
 	/// @param w1 wave reference First wave (reference wave) for which its autocorrelation 
@@ -222,4 +279,106 @@ Function MXP_ImageAlignmentByCorrelation(WAVE w1, WAVE w2, string alignedImageSt
 		print "dx=", dx,",dy=", dy
 	endif
 	return 0
+End
+
+////////// Experimental //////
+
+// Needs fixing, also you need a generic function to extract a 3d wave part with Marquee
+Function MXP_ImageStackAlignmentByMaskCorrelation(WAVE w3d, WAVE maskW, [variable layerN, variable printMode, variable useThreads])
+	/// Align a 3d wave using (auto)correlation. By default the function will
+	/// use the 0-th layer as a wave reference, uncless user chooses otherwise. 
+	/// Only integer x, y translations are calculated.
+	/// @param w3d wave 3d we want to aligment
+	/// @param refLayer int optional Select refWave = refLayer for ImageRegistration.
+	/// @param printMode int optional print the drift corrections in pixels
+	/// @param useThreads int optional use MultiThread for some wave assignments
+
+	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then 0 is your choice
+	printMode = ParamIsDefault(printMode) ? 0: printMode // print if not 0
+	useThreads = ParamIsDefault(useThreads) ? 0: useThreads // print if not 0
+	// Get the coordinates from Mask's note
+	string coordinates = StringByKey("V_left, V_top, V_right, V_bottom", note(maskW))
+	variable xstart, xend, ystart, yend
+	sscanf coordinates, "%f,%f,%f,%f",  xstart, ystart, xend, yend
+	variable pstart = ScaleToIndex(w3d, min(xstart, xend), 0)
+	variable pend = ScaleToIndex(w3d, max(xstart, xend), 0)
+	variable qstart = ScaleToIndex(w3d, min(ystart, yend), 1)
+	variable qend = ScaleToIndex(w3d, max(ystart, yend), 1)
+	variable ptsP = abs(qend - qstart)
+	variable ptsQ = abs(pend - pstart)
+	variable maskWaveStartP = min(pstart, pend)
+	variable maskWaveStartQ = min(qstart, qend)
+	variable maskWaveEndP = max(pstart, pend)
+	variable maskWaveEndQ = max(qstart, qend)
+	variable freeWavePts = max(ptsP, ptsQ) // Need a square wave for correlation
+	if(mod(freeWavePts,2))
+		freeWavePts += 1
+	endif
+	variable layers = DimSize(w3d, 2)
+//	Make/N=(freeWavePts, freeWavePts, layers)/O maskedFreeWaveRef // change /O with FREE after debugging
+//	maskedFreeWaveRef[][][] = (maskWaveStartP + p < maskWaveEndP && maskWaveStartQ + q <maskWaveEndQ)? w3d[maskWaveStartP + p][maskWaveStartQ + q][r] : 0
+	Make/N=(ptsP, ptsQ, layers)/O maskedFreeWaveRef // change /O with FREE after debugging
+	maskedFreeWaveRef[][][] = w3d[maskWaveStartP + p][maskWaveStartQ + q][r]
+	variable i
+	// Normalise wave
+	for(i = 0; i < layers; i++)
+		MatrixOP/FREE getfreelayer = layer(maskedFreeWaveRef, i)
+		MatrixOP/FREE normfreelayer = normalize(getfreelayer)
+		maskedFreeWaveRef[][][i] = normfreelayer[p][q]
+	endfor
+	MatrixOP/FREE refLayerWave = layer(maskedFreeWaveRef, layerN)
+//	MatrixOP/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
+//	WaveStats/M=1/Q autocorrelationW
+//	variable x0 = V_maxRowLoc, y0 = V_maxColLoc, x1, y1, dx, dy
+	Duplicate/O w3d, $NameOfWave(w3d)+"_undo"
+	//Now translate each wave in the stack
+//	variable i 
+//	if(printMode)
+//		print "Ref. Layer = ", layerN
+//		print "---- Drift ----"
+//		print "layer  dx  dy"
+//	endif
+
+	ImageRegistration/Q/STCK/TRNS={1,1,0}/ROT={0,0,0}/SKEW={0,0,0}/CONV=1 refwave = refLayerWave, testwave = maskedFreeWaveRef
+	Wave/Z M_RegParams
+	if(printMode)
+		MatrixOP/FREE/P=1 dx = row(M_RegParams,0) // Print dx
+		MatrixOP/FREE/P=1 dy = row(M_RegParams,1) // Print dy
+	else
+		MatrixOP/FREE dx = row(M_RegParams,0) // Print dx
+		MatrixOP/FREE dy = row(M_RegParams,1) // Print dy
+	endif
+	for(i = 0; i < layers; i++)
+		MatrixOP/FREE getfreelayer = layer(w3d, i)
+		ImageTransform/IOFF={-dx[i], -dy[i], 0} offsetImage getfreelayer // dx or -dx? Check it
+		w3d[][][i] = getfreelayer[p][q]
+	endfor
+//	for(i = 0; i < layers; i++)
+//		if(i != layerN)
+//			MatrixOP/FREE freeLayer = layer(w3d, i)
+//			MatrixOP/FREE freeMaskedLayer = layer(maskedFreeWaveRef, i)
+//			MatrixOP/FREE correlationW = correlate(refLayerWave, freeMaskedLayer, 0)
+//			WaveStats/M=1/Q correlationW
+//			x1 = V_maxRowLoc
+//			y1 = V_maxColLoc
+//			dx = x1 - x0
+//			dy = y1 - y0
+//			if(printMode)
+//				print i, dx, dy
+//			endif
+//			if(dx * dy) // Replace a slice only if you have to offset
+//				ImageTransform/IOFF={-dx, -dy, 0} offsetImage freeLayer
+//				Wave M_OffsetImage
+//				if(useThreads)
+//					MultiThread w3d[][][i] = M_OffsetImage[p][q] //Might be instable
+//				else
+//					w3d[][][i] = M_OffsetImage[p][q] //Might be instable
+//				endif
+//			endif
+//			// interp2D(getfreelayer, x + dx, y + dy) works but we need an extra step MatrixOP/FREE XXX = zapNaNs()			
+//		endif
+//	endfor
+//	KillWaves/Z M_OffsetImage
+//	WaveClear M_OffsetImage
+//	return 0
 End

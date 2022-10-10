@@ -281,8 +281,8 @@ Function MXP_SaveProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 				break // Stop if you go through the else branch
 				endif	
 			while(1)
-		sprintf recreateDrawStr, "path:%s;waveName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 0.5, xcoord= top, ycoord= left;" + \
-								 "DrawCmd:DrawOval %f, %f, %f, %f", w3dPath, w3dNameStr, red, green, blue, V_left, V_top, V_right, V_bottom
+		sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 0.5, xcoord= top, ycoord= left;" + \
+								 "DrawCmd:DrawOval %f, %f, %f, %f", w3dPath + w3dNameStr, red, green, blue, V_left, V_top, V_right, V_bottom
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
 		break
 	endswitch

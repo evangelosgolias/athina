@@ -4,8 +4,12 @@
 
 
 Function MarqueeToMask(): GraphMarquee
-	GetMarquee/K left, bottom;
+	GetMarquee/K left, top;
 	MXP_CoordinatesToROIMask(V_left, V_top, V_right, V_bottom)
+	string noteToMaskStr 
+	sprintf noteToMaskStr, "V_left, V_top, V_right, V_bottom:%s, %s, %s, %s", num2str(V_left), num2str(V_top), num2str(V_right), num2str(V_right)
+	WAVE MXP_ROIMask
+	Note/K MXP_ROIMask, noteToMaskStr
 End
 
 Function BackupTraces(): GraphMarquee
