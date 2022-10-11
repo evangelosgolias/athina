@@ -48,3 +48,8 @@ Menu "GraphMarquee"
 	"Oval ROI z profile", GetMarquee/K left, top; MXP_DrawImageROICursor(V_left, V_top, V_right, V_bottom)
 	"Clear ROI markings", MXP_CleanROIMarkings()
 End
+
+
+Menu "DataBrowserObjectsPopup"
+	"New MXP image", MXP_LaunchNewImageFromBrowserSelection()
+End

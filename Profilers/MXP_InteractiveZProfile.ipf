@@ -28,8 +28,8 @@ Function MXP_MainMenuLaunchZBeamProfiler()
 	string browserSelection = StringFromList(0, S_BrowserList)
 	Wave selected3DWave = $browserSelection
 	if(exists(browserSelection) && WaveDims(selected3DWave) == 3) // if it is a 3d wave
-		CheckDisplayed/A $browserSelection
 		NewImage/K=1 selected3DWave
+		ModifyGraph width={Plan,1,top,left}
 		MXP_InitialiseZProfilerFolder()
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles:" + NameOfWave(selected3DWave)) // Change root folder if you want
 		MXP_InitialiseZProfilerGraph(dfr)
@@ -116,13 +116,13 @@ End
 
 Function MXP_DrawImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
 	SetDrawLayer UserFront 
-	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 0.5, xcoord= top, ycoord= left
+	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
 	DrawOval left, top, right, bottom
 	return 0
 End
 
 Function MXP_CleanROIMarkings()
-	SetDrawLayer UserFront
+	SetDrawLayer ProgFront
 	DrawAction delete
 	return 0
 End
@@ -151,7 +151,7 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 
 		case 2: // Kill the window
 			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedPanelStr"))
-			KillDataFolder dfr
+			KillDataFolder/Z dfr
 			hookresult = 1
 			break
         case 7: // cursor moved

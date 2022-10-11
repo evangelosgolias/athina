@@ -51,6 +51,28 @@ Function MXP_LaunchMXP_ImageStackAlignmentByCorrelation()
 		  "KillWaves/Z " + PossiblyQuoteName(selectWaveStr + "_undo")
 End
 
+Function MXP_LaunchNewImageFromBrowserSelection()
+	// Display selected images
+	variable i = 0
+	string mxpImage
+	if(!strlen(GetBrowserSelection(0)))
+		Abort "No image selected"
+	endif
+	
+	do
+		mxpImage = GetBrowserSelection(i)
+		NewImage $mxpImage
+		ModifyGraph width={Plan,1,top,left}
+		if(WaveDims($mxpImage)==3)
+			WMAppend3DImageSlider()
+		endif
+		i++
+	while (strlen(GetBrowserSelection(i)))
+End
+
+Function MXP_LaunchNewStackFromBrowserSelection()
+End
+
 // Dialogs
 Function/S MXP_GenericSinglePopupStrPrompt(string strPrompt, string popupStrSelection, string msgDialog)
 	string returnStrVar 
