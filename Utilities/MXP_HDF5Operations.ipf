@@ -4,7 +4,7 @@
 
 // This code is meant to deal only with the metada files saved in the MAXPEEM beamline. 
 
-Function EG_ListHDF5Groups()
+Function MXP_ListHDF5Groups()
 	Variable fileid_
 	String filepath = MXP_GetHDF5SingleFilePath()
 	HDF5OpenFile/R fileid_ as filepath
@@ -12,14 +12,14 @@ Function EG_ListHDF5Groups()
 	MXP_ListHDF5GroupsFID(fileid_)
 End
 
-Function/S EG_GetHDF5Groups()
+Function/S MXP_GetHDF5Groups()
 	Variable fileid_
 	String filepathname = MXP_GetHDF5SingleFilePath()
 	HDF5OpenFile/R fileid_ as filepathname
 	return MXP_GetHDF5GroupsFID(fileid_)
 End
 
-Function EG_LoadHDF5File()
+Function MXP_LoadHDF5File()
 	Variable fileid_
 	String filepathname = MXP_GetHDF5SingleFilePath()
 	HDF5OpenFile/R fileid_ as filepathname
@@ -28,7 +28,7 @@ Function EG_LoadHDF5File()
 	HDF5CloseFile fileid_
 End
 
-Function EG_LoadHDF5SpecificGroups(String groups)
+Function MXP_LoadHDF5SpecificGroups(String groups)
 	// String should be in the form "2-5,7,9-12,50"
 	groups = MXP_StrExpandRange(groups)
 	Variable fileid_
