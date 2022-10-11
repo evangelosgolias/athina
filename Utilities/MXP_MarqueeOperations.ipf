@@ -54,9 +54,11 @@ Function ScaleThisImage(): GraphMarquee
 		//getScaleXY = NumberByKey("FOV(µm)", note(waveRef), ":", "\n")
 		//SetScale/I x, 0, getScaleXY, waveRef
 		//SetScale/I y, 0, getScaleXY, waveRef
+		DoWindow/F $winNameStr
 		setScaleZStr = MXP_GenericSingleStrPrompt(strPrompt, msgDialog)
+		string dataPathStr = GetWavesDataFolder(waveRef, 2)
 		if(strlen(setScaleZStr))
-		cmdStr = "SetScale/I z " + setScaleZStr + ", " + NameofWave(waveRef)
+		cmdStr = "SetScale/I z " + setScaleZStr + ", " + dataPathStr
 		Execute/Z cmdStr
 		endif
 	endif

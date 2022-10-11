@@ -148,7 +148,9 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 	Wave/Z M_ROIMask
 	
     switch(s.eventCode)
-
+		case 0: //activate window rescales the profile to the layer scale of the 3d wave
+			SetScale/P x, DimOffset(w3d,2), DimDelta(w3d,2), profile
+			break
 		case 2: // Kill the window
 			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedPanelStr"))
 			KillDataFolder/Z dfr
