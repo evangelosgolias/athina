@@ -310,7 +310,6 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	FSetPos numRef, ImageDataStart
 	FBinRead/F=2 numRef, datWave
 	ImageTransform flipCols datWave // flip the y-axis
-	Close numRef
 	
 	if(!skipmetadata)
 		timestamp = MXPImageHeader.imagetime.LONG[0]+2^32 * MXPImageHeader.imagetime.LONG[1]
@@ -321,7 +320,6 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
 		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
 	endif
-	
 	// Add image markups if any
 	if(MXPImageHeader.attachedMarkupSize)
 		mdatastr += MXP_StrGetImageMarkups(filepathStr)
@@ -329,7 +327,7 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
 		Note/K datWave, mdatastr
 	endif
-	
+	Close numRef
 	// Convert to SP or DP 
 	if(waveDataType == 1)
 		Redimension/S datWave
@@ -477,7 +475,7 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 	
 		FGetPos numRef
 	while (V_filePos < MetadataEndPos)
-	
+	Close numRef
 	return MXPMetaDataStr // ConvertTextEncoding(MXPMetaDataStr, 1, 1, 3, 2)
 End
 
