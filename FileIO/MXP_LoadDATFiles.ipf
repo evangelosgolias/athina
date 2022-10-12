@@ -310,6 +310,7 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	FSetPos numRef, ImageDataStart
 	FBinRead/F=2 numRef, datWave
 	ImageTransform flipCols datWave // flip the y-axis
+	Close numRef // Close the file
 	
 	if(!skipmetadata)
 		timestamp = MXPImageHeader.imagetime.LONG[0]+2^32 * MXPImageHeader.imagetime.LONG[1]
@@ -320,6 +321,7 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
 		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
 	endif
+
 	// Add image markups if any
 	if(MXPImageHeader.attachedMarkupSize)
 		mdatastr += MXP_StrGetImageMarkups(filepathStr)
@@ -327,7 +329,7 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
 		Note/K datWave, mdatastr
 	endif
-	Close numRef
+
 	// Convert to SP or DP 
 	if(waveDataType == 1)
 		Redimension/S datWave
@@ -342,6 +344,7 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 		SetScale/I x, 0, imgScaleVar, datWave
 		SetScale/I y, 0, imgScaleVar, datWave
 	endif
+	return 0
 End
 
 Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable MetadataStartPos, variable MetadataEndPos)
@@ -631,7 +634,7 @@ Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataSt
 	
 		FGetPos numRef
 	while (V_filePos < MetadataEndPos)
-	
+	Close numRef
 	return MXPMetaDataStr
 End
 
@@ -655,8 +658,8 @@ Function/S MXP_StrGetImageMarkups(string filename)
 	
 	// Read aAttachedMarkupSize
 	variable attachedMarkupSize
-	fsetpos refNum, (126 + attachedRecipeSize)
-	fbinread /F=2 refNum, attachedMarkupSize
+	FSetpos refNum, (126 + attachedRecipeSize)
+	FBinRead /F=2 refNum, attachedMarkupSize
 	attachedMarkupSize = (floor(attachedMarkupSize/128)+1)*128 // Follow Elmitec's instructions
 	
 	if(attachedMarkupSize)
@@ -759,7 +762,7 @@ Function MXP_AppendMarkupsToTopImage()
 		SetDrawEnv/W=$GraphName fsize = 16, textRGB = (markup_color_R, markup_color_G, markup_color_B), textxjust = 1, textyjust = 1, ycoord = left, xcoord = $xAxis
 		DrawText/W=$GraphName markup_x, markup_y, markup_text
 	endfor
-	
+	return 0
 End
 
 Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int switch3d, string wname3d, int autoscale])
@@ -853,6 +856,7 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int switch3d
 		SetScale/I y, 0, getScaleXY, w3dref
 	endif
 	KillPath/Z MXP_DATFilesPathTMP
+	return 0
 End
 
 Function MXP_LoadMultiplyDATFiles([string filenames, int skipmetadata, int autoscale])
@@ -894,6 +898,7 @@ Function MXP_LoadMultiplyDATFiles([string filenames, int skipmetadata, int autos
 			MXP_WAVELoadSingleDATFile(StringFromList(i,loadFiles, "\r"), "", skipmetadata = skipmetadata, autoscale = autoscale)
 		endif
 	endfor
+	return 0
 End
 
 
