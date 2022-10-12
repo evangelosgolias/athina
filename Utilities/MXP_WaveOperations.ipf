@@ -97,3 +97,59 @@ Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
 	Note/K $avgImageName w3dNoteStr
 	return 0
 End
+
+Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, variable startP, variable endP, variable startQ, variable endQ, [variable tetragonal])
+	/// Partition a 3D to get an orthorhombic 3d wave
+	/// @param startP int
+	/// @param endP int
+	/// @param startQ int
+	/// @param endQ
+	/// @param tetragonal int optional When set the number of rows and columns of the partition equals max(rows, cols).
+	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
+	// Check boundaries
+	variable nrows = DimSize(w3d, 0)
+	variable ncols = DimSize(w3d, 1)
+	variable nlayer = DimSize(w3d, 2)
+	
+	// assume that startP < endP && startQ < endQ
+	if (!(startP < endP && startQ < endQ && endP < nrows && endQ < ncols))
+		Abort "Error: Out of bounds p, q values or X_min >= X_max."
+	endif
+	variable nWaveRows = endP-startP
+	variable nWaveCols = endQ-startQ
+	if(tetragonal) //
+		nWaveRows = max(nWaveRows, nWaveCols)
+		nWaveCols = nWaveRows
+	endif
+	Make/FREE/N=(nWaveRows, nWavecols, nlayer) wFreeRef
+	wFreeRef[][][] = w3d[startP + p][startQ + q][r]
+	return wFreeRef
+End
+
+Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startP, variable endP, variable startQ, variable endQ, [variable tetragonal])
+	/// Partition a 3D to get an orthorhombic 3d wave
+	/// @param startP int
+	/// @param endP int
+	/// @param startQ int
+	/// @param endQ
+	/// @param tetragonal int optional When set the number of rows and columns of the partition equals max(rows, cols).
+	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
+	// Check boundaries
+	variable nrows = DimSize(w3d, 0)
+	variable ncols = DimSize(w3d, 1)
+	variable nlayer = DimSize(w3d, 2)
+	
+	// assume that startP < endP && startQ < endQ
+	if (!(startP < endP && startQ < endQ && endP < nrows && endQ < ncols))
+		Abort "Error: Out of bounds p, q values or X_min >= X_max."
+	endif
+	variable nWaveRows = endP-startP
+	variable nWaveCols = endQ-startQ
+	if(tetragonal) //
+		nWaveRows = max(nWaveRows, nWaveCols)
+		nWaveCols = nWaveRows
+	endif
+	Make/O/N=(nWaveRows, nWavecols, nlayer) $partitionNameStr /WAVE=wRef
+	wRef[][][] = w3d[startP + p][startQ + q][r]
+	return 0
+End
