@@ -28,7 +28,11 @@ Function MXP_LaunchAverageStackToImage()
 	string strPrompt2 = "Enter averaged wave nane (leave empty for MXP_AvgStack)"
 	string msgDialog = "Average a stack (3d wave) in working DF"
 	[selectWaveStr, waveNameStr] = MXP_GenericSingleStrPromptAndPopup(strPrompt1, strPrompt2, waveListStr, msgDialog)
-	MXP_AverageStackToImage($selectWaveStr, avgImageName = waveNameStr)
+	if(!strlen(waveNameStr))
+		MXP_AverageStackToImage($selectWaveStr)
+	else
+		MXP_AverageStackToImage($selectWaveStr, avgImageName = waveNameStr)
+	endif
 End
 
 Function MXP_LaunchMXP_ImageStackAlignmentByCorrelation()

@@ -149,7 +149,7 @@ Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startP,
 		nWaveRows = max(nWaveRows, nWaveCols)
 		nWaveCols = nWaveRows
 	endif
-	Make/O/N=(nWaveRows, nWavecols, nlayer) $partitionNameStr /WAVE=wRef
+	Make/O/N=(nWaveRows, nWavecols, nlayer) $partitionNameStr /WAVE=wRef // MT here?
 	wRef[][][] = w3d[startP + p][startQ + q][r]
 	return 0
 End

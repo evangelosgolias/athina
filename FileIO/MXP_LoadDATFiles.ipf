@@ -900,5 +900,3 @@ Function MXP_LoadMultiplyDATFiles([string filenames, int skipmetadata, int autos
 	endfor
 	return 0
 End
-
-
