@@ -382,3 +382,4 @@ Function MXP_ImageStackAlignmentByMaskCorrelation(WAVE w3d, WAVE maskW, [variabl
 //	WaveClear M_OffsetImage
 //	return 0
 End
+

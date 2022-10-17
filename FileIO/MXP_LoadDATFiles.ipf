@@ -347,6 +347,133 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	return 0
 End
 
+Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skipmetadata, int waveDataType, int autoScale])
+	///< Function to load a single Elmitec binary .dav file.
+	/// @param filepathStr string filename (including) pathname. 
+	/// If "" a dialog opens to select the file.
+	/// @param waveNameStr name of the imported wave. 
+	/// If "" the wave name is the filename without the path and extention.
+	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
+	/// @param waveDataType is optional and sets the Wavetype of the loaded wave to single 
+	/// @param autoScale int optional scales the imported waves if not 0
+	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
+	
+	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
+	waveDataType = ParamIsDefault(waveDataType) ? 0: waveDataType
+	
+	variable numRef
+	string separatorchar = ":"
+	string fileFilters = "dav File (*.dav):.dav;"
+	fileFilters += "All Files:.*;"
+	string message
+    if (!strlen(filepathStr) && !strlen(waveNameStr)) 
+		message = "Select .dav file. \nFilename will be wave's name. (overwrite)\n "
+   		Open/F=fileFilters/M=message/D/R numref
+   		filepathStr = S_filename
+   		
+   		if(!strlen(filepathStr)) // user cancel?
+   			Abort
+   		endif
+
+   		Open/F=fileFilters/R numRef as filepathStr
+		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
+		
+	elseif (strlen(filepathStr) && !strlen(waveNameStr))
+		message = "Select .dav file. \nWave names are filenames /O.\n "
+		Open/F=fileFilters/R numRef as filepathStr
+		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
+		
+	elseif (!strlen(filepathStr) && strlen(waveNameStr))
+		message = "Select .dav file. \n Destination wave will be overwritten\n "
+   		Open/F=fileFilters/M=message/D/R numref
+   		filepathStr = S_filename
+   		
+   		if(!strlen(filepathStr)) // user cancel?
+   			Abort
+   		endif
+   		
+		message = "Select .dat file. \nWave names are filenames /O.\n "
+		Open/F=fileFilters/R numRef as filepathStr
+	else
+		Abort "Path for datafile not specified (check MXP_ImportImageFromSingleDatFile)!"
+	endif
+	
+	STRUCT UKFileHeader MXPFileHeader
+	STRUCT UKImageHeader MXPImageHeader
+	
+	FSetPos numRef, 0
+	FStatus numRef
+	variable totalBytesInDAVFile = V_logEOF
+	FBinRead numRef, MXPFileHeader //Read fileheader - only once and always 104 bytes for .dav
+	
+	variable ImageHeaderSize, timestamp
+	
+	variable cnt = 0
+
+	do // entry
+		
+	FSetPos numRef, MXPFileHeader.size + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+	FBinRead numRef, MXPImageHeader
+	
+	if(MXPImageHeader.attachedMarkupSize == 0)
+		//no markups
+		ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
+	else
+		//Markup blocks multiple of 128 bytes after image header
+		ImageHeaderSize = 288 + 128 * ((trunc(MXPImageHeader.attachedMarkupSize/128))+1)
+	endif
+	
+	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
+	Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $(waveNameStr + num2str(cnt)) /WAVE=datWave
+	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + MXPImageHeader.LEEMdataVersion 
+	ImageDataStart +=  cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+	FSetPos numRef, ImageDataStart
+	FBinRead/F=2 numRef, datWave
+	ImageTransform flipCols datWave // flip the y-axis
+	
+	if(!skipmetadata)
+		timestamp = MXPImageHeader.imagetime.LONG[0]+2^32 * MXPImageHeader.imagetime.LONG[1]
+		timestamp *= 1e-7 // t_i converted from 100ns to s
+		timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
+		variable MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+		string mdatastr = filepathStr + "\n"
+		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
+		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
+	endif
+
+	// Add image markups if any
+	if(MXPImageHeader.attachedMarkupSize)
+		mdatastr += MXP_StrGetImageMarkups(filepathStr)
+	endif
+	if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
+		Note/K datWave, mdatastr
+	endif
+
+	// Convert to SP or DP 
+	if(waveDataType == 1)
+		Redimension/S datWave
+	endif
+	
+	if(waveDataType == 2)
+		Redimension/D datWave
+	endif
+
+	if(autoScale && !skipmetadata)
+		variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
+		SetScale/I x, 0, imgScaleVar, datWave
+		SetScale/I y, 0, imgScaleVar, datWave
+	endif
+	WAVEClear datWave
+	cnt += 1
+	FGetPos numRef
+	if(totalBytesInDAVFile == V_filePos)
+		break
+	endif
+	while(1) // end
+	Close numRef // Close the file
+	return 0
+End
+
 Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable MetadataStartPos, variable MetadataEndPos)
 	// Read important metadata from a .dat file. Most metadata are stored in the form
 	// tag (units): values, so it's easy to parse using the StringByKey function.
@@ -816,7 +943,7 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int switch3d
 	if(autoscale)
 		fnameBuffer = StringFromList(0, allFiles)
 		datafile2read = folder + fnameBuffer
-		Wave wname = MXP_WAVELoadSingleDATFile(datafile2read, "")
+		WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, "")
 		variable getScaleXY = NumberByKey("FOV(µm)", note(wname), ":", "\n")
 		KillWaves wname
 		WAVEClear wname
@@ -827,9 +954,9 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int switch3d
 		datafile2read = folder + fnameBuffer
 		if(switch3d) // Skip the metadata if you load to a 3dwave
 			// Here we assume all the waves have the same x, y scaling 
-			Wave wname = MXP_WAVELoadSingleDATFile(datafile2read, "", skipmetadata = 1)
+			WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, "", skipmetadata = 1)
 		else
-			Wave wname = MXP_WAVELoadSingleDATFile(datafile2read, "", skipmetadata = 0)
+			WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, "", skipmetadata = 0)
 		endif
 	endfor
 	
@@ -893,9 +1020,9 @@ Function MXP_LoadMultiplyDATFiles([string filenames, int skipmetadata, int autos
 	variable i = 0
 	for(i = 0; i < nrloadFiles; i += 1)
 		if (nrloadFiles == nrFilenames) // FIX: There is an issue here! Is the following correct?
-			MXP_WAVELoadSingleDATFile(StringFromList(i,loadFiles, "\r"), StringFromList(i, filenames), skipmetadata = skipmetadata, autoscale = autoscale)
+			MXP_LoadSingleDATFile(StringFromList(i,loadFiles, "\r"), StringFromList(i, filenames), skipmetadata = skipmetadata, autoscale = autoscale)
 		else
-			MXP_WAVELoadSingleDATFile(StringFromList(i,loadFiles, "\r"), "", skipmetadata = skipmetadata, autoscale = autoscale)
+			MXP_LoadSingleDATFile(StringFromList(i,loadFiles, "\r"), "", skipmetadata = skipmetadata, autoscale = autoscale)
 		endif
 	endfor
 	return 0
