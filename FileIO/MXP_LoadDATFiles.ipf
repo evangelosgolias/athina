@@ -84,12 +84,21 @@ EndStructure
 
 static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string pathNameStr, string fileTypeStr, string fileCreatorStr, variable fileKind)
 
-    
+    PathInfo $pathNameStr
+    string fileToOpen = S_path + fileNameStr
     if(StringMatch(fileNameStr,"*.dat") && fileKind == 7) // Igor thinks that the .dat file is a General text (fileKind == 7)
-        PathInfo $pathNameStr
-        string fileToOpen = S_path + fileNameStr
         try
         	MXP_LoadSingleDATFile(fileToOpen, "")
+        	AbortOnRTE
+        catch
+        	print "Are you sure you are not trying to load a text file with .dat extention?"
+        	Abort
+        endtry
+        return 1
+    endif
+    if(StringMatch(fileNameStr,"*.dav") && fileKind == 7) // Igor thinks that the .dat file is a General text (fileKind == 7)
+        try
+        	MXP_LoadSingleDAVFile(fileToOpen, "")
         	AbortOnRTE
         catch
         	print "Are you sure you are not trying to load a text file with .dat extention?"
@@ -348,7 +357,7 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 End
 
 Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skipmetadata, int waveDataType, int autoScale])
-	///< Function to load a single Elmitec binary .dav file.
+	///< Function to load a single Elmitec binary .dav file. dav files comprise of many dat entries in sequence.
 	/// @param filepathStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
 	/// @param waveNameStr name of the imported wave. 
@@ -392,7 +401,7 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
    			Abort
    		endif
    		
-		message = "Select .dat file. \nWave names are filenames /O.\n "
+		message = "Select .dav file. \nWave names are filenames /O.\n "
 		Open/F=fileFilters/R numRef as filepathStr
 	else
 		Abort "Path for datafile not specified (check MXP_ImportImageFromSingleDatFile)!"
@@ -410,7 +419,7 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	
 	variable cnt = 0
 
-	do // entry
+	do
 		
 	FSetPos numRef, MXPFileHeader.size + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
 	FBinRead numRef, MXPImageHeader
@@ -424,7 +433,7 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	endif
 	
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
-	Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $(waveNameStr + num2str(cnt)) /WAVE=datWave
+	Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $(waveNameStr + "_" + num2str(cnt)) /WAVE=datWave
 	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + MXPImageHeader.LEEMdataVersion 
 	ImageDataStart +=  cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
 	FSetPos numRef, ImageDataStart

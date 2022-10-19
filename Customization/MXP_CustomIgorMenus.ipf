@@ -18,11 +18,12 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "Align!*"
+	"using a feature", MXP_LaunchMXP_ImageStackAlignmentByPartition()
 	"stack (correlation, fast)!* ...", MXP_LaunchMXP_ImageStackAlignmentByCorrelation()
 	End
 	
 	Submenu "Make!*"
-	"a stack from pattern!*", MXP_Launchake3DWaveUsingPattern()
+	"a stack from pattern!*", MXP_LaunchMake3DWaveUsingPattern()
 	"a stack from browser selection!*", MXP_LaunchMake3DWaveDataBrowserSelection()
 	End
 	
@@ -48,9 +49,22 @@ End
 Menu "GraphMarquee"
 	"Oval ROI z profile", GetMarquee/K left, top; MXP_DrawImageROICursor(V_left, V_top, V_right, V_bottom)
 	"Clear ROI markings", MXP_CleanROIMarkings()
+	"Marquee to mask", MXP_MarqueeToMask()
+	"Backup traces", MXP_BackupTraces()
+	"Restore traces", MXP_RestoreTraces()
+	"Normalize to one", MXP_NormalizeToOne()
+	"Pull to zero", MXP_PullToZero()
+	"Maximum to one", MXP_MaximumToOne()
+	"Partition 3D region", MXP_Partition3DRegion()
 End
 
 
 Menu "DataBrowserObjectsPopup"
-	"New MXP image", MXP_LaunchNewImageFromBrowserSelection()
+	"MXP Newimage", MXP_LaunchNewImageFromBrowserSelection()
+	"MXP Make stack", MXP_LaunchMake3DWaveDataBrowserSelection()
+End
+
+Menu "TracePopup"
+	"-"
+	"Scale Image", MXP_ScaleImage()
 End

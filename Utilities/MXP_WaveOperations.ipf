@@ -98,44 +98,19 @@ Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
 	return 0
 End
 
-Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, variable startP, variable endP, variable startQ, variable endQ, [variable tetragonal])
+Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startP, variable endP, variable startQ, variable endQ, [variable tetragonal, variable powerOfTwo, variable filter])
 	/// Partition a 3D to get an orthorhombic 3d wave
 	/// @param startP int
 	/// @param endP int
 	/// @param startQ int
 	/// @param endQ
 	/// @param tetragonal int optional When set the number of rows and columns of the partition equals max(rows, cols).
+	/// @param powerOfTwo int optional set the rows, cols to the next 2^n
+	/// @param filter int optional apply an image filter to the stack
 	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
-	// Check boundaries
-	variable nrows = DimSize(w3d, 0)
-	variable ncols = DimSize(w3d, 1)
-	variable nlayer = DimSize(w3d, 2)
-	
-	// assume that startP < endP && startQ < endQ
-	if (!(startP < endP && startQ < endQ && endP < nrows && endQ < ncols))
-		Abort "Error: Out of bounds p, q values or X_min >= X_max."
-	endif
-	variable nWaveRows = endP-startP
-	variable nWaveCols = endQ-startQ
-	if(tetragonal) //
-		nWaveRows = max(nWaveRows, nWaveCols)
-		nWaveCols = nWaveRows
-	endif
-	Make/FREE/N=(nWaveRows, nWavecols, nlayer) wFreeRef
-	wFreeRef[][][] = w3d[startP + p][startQ + q][r]
-	return wFreeRef
-End
+	powerOfTwo = ParamIsDefault(powerOfTwo) ? 0: powerOfTwo
+	filter = ParamIsDefault(filter) ? 0: filter 
 
-Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startP, variable endP, variable startQ, variable endQ, [variable tetragonal, variable powerOfTwo])
-	/// Partition a 3D to get an orthorhombic 3d wave
-	/// @param startP int
-	/// @param endP int
-	/// @param startQ int
-	/// @param endQ
-	/// @param tetragonal int optional When set the number of rows and columns of the partition equals max(rows, cols).
-
-	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
-	powerOfTwo = ParamIsDefault(powerOfTwo) ? 0: powerOfTwo 
 	// P, Q values might come from scaled images
 	startP = ScaleToIndex(w3d, startP, 0)
 	endP   = ScaleToIndex(w3d, endP, 0)
@@ -161,16 +136,79 @@ Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startP,
 		nWaveCols = nWaveRows
 	endif
 	if(powerOfTwo)
-		nWaveCols = NextPowerOfTwo(nWaveCols)
+		nWaveCols = MXP_NextPowerOfTwo(nWaveCols)
 		nWaveRows = nWaveCols
 	endif
 	Make/O/N=(nWaveRows, nWavecols, nlayer) $partitionNameStr /WAVE=wRef // MT here?
 	wRef[][][] = w3d[startP + p][startQ + q][r]
+	if(filter)
+		ImageFilter/O median3d wRef //Filter the image
+	endif
 	return 0
 End
 
+Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, string partitionNameStr, variable startP, variable endP, variable startQ, variable endQ, [variable tetragonal, variable powerOfTwo, variable filter])
+	/// Partition a 3D to get an orthorhombic 3d wave
+	/// @param startP int
+	/// @param endP int
+	/// @param startQ int
+	/// @param endQ
+	/// @param tetragonal int optional When set the number of rows and columns of the partition equals max(rows, cols).
+	/// @param powerOfTwo int optional set the rows, cols to the next 2^n
+	/// @param filter int optional apply an image filter to the stack
+	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
+	powerOfTwo = ParamIsDefault(powerOfTwo) ? 0: powerOfTwo
+	filter = ParamIsDefault(filter) ? 0: filter 
+
+	// P, Q values might come from scaled images
+	startP = ScaleToIndex(w3d, startP, 0)
+	endP   = ScaleToIndex(w3d, endP, 0)
+	startQ = ScaleToIndex(w3d, startQ, 1)
+	endQ   = ScaleToIndex(w3d, endQ, 1)
+	// Check boundaries
+	variable nrows = DimSize(w3d, 0)
+	variable ncols = DimSize(w3d, 1)
+	variable rowsOff = DimOffset(w3d, 0)
+	variable colsOff = DimOffset(w3d, 1)
+	variable nlayer = DimSize(w3d, 2)
+	// assume that startP < endP && startQ < endQ
+	if (!(startP < endP && startQ < endQ && endP < nrows && endQ < ncols && startP > rowsOff && startQ > colsOff))
+		Abort "Error: Out of bounds p, q values or X_min >= X_max."
+	endif
+	variable nWaveRows = endP-startP
+	variable nWaveCols = endQ-startQ
+	if(tetragonal) //
+		nWaveRows = max(nWaveRows, nWaveCols)
+		if(mod(nWaveRows, 2))
+		nWaveRows += 1 //should be even
+		endif
+		nWaveCols = nWaveRows
+	endif
+	if(powerOfTwo)
+		nWaveCols = MXP_NextPowerOfTwo(nWaveCols)
+		nWaveRows = nWaveCols
+	endif
+	Make/FREE/N=(nWaveRows, nWavecols, nlayer) wFreeRef
+	wFreeRef[][][] = w3d[startP + p][startQ + q][r]
+	if(filter)
+		ImageFilter/O median3d wFreeRef //NB: Filter the image
+	endif
+	return wFreeRef
+End
+
+Function MXP_ZapNaNs3DWave(WAVE w3d)
+	/// Zap NaNs in a 3D using MatrixOP
+	variable nlayers = DimSize(w3d, 2), i
+	
+	for(i = 0; i < nlayers; i+=1)
+		MatrixOP/O/FREE slicefreelayer = layer(w3d, i)
+		MatrixFilter NanZapMedian slicefreelayer
+		w3d[][][i] = slicefreelayer[p][q]
+	endfor
+End
+
 // Helper functions
-static Function NextPowerOfTwo(variable num)
+static Function MXP_NextPowerOfTwo(variable num)
 	 /// Return the first power of two after num.
 	 /// @param num double 
 	variable bufferVar

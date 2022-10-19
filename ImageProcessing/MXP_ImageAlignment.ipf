@@ -43,7 +43,7 @@ Function MXP_ImageAlignmentByRegistration(WAVE w1, WAVE w2)
 	return 0
 End
 
-Function MXP_ImageStackAlignmentByFullRegistration(WAVE w3d, [variable layerN])
+Function MXP_ImageStackAlignmentByFullRegistration(WAVE w3d, [variable layerN, variable printMode])
 	/// Align a 3d wave using ImageRegistration. By default the function will
 	/// use the 0-th layer as a wave reference, uncless user chooses otherwise 
 	/// Only x, y translations are allowed.
@@ -53,19 +53,22 @@ Function MXP_ImageStackAlignmentByFullRegistration(WAVE w3d, [variable layerN])
 	/// it is better to use a mask to isolate a characteristic feature. 
 	//TODO: Fix the function
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then 0 is your choice
+	printMode = ParamIsDefault(printMode) ? 0: printMode // convMode = 0, 1 
 	MatrixOP/FREE refLayerWave = layer(w3d, layerN) 
 	// HERE /CONV=0 accelerates a lot the process in a 3d stack but you lose in accuracy?
 	ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/SKEW={0,0,0}/TSTM=0/CONV=0 refwave = refLayerWave, testwave = w3d
 	WAVE M_RegOut, M_RegMaskOut, M_RegParams
-	MatrixOP/FREE/P=1 dx = row(M_RegParams,0) // Print dx
-	MatrixOP/FREE/P=1 dy = row(M_RegParams,1) // Print dy
+	if(printmode)
+		MatrixOP/FREE/P=1 dx = row(M_RegParams,0) // Print dx
+		MatrixOP/FREE/P=1 dy = row(M_RegParams,1) // Print dy
+	endif
 	Duplicate/O w3d, $NameOfWave(w3d)+"_undo"
 	Duplicate/O M_RegOut, w3d
 	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams
 	return 0
 End
 
-Function MXP_ImageStackAlignmentByMaskRegistration(WAVE w3d, WAVE MaskWaveRef, [variable layerN, variable convMode, variable printMode])
+Function MXP_ImageStackAlignmentByRegistrationWithMaskOption(WAVE w3d, WAVE MaskWaveRef, [variable layerN, variable convMode, variable printMode])
 	/// Align a 3d wave using ImageRegistration. By default the function will
 	/// use the 0-th layer as a wave reference, uncless user chooses otherwise 
 	/// Only x, y translations are allowed.
@@ -99,11 +102,98 @@ Function MXP_ImageStackAlignmentByMaskRegistration(WAVE w3d, WAVE MaskWaveRef, [
 	//Now translate each wave in the stack
 	variable i 
 	for(i = 0; i < layers; i++)
-		MatrixOP/FREE getfreelayer = layer(w3d, i)
-		ImageTransform/IOFF={dx[i], dy[i], 0} offsetImage getfreelayer // dx or -dx? Check it
+		MatrixOP/O/FREE getfreelayer = layer(w3d, i)
+		ImageTransform/IOFF={dx[i], dy[i], 0} offsetImage getfreelayer
 		w3d[][][i] = getfreelayer[p][q]
 	endfor
 	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams
+	return 0
+End
+
+Function MXP_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partitionW3d, [variable layerN, variable printMode])
+	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave. 
+	/// The partition 3d wave calls MXP_ImageStackAlignmentByFullRegistration
+	/// By default the function will  use the 0-th layer as a wave reference, uncless user chooses otherwise.
+	/// Only x, y translations are allowed.
+	/// @param w3d wave 3d we want to register for aligment
+	/// @param refLayer int optional Select refWave = refLayer for ImageRegistration.
+	/// @param convMode int optional Select convergence method /CONV = 0, 1 for Gravity (fast) or Marquardt (slow), respectively.
+	/// Note: When illumination conditions change considerably, (XAS along an edge)
+	/// it is better to use a mask to isolate a characteristic feature. 
+	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then default is 0
+	printMode = ParamIsDefault(printMode) ? 0: printMode
+	if(!(WaveType(partitionW3d) & 0x02))
+		Redimension/S partitionW3d
+	endif
+	MatrixOP/FREE refLayerWave = layer(partitionW3d, layerN)
+	variable rows = DimSize(w3d, 0)
+	variable cols = DimSize(w3d, 1)
+	variable layers = DimSize(w3d, 2)
+	Duplicate/O w3d, $(NameOfWave(w3d)+"_undo")
+	//ImageFilter/O gauss3d partitionW3d
+	ImageRegistration/Q/STCK/PSTK/ROT={0,0,0}/TSTM=0 refwave = refLayerWave, testwave = partitionW3d
+	WAVE M_RegParams
+	MatrixOP/FREE dx = row(M_RegParams,0) // Print dx
+	MatrixOP/FREE dy = row(M_RegParams,1) // Print dy
+	//Now translate each wave in the stack
+	variable i
+	for(i = 0; i < layers; i++)
+		MatrixOP/O/FREE getfreelayer = layer(w3d, i)
+		ImageTransform/IOFF={dx[i], dy[i], 0} offsetImage getfreelayer
+		WAVE M_OffsetImage
+		if(printMode)
+			print i,": ", dx[i], dy[i]
+		endif
+		w3d[][][i] = M_OffsetImage[p][q]
+	endfor
+	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams, M_OffsetImage
+	return 0
+End
+
+Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [variable layerN, variable printMode])
+	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave. 
+	/// The partition 3d wave calls MXP_ImageStackAlignmentByFullRegistration
+	/// By default the function will  use the 0-th layer as a wave reference, uncless user chooses otherwise.
+	/// Only x, y translations are allowed.
+	/// @param w3d wave 3d we want to register for aligment
+	/// @param refLayer int optional Select refWave = refLayer for ImageRegistration.
+	/// @param convMode int optional Select convergence method /CONV = 0, 1 for Gravity (fast) or Marquardt (slow), respectively.
+	/// Note: When illumination conditions change considerably, (XAS along an edge)
+	/// it is better to use a mask to isolate a characteristic feature. 
+	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then default is 0
+	printMode = ParamIsDefault(printMode) ? 0: printMode
+	if(!(WaveType(partitionW3d) & 0x02))
+		Redimension/S partitionW3d
+	endif
+	MatrixOP/FREE refLayerWave = layer(partitionW3d, layerN)
+	MatrixOP/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
+	WaveStats/M=1/Q autocorrelationW
+	variable x0 = V_maxRowLoc, y0 = V_maxColLoc, x1, y1, i
+	variable layers = DimSize(w3d, 2)
+	Duplicate/O w3d, $(NameOfWave(w3d)+"_undo")
+	// Calculate drifts
+	Make/FREE/N=(layers) dx, dy 
+	for(i = 0; i < layers; i++)
+		MatrixOP/O/FREE freeLayer = layer(partitionW3d, i)
+		MatrixOP/O/FREE correlationW = correlate(refLayerWave, freeLayer, 0)
+		WaveStats/M=1/Q correlationW
+		x1 = V_maxRowLoc
+		y1 = V_maxColLoc
+		dx[i] = x0 - x1
+		dy[i] = y0 - y1
+	endfor
+
+	//Now translate each wave in the stack (w3d)
+	for(i = 0; i < layers; i++)
+		MatrixOP/O/FREE getfreelayer = layer(w3d, i)
+		ImageTransform/IOFF={dx[i], dy[i], 0} offsetImage getfreelayer
+		WAVE M_OffsetImage
+		if(printMode)
+			print i,": ", dx[i], dy[i]
+		endif
+		w3d[][][i] = M_OffsetImage[p][q]
+	endfor
+	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams, M_OffsetImage
 	return 0
 End
 
@@ -135,8 +225,8 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, variab
 
 	for(i = 0; i < layers; i++)
 		if(i != layerN)
-			MatrixOP/FREE freeLayer = layer(w3d, i)
-			MatrixOP/FREE correlationW = correlate(refLayerWave, freeLayer, 0)
+			MatrixOP/O/FREE freeLayer = layer(w3d, i)
+			MatrixOP/O/FREE correlationW = correlate(refLayerWave, freeLayer, 0)
 			WaveStats/M=1/Q correlationW
 			x1 = V_maxRowLoc
 			y1 = V_maxColLoc
@@ -158,7 +248,6 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, variab
 		endif
 	endfor
 	KillWaves/Z M_OffsetImage
-	WaveClear M_OffsetImage
 	return 0
 End
 
@@ -185,9 +274,9 @@ Function MXP_ImageStackAlignmentByIterativeCorrelation(WAVE w3d,  [variable prin
 	endif
 
 	for(i = 1; i < layers; i++)
-			MatrixOP/FREE freeLayer = layer(w3d, i)
-			MatrixOP/FREE refLayerWave = layer(w3d, i-1)
-			MatrixOP/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
+			MatrixOP/O/FREE freeLayer = layer(w3d, i)
+			MatrixOP/O/FREE refLayerWave = layer(w3d, i-1)
+			MatrixOP/O/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
 			WaveStats/M=1/Q autocorrelationW
 			x0 = V_maxRowLoc
 			y0 = V_maxColLoc
@@ -226,8 +315,8 @@ Function/WAVE MXP_WAVEImageAlignmentByCorrelation(WAVE w1, WAVE w2, [variable pr
 	/// The MXP_ImageAlignmentByCorrelation function allow only for integer pixed translations.
 	
 	printMode = ParamIsDefault(printMode) ? 0: printMode // print if not 0 
-	MatrixOP/FREE autocorr = correlate(w1, w1, 0)
-	MatrixOP/FREE corr = correlate(w1, w2, 0)
+	MatrixOP/O/FREE autocorr = correlate(w1, w1, 0)
+	MatrixOP/O/FREE corr = correlate(w1, w2, 0)
 	WaveStats/Q autocorr // /P flag: report Loc in p, q instead of x, y
 	variable x0 = V_maxRowLoc
 	variable y0 = V_maxColLoc
@@ -259,9 +348,9 @@ Function MXP_ImageAlignmentByCorrelation(WAVE w1, WAVE w2, string alignedImageSt
 	/// The MXP_ImageAlignmentByCorrelation function allow only for integer pixed translations.
 	
 	// Take into account wave scaling.
-		printMode = ParamIsDefault(printMode) ? 0: printMode // print if not 0 
-	MatrixOP/FREE autocorr = correlate(w1, w1, 0)
-	MatrixOP/FREE corr = correlate(w1, w2, 0)
+	printMode = ParamIsDefault(printMode) ? 0: printMode // print if not 0 
+	MatrixOP/O/FREE autocorr = correlate(w1, w1, 0)
+	MatrixOP/O/FREE corr = correlate(w1, w2, 0)
 	WaveStats/Q autocorr // /P flag: report Loc in p, q instead of x, y
 	variable x0 = V_maxRowLoc
 	variable y0 = V_maxColLoc
@@ -322,11 +411,11 @@ Function MXP_ImageStackAlignmentByMaskCorrelation(WAVE w3d, WAVE maskW, [variabl
 	variable i
 	// Normalise wave
 	for(i = 0; i < layers; i++)
-		MatrixOP/FREE getfreelayer = layer(maskedFreeWaveRef, i)
-		MatrixOP/FREE normfreelayer = normalize(getfreelayer)
+		MatrixOP/O/FREE getfreelayer = layer(maskedFreeWaveRef, i)
+		MatrixOP/O/FREE normfreelayer = normalize(getfreelayer)
 		maskedFreeWaveRef[][][i] = normfreelayer[p][q]
 	endfor
-	MatrixOP/FREE refLayerWave = layer(maskedFreeWaveRef, layerN)
+	MatrixOP/O/FREE refLayerWave = layer(maskedFreeWaveRef, layerN)
 //	MatrixOP/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
 //	WaveStats/M=1/Q autocorrelationW
 //	variable x0 = V_maxRowLoc, y0 = V_maxColLoc, x1, y1, dx, dy
@@ -342,14 +431,14 @@ Function MXP_ImageStackAlignmentByMaskCorrelation(WAVE w3d, WAVE maskW, [variabl
 	ImageRegistration/Q/STCK/TRNS={1,1,0}/ROT={0,0,0}/SKEW={0,0,0}/CONV=1 refwave = refLayerWave, testwave = maskedFreeWaveRef
 	Wave/Z M_RegParams
 	if(printMode)
-		MatrixOP/FREE/P=1 dx = row(M_RegParams,0) // Print dx
-		MatrixOP/FREE/P=1 dy = row(M_RegParams,1) // Print dy
+		MatrixOP/O/FREE/P=1 dx = row(M_RegParams,0) // Print dx
+		MatrixOP/O/FREE/P=1 dy = row(M_RegParams,1) // Print dy
 	else
-		MatrixOP/FREE dx = row(M_RegParams,0) // Print dx
-		MatrixOP/FREE dy = row(M_RegParams,1) // Print dy
+		MatrixOP/O/FREE dx = row(M_RegParams,0) // Print dx
+		MatrixOP/O/FREE dy = row(M_RegParams,1) // Print dy
 	endif
 	for(i = 0; i < layers; i++)
-		MatrixOP/FREE getfreelayer = layer(w3d, i)
+		MatrixOP/O/FREE getfreelayer = layer(w3d, i)
 		ImageTransform/IOFF={-dx[i], -dy[i], 0} offsetImage getfreelayer // dx or -dx? Check it
 		w3d[][][i] = getfreelayer[p][q]
 	endfor

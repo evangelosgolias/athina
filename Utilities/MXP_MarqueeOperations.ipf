@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
 
-Function MarqueeToMask(): GraphMarquee
+Function MXP_MarqueeToMask()
 	GetMarquee/K left, top;
 	MXP_CoordinatesToROIMask(V_left, V_top, V_right, V_bottom)
 	string noteToMaskStr 
@@ -12,60 +12,32 @@ Function MarqueeToMask(): GraphMarquee
 	Note/K MXP_ROIMask, noteToMaskStr
 End
 
-Function BackupTraces(): GraphMarquee
+Function MXP_BackupTraces()
 	GetMarquee/K left, bottom;
 	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 3)
 End
 
-Function RestoreTraces(): GraphMarquee
+Function MXP_RestoreTraces()
 	GetMarquee/K left, bottom;
 	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 4)
 End
 
-Function PullToZero(): GraphMarquee
+Function MXP_PullToZero()
 	GetMarquee/K left, bottom;
 	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 0)
 End
 
-Function NormalizeToOne(): GraphMarquee
+Function MXP_NormalizeToOne()
 	GetMarquee/K left, bottom;
 	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 1)
 End
 
-Function MaximumToOne(): GraphMarquee
+Function MXP_MaximumToOne()
 	GetMarquee/K left, bottom;
 	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 2)
 End
 
-Function ScaleThisImage(): GraphMarquee
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	variable getScaleXY
-	string cmdStr = "0, 0", setScaleZStr
-	string msgDialog = "Scale Z direction of stack"
-	string strPrompt = "Set firstVal,  lastVal in quotes (string).\n Leave \"\"  and press continue for autoscaling."
-	if(MXP_WaveDimensionsQ(waveRef, 2))
-		getScaleXY = NumberByKey("FOV(µm)", note(waveRef), ":", "\n")
-		if(numtype(getScaleXY) == 2)
-			getScaleXY = 0
-		endif
-		SetScale/I x, 0, getScaleXY, waveRef
-		SetScale/I y, 0, getScaleXY, waveRef
-	elseif(MXP_WaveDimensionsQ(waveRef, 3))
-		// We deal with the x, y scale when we import the wave
-		//getScaleXY = NumberByKey("FOV(µm)", note(waveRef), ":", "\n")
-		//SetScale/I x, 0, getScaleXY, waveRef
-		//SetScale/I y, 0, getScaleXY, waveRef
-		DoWindow/F $winNameStr
-		setScaleZStr = MXP_GenericSingleStrPrompt(strPrompt, msgDialog)
-		string dataPathStr = GetWavesDataFolder(waveRef, 2)
-		if(strlen(setScaleZStr))
-		cmdStr = "SetScale/I z " + setScaleZStr + ", " + dataPathStr
-		Execute/Z cmdStr
-		endif
-	endif
-End
+
 Function MXP_CoordinatesToROIMask(variable left, variable top, variable right, variable bottom)
 	/// Generate a SP Mask from Marquee
 	/// The graph should have left, top axes
@@ -83,7 +55,6 @@ Function MXP_CoordinatesToROIMask(variable left, variable top, variable right, v
 	Redimension/S MXP_ROIMask
 	KillWaves/Z M_ROIMask
 End
-
 
 Function MXP_OperationsOnGraphTracesForXAS(variable left, variable right, variable operationSelection)
 	// Trace calculations using graph marquee
@@ -128,4 +99,11 @@ Function MXP_OperationsOnGraphTracesForXAS(variable left, variable right, variab
 		i++
 	while (1)
 	SetDataFolder currDFR
+End
+
+Function MXP_Partition3DRegion()
+	GetMarquee/K left, top;
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList("", ";"),";")
+	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	MXP_3DWavePartition(waveRef, "MXP_Partition3D", V_left, V_right, V_top, V_bottom, tetragonal = 1, poweroftwo = 1)
 End

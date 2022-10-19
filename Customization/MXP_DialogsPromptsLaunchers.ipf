@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
 // Launchers
-Function MXP_Launchake3DWaveUsingPattern()
+Function MXP_LaunchMake3DWaveUsingPattern()
 	string wname3dStr, pattern
 	[wname3dStr, pattern] = MXP_GenericDoubleStrPrompt("Stack name","Match waves (use * wildcard)", "Make a stack from waves using a pattern")
 	
@@ -33,6 +33,7 @@ Function MXP_LaunchAverageStackToImage()
 	else
 		MXP_AverageStackToImage($selectWaveStr, avgImageName = waveNameStr)
 	endif
+	KillWaves/Z M_StdvImage
 End
 
 Function MXP_LaunchRegisterQCalculateXRayDichroism()
@@ -236,7 +237,7 @@ Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	return 0
 End
 
-Function MXP_LaunchMXP_ImageStackAlignmentByCorrelation()
+Function MXP_LaunchMXP_ImageStackAlignmentByCorrelation() // Not in use
 	string waveListStr = Wavelist("*",";","DIMS:3"), selectWaveStr
 	variable printMode = 2
 	variable useThreads = 2
@@ -256,6 +257,100 @@ Function MXP_LaunchMXP_ImageStackAlignmentByCorrelation()
 		  "KillWaves/Z " + PossiblyQuoteName(selectWaveStr + "_undo")
 End
 
+// ---- ///
+Function MXP_LaunchMXP_ImageStackAlignmentByPartition()
+	//string waveListStr = Wavelist("*",";","DIMS:3"), selectWaveStr
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
+	variable method = 1
+	variable printMode = 2
+	variable layerN = 0
+	string msg = "Align " + imgNameTopGraphStr + " using registration (sub-pixel drift)"
+	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
+	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt layerN, "Reference layer"
+	DoPrompt msg, method, layerN, printMode
+	if(V_flag) // User cancelled
+		return -1
+	endif
+
+	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
+	//MXP_ImageStackAlignmentByPartitionRegistration
+	WAVE partiotionFreeWave = WM_UserSetMarquee(winNameStr)
+	if(method == 1)
+		MXP_ImageStackAlignmentByPartitionRegistration(w3dRef, partiotionFreeWave, layerN = layerN, printMode = printMode - 2)
+	else
+		MXP_ImageStackAlignmentByPartitionCorrelation(w3dRef, partiotionFreeWave, layerN = layerN, printMode = printMode - 2)
+	endif
+	print PossiblyQuoteName(imgNameTopGraphStr + "_undo") + " has been created. To restore " + PossiblyQuoteName(imgNameTopGraphStr) + " run the command:\n"
+	print "Duplicate/O " + PossiblyQuoteName(imgNameTopGraphStr + "_undo") + ", " +  PossiblyQuoteName(imgNameTopGraphStr) + "; " + \
+		  "KillWaves/Z " + PossiblyQuoteName(imgNameTopGraphStr + "_undo")
+	//KillWaves/Z MXP_Partition // Uncomment after DEBUG
+End
+
+Function/WAVE WM_UserSetMarquee(graphName)
+	/// Modified WM procedure to return a Free WAVE to MXP_LaunchMXP_ImageStackAlignmentByPartitionRegistration()
+	String graphName
+
+	DoWindow/F $graphName			// Bring graph to front
+	if (V_Flag == 0)					// Verify that graph exists
+		Abort "WM_UserSetMarquee: No such graph."
+	endif
+
+	NewDataFolder/O root:tmp_PauseforCursorDF
+	Variable/G root:tmp_PauseforCursorDF:canceled= 0
+
+	NewPanel/K=2 /W=(139,341,382,450) as "Set marquee on image"
+	DoWindow/C tmp_PauseforCursor					// Set to an unlikely name
+	AutoPositionWindow/E/M=1/R=$graphName			// Put panel near the graph
+
+	DrawText 15,20,"Draw marquee and press continue..."
+	DrawText 15,35,"Can also use a marquee to zoom-in"
+	Button button0,pos={80,50},size={92,20},title="Continue"
+	Button button0,proc=WM_UserSetMarquee_ContButtonProc
+	Button button1,pos={80,80},size={92,20}
+	Button button1,proc=WM_UserSetMarquee_CancelBProc,title="Cancel"
+
+	PauseForUser tmp_PauseforCursor,$graphName
+	
+	NVAR/Z left = root:tmp_PauseforCursorDF:left
+	NVAR/Z right = root:tmp_PauseforCursorDF:right
+	NVAR/Z top = root:tmp_PauseforCursorDF:top
+	NVAR/Z bottom = root:tmp_PauseforCursorDF:bottom
+
+	NVAR/Z gCanceled= root:tmp_PauseforCursorDF:canceled
+	Variable canceled= gCanceled			// Copy from global to local before global is killed
+	if(canceled)
+		GetMarquee/K
+		Abort
+	endif
+		
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(graphName, ";"),";")
+	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	WAVE partiotionFreeWave = MXP_WAVE3DWavePartition(w3dref, "MXP_Partition", left, right, top, bottom, tetragonal = 1, filter = 1)
+	KillDataFolder root:tmp_PauseforCursorDF // Kill folder here, you have to use the left, right, top, bottom in MXP_WAVE3DWavePartition
+	return partiotionFreeWave
+End
+
+Function WM_UserSetMarquee_ContButtonProc(ctrlName) : ButtonControl
+	String ctrlName
+	GetMarquee/K left, top
+	Variable/G root:tmp_PauseforCursorDF:left = V_left
+	Variable/G root:tmp_PauseforCursorDF:right = V_right
+	Variable/G root:tmp_PauseforCursorDF:top = V_top
+	Variable/G root:tmp_PauseforCursorDF:bottom = V_bottom	
+	KillWindow/Z tmp_PauseforCursor			// Kill self
+End
+
+Function WM_UserSetMarquee_CancelBProc(ctrlName) : ButtonControl
+	String ctrlName
+	Variable/G root:tmp_PauseforCursorDF:canceled = 1
+	KillWindow/Z tmp_PauseforCursor			// Kill self
+End
+
+// ---- ///
+
 Function MXP_LaunchNewImageFromBrowserSelection()
 	// Display selected images
 	variable i = 0
@@ -273,9 +368,6 @@ Function MXP_LaunchNewImageFromBrowserSelection()
 		endif
 		i++
 	while (strlen(GetBrowserSelection(i)))
-End
-
-Function MXP_LaunchNewStackFromBrowserSelection()
 End
 
 // Dialogs
