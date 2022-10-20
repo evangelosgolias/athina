@@ -5,7 +5,7 @@
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and later
 
 // ------------------------------------------------------- //
-// Functions to import binary .dat files written by the Uview Software from Elmitec
+// Functions to import binary .dat & .dav files created by the Uview Software from Elmitec
 // of the MAXPEEM beamline of MAX IV.
 //
 // Developed by Evangelos Golias.
@@ -356,7 +356,7 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	return 0
 End
 
-Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skipmetadata, int waveDataType, int autoScale])
+Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skipmetadata, int waveDataType, int autoScale, int stack3d])
 	///< Function to load a single Elmitec binary .dav file. dav files comprise of many dat entries in sequence.
 	/// @param filepathStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
@@ -365,11 +365,14 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
 	/// @param waveDataType is optional and sets the Wavetype of the loaded wave to single 
 	/// @param autoScale int optional scales the imported waves if not 0
+	/// @param stack3d int optional Stack images in a 3d wave
 	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
 	waveDataType = ParamIsDefault(waveDataType) ? 0: waveDataType
-	
+	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
+	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
+
 	variable numRef
 	string separatorchar = ":"
 	string fileFilters = "dav File (*.dav):.dav;"
@@ -417,8 +420,9 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	
 	variable ImageHeaderSize, timestamp
 	
-	variable cnt = 0
-
+	variable cnt = 0 
+	variable singlePassSwitch = 1
+	
 	do
 		
 	FSetPos numRef, MXPFileHeader.size + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
@@ -433,7 +437,11 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	endif
 	
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
-	Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $(waveNameStr + "_" + num2str(cnt)) /WAVE=datWave
+	if(stack3d)
+		Make/W/U/O/FREE/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) datWave
+	else
+		Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $(waveNameStr + "_" + num2str(cnt)) /WAVE=datWave
+	endif
 	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + MXPImageHeader.LEEMdataVersion 
 	ImageDataStart +=  cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
 	FSetPos numRef, ImageDataStart
@@ -471,6 +479,15 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 		variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
 		SetScale/I x, 0, imgScaleVar, datWave
 		SetScale/I y, 0, imgScaleVar, datWave
+	endif
+	
+	if(stack3d)
+		if(stack3d && singlePassSwitch) // We want stacking and yet the 3d wave is not created
+			variable nlayers = (totalBytesInDAVFile - 104)/(ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+			Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight, nlayers) $(waveNameStr) /WAVE = stack3DAVWave
+			singlePassSwitch = 0
+		endif
+		stack3DAVWave[][][cnt] = datWave[p][q]
 	endif
 	WAVEClear datWave
 	cnt += 1

@@ -10,6 +10,7 @@ Menu "MAXPEEM"
 		".dat files...", MXP_LoadMultiplyDATFiles(autoscale = 1)
 		".dat files in folder...",  MXP_LoadDATFilesFromFolder("", "*") // scale
 		".dat files in folder to stack ...", MXP_LauncherLoadDATFilesFromFolder()
+		".dav file in stack...", MXP_LoadSingleDAVFile("", "", stack3d = 1, skipmetadata = 1)
 		".dav file...", MXP_LoadSingleDAVFile("", "")
 	End
 	
