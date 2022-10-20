@@ -98,7 +98,7 @@ Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
 	return 0
 End
 
-Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startP, variable endP, variable startQ, variable endQ, [variable tetragonal, variable powerOfTwo, variable filter])
+Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startP, variable endP, variable startQ, variable endQ, [variable tetragonal, variable powerOfTwo])
 	/// Partition a 3D to get an orthorhombic 3d wave
 	/// @param startP int
 	/// @param endP int
@@ -109,7 +109,6 @@ Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startP,
 	/// @param filter int optional apply an image filter to the stack
 	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
 	powerOfTwo = ParamIsDefault(powerOfTwo) ? 0: powerOfTwo
-	filter = ParamIsDefault(filter) ? 0: filter 
 
 	// P, Q values might come from scaled images
 	startP = ScaleToIndex(w3d, startP, 0)
@@ -141,13 +140,11 @@ Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startP,
 	endif
 	Make/O/N=(nWaveRows, nWavecols, nlayer) $partitionNameStr /WAVE=wRef // MT here?
 	wRef[][][] = w3d[startP + p][startQ + q][r]
-	if(filter)
-		ImageFilter/O median3d wRef //Filter the image
-	endif
+
 	return 0
 End
 
-Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, string partitionNameStr, variable startP, variable endP, variable startQ, variable endQ, [variable tetragonal, variable powerOfTwo, variable filter])
+Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, string partitionNameStr, variable startP, variable endP, variable startQ, variable endQ, [variable tetragonal, variable powerOfTwo])
 	/// Partition a 3D to get an orthorhombic 3d wave
 	/// @param startP int
 	/// @param endP int
@@ -155,10 +152,8 @@ Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, string partitionNameStr, variabl
 	/// @param endQ
 	/// @param tetragonal int optional When set the number of rows and columns of the partition equals max(rows, cols).
 	/// @param powerOfTwo int optional set the rows, cols to the next 2^n
-	/// @param filter int optional apply an image filter to the stack
 	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
 	powerOfTwo = ParamIsDefault(powerOfTwo) ? 0: powerOfTwo
-	filter = ParamIsDefault(filter) ? 0: filter 
 
 	// P, Q values might come from scaled images
 	startP = ScaleToIndex(w3d, startP, 0)
@@ -190,9 +185,6 @@ Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, string partitionNameStr, variabl
 	endif
 	Make/FREE/N=(nWaveRows, nWavecols, nlayer) wFreeRef
 	wFreeRef[][][] = w3d[startP + p][startQ + q][r]
-	if(filter)
-		ImageFilter/O median3d wFreeRef //NB: Filter the image
-	endif
 	return wFreeRef
 End
 

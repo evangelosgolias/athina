@@ -252,6 +252,7 @@ Function MXP_LaunchMXP_ImageStackAlignmentByCorrelation() // Not in use
 		return 1
 	endif
 	MXP_ImageStackAlignmentByCorrelation($selectWaveStr, layerN = layerN, printMode = printMode - 2, useThreads = useThreads - 2)
+	// This might need change as in MXP_LaunchMXP_ImageStackAlignmentByPartition() ?
 	print PossiblyQuoteName(selectWaveStr + "_undo") + " has been created. To restore " + PossiblyQuoteName(selectWaveStr) + " run the command:\n"
 	print "Duplicate/O " + PossiblyQuoteName(selectWaveStr + "_undo") + ", " +  PossiblyQuoteName(selectWaveStr) + "; " + \
 		  "KillWaves/Z " + PossiblyQuoteName(selectWaveStr + "_undo")
@@ -283,10 +284,10 @@ Function MXP_LaunchMXP_ImageStackAlignmentByPartition()
 	else
 		MXP_ImageStackAlignmentByPartitionCorrelation(w3dRef, partiotionFreeWave, layerN = layerN, printMode = printMode - 2)
 	endif
-	print PossiblyQuoteName(imgNameTopGraphStr + "_undo") + " has been created. To restore " + PossiblyQuoteName(imgNameTopGraphStr) + " run the command:\n"
-	print "Duplicate/O " + PossiblyQuoteName(imgNameTopGraphStr + "_undo") + ", " +  PossiblyQuoteName(imgNameTopGraphStr) + "; " + \
-		  "KillWaves/Z " + PossiblyQuoteName(imgNameTopGraphStr + "_undo")
-	//KillWaves/Z MXP_Partition // Uncomment after DEBUG
+	string nameOfWaveStr = NameOfWave(w3dref)
+	print PossiblyQuoteName(nameOfWaveStr + "_undo") + " has been created. To restore " + PossiblyQuoteName(nameOfWaveStr) + " run the command:\n"
+	print "Duplicate/O " + PossiblyQuoteName(nameOfWaveStr + "_undo") + ", " +  PossiblyQuoteName(nameOfWaveStr) + "; " + \
+		  "KillWaves/Z " + PossiblyQuoteName(nameOfWaveStr + "_undo")
 End
 
 Function/WAVE WM_UserSetMarquee(graphName)
@@ -328,7 +329,7 @@ Function/WAVE WM_UserSetMarquee(graphName)
 		
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(graphName, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	WAVE partiotionFreeWave = MXP_WAVE3DWavePartition(w3dref, "MXP_Partition", left, right, top, bottom, tetragonal = 1, filter = 1)
+	WAVE partiotionFreeWave = MXP_WAVE3DWavePartition(w3dref, "MXP_Partition", left, right, top, bottom, tetragonal = 1)
 	KillDataFolder root:tmp_PauseforCursorDF // Kill folder here, you have to use the left, right, top, bottom in MXP_WAVE3DWavePartition
 	return partiotionFreeWave
 End
