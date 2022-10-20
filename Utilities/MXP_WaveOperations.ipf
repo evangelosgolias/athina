@@ -188,15 +188,17 @@ Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, string partitionNameStr, variabl
 	return wFreeRef
 End
 
-Function MXP_ZapNaNs3DWave(WAVE w3d)
-	/// Zap NaNs in a 3D using MatrixOP
-	variable nlayers = DimSize(w3d, 2), i
+Function MXP_ZapNaNsWithValue(WAVE w)
+	variable nlayers = DimSize(w, 2)
+	variable ncols = DimSize(w, 1)
+	if(nlayers)
+		Multithread w = (numtype(w[p][q][r]) == 2) ? 0: w
+	elseif(ncols && !nlayers)
+		w = (numtype(w[p][q]) == 2) ? 0: w 
+	else
+		w = (numtype(w[p]) == 2) ? 0: w 
+	endif
 	
-	for(i = 0; i < nlayers; i+=1)
-		MatrixOP/O/FREE slicefreelayer = layer(w3d, i)
-		MatrixFilter NanZapMedian slicefreelayer
-		w3d[][][i] = slicefreelayer[p][q]
-	endfor
 End
 
 // Helper functions

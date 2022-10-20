@@ -22,7 +22,7 @@ Function MXP_LauncherLoadDATFilesFromFolder()
 
 End
 
-Function MXP_LaunchAverageStackToImage()
+Function MXP_LaunchAverageStackToImageFromMenu()
 	string waveListStr = Wavelist("*",";","DIMS:3"), selectWaveStr, waveNameStr
 	string strPrompt1 = "Select stack"
 	string strPrompt2 = "Enter averaged wave nane (leave empty for MXP_AvgStack)"
@@ -32,6 +32,25 @@ Function MXP_LaunchAverageStackToImage()
 		MXP_AverageStackToImage($selectWaveStr)
 	else
 		MXP_AverageStackToImage($selectWaveStr, avgImageName = waveNameStr)
+	endif
+	KillWaves/Z M_StdvImage
+End
+
+Function MXP_LaunchAverageStackToImageFromTraceMenu()
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	if(!DimSize(w3dref, 2))
+		Abort "Operation needs a stack"
+	endif
+	string strPrompt = "Averaged wave nane (leave empty for MXP_AvgStack)"
+	string msgDialog = "Average stack along z"
+	string waveNameStr
+	waveNameStr = MXP_GenericSingleStrPrompt(strPrompt, msgDialog)
+	if(!strlen(waveNameStr))
+		MXP_AverageStackToImage(w3dref)
+	else
+		MXP_AverageStackToImage(w3dref, avgImageName = waveNameStr)
 	endif
 	KillWaves/Z M_StdvImage
 End
@@ -101,7 +120,21 @@ Function MXP_LaunchRegisterQCalculateXRayDichroism()
 	return 0
 End
 
-Function MXP_LaunchInteractiveImageDriftCorrectionXMCD()
+Function MXP_LaunchCalculateXMCDFromStack()
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	if(DimSize(w3dref,2) != 2)
+		Abort "A stack with two layers in needed"
+	endif
+	MatrixOP/O/FREE w1free = layer(w3dref, 0)
+	MatrixOP/O/FREE w2free = layer(w3dref, 1)
+	string xmcdWaveStr = NameofWave(w3dref) + "_xmcd"
+	MXP_CalculateXMCD(w1free, w2free, xmcdWaveStr)
+	NewImage $xmcdWaveStr
+	ModifyGraph width={Plan,1,top,left}
+End
+Function MXP_LaunchInteractiveImageDriftCorrectionXMCD() // FIX IT
 	/// Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
 	/// @param w1 WAVE Wave 1
@@ -160,10 +193,8 @@ Function MXP_LaunchInteractiveImageDriftCorrectionXMCD()
 	xmcdWAVERef = xmcd
 	NewImage xmcdWAVERef
 	ModifyGraph width={Plan,1,top,left}
-	
 	// TODO: Display the two images, find a good way of doing it.
 	// Then prompt to move one with respect to the other and recalculate XMCD MXP_WAVECalculateXMCD(dfr:wave1XMCD, dfr:wave2XMCD
-	WAVE xmcd = MXP_WAVECalculateXMCD(dfr:wave1XMCD, dfr:wave2XMCD)
 End
 
 Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
@@ -237,29 +268,39 @@ Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	return 0
 End
 
-Function MXP_LaunchMXP_ImageStackAlignmentByCorrelation() // Not in use
-	string waveListStr = Wavelist("*",";","DIMS:3"), selectWaveStr
+Function MXP_LaunchImageStackAlignmentByFullImage()
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
+	variable method = 1
 	variable printMode = 2
-	variable useThreads = 2
 	variable layerN = 0
-	Prompt selectWaveStr, "img1", popup, waveListStr
+	variable windowing = 2
+	string msg = "Align " + imgNameTopGraphStr + " using the full image."
+	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
 	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt windowing, "Hanning windowing", popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt layerN, "Reference layer"
-	Prompt useThreads, "Use threads", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt "Align image stack by (auto)correlation (int pixel drift)", selectWaveStr, layerN, printMode, useThreads
-	
+	DoPrompt msg, method, layerN, windowing, printMode
 	if(V_flag) // User cancelled
-		return 1
+		return -1
 	endif
-	MXP_ImageStackAlignmentByCorrelation($selectWaveStr, layerN = layerN, printMode = printMode - 2, useThreads = useThreads - 2)
-	// This might need change as in MXP_LaunchMXP_ImageStackAlignmentByPartition() ?
-	print PossiblyQuoteName(selectWaveStr + "_undo") + " has been created. To restore " + PossiblyQuoteName(selectWaveStr) + " run the command:\n"
-	print "Duplicate/O " + PossiblyQuoteName(selectWaveStr + "_undo") + ", " +  PossiblyQuoteName(selectWaveStr) + "; " + \
-		  "KillWaves/Z " + PossiblyQuoteName(selectWaveStr + "_undo")
+
+	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
+	//MXP_ImageStackAlignmentByPartitionRegistration
+	if(method == 1)
+		MXP_ImageStackAlignmentByRegistration(w3dRef, layerN = layerN, printMode = printMode - 2)
+	else
+		MXP_ImageStackAlignmentByCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, windowing = windowing - 2)
+	endif
+	string nameOfWaveStr = NameOfWave(w3dref)
+	print PossiblyQuoteName(nameOfWaveStr + "_undo") + " has been created. To restore " + PossiblyQuoteName(nameOfWaveStr) + " run the command:\n"
+	print "Duplicate/O " + PossiblyQuoteName(nameOfWaveStr + "_undo") + ", " +  PossiblyQuoteName(nameOfWaveStr) + "; " + \
+		  "KillWaves/Z " + PossiblyQuoteName(nameOfWaveStr + "_undo")
 End
 
 // ---- ///
-Function MXP_LaunchMXP_ImageStackAlignmentByPartition()
+Function MXP_LaunchImageStackAlignmentByPartition()
 	//string waveListStr = Wavelist("*",";","DIMS:3"), selectWaveStr
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -267,7 +308,7 @@ Function MXP_LaunchMXP_ImageStackAlignmentByPartition()
 	variable method = 1
 	variable printMode = 2
 	variable layerN = 0
-	string msg = "Align " + imgNameTopGraphStr + " using registration (sub-pixel drift)"
+	string msg = "Align " + imgNameTopGraphStr + " using part of the image."
 	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
 	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt layerN, "Reference layer"

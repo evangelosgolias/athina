@@ -19,8 +19,8 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "Align!*"
-	"using a feature", MXP_LaunchMXP_ImageStackAlignmentByPartition()
-	"stack (correlation, fast)!* ...", MXP_LaunchMXP_ImageStackAlignmentByCorrelation()
+	"using feature...", MXP_LaunchImageStackAlignmentByPartition()
+	"using the full image...", MXP_LaunchImageStackAlignmentByFullImage()
 	End
 	
 	Submenu "Make!*"
@@ -29,7 +29,7 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "Calculation!*"
-	"Stack average...!*", MXP_LaunchAverageStackToImage()
+	"Stack average...!*", MXP_LaunchAverageStackToImageFromMenu()
 	"Import .dat files and calculate XMC(L)D...!*", MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	"Calculate XMC(L)D...!*", MXP_LaunchRegisterQCalculateXRayDichroism()
 	End
@@ -67,5 +67,8 @@ End
 
 Menu "TracePopup"
 	"-"
-	"Scale Image", MXP_ScaleImage()
+	"MXP z profile", MXP_TraceMenuLaunchZBeamProfiler()
+	"MXP Scale Image", MXP_ScaleImage()
+	"MXP Average wave",  MXP_LaunchAverageStackToImageFromTraceMenu()
+	"MXP Calculate XMC(L)D", MXP_LaunchCalculateXMCDFromStack()
 End

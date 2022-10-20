@@ -11,7 +11,7 @@
 Function MXP_MainMenuLaunchZBeamProfiler()
 
 	// Create the modal data browser but do not display it
-	CreateBrowser/M prompt="Select a 3d wave to start the z-profiler:"
+	CreateBrowser/M prompt="Select a 3d wave to launch the z-profiler:"
 	// Show waves but not variables in the modal data browser
 	ModifyBrowser/M showWaves=1, showVars=0, showStrs=0
 	// Set the modal data browser to sort by name 
@@ -36,6 +36,28 @@ Function MXP_MainMenuLaunchZBeamProfiler()
 		SVAR winNameStr = dfr:gMXP_WindowNameStr
 		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_ProfPanel_" + NameOfWave(selected3DWave) // Name of the panel we will make, used to communicate the
+		// name to the windows hook to kill the panel after completion
+	else
+		Abort "z-profiler needs a 3d wave. N.B Select only one wave"
+	endif
+	return 0
+End
+
+Function MXP_TraceMenuLaunchZBeamProfiler()
+
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+
+	if(WaveDims(w3dref) == 3) // if it is a 3d wave
+		KillWindow $winNameStr
+		NewImage/K=1 w3dref
+		ModifyGraph width={Plan,1,top,left}
+		MXP_InitialiseZProfilerFolder()
+		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
+		MXP_InitialiseZProfilerGraph(dfr)
+		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
+		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_ProfPanel_" + NameOfWave(w3dref) // Name of the panel we will make, used to communicate the
 		// name to the windows hook to kill the panel after completion
 	else
 		Abort "z-profiler needs a 3d wave"
@@ -108,7 +130,7 @@ Function MXP_DrawImageROICursor(variable left, variable top, variable right, var
 	//MXP_InitialiseZProfilerGraph() // Add this here?
 	DoWindow/F $winNameStr // You need to have your imange stack as a top window
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
-	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 0.5, xcoord = top, ycoord = left
+	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	DrawOval left, top, right, bottom
 	Cursor/I/L=0/C=(65535, 0, 0, 30000)/S=2 J $wnamestr 0.5 * (left + right), 0.5 * (top + bottom)
 	return 0
@@ -238,7 +260,7 @@ Function MXP_SaveProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/Z DoPlotSwitch = dfr:gMXP_DoPlotSwitch
 	NVAR/Z MarkAreasSwitch = dfr:gMXP_MarkAreasSwitch
 	NVAR/Z colorcnt = dfr:gMXP_colorcnt
-
+	
 	variable axisxlen = V_right - V_left 
 	variable axisylen = V_bottom - V_top
 	string recreateDrawStr
@@ -283,7 +305,7 @@ Function MXP_SaveProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 				break // Stop if you go through the else branch
 				endif	
 			while(1)
-		sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 0.5, xcoord= top, ycoord= left;" + \
+		sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
 								 "DrawCmd:DrawOval %f, %f, %f, %f", w3dPath + w3dNameStr, red, green, blue, V_left, V_top, V_right, V_bottom
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
 		break

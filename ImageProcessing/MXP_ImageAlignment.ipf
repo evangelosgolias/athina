@@ -64,7 +64,7 @@ Function MXP_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 	variable layers = DimSize(w3d, 2)
 	Duplicate/O w3d, $(NameOfWave(w3d)+"_undo")
 	//ImageFilter/O gauss3d partitionW3d
-	ImageRegistration/Q/STCK/PSTK/ROT={0,0,0}/TSTM=0 refwave = refLayerWave, testwave = partitionW3d
+	ImageRegistration/Q/STCK/PSTK/ROT={0,0,0}/TSTM=0/STRT=20 refwave = refLayerWave, testwave = partitionW3d
 	WAVE M_RegParams
 	MatrixOP/FREE dx = row(M_RegParams,0) // print dx
 	MatrixOP/FREE dy = row(M_RegParams,1) // print dy
@@ -83,7 +83,7 @@ Function MXP_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 	return 0
 End
 
-Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [variable layerN, variable printMode]) // Used in menu
+Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [variable layerN, int printMode, int windowing]) // Used in menu
 	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave. 
 	/// The partition 3d wave calls MXP_ImageStackAlignmentByFullRegistration
 	/// By default the function will  use the 0-th layer as a wave reference, uncless user chooses otherwise.
@@ -95,10 +95,14 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 	/// it is better to use a mask to isolate a characteristic feature. 
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then default is 0
 	printMode = ParamIsDefault(printMode) ? 0: printMode
+	windowing = ParamIsDefault(windowing) ? 0: windowing // print if not 0
 	if(!(WaveType(partitionW3d) & 0x02))
 		Redimension/S partitionW3d
 	endif
 	MatrixOP/FREE refLayerWave = layer(partitionW3d, layerN)
+	if(windowing)
+		ImageWindow/O Hanning refLayerWave
+	endif
 	MatrixOP/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
 	WaveStats/M=1/Q autocorrelationW
 	variable x0 = V_maxRowLoc, y0 = V_maxColLoc, x1, y1, i
@@ -108,6 +112,9 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 	Make/FREE/N=(layers) dx, dy 
 	for(i = 0; i < layers; i++)
 		MatrixOP/O/FREE freeLayer = layer(partitionW3d, i)
+		if(windowing)
+			ImageWindow/O Hanning freeLayer
+		endif
 		MatrixOP/O/FREE correlationW = correlate(refLayerWave, freeLayer, 0)
 		WaveStats/M=1/Q correlationW
 		x1 = V_maxRowLoc
@@ -121,12 +128,12 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 		MatrixOP/O/FREE getfreelayer = layer(w3d, i)
 		ImageTransform/IOFF={dx[i], dy[i], 0} offsetImage getfreelayer
 		WAVE M_OffsetImage
+		w3d[][][i] = M_OffsetImage[p][q]
 		if(printMode)
 			print i,": ", dx[i], dy[i]
 		endif
-		w3d[][][i] = M_OffsetImage[p][q]
 	endfor
-	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams, M_OffsetImage
+	KillWaves/Z M_OffsetImage
 	return 0
 End
 
@@ -191,26 +198,29 @@ Function MXP_ImageStackAlignmentByRegistrationUsingMask(WAVE w3d, WAVE MaskWaveR
 	for(i = 0; i < layers; i++)
 		MatrixOP/O/FREE getfreelayer = layer(w3d, i)
 		ImageTransform/IOFF={dx[i], dy[i], 0} offsetImage getfreelayer
-		w3d[][][i] = getfreelayer[p][q]
+		WAVE M_OffsetImage
+		w3d[][][i] = M_OffsetImage[p][q]
 	endfor
-	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams
+	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams, M_OffsetImage
 	return 0
 End
 
-Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, variable printMode, variable useThreads])
+Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int printMode, int windowing])
 	/// Align a 3d wave using (auto)correlation. By default the function will
 	/// use the 0-th layer as a wave reference, uncless user chooses otherwise. 
 	/// Only integer x, y translations are calculated.
 	/// @param w3d wave 3d we want to aligment
 	/// @param refLayer int optional Select refWave = refLayer for ImageRegistration.
 	/// @param printMode int optional print the drift corrections in pixels
-	/// @param useThreads int optional use MultiThread for some wave assignments
 
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then 0 is your choice
 	printMode = ParamIsDefault(printMode) ? 0: printMode // print if not 0
-	useThreads = ParamIsDefault(useThreads) ? 0: useThreads // print if not 0
-	MatrixOP/FREE refLayerWave = layer(w3d, layerN)
-	ImageWindow/O Hanning refLayerWave
+	windowing = ParamIsDefault(windowing) ? 0: windowing // print if not 0
+	
+	MatrixOP/O/FREE refLayerWave = layer(w3d, layerN)
+	if(windowing)
+		ImageWindow/O Hanning refLayerWave
+	endif
 	MatrixOP/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
 	WaveStats/M=1/Q autocorrelationW
 	variable x0 = V_maxRowLoc, y0 = V_maxColLoc, x1, y1, dx, dy
@@ -227,43 +237,39 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, variab
 	for(i = 0; i < layers; i++)
 		if(i != layerN)
 			MatrixOP/O/FREE freeLayer = layer(w3d, i)
-			ImageWindow/O Hanning freeLayer
+			if(windowing)
+				ImageWindow/O Hanning freeLayer
+			endif			
 			MatrixOP/O/FREE correlationW = correlate(refLayerWave, freeLayer, 0)
 			WaveStats/M=1/Q correlationW
 			x1 = V_maxRowLoc
 			y1 = V_maxColLoc
-			dx = x1 - x0
-			dy = y1 - y0
+			dx = x0 - x1
+			dy = y0 - y1
 			if(printMode)
 				print i, dx, dy
 			endif
 			if(dx * dy) // Replace a slice only if you have to offset
-				ImageTransform/IOFF={-dx, -dy, 0} offsetImage freeLayer
-				Wave M_OffsetImage
-				if(useThreads)
-					MultiThread w3d[][][i] = M_OffsetImage[p][q] //Might be instable
-				else
-					w3d[][][i] = M_OffsetImage[p][q] //Might be instable
-				endif
+				ImageTransform/IOFF={dx, dy, 0} offsetImage freeLayer
+				WAVE M_OffsetImage
+				w3d[][][i] = M_OffsetImage[p][q]
 			endif
-			// interp2D(getfreelayer, x + dx, y + dy) works but we need an extra step MatrixOP/FREE XXX = zapNaNs()			
 		endif
 	endfor
 	KillWaves/Z M_OffsetImage
 	return 0
 End
 
-Function MXP_ImageStackAlignmentByIterativeCorrelation(WAVE w3d,  [variable printMode, variable useThreads]) // EXPERIMENTAL 10.10.22
+Function MXP_ImageStackAlignmentByIterativeCorrelation(WAVE w3d,  [variable printMode, int windowing]) // EXPERIMENTAL 10.10.22
 	/// Align a 3d wave using (auto)correlation. By default the function will
 	/// use the 0-th layer as a wave reference, uncless user chooses otherwise. 
 	/// Only integer x, y translations are calculated.
 	/// @param w3d wave 3d we want to aligment
 	/// @param refLayer int optional Select refWave = refLayer for ImageRegistration.
 	/// @param printMode int optional print the drift corrections in pixels
-	/// @param useThreads int optional use MultiThread for some wave assignments
 
 	printMode = ParamIsDefault(printMode) ? 0: printMode // print if not 0
-	useThreads = ParamIsDefault(useThreads) ? 0: useThreads // print if not 0
+	windowing = ParamIsDefault(windowing) ? 0: windowing // print if not 0
 	variable x0, y0, x1, y1, dx, dy
 	variable layers = DimSize(w3d, 2)
 	Duplicate/O w3d, $NameOfWave(w3d)+"_undo"
@@ -278,8 +284,10 @@ Function MXP_ImageStackAlignmentByIterativeCorrelation(WAVE w3d,  [variable prin
 	for(i = 1; i < layers; i++)
 			MatrixOP/O/FREE freeLayer = layer(w3d, i)
 			MatrixOP/O/FREE refLayerWave = layer(w3d, i-1)
-			ImageWindow/O Hanning freeLayer
-			ImageWindow/O Hanning refLayerWave
+			if(windowing)
+				ImageWindow/O Hanning freeLayer
+				ImageWindow/O Hanning refLayerWave
+			endif
 			MatrixOP/O/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
 			WaveStats/M=1/Q autocorrelationW
 			x0 = V_maxRowLoc
@@ -295,21 +303,16 @@ Function MXP_ImageStackAlignmentByIterativeCorrelation(WAVE w3d,  [variable prin
 			endif
 			if(dx * dy) // Replace a slice only if you have to offset
 				ImageTransform/IOFF={-dx, -dy, 0} offsetImage freeLayer
-				Wave M_OffsetImage
-				if(useThreads)
-					MultiThread w3d[][][i] = M_OffsetImage[p][q] //Might be instable
-				else
-					w3d[][][i] = M_OffsetImage[p][q] //Might be instable
-				endif
+				WAVE M_OffsetImage
+				w3d[][][i] = M_OffsetImage[p][q] //Might be instable
 			endif
 			// interp2D(getfreelayer, x + dx, y + dy) works but we need an extra step MatrixOP/FREE XXX = zapNaNs()			
 	endfor
 	KillWaves/Z M_OffsetImage
-	WaveClear M_OffsetImage
 	return 0
 End
 
-Function/WAVE MXP_WAVEImageAlignmentByCorrelation(WAVE w1, WAVE w2, [variable printMode])
+Function/WAVE MXP_WAVEImageAlignmentByCorrelation(WAVE w1, WAVE w2, [variable printMode, int windowing])
 	/// Align two images using Correlation/Autocorrelation operations. 
 	/// @param w1 wave reference First wave (reference wave) for which its autocorrelation 
 	/// is our reference.
@@ -319,8 +322,11 @@ Function/WAVE MXP_WAVEImageAlignmentByCorrelation(WAVE w1, WAVE w2, [variable pr
 	/// The MXP_ImageAlignmentByCorrelation function allow only for integer pixed translations.
 	
 	printMode = ParamIsDefault(printMode) ? 0: printMode // print if not 0
-	ImageWindow/O Hanning w1
-	ImageWindow/O Hanning w2
+	windowing = ParamIsDefault(windowing) ? 0: windowing // print if not 0
+	if(windowing)
+		ImageWindow/O Hanning w1
+		ImageWindow/O Hanning w2
+	endif
 	MatrixOP/O/FREE autocorr = correlate(w1, w1, 0)
 	MatrixOP/O/FREE corr = correlate(w1, w2, 0)
 	WaveStats/Q autocorr // /P flag: report Loc in p, q instead of x, y
@@ -332,18 +338,17 @@ Function/WAVE MXP_WAVEImageAlignmentByCorrelation(WAVE w1, WAVE w2, [variable pr
 	variable dx = x1 - x0
 	variable dy = y1 - y0
 	Duplicate/FREE w1, driftCorrW
-	Wave M_OffsetImage
 	ImageTransform/IOFF={-dx, -dy, 0} offsetImage driftCorrW
+	WAVE M_OffsetImage
 	if(printMode)
 		print "dx=", dx,",dy=", dy
 	endif
 	Duplicate/FREE M_OffsetImage waveRef
-	KillWaves/Z M_OffsetImage
-	WaveClear M_OffsetImage
+	KillWaves M_OffsetImage
 	return waveRef
 End
 
-Function MXP_ImageAlignmentByCorrelation(WAVE w1, WAVE w2, string alignedImageStr, [variable printMode])
+Function MXP_ImageAlignmentByCorrelation(WAVE w1, WAVE w2, string alignedImageStr, [int printMode, int windowing])
 	/// Align two images using Correlation/Autocorrelation operations. 
 	/// @param w1 wave reference First wave (reference wave) for which its autocorrelation 
 	/// is our reference.
@@ -355,8 +360,11 @@ Function MXP_ImageAlignmentByCorrelation(WAVE w1, WAVE w2, string alignedImageSt
 	
 	// Take into account wave scaling.
 	printMode = ParamIsDefault(printMode) ? 0: printMode // print if not 0
-	ImageWindow/O Hanning w1
-	ImageWindow/O Hanning w2
+	windowing = ParamIsDefault(windowing) ? 0: windowing // print if not 0
+	if(windowing)
+		ImageWindow/O Hanning w1
+		ImageWindow/O Hanning w2
+	endif
 	MatrixOP/O/FREE autocorr = correlate(w1, w1, 0)
 	MatrixOP/O/FREE corr = correlate(w1, w2, 0)
 	WaveStats/Q autocorr // /P flag: report Loc in p, q instead of x, y
@@ -368,12 +376,12 @@ Function MXP_ImageAlignmentByCorrelation(WAVE w1, WAVE w2, string alignedImageSt
 	variable dx = x1 - x0
 	variable dy = y1 - y0
 	Duplicate/FREE w1, driftCorrW
-	Wave M_OffsetImage
 	ImageTransform/IOFF={-dx, -dy, 0} offsetImage driftCorrW
+	WAVE M_OffsetImage
 	Duplicate/O M_OffsetImage, $alignedImageStr
-	WaveClear M_OffsetImage
 	if(printMode)
 		print "dx=", dx,",dy=", dy
 	endif
+	KillWaves M_OffsetImage
 	return 0
 End
