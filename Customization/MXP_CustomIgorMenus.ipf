@@ -15,23 +15,24 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "Analyse"
-	"***** ", print "Not yet implemented"
+		"***** ", print "Not yet implemented"
 	End
 	
 	Submenu "Align!*"
-	"using feature...", MXP_LaunchImageStackAlignmentByPartition()
-	"using the full image...", MXP_LaunchImageStackAlignmentByFullImage()
+		"using a feature (recommended)...", MXP_LaunchImageStackAlignmentByPartition()
+		"using the full image...", MXP_LaunchImageStackAlignmentByFullImage()
 	End
 	
 	Submenu "Make!*"
-	"a stack from pattern!*", MXP_LaunchMake3DWaveUsingPattern()
-	"a stack from browser selection!*", MXP_LaunchMake3DWaveDataBrowserSelection()
+		"a stack from pattern!*", MXP_LaunchMake3DWaveUsingPattern()
+		"a stack from browser selection!*", MXP_LaunchMake3DWaveDataBrowserSelection()
 	End
 	
 	Submenu "Calculation!*"
-	"Stack average...!*", MXP_LaunchAverageStackToImageFromMenu()
-	"Import .dat files and calculate XMC(L)D...!*", MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
-	"Calculate XMC(L)D...!*", MXP_LaunchRegisterQCalculateXRayDichroism()
+		"Stack average...!*", MXP_LaunchAverageStackToImageFromMenu()
+		"Calculate XMC(L)D...!*", MXP_LaunchRegisterQCalculateXRayDichroism()
+		"Calculate XMC(L)D interactively...!*", MXP_LaunchInteractiveCalculateXRayDichroism()
+		"Import .dat files and calculate XMC(L)D...!*", MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	End
 	
 	Submenu "Profiles!*"
@@ -49,7 +50,7 @@ End
 
 Menu "GraphMarquee"
 	"Oval ROI z profile", GetMarquee/K left, top; MXP_DrawImageROICursor(V_left, V_top, V_right, V_bottom)
-	"Clear ROI markings", MXP_CleanROIMarkings()
+	"Clear ROI markings", MXP_ClearROIMarkings()
 	"Marquee to mask", MXP_MarqueeToMask()
 	"Backup traces", MXP_BackupTraces()
 	"Restore traces", MXP_RestoreTraces()

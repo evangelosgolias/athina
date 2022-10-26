@@ -137,15 +137,18 @@ Function MXP_DrawImageROICursor(variable left, variable top, variable right, var
 End
 
 Function MXP_DrawImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
+	// Use MXP_DrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
 	SetDrawLayer UserFront 
 	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
 	DrawOval left, top, right, bottom
+	SetDrawLayer ProgFront 
 	return 0
 End
 
-Function MXP_CleanROIMarkings()
+Function MXP_ClearROIMarkings()
 	SetDrawLayer ProgFront
 	DrawAction delete
+	SetDrawLayer UserFront
 	return 0
 End
 
@@ -179,7 +182,7 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 			hookresult = 1
 			break
         case 7: // cursor moved
-        	DrawAction delete
+        	DrawAction delete // TODO: Here add the env commands of MXP_DrawImageROICursor before switch and here only the draw command
 			MXP_DrawImageROICursor(-axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
 							 axisxlen * 0.5 + s.pointNumber * dx, -(axisylen * 0.5) + s.yPointNumber * dy)
 			// We need to update the values here if we want to redraw later
@@ -299,8 +302,7 @@ Function MXP_SaveProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 							colorcnt += 1
 						endif
 						DoWindow/F $WindowNameStr
-						MXP_DrawImageROI(V_left, V_top, V_right, V_bottom, red, green, blue)
-						SetDrawLayer/W=$WindowNameStr ProgFront // Return to ProgFront
+						MXP_DrawImageROI(V_left, V_top, V_right, V_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
 					endif
 				break // Stop if you go through the else branch
 				endif	

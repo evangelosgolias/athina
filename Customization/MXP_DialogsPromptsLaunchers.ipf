@@ -18,8 +18,12 @@ End
 
 Function MXP_LauncherLoadDATFilesFromFolder()
 	string wNameStr = MXP_GenericSingleStrPrompt("Stack name, empty string to auto-name", "Before the selection dialog opens...")
-	MXP_LoadDATFilesFromFolder("", "*", switch3d = 1, wname3d = wNameStr, autoscale = 1)
-
+	if(strlen(wNameStr))
+		MXP_LoadDATFilesFromFolder("", "*", switch3d = 1, wname3d = wNameStr, autoscale = 1)
+	else
+		// default name, if wname3d is given, even if empty string, the ParamIsDefault will give 1.
+		MXP_LoadDATFilesFromFolder("", "*", switch3d = 1, autoscale = 1) 
+	endif
 End
 
 Function MXP_LaunchAverageStackToImageFromMenu()
@@ -272,31 +276,34 @@ Function MXP_LaunchImageStackAlignmentByFullImage()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
-	variable method = 1
+	variable method = 2
 	variable printMode = 2
 	variable layerN = 0
 	variable windowing = 2
+	variable algo = 1
 	string msg = "Align " + imgNameTopGraphStr + " using the full image."
 	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
-	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	Prompt windowing, "Hanning windowing", popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt layerN, "Reference layer"
-	DoPrompt msg, method, layerN, windowing, printMode
+	Prompt algo, "Convergence (Registration only)", popup, "Gravity (fast); Marquardt (slow)"
+	Prompt windowing, "Hanning windowing (Correlation only)", popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
+	DoPrompt msg, method, layerN, algo, windowing, printMode
 	if(V_flag) // User cancelled
 		return -1
 	endif
-
+	if(!WaveExists($(imgNameTopGraphStr + "_undo")))
+		print PossiblyQuoteName(imgNameTopGraphStr + "_undo") + " has been created. To restore " + PossiblyQuoteName(imgNameTopGraphStr) + " run the command:\n"
+		print "Duplicate/O " + PossiblyQuoteName(imgNameTopGraphStr + "_undo") + ", " +  PossiblyQuoteName(imgNameTopGraphStr) + "; " + \
+		"KillWaves/Z " + PossiblyQuoteName(imgNameTopGraphStr + "_undo")
+	endif
 	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
 	//MXP_ImageStackAlignmentByPartitionRegistration
 	if(method == 1)
-		MXP_ImageStackAlignmentByRegistration(w3dRef, layerN = layerN, printMode = printMode - 2)
+		MXP_ImageStackAlignmentByRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = algo - 1)
 	else
 		MXP_ImageStackAlignmentByCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, windowing = windowing - 2)
 	endif
-	string nameOfWaveStr = NameOfWave(w3dref)
-	print PossiblyQuoteName(nameOfWaveStr + "_undo") + " has been created. To restore " + PossiblyQuoteName(nameOfWaveStr) + " run the command:\n"
-	print "Duplicate/O " + PossiblyQuoteName(nameOfWaveStr + "_undo") + ", " +  PossiblyQuoteName(nameOfWaveStr) + "; " + \
-		  "KillWaves/Z " + PossiblyQuoteName(nameOfWaveStr + "_undo")
+
 End
 
 // ---- ///
@@ -316,19 +323,21 @@ Function MXP_LaunchImageStackAlignmentByPartition()
 	if(V_flag) // User cancelled
 		return -1
 	endif
-
-	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
-	//MXP_ImageStackAlignmentByPartitionRegistration
-	WAVE partiotionFreeWave = WM_UserSetMarquee(winNameStr)
-	if(method == 1)
-		MXP_ImageStackAlignmentByPartitionRegistration(w3dRef, partiotionFreeWave, layerN = layerN, printMode = printMode - 2)
-	else
-		MXP_ImageStackAlignmentByPartitionCorrelation(w3dRef, partiotionFreeWave, layerN = layerN, printMode = printMode - 2)
+	if(!WaveExists($(imgNameTopGraphStr + "_undo"))) // if you put this later it makes a problem with the function calls that have the same if statement
+		print PossiblyQuoteName(imgNameTopGraphStr + "_undo") + " has been created. To restore " + PossiblyQuoteName(imgNameTopGraphStr) + " run the command:\n"
+		print "Duplicate/O " + PossiblyQuoteName(imgNameTopGraphStr + "_undo") + ", " +  PossiblyQuoteName(imgNameTopGraphStr) + "; " + \
+		"KillWaves/Z " + PossiblyQuoteName(imgNameTopGraphStr + "_undo")
 	endif
-	string nameOfWaveStr = NameOfWave(w3dref)
-	print PossiblyQuoteName(nameOfWaveStr + "_undo") + " has been created. To restore " + PossiblyQuoteName(nameOfWaveStr) + " run the command:\n"
-	print "Duplicate/O " + PossiblyQuoteName(nameOfWaveStr + "_undo") + ", " +  PossiblyQuoteName(nameOfWaveStr) + "; " + \
-		  "KillWaves/Z " + PossiblyQuoteName(nameOfWaveStr + "_undo")
+	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
+	// MXP_ImageStackAlignmentByPartitionRegistration
+	WAVE partiotionWave = WM_UserSetMarquee(winNameStr)
+	ImageFilter/O gauss3d partiotionWave // Filter wave here
+	MatrixOP/FREE partiotionFreeWaveGaussNorm = normalize(partiotionWave) // Normalise wave here
+	if(method == 1)
+		MXP_ImageStackAlignmentByPartitionRegistration(w3dRef, partiotionFreeWaveGaussNorm, layerN = layerN, printMode = printMode - 2)
+	else
+		MXP_ImageStackAlignmentByPartitionCorrelation(w3dRef, partiotionFreeWaveGaussNorm, layerN = layerN, printMode = printMode - 2)
+	endif
 End
 
 Function/WAVE WM_UserSetMarquee(graphName)

@@ -972,7 +972,6 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int switch3d
 		WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, "")
 		variable getScaleXY = NumberByKey("FOV(µm)", note(wname), ":", "\n")
 		KillWaves wname
-		WAVEClear wname
 	endif
 	// Now get all the files
 	for(ii = 0; ii < filesnr; ii += 1)
