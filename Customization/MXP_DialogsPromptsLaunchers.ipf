@@ -331,8 +331,8 @@ Function MXP_LaunchImageStackAlignmentByPartition()
 	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
 	// MXP_ImageStackAlignmentByPartitionRegistration
 	WAVE partiotionWave = WM_UserSetMarquee(winNameStr)
-	ImageFilter/O gauss3d partiotionWave // Filter wave here
-	MatrixOP/FREE partiotionFreeWaveGaussNorm = normalize(partiotionWave) // Normalise wave here
+	ImageFilter/O gauss3d partiotionWave // Apply a 3x3x3 gaussian filter
+	MatrixOP/O partiotionFreeWaveGaussNorm = normalize(partiotionWave) // Normalise wave here FIX: SET TO FREE
 	if(method == 1)
 		MXP_ImageStackAlignmentByPartitionRegistration(w3dRef, partiotionFreeWaveGaussNorm, layerN = layerN, printMode = printMode - 2)
 	else
@@ -358,10 +358,10 @@ Function/WAVE WM_UserSetMarquee(graphName)
 
 	DrawText 15,20,"Draw marquee and press continue..."
 	DrawText 15,35,"Can also use a marquee to zoom-in"
-	Button button0,pos={80,50},size={92,20},title="Continue"
-	Button button0,proc=WM_UserSetMarquee_ContButtonProc
-	Button button1,pos={80,80},size={92,20}
-	Button button1,proc=WM_UserSetMarquee_CancelBProc,title="Cancel"
+	Button button0, pos={80,50},size={92,20}, title="Continue"
+	Button button0, proc=WM_UserSetMarquee_ContButtonProc
+	Button button1, pos={80,80},size={92,20}
+	Button button1, proc=WM_UserSetMarquee_CancelBProc, title="Cancel"
 
 	PauseForUser tmp_PauseforCursor,$graphName
 	
@@ -369,7 +369,7 @@ Function/WAVE WM_UserSetMarquee(graphName)
 	NVAR/Z right = root:tmp_PauseforCursorDF:right
 	NVAR/Z top = root:tmp_PauseforCursorDF:top
 	NVAR/Z bottom = root:tmp_PauseforCursorDF:bottom
-
+	//print num2str(left)+","+num2str(top)+","+num2str(right)+","+num2str(bottom) // DEBUG
 	NVAR/Z gCanceled= root:tmp_PauseforCursorDF:canceled
 	Variable canceled= gCanceled			// Copy from global to local before global is killed
 	if(canceled)
@@ -379,18 +379,18 @@ Function/WAVE WM_UserSetMarquee(graphName)
 		
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(graphName, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	WAVE partiotionFreeWave = MXP_WAVE3DWavePartition(w3dref, "MXP_Partition", left, right, top, bottom, tetragonal = 1)
+	WAVE partiotionWave = MXP_WAVE3DWavePartition(w3dref, "MXP_Partition", left, right, top, bottom)
 	KillDataFolder root:tmp_PauseforCursorDF // Kill folder here, you have to use the left, right, top, bottom in MXP_WAVE3DWavePartition
-	return partiotionFreeWave
+	return partiotionWave
 End
 
 Function WM_UserSetMarquee_ContButtonProc(ctrlName) : ButtonControl
 	String ctrlName
 	GetMarquee/K left, top
-	Variable/G root:tmp_PauseforCursorDF:left = V_left
-	Variable/G root:tmp_PauseforCursorDF:right = V_right
-	Variable/G root:tmp_PauseforCursorDF:top = V_top
-	Variable/G root:tmp_PauseforCursorDF:bottom = V_bottom	
+	variable/G root:tmp_PauseforCursorDF:left = V_left
+	variable/G root:tmp_PauseforCursorDF:right = V_right
+	variable/G root:tmp_PauseforCursorDF:top = V_top
+	variable/G root:tmp_PauseforCursorDF:bottom = V_bottom	
 	KillWindow/Z tmp_PauseforCursor			// Kill self
 End
 

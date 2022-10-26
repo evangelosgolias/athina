@@ -31,11 +31,11 @@ Function MXP_MainMenuLaunchZBeamProfiler()
 		NewImage/K=1 selected3DWave
 		ModifyGraph width={Plan,1,top,left}
 		MXP_InitialiseZProfilerFolder()
-		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles:" + NameOfWave(selected3DWave)) // Change root folder if you want
+		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + NameOfWave(selected3DWave)) // Change root folder if you want
 		MXP_InitialiseZProfilerGraph(dfr)
 		SVAR winNameStr = dfr:gMXP_WindowNameStr
 		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
-		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_ProfPanel_" + NameOfWave(selected3DWave) // Name of the panel we will make, used to communicate the
+		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_ZProfPanel_" + NameOfWave(selected3DWave) // Name of the panel we will make, used to communicate the
 		// name to the windows hook to kill the panel after completion
 	else
 		Abort "z-profiler needs a 3d wave. N.B Select only one wave"
@@ -54,10 +54,10 @@ Function MXP_TraceMenuLaunchZBeamProfiler()
 		NewImage/K=1 w3dref
 		ModifyGraph width={Plan,1,top,left}
 		MXP_InitialiseZProfilerFolder()
-		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
+		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
 		MXP_InitialiseZProfilerGraph(dfr)
 		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
-		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_ProfPanel_" + NameOfWave(w3dref) // Name of the panel we will make, used to communicate the
+		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_ZProfPanel_" + NameOfWave(w3dref) // Name of the panel we will make, used to communicate the
 		// name to the windows hook to kill the panel after completion
 	else
 		Abort "z-profiler needs a 3d wave"
@@ -75,7 +75,7 @@ Function MXP_InitialiseZProfilerFolder()
 
 	string msg // Error reporting
 	if(!strlen(imgNameTopGraphStr)) // we do not have an image in top graph
-		Abort "No image in top graph. Startup profile with an 3d wave in your active window."
+		Abort "No image in top graph. Start profiler with an image stack in top window."
 	endif
 	
 	if(WaveDims(w3dref) != 3)
@@ -100,7 +100,7 @@ Function MXP_InitialiseZProfilerFolder()
     variable z0 = DimOffset(w3dref, 2)
     
     
-	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles:" + imgNameTopGraphStr) // Root folder here
+	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + imgNameTopGraphStr) // Root folder here
 	string zprofilestr = "wZLineProfileWave"
 	Make/O/N=(nlayers) dfr:$zprofilestr /Wave = profile // Store the line profile 
 	SetScale/P x, z0, dz, profile
@@ -156,15 +156,13 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 	/// Window hook function
     variable hookResult = 0
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
-	DFREF dfr = root:Packages:MXP_datafldr:ZBeamProfiles:$imgNameTopGraphStr // Do not call the function MXP_CreateDataFolderGetDFREF here
+	DFREF dfr = root:Packages:MXP_DataFolder:ZBeamProfiles:$imgNameTopGraphStr // Do not call the function MXP_CreateDataFolderGetDFREF here
 	NVAR/Z V_left, V_top, V_right, V_bottom
 	NVAR/Z dx = dfr:gMXP_ROI_dx
 	NVAR/Z dy = dfr:gMXP_ROI_dy
 	variable axisxlen = V_right - V_left 
 	variable axisylen = V_bottom - V_top
-	SVAR/Z profilemetadata = dfr:gMXP_ProfileMetadata
 	SVAR/Z LineProfileWaveStr = dfr:gMXP_LineProfileWaveStr
-	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
 	SVAR/Z w3dNameStr = dfr:gMXP_w3dNameStr
 	SVAR/Z w3dPath = dfr:gMXP_w3dPath
 	DFREF wrk3dwave = $w3dPath
@@ -210,14 +208,14 @@ Function MXP_InitialiseZProfilerGraph(DFREF dfr)
 	/// Here we will create the profile panel and graph and plot the profile
 	string panelNameStr = "MXP_ZProf_" + GetDataFolder(0, dfr)
 	if (WinType(panelNameStr) == 0) // line profile window is not displayed
-		MXP_CreateProfilePanel(dfr)
+		MXP_CreateZProfilePanel(dfr)
 	else
 		DoWindow/F $panelNameStr // if it is bring it to the FG
 	endif
 	return 0
 End
 
-Function MXP_CreateProfilePanel(DFREF dfr)
+Function MXP_CreateZProfilePanel(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
 	string waveNameStr = GetDataFolder(0, dfr) // Convention
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(rootFolderStr)
@@ -225,15 +223,15 @@ Function MXP_CreateProfilePanel(DFREF dfr)
 	if(!SVAR_Exists(gMXP_LineProfileWaveStr))
 		Abort "Launch z-profiler from the MAXPEEM > Plot menu and then use the 'Oval ROI z profile' Marquee Operation."
 	endif
-	string profilePanelStr = "MXP_ProfPanel_" + GetDataFolder(0, dfr)
+	string profilePanelStr = "MXP_ZProfPanel_" + GetDataFolder(0, dfr)
 	NewPanel/N=$profilePanelStr /W=(580,53,995,316) // Linked to MXP_InitialiseZProfilerGraph()
 	SetWindow $profilePanelStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePanelStr userdata(MXP_targetGraphWin) = "MXP_AreaProf_" + waveNameStr
 	ModifyPanel cbRGB=(61166,61166,61166), frameStyle=3
 	SetDrawLayer UserBack
-	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveProfilePanel, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
-	CheckBox ShowProfile, pos={150.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ProfilePanelCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 0
-	CheckBox ShowSelectedAread, pos={270.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ProfilePanelCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 0
+	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveZProfilePanel, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
+	CheckBox ShowProfile, pos={150.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ZProfilePanelCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 0
+	CheckBox ShowSelectedAread, pos={270.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ZProfilePanelCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 0
 	Wave profile = dfr:$gMXP_LineProfileWaveStr
 	if (WaveExists(profile))
 		Display/N=MXP_ZLineProfilesPlot/W=(15,38,391,236)/HOST=#  profile
@@ -248,7 +246,7 @@ Function MXP_CreateProfilePanel(DFREF dfr)
 	return 0
 End
 
-Function MXP_SaveProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function MXP_SaveZProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "MXP_targetGraphWin")
@@ -267,7 +265,7 @@ Function MXP_SaveProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable axisxlen = V_right - V_left 
 	variable axisylen = V_bottom - V_top
 	string recreateDrawStr
-	DFREF savedfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:ZBeamProfiles:SavedProfiles")
+	DFREF savedfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:SavedProfiles")
 	
 	variable postfix = 0
 	variable red, green, blue
@@ -316,7 +314,7 @@ Function MXP_SaveProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 
-Function MXP_ProfilePanelCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+Function MXP_ZProfilePanelCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
 	NVAR/Z DoPlotSwitch = dfr:gMXP_DoPlotSwitch
@@ -332,7 +330,7 @@ Function MXP_ProfilePanelCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : Chec
 End
 
 
-Function MXP_ProfilePanelCheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+Function MXP_ZProfilePanelCheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
 	NVAR/Z MarkAreasSwitch = dfr:gMXP_MarkAreasSwitch

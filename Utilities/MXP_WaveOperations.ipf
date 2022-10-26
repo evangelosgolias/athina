@@ -144,14 +144,16 @@ Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startP,
 	return 0
 End
 
-Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, string partitionNameStr, variable startP, variable endP, variable startQ, variable endQ, [variable tetragonal, variable powerOfTwo])
+Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, string partitionNameStr, variable startP, variable endP, variable startQ, variable endQ, [variable evenNum, variable tetragonal, variable powerOfTwo])
 	/// Partition a 3D to get an orthorhombic 3d wave
 	/// @param startP int
 	/// @param endP int
 	/// @param startQ int
 	/// @param endQ
+	/// @param evenNum int optional set rows, cols to the closest even number
 	/// @param tetragonal int optional When set the number of rows and columns of the partition equals max(rows, cols).
 	/// @param powerOfTwo int optional set the rows, cols to the next 2^n
+	evenNum = ParamIsDefault(evenNum) ? 0: evenNum
 	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
 	powerOfTwo = ParamIsDefault(powerOfTwo) ? 0: powerOfTwo
 
@@ -174,8 +176,8 @@ Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, string partitionNameStr, variabl
 	variable nWaveCols = endQ-startQ
 	if(tetragonal) //
 		nWaveRows = max(nWaveRows, nWaveCols)
-		if(mod(nWaveRows, 2))
-		nWaveRows += 1 //should be even
+		if(evenNum && mod(nWaveRows, 2))
+			nWaveRows += 1
 		endif
 		nWaveCols = nWaveRows
 	endif

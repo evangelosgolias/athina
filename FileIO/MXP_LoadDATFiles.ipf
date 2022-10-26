@@ -27,9 +27,6 @@
 
 // TODO: The markups are placed inverted? Please check and correct, you might nee to reverse the y-axis or whatever.
 
-// Constants definitions
-
-// End of constants definitions
 
 Structure LONGLONG
 	uint32 LONG[2]
