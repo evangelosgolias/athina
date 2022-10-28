@@ -145,7 +145,7 @@ Function MXP_DrawImageROI(variable left, variable top, variable right, variable 
 End
 
 Function MXP_ClearROIMarkings()
-	SetDrawLayer Userront
+	SetDrawLayer UserFront
 	DrawAction delete
 	SetDrawLayer ProgFront
 	return 0

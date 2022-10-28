@@ -109,7 +109,7 @@ End
 
 Function MXP_DrawLine(variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
 	SetDrawLayer UserFront 
-	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
+	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left
 	DrawLine x0, y0, x1, y1
 	return 0
 End
@@ -143,8 +143,7 @@ Function MXP_CursorHookFunctionLineProfiler(STRUCT WMWinHookStruct &s)
 	NVAR/Z updateSelectedLayer = dfr:gMXP_updateSelectedLayer
 	NVAR/Z updateCursorsPositions = dfr:gMXP_updateCursorsPositions
 	WAVE/Z imgWaveRef = $ImagePathname
-
-	variable x1, y1
+	variable xc, yc
 	switch(s.eventCode)
 		case 0: // Use activation to update the cursors if you request defaults
 			if(updateCursorsPositions)
@@ -179,15 +178,15 @@ Function MXP_CursorHookFunctionLineProfiler(STRUCT WMWinHookStruct &s)
 			    DrawAction delete
 	   			SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	   			if(!cmpstr(s.cursorName, "G")) // if you move G
-	   				x1 = hcsr(H)
-					y1 = vcsr(H)
-					DrawLine s.pointNumber * dx, s.ypointNumber * dy, x1, y1
-	   				Make/O/FREE/N=2 xTrace={s.pointNumber * dx, x1}, yTrace = {s.ypointNumber * dy, y1}
+	   				xc = hcsr(H)
+					yc = vcsr(H)
+					DrawLine s.pointNumber * dx, s.ypointNumber * dy, xc, yc
+	   				Make/O/FREE/N=2 xTrace={s.pointNumber * dx, xc}, yTrace = {s.ypointNumber * dy, yc}
 	   			elseif(!cmpstr(s.cursorName, "H")) // if you move H
-	   				x1 = hcsr(G)
-					y1 = vcsr(G)
-					DrawLine x1, y1, s.pointNumber * dx, s.ypointNumber * dy
-	   				Make/O/FREE/N=2 xTrace={x1, s.pointNumber * dx}, yTrace = {y1, s.ypointNumber * dy}
+	   				xc = hcsr(G)
+					yc = vcsr(G)
+					DrawLine xc, yc, s.pointNumber * dx, s.ypointNumber * dy
+	   				Make/O/FREE/N=2 xTrace={xc, s.pointNumber * dx}, yTrace = {yc, s.ypointNumber * dy}
 	   			endif
 	   			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
 	   			hookResult = 1
@@ -233,7 +232,7 @@ Function MXP_CreateLineProfilePanel(DFREF dfr)
 	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=MXP_ProfilePanelSaveProfile
 	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save cursors",valueColor=(1,12815,52428),help={"Save cursor positions as defaults"},proc=MXP_ProfilePanelSaveCursorPositions
 	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore cursors",help={"Restore default cursor positions"},proc=MXP_ProfilePanelRestoreCursorPositions
-	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Show width of integrated area"}//,proc=MXP_ProfilePanelShowProfileWidth
+	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Show width of integrated area"},proc=MXP_ProfilePanelShowProfileWidth
 	CheckBox PlotProfiles,pos={19.00,35.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=0,side=1,proc=MXP_ProfilePanelCheckboxPlotProfile
 	CheckBox MarkLines,pos={127.00,35.00},size={86.00,17.00},title="Mark lines ",fSize=14,value=0,side=1,proc=MXP_ProfilePanelCheckboxMarkLines
 	CheckBox ProfileLayer3D,pos={227.00,35.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=MXP_ProfilePanelProfileLayer3D
@@ -305,7 +304,7 @@ Function MXP_ProfilePanelSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonCon
 				break // Stop if you go through the else branch
 				endif	
 			while(1)
-		sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
+		sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left;" + \
 								 "DrawCmd:DrawLine %f, %f, %f, %f", ImagePathname, red, green, blue, C1x, C1y, C2x, C2y
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
 		break
@@ -357,6 +356,58 @@ Function MXP_ProfilePanelRestoreCursorPositions(STRUCT WMButtonAction &B_Struct)
 			C2x = C2x0
 			C2y = C2y0
 			updateCursorsPositions = 1
+			break		
+	endswitch
+End
+
+Function MXP_ProfilePanelShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
+	/// We have to find the vertices of the polygon representing
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
+	SVAR/Z WindowNameStr= dfr:gMXP_WindowNameStr
+	NVAR/Z C1x = dfr:gMXP_C1x
+	NVAR/Z C1y = dfr:gMXP_C1y
+	NVAR/Z C2x = dfr:gMXP_C2x
+	NVAR/Z C2y = dfr:gMXP_C2y
+	NVAR/Z width = dfr:gMXP_profileWidth
+	NVAR/Z dx = dfr:gMXP_dx
+	NVAR/Z dy = dfr:gMXP_dy // assume here that dx = dy
+	variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys
+	variable slope = SlopePerpendicularToLineSegment(C1x, C2x, C1y, C2y)
+	if(slope == 0)
+		x1 = C1x
+		x2 = C1x
+		x3 = C2x
+		x4 = C2x
+		y1 = C1y + 0.5 * width * dy
+		y2 = C1y - 0.5 * width * dy
+		y3 = C2y - 0.5 * width * dy
+		y4 = C2y + 0.5 * width * dy
+	elseif(slope == inf)
+		y1 = C1y
+		y2 = C1y
+		y3 = C2y
+		y4 = C2y
+		x1 = C1x + 0.5 * width * dx
+		x2 = C1x - 0.5 * width * dx
+		x3 = C2x - 0.5 * width * dx
+		x4 = C2x + 0.5 * width * dx
+	else
+		[xs, ys] = GetVerticesPerpendicularToLine(width * dx/2, slope)
+		x1 = C1x + xs
+		x2 = C1x - xs
+		x3 = C2x - xs
+		x4 = C2x + xs
+		y1 = C1y + ys
+		y2 = C1y - ys
+		y3 = C2y - ys
+		y4 = C2y + ys
+	endif
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			DoWindow/F $WindowNameStr
+			SetDrawLayer ProgFront
+			SetDrawEnv linefgc = (65535,16385,16385,10000), fillbgc= (65535,16385,16385,10000), fillpat = -1, linethick = 0, xcoord = top, ycoord = left
+			DrawPoly x1, y1, 1, 1, {x1, y1, x2, y2, x3, y3, x4, y4}
 			break		
 	endswitch
 End
@@ -454,10 +505,20 @@ static Function SlopePerpendicularToLineSegment(variable x1, variable x2, variab
 	elseif (x1 == x2)
 		return inf
 	else
-		return (x2 - x1)/(y2 - y1)
+		return -(x2 - x1)/(y2 - y1)
 	endif
 End
 
+static Function [variable xshift, variable yshift] GetVerticesPerpendicularToLine(variable radius, variable slope)
+	// Return the part of the solution of an intersection between a circly of radius = radius
+	// with a line with slope = slope. If the center has coordinates (x0, y0) the two point that
+	// the line intersects the cicle have x =  x0 ± sqrt(radius^2 / (1 + slope^2)) and 
+	// y = slope * sqrt(radius^2 / (1 + slope^2)). 
+	// The funtion returns only the second terms.
+	 xshift = sqrt(radius^2 / (1 + slope^2))
+	 yshift = slope * sqrt(radius^2 / (1 + slope^2))
+	 return [xshift, yshift]
+End
 static Function DrawRectangleOfLineProfileWidth(variable x1, variable x2, variable y1, variable y2)
 		
 	SetDrawEnv linefgc= (65535,0,0,13107),fillbgc= (65535,0,0,13107),fillfgc= (65535,0,0,13107), xcoord = top, ycoord = left
