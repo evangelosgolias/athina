@@ -5,11 +5,6 @@
 
 // Utilities
 
-Function MXP_WaveDimensionsQ(WAVE waveRef, int dimensions)
-	// Do not check for for dimensions < 0 or dimensions > 4 
-	return WaveDims(waveRef) == dimensions
-End
-
 /// Make waves ///
 Function MXP_Make3DWaveUsingPattern(String wname3d, String pattern)
 	// Make a 3d wave named wname3d using the RegEx pattern

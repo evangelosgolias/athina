@@ -10,14 +10,14 @@ Function MXP_ScaleImage()
 	string cmdStr = "0, 0", setScaleZStr
 	string msgDialog = "Scale Z direction of stack"
 	string strPrompt = "Set firstVal,  lastVal in quotes (string).\n Leave \"\"  and press continue for autoscaling."
-	if(MXP_WaveDimensionsQ(waveRef, 2))
+	if(WaveDims(waveRef) == 2)
 		getScaleXY = NumberByKey("FOV(µm)", note(waveRef), ":", "\n")
 		if(numtype(getScaleXY) == 2)
 			getScaleXY = 0
 		endif
 		SetScale/I x, 0, getScaleXY, waveRef
 		SetScale/I y, 0, getScaleXY, waveRef
-	elseif(MXP_WaveDimensionsQ(waveRef, 3))
+	elseif(WaveDims(waveRef) == 3)
 		// We deal with the x, y scale when we import the wave
 		//getScaleXY = NumberByKey("FOV(µm)", note(waveRef), ":", "\n")
 		//SetScale/I x, 0, getScaleXY, waveRef

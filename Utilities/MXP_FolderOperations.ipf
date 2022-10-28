@@ -1,7 +1,6 @@
 ﻿#pragma rtGlobals    = 3
 #pragma TextEncoding = "UTF-8"
 #pragma IgorVersion  = 9
-//#pragma rtFunctionErrors=1 // DEGUB. Remove on release
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and later
 
 
@@ -46,8 +45,50 @@ End
 Function/DF MXP_CreateDataFolderGetDFREF(string fullpath)
 	/// Create a data folder using fullpath and return a DF reference. 
 	/// If parent directories do not exist they will be created.
+	/// CAUTION: Problems with libearl names might occur
+
+	// First take care of liberal names in path string. eg root:A folder will become root:'A folder'.
 	
+	variable steps = ItemsInlist(ParseFilePath(2, fullpath, ":", 0, 0), ":"), i // ParseFilePath adds potentially missing : ending.
+	string correctFullPath = ""
+	for(i = 0; i < steps ; i++) // i = 0 & steps return NULL string
+		correctFullPath += PossiblyQuoteName(ParseFilePath(0, fullpath, ":", 0, i)) + ":"
+	endfor
+	
+	// If the directory exists, avoid all the trouble	
+	if(DataFolderExists(ParseFilePath(2, correctFullPath, ":", 0, 0))) // ":" at the end needed to function properly
+		DFREF dfr = $correctFullPath
+		return dfr
+	endif 
+	
+	/// Create a list of missing paths, parents first.
+	string fldrs = "", fldrstr
+	for(i = 1; i < steps ; i++) // i = 0 & steps return NULL string
+		fldrs += ParseFilePath(1, correctFullPath, ":", 0, i) + ";"
+	endfor
+	fldrs += ParseFilePath(2, correctFullPath, ":", 0, 0) // add the full path (last child folder is created here
+	// now create the folder from parent to child
+	variable fldrnum = ItemsInList(fldrs)
+	for(i = 0; i < fldrnum; i++)
+		fldrstr = StringFromList(i, fldrs)
+		if(!DataFolderExists(fldrstr)) // ":" at the end needed to function properly
+			NewDataFolder/O $RemoveEnding(fldrstr) // Here the last ":" pops an error
+		endif
+	endfor
+	
+	DFREF dfr = $correctFullPath
+	return dfr
+End
+
+
+Function/DF MXP_CreateDataFolderGetDFREF_bak(string fullpath)
+	/// Create a data folder using fullpath and return a DF reference. 
+	/// If parent directories do not exist they will be created.
+	/// CAUTION: Problems with libearl names might occur
 	// If the directory exists, avoid all the trouble
+	// First take care of liberal names
+	
+	
 	if(DataFolderExists(ParseFilePath(2, fullpath, ":", 0, 0))) // ":" at the end needed to function properly
 		DFREF dfr = $fullpath
 		return dfr
@@ -61,7 +102,7 @@ Function/DF MXP_CreateDataFolderGetDFREF(string fullpath)
 	endfor
 	fldrs += ParseFilePath(2, fullpath, ":", 0, 0)
 	// folder tree list created
-	
+	print fldrs
 	// now create the folder from parent to child
 	string fldrstr
 	variable fldrnum = ItemsInList(fldrs)

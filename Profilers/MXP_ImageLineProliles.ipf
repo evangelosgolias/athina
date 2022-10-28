@@ -4,6 +4,7 @@
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 
 
+/// Line profile is plotted from cursor G to H.
 
 Function MXP_TraceMenuLaunchLineProfiler()
 
@@ -14,17 +15,18 @@ Function MXP_TraceMenuLaunchLineProfiler()
 	if(WaveDims(imgWaveRef) == 2 || WaveDims(imgWaveRef) == 3) // if it is not a 1d wave
 		KillWindow $winNameStr
 		NewImage/K=1 imgWaveRef
+		winNameStr = WinName(0, 1, 1) // update it just in case
 		ModifyGraph width={Plan,1,top,left}
 		MXP_InitialiseLineProfilerFolder()
 		DoWindow/F $winNameStr // bring it to FG to set the cursors
 		variable nrows = DimSize(imgWaveRef,0)
 		variable ncols = DimSize(imgWaveRef,1)
-		Cursor/I/C=(65535,0,0,30000)/S=1/P G $imgNameTopGraphStr nrows/2 + 20, ncols/2 - 20
-		Cursor/I/C=(65535,0,0,30000)/S=1/P H $imgNameTopGraphStr nrows/2 - 20 , ncols/2 + 20
+		Cursor/I/C=(65535,0,0,30000)/S=1/P G $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2) // TODO: Remove the /P and use scaling.
+		Cursor/I/C=(65535,0,0,30000)/S=1/P H $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 		MXP_InitialiseLineProfilerGraph(dfr)
 		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionLineProfiler // Set the hook
-		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_LineProfPanel_" + NameOfWave(imgWaveRef) // Name of the panel we will make, used to communicate the
+		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_LineProfPanel_" + winNameStr // Name of the panel we will make, used to communicate the
 		// name to the windows hook to kill the panel after completion
 	else
 		Abort "Line profiler needs an image or image stack."
@@ -74,33 +76,55 @@ Function MXP_InitialiseLineProfilerFolder()
 	string/G dfr:gMXP_ImageNameStr = NameOfWave(imgWaveRef)
 	variable/G dfr:gMXP_dx = DimDelta(imgWaveRef,0)
 	variable/G dfr:gMXP_dy = DimDelta(imgWaveRef,1)
-	variable/G dfr:gMXP_C1x = nrows/2 + 20
-	variable/G dfr:gMXP_C1y = ncols/2 - 20
-	variable/G dfr:gMXP_C2x = nrows/2 - 20 
-	variable/G dfr:gMXP_C2y = ncols/2 + 20
-	// Default settings
-	variable/G dfr0:gMXP_C1x0 = 0
-	variable/G dfr0:gMXP_C1y0 = 0
-	variable/G dfr0:gMXP_C2x0 = 0
-	variable/G dfr0:gMXP_C2y0 = 0
-
+	variable/G dfr:gMXP_C1x = round(1.1 * nrows/2)
+	variable/G dfr:gMXP_C1y = round(0.9 * ncols/2)
+	variable/G dfr:gMXP_C2x = round(0.9 * nrows/2)
+	variable/G dfr:gMXP_C2y = round(1.1 * ncols/2)
+	variable/G dfr:gMXP_profileWidth = 0
+	variable/G dfr:gMXP_selectedLayer = 0
+	variable/G dfr:gMXP_updateSelectedLayer = 0
+	variable/G dfr:gMXP_updateCursorsPositions = 0
+	// Switches and indicators
 	variable/G dfr:gMXP_PlotSwitch = 0
-	variable/G dfr:gMXP_SelectLayer = NaN // numtype == 2
+	variable/G dfr:gMXP_MarkLinesSwitch = 0
+	variable/G dfr:gMXP_SelectLayer = 0
+	variable/G dfr:gMXP_colorcnt = 0
+	// Default settings
+	NVAR/Z/SDFR=dfr0 gMXP_C1x0
+	if(!NVAR_Exists(gMXP_C1x0)) // init only once and do not overwrite
+		variable/G dfr0:gMXP_C1x0 = round(1.1 * nrows/2)
+		variable/G dfr0:gMXP_C1y0 = round(0.9 * ncols/2)
+		variable/G dfr0:gMXP_C2x0 = round(0.9 * nrows/2)
+		variable/G dfr0:gMXP_C2y0 = round(1.1 * ncols/2)
+	endif
 	return 0
 End
 
 Function MXP_ClearLineMarkings()
-	SetDrawLayer ProgFront
-	DrawAction delete
 	SetDrawLayer UserFront
+	DrawAction delete
+	SetDrawLayer ProgFront
+	return 0
+End
+
+Function MXP_DrawLine(variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
+	SetDrawLayer UserFront 
+	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
+	DrawLine x0, y0, x1, y1
 	return 0
 End
 
 Function MXP_CursorHookFunctionLineProfiler(STRUCT WMWinHookStruct &s)
 	/// Window hook function
+	/// The line profile is drawn from G to H
     variable hookResult = 0
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
-	DFREF dfr = root:Packages:MXP_DataFolder:LineProfiles:$imgNameTopGraphStr // Do not call the function MXP_CreateDataFolderGetDFREF here	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
+	DFREF currdfr = GetDataFolderDFR()
+	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
+	DFREF dfr0 = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:DefaultSettings") // Settings here
+	DFREF savedfr = root:Packages:MXP_DataFolder:LineProfiles:SavedLineProfiles // Hard coded
+	SetdataFolder dfr
+	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
 	SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
 	SVAR/Z ImagePath = dfr:gMXP_ImagePath
 	SVAR/Z ImageNameStr = dfr:gMXP_ImageNameStr
@@ -110,34 +134,75 @@ Function MXP_CursorHookFunctionLineProfiler(STRUCT WMWinHookStruct &s)
 	NVAR/Z C1y = dfr:gMXP_C1y
 	NVAR/Z C2x = dfr:gMXP_C2x
 	NVAR/Z C2y = dfr:gMXP_C2y
-    WAVE/Z imgWaveRef = $ImageNameStr
+	NVAR/Z C1x0 = dfr0:gMXP_C1x0
+	NVAR/Z C1y0 = dfr0:gMXP_C1y0
+	NVAR/Z C2x0 = dfr0:gMXP_C2x0
+	NVAR/Z C2y0 = dfr0:gMXP_C2y0
+	NVAR/Z profileWidth = dfr:gMXP_profileWidth
+	NVAR/Z selectedLayer = dfr:gMXP_selectedLayer
+	NVAR/Z updateSelectedLayer = dfr:gMXP_updateSelectedLayer
+	NVAR/Z updateCursorsPositions = dfr:gMXP_updateCursorsPositions
+	WAVE/Z imgWaveRef = $ImagePathname
+
 	variable x1, y1
-	if(cmpstr(s.cursorName, "G"))
-		x1 = hcsr(G)
-		y1 = vcsr(G)
-	endif
-	if(cmpstr(s.cursorName, "H"))
-		x1 = hcsr(H)
-		y1 = vcsr(H)
-	endif
-    switch(s.eventCode)
+	switch(s.eventCode)
+		case 0: // Use activation to update the cursors if you request defaults
+			if(updateCursorsPositions)
+				SetDrawLayer ProgFront
+			    DrawAction delete
+	   			SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+				Cursor/I/C=(65535,0,0,30000)/S=1 G $imgNameTopGraphStr C1x0, C1y0
+				Cursor/I/C=(65535,0,0,30000)/S=1 H $imgNameTopGraphStr C2x0, C2y0
+				DrawLine C1x0, C1y0, C2x0, C2y0
+				Make/O/FREE/N=2 xTrace={C1x0, C2x0}, yTrace = {C1y0, C2y0}
+				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+				updateCursorsPositions = 0
+			endif
+			break
 		case 2: // Kill the window
+			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedPanelStr"))
+			KillDataFolder/Z dfr
 			hookresult = 1
 			break
+		case 8: // modifications, either move the slides or the cursors
+			// NB: s.cursorName gives "" in the switch but "-" outside for no cursor under cursor or CursorName (A,B,...J)
+			if(WaveDims(imgWaveRef) == 3 && DataFolderExists("root:Packages:WM3DImageSlider:" + WindowNameStr) && updateSelectedLayer && !cmpstr(s.cursorName, "", 1))
+				NVAR/Z glayer = root:Packages:WM3DImageSlider:$(WindowNameStr):gLayer
+				selectedLayer = glayer
+				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
+				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+			endif
+			break
 	    case 7: // cursor moved
-	    	DrawAction delete
-	    	SetDrawLayer ProgFront
-	    	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	    	DrawLine x1, y1, s.pointNumber * dx, s.ypointNumber*dy
-	    	Make/O/FREE/N=2 xTrace={x1, s.pointNumber * dx}, yTrace = {y1, s.ypointNumber * dy}
-	    	ImageLineProfile srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 0
-	    	hookResult = 1
-	    	break
-        case 5: // mouse up
-        	SetDrawLayer UserFront
+			if(!cmpstr(s.cursorName, "G") || !cmpstr(s.cursorName, "H")) // It should work only with G, H you might have other pointers on the image
+				SetDrawLayer ProgFront
+			    DrawAction delete
+	   			SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+	   			if(!cmpstr(s.cursorName, "G")) // if you move G
+	   				x1 = hcsr(H)
+					y1 = vcsr(H)
+					DrawLine s.pointNumber * dx, s.ypointNumber * dy, x1, y1
+	   				Make/O/FREE/N=2 xTrace={s.pointNumber * dx, x1}, yTrace = {s.ypointNumber * dy, y1}
+	   			elseif(!cmpstr(s.cursorName, "H")) // if you move H
+	   				x1 = hcsr(G)
+					y1 = vcsr(G)
+					DrawLine x1, y1, s.pointNumber * dx, s.ypointNumber * dy
+	   				Make/O/FREE/N=2 xTrace={x1, s.pointNumber * dx}, yTrace = {y1, s.ypointNumber * dy}
+	   			endif
+	   			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+	   			hookResult = 1
+	   			break
+			endif
+       	case 5: // mouse up
+       		C1x = hcsr(G) 
+       		C1y = vcsr(G)
+       		C2x = hcsr(H)
+       		C2y = vcsr(H)
+       		SetDrawLayer UserFront
        		hookResult = 1
 			break
     endswitch
+    SetdataFolder currdfr
     return hookResult       // 0 if nothing done, else 1
 End
 
@@ -156,52 +221,50 @@ End
 
 Function MXP_CreateLineProfilePanel(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
-	string waveNameStr = GetDataFolder(0, dfr) // Convention
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(rootFolderStr)
-	SVAR/Z/SDFR=dfr gMXP_LineProfileWaveStr
-//	if(!SVAR_Exists(gMXP_LineProfileWaveStr))
-//		Abort "Launch z-profiler from the MAXPEEM > Plot menu and then use the 'Oval ROI z profile' Marquee Operation."
-//	endif
-	string profilePanelStr = "MXP_LineProfPanel_" + GetDataFolder(0, dfr)
-	NewPanel/N=$profilePanelStr /W=(580,53,995,316) // Linked to MXP_InitialiseZProfilerGraph()
+	NVAR/SDFR=dfr gMXP_profileWidth
+	SVAR/SDFR=dfr gMXP_WindowNameStr
+	string profilePanelStr = "MXP_LineProfPanel_" + gMXP_WindowNameStr
+	NewPanel/N=$profilePanelStr /W=(1254,103,1720,395) // Linked to MXP_InitialiseZProfilerGraph()
 	SetWindow $profilePanelStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
-	SetWindow $profilePanelStr userdata(MXP_targetGraphWin) = "MXP_AreaProf_" + waveNameStr
+	SetWindow $profilePanelStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + gMXP_WindowNameStr 
 	ModifyPanel cbRGB=(61166,61166,61166), frameStyle=3
 	SetDrawLayer UserBack
-	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveProfilePanel, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
-	CheckBox ShowProfile, pos={150.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ProfilePanelCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 0
-	CheckBox ShowSelectedAread, pos={270.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ProfilePanelCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 0
-	Wave/Z  W_LineProfileDisplacement, W_ImageLineProfile
-	Display/N=MXP_ZLineProfilesPlot/W=(15,38,391,236)/HOST=# W_ImageLineProfile vs W_LineProfileDisplacement
-	ModifyGraph rgb=(1,12815,52428), tick(left)=2, fSize=12, lsize=1.5
-	//Label left "\\u#2 Intensity (arb. u.)";DelayUpdate
-	//Label bottom "\\u#2 Energy (eV)"
-
-
+	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=MXP_ProfilePanelSaveProfile
+	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save cursors",valueColor=(1,12815,52428),help={"Save cursor positions as defaults"},proc=MXP_ProfilePanelSaveCursorPositions
+	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore cursors",help={"Restore default cursor positions"},proc=MXP_ProfilePanelRestoreCursorPositions
+	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Show width of integrated area"}//,proc=MXP_ProfilePanelShowProfileWidth
+	CheckBox PlotProfiles,pos={19.00,35.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=0,side=1,proc=MXP_ProfilePanelCheckboxPlotProfile
+	CheckBox MarkLines,pos={127.00,35.00},size={86.00,17.00},title="Mark lines ",fSize=14,value=0,side=1,proc=MXP_ProfilePanelCheckboxMarkLines
+	CheckBox ProfileLayer3D,pos={227.00,35.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=MXP_ProfilePanelProfileLayer3D
+	SetVariable setWidth,pos={331.00,35.00},size={123.00,20.00},title="Width", fSize=14,fColor=(65535,0,0),value=gMXP_profileWidth,limits={0,inf,1},proc=MXP_ProfilePanelSetVariableWidth
+	Make/O/N=0  dfr:W_LineProfileDisplacement, dfr:W_ImageLineProfile // Make a dummy wave to display 
+	Display/N=MXP_ZLineProfilesPlot/W=(16,63,456,280)/HOST=# dfr:W_ImageLineProfile vs dfr:W_LineProfileDisplacement // #: active window
+	ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=12, lsize=1.5
+	Label left "Intensity (arb. u.)"
+	Label bottom "\\u#2 Distance (µm) / [Kinetic Energy (eV)]"
 	SetDrawLayer UserFront
 	return 0
 End
 
-Function MXP_SaveLineProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function MXP_ProfilePanelSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "MXP_targetGraphWin")
-	NVAR/Z V_left, V_right, V_top, V_bottom
-	SVAR/Z profilemetadata = dfr:gMXP_ProfileMetadata
-	SVAR/Z LineProfileWaveStr = dfr:gMXP_LineProfileWaveStr
 	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
 	SVAR/Z w3dNameStr = dfr:gMXP_ImageNameStr
-	SVAR/Z w3dPath = dfr:gMXP_ImagePath
-	SVAR/Z ProfileAreaOvalCoord = dfr:gMXP_ProfileAreaOvalCoord
-	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
-	NVAR/Z DoPlotSwitch = dfr:gMXP_DoPlotSwitch
-	NVAR/Z MarkAreasSwitch = dfr:gMXP_MarkAreasSwitch
+	SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
+	Wave/SDFR=dfr W_ImageLineProfile
+	Wave/SDFR=dfr W_LineProfileDisplacement
+	NVAR/Z PlotSwitch = dfr:gMXP_PlotSwitch
+	NVAR/Z MarkLinesSwitch = dfr:gMXP_MarkLinesSwitch
+	NVAR/Z C1x = dfr:gMXP_C1x
+	NVAR/Z C1y = dfr:gMXP_C1y
+	NVAR/Z C2x = dfr:gMXP_C2x
+	NVAR/Z C2y = dfr:gMXP_C2y
 	NVAR/Z colorcnt = dfr:gMXP_colorcnt
-	
-	variable axisxlen = V_right - V_left 
-	variable axisylen = V_bottom - V_top
 	string recreateDrawStr
-	DFREF savedfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:SavedProfiles")
+	DFREF savedfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:SavedLineProfiles")
 	
 	variable postfix = 0
 	variable red, green, blue
@@ -212,9 +275,10 @@ Function MXP_SaveLineProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonContro
 				if(WaveExists(savedfr:$saveWaveNameStr) == 1)
 					postfix++
 				else
-					Duplicate dfr:$LineProfileWaveStr, savedfr:$saveWaveNameStr
-							
-					if(DoPlotSwitch)
+					Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
+					variable xRange = W_LineProfileDisplacement[DimSize(W_LineProfileDisplacement,0)-1] - W_LineProfileDisplacement[0]
+					SetScale/I x, 0, xRange, savedfr:$saveWaveNameStr
+					if(PlotSwitch)
 						if(WinType(targetGraphWin) == 1)
 							AppendToGraph/W=$targetGraphWin savedfr:$saveWaveNameStr
 							[red, green, blue] = MXP_GetColor(colorcnt)
@@ -230,195 +294,175 @@ Function MXP_SaveLineProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonContro
 						endif
 					endif
 					
-					if(MarkAreasSwitch)
-						if(!DoPlotSwitch)
+					if(MarkLinesSwitch)
+						if(!PlotSwitch)
 							[red, green, blue] = MXP_GetColor(colorcnt)
 							colorcnt += 1
 						endif
 						DoWindow/F $WindowNameStr
-						MXP_DrawImageROI(V_left, V_top, V_right, V_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+						MXP_DrawLine(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
 					endif
 				break // Stop if you go through the else branch
 				endif	
 			while(1)
 		sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
-								 "DrawCmd:DrawOval %f, %f, %f, %f", w3dPath + w3dNameStr, red, green, blue, V_left, V_top, V_right, V_bottom
+								 "DrawCmd:DrawLine %f, %f, %f, %f", ImagePathname, red, green, blue, C1x, C1y, C2x, C2y
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
 		break
 	endswitch
 	return 0
 End
 
+Function MXP_ProfilePanelSaveCursorPositions(STRUCT WMButtonAction &B_Struct): ButtonControl
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
+	DFREF dfr0 = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:DefaultSettings") // Settings here
+	NVAR/Z C1x = dfr:gMXP_C1x
+	NVAR/Z C1y = dfr:gMXP_C1y
+	NVAR/Z C2x = dfr:gMXP_C2x
+	NVAR/Z C2y = dfr:gMXP_C2y
+	NVAR/Z C1x0 = dfr0:gMXP_C1x0
+	NVAR/Z C1y0 = dfr0:gMXP_C1y0
+	NVAR/Z C2x0 = dfr0:gMXP_C2x0
+	NVAR/Z C2y0 = dfr0:gMXP_C2y0	
+	switch(B_Struct.eventCode)	// numeric switch
+			case 2:	// "mouse up after mouse down"
+			string msg = "Overwite the cursor position defaults?"
+			DoAlert/T="MAXPEEM would like to ask you" 1, msg
+			if(V_flag == 1)
+				C1x0 = C1x
+				C1y0 = C1y
+				C2x0 = C2x
+				C2y0 = C2y
+			endif
+			break
+	endswitch
+End
 
-Function MXP_LineProfilePanelCheckboxPlotLineProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+Function MXP_ProfilePanelRestoreCursorPositions(STRUCT WMButtonAction &B_Struct): ButtonControl
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
+	DFREF dfr0 = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:DefaultSettings") // Settings here
+	NVAR/Z C1x = dfr:gMXP_C1x
+	NVAR/Z C1y = dfr:gMXP_C1y
+	NVAR/Z C2x = dfr:gMXP_C2x
+	NVAR/Z C2y = dfr:gMXP_C2y
+	NVAR/Z C1x0 = dfr0:gMXP_C1x0
+	NVAR/Z C1y0 = dfr0:gMXP_C1y0
+	NVAR/Z C2x0 = dfr0:gMXP_C2x0
+	NVAR/Z C2y0 = dfr0:gMXP_C2y0
+	NVAR/Z updateCursorsPositions = dfr:gMXP_updateCursorsPositions
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			C1x = C1x0
+			C1y = C1y0
+			C2x = C2x0
+			C2y = C2y0
+			updateCursorsPositions = 1
+			break		
+	endswitch
+End
+
+Function MXP_ProfilePanelCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
-	NVAR/Z DoPlotSwitch = dfr:gMXP_DoPlotSwitch
+	NVAR/Z PlotSwitch = dfr:gMXP_PlotSwitch
 	switch(cb.checked)
 		case 1:		// Mouse up
-			DoPlotSwitch = 1
+			PlotSwitch = 1
 			break
 		case 0:
-			DoPlotSwitch = 0
+			PlotSwitch = 0
 			break
 	endswitch
 	return 0
 End
 
-
-Function MXP_LineProfilePanelCheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : CheckBoxControl
-	
+Function MXP_ProfilePanelProfileLayer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
-	NVAR/Z MarkAreasSwitch = dfr:gMXP_MarkAreasSwitch
+	NVAR/Z selectedLayer = dfr:gMXP_selectedLayer
+	NVAR/Z updateSelectedLayer = dfr:gMXP_updateSelectedLayer
+	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
+	if(DataFolderExists("root:Packages:WM3DImageSlider:" + WindowNameStr))
+		NVAR/Z glayer = root:Packages:WM3DImageSlider:$(WindowNameStr):gLayer
+		if(NVAR_Exists(glayer))
+			selectedLayer = glayer
+		endif
+	else
+		return 1
+	endif
 	switch(cb.checked)
-		case 1:		// Mouse up
-			MarkAreasSwitch = 1
+		case 1:
+			updateSelectedLayer = 1
 			break
 		case 0:
-			MarkAreasSwitch = 0
+			updateSelectedLayer = 0
 			break
 	endswitch
 	return 0
 End
 
+Function MXP_ProfilePanelCheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+	
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
+	NVAR/Z MarkLinesSwitch = dfr:gMXP_MarkLinesSwitch
+	switch(cb.checked)
+		case 1:
+			MarkLinesSwitch = 1
+			break
+		case 0:
+			MarkLinesSwitch = 0
+			break
+	endswitch
+	return 0
+End
 
-// Mon CW43 : Develop on Tuesday and Wednesday
+Function MXP_ProfilePanelSetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
+	
+	DFREF currdfr = GetDataFolderDFR()
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "MXP_rootdfrStr"))
+	NVAR/Z C1x = dfr:gMXP_C1x
+	NVAR/Z C1y = dfr:gMXP_C1y
+	NVAR/Z C2x = dfr:gMXP_C2x
+	NVAR/Z C2y = dfr:gMXP_C2y
+	NVAR/Z profileWidth = dfr:gMXP_profileWidth
+	NVAR/Z selectedLayer = dfr:gMXP_selectedLayer
+	SetDataFolder dfr
+	Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
+	SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
+	WAVE/Z imgWaveRef = $ImagePathname
 
-Function MXP_GetLineProfile(Wave waveRef)
-	// ImageLineProfile srcWave=sampleData, xWave=xTrace, yWave=yTrace
-	// We will use Igor's Imagelineprofile here
-	
-	variable pmin, pmax, qmin, qmax
-	
-	Variable x1 = hcsr(A), x2 = hcsr(B), y1 = vcsr(A), y2 = vcsr(B)
-	
-	if (pcsr(A)<pcsr(B))	
-		pmin = pcsr(A)
-		pmax = pcsr(B)
+	switch(sv.eventCode)
+		case 6:
+			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+			break
+	endswitch
+	SetDataFolder currdfr
+	return 0
+End
+
+static Function PreviousOddNumPositiveEven(variable num)
+	// return a negative number when num < 0
+	// accepts decimals and uses rounding to closest integer
+	num = round(num)
+	num = num > 0 && !mod(num, 2)? num-1: num
+	return num
+end
+
+static Function SlopePerpendicularToLineSegment(variable x1, variable x2, variable y1, variable y2)
+	// Return the slope of a line perpendicular to the line segment defined by (x1, y1) and (x2, y2)
+	if (y1 == y2)
+		return 0
+	elseif (x1 == x2)
+		return inf
 	else
-		pmin = pcsr(B)
-		pmax = pcsr(A)
+		return (x2 - x1)/(y2 - y1)
 	endif
-	
-	if (qcsr(A)<qcsr(B))	
-		qmin = qcsr(A)
-		qmax = qcsr(B)
-	else
-		qmin = qcsr(B)
-		qmax = qcsr(A)
-	endif
-	
-	variable ptot = pmax - pmin, qtot = qmax - qmin
-	
-	variable xtot = abs(x2 - x1), ytot = abs(y2 - y1)
+End
+
+static Function DrawRectangleOfLineProfileWidth(variable x1, variable x2, variable y1, variable y2)
 		
-	variable linelen = sqrt(xtot^2+ytot^2) // len in x, y scale
-	
-	string lineProfileNameStr = NameofWave(waveRef) + "_egprof"
-	
-	variable ii, xstart, xend, ystart, yend, linegrad = inf	
-		 
-	linegrad = (y2 - y1)/(x2-x1) // Cartetian system rotated be -90 deg
-
-	Variable pwidth
-		if (linegrad < 0)
-				xstart = max(x1, x2)
-				xend = min(x1, x2)
-				ystart =  min(y1, y2)
-				yend = max(y1, y2) 
-				Make/O/FREE/N=2 xTrace={xstart, xend}, yTrace = {ystart, yend}
-		else
-				xstart = min(x1, x2)
-				xend = max(x1, x2)
-				ystart =  min(y1, y2)
-				yend = max(y1, y2)
-				Make/O/FREE/N=2 xTrace={xstart, xend}, yTrace = {ystart, yend}
-		endif
-			
-		Prompt pwidth, "Line profile widht (pixels)" 
-		DoPrompt "Width ", pwidth
-		if (V_flag == 1)
-			return -1
-		endif
-		ImageLineProfile/SC srcWave=waveRef, xWave=xTrace, yWave=yTrace, width = pwidth	
-	
-	// Here add the case when you have a 3d wave and you can get the profile at any plane /P
-	
-	WAVE/Z W_ImageLineProfile, W_LineProfileDisplacement
-	Duplicate/O W_ImageLineProfile, $lineProfileNameStr
-	SetScale/I x, W_LineProfileDisplacement[0], W_LineProfileDisplacement[numpnts(W_LineProfileDisplacement) - 1], $lineProfileNameStr
-	WAVEClear W_ImageLineProfile, W_LineProfileDisplacement
-	// Add details of the line profile
-	Note/K $lineProfileNameStr 
-	string coordstart = "Start ["+num2str(pmin)+"]"+"["+num2str(qmin)+"] " + "x: " + num2str(xstart) + ", " + "y: " + num2str(ystart) 
-	string coordend = "End ["+num2str(pmax)+"]"+"["+num2str(qmax)+"] " + "x: " + num2str(xend) + ", " + "y: " + num2str(yend)
-	string gradient = "Gradient: " + num2str(linegrad)+", Line length: " + num2str(linelen) 
-	Note $lineProfileNameStr, coordstart
-	Note $lineProfileNameStr, coordend
-	Note $lineProfileNameStr, gradient
-	Note $lineProfileNameStr, "Profile width in pixels: " + num2str(pwidth) +" ("+ num2str(2*(pwidth+0.5)) +" points)"
-	Note $lineProfileNameStr, "Profile extracted from " + NameOfWave(waveRef)
-End
-
-//Under development
-Function dummy()
-//	string winNameStr = WinName(0, 1, 1)
-//	SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionLineProfiler // Set the hook
-//	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-//	Wave imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-//	String/G waveStr = NameOfWave(imgWaveRef)
-SetWindow $"", hook(MyHook) = MXP_CursorHookFunctionLineProfiler 
-End
-
-Function MXP_CursorHookFunctionLineProfilerTMP(STRUCT WMWinHookStruct &s)
-	/// Window hook function
-//	s.doSetCursor = 1
-//	s.cursorCode = 3
-    variable hookResult = 0
-//    if(!cmpstr(s.cursorName,"Α"))
-//    	print s.cursorName
-//		s.doSetCursor = 1
-//		s.cursorCode = 9
-//	endif
-	//SVAR wrStr = waveStr
-	WAVE/Z imgWaveRef
-	variable x1 = hcsr(A)
-	//variable x2 = hcsr(B)
-	variable y1 = vcsr(A)
-	//variable y2 = xcsr(B)
-	Wave s3d = $"LEEM at 10p3eV FoV 1p25um Mirror off"
-	variable dx = DimDelta(imgWaveRef,0)
-	variable dy = DimDelta(imgWaveRef,1)
-    switch(s.eventCode)
-		case 2: // Kill the window
-			hookresult = 1
-			break
-	    case 7: // cursor moved
-	    	DrawAction delete
-	    	SetDrawLayer ProgFront
-	    	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	    	DrawLine x1, y1, s.pointNumber * dx, s.ypointNumber*dy
-	    	Make/O/FREE/N=2 xTrace={x1, s.pointNumber * dx}, yTrace = {y1, s.ypointNumber * dy}
-	    	ImageLineProfile/SC srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 0	
-
-	    		//break
-//	    	switch(s.eventMod)
-//	    		case 1: // Drag it like this. Set A a cursor to start, drag and draw line
-//	    		//print s.pointNumber, s.ypointNumber
-//
-//	    	endswitch
-	    	hookResult = 1
-	 		break
-	 	//case 3:
-//	 	case 4:
-//	 		//print s.pointNumber, s.ypointNumber
-//	 		print s.mouseLoc.h, s.mouseLoc.v
-//	 		hookResult = 1
-//	 		break
-        case 5: // mouse up
-        	print "mouseup"
-       		hookResult = 1
-			break
-    endswitch
-    return hookResult       // 0 if nothing done, else 1
+	SetDrawEnv linefgc= (65535,0,0,13107),fillbgc= (65535,0,0,13107),fillfgc= (65535,0,0,13107), xcoord = top, ycoord = left
+	SetDrawEnv gname = LineThicknessGroup
+	SetDrawEnv gstart
+	DrawRect x1, x2, y1, y2
+	SetDrawEnv gstop
 End
