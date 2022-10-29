@@ -5,7 +5,7 @@
 
 Menu "MAXPEEM"
 
-	Submenu "Import!*"
+	Submenu "Import"
 		".dat file...", MXP_LoadSingleDATFile("", "", autoscale = 1)
 		".dat files...", MXP_LoadMultiplyDATFiles(autoscale = 1)
 		".dat files in folder...",  MXP_LoadDATFilesFromFolder("", "*") // scale
@@ -15,29 +15,29 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "Analyse"
-		"***** ", print "Not yet implemented"
+		"***** ", print "Not yet implemented, however, Igor Pro has plently of tools to analyse your data."
 	End
 	
-	Submenu "Align!*"
+	Submenu "Align"
 		"using a feature (recommended)...", MXP_LaunchImageStackAlignmentByPartition()
 		"using the full image...", MXP_LaunchImageStackAlignmentByFullImage()
 	End
 	
-	Submenu "Make!*"
-		"a stack from pattern!*", MXP_LaunchMake3DWaveUsingPattern()
-		"a stack from browser selection!*", MXP_LaunchMake3DWaveDataBrowserSelection()
+	Submenu "Make"
+		"a stack from pattern", MXP_LaunchMake3DWaveUsingPattern()
+		"a stack from browser selection", MXP_LaunchMake3DWaveDataBrowserSelection()
 	End
 	
-	Submenu "Calculation!*"
-		"Stack average...!*", MXP_LaunchAverageStackToImageFromMenu()
-		"Calculate XMC(L)D...!*", MXP_LaunchRegisterQCalculateXRayDichroism()
-		"Calculate XMC(L)D interactively...!*", MXP_LaunchInteractiveCalculateXRayDichroism()
-		"Import .dat files and calculate XMC(L)D...!*", MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
+	Submenu "Calculation"
+		"Stack average...", MXP_LaunchAverageStackToImageFromMenu()
+		"Calculate XMC(L)D...", MXP_LaunchRegisterQCalculateXRayDichroism()
+		"Calculate XMC(L)D interactively...", MXP_LaunchInteractiveCalculateXRayDichroism()
+		"Import .dat files and calculate XMC(L)D...", MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	End
 	
-	Submenu "Profiles!*"
-		"z-profile...!*", MXP_MainMenuLaunchZBeamProfiler()
-		"Line profile...", print "Now yet implemented"
+	Submenu "Profiles"
+		"Line profile...", MXP_MainMenuLaunchLineProfiler()
+		"z-profile...", MXP_MainMenuLaunchZBeamProfiler()
 	End
 	
 	Submenu "Housekeeping"
@@ -46,11 +46,9 @@ Menu "MAXPEEM"
 	End
 End
 
-
-
 Menu "GraphMarquee"
 	"Oval ROI z profile", GetMarquee/K left, top; MXP_DrawImageROICursor(V_left, V_top, V_right, V_bottom)
-	"Clear ROI markings", MXP_ClearROIMarkings()
+	"Delete objects UserFront", MXP_ClearROIMarkings()
 	"Marquee to mask", MXP_MarqueeToMask()
 	"Backup traces", MXP_BackupTraces()
 	"Restore traces", MXP_RestoreTraces()
@@ -68,6 +66,7 @@ End
 
 Menu "TracePopup"
 	"-"
+	"MXP line profile", MXP_TraceMenuLaunchLineProfiler()
 	"MXP z profile", MXP_TraceMenuLaunchZBeamProfiler()
 	"MXP Scale Image", MXP_ScaleImage()
 	"MXP Average wave",  MXP_LaunchAverageStackToImageFromTraceMenu()

@@ -11,7 +11,7 @@
 Function MXP_MainMenuLaunchZBeamProfiler()
 
 	// Create the modal data browser but do not display it
-	CreateBrowser/M prompt="Select a 3d wave to launch the z-profiler:"
+	CreateBrowser/M prompt="Select an image stack and press OK"
 	// Show waves but not variables in the modal data browser
 	ModifyBrowser/M showWaves=1, showVars=0, showStrs=0
 	// Set the modal data browser to sort by name 
