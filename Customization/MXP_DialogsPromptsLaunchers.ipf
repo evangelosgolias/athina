@@ -411,9 +411,13 @@ Function MXP_LaunchNewImageFromBrowserSelection()
 	endif
 	
 	do
-		mxpImage = GetBrowserSelection(i)
+		mxpImage = GetBrowserSelection(i) 
+		print WaveDims($mxpImage)
+		if(WaveDims($mxpImage) != 3 && WaveDims($mxpImage) != 2)
+			Abort "Operation needs an image or image stack"
+		endif
 		NewImage $mxpImage
-		ModifyGraph width={Plan,1,top,left}
+		ModifyGraph width={Plan,1,top,left}, expand=0.667
 		if(WaveDims($mxpImage)==3)
 			WMAppend3DImageSlider()
 		endif

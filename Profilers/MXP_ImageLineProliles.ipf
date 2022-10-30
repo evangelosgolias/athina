@@ -28,14 +28,15 @@ Function MXP_MainMenuLaunchLineProfiler()
 	if(exists(browserSelection) && (WaveDims(selectedWave) == 3 || WaveDims(selectedWave) == 2)) // if it is a 3d wave
 		NewImage/K=1 selectedWave
 		ModifyGraph width={Plan,1,top,left}
+		ShowInfo/CP={0,3}
 		string winNameStr = WinName(0, 1, 1)
 		string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 		MXP_InitialiseLineProfilerFolder()
 		//DoWindow/F $winNameStr // bring it to FG to set the cursors
 		variable nrows = DimSize(selectedWave,0)
 		variable ncols = DimSize(selectedWave,1)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P G $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P H $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
+		Cursor/I/C=(65535,0,0)/S=1/P G $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
+		Cursor/I/C=(65535,0,0)/S=1/P H $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(selectedWave)) // Change root folder if you want
 		MXP_InitialiseLineProfilerGraph(dfr)
 		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionLineProfiler // Set the hook
@@ -58,6 +59,7 @@ Function MXP_TraceMenuLaunchLineProfiler()
 		NewImage/K=1 imgWaveRef
 		winNameStr = WinName(0, 1, 1) // update it just in case
 		ModifyGraph width={Plan,1,top,left}
+		ShowInfo/CP={0,3}
 		MXP_InitialiseLineProfilerFolder()
 		DoWindow/F $winNameStr // bring it to FG to set the cursors
 		variable nrows = DimSize(imgWaveRef,0)
@@ -274,7 +276,7 @@ Function MXP_CreateLineProfilePanel(DFREF dfr)
 	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=MXP_ProfilePanelSaveProfile
 	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=MXP_ProfilePanelSaveDefaultSettings
 	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=MXP_ProfilePanelRestoreDefaultSettings
-	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Show width of integrated area while button is pressed"},proc=MXP_ProfilePanelShowProfileWidth
+	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",fcolor=(65535,32768,32768),help={"Show width of integrated area while button is pressed"},proc=MXP_ProfilePanelShowProfileWidth
 	CheckBox PlotProfiles,pos={19.00,35.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=0,side=1,proc=MXP_ProfilePanelCheckboxPlotProfile
 	CheckBox MarkLines,pos={127.00,35.00},size={86.00,17.00},title="Mark lines ",fSize=14,value=0,side=1,proc=MXP_ProfilePanelCheckboxMarkLines
 	CheckBox ProfileLayer3D,pos={227.00,35.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=MXP_ProfilePanelProfileLayer3D
@@ -299,6 +301,8 @@ Function MXP_ProfilePanelSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonCon
 	Wave/SDFR=dfr W_LineProfileDisplacement
 	NVAR/Z PlotSwitch = dfr:gMXP_PlotSwitch
 	NVAR/Z MarkLinesSwitch = dfr:gMXP_MarkLinesSwitch
+	NVAR/Z profileWidth = dfr:gMXP_profileWidth
+	NVAR/Z selectedLayer = dfr:gMXP_selectedLayer
 	NVAR/Z C1x = dfr:gMXP_C1x
 	NVAR/Z C1y = dfr:gMXP_C1y
 	NVAR/Z C2x = dfr:gMXP_C2x
@@ -347,7 +351,9 @@ Function MXP_ProfilePanelSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonCon
 				endif	
 			while(1)
 		sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left;" + \
-								 "DrawCmd:DrawLine %f, %f, %f, %f", ImagePathname, red, green, blue, C1x, C1y, C2x, C2y
+								 "DrawCmd:DrawLine %f, %f, %f, %f;ProfileCmd:Make/O/N=2 xTrace={%f, %f}, yTrace = {%f, %f}\nImageLineProfile/P=(%d) srcWave=%s," +\
+								 "xWave=xTrace, yWave=yTrace, width = %f\nDisplay/K=1 W_ImageLineProfile vs W_LineProfileDisplacement" + \
+								 "", ImagePathname, red, green, blue, C1x, C1y, C2x, C2y, C1x, C2x, C1y, C2y, selectedLayer, ImagePathname, profileWidth
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
 		break
 	endswitch
