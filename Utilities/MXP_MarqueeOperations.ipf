@@ -79,6 +79,25 @@ Function MXP_CoordinatesToROIMask(variable left, variable top, variable right, v
 	KillWaves/Z M_ROIMask
 End
 
+Function/WAVE MXP_WAVECoordinatesToROIMask(variable left, variable top, variable right, variable bottom)
+	/// Generate a SP Mask from Marquee and return a WAVE reference
+	/// The graph should have left, top axes
+	string wnamestr = WMTopImageName()
+	string winNameStr = WinName(0, 1, 1)
+	DoWindow/F $winNameStr // You need to have your imange stack as a top window
+	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
+	SetDrawEnv linefgc = (65535,16385,16385), fillpat = 0, linethick = 0.5, xcoord = top, ycoord = left
+	DrawRect/W=$winNameStr left, top, right, bottom
+	ImageGenerateROIMask $wnamestr
+	DrawAction  delete
+	SetDrawLayer UserFront
+	WAVE M_ROIMask
+	Duplicate/O/FREE M_ROIMask, MXP_ROIMask
+	Redimension/S MXP_ROIMask
+	KillWaves/Z M_ROIMask
+	return MXP_ROIMask
+End
+
 Function MXP_OperationsOnGraphTracesForXAS(variable left, variable right, variable operationSelection)
 	// Trace calculations using graph marquee
 	string waveListStr, traceNameStr

@@ -76,8 +76,14 @@ Function MXP_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 	endif
 	ImageRegistration/Q/STCK/PSTK/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d
 	WAVE M_RegParams
-	MatrixOP/FREE dx = row(M_RegParams,0) // print dx
-	MatrixOP/FREE dy = row(M_RegParams,1) // print dy
+	MatrixOP/FREE dx = row(M_RegParams,0)
+	MatrixOP/FREE dy = row(M_RegParams,1)
+	if(printMode)
+		string driftLog = ""
+		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
+		driftLog +=  "---- Drift ----\n"
+		driftLog +=  "layer  dx  dy\n"
+	endif
 	//Now translate each wave in the stack
 	variable i
 	for(i = 0; i < layers; i++)
@@ -85,11 +91,16 @@ Function MXP_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 		ImageTransform/IOFF={dx[i], dy[i], 0} offsetImage getfreelayer
 		WAVE M_OffsetImage
 		if(printMode)
-			print i,": ", dx[i], dy[i]
+			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "\t" + num2str(dy[i]) + "\n"
 		endif
 		w3d[][][i] = M_OffsetImage[p][q]
 	endfor
 	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams, M_OffsetImage
+	if(printMode)
+		string notebookName = NameOfWave(w3d)
+		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
+		Notebook notebookName, text = driftLog
+	endif
 	return 0
 End
 
@@ -114,18 +125,27 @@ Function MXP_ImageStackAlignmentByRegistration(WAVE w3d, [variable layerN, varia
 	ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/SKEW={0,0,0}/TSTM=0/BVAL=0/CONV=(convMode) refwave = refLayerWave, testwave = w3d
 	WAVE M_RegOut, M_RegMaskOut, M_RegParams
 	if(printmode)
-		MatrixOP/FREE/P=1 dx = row(M_RegParams,0) // Print dx
-		MatrixOP/FREE/P=1 dy = row(M_RegParams,1) // Print dy
+		MatrixOP/FREE dx = row(M_RegParams, 0)
+		MatrixOP/FREE dy = row(M_RegParams, 1)
+		string driftLog = ""
+		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
+		driftLog +=  "---- Drift ----\n"
+		driftLog +=  "layer  dx  dy\n"
 	endif
 	if(!WaveExists($(NameOfWave(w3d)+"_undo")))
 		Duplicate/O w3d, $(NameOfWave(w3d)+"_undo")
 	endif	
 	Duplicate/O M_RegOut, w3d
 	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams
+	if(printMode)
+		string notebookName = NameOfWave(w3d)
+		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
+		Notebook notebookName, text = driftLog
+	endif
 	return 0
 End
 
-Function MXP_ImageStackAlignmentByRegistrationUsingMask(WAVE w3d, WAVE MaskWaveRef, [variable layerN, variable convMode, variable printMode])
+Function MXP_ImageStackAlignmentByMaskRegistration(WAVE w3d, WAVE MaskWaveRef, [variable layerN, variable convMode, variable printMode])
 	/// Align a 3d wave using ImageRegistration. By default the function will
 	/// use the 0-th layer as a wave reference, uncless user chooses otherwise 
 	/// Only x, y translations are allowed.
@@ -135,8 +155,8 @@ Function MXP_ImageStackAlignmentByRegistrationUsingMask(WAVE w3d, WAVE MaskWaveR
 	/// Note: When illumination conditions change considerably, (XAS along an edge)
 	/// it is better to use a mask to isolate a characteristic feature. 
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then 0 is your choice
-	convMode = ParamIsDefault(convMode) ? 0: convMode // convMode = 0, 1 
-	printMode = ParamIsDefault(printMode) ? 0: printMode // convMode = 0, 1 
+	convMode = ParamIsDefault(convMode) ? 1: convMode // NB. Use the /CONV = 1 as default
+	printMode = ParamIsDefault(printMode) ? 0: printMode //
 	if(!(WaveType(w3d) & 0x02))
 		Redimension/S w3d
 	endif
@@ -154,6 +174,10 @@ Function MXP_ImageStackAlignmentByRegistrationUsingMask(WAVE w3d, WAVE MaskWaveR
 	if(printMode)
 		MatrixOP/FREE dx = row(M_RegParams,0) // Print dx
 		MatrixOP/FREE dy = row(M_RegParams,1) // Print dy
+		string driftLog = ""
+		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
+		driftLog +=  "---- Drift ----\n"
+		driftLog +=  "layer  dx  dy\n"
 	endif
 	if(!WaveExists($(NameOfWave(w3d)+"_undo")))
 		Duplicate/O w3d, $(NameOfWave(w3d)+"_undo")
@@ -166,10 +190,15 @@ Function MXP_ImageStackAlignmentByRegistrationUsingMask(WAVE w3d, WAVE MaskWaveR
 		WAVE M_OffsetImage
 		w3d[][][i] = M_OffsetImage[p][q]
 		if(printMode)
-			print i,": ", dx[i], dy[i]
+			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "\t" + num2str(dy[i]) + "\n"
 		endif
 	endfor
 	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams, M_OffsetImage
+	if(printMode)
+		string notebookName = NameOfWave(w3d)
+		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
+		Notebook notebookName, text = driftLog
+	endif
 	return 0
 End
 
@@ -187,11 +216,11 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int pr
 	if(!(WaveType(w3d) & 0x02))
 		Redimension/S w3d
 	endif
-	MatrixOP/O/FREE refLayerWave = layer(w3d, layerN)
+	MatrixOP/O/FREE refLayerFreeWave = layer(w3d, layerN)
 	if(windowing)
-		ImageWindow/O Hanning refLayerWave
+		ImageWindow/O Hanning refLayerFreeWave
 	endif
-	MatrixOP/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
+	MatrixOP/FREE autocorrelationW = correlate(refLayerFreeWave, refLayerFreeWave, 0)
 	WaveStats/M=1/Q autocorrelationW
 	variable x0 = V_maxRowLoc, y0 = V_maxColLoc, x1, y1, dx, dy
 	variable layers = DimSize(w3d, 2)
@@ -200,35 +229,47 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int pr
 	endif		
 	//Now translate each wave in the stack
 	variable i 
+	string driftLog
 	if(printMode)
-		print "Ref. Layer = ", layerN
-		print "---- Drift ----"
-		print "layer  dx  dy"
+		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
+		driftLog +=  "---- Drift ----\n"
+		driftLog +=  "layer  dx  dy\n"
 	endif
 
 	for(i = 0; i < layers; i++)
 		if(i != layerN)
 			MatrixOP/O/FREE freeLayer = layer(w3d, i)
 			if(windowing)
+				Duplicate/O/FREE freeLayer, freeLayerCopy
 				ImageWindow/O Hanning freeLayer
 			endif			
-			MatrixOP/O/FREE correlationW = correlate(refLayerWave, freeLayer, 0)
+			MatrixOP/O/FREE correlationW = correlate(refLayerFreeWave, freeLayer, 0)
 			WaveStats/M=1/Q correlationW
 			x1 = V_maxRowLoc
 			y1 = V_maxColLoc
 			dx = x0 - x1
 			dy = y0 - y1
 			if(printMode)
-			print i,": ", dx, dy
+				//print i,": ", dx, dy
+				driftLog +=  num2str(i) + ": "+ num2str(dx) + "\t" + num2str(dy) + "\n"
 			endif
 			if(dx * dy) // Replace a slice only if you have to offset
-				ImageTransform/IOFF={dx, dy, 0} offsetImage freeLayer
+				if(windowing)
+					ImageTransform/IOFF={dx, dy, 0} offsetImage freeLayerCopy
+				else
+					ImageTransform/IOFF={dx, dy, 0} offsetImage freeLayer
+				endif
 				WAVE M_OffsetImage
 				w3d[][][i] = M_OffsetImage[p][q]
 			endif
 		endif
 	endfor
 	KillWaves/Z M_OffsetImage
+	if(printMode)
+		string notebookName = NameOfWave(w3d)
+		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
+		Notebook notebookName, text = driftLog
+	endif
 	return 0
 End
 
@@ -244,7 +285,7 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 	/// it is better to use a mask to isolate a characteristic feature. 
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then default is 0
 	printMode = ParamIsDefault(printMode) ? 0: printMode
-	windowing = ParamIsDefault(windowing) ? 0: windowing // print if not 0
+	windowing = ParamIsDefault(windowing) ? 0: windowing
 	if(!(WaveType(w3d) & 0x02))
 		Redimension/S w3d
 	endif
@@ -275,7 +316,12 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 		dx[i] = x0 - x1
 		dy[i] = y0 - y1
 	endfor
-
+	if(printMode)
+		string driftLog = ""
+		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
+		driftLog +=  "---- Drift ----\n"
+		driftLog +=  "layer  dx  dy\n"
+	endif
 	//Now translate each wave in the stack (w3d)
 	for(i = 0; i < layers; i++)
 		MatrixOP/O/FREE getfreelayer = layer(w3d, i)
@@ -283,10 +329,15 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 		WAVE M_OffsetImage
 		w3d[][][i] = M_OffsetImage[p][q]
 		if(printMode)
-			print i,": ", dx[i], dy[i]
+			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "\t" + num2str(dy[i]) + "\n"
 		endif
 	endfor
 	KillWaves/Z M_OffsetImage
+	if(printMode)
+		string notebookName = NameOfWave(w3d)
+		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
+		Notebook notebookName, text = driftLog
+	endif
 	return 0
 End
 
@@ -310,10 +361,12 @@ Function MXP_ImageStackAlignmentByIterativeCorrelation(WAVE w3d,  [variable prin
 	endif	
 	//Now translate each wave in the stack
 	variable i 
+	
 	if(printMode)
-		print "Ref. Layer = 0"
-		print "---- Drift ----"
-		print "layer  dx  dy"
+		string driftLog = ""
+		driftLog += "Ref. Layer = 0"
+		driftLog +=  "---- Drift ----\n"
+		driftLog +=  "layer  dx  dy\n"
 	endif
 
 	for(i = 1; i < layers; i++)
@@ -334,7 +387,7 @@ Function MXP_ImageStackAlignmentByIterativeCorrelation(WAVE w3d,  [variable prin
 			dx = x1 - x0
 			dy = y1 - y0
 			if(printMode)
-				print i,": ", dx, dy
+				driftLog +=  num2str(i) + ": "+ num2str(dx) + "\t" + num2str(dy) + "\n"
 			endif
 			if(dx * dy) // Replace a slice only if you have to offset
 				ImageTransform/IOFF={-dx, -dy, 0} offsetImage freeLayer
@@ -344,6 +397,11 @@ Function MXP_ImageStackAlignmentByIterativeCorrelation(WAVE w3d,  [variable prin
 			// interp2D(getfreelayer, x + dx, y + dy) works but we need an extra step MatrixOP/FREE XXX = zapNaNs()			
 	endfor
 	KillWaves/Z M_OffsetImage
+	if(printMode)
+		string notebookName = NameOfWave(w3d)
+		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
+		Notebook notebookName, text = driftLog
+	endif
 	return 0
 End
 

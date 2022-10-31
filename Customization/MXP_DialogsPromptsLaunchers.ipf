@@ -19,10 +19,11 @@ End
 Function MXP_LauncherLoadDATFilesFromFolder()
 	string wNameStr = MXP_GenericSingleStrPrompt("Stack name, empty string to auto-name", "Before the selection dialog opens...")
 	if(strlen(wNameStr))
-		MXP_LoadDATFilesFromFolder("", "*", switch3d = 1, wname3d = wNameStr, autoscale = 1)
+		MXP_LoadDATFilesFromFolder("", "*", stack3d = 1, wname3d = wNameStr, autoscale = 1)
 	else
 		// default name, if wname3d is given, even if empty string, the ParamIsDefault will give 1.
-		MXP_LoadDATFilesFromFolder("", "*", switch3d = 1, autoscale = 1) 
+		// wname3d = SelectString(ParamIsDefault(wname3d) ? 0: 1,"stack3d", wname3d)
+		MXP_LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 
 	endif
 End
 
@@ -276,18 +277,18 @@ Function MXP_LaunchImageStackAlignmentByFullImage()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
-	variable method = 2
+	variable convMode = 1
 	variable printMode = 2
 	variable layerN = 0
 	variable windowing = 2
 	variable algo = 1
 	string msg = "Align " + imgNameTopGraphStr + " using the full image."
-	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
+	Prompt algo, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
 	Prompt layerN, "Reference layer"
-	Prompt algo, "Convergence (Registration only)", popup, "Gravity (fast); Marquardt (slow)"
+	Prompt convMode, "Convergence (Registration only)", popup, "Gravity (fast); Marquardt (slow)"
 	Prompt windowing, "Hanning windowing (Correlation only)", popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt msg, method, layerN, algo, windowing, printMode
+	DoPrompt msg, algo, layerN, convMode, windowing, printMode
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -299,28 +300,29 @@ Function MXP_LaunchImageStackAlignmentByFullImage()
 	endif
 	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
 	//MXP_ImageStackAlignmentByPartitionRegistration
-	if(method == 1)
-		MXP_ImageStackAlignmentByRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = algo - 1)
+	if(algo == 1)
+		MXP_ImageStackAlignmentByRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1)
 	else
 		MXP_ImageStackAlignmentByCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, windowing = windowing - 2)
 	endif
 
 End
 
-// ---- ///
-Function MXP_LaunchImageStackAlignmentByPartition()
+Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	//string waveListStr = Wavelist("*",";","DIMS:3"), selectWaveStr
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
+	variable algo = 1
 	variable method = 1
 	variable printMode = 2
 	variable layerN = 0
 	string msg = "Align " + imgNameTopGraphStr + " using part of the image."
-	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
-	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt algo, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
+	Prompt method, "Partition or Mask (Registration only, correlation always uses partition)", popup, "Partition; Mask" // Partition = 1, Mask = 2
 	Prompt layerN, "Reference layer"
-	DoPrompt msg, method, layerN, printMode
+	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
+	DoPrompt msg, algo, method, layerN, printMode
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -332,23 +334,34 @@ Function MXP_LaunchImageStackAlignmentByPartition()
 	endif
 	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
 	// MXP_ImageStackAlignmentByPartitionRegistration
-	WAVE partiotionWave = WM_UserSetMarquee(winNameStr)
-	ImageFilter/O gauss3d partiotionWave // Apply a 3x3x3 gaussian filter
-	MatrixOP/FREE/O partiotionFreeWaveGaussNorm = normalize(partiotionWave) // Normalise wave here FIX: SET TO FREE
-	if(method == 1)
-		MXP_ImageStackAlignmentByPartitionRegistration(w3dRef, partiotionFreeWaveGaussNorm, layerN = layerN, printMode = printMode - 2)
-	else
+	WAVE partiotionWave = WM_UserSetMarquee(winNameStr, method = method - 1) // partitionWave might be a 2D wave to be used as a Mask
+
+	if(algo == 1)
+		if(method == 2) // Mask
+			MXP_ImageStackAlignmentByMaskRegistration(w3dRef, partiotionWave, layerN = layerN, printMode = printMode - 2, convMode = 1)
+		elseif(method == 1) // Partition
+			ImageFilter/O gauss3d partiotionWave // Apply a 3x3x3 gaussian filter
+			MatrixOP/FREE/O partiotionFreeWaveGaussNorm = normalize(partiotionWave)	
+			MXP_ImageStackAlignmentByPartitionRegistration(w3dRef, partiotionFreeWaveGaussNorm, layerN = layerN, printMode = printMode - 2)
+		else
+			Abort "Please check MXP_LaunchImageStackAlignmentUsingAFeature(), method error."
+		endif
+	elseif(algo == 2)
+		ImageFilter/O gauss3d partiotionWave // Apply a 3x3x3 gaussian filter
+		MatrixOP/FREE/O partiotionFreeWaveGaussNorm = normalize(partiotionWave)	
 		MXP_ImageStackAlignmentByPartitionCorrelation(w3dRef, partiotionFreeWaveGaussNorm, layerN = layerN, printMode = printMode - 2)
+	else 
+		Abort "Please check MXP_LaunchImageStackAlignmentUsingAFeature(), algo error."
 	endif
 End
 
-Function/WAVE WM_UserSetMarquee(graphName)
+Function/WAVE WM_UserSetMarquee(string graphName, [variable method])
 	/// Modified WM procedure to return a Free WAVE to MXP_LaunchMXP_ImageStackAlignmentByPartitionRegistration()
-	String graphName
-
+	/// method = 0:partition wave 3d, method = 1, create a mask
+	method = ParamIsDefault(method) ? 0: method
 	DoWindow/F $graphName			// Bring graph to front
 	if (V_Flag == 0)					// Verify that graph exists
-		Abort "WM_UserSetMarquee: No such graph."
+		Abort "WM_UserSetMarquee: No image in top window."
 	endif
 
 	NewDataFolder/O root:tmp_PauseforCursorDF
@@ -366,12 +379,10 @@ Function/WAVE WM_UserSetMarquee(graphName)
 	Button button1, proc=WM_UserSetMarquee_CancelBProc, title="Cancel"
 
 	PauseForUser tmp_PauseforCursor,$graphName
-	
 	NVAR/Z left = root:tmp_PauseforCursorDF:left
 	NVAR/Z right = root:tmp_PauseforCursorDF:right
 	NVAR/Z top = root:tmp_PauseforCursorDF:top
 	NVAR/Z bottom = root:tmp_PauseforCursorDF:bottom
-	//print num2str(left)+","+num2str(top)+","+num2str(right)+","+num2str(bottom) // DEBUG
 	NVAR/Z gCanceled= root:tmp_PauseforCursorDF:canceled
 	Variable canceled= gCanceled			// Copy from global to local before global is killed
 	if(canceled)
@@ -381,7 +392,11 @@ Function/WAVE WM_UserSetMarquee(graphName)
 		
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(graphName, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	WAVE partiotionWave = MXP_WAVE3DWavePartition(w3dref, "MXP_Partition", left, right, top, bottom, tetragonal = 1) // Change here the partition
+	if(method)
+		WAVE partiotionWave = MXP_WAVECoordinatesToROIMask(left, right, top, bottom) // We do not take care of odd numbers here, ImageRegistration will do its magic
+	else
+		WAVE partiotionWave = MXP_WAVE3DWavePartition(w3dref, left, right, top, bottom, evenNum = 1) // Change here the partition
+	endif
 	KillDataFolder root:tmp_PauseforCursorDF // Kill folder here, you have to use the left, right, top, bottom in MXP_WAVE3DWavePartition
 	return partiotionWave
 End

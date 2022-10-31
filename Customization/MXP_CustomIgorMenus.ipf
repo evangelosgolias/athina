@@ -8,7 +8,7 @@ Menu "MAXPEEM"
 	Submenu "Import"
 		".dat file...", MXP_LoadSingleDATFile("", "", autoscale = 1)
 		".dat files...", MXP_LoadMultiplyDATFiles(autoscale = 1)
-		".dat files in folder...",  MXP_LoadDATFilesFromFolder("", "*") // scale
+		".dat files in folder...",  MXP_LoadDATFilesFromFolder("", "*", autoscale = 1) // scale
 		".dat files in folder to stack ...", MXP_LauncherLoadDATFilesFromFolder()
 		".dav file in stack...", MXP_LoadSingleDAVFile("", "", stack3d = 1, skipmetadata = 1)
 		".dav file...", MXP_LoadSingleDAVFile("", "")
@@ -19,7 +19,7 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "Align"
-		"using a feature (recommended)...", MXP_LaunchImageStackAlignmentByPartition()
+		"using a feature (recommended)...", MXP_LaunchImageStackAlignmentUsingAFeature()
 		"using the full image...", MXP_LaunchImageStackAlignmentByFullImage()
 	End
 	
