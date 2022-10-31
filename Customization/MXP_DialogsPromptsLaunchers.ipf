@@ -291,10 +291,11 @@ Function MXP_LaunchImageStackAlignmentByFullImage()
 	if(V_flag) // User cancelled
 		return -1
 	endif
-	if(!WaveExists($(imgNameTopGraphStr + "_undo")))
-		print PossiblyQuoteName(imgNameTopGraphStr + "_undo") + " has been created. To restore " + PossiblyQuoteName(imgNameTopGraphStr) + " run the command:\n"
-		print "Duplicate/O " + PossiblyQuoteName(imgNameTopGraphStr + "_undo") + ", " +  PossiblyQuoteName(imgNameTopGraphStr) + "; " + \
-		"KillWaves/Z " + PossiblyQuoteName(imgNameTopGraphStr + "_undo")
+	string backupWave = NameOfWave(w3dref) + "_undo"
+	if(!WaveExists($backupWave))
+		print PossiblyQuoteName(backupWave) + " has been created. To restore " + PossiblyQuoteName(imgNameTopGraphStr) + " run the command:\n"
+		print "Duplicate/O " + PossiblyQuoteName(backupWave) + ", " +  PossiblyQuoteName(imgNameTopGraphStr) + "; " + \
+		"KillWaves/Z " + PossiblyQuoteName(backupWave)
 	endif
 	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
 	//MXP_ImageStackAlignmentByPartitionRegistration
@@ -323,16 +324,17 @@ Function MXP_LaunchImageStackAlignmentByPartition()
 	if(V_flag) // User cancelled
 		return -1
 	endif
-	if(!WaveExists($(imgNameTopGraphStr + "_undo"))) // if you put this later it makes a problem with the function calls that have the same if statement
-		print PossiblyQuoteName(imgNameTopGraphStr + "_undo") + " has been created. To restore " + PossiblyQuoteName(imgNameTopGraphStr) + " run the command:\n"
-		print "Duplicate/O " + PossiblyQuoteName(imgNameTopGraphStr + "_undo") + ", " +  PossiblyQuoteName(imgNameTopGraphStr) + "; " + \
-		"KillWaves/Z " + PossiblyQuoteName(imgNameTopGraphStr + "_undo")
+	string backupWave = NameOfWave(w3dref) + "_undo"
+	if(!WaveExists($backupWave))
+		print PossiblyQuoteName(backupWave) + " has been created. To restore " + PossiblyQuoteName(imgNameTopGraphStr) + " run the command:\n"
+		print "Duplicate/O " + PossiblyQuoteName(backupWave) + ", " +  PossiblyQuoteName(imgNameTopGraphStr) + "; " + \
+		"KillWaves/Z " + PossiblyQuoteName(backupWave)
 	endif
 	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
 	// MXP_ImageStackAlignmentByPartitionRegistration
 	WAVE partiotionWave = WM_UserSetMarquee(winNameStr)
 	ImageFilter/O gauss3d partiotionWave // Apply a 3x3x3 gaussian filter
-	MatrixOP/O partiotionFreeWaveGaussNorm = normalize(partiotionWave) // Normalise wave here FIX: SET TO FREE
+	MatrixOP/FREE/O partiotionFreeWaveGaussNorm = normalize(partiotionWave) // Normalise wave here FIX: SET TO FREE
 	if(method == 1)
 		MXP_ImageStackAlignmentByPartitionRegistration(w3dRef, partiotionFreeWaveGaussNorm, layerN = layerN, printMode = printMode - 2)
 	else
@@ -379,7 +381,7 @@ Function/WAVE WM_UserSetMarquee(graphName)
 		
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(graphName, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	WAVE partiotionWave = MXP_WAVE3DWavePartition(w3dref, "MXP_Partition", left, right, top, bottom)
+	WAVE partiotionWave = MXP_WAVE3DWavePartition(w3dref, "MXP_Partition", left, right, top, bottom, tetragonal = 1) // Change here the partition
 	KillDataFolder root:tmp_PauseforCursorDF // Kill folder here, you have to use the left, right, top, bottom in MXP_WAVE3DWavePartition
 	return partiotionWave
 End
@@ -417,7 +419,7 @@ Function MXP_LaunchNewImageFromBrowserSelection()
 			Abort "Operation needs an image or image stack"
 		endif
 		NewImage $mxpImage
-		ModifyGraph width={Plan,1,top,left}, expand=0.667
+		ModifyGraph width={Plan,1,top,left}
 		if(WaveDims($mxpImage)==3)
 			WMAppend3DImageSlider()
 		endif

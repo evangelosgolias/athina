@@ -55,17 +55,16 @@ Function MXP_Make3DWaveDataBrowserSelection(String wname3d)
 		i++
 	while (strlen(GetBrowserSelection(i)))
 
-	if (!strlen(listOfSelectedWaves))
-		return -1 // No wave selected
+	variable nrwaves = ItemsInList(listOfSelectedWaves)
+	if (nrwaves < 2)
+		return -1 // No wave or one wave is selected
 	endif
+	
+	string wname = StringFromList(0,listOfSelectedWaves)
 
-	Variable nrwaves = ItemsInList(listOfSelectedWaves)
-
-	String wname = StringFromList(0,listOfSelectedWaves)
-
-	Wave wref = $wname
-	Variable nx = DimSize(wref,0)
-	Variable ny = DimSize(wref,1)
+	WAVE wref = $wname
+	variable nx = DimSize(wref,0)
+	variable ny = DimSize(wref,1)
 
 	Make/N = (nx, ny, nrwaves) $wname3d /WAVE = w3dref
 

@@ -83,9 +83,9 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
 
     PathInfo $pathNameStr
     string fileToOpen = S_path + fileNameStr
-    if(StringMatch(fileNameStr,"*.dat") && fileKind == 7) // Igor thinks that the .dat file is a General text (fileKind == 7)
-        try
-        	MXP_LoadSingleDATFile(fileToOpen, "")
+    if(StringMatch(fileNameStr, "*.dat") && fileKind == 7) // Igor thinks that the .dat file is a General text (fileKind == 7)
+        try	
+        	MXP_LoadSingleDATFile(fileToOpen, "", autoscale = 1)
         	AbortOnRTE
         catch
         	print "Are you sure you are not trying to load a text file with .dat extention?"
@@ -93,12 +93,17 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
         endtry
         return 1
     endif
-    if(StringMatch(fileNameStr,"*.dav") && fileKind == 7) // Igor thinks that the .dat file is a General text (fileKind == 7)
+    if(StringMatch(fileNameStr, "*.dav") && fileKind == 0) // fileKind == 0, unknown
+    	DoAlert/T="Dropped a .dav file in Igror" 1, "Do you want to load the .dav file in a stack?"
         try
-        	MXP_LoadSingleDAVFile(fileToOpen, "")
+        if(V_flag == 1)
+        		MXP_LoadSingleDAVFile(fileToOpen, "", skipmetadata = 1, autoscale = 1, stack3d = 1)
+        else
+        		MXP_LoadSingleDAVFile(fileToOpen, "", autoscale = 1)
+        endif
         	AbortOnRTE
         catch
-        	print "Are you sure you are not trying to load a text file with .dat extention?"
+        	print "Are you sure you are not trying to load a text file with .dav extention?"
         	Abort
         endtry
         return 1
@@ -375,6 +380,7 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	string fileFilters = "dav File (*.dav):.dav;"
 	fileFilters += "All Files:.*;"
 	string message
+	string mdatastr
     if (!strlen(filepathStr) && !strlen(waveNameStr)) 
 		message = "Select .dav file. \nFilename will be wave's name. (overwrite)\n "
    		Open/F=fileFilters/M=message/D/R numref
@@ -418,10 +424,11 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	variable ImageHeaderSize, timestamp
 	
 	variable cnt = 0 
-	variable singlePassSwitch = 1
-	
+	variable singlePassSwitch = 1 
+	variable readMetadataOnce = 1 // When you skip metadata but you needa  scaled for the 3d wave
+	variable MetadataStart
 	do
-		
+	mdatastr = "" // Reset metadata string
 	FSetPos numRef, MXPFileHeader.size + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
 	FBinRead numRef, MXPImageHeader
 	
@@ -449,12 +456,18 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 		timestamp = MXPImageHeader.imagetime.LONG[0]+2^32 * MXPImageHeader.imagetime.LONG[1]
 		timestamp *= 1e-7 // t_i converted from 100ns to s
 		timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
-		variable MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
-		string mdatastr = filepathStr + "\n"
+		MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+		mdatastr += filepathStr + "\n"
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
 		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
 	endif
-
+	
+	if(skipmetadata && autoScale && stack3d) // when you stack, skip metadata but scale the x, y dimensions of the 3d wave.
+		MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
+		variable fovScale = str2num(StringByKey("FOV(µm)", mdatastr,":", "\n"))
+		readMetadataOnce = 0
+	endif
 	// Add image markups if any
 	if(MXPImageHeader.attachedMarkupSize)
 		mdatastr += MXP_StrGetImageMarkups(filepathStr)
@@ -472,12 +485,6 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 		Redimension/D datWave
 	endif
 
-	if(autoScale && !skipmetadata)
-		variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
-		SetScale/I x, 0, imgScaleVar, datWave
-		SetScale/I y, 0, imgScaleVar, datWave
-	endif
-	
 	if(stack3d)
 		if(stack3d && singlePassSwitch) // We want stacking and yet the 3d wave is not created
 			variable nlayers = (totalBytesInDAVFile - 104)/(ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
@@ -485,6 +492,10 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 			singlePassSwitch = 0
 		endif
 		stack3DAVWave[][][cnt] = datWave[p][q]
+		if(autoscale)
+			SetScale/I x, 0, fovScale, stack3DAVWave
+			SetScale/I y, 0, fovScale, stack3DAVWave
+		endif
 	endif
 	WAVEClear datWave
 	cnt += 1

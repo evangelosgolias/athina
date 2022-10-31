@@ -4,39 +4,62 @@
 
 
 Function MXP_MarqueeToMask()
-	GetMarquee/K left, top;
-	MXP_CoordinatesToROIMask(V_left, V_top, V_right, V_bottom)
-	string noteToMaskStr 
-	sprintf noteToMaskStr, "V_left, V_top, V_right, V_bottom:%s, %s, %s, %s", num2str(V_left), num2str(V_top), num2str(V_right), num2str(V_right)
-	WAVE MXP_ROIMask
-	Note/K MXP_ROIMask, noteToMaskStr
-End
-
-Function MXP_BackupTraces()
-	GetMarquee/K left, bottom;
-	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 3)
-End
-
-Function MXP_RestoreTraces()
-	GetMarquee/K left, bottom;
-	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 4)
+	if(CheckActiveAxis("", "top") && CheckActiveAxis("", "left"))
+		GetMarquee/K left, top;
+		MXP_CoordinatesToROIMask(V_left, V_top, V_right, V_bottom)
+		string noteToMaskStr 
+		sprintf noteToMaskStr, "V_left, V_top, V_right, V_bottom: %s, %s, %s, %s", num2str(V_left), num2str(V_top), num2str(V_right), num2str(V_right)
+		WAVE MXP_ROIMask
+		Note/K MXP_ROIMask, noteToMaskStr
+	else
+		print "Operation needs an image with left and top axes"
+	endif
 End
 
 Function MXP_PullToZero()
-	GetMarquee/K left, bottom;
-	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 0)
+	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
+		GetMarquee/K left, bottom;
+		MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 0)
+	else
+		print "Operation needs a graph with left and bottom axes"
+	endif
 End
 
 Function MXP_NormalizeToOne()
-	GetMarquee/K left, bottom;
-	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 1)
+	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
+		GetMarquee/K left, bottom;
+		MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 1)
+	else
+		print "Operation needs a graph with left and bottom axes"
+	endif
 End
 
 Function MXP_MaximumToOne()
-	GetMarquee/K left, bottom;
-	MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 2)
+	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
+		GetMarquee/K left, bottom;
+		MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 2)
+	else
+		print "Operation needs a graph with left and bottom axes"
+	endif
 End
 
+Function MXP_BackupTraces()
+	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
+		GetMarquee/K left, bottom;
+		MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 3)
+	else
+		print "Operation needs a graph with left and bottom axes"
+	endif
+End
+
+Function MXP_RestoreTraces()
+	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
+		GetMarquee/K left, bottom;
+		MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 4)
+	else
+		print "Operation needs a graph with left and bottom axes"
+	endif
+End
 
 Function MXP_CoordinatesToROIMask(variable left, variable top, variable right, variable bottom)
 	/// Generate a SP Mask from Marquee
@@ -69,6 +92,9 @@ Function MXP_OperationsOnGraphTracesForXAS(variable left, variable right, variab
 			break
 		endif
 		WAVE wRef = TraceNameToWaveRef("", traceNameStr)
+		if(WaveDims(wRef) != 1)
+			Abort "Operation only for traces"
+		endif
 		WaveStats/Q/R=(left, right) wRef
 		switch(operationSelection)
 			case 0: // Pull to zero
@@ -106,4 +132,14 @@ Function MXP_Partition3DRegion()
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList("", ";"),";")
 	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	MXP_3DWavePartition(waveRef, "MXP_Partition3D", V_left, V_right, V_top, V_bottom, tetragonal = 1, poweroftwo = 1)
+End
+
+static Function CheckActiveAxis(string graphname, string axis)
+	/// If axis is present, return 1 otherwise 0
+	/// graphnname = "" we refer to the top window
+	if (strlen(AxisInfo(graphname, axis)))
+		return 1
+	else 
+		return 0
+	endif
 End
