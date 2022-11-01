@@ -91,7 +91,7 @@ Function MXP_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 		ImageTransform/IOFF={dx[i], dy[i], 0} offsetImage getfreelayer
 		WAVE M_OffsetImage
 		if(printMode)
-			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "\t" + num2str(dy[i]) + "\n"
+			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "    " + num2str(dy[i]) + "\n"
 		endif
 		w3d[][][i] = M_OffsetImage[p][q]
 	endfor
@@ -134,7 +134,7 @@ Function MXP_ImageStackAlignmentByRegistration(WAVE w3d, [variable layerN, varia
 		driftLog +=  "layer  dx  dy\n"
 		variable ncols = DimSize(dx, 1), i
 		for(i = 0; i < ncols; i++)
-			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "\t" + num2str(dy[i]) + "\n"		
+			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "    " + num2str(dy[i]) + "\n"		
 		endfor
 	endif
 	if(!WaveExists($(NameOfWave(w3d)+"_undo")))
@@ -151,7 +151,7 @@ Function MXP_ImageStackAlignmentByRegistration(WAVE w3d, [variable layerN, varia
 	return 0
 End
 
-Function MXP_ImageStackAlignmentByMaskRegistration(WAVE w3d, WAVE MaskWaveRef, [variable layerN, variable convMode, variable printMode])
+Function MXP_ImageStackAlignmentByMaskRegistration(WAVE w3d, WAVE MaskWaveRef, [variable layerN, variable convMode, variable printMode]) // not in use, slow
 	/// Align a 3d wave using ImageRegistration. By default the function will
 	/// use the 0-th layer as a wave reference, uncless user chooses otherwise 
 	/// Only x, y translations are allowed.
@@ -174,7 +174,7 @@ Function MXP_ImageStackAlignmentByMaskRegistration(WAVE w3d, WAVE MaskWaveRef, [
 	variable cols = DimSize(w3d, 1)
 	variable layers = DimSize(w3d, 2)
 	Make/FREE/N=(rows, cols, layers) MaskWave3d
-	MaskWave3d[][][] = MaskWaveRef[p][q]
+	MaskWave3d[][][] = MaskWaveRef[p][q] // Assume here is the bottleneck
 	ImageRegistration/Q/STCK/TRNS={1,1,0}/ROT={0,0,0}/SKEW={0,0,0}/CONV=(convMode) refMask = MaskWaveRef testMask = MaskWave3d refwave = refLayerWave, testwave = w3d
 	WAVE M_RegOut, M_RegMaskOut, M_RegParams
 	if(printMode)
@@ -196,7 +196,7 @@ Function MXP_ImageStackAlignmentByMaskRegistration(WAVE w3d, WAVE MaskWaveRef, [
 		WAVE M_OffsetImage
 		w3d[][][i] = M_OffsetImage[p][q]
 		if(printMode)
-			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "\t" + num2str(dy[i]) + "\n"
+			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "    " + num2str(dy[i]) + "\n"
 		endif
 	endfor
 	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams, M_OffsetImage
@@ -258,7 +258,7 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int pr
 			dy = y0 - y1
 			if(printMode)
 				//print i,": ", dx, dy
-				driftLog +=  num2str(i) + ": "+ num2str(dx) + "\t" + num2str(dy) + "\n"
+				driftLog +=  num2str(i) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n"
 			endif
 			if(dx * dy) // Replace a slice only if you have to offset
 				if(windowing)
@@ -337,7 +337,7 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 		WAVE M_OffsetImage
 		w3d[][][i] = M_OffsetImage[p][q]
 		if(printMode)
-			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "\t" + num2str(dy[i]) + "\n"
+			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "    " + num2str(dy[i]) + "\n"
 		endif
 	endfor
 	KillWaves/Z M_OffsetImage
@@ -396,7 +396,7 @@ Function MXP_ImageStackAlignmentByIterativeCorrelation(WAVE w3d,  [variable prin
 			dx = x1 - x0
 			dy = y1 - y0
 			if(printMode)
-				driftLog +=  num2str(i) + ": "+ num2str(dx) + "\t" + num2str(dy) + "\n"
+				driftLog +=  num2str(i) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n"
 			endif
 			if(dx * dy) // Replace a slice only if you have to offset
 				ImageTransform/IOFF={-dx, -dy, 0} offsetImage freeLayer
