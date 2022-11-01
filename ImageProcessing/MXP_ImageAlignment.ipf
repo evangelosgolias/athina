@@ -232,8 +232,8 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int pr
 	endif		
 	//Now translate each wave in the stack
 	variable i 
-	string driftLog
 	if(printMode)
+		string driftLog = ""
 		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
 		driftLog +=  "---- Drift ----\n"
 		driftLog +=  "layer  dx  dy\n"
