@@ -168,17 +168,26 @@ Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, variable startP, variable endP, 
 	endif
 	variable nWaveRows = endP-startP
 	variable nWaveCols = endQ-startQ
-	if(tetragonal) //
-		nWaveRows = max(nWaveRows, nWaveCols)
-		if(evenNum && mod(nWaveRows, 2))
+	
+	if(evenNum)
+		if(mod(nWaveRows, 2))
 			nWaveRows += 1
 		endif
+		if(mod(nWaveCols, 2))
+			nWaveCols += 1
+		endif
+	endif
+
+	if(tetragonal) // should follow evenNum, so no need to add extra conditions here
+		nWaveRows = max(nWaveRows, nWaveCols)
 		nWaveCols = nWaveRows
 	endif
+	
 	if(powerOfTwo)
 		nWaveCols = MXP_NextPowerOfTwo(nWaveCols)
 		nWaveRows = nWaveCols
 	endif
+	
 	Make/FREE/N=(nWaveRows, nWavecols, nlayer) wFreeRef
 	wFreeRef[][][] = w3d[startP + p][startQ + q][r]
 	return wFreeRef
