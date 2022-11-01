@@ -2,8 +2,6 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
-// This code is meant to deal only with the metada files saved in the MAXPEEM beamline. 
-
 Function MXP_ListHDF5Groups()
 	Variable fileid_
 	String filepath = MXP_GetHDF5SingleFilePath()
@@ -108,41 +106,16 @@ Function MXP_GetHDF5NumGroupsFID(Variable fileid)
 	HDF5ListGroup /TYPE=1 fileid, "."
 	return  ItemsInList(S_HDF5ListGroup)
 End
-//----------------------------------------------------------------
-//----------------------------------------------------------------
 
+static Function/S StrExpandRange(String range)	// expand a string like "2-5,7,9-12,50" to "2,3,4,5,7,9,10,11,12,50"
 
-//----------------------------------------------------------------
-//------------------- Future extentions --------------------------
-
-Function/S MXP_GetHDF5MultipleFilePaths()
-	// Return a list of the full paths of selected HDF5 files
-	Variable dummyid
-	Open /D/R/MULT=1/T="HDF5" dummyid
-	return ReplaceString("\r", S_fileName,";") // Replace CR with semicolon
-End
-
-Function MXP_OpenHDF5FilesWithBrowser([Variable InFolders]) //TODO: Future extention
-	// Select and load HDF5 files 
-	String filelist = MXP_GetHDF5MultipleFilePaths()
-	
-	//Here open files recursively and store different fileIDs in different variable 
-	//HDF5OpenFile /R fileid as ""
-End
-
-//----------------------------------------------------------------
-//------------------------ Utilities -----------------------------
-
-
-Function/S MXP_StrExpandRange(string range)	// expand a string like "2-5,7,9-12,50" to "2,3,4,5,7,9,10,11,12,50"
-
-	variable i1, i2, i 
-	string str, out=""
-	variable N = ItemsInList(range,",")
+	Variable i1, i2, i 
+	String str, out=""
+	Variable N = ItemsInList(range,",")
 	if (N < 1)
 		return ""
 	endif
-	variable j = 0
+	Variable j = 0
 	do
 		str = StringFromList(j, range, ",")
 		Variable m = -1				// remove any leading white space
@@ -165,7 +138,7 @@ Function/S MXP_StrExpandRange(string range)	// expand a string like "2-5,7,9-12,
 			out += num2str(i1)+";"
 		endif
 		j += 1
-	while (j < N)
+	while (j<N)
 	
 	return out
 End
