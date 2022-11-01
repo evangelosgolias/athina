@@ -2,7 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
-Function MXP_ScaleImage()
+Function MXP_ScaleImage() // Uses top graph
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
@@ -30,4 +30,13 @@ Function MXP_ScaleImage()
 		Execute/Z cmdStr
 		endif
 	endif
+End
+
+Function MXP_ImageSelectToCopyScale() // Uses top graph
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	// Select the first wave from browser selection
+	string selectedWavesStr = MXP_SelectWavesInModalDataBrowser("Select an image to set common dimension scaling")
+	string firstWaveStr = StringFromList(0, selectedWavesStr)
+	CopyScales/I $firstWaveStr, $imgNameTopGraphStr // NB Use P if have an extended image with common parts
 End

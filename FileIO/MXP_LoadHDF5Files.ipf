@@ -26,9 +26,9 @@ Function MXP_LoadHDF5File()
 	HDF5CloseFile fileid_
 End
 
-Function MXP_LoadHDF5SpecificGroups(String groups)
+Function MXP_LoadHDF5SpecificGroups(string groups)
 	// String should be in the form "2-5,7,9-12,50"
-	groups = MXP_StrExpandRange(groups)
+	groups = StrExpandRange(groups)
 	Variable fileid_
 	String filepathname = MXP_GetHDF5SingleFilePath()
 	HDF5OpenFile/R fileid_ as filepathname
@@ -51,7 +51,7 @@ Function MXP_LoadHDF5SpecificGroupsFromPath(String groups, String filename_fullp
 	
 	// Load files faster from a specific file, you need to specify the full path to the datafile.
 
-	groups = MXP_StrExpandRange(groups)
+	groups = StrExpandRange(groups)
 	Variable fileid_
 			
 	HDF5OpenFile/R fileid_ as filename_fullpathstr
@@ -69,13 +69,7 @@ Function MXP_LoadHDF5SpecificGroupsFromPath(String groups, String filename_fullp
 	HDF5CloseFile fileid_
 End
 
-
-
-//----------------------------------------------------------------
-//---------------- Building blocks- ------------------------------
-//TODO: Add code when you cancel instaed of selecting a file
-
-
+/// Building blocks ///
 Function/S MXP_GetHDF5SingleFilePath()
 	// Return a list of the full path of one selected HDF5 file
 	Variable dummyid
@@ -127,18 +121,18 @@ static Function/S StrExpandRange(String range)	// expand a string like "2-5,7,9-
 		// now check str to see if it is a range like "20-23"
 		i1 = str2num(str)
 		i = strsearch(str,"-",strlen(num2str(i1)))		// position of "-" after first number
-		if (i>0)
+		if (i > 0)
 			i2 = str2num(str[i+1,inf])
 			i = i1
 			do
 				out += num2str(i)+";"
 				i += 1
-			while (i<=i2)
+			while (i <= i2)
 		else
 			out += num2str(i1)+";"
 		endif
 		j += 1
-	while (j<N)
+	while (j < N)
 	
 	return out
 End

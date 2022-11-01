@@ -10,8 +10,9 @@ Menu "MAXPEEM"
 		".dat files...", MXP_LoadMultiplyDATFiles(autoscale = 1)
 		".dat files in folder...",  MXP_LoadDATFilesFromFolder("", "*", autoscale = 1) // scale
 		".dat files in folder to stack ...", MXP_LauncherLoadDATFilesFromFolder()
-		".dav file in stack...", MXP_LoadSingleDAVFile("", "", stack3d = 1, skipmetadata = 1)
-		".dav file...", MXP_LoadSingleDAVFile("", "")
+		".dav file in stack...", MXP_LoadSingleDAVFile("", "", stack3d = 1, skipmetadata = 1, autoscale = 1)
+		".dav file...", MXP_LoadSingleDAVFile("", "", autoscale = 1)
+		".h5 metadata file ...", MXP_LauncherLoadHDF5GroupsFromFile()
 	End
 	
 	Submenu "Analyse"
@@ -40,9 +41,9 @@ Menu "MAXPEEM"
 		"z-profile...", MXP_MainMenuLaunchZBeamProfiler()
 	End
 	
-	Submenu "Housekeeping"
+	Submenu "Report"
+		"List entries in a .h5 file...", MXP_ListHDF5Groups()
 		"List big waves", print "Now yet implemented"
-		"Export and remove big waves", print "Now yet implemented"
 	End
 End
 
@@ -69,6 +70,7 @@ Menu "TracePopup"
 	"MXP line profile", MXP_TraceMenuLaunchLineProfiler()
 	"MXP z profile", MXP_TraceMenuLaunchZBeamProfiler()
 	"MXP Scale Image", MXP_ScaleImage()
+	"MXP Select image to copy scales", MXP_ImageSelectToCopyScale()
 	"MXP Average wave",  MXP_LaunchAverageStackToImageFromTraceMenu()
 	"MXP Calculate XMC(L)D", MXP_LaunchCalculateXMCDFromStack()
 End

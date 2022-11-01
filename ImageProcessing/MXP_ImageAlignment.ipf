@@ -98,6 +98,7 @@ Function MXP_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams, M_OffsetImage
 	if(printMode)
 		string notebookName = NameOfWave(w3d)
+		KillWindow/Z notebookName
 		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
 		Notebook notebookName, text = driftLog
 	endif
@@ -139,6 +140,7 @@ Function MXP_ImageStackAlignmentByRegistration(WAVE w3d, [variable layerN, varia
 	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams
 	if(printMode)
 		string notebookName = NameOfWave(w3d)
+		KillWindow/Z notebookName
 		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
 		Notebook notebookName, text = driftLog
 	endif
@@ -196,6 +198,7 @@ Function MXP_ImageStackAlignmentByMaskRegistration(WAVE w3d, WAVE MaskWaveRef, [
 	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams, M_OffsetImage
 	if(printMode)
 		string notebookName = NameOfWave(w3d)
+		KillWindow/Z notebookName
 		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
 		Notebook notebookName, text = driftLog
 	endif
@@ -267,6 +270,7 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int pr
 	KillWaves/Z M_OffsetImage
 	if(printMode)
 		string notebookName = NameOfWave(w3d)
+		KillWindow/Z notebookName
 		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
 		Notebook notebookName, text = driftLog
 	endif
@@ -335,6 +339,7 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 	KillWaves/Z M_OffsetImage
 	if(printMode)
 		string notebookName = NameOfWave(w3d)
+		KillWindow/Z notebookName
 		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
 		Notebook notebookName, text = driftLog
 	endif
@@ -399,6 +404,7 @@ Function MXP_ImageStackAlignmentByIterativeCorrelation(WAVE w3d,  [variable prin
 	KillWaves/Z M_OffsetImage
 	if(printMode)
 		string notebookName = NameOfWave(w3d)
+		KillWindow/Z notebookName
 		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
 		Notebook notebookName, text = driftLog
 	endif

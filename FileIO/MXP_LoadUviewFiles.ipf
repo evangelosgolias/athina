@@ -425,8 +425,13 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	
 	variable cnt = 0 
 	variable singlePassSwitch = 1 
-	variable readMetadataOnce = 1 // When you skip metadata but you needa  scaled for the 3d wave
 	variable MetadataStart
+	variable fovScale
+	variable readMetadataOnce = 0 // When you skip metadata but you needa  scaled for the 3d wave
+	if(stack3d)
+		readMetadataOnce = 1
+	endif
+	// while loop
 	do
 	mdatastr = "" // Reset metadata string
 	FSetPos numRef, MXPFileHeader.size + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
@@ -460,12 +465,18 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 		mdatastr += filepathStr + "\n"
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
 		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
+		if(autoscale)
+			fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
+			SetScale/I x, 0, fovScale, datWave
+			SetScale/I y, 0, fovScale, datWave
+		endif
 	endif
-	
-	if(skipmetadata && autoScale && stack3d) // when you stack, skip metadata but scale the x, y dimensions of the 3d wave.
+	// when you stack, skip metadata but scale the x, y dimensions of the 3d wave. // if(stack3d) branch at the end.
+	// Right before the start of the do...while loop readMetadataOnce = 1
+	if(skipmetadata && autoScale && readMetadataOnce) 
 		MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
 		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
-		variable fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
+		fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
 		readMetadataOnce = 0
 	endif
 	// Add image markups if any
@@ -488,14 +499,10 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	if(stack3d)
 		if(stack3d && singlePassSwitch) // We want stacking and yet the 3d wave is not created
 			variable nlayers = (totalBytesInDAVFile - 104)/(ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
-			Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight, nlayers) $(waveNameStr) /WAVE = stack3DAVWave
+			Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight, nlayers) $(waveNameStr) /WAVE = stack3DWave
 			singlePassSwitch = 0
 		endif
-		stack3DAVWave[][][cnt] = datWave[p][q]
-		if(autoscale)
-			SetScale/I x, 0, fovScale, stack3DAVWave
-			SetScale/I y, 0, fovScale, stack3DAVWave
-		endif
+		stack3DWave[][][cnt] = datWave[p][q]
 	endif
 	WAVEClear datWave
 	cnt += 1
@@ -503,7 +510,12 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	if(totalBytesInDAVFile == V_filePos)
 		break
 	endif
-	while(1) // end
+	while(1)
+	if(autoscale && stack3d) // Scale the 3d wave if you opt to
+		SetScale/I x, 0, fovScale, stack3DWave
+		SetScale/I y, 0, fovScale, stack3DWave
+	endif
+	// end of while loop
 	Close numRef // Close the file
 	return 0
 End

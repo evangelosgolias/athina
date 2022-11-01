@@ -27,6 +27,15 @@ Function MXP_LauncherLoadDATFilesFromFolder()
 	endif
 End
 
+Function MXP_LauncherLoadHDF5GroupsFromFile()
+	string selectedGroups = MXP_GenericSingleStrPrompt("Use single ScanID and/or ranges, e.g.  \"2-5,7,9-12,50\".  Leave string empty to load all entries.", "Before the .h5 selection dialog opens...")
+	if(strlen(selectedGroups))
+		MXP_LoadHDF5SpecificGroups(selectedGroups)
+	else
+		MXP_LoadHDF5File()
+	endif
+End
+
 Function MXP_LaunchAverageStackToImageFromMenu()
 	string waveListStr = Wavelist("*",";","DIMS:3"), selectWaveStr, waveNameStr
 	string strPrompt1 = "Select stack"
