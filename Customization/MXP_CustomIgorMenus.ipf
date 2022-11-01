@@ -12,7 +12,7 @@ Menu "MAXPEEM"
 		".dat files in folder to stack ...", MXP_LauncherLoadDATFilesFromFolder()
 		".dav file in stack...", MXP_LoadSingleDAVFile("", "", stack3d = 1, skipmetadata = 1, autoscale = 1)
 		".dav file...", MXP_LoadSingleDAVFile("", "", autoscale = 1)
-		".h5 metadata file ...", MXP_LauncherLoadHDF5GroupsFromFile()
+		".h5 file ...", MXP_LauncherLoadHDF5GroupsFromFile()
 	End
 	
 	Submenu "Analyse"

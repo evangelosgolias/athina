@@ -3,10 +3,14 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
 Function MXP_ListHDF5Groups()
-	Variable fileid_
-	String filepath = MXP_GetHDF5SingleFilePath()
-	HDF5OpenFile/R fileid_ as filepath
-	print filepath
+	variable fileid_
+	Open /D/R/T="HDF5" fileid_
+	string filepathname = S_fileName
+	if(!strlen(filepathname))
+		Abort 
+	endif
+	HDF5OpenFile/R fileid_ as filepathname
+	print filepathname
 	MXP_ListHDF5GroupsFID(fileid_)
 End
 
@@ -29,17 +33,20 @@ End
 Function MXP_LoadHDF5SpecificGroups(string groups)
 	// String should be in the form "2-5,7,9-12,50"
 	groups = StrExpandRange(groups)
-	Variable fileid_
-	String filepathname = MXP_GetHDF5SingleFilePath()
+	variable fileid_
+	Open /D/R/T="HDF5" fileid_
+	string filepathname = S_fileName
+	if(!strlen(filepathname))
+		Abort 
+	endif
 	HDF5OpenFile/R fileid_ as filepathname
-	
 	//PRM: Assure entryXX as group name, change here if needed 
 	
-	Variable n_entries = ItemsInList(groups)
-	Variable ii = 0
+	variable n_entries = ItemsInList(groups)
+	variable ii = 0
 	
 	for(ii = 0; ii < n_entries; ii += 1)
-		String groupname = "entry" + StringFromList(ii, groups)
+		string groupname = "entry" + StringFromList(ii, groups)
 		HDF5LoadGroup/R/T/Z :, fileid_, groupname
 	endfor
 	
