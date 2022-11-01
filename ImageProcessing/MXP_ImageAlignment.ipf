@@ -132,6 +132,10 @@ Function MXP_ImageStackAlignmentByRegistration(WAVE w3d, [variable layerN, varia
 		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
 		driftLog +=  "---- Drift ----\n"
 		driftLog +=  "layer  dx  dy\n"
+		variable ncols = DimSize(dx, 1), i
+		for(i = 0; i < ncols; i++)
+			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "\t" + num2str(dy[i]) + "\n"		
+		endfor
 	endif
 	if(!WaveExists($(NameOfWave(w3d)+"_undo")))
 		Duplicate/O w3d, $(NameOfWave(w3d)+"_undo")
