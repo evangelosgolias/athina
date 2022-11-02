@@ -895,8 +895,8 @@ Function MXP_AppendMarkupsToTopImage()
 	wave w = ImageNameToWaveRef("", imgNamestr)
 	string graphName = WinName(0, 1)
 	// Newlines and line feeds create problems with StringByKey, replace with ;
-	string markupsList = StringByKey("Markups", ReplaceString("\n",note(w), ";"))
-	
+	string markupsList = StringByKey("Markups", note(w), ":", "\n")//ReplaceString("\n",note(w), ";"))
+	print markupsList
 	variable markup_x
 	variable markup_y
 	variable markup_radius
@@ -907,21 +907,22 @@ Function MXP_AppendMarkupsToTopImage()
 	variable markup_lsize
 	string markup_text
 	string markup
-	
-	variable ii = 0
-	string xAxis = ""
-	
+		
+
+//	string xAxis = ""	
+//	// Check whether the image is created from 'NewImage' or 'Display' commands (i.e. whether the top or bottom axis is used)
+//	if (WhichListItem("bottom",AxisList(GraphName),";") != -1)
+//		xAxis = "bottom"
+//	else		
+//		xAxis = "top"
+//	endif
+
 	SetDrawLayer /W=$graphName userFront
-	
-	// Check whether the image is created from 'NewImage' or 'Display' commands (i.e. whether the top or bottom axis is used)
-	if (WhichListItem("bottom",AxisList(GraphName),";") != -1)
-		xAxis = "bottom"
-	else
-		xAxis = "top"
-	endif
-	
-	for(ii = 0; ii < ItemsInList(markupsList, "~"); ii++)
-		markup = StringFromList(ii, markupsList, "~")
+	variable factorX = DimDelta(w, 0) // Take into account wave scaling, edited EG 02.11.22
+	variable factorY = DimDelta(w, 1)
+	variable i = 0
+	for(i = 0; i < ItemsInList(markupsList, "~"); i++)
+		markup = StringFromList(i, markupsList, "~")
 		markup_x = str2num(StringFromList(0, markup, ","))
 		markup_y = str2num(StringFromList(1, markup, ","))
 		markup_radius = str2num(StringFromList(2, markup, ","))
@@ -929,11 +930,14 @@ Function MXP_AppendMarkupsToTopImage()
 		markup_color_G = str2num(StringFromList(4, markup, ","))
 		markup_color_B = str2num(StringFromList(5, markup, ","))
 		markup_lsize = str2num(StringFromList(7, markup, ","))
-		markup_text = StringFromList(8, markup, ",")		
-		SetDrawEnv/W=$GraphName fillpat = 0,linefgc = (markup_color_R, markup_color_G, markup_color_B), linethick = markup_lsize, ycoord = left, xcoord = $xAxis
-		DrawOval/W=$GraphName markup_x - markup_radius, markup_y - markup_radius, markup_x + markup_radius, markup_y + markup_radius
-		SetDrawEnv/W=$GraphName fsize = 16, textRGB = (markup_color_R, markup_color_G, markup_color_B), textxjust = 1, textyjust = 1, ycoord = left, xcoord = $xAxis
-		DrawText/W=$GraphName markup_x, markup_y, markup_text
+		markup_text = StringFromList(8, markup, ",")
+		markup_x *= factorX
+		markup_y *= factorY
+		markup_radius *= factorX // assumed stuff here
+		SetDrawEnv/W=$graphName fillpat = 0,linefgc = (markup_color_R, markup_color_G, markup_color_B), linethick = markup_lsize, ycoord = left, xcoord = top //$xaxis
+		DrawOval/W=$graphName markup_x - markup_radius, markup_y - markup_radius, markup_x + markup_radius, markup_y + markup_radius
+		SetDrawEnv/W=$graphName fsize = 16, textRGB = (markup_color_R, markup_color_G, markup_color_B), textxjust = 1, textyjust = 1, ycoord = left, xcoord = top
+		DrawText/W=$graphName markup_x, markup_y, markup_text
 	endfor
 	return 0
 End

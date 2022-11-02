@@ -49,7 +49,6 @@ End
 
 Menu "GraphMarquee"
 	"Oval ROI z profile", GetMarquee/K left, top; MXP_DrawImageROICursor(V_left, V_top, V_right, V_bottom)
-	"Delete objects UserFront", MXP_ClearROIMarkings()
 	"Marquee to mask", MXP_MarqueeToMask()
 	"Backup traces", MXP_BackupTraces()
 	"Restore traces", MXP_RestoreTraces()
@@ -70,6 +69,8 @@ Menu "TracePopup"
 	"MXP line profile", MXP_TraceMenuLaunchLineProfiler()
 	"MXP z profile", MXP_TraceMenuLaunchZBeamProfiler()
 	"MXP Scale Image", MXP_ScaleImage()
+	"MXP Draw Image Markups", MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
+	"MXP Clear all UserFront markups", MXP_ClearROIMarkings()
 	"MXP Select image to copy scales", MXP_ImageSelectToCopyScale()
 	"MXP Average wave",  MXP_LaunchAverageStackToImageFromTraceMenu()
 	"MXP Calculate XMC(L)D", MXP_LaunchCalculateXMCDFromStack()
