@@ -1001,9 +1001,9 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 		filenameStr = ParseFilePath(3, datafile2read, ":", 0, 0)
 		if(stack3d) // Skip the metadata if you load to a 3dwave
 			// Here we assume all the waves have the same x, y scaling 
-			MXP_WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 1)
+			WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 1)
 		else
-			MXP_WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 0)
+			WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 0)
 			fovScale = NumberByKey("FOV(µm)", note(wname), ":", "\n")
 			SetScale/I x, 0, fovScale, $filenameStr
 			SetScale/I y, 0, fovScale, $filenameStr 
