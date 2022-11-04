@@ -120,6 +120,7 @@ Function MXP_InitialiseZProfilerFolder()
 	return 0
 End
 
+//Entry point
 Function MXP_DrawImageROICursor(variable left, variable top, variable right, variable bottom) // Function used by the hook
 	/// Here we use ProgFront to get a mask from ImageGenerateROIMask
 	
@@ -153,7 +154,7 @@ End
 
 Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 	/// Window hook function
-    variable hookResult = 0
+    variable hookResult = 0, i
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
 	NVAR/Z V_left, V_top, V_right, V_bottom
@@ -168,14 +169,15 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 	Wave/SDFR=wrk3dwave w3d = $w3dNameStr
 	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
 	Wave/Z M_ROIMask
-	
+	variable algoSwitch = axisxlen/dx // pixels above which you use MatrixOP/NTHR=0
     switch(s.eventCode)
 		case 0: //activate window rescales the profile to the layer scale of the 3d wave
-			SetScale/P x, DimOffset(w3d,2), DimDelta(w3d,2), profile
+			SetScale/P x, DimOffset(w3d,2), DimDelta(w3d,2), profile // Remove it, not needed here.
 			break
 		case 2: // Kill the window
 			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedPanelStr"))
 			KillDataFolder/Z dfr
+			KillWaves/Z M_ROIMask // Cleanup
 			hookresult = 1
 			break
         case 7: // cursor moved
@@ -189,9 +191,14 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
         	V_bottom = -(axisylen * 0.5) + s.yPointNumber * dy
 			ImageGenerateROIMask $w3dNameStr // Here we need name of a wave, not a wave reference!
 			if(WaveExists(M_ROIMask))
-				MatrixOP/FREE/O/NTHR=4 buffer = sum(w3d*M_ROIMask) // Use two threads
-		   	 	MatrixOP/FREE/O profile_free = beam(buffer,0,0) 
+				if(algoSwitch < 100) // system dependent, test and change
+					Wave profileFree = MXP_WAVESumOverBeamsMasked(w3d, M_ROIMask)
+					profile = profileFree
+				else
+					MatrixOP/FREE/O/NTHR=0 buffer = sum(w3d*M_ROIMask) // Use two threads
+		   	 		MatrixOP/FREE/O profile_free = beam(buffer,0,0) 
 		    		profile = profile_free
+				endif
 		    endif
 		    hookresult = 1	// TODO: Return 0 here, i.e delete line?
 	 		break
@@ -340,4 +347,20 @@ Function MXP_ZProfilePanelCheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : Check
 			break
 	endswitch
 	return 0
+End
+
+static Function/WAVE MXP_WAVESumOverBeamsMasked(Wave w3d, Wave wMask)
+	// No consistency checks here, we want to be fast and efficient
+	// as the function is called in the MXP_CursorHookFunctionBeamProfiler
+	Make/N=(DimSize(w3d,2))/FREE retWave = 0
+	variable nrows =DimSize(w3d, 0), i
+	variable ncols =DimSize(w3d, 1), j
+	for(i = 0; i < nrows; i++)
+		for(j = 0; j < ncols; j++)
+			if(wMask[i][j] > 0)
+				retWave += w3d[i][j][p]
+			endif
+		endfor
+	endfor
+	return retWave
 End
