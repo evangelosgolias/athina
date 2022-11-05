@@ -58,6 +58,7 @@ Function MXP_TraceMenuLaunchZBeamProfiler()
 		MXP_InitialiseZProfilerGraph(dfr)
 		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_ZProfPanel_" + winNameStr // Name of the panel we will make, used to send the kill signal to the panel
+		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 	else
 		Abort "z-profiler needs a 3d wave"
 	endif
@@ -111,9 +112,12 @@ Function MXP_InitialiseZProfilerFolder()
 	string/G dfr:gMXP_w3dPathname = GetWavesDataFolder(w3dref, 2)
 	string/G dfr:gMXP_w3dPath = GetWavesDataFolder(w3dref, 1)
 	string/G dfr:gMXP_w3dNameStr = NameOfWave(w3dref)
-	string/G dfr:gMXP_ProfileAreaOvalCoord
 	variable/G dfr:gMXP_ROI_dx = dx
 	variable/G dfr:gMXP_ROI_dy = dy
+	variable/G dfr:gMXP_left = 0
+	variable/G dfr:gMXP_right = 0
+	variable/G dfr:gMXP_top = 0
+	variable/G dfr:gMXP_bottom = 0	
 	variable/G dfr:gMXP_DoPlotSwitch = 0
 	variable/G dfr:gMXP_colorcnt = 0
 	variable/G dfr:gMXP_MarkAreasSwitch = 0
@@ -121,18 +125,30 @@ Function MXP_InitialiseZProfilerFolder()
 End
 
 //Entry point
-Function MXP_DrawImageROICursor(variable left, variable top, variable right, variable bottom) // Function used by the hook
+Function MXP_DrawROIAndWaitHookToAct() // Function used by the hook
 	/// Here we use ProgFront to get a mask from ImageGenerateROIMask
 	
 	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine
 	string winNameStr = WinName(0, 1, 1)
+	DoWindow/F $winNameStr // You need to have your imange stack as a top window
+	GetMarquee/K left, top
+	string dfrStr = GetUserData(winNameStr, "", "MXP_DFREF")
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(dfrStr)
+	NVAR/SDFR=dfr gMXP_left
+	NVAR/SDFR=dfr gMXP_right
+	NVAR/SDFR=dfr gMXP_top
+	NVAR/SDFR=dfr gMXP_bottom
+	gMXP_left = V_left
+	gMXP_right = V_right
+	gMXP_top = V_top
+	gMXP_bottom = V_bottom
 	// Have you closed the Z profiler window? If yes relaunch it.
 	//MXP_InitialiseZProfilerGraph() // Add this here?
-	DoWindow/F $winNameStr // You need to have your imange stack as a top window
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	DrawOval left, top, right, bottom
-	Cursor/I/L=0/C=(65535, 0, 0, 30000)/S=2 J $wnamestr 0.5 * (left + right), 0.5 * (top + bottom)
+	DrawOval gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
+	ImageGenerateROIMask $wnamestr
+	Cursor/I/L=0/C=(65535, 0, 0, 30000)/S=2 J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
 	return 0
 End
 
@@ -157,11 +173,14 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
     variable hookResult = 0, i
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
-	NVAR/Z V_left, V_top, V_right, V_bottom
+	NVAR/SDFR=dfr gMXP_left
+	NVAR/SDFR=dfr gMXP_right
+	NVAR/SDFR=dfr gMXP_top
+	NVAR/SDFR=dfr gMXP_bottom
 	NVAR/Z dx = dfr:gMXP_ROI_dx
 	NVAR/Z dy = dfr:gMXP_ROI_dy
-	variable axisxlen = V_right - V_left 
-	variable axisylen = V_bottom - V_top
+	variable axisxlen = gMXP_right - gMXP_left
+	variable axisylen = gMXP_bottom - gMXP_top
 	SVAR/Z LineProfileWaveStr = dfr:gMXP_LineProfileWaveStr
 	SVAR/Z w3dNameStr = dfr:gMXP_w3dNameStr
 	SVAR/Z w3dPath = dfr:gMXP_w3dPath
@@ -169,10 +188,14 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 	Wave/SDFR=wrk3dwave w3d = $w3dNameStr
 	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
 	Wave/Z M_ROIMask
-	variable algoSwitch = axisxlen/dx // pixels above which you use MatrixOP/NTHR=0
+	variable algoSwitch = pi * abs(axisxlen*axisylen)/dx/dy // pixels above which you use MatrixOP/NTHR=0
+	
+	SetDrawLayer ProgFront // We need it for ImageGenerateROIMask
+	
     switch(s.eventCode)
 		case 0: //activate window rescales the profile to the layer scale of the 3d wave
 			SetScale/P x, DimOffset(w3d,2), DimDelta(w3d,2), profile // Remove it, not needed here.
+			print algoSwitch
 			break
 		case 2: // Kill the window
 			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedPanelStr"))
@@ -181,24 +204,25 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 			hookresult = 1
 			break
         case 7: // cursor moved
-        	DrawAction delete // TODO: Here add the env commands of MXP_DrawImageROICursor before switch and here only the draw command
-			MXP_DrawImageROICursor(-axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
-							 axisxlen * 0.5 + s.pointNumber * dx, -(axisylen * 0.5) + s.yPointNumber * dy)
-			// We need to update the values here if we want to redraw later
-			V_left = -axisxlen * 0.5 + s.pointNumber * dx
-        	V_top = axisylen * 0.5 + s.yPointNumber * dy
-        	V_right = axisxlen * 0.5 + s.pointNumber * dx
-        	V_bottom = -(axisylen * 0.5) + s.yPointNumber * dy
+        	DrawAction delete // TODO: Here add the env commands of MXP_DrawImageROICursor before switch and here only the draw command 
+        	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+			DrawOval -axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
+					  axisxlen * 0.5 + s.pointNumber * dx,  -(axisylen * 0.5) + s.yPointNumber * dy
+			Cursor/I/L=0/C=(65535, 0, 0, 30000)/S=2 J $w3dNameStr, s.pointNumber * dx, s.yPointNumber * dy
 			ImageGenerateROIMask $w3dNameStr // Here we need name of a wave, not a wave reference!
 			if(WaveExists(M_ROIMask))
-				if(algoSwitch < 100) // system dependent, test and change
+				if(algoSwitch < 5e4) // NB system dependent, test and change, more responsive for small areas
 					Wave profileFree = MXP_WAVESumOverBeamsMasked(w3d, M_ROIMask)
-					profile = profileFree
+					FastOP profile = profileFree
 				else
 					MatrixOP/FREE/O/NTHR=0 buffer = sum(w3d*M_ROIMask) // Use two threads
 		   	 		MatrixOP/FREE/O profile_free = beam(buffer,0,0) 
 		    		profile = profile_free
 				endif
+		    		gMXP_left = -axisxlen * 0.5 + s.pointNumber * dx
+				gMXP_right = axisxlen * 0.5 + s.pointNumber * dx
+				gMXP_top = axisylen * 0.5 + s.yPointNumber * dy
+				gMXP_bottom = -(axisylen * 0.5) + s.yPointNumber * dy
 		    endif
 		    hookresult = 1	// TODO: Return 0 here, i.e delete line?
 	 		break
@@ -256,18 +280,20 @@ Function MXP_SaveZProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "MXP_targetGraphWin")
-	NVAR/Z V_left, V_right, V_top, V_bottom
 	SVAR/Z LineProfileWaveStr = dfr:gMXP_LineProfileWaveStr
 	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
 	SVAR/Z w3dNameStr = dfr:gMXP_w3dNameStr
 	SVAR/Z w3dPathName = dfr:gMXP_w3dPathName
-	SVAR/Z ProfileAreaOvalCoord = dfr:gMXP_ProfileAreaOvalCoord
 	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
 	NVAR/Z DoPlotSwitch = dfr:gMXP_DoPlotSwitch
 	NVAR/Z MarkAreasSwitch = dfr:gMXP_MarkAreasSwitch
 	NVAR/Z colorcnt = dfr:gMXP_colorcnt
-	variable axisxlen = V_right - V_left 
-	variable axisylen = V_bottom - V_top
+	
+	NVAR/SDFR=dfr gMXP_left
+	NVAR/SDFR=dfr gMXP_right
+	NVAR/SDFR=dfr gMXP_top
+	NVAR/SDFR=dfr gMXP_bottom
+
 	string recreateDrawStr
 	DFREF savedfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:SavedZProfiles")
 	
@@ -304,13 +330,13 @@ Function MXP_SaveZProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
 							colorcnt += 1
 						endif
 						DoWindow/F $WindowNameStr
-						MXP_DrawImageROI(V_left, V_top, V_right, V_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+						MXP_DrawImageROI(gMXP_left, gMXP_top, gMXP_right, gMXP_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
 					endif
 				break // Stop if you go through the else branch
 				endif
 			while(1)
 		sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
-								 "DrawCmd:DrawOval %f, %f, %f, %f", w3dPathName, red, green, blue, V_left, V_top, V_right, V_bottom
+								 "DrawCmd:DrawOval %f, %f, %f, %f", w3dPathName, red, green, blue, gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
 		break
 	endswitch
@@ -363,4 +389,38 @@ static Function/WAVE MXP_WAVESumOverBeamsMasked(Wave w3d, Wave wMask)
 		endfor
 	endfor
 	return retWave
+End
+
+
+static Function MXP_MakeWaveWithMaskCoordinates(DFREF dfr, WAVE wMask) // Not used 
+	// wMask should have 0 and 1 only, otherwise the wave dimensions of mxpBeamCoordinates will be wrong.
+	WaveStats/Q/M=1 wMask
+	variable ntot = V_Sum
+	Make/O/N=(ntot, 2) dfr:mxpBeamCoordinates	/WAVE=wRef
+	variable nrows =DimSize(wMask, 0), i
+	variable ncols =DimSize(wMask, 1), j
+	variable cnt = 0
+	for(i = 0; i < nrows; i++)
+		for(j = 0; j < ncols; j++)
+			if(wMask[i][j] > 0) 
+				wRef[cnt][0] = i // p
+				wRef[cnt][1] = j // q
+				cnt++
+			endif
+		endfor
+	endfor
+	if (cnt > ntot)
+		Abort "Check MXP_MakeWaveWithMaskCoordinates, critical error!"
+	endif
+End
+
+static Function/WAVE MXP_WAVESumBeamsFromWave(WAVE w3d, WAVE wROI) // Not used
+	Make/FREE/O/N=(DimSize(w3d,2)) waveProfile = 0
+	variable nrows =DimSize(wROI, 0), i //wROI: Make/O/N=(ntot, 2) dfr:mxpBeamCoordinates	/WAVE=wRef
+
+	for(i = 0; i < nrows; i++)
+		MatrixOP/O/FREE beamFree = beam(w3d, wROI[i][0], wROI[i][1])
+		waveProfile += beamFree
+	endfor
+	return waveProfile
 End
