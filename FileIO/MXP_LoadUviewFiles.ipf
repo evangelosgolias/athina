@@ -552,7 +552,7 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 		endif
 		
 		// LEEM modules from 0..99 have a fixed format
-		// address-name(str)-unit(ASCII digit)-0-value(float)
+		// address-name(str)-unit(ASCIII digit)-0-value(float)
 		// unit: ";V;mA;A;ºC;K;mV;pA;nA;µA"
 		// In ReadBasicMetadataBlock we will get only
 		// Start Voltage, Sample Temp. and Objective
@@ -987,7 +987,7 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 	endif
 	
 	string fnameBuffer, datafile2read, filenameStr
-	variable ii, fovScale
+	variable i, fovScale
 	// Get the scales of X, Y
 	
 	if(autoscale)
@@ -999,8 +999,8 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 		KillWaves wname
 	endif
 	// Now get all the files
-	for(ii = 0; ii < filesnr; ii += 1)
-		fnameBuffer = StringFromList(ii, allFiles)
+	for(i = 0; i < filesnr; i += 1)
+		fnameBuffer = StringFromList(i, allFiles)
 		datafile2read = folder + fnameBuffer
 		filenameStr = ParseFilePath(3, datafile2read, ":", 0, 0)
 		if(stack3d) // Skip the metadata if you load to a 3dwave
@@ -1023,10 +1023,10 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 	if (stack3d)
 		Make/N=(nx, ny, filesnr) $wname3d /Wave=w3dref
 		string bufferWaveName
-		for(ii = 0; ii < filesnr; ii++)
-			bufferWaveName = RemoveEnding(StringFromList(ii, allFiles), ".dat") // allfiles: filename.dat
+		for(i = 0; i < filesnr; i++)
+			bufferWaveName = RemoveEnding(StringFromList(i, allFiles), ".dat") // allfiles: filename.dat
 			Wave w2dref = $(bufferWaveName)
-			w3dref[][][ii] = w2dref[p][q]
+			w3dref[][][i] = w2dref[p][q]
 			KillWaves/Z $(bufferWaveName)
 		endfor
 		//Add a note to the 3dwave about which files have been loaded
@@ -1081,5 +1081,109 @@ Function MXP_LoadMultiplyDATFiles([string filenames, int skipmetadata, int autos
 			MXP_LoadSingleDATFile(StringFromList(i,loadFiles, "\r"), "", skipmetadata = skipmetadata, autoscale = autoscale)
 		endif
 	endfor
+	return 0
+End
+
+// experimental
+
+
+Function MXP_LoadDATFilesFromFolderDev(string folder, string pattern, [int stack3d, string wname3d, int autoscale])
+	
+	/// Use ImageTransform stackImages
+	/// Import .dat files that match a pattern from a folder. Waves are named after their filename.
+	/// @param folder string folder of the .dat files
+	/// @param pattern string pattern to filter .dat files, use "*" for all .dat files- empty string gives an error
+	/// @param stack3d int optional stack imported .dat files to the 3d wave, kill the imported waves
+	/// @param autoScale int optional scales the imported waves if not 0
+	/// @param wname3d string optional name of the 3d wave, othewise defaults to MXP_w3d
+
+	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
+	wname3d = SelectString(ParamIsDefault(wname3d) ? 0: 1,"stack3d", wname3d)
+	
+	string message = "Select a folder."
+	string fileFilters = "DAT Files (*.dat):.dat;"
+	fileFilters += "All Files:.*;"
+	
+	NewPath/O/Q/M=message MXP_DATFilesPathTMP
+	if (V_flag) // user cancel?
+		Abort
+	endif
+	PathInfo/S MXP_DATFilesPathTMP
+	folder = ParseFilePath(2, S_Path, ":", 0, 0)
+	
+	// Get all the .dat files. Use "????" for all files in IndexedFile third argument.
+	// Filter the matches with pattern at the second stage.
+	string allFiles = ListMatch(SortList(IndexedFile(MXP_DATFilesPathTMP, -1, ".dat"),";", 16), pattern)
+		
+	variable filesnr = ItemsInList(allFiles)
+
+	// If no files are selected (e.g match pattern return "") warn user
+	if (!filesnr)
+		Abort "No files match pattern: " + pattern
+	endif
+	variable cnt = 0
+	string odlwname = wname3d
+	// Handle the case where the 3d wave exists and find an appropriate name
+	if(stack3d && exists(wname3d) == 1)
+		do
+			printf "Wave %s exists in %s renaming to %s\n", wname3d, GetDataFolder(1), (wname3d + num2str(cnt))
+			wname3d = odlwname + num2str(cnt)
+			cnt++
+		while(exists(wname3d) == 1)
+	endif
+	
+	string fnameBuffer, datafile2read, filenameStr
+	variable i, fovScale
+	// Get the scales of X, Y
+	
+	if(autoscale)
+		fnameBuffer = StringFromList(0, allFiles)
+		datafile2read = folder + fnameBuffer
+		filenameStr = ParseFilePath(3, datafile2read, ":", 0, 0)
+		WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, "")
+		variable getScaleXY = NumberByKey("FOV(µm)", note(wname), ":", "\n")
+		KillWaves wname
+	endif
+	// Now get all the files
+	for(i = 0; i < filesnr; i += 1)
+		fnameBuffer = StringFromList(i, allFiles)
+		datafile2read = folder + fnameBuffer
+		filenameStr = ParseFilePath(3, datafile2read, ":", 0, 0)
+		if(stack3d) // Skip the metadata if you load to a 3dwave
+			// Here we assume all the waves have the same x, y scaling 
+			WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 1)
+		else
+			WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 0)
+			fovScale = NumberByKey("FOV(µm)", note(wname), ":", "\n")
+			SetScale/I x, 0, fovScale, $filenameStr
+			SetScale/I y, 0, fovScale, $filenameStr 
+
+		endif		
+	endfor
+	
+	// It is assumed that all the imported waves have the same dimensions
+	WAVE wname = $filenameStr
+	variable nx = DimSize(wname, 0)
+	variable ny = DimSize(wname, 1)
+
+	if (stack3d)
+		Make/N=(nx, ny, filesnr) $wname3d /Wave=w3dref
+		string bufferWaveName
+		for(i = 0; i < filesnr; i++)
+			bufferWaveName = RemoveEnding(StringFromList(i, allFiles), ".dat") // allfiles: filename.dat
+			Wave w2dref = $(bufferWaveName)
+			w3dref[][][i] = w2dref[p][q]
+			KillWaves/Z $(bufferWaveName)
+		endfor
+		//Add a note to the 3dwave about which files have been loaded
+		string note3d
+		sprintf note3d, "Timestamp: %s\nFolder: %s\nFiles: %s\n",(date() + " " + time()), folder, allFiles
+		Note/K w3dref, note3d
+	endif
+	if(autoscale && stack3d)
+		SetScale/I x, 0, getScaleXY, w3dref
+		SetScale/I y, 0, getScaleXY, w3dref
+	endif
+	KillPath/Z MXP_DATFilesPathTMP
 	return 0
 End

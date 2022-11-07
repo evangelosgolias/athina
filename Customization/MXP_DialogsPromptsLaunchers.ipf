@@ -218,6 +218,9 @@ Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	fileFilters += "All Files:.*;"
 	string msgStr = "Select two images for XMC(L)D calculation."
 	Open/D/R/MULT=1/M=msgStr/F=fileFilters numRef
+	if(!strlen(S_filename))
+		Abort
+	endif
 	// S_fileName is a carriage-return-separated list of full paths to one or more files.
 	variable nrSelectedFiles = ItemsInList(S_filename, "\r")
 	string selectedFilesInDialogStr = SortList(S_fileName, "\r", 16)
