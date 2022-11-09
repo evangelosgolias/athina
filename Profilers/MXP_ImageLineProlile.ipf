@@ -132,6 +132,7 @@ Function MXP_InitialiseLineProfilerFolder()
 	variable/G dfr:gMXP_MarkLinesSwitch = 0
 	variable/G dfr:gMXP_SelectLayer = 0
 	variable/G dfr:gMXP_colorcnt = 0
+	variable/G dfr:gMXP_mouseTrackV
 	// Default settings
 	NVAR/Z/SDFR=dfr0 gMXP_profileWidth0
 	if(!NVAR_Exists(gMXP_profileWidth0)) // init only once and do not overwrite
@@ -178,6 +179,7 @@ Function MXP_CursorHookFunctionLineProfiler(STRUCT WMWinHookStruct &s)
 	NVAR/Z C1y = dfr:gMXP_C1y
 	NVAR/Z C2x = dfr:gMXP_C2x
 	NVAR/Z C2y = dfr:gMXP_C2y
+	NVAR/Z mouseTrackV = dfr:gMXP_mouseTrackV
 	NVAR/Z profileWidth = dfr:gMXP_profileWidth
 	NVAR/Z selectedLayer = dfr:gMXP_selectedLayer
 	NVAR/Z updateSelectedLayer = dfr:gMXP_updateSelectedLayer
@@ -208,9 +210,12 @@ Function MXP_CursorHookFunctionLineProfiler(STRUCT WMWinHookStruct &s)
 			KillDataFolder/Z dfr
 			hookresult = 1
 			break
+		case 4:
+			mouseTrackV = s.mouseLoc.v
+			break
 		case 8: // modifications, either move the slides or the cursors
 			// NB: s.cursorName gives "" in the switch but "-" outside for no cursor under cursor or CursorName (A,B,...J)
-			if(WaveDims(imgWaveRef) == 3 && DataFolderExists("root:Packages:WM3DImageSlider:" + WindowNameStr) && updateSelectedLayer && !cmpstr(s.cursorName, "", 1))
+			if(WaveDims(imgWaveRef) == 3 && DataFolderExists("root:Packages:WM3DImageSlider:" + WindowNameStr) && updateSelectedLayer && mouseTrackV < 0)
 				NVAR/Z glayer = root:Packages:WM3DImageSlider:$(WindowNameStr):gLayer
 				selectedLayer = glayer
 				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
@@ -237,6 +242,7 @@ Function MXP_CursorHookFunctionLineProfiler(STRUCT WMWinHookStruct &s)
 	   			hookResult = 1
 	   			break
 			endif
+			break
        	case 5: // mouse up
        		C1x = hcsr(G) 
        		C1y = vcsr(G)
@@ -248,8 +254,6 @@ Function MXP_CursorHookFunctionLineProfiler(STRUCT WMWinHookStruct &s)
     SetdataFolder currdfr
     return hookResult       // 0 if nothing done, else 1
 End
-
-/// Everything below this point needs fixing
 
 Function MXP_InitialiseLineProfilerGraph(DFREF dfr)
 	/// Here we will create the profile panel and graph and plot the profile
