@@ -29,7 +29,7 @@ Function MXP_Make3DWaveUsingPattern(String wname3d, String pattern)
 	return 0
 End
 
-Function MXP_Make3DWaveDataBrowserSelection(String wname3d)
+Function MXP_Make3DWaveDataBrowserSelection(string wname3d)
 
 	// Like EGMake3DWave, but now waves are selected
 	// in the browser window. No check for selection
@@ -46,7 +46,9 @@ Function MXP_Make3DWaveDataBrowserSelection(String wname3d)
 	// StringFromList(n,ListofMatchedWaves).
 
 	//String RegEx = "(\w+:)*('?)(\w+[^:?]+)\2$" // Match any character after the last colon!
-
+	if(!strlen(wname3d))
+		wname3d = "MXP_Stack"
+	endif
 	variable i = 0
 	do
 		if(strlen(GetBrowserSelection(i)))
@@ -65,9 +67,20 @@ Function MXP_Make3DWaveDataBrowserSelection(String wname3d)
 	WAVE wref = $wname
 	variable nx = DimSize(wref,0)
 	variable ny = DimSize(wref,1)
-
-	Make/N = (nx, ny, nrwaves) $wname3d /WAVE = w3dref
-
+	
+	if(WaveType(wref) & 2) // 32-bit float
+		Make/I/N = (nx, ny, nrwaves) $wname3d
+	elseif(WaveType(wref) & 2^2) // 64-bit float
+		Make/D/N = (nx, ny, nrwaves) $wname3d
+	elseif(WaveType(wref) & 2^4 && !(WaveType(wref) & 2^6)) // 16-bit integer signed
+		Make/W/N = (nx, ny, nrwaves) $wname3d
+	elseif(WaveType(wref) & 2^4 && (WaveType(wref) & 2^6)) // 16-bit integer unsigned
+		Make/W/U/N = (nx, ny, nrwaves) $wname3d
+	else
+		Make/N = (nx, ny, nrwaves) $wname3d //default
+	endif
+	WAVE w3dref = $wname3d
+	
 	for(i = 0; i < nrwaves; i += 1)
 		Wave t2dwred = $(StringFromList(i,listOfSelectedWaves))
 		w3dref[][][i] = t2dwred[p][q]

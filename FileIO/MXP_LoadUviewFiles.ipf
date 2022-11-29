@@ -942,7 +942,8 @@ Function MXP_AppendMarkupsToTopImage()
 	return 0
 End
 
-Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d, string wname3d, int autoscale]) // Use ImageTransform, it is faster. Changed on 28.12.2022
+Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d, string wname3d, int autoscale])
+	// We use ImageTransform stackImages X to create the 3d wave. Compared to 3d wave assignement it is faster by nearly 3x.
 
 	/// Import .dat files that match a pattern from a folder. Waves are named after their filename.
 	/// @param folder string folder of the .dat files
@@ -1078,7 +1079,7 @@ Function MXP_LoadMultiplyDATFiles([string filenames, int skipmetadata, int autos
 	
 	variable i = 0
 	for(i = 0; i < nrloadFiles; i += 1)
-		if (nrloadFiles == nrFilenames) // FIX: There is an issue here! Is the following correct?
+		if (nrloadFiles == nrFilenames)
 			MXP_LoadSingleDATFile(StringFromList(i,loadFiles, "\r"), StringFromList(i, filenames), skipmetadata = skipmetadata, autoscale = autoscale)
 		else
 			MXP_LoadSingleDATFile(StringFromList(i,loadFiles, "\r"), "", skipmetadata = skipmetadata, autoscale = autoscale)

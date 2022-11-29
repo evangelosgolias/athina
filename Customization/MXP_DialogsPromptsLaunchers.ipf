@@ -148,68 +148,6 @@ Function MXP_LaunchCalculateXMCDFromStack()
 	NewImage $xmcdWaveStr
 	ModifyGraph width={Plan,1,top,left}
 End
-Function MXP_LaunchInteractiveImageDriftCorrectionXMCD() // FIX IT
-	/// Function to interactively drift images and get an updated
-	/// graph of the XMC(L)D contrast.
-	/// @param w1 WAVE Wave 1
-	/// @param w2 WAVE Wave 2
-	
-	string msg = "Select two waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
-	string selectedWavesInBrowserStr = MXP_SelectWavesInModalDataBrowser(msg)
-	
-	// S_fileName is a carriage-return-separated list of full paths to one or more files.
-	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
-	string selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)
-	if(nrSelectedWaves != 2)
-		DoAlert/T="MAXPEEM would like you to know" 1, "Select two (2) .dat files only.\n" + \
-				"Do you want a another chance with the browser selection?"
-		if(V_flag == 1)
-			MXP_LaunchRegisterQCalculateXRayDichroism()
-		elseif(V_flag == 2)
-			Abort
-		else
-			print "MXP_RegisterQCalculateXRayDichroism()! Abormal behavior."
-		endif
-		
-		Abort // Abort the running instance otherwise the code that follows will run 
-			  // as many times as the dialog will be displayed. Equavalenty, it can 
-			  // be placed in the if (V_flag == 1) branch.
-	endif
-	string wave1Str = StringFromList(0, selectedWavesStr) // The last dat has been eliminated when importing waves, so we are ok
-	string wave2Str = StringFromList(1, selectedWavesStr)
-	string selectedWavesPopupStr = wave1Str + ";" + wave2Str
-	variable registerImageQ
-	string saveWaveName = ""
-	//Set defaults 
-	Prompt wave1Str, "img1", popup, selectedWavesPopupStr
-	Prompt wave2Str, "img2", popup, selectedWavesPopupStr
-	DoPrompt "XMC(L)D = (img1 - img2)/(img1 + img2)", wave1Str, wave2Str
-	if(V_flag) // User cancelled
-		return 1
-	endif
-	WAVE w1 = $wave1Str
-	WAVE w2 = $wave2Str
-	// Make a note for the XMC(L)D image
-	string xmcdWaveNoteStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n"
-	
-	if(!(WaveType(w1) & 0x02))
-		Redimension/S w1
-	endif
-	if(!(WaveType(w2) & 0x02))
-		Redimension/S w2
-	endif 
-
-	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_datafldr:InteractiveXMCD:")
-	Make/O/N=(DimSize(w1, 0), DimSize(w1, 1)) dfr:MXP_XMCD_Interactive /WAVE = xmcdWAVERef // Is this ok to do?
-	Duplicate/O w1, dfr:wave1XMCD
-	Duplicate/O w2, dfr:wave2XMCD
-	WAVE xmcd = MXP_WAVECalculateXMCD(dfr:wave1XMCD, dfr:wave2XMCD) // FREE WAVE, at the end of the funtion will be destroyed
-	xmcdWAVERef = xmcd
-	NewImage xmcdWAVERef
-	ModifyGraph width={Plan,1,top,left}
-	// TODO: Display the two images, find a good way of doing it.
-	// Then prompt to move one with respect to the other and recalculate XMCD MXP_WAVECalculateXMCD(dfr:wave1XMCD, dfr:wave2XMCD
-End
 
 Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 
@@ -422,7 +360,7 @@ End
 
 Function MXP_LaunchNewImageFromBrowserSelection()
 	// Display selected images
-	variable i = 0
+	variable i = 0, cnt = 0, promptOnceSwitch = 1
 	string mxpImage
 	if(!strlen(GetBrowserSelection(0)))
 		Abort "No image selected"
@@ -430,16 +368,28 @@ Function MXP_LaunchNewImageFromBrowserSelection()
 	
 	do
 		mxpImage = GetBrowserSelection(i) 
-		print WaveDims($mxpImage)
 		if(WaveDims($mxpImage) != 3 && WaveDims($mxpImage) != 2)
 			Abort "Operation needs an image or image stack"
 		endif
-		NewImage $mxpImage
+		// Verify that you did not misclicked and prevent opening many images (bummer)
+		cnt++
+		if(cnt > 2 && promptOnceSwitch)
+			DoAlert/T="MAXPEEM would like to ask you ..." 1, "You "+ \
+					   "are trying open more than two images at once, do you want to continue?"
+			if(V_flag == 1)
+				promptOnceSwitch = 0
+			else
+				break
+			endif
+		endif
+		
+		NewImage/K=1 $mxpImage
 		ModifyGraph width={Plan,1,top,left}
 		if(WaveDims($mxpImage)==3)
 			WMAppend3DImageSlider()
 		endif
 		i++
+
 	while (strlen(GetBrowserSelection(i)))
 End
 
@@ -534,4 +484,22 @@ Function/S MXP_SelectWavesInModalDataBrowser(string msg)
 	endif
 	
 	return S_BrowserList
+End
+
+/// Helper function
+
+Function MXP_CountSelectedObjectsInDataBrowserPopup()
+	/// return how many objects of any kind you have 
+	/// selected in the data browser 
+	string selectedItemStr
+	variable cnt = 0 , i = 0
+	do
+		if(!strlen(GetBrowserSelection(0)))
+			return 0
+		endif
+		selectedItemStr = GetBrowserSelection(i)
+		i++
+		cnt++
+	while (strlen(GetBrowserSelection(i)))
+	return cnt
 End
