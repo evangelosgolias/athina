@@ -57,12 +57,16 @@ Function MXP_NormaliseImageStackWithProfile()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	WAVE w3d = ImageNameToWaveRef(winNameStr, imgNameTopGraphStr)
-	
+	// Normalisation does not work if the image stack is Uint16.
+	// Check if this is the case and Redimension/S the 3D wave
 	if(WaveDims(w3d) != 3)
 		print "Operation needs a image stack (3d wave) in top graph!"
 		return -1
 	endif
 	
+	if(WaveType(w3d) == 80) // if UInt16 (0x50)
+		Redimension/S w3d
+	endif
 	// Select the profile wave from browser
 	string selectedWavesStr = MXP_SelectWavesInModalDataBrowser("Select profile to normalise image stack")
 	string profileWaveStr = StringFromList(0, selectedWavesStr)
