@@ -137,3 +137,19 @@ Function DemoWindowHook()
 		SetWindow DemoGraph, hook(MyHook) = MyWindowHook	// Install window hook
 	endif
 End
+
+// Variable pix = 72/ScreenResolution
+// Variable TFTResX= Str2Num(StringFromList(3,StringByKey("SCREEN1",IgorInfo(0),":"),","))		// get the display resolution to align window better (center of full screen)
+// Variable TFTResY= Str2Num(StringFromList(4,StringByKey("SCREEN1",IgorInfo(0),":"),","))
+// Variable WinTop = 70, WinLeft = 200
+// Variable WinBottom	= TFTResY - 150
+// Variable WinRight	= TFTResX - 350
+//
+// Display/K=2/W=(WinLeft*pix, WinTop*pix, WinRight*pix, WinBottom*pix)/N=$gName as gTitle+NameOfWave(inwave)
+// AppendImage inwave																		// don't append as RGB image
+// ModifyImage ''#0 ctab= {*,*,Terrain,0}
+// ModifyGraph quickdrag(LinesY)=1,live(LinesY)=1,rgb(LinesY)=(65535,0,0)						// lines can be dragged (act on S_TraceOffsetInfo)
+//	
+// SetWindow $gName hook(CreateProfile)=Profile_ProcessWindowEvent								// keeps track of window changes
+// NVAR ProfileUpdateConnector = stg:ProfileUpdateConnector									// set formula for live update
+// SetFormula ProfileUpdateConnector,"LinesIntegrateUpdate(root:WinGlobals:"+gName+":S_TraceOffsetInfo)"

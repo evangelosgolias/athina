@@ -52,6 +52,7 @@ Menu "GraphMarquee"
 	"Marquee to mask", MXP_MarqueeToMask()
 	"Backup traces", MXP_BackupTraces()
 	"Restore traces", MXP_RestoreTraces()
+	"Normalise to profile", MXP_NormaliseTracesWithProfile()
 	"Normalize to one", MXP_NormalizeToOne()
 	"Pull to zero", MXP_PullToZero()
 	"Maximum to one", MXP_MaximumToOne()
@@ -68,10 +69,11 @@ Menu "TracePopup"
 	"-"
 	"MXP line profile", MXP_TraceMenuLaunchLineProfiler()
 	"MXP z profile", MXP_TraceMenuLaunchZBeamProfiler()
+	"MXP Normalise stack with profile", MXP_NormaliseImageStackWithProfile()
 	"MXP Scale Image", MXP_ScaleImage()
-	"MXP Draw Image Markups", MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
-	"MXP Clear UserFront layer", MXP_ClearROIMarkings()
 	"MXP Select image to copy scales", MXP_ImageSelectToCopyScale()
 	"MXP Average wave",  MXP_LaunchAverageStackToImageFromTraceMenu()
 	"MXP Calculate XMC(L)D", MXP_LaunchCalculateXMCDFromStack()
+	"MXP Draw Image Markups", MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
+	"MXP Clear UserFront layer", MXP_ClearROIMarkings()
 End

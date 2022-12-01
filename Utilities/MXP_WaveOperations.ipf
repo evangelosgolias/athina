@@ -6,24 +6,34 @@
 // Utilities
 
 /// Make waves ///
-Function MXP_Make3DWaveUsingPattern(String wname3d, String pattern)
+Function MXP_Make3DWaveUsingPattern(string wname3d, string pattern)
 	// Make a 3d wave named wname3d using the RegEx pattern
 	// Give "*" to match all waves
 
-	String ListofMatchedWaves = WaveList(pattern, ";", "")
-	Variable nrwaves = ItemsInList(ListofMatchedWaves)
+	string ListofMatchedWaves = WaveList(pattern, ";", "")
+	variable nrwaves = ItemsInList(ListofMatchedWaves)
 	if(!nrwaves)
 		Abort "No matching 2D waves"
 	endif
-	Wave wref = $(StringFromList(0,ListofMatchedWaves))
-	Variable nx = DimSize(wref,0)
-	Variable ny = DimSize(wref,1)
+	
+	if(!strlen(wname3d))
+		wname3d = "MXP_Stack"
+	endif
+	// if name in use by a global wave/variable 
+	if(!exists(wname3d) == 0) // 0 - Name not in use, or does not conflict with a wave, numeric variable or string variable in the specified data folder.
+		print "MXP: Renamed your wave to \"" + (wname3d + "_rn") + "\" to avoid conflicts"
+		wname3d += "_rn"
+	endif
+	
+	WAVE wref = $(StringFromList(0,ListofMatchedWaves))
+	variable nx = DimSize(wref,0)
+	variable ny = DimSize(wref,1)
 
 	Make/N = (nx, ny, nrwaves) $wname3d /WAVE = w3dref
-	Variable ii
+	variable ii
 
 	for(ii = 0; ii < nrwaves; ii += 1)
-		Wave t2dwred = $(StringFromList(ii,ListofMatchedWaves))
+		WAVE t2dwred = $(StringFromList(ii,ListofMatchedWaves))
 		w3dref[][][ii] = t2dwred[p][q]
 	endfor
 	return 0
@@ -49,6 +59,12 @@ Function MXP_Make3DWaveDataBrowserSelection(string wname3d)
 	if(!strlen(wname3d))
 		wname3d = "MXP_Stack"
 	endif
+	// if name in use by a global wave/variable 
+	if(!exists(wname3d) == 0) // 0 - Name not in use, or does not conflict with a wave, numeric variable or string variable in the specified data folder.
+		print "MXP: Renamed your wave to \"" + (wname3d + "_rn") + "\" to avoid conflicts"
+		wname3d += "_rn"
+	endif
+		
 	variable i = 0
 	do
 		if(strlen(GetBrowserSelection(i)))
@@ -79,6 +95,7 @@ Function MXP_Make3DWaveDataBrowserSelection(string wname3d)
 	else
 		Make/N = (nx, ny, nrwaves) $wname3d //default
 	endif
+	
 	WAVE w3dref = $wname3d
 	
 	for(i = 0; i < nrwaves; i += 1)
@@ -217,6 +234,31 @@ Function MXP_ZapNaNsWithValue(WAVE w)
 		w = (numtype(w[p]) == 2) ? 0: w 
 	endif
 	
+End
+
+
+Function MXP_Normalise3DWaveWithProfile(WAVE w3dRef, WAVE profWaveRef)
+	// Normalise a 3d wave (stack) with a line profile (1d wave) along the z direction
+	
+	// consistency check
+	if(DimSize(w3dRef, 2) != DimSize(profWaveRef, 0))
+		printf "Number of layers in %s is different from number of points in %s", NameOfWave(w3dRef), NameOfWave(profWaveRef)
+		return -1
+	endif
+	w3dRef /= profWaveRef[r]
+	return 0
+End
+
+Function MXP_NormaliseWaveWithProfile(WAVE wRef, WAVE profWaveRef)
+	// Normalise a wave 
+	
+	// consistency check
+	if(DimSize(wRef, 0) != DimSize(profWaveRef, 0))
+		printf "numpoints(%s) != numpoints(%s) \n", NameOfWave(wRef), NameOfWave(profWaveRef)
+		return -1
+	endif
+	wRef /= profWaveRef
+	return 0
 End
 
 // Helper functions

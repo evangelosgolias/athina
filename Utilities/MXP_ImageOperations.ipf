@@ -40,3 +40,33 @@ Function MXP_ImageSelectToCopyScale() // Uses top graph
 	string firstWaveStr = StringFromList(0, selectedWavesStr)
 	CopyScales/I $firstWaveStr, $imgNameTopGraphStr // NB Use P if have an extended image with common parts
 End
+
+Function MXP_Wave2RGBImage(WAVE wRef)
+	ColorTab2Wave Grays
+	WAVE M_Colors
+	Wavestats/Q/M=1 wRef
+	SetScale/I x, V_min, V_max, M_Colors
+	ImageTransform/C=M_Colors cmap2rgb wRef
+	WAVE M_RGBOut
+	KillWaves/Z M_Colors
+	string newnameStr = NameOfWave(wRef) + "_RGB"
+	Rename M_RGBOut, $newnameStr
+End
+
+Function MXP_NormaliseImageStackWithProfile()
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE w3d = ImageNameToWaveRef(winNameStr, imgNameTopGraphStr)
+	
+	if(WaveDims(w3d) != 3)
+		print "Operation needs a image stack (3d wave) in top graph!"
+		return -1
+	endif
+	
+	// Select the profile wave from browser
+	string selectedWavesStr = MXP_SelectWavesInModalDataBrowser("Select profile to normalise image stack")
+	string profileWaveStr = StringFromList(0, selectedWavesStr)
+	WAVE profWave = $profileWaveStr
+	MXP_Normalise3DWaveWithProfile(w3d, profWave)
+	return 0
+End

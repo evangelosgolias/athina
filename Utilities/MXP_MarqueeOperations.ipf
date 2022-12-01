@@ -19,7 +19,7 @@ End
 Function MXP_PullToZero()
 	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
 		GetMarquee/K left, bottom;
-		MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 0)
+		MXP_OperationsOnGraphTracesWithMarquee(V_left, V_right, 0)
 	else
 		print "Operation needs a graph with left and bottom axes"
 	endif
@@ -28,7 +28,7 @@ End
 Function MXP_NormalizeToOne()
 	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
 		GetMarquee/K left, bottom;
-		MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 1)
+		MXP_OperationsOnGraphTracesWithMarquee(V_left, V_right, 1)
 	else
 		print "Operation needs a graph with left and bottom axes"
 	endif
@@ -37,7 +37,7 @@ End
 Function MXP_MaximumToOne()
 	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
 		GetMarquee/K left, bottom;
-		MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 2)
+		MXP_OperationsOnGraphTracesWithMarquee(V_left, V_right, 2)
 	else
 		print "Operation needs a graph with left and bottom axes"
 	endif
@@ -46,7 +46,7 @@ End
 Function MXP_BackupTraces()
 	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
 		GetMarquee/K left, bottom;
-		MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 3)
+		MXP_OperationsOnGraphTracesWithMarquee(V_left, V_right, 3)
 	else
 		print "Operation needs a graph with left and bottom axes"
 	endif
@@ -55,7 +55,16 @@ End
 Function MXP_RestoreTraces()
 	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
 		GetMarquee/K left, bottom;
-		MXP_OperationsOnGraphTracesForXAS(V_left, V_right, 4)
+		MXP_OperationsOnGraphTracesWithMarquee(V_left, V_right, 4)
+	else
+		print "Operation needs a graph with left and bottom axes"
+	endif
+End
+
+Function MXP_NormaliseTracesWithProfile()
+	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
+		GetMarquee/K left, bottom;
+		MXP_OperationsOnGraphTracesWithMarquee(V_left, V_right, 5)
 	else
 		print "Operation needs a graph with left and bottom axes"
 	endif
@@ -98,12 +107,13 @@ Function/WAVE MXP_WAVECoordinatesToROIMask(variable left, variable top, variable
 	return MXP_ROIMask
 End
 
-Function MXP_OperationsOnGraphTracesForXAS(variable left, variable right, variable operationSelection)
+Function MXP_OperationsOnGraphTracesWithMarquee(variable left, variable right, variable operationSelection)
 	// Trace calculations using graph marquee
 	string waveListStr, traceNameStr
 	waveListStr = TraceNameList("", ";", 1 + 4)
 	string buffer, dfStr
 	DFREF currDFR = GetDataFolderDFR()
+	variable launchBrowserSwitch = 1
 	variable i = 0
 	do
 		traceNameStr = StringFromList(i, waveListStr)
@@ -112,7 +122,7 @@ Function MXP_OperationsOnGraphTracesForXAS(variable left, variable right, variab
 		endif
 		WAVE wRef = TraceNameToWaveRef("", traceNameStr)
 		if(WaveDims(wRef) != 1)
-			Abort "Operation only for traces"
+			Abort "Operates only on traces"
 		endif
 		WaveStats/Q/R=(left, right) wRef
 		switch(operationSelection)
@@ -136,6 +146,16 @@ Function MXP_OperationsOnGraphTracesForXAS(variable left, variable right, variab
 				SetDataFolder $dfStr
 				buffer = NameOfWave(wref) + "_undo"
 				Duplicate/O $buffer, wref
+				break
+			case 5:
+				if(launchBrowserSwitch)
+					string selectedWaveStr = MXP_SelectWavesInModalDataBrowser("Select notmalisation profile")
+					WAVE waveProf = $StringFromList(0, selectedWaveStr)
+					launchBrowserSwitch = 0
+				endif
+				
+				MXP_NormaliseWaveWithProfile(wRef, waveProf)
+				
 				break
 			default:
 				print "Unkwokn MXP_OperatiosGraphTracesForXAS operationSelection"

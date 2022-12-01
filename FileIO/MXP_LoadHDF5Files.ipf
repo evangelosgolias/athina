@@ -32,7 +32,7 @@ End
 
 Function MXP_LoadHDF5SpecificGroups(string groups)
 	// String should be in the form "2-5,7,9-12,50"
-	groups = StrExpandRange(groups)
+	groups = MXP_StrExpandRange(groups)
 	variable fileid_
 	Open /D/R/T="HDF5" fileid_
 	string filepathname = S_fileName
@@ -58,7 +58,7 @@ Function MXP_LoadHDF5SpecificGroupsFromPath(String groups, String filename_fullp
 	
 	// Load files faster from a specific file, you need to specify the full path to the datafile.
 
-	groups = StrExpandRange(groups)
+	groups = MXP_StrExpandRange(groups)
 	Variable fileid_
 			
 	HDF5OpenFile/R fileid_ as filename_fullpathstr
@@ -108,7 +108,7 @@ Function MXP_GetHDF5NumGroupsFID(Variable fileid)
 	return  ItemsInList(S_HDF5ListGroup)
 End
 
-static Function/S StrExpandRange(String range)	// expand a string like "2-5,7,9-12,50" to "2,3,4,5,7,9,10,11,12,50"
+Function/S MXP_StrExpandRange(string range)	// expand a string like "2-5,7,9-12,50" to "2,3,4,5,7,9,10,11,12,50"
 
 	Variable i1, i2, i 
 	String str, out=""
