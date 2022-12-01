@@ -42,7 +42,7 @@ Function MXP_MainMenuLaunchZBeamProfiler()
 	return 0
 End
 
-Function MXP_TraceMenuLaunchZBeamProfiler()
+Function MXP_BrowserMenuLaunchZBeamProfiler()
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")

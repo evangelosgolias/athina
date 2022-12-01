@@ -50,7 +50,7 @@ Function MXP_LaunchAverageStackToImageFromMenu()
 	KillWaves/Z M_StdvImage
 End
 
-Function MXP_LaunchAverageStackToImageFromTraceMenu()
+Function MXP_LaunchAverageStackToImageFromBrowserMenu()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave

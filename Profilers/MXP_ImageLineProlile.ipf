@@ -48,7 +48,7 @@ Function MXP_MainMenuLaunchLineProfiler()
 	return 0
 End
 
-Function MXP_TraceMenuLaunchLineProfiler()
+Function MXP_BrowserMenuLaunchLineProfiler()
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
