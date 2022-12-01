@@ -42,7 +42,7 @@ Function MXP_MainMenuLaunchZBeamProfiler()
 	return 0
 End
 
-Function MXP_BrowserMenuLaunchZBeamProfiler()
+Function MXP_TraceMenuLaunchZBeamProfiler() // Trace menu launcher
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -61,6 +61,28 @@ Function MXP_BrowserMenuLaunchZBeamProfiler()
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 	else
 		Abort "z-profiler needs a 3d wave"
+	endif
+	return 0
+End
+
+Function MXP_BrowserMenuLaunchZBeamProfiler() // Browser menu launcher
+
+	// Check if you have selected a single 3D wave
+	if(MXP_CountSelectedWavesInDataBrowser(waveDimemsions = 3) == 1\
+	 && MXP_CountSelectedWavesInDataBrowser() == 1) // If we selected a single 3D wave		
+	 	string selected3DWaveStr = GetBrowserSelection(0)
+		WAVE w3dRef = $selected3DWaveStr
+		NewImage/K=1 w3dRef
+		string winNameStr = WinName(0, 1, 1)
+		ModifyGraph width={Plan,1,top,left}
+		MXP_InitialiseZProfilerFolder()
+		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
+		MXP_InitialiseZProfilerGraph(dfr)
+		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
+		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_ZProfPanel_" + winNameStr // Name of the panel we will make, used to send the kill signal to the panel
+		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
+	else
+		Abort "Z profile opearation needs only one 3d wave."
 	endif
 	return 0
 End
@@ -121,6 +143,7 @@ Function MXP_InitialiseZProfilerFolder()
 	variable/G dfr:gMXP_DoPlotSwitch = 0
 	variable/G dfr:gMXP_colorcnt = 0
 	variable/G dfr:gMXP_MarkAreasSwitch = 0
+	variable/G dfr:gMXP_mouseTrackV
 	return 0
 End
 
@@ -179,22 +202,24 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 	NVAR/SDFR=dfr gMXP_bottom
 	NVAR/Z dx = dfr:gMXP_ROI_dx
 	NVAR/Z dy = dfr:gMXP_ROI_dy
+	NVAR/Z mouseTrackV = dfr:gMXP_mouseTrackV
 	variable axisxlen = gMXP_right - gMXP_left
 	variable axisylen = gMXP_bottom - gMXP_top
 	SVAR/Z LineProfileWaveStr = dfr:gMXP_LineProfileWaveStr
 	SVAR/Z w3dNameStr = dfr:gMXP_w3dNameStr
 	SVAR/Z w3dPath = dfr:gMXP_w3dPath
+	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
 	DFREF wrk3dwave = $w3dPath
 	Wave/SDFR=wrk3dwave w3d = $w3dNameStr
 	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
 	Wave/Z M_ROIMask
-	variable algoSwitch = pi * abs(axisxlen*axisylen)/dx/dy // pixels above which you use MatrixOP/NTHR=0
 	
-	SetDrawLayer ProgFront // We need it for ImageGenerateROIMask
+	SetDrawLayer/W=$WindowNameStr ProgFront // We need it for ImageGenerateROIMask
 	
     switch(s.eventCode)
 		case 0: //activate window rescales the profile to the layer scale of the 3d wave
 			SetScale/P x, DimOffset(w3d,2), DimDelta(w3d,2), profile // Remove it, not needed here.
+			hookresult = 1
 			break
 		case 2: // Kill the window
 			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedPanelStr"))
@@ -202,35 +227,46 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 			KillWaves/Z M_ROIMask // Cleanup
 			hookresult = 1
 			break
-        case 7: // cursor moved
-        	DrawAction delete // TODO: Here add the env commands of MXP_DrawImageROICursor before switch and here only the draw command 
-        	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-			DrawOval -axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
-					  axisxlen * 0.5 + s.pointNumber * dx,  -(axisylen * 0.5) + s.yPointNumber * dy
-			Cursor/I/L=0/C=(65535, 0, 0, 30000)/S=2 J $w3dNameStr, s.pointNumber * dx, s.yPointNumber * dy
-			ImageGenerateROIMask $w3dNameStr // Here we need name of a wave, not a wave reference!
-			if(WaveExists(M_ROIMask))
-				if(algoSwitch < 5e4) // NB system dependent, test and change, more responsive for small areas
-					Wave profileFree = MXP_WAVESumOverBeamsMasked(w3d, M_ROIMask)
-					FastOP profile = profileFree
-				else
-					MatrixOP/FREE/O/NTHR=0 buffer = sum(w3d*M_ROIMask) // Use two threads
-		   	 		MatrixOP/FREE/O profile_free = beam(buffer,0,0) 
-		    		profile = profile_free
-				endif
-		    		gMXP_left = -axisxlen * 0.5 + s.pointNumber * dx
-				gMXP_right = axisxlen * 0.5 + s.pointNumber * dx
-				gMXP_top = axisylen * 0.5 + s.yPointNumber * dy
-				gMXP_bottom = -(axisylen * 0.5) + s.yPointNumber * dy
-		    endif
-		    hookresult = 1	// TODO: Return 0 here, i.e delete line?
-	 		break
-        case 5: // mouse up
+		case 4:
+			mouseTrackV = s.mouseLoc.v
+			hookresult = 0 // Here hookresult = 1, supresses Marquee
+			break
+		case 5: // mouse up
 			KillWaves/Z M_ROIMask // Cleanup		
 			hookresult = 1
 			break
+        case 7: // cursor moved
+        	if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor
+        		DrawAction/W=$WindowNameStr delete // TODO: Here add the env commands of MXP_DrawImageROICursor before switch and here only the draw command 
+        		SetDrawEnv/W=$WindowNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+				DrawOval/W=$WindowNameStr -axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
+					  axisxlen * 0.5 + s.pointNumber * dx,  -(axisylen * 0.5) + s.yPointNumber * dy
+				Cursor/I/L=0/C=(65535, 0, 0, 30000)/S=2 J $w3dNameStr, s.pointNumber * dx, s.yPointNumber * dy
+				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStr // Here we need name of a wave, not a wave reference!
+				if(WaveExists(M_ROIMask))
+					MatrixOP/FREE/O/NTHR=0 buffer = sum(w3d*M_ROIMask) // Use two threads
+		   		 	MatrixOP/O profile = beam(buffer,0,0) 
+		    			gMXP_left = -axisxlen * 0.5 + s.pointNumber * dx
+					gMXP_right = axisxlen * 0.5 + s.pointNumber * dx
+					gMXP_top = axisylen * 0.5 + s.yPointNumber * dy
+					gMXP_bottom = -(axisylen * 0.5) + s.yPointNumber * dy
+		    		endif
+		    endif
+		    hookresult = 1	// TODO: Return 0 here, i.e delete line?
+	 		break
+	 	case 8: // We have a Window modification eveny
+	 		if(mouseTrackV < 0) // mouse outside of plot area
+	 			NVAR/Z glayer = root:Packages:WM3DImageSlider:$(WindowNameStr):gLayer
+	 			string panelNameStr = GetUserData(s.winName, "", "MXP_LinkedPanelStr")
+	 			variable linePos = DimOffset(profile, 0) + glayer * DimDelta(profile, 0)
+	 			DrawAction/W=$(panelNameStr+"#MXP_ZLineProfilesPlot") delete
+	 			SetDrawEnv/W=$(panelNameStr+"#MXP_ZLineProfilesPlot") xcoord= bottom, ycoord= prel,linefgc = (65535,0,0) //It should be after the draw action
+            	DrawLine/W=$(panelNameStr+"#MXP_ZLineProfilesPlot") linePos, 0, linePos, 1
+	 		endif
+	 		hookresult = 1
+	 		break
     endswitch
-    return hookResult       // 0 if nothing done, else 1
+    return hookResult       // If non-zero, we handled event and Igor will ignore it.
 End
 
 Function MXP_InitialiseZProfilerGraph(DFREF dfr)

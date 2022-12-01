@@ -8,7 +8,7 @@ Menu "MAXPEEM"
 	Submenu "Import"
 		".dat file...", MXP_LoadSingleDATFile("", "", autoscale = 1)
 		".dat files...", MXP_LoadMultiplyDATFiles(autoscale = 1)
-		".dat files in folder...",  MXP_LoadDATFilesFromFolder("", "*", autoscale = 1) // scale
+		".dat files in folder...",  MXP_LoadDATFilesFromFolder("", "*", autoscale = 1)
 		".dat files in folder to stack ...", MXP_LauncherLoadDATFilesFromFolder()
 		".dav file in stack...", MXP_LoadSingleDAVFile("", "", stack3d = 1, skipmetadata = 1, autoscale = 1)
 		".dav file...", MXP_LoadSingleDAVFile("", "", autoscale = 1)
@@ -62,18 +62,20 @@ End
 
 Menu "DataBrowserObjectsPopup"
 	"MXP Newimage", MXP_LaunchNewImageFromBrowserSelection()
-	"MXP z profile", MXP_BrowserMenuLaunchZBeamProfiler()
-	"MXP line profile", MXP_BrowserMenuLaunchLineProfiler()
+	"MXP Z profile", MXP_BrowserMenuLaunchZBeamProfiler()
+	"MXP Line profile", MXP_BrowserMenuLaunchLineProfiler()
+	"MXP Average stack",  MXP_LaunchAverageStackToImageFromBrowserMenu()
 	"MXP Make stack", MXP_LaunchMake3DWaveDataBrowserSelection()
-	"MXP Normalise stack with profile", MXP_NormaliseImageStackWithProfile()
-	"MXP Average wave",  MXP_LaunchAverageStackToImageFromBrowserMenu()
 End
 
 Menu "TracePopup"
 	"-"
-	"MXP Normalise stack with profile", MXP_NormaliseImageStackWithProfile()
+	//"MXP line profile", MXP_TraceMenuLaunchLineProfiler()
+	//"MXP z profile", MXP_TraceMenuLaunchZBeamProfiler()
 	"MXP Scale Image", MXP_ScaleImage()
+	"MXP Normalise stack with profile", MXP_NormaliseImageStackWithProfile()
 	"MXP Select image to copy scales", MXP_ImageSelectToCopyScale()
+	//"MXP Average stack",  MXP_LaunchAverageStackToImageFromTraceMenu()
 	"MXP Calculate XMC(L)D", MXP_LaunchCalculateXMCDFromStack()
 	"MXP Draw Image Markups", MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
 	"MXP Clear UserFront layer", MXP_ClearROIMarkings()

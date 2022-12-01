@@ -116,7 +116,7 @@ Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
 	KillWaves/Z M_AveImage
 	variable layers = DimSize(w3d, 2)
 	string w3dNoteStr = "Average of " + num2str(layers) + " images.\n"
-	w3dNoteStr += "Copy of " + NameOfWave(w3d) + "note:\n"
+	w3dNoteStr += "Copy of " + NameOfWave(w3d) + " note:\n"
 	w3dNoteStr += note(w3d)
 	Note/K $avgImageName w3dNoteStr
 	return 0

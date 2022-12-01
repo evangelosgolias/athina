@@ -48,7 +48,7 @@ Function MXP_MainMenuLaunchLineProfiler()
 	return 0
 End
 
-Function MXP_BrowserMenuLaunchLineProfiler()
+Function MXP_TraceMenuLaunchLineProfiler()
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -73,6 +73,37 @@ Function MXP_BrowserMenuLaunchLineProfiler()
 		// name to the windows hook to kill the panel after completion
 	else
 		Abort "Line profiler needs an image or image stack."
+	endif
+	return 0
+End
+
+Function MXP_BrowserMenuLaunchLineProfiler()
+
+	if(MXP_CountSelectedWavesInDataBrowser() == 1) // If we selected a single wave
+		string selectedImageStr = GetBrowserSelection(0)
+		WAVE imgWaveRef = $selectedImageStr
+		if(WaveDims(imgWaveRef) == 2 || WaveDims(imgWaveRef) == 3)
+			NewImage/K=1 imgWaveRef
+			string winNameStr = WinName(0, 1, 1) // update it just in case
+			string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+			ModifyGraph width={Plan,1,top,left}
+			ShowInfo/CP={0,3}
+			MXP_InitialiseLineProfilerFolder()
+			DoWindow/F $winNameStr // bring it to FG to set the cursors
+			variable nrows = DimSize(imgWaveRef,0)
+			variable ncols = DimSize(imgWaveRef,1)
+			Cursor/I/C=(65535,0,0,65535)/S=1/P G $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
+			Cursor/I/C=(65535,0,0,65535)/S=1/P H $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
+			DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
+			MXP_InitialiseLineProfilerGraph(dfr)
+			SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionLineProfiler // Set the hook
+			SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_LineProfPanel_" + winNameStr // Name of the panel we will make, used to communicate the
+		// name to the windows hook to kill the panel after completion
+		else
+			Abort "Line profile operation needs an image or an image stack."
+		endif
+	else
+		Abort "Please select only one wave."
 	endif
 	return 0
 End
@@ -213,6 +244,13 @@ Function MXP_CursorHookFunctionLineProfiler(STRUCT WMWinHookStruct &s)
 		case 4:
 			mouseTrackV = s.mouseLoc.v
 			break
+       	case 5: // mouse up
+       		C1x = hcsr(G) 
+       		C1y = vcsr(G)
+       		C2x = hcsr(H)
+       		C2y = vcsr(H)
+       		hookResult = 1
+			break
 		case 8: // modifications, either move the slides or the cursors
 			// NB: s.cursorName gives "" in the switch but "-" outside for no cursor under cursor or CursorName (A,B,...J)
 			if(WaveDims(imgWaveRef) == 3 && DataFolderExists("root:Packages:WM3DImageSlider:" + WindowNameStr) && updateSelectedLayer && mouseTrackV < 0)
@@ -242,13 +280,6 @@ Function MXP_CursorHookFunctionLineProfiler(STRUCT WMWinHookStruct &s)
 	   			hookResult = 1
 	   			break
 			endif
-			break
-       	case 5: // mouse up
-       		C1x = hcsr(G) 
-       		C1y = vcsr(G)
-       		C2x = hcsr(H)
-       		C2y = vcsr(H)
-       		hookResult = 1
 			break
     endswitch
     SetdataFolder currdfr

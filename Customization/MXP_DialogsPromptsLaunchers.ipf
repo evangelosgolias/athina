@@ -50,13 +50,34 @@ Function MXP_LaunchAverageStackToImageFromMenu()
 	KillWaves/Z M_StdvImage
 End
 
-Function MXP_LaunchAverageStackToImageFromBrowserMenu()
+Function MXP_LaunchAverageStackToImageFromTraceMenu()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	if(!DimSize(w3dref, 2))
 		Abort "Operation needs a stack"
 	endif
+	string strPrompt = "Averaged wave nane (leave empty for MXP_AvgStack)"
+	string msgDialog = "Average stack along z"
+	string waveNameStr
+	waveNameStr = MXP_GenericSingleStrPrompt(strPrompt, msgDialog)
+	if(!strlen(waveNameStr))
+		MXP_AverageStackToImage(w3dref)
+	else
+		MXP_AverageStackToImage(w3dref, avgImageName = waveNameStr)
+	endif
+	KillWaves/Z M_StdvImage
+End
+
+Function MXP_LaunchAverageStackToImageFromBrowserMenu()
+	if(MXP_CountSelectedWavesInDataBrowser(waveDimemsions = 3) == 1\
+	 && MXP_CountSelectedWavesInDataBrowser() == 1) // If we selected a single 3D wave
+		string selected3DWaveStr = GetBrowserSelection(0)
+		WAVE w3dRef = $selected3DWaveStr	
+	else
+		Abort "Operation needs a single stack"
+	endif
+
 	string strPrompt = "Averaged wave nane (leave empty for MXP_AvgStack)"
 	string msgDialog = "Average stack along z"
 	string waveNameStr
@@ -488,18 +509,44 @@ End
 
 /// Helper function
 
-Function MXP_CountSelectedObjectsInDataBrowserPopup()
+Function MXP_CountSelectedObjectsInDataBrowser()
 	/// return how many objects of any kind you have 
 	/// selected in the data browser 
 	string selectedItemStr
 	variable cnt = 0 , i = 0
+	if(!strlen(GetBrowserSelection(0)))
+		return 0
+	endif
 	do
-		if(!strlen(GetBrowserSelection(0)))
-			return 0
-		endif
 		selectedItemStr = GetBrowserSelection(i)
 		i++
 		cnt++
+	while (strlen(GetBrowserSelection(i)))
+	return cnt
+End
+
+Function MXP_CountSelectedWavesInDataBrowser([variable waveDimemsions])
+	/// return how many waves are selected in the data browser
+	/// Function returns selected waves of dimensionality waveDimemsions
+	/// if the optional argument is set.
+	
+	waveDimemsions = ParamIsDefault(waveDimemsions) ? 0: waveDimemsions
+	if(waveDimemsions < 0 || waveDimemsions > 5)
+		return -1 // Bad arguments
+	endif
+	
+	string selectedItemStr
+	variable cnt = 0 , i = 0
+	if(!strlen(GetBrowserSelection(0)))
+		return 0
+	endif
+	do
+		selectedItemStr = GetBrowserSelection(i)
+		i++
+		if((exists(selectedItemStr) == 1 && !waveDimemsions) \
+		|| (exists(selectedItemStr) == 1 && WaveDims($selectedItemStr) == waveDimemsions))
+			cnt++
+		endif
 	while (strlen(GetBrowserSelection(i)))
 	return cnt
 End

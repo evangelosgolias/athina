@@ -28,7 +28,7 @@
 //End
 
 Function MXP_LaunchInteractiveImageDriftCorrectionInBrowserInBrowser() // Launch from DataBrowserObjectsPopup contexual menu
-	variable nrSelectedWaves = MXP_CountSelectedObjectsInDataBrowserPopup() // be sure you select ywo waves
+	variable nrSelectedWaves = MXP_CountSelectedObjectsInDataBrowser() // be sure you select ywo waves
 End
 
 Function MXP_LaunchInteractiveImageDriftCorrectionFromMenur() // FIX IT
