@@ -144,9 +144,12 @@ Function MXP_CreateInteractiveXMCDCalculationPanel()
 	SetDrawLayer UserBack
 	WAVE m1,m2,m3
 	SetDrawEnv linefgc= (1,12815,52428),linejoin= 1,fillpat= 3,fillfgc= (65535,65534,49151),fillbgc= (65535,65534,49151)
-	Display/W=(30,10,390,370)/HOST=$panelNamestr;AppendImage m1;ModifyGraph margin=15,tick=2,nticks=5,fSize=10  //img1
-	Display/W=(426,10,786,370)/HOST=$panelNamestr;AppendImage m2;ModifyGraph margin=15,tick=2,nticks=5,fSize=10 //img2
-	Display/W=(30,409,390,769)/HOST=$panelNamestr;AppendImage m3;ModifyGraph margin=15,tick=2,nticks=5,fSize=10 //xmcd
+	Display/N=Img1/W=(30,10,390,370)/HOST=$panelNamestr;AppendImage m1;ModifyGraph margin=15,tick=2,nticks=5,fSize=10
+	TextBox/W=$panelNamestr#Img1/B=1/N=text0/F=0/S=3/A=LT/X=1.00/Y=1.00 "\\Z14Img1"  //img1
+	Display/N=Img2/W=(426,10,786,370)/HOST=$panelNamestr;AppendImage m2;ModifyGraph margin=15,tick=2,nticks=5,fSize=10 //img2
+	TextBox/W=$panelNamestr#Img2/B=1/N=text0/F=0/S=3/A=LT/X=1.00/Y=1.00 "\\Z14Img2"  //img1
+	Display/N=XMCLD/W=(30,409,390,769)/HOST=$panelNamestr;AppendImage m3;ModifyGraph margin=15,tick=2,nticks=5,fSize=10 //xmcd
+	TextBox/W=$panelNamestr#XMCLD/B=1/N=text0/F=0/S=3/A=LT/X=1.00/Y=1.00 "\\Z14XMC(L)D" 
 	DrawRect/W=$panelNamestr 424,409,784,769
 	SetDrawEnv/W=$panelNamestr fsize= 16,textrgb= (1,12815,52428)
 	DrawText/W=$panelNamestr 442,431,"MAXPEEM: Interactive XMC(L)D calculation"
