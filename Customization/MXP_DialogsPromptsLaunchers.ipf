@@ -13,6 +13,11 @@ End
 Function MXP_LaunchMake3DWaveDataBrowserSelection()
 	string wname3dStr
 	wname3dStr = MXP_GenericSingleStrPrompt("Stack name", "Make a stack of pre-selected waves in data browser")
+	// if name in use by a global wave/variable 
+	if(!exists(wname3dStr) == 0) // 0 - Name not in use, or does not conflict with a wave, numeric variable or string variable in the specified data folder.
+		print "MXP: Renamed your wave to \"" + (wname3dStr + "_rn") + "\" to avoid conflicts"
+		wname3dStr += "_rn"
+	endif
 	MXP_Make3DWaveDataBrowserSelection(wname3dStr)
 End
 

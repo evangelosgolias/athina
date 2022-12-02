@@ -242,16 +242,21 @@ Function MXP_Normalise3DWaveWithProfile(WAVE w3dRef, WAVE profWaveRef)
 	
 	// consistency check
 	if(DimSize(w3dRef, 2) != DimSize(profWaveRef, 0))
-		printf "Number of layers in %s is different from number of points in %s", NameOfWave(w3dRef), NameOfWave(profWaveRef)
-		return -1
+		string msg
+		sprintf msg, "Number of layers in *%s* is different from number of points in *%s*.  Normalisation " +\
+					 " after the last point will use *%s*'s last value.\n" +\
+					 "Would you like to continue anyway?", NameOfWave(w3dRef), NameOfWave(profWaveRef), NameOfWave(profWaveRef)
+		DoAlert/T="MAXPEEM would like you to make an informed decision", 1, msg
+		if (V_flag == 2 || V_flag == 3)
+			return -1
+		endif
 	endif
 	w3dRef /= profWaveRef[r]
 	return 0
 End
 
 Function MXP_NormaliseWaveWithProfile(WAVE wRef, WAVE profWaveRef)
-	// Normalise a wave 
-	
+	/// Normalise a wave with another
 	// consistency check
 	if(DimSize(wRef, 0) != DimSize(profWaveRef, 0))
 		printf "numpoints(%s) != numpoints(%s) \n", NameOfWave(wRef), NameOfWave(profWaveRef)

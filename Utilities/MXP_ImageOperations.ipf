@@ -67,6 +67,7 @@ Function MXP_NormaliseImageStackWithProfile()
 	if(WaveType(w3d) == 80) // if UInt16 (0x50)
 		Redimension/S w3d
 	endif
+	
 	// Select the profile wave from browser
 	string selectedWavesStr = MXP_SelectWavesInModalDataBrowser("Select profile to normalise image stack")
 	string profileWaveStr = StringFromList(0, selectedWavesStr)

@@ -42,7 +42,7 @@ Function MXP_MainMenuLaunchZBeamProfiler()
 	return 0
 End
 
-Function MXP_TraceMenuLaunchZBeamProfiler() // Trace menu launcher
+Function MXP_TraceMenuLaunchZBeamProfiler() // Trace menu launcher, inactive
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -65,7 +65,7 @@ Function MXP_TraceMenuLaunchZBeamProfiler() // Trace menu launcher
 	return 0
 End
 
-Function MXP_BrowserMenuLaunchZBeamProfiler() // Browser menu launcher
+Function MXP_BrowserMenuLaunchZBeamProfiler() // Browser menu launcher, active
 
 	// Check if you have selected a single 3D wave
 	if(MXP_CountSelectedWavesInDataBrowser(waveDimemsions = 3) == 1\
@@ -171,7 +171,7 @@ Function MXP_DrawROIAndWaitHookToAct() // Function used by the hook
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	DrawOval gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
 	ImageGenerateROIMask $wnamestr
-	Cursor/I/L=0/C=(65535, 0, 0, 30000)/S=2 J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
+	Cursor/I/L=0/C=(65535,65535,0)/S=2 J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
 	return 0
 End
 
@@ -238,13 +238,13 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
         case 7: // cursor moved
         	if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor
         		DrawAction/W=$WindowNameStr delete // TODO: Here add the env commands of MXP_DrawImageROICursor before switch and here only the draw command 
-        		SetDrawEnv/W=$WindowNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+        		SetDrawEnv/W=$WindowNameStr linefgc = (65535,65535,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 				DrawOval/W=$WindowNameStr -axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
 					  axisxlen * 0.5 + s.pointNumber * dx,  -(axisylen * 0.5) + s.yPointNumber * dy
-				Cursor/I/L=0/C=(65535, 0, 0, 30000)/S=2 J $w3dNameStr, s.pointNumber * dx, s.yPointNumber * dy
+				Cursor/I/L=0/C=(65535,65535,0)/S=2 J $w3dNameStr, s.pointNumber * dx, s.yPointNumber * dy
 				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStr // Here we need name of a wave, not a wave reference!
 				if(WaveExists(M_ROIMask))
-					MatrixOP/FREE/O/NTHR=0 buffer = sum(w3d*M_ROIMask) // Use two threads
+					MatrixOP/FREE/O/NTHR=4 buffer = sum(w3d*M_ROIMask) // Use two threads
 		   		 	MatrixOP/O profile = beam(buffer,0,0) 
 		    			gMXP_left = -axisxlen * 0.5 + s.pointNumber * dx
 					gMXP_right = axisxlen * 0.5 + s.pointNumber * dx

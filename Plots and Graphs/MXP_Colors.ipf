@@ -57,7 +57,8 @@ Function [variable red, variable green, variable blue] MXP_GetColor(variable col
         case 15:
             red = 0; green = 0; blue = 0;                       // Black
             break      
-    endswitch
+     endswitch
+
     
-    return [red, green, blue]
+     return [red, green, blue]
 End
