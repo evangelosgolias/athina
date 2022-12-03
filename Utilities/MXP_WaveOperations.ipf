@@ -30,11 +30,11 @@ Function MXP_Make3DWaveUsingPattern(string wname3d, string pattern)
 	variable ny = DimSize(wref,1)
 
 	Make/N = (nx, ny, nrwaves) $wname3d /WAVE = w3dref
-	variable ii
+	variable i
 
-	for(ii = 0; ii < nrwaves; ii += 1)
-		WAVE t2dwred = $(StringFromList(ii,ListofMatchedWaves))
-		w3dref[][][ii] = t2dwred[p][q]
+	for(i = 0; i < nrwaves; i += 1)
+		WAVE t2dwred = $(StringFromList(i,ListofMatchedWaves))
+		w3dref[][][i] = t2dwred[p][q]
 	endfor
 	return 0
 End
@@ -107,13 +107,13 @@ End
 
 Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
 	/// Average a 3d wave along z.
-	/// @param w3d WAVW Wave name to average (3d wave)
+	/// @param w3d WAVE Wave name to average (3d wave)
 	/// @param avgImageName string optional Name of the output wave, default MXP_AvgStack.
 	avgImageName = SelectString(ParamIsDefault(avgImageName) ? 0: 1,"MXP_AvgStack", avgImageName)
 	ImageTransform averageImage w3d
 	WAVE M_AveImage
 	Duplicate/O M_AveImage, $avgImageName
-	KillWaves/Z M_AveImage
+	KillWaves/Z M_AveImage, M_StdvImage
 	variable layers = DimSize(w3d, 2)
 	string w3dNoteStr = "Average of " + num2str(layers) + " images.\n"
 	w3dNoteStr += "Copy of " + NameOfWave(w3d) + " note:\n"

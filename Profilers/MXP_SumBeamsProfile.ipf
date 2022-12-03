@@ -26,16 +26,18 @@ Function MXP_MainMenuLaunchZBeamProfiler()
 	endif
 	// User selected a wave, check if it's 3d
 	string browserSelection = StringFromList(0, S_BrowserList)
-	Wave selected3DWave = $browserSelection
-	if(exists(browserSelection) && WaveDims(selected3DWave) == 3) // if it is a 3d wave
-		NewImage/K=1 selected3DWave
+	WAVE w3dref = $browserSelection
+	if(exists(browserSelection) && WaveDims(w3dref) == 3) // if it is a 3d wave
+		NewImage/K=1 w3dref
 		ModifyGraph width={Plan,1,top,left}
 		MXP_InitialiseZProfilerFolder()
-		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + NameOfWave(selected3DWave)) // Change root folder if you want
+		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
 		MXP_InitialiseZProfilerGraph(dfr)
 		SVAR winNameStr = dfr:gMXP_WindowNameStr
 		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_ZProfPanel_" + winNameStr // Name of the panel we will make, used to send the kill signal to the panel
+		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
+
 	else
 		Abort "z-profiler needs a 3d wave. N.B Select only one wave"
 	endif
@@ -294,7 +296,7 @@ Function MXP_CreateZProfilePanel(DFREF dfr)
 	SetWindow $profilePanelStr userdata(MXP_targetGraphWin) = "MXP_AreaProf_" + gMXP_WindowNameStr
 	ModifyPanel cbRGB=(61166,61166,61166), frameStyle=3
 	SetDrawLayer UserBack
-	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveZProfilePanel, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
+	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveZProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
 	CheckBox ShowProfile, pos={150.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ZProfilePanelCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 0
 	CheckBox ShowSelectedAread, pos={270.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ZProfilePanelCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 0
 	Wave profile = dfr:$gMXP_LineProfileWaveStr
@@ -311,7 +313,7 @@ Function MXP_CreateZProfilePanel(DFREF dfr)
 	return 0
 End
 
-Function MXP_SaveZProfilePanel(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function MXP_SaveZProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "MXP_targetGraphWin")
@@ -410,52 +412,54 @@ Function MXP_ZProfilePanelCheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : Check
 	return 0
 End
 
-static Function/WAVE MXP_WAVESumOverBeamsMasked(Wave w3d, Wave wMask)
-	// No consistency checks here, we want to be fast and efficient
-	// as the function is called in the MXP_CursorHookFunctionBeamProfiler
-	Make/N=(DimSize(w3d,2))/FREE retWave = 0
-	variable nrows =DimSize(w3d, 0), i
-	variable ncols =DimSize(w3d, 1), j
-	for(i = 0; i < nrows; i++)
-		for(j = 0; j < ncols; j++)
-			if(wMask[i][j] > 0)
-				retWave += w3d[i][j][p]
-			endif
-		endfor
-	endfor
-	return retWave
-End
-
-
-static Function MXP_MakeWaveWithMaskCoordinates(DFREF dfr, WAVE wMask) // Not used 
-	// wMask should have 0 and 1 only, otherwise the wave dimensions of mxpBeamCoordinates will be wrong.
-	WaveStats/Q/M=1 wMask
-	variable ntot = V_Sum
-	Make/O/N=(ntot, 2) dfr:mxpBeamCoordinates	/WAVE=wRef
-	variable nrows =DimSize(wMask, 0), i
-	variable ncols =DimSize(wMask, 1), j
-	variable cnt = 0
-	for(i = 0; i < nrows; i++)
-		for(j = 0; j < ncols; j++)
-			if(wMask[i][j] > 0) 
-				wRef[cnt][0] = i // p
-				wRef[cnt][1] = j // q
-				cnt++
-			endif
-		endfor
-	endfor
-	if (cnt > ntot)
-		Abort "Check MXP_MakeWaveWithMaskCoordinates, critical error!"
-	endif
-End
-
-static Function/WAVE MXP_WAVESumBeamsFromWave(WAVE w3d, WAVE wROI) // Not used
-	Make/FREE/O/N=(DimSize(w3d,2)) waveProfile = 0
-	variable nrows =DimSize(wROI, 0), i //wROI: Make/O/N=(ntot, 2) dfr:mxpBeamCoordinates	/WAVE=wRef
-
-	for(i = 0; i < nrows; i++)
-		MatrixOP/O/FREE beamFree = beam(w3d, wROI[i][0], wROI[i][1])
-		waveProfile += beamFree
-	endfor
-	return waveProfile
-End
+// Alternative to MatrixOP in Window Hook function, currently (01.12.2022) disabled.
+// ---------------------------------------------------------------------------------
+//static Function/WAVE MXP_WAVESumOverBeamsMasked(Wave w3d, Wave wMask)
+//	// No consistency checks here, we want to be fast and efficient
+//	// as the function is called in the MXP_CursorHookFunctionBeamProfiler
+//	Make/N=(DimSize(w3d,2))/FREE retWave = 0
+//	variable nrows =DimSize(w3d, 0), i
+//	variable ncols =DimSize(w3d, 1), j
+//	for(i = 0; i < nrows; i++)
+//		for(j = 0; j < ncols; j++)
+//			if(wMask[i][j] > 0)
+//				retWave += w3d[i][j][p]
+//			endif
+//		endfor
+//	endfor
+//	return retWave
+//End
+//
+//
+//static Function MXP_MakeWaveWithMaskCoordinates(DFREF dfr, WAVE wMask) // Not used 
+//	// wMask should have 0 and 1 only, otherwise the wave dimensions of mxpBeamCoordinates will be wrong.
+//	WaveStats/Q/M=1 wMask
+//	variable ntot = V_Sum
+//	Make/O/N=(ntot, 2) dfr:mxpBeamCoordinates	/WAVE=wRef
+//	variable nrows =DimSize(wMask, 0), i
+//	variable ncols =DimSize(wMask, 1), j
+//	variable cnt = 0
+//	for(i = 0; i < nrows; i++)
+//		for(j = 0; j < ncols; j++)
+//			if(wMask[i][j] > 0) 
+//				wRef[cnt][0] = i // p
+//				wRef[cnt][1] = j // q
+//				cnt++
+//			endif
+//		endfor
+//	endfor
+//	if (cnt > ntot)
+//		Abort "Check MXP_MakeWaveWithMaskCoordinates, critical error!"
+//	endif
+//End
+//
+//static Function/WAVE MXP_WAVESumBeamsFromWave(WAVE w3d, WAVE wROI) // Not used
+//	Make/FREE/O/N=(DimSize(w3d,2)) waveProfile = 0
+//	variable nrows =DimSize(wROI, 0), i //wROI: Make/O/N=(ntot, 2) dfr:mxpBeamCoordinates	/WAVE=wRef
+//
+//	for(i = 0; i < nrows; i++)
+//		MatrixOP/O/FREE beamFree = beam(w3d, wROI[i][0], wROI[i][1])
+//		waveProfile += beamFree
+//	endfor
+//	return waveProfile
+//End

@@ -29,6 +29,19 @@ Function MXP_CalculateXMCD(WAVE w1, WAVE w2, string wxmcdStr)
 	wref = (w1 - w2)/(w1 + w2)
 End
 
+Function MXP_CalculateXMCDToWaveRef(WAVE w1, WAVE w2, WAVE wXMCD)
+	/// Calculate XMCD/XMLD of two images and save it to 
+	/// @param w1 WAVE Wave 1
+	/// @param w2 WAVE Wave 2
+	/// @param wXMCD WAVE Calculated XMCD/XMLD wave 
+	
+	if(!(WaveType(w1) & 0x02 && WaveType(w2) & 0x02))
+		Redimension/S w1, w2
+	endif
+
+	wXMCD = (w1 - w2)/(w1 + w2)
+End
+
 Function MXP_CalculateXMCD3D(WAVE w3d)
 	/// Calculate XMCD/XMLD of two images in a 3d wave
 End
