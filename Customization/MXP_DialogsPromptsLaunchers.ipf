@@ -419,6 +419,70 @@ Function MXP_LaunchNewImageFromBrowserSelection()
 	while (strlen(GetBrowserSelection(i)))
 End
 
+// -------
+
+Function MXP_LaunchNormalisationStackWithImage()
+		
+	if(MXP_CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
+		Abort "Please select an image stack (3d wave)"
+	endif
+	string wave3dStr = StringFromList(0, GetBrowserSelection(0))
+	WAVE w3dRef = $wave3dStr
+	string imageNameStr = StringFromList(0, MXP_SelectWavesInModalDataBrowser("Select an image (2d wave) for normalisation"))
+	WAVE imageWaveRef = $imageNameStr
+	// consistency check
+	if((DimSize(w3dRef, 0) != DimSize(imageWaveRef, 0)) || (DimSize(w3dRef, 1) != DimSize(imageWaveRef, 1)))
+		string msg
+		sprintf msg, "Number of rows or columns in *%s* is different from *%s*. " +\
+					 " Aborting operation.", NameOfWave(w3dRef), NameOfWave(imageWaveRef)
+		Abort msg
+	endif
+	MXP_Normalise3DWaveWith2DWave(w3dRef, imageWaveRef)
+End
+
+Function MXP_LaunchNormalisationStackWithProfile()
+	
+	if(MXP_CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
+		Abort "Please select an image stack (3d wave)"
+	endif
+	string wave3dStr = StringFromList(0, GetBrowserSelection(0))
+	WAVE w3dRef = $wave3dStr
+	string selectProfileStr = StringFromList(0, MXP_SelectWavesInModalDataBrowser("Select a profile (1d wave) for normalisation"))
+	WAVE profWaveRef = $selectProfileStr
+	// consistency check
+	if(DimSize(w3dRef, 2) != DimSize(profWaveRef, 0))
+		string msg
+		sprintf msg, "Number of layers in *%s* is different from number of points in *%s*.  Normalisation " +\
+					 " after the last point will use *%s*'s last value.\n" +\
+					 "Would you like to continue anyway?", NameOfWave(w3dRef), NameOfWave(profWaveRef), NameOfWave(profWaveRef)
+		DoAlert/T="MAXPEEM would like you to make an informed decision", 1, msg
+		if (V_flag == 2 || V_flag == 3)
+			return -1
+		endif
+	endif
+	MXP_Normalise3DWaveWithProfile(w3dRef, profWaveRef)
+End
+
+Function MXP_LaunchNormalisationStackWithStack()
+
+	if(MXP_CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
+		Abort "Please select an image stack (3d wave)"
+	endif
+	string wave3d1Str = StringFromList(0, GetBrowserSelection(0))
+	WAVE w3d1Ref = $wave3d1Str
+	string wave3d2Str = StringFromList(0, MXP_SelectWavesInModalDataBrowser("Select an image (2d wave) for normalisation"))
+	WAVE w3d2Ref = $wave3d2Str
+	// consistency check
+	if((DimSize(w3d1Ref, 0) != DimSize(w3d2Ref, 0)) || (DimSize(w3d1Ref, 1) != DimSize(w3d2Ref, 1)) \
+	|| (DimSize(w3d1Ref, 2) != DimSize(w3d2Ref, 2)))
+		string msg
+		sprintf msg, "Number of rows, columns or layers in *%s* is different from *%s*. " +\
+					 " Aborting operation.", NameOfWave(w3d1Ref), NameOfWave(w3d2Ref)
+		Abort msg
+	endif
+	MXP_Normalise3DWaveWith3DWave(w3d1Ref, w3d2Ref)
+End
+
 // Dialogs
 Function/S MXP_GenericSinglePopupStrPrompt(string strPrompt, string popupStrSelection, string msgDialog)
 	string returnStrVar 

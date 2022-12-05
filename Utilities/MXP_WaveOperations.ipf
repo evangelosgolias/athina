@@ -83,14 +83,14 @@ Function MXP_Make3DWaveDataBrowserSelection(string wname3d)
 	WAVE wref = $wname
 	variable nx = DimSize(wref,0)
 	variable ny = DimSize(wref,1)
-	
-	if(WaveType(wref) & 2) // 32-bit float
+	// TODO: Change here with ImageTransform stackImages
+	if(WaveType(wref) == 2) // 32-bit float
 		Make/I/N = (nx, ny, nrwaves) $wname3d
-	elseif(WaveType(wref) & 2^2) // 64-bit float
+	elseif(WaveType(wref) == 4) // 64-bit float
 		Make/D/N = (nx, ny, nrwaves) $wname3d
-	elseif(WaveType(wref) & 2^4 && !(WaveType(wref) & 2^6)) // 16-bit integer signed
+	elseif(WaveType(wref) == 16) // 16-bit integer signed
 		Make/W/N = (nx, ny, nrwaves) $wname3d
-	elseif(WaveType(wref) & 2^4 && (WaveType(wref) & 2^6)) // 16-bit integer unsigned
+	elseif(WaveType(wref) == 80) // 16-bit integer unsigned
 		Make/W/U/N = (nx, ny, nrwaves) $wname3d
 	else
 		Make/N = (nx, ny, nrwaves) $wname3d //default
@@ -223,46 +223,49 @@ Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, variable startP, variable endP, 
 	return wFreeRef
 End
 
-Function MXP_ZapNaNsWithValue(WAVE w)
-	variable nlayers = DimSize(w, 2)
-	variable ncols = DimSize(w, 1)
-	if(nlayers)
-		Multithread w = (numtype(w[p][q][r]) == 2) ? 0: w
-	elseif(ncols && !nlayers)
-		w = (numtype(w[p][q]) == 2) ? 0: w 
-	else
-		w = (numtype(w[p]) == 2) ? 0: w 
-	endif
-	
+Function MXP_ZapNaNAndInfWithValue(WAVE waveRef, variable val)
+	//numtype = 1, 2 for NaN, Inf
+	waveRef= (numtype(waveRef)) ? val : waveRef
 End
 
+Function MXP_Normalise3DWaveWith2DWave(WAVE w3dRef, WAVE w2dRef)
+	// If you have 16-bit waves then Redimension/S to SP
+	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
+		Redimension/S w3dRef
+	endif
+	if(WaveType(w2dRef) == 80 || WaveType(w2dRef) == 16)
+		Redimension/S w2dRef
+	endif
+	string normWaveStr = NameOfWave(w3dRef) + "_norm"
+	MatrixOP/O $normWaveStr = w3dRef / w2dRef
+End
+
+Function MXP_Normalise3DWaveWith3DWave(WAVE w3dRef1, WAVE w3dRef2)
+	// If you have 16-bit waves then Redimension/S to SP
+	if(WaveType(w3dRef1) == 80 || WaveType(w3dRef1) == 16)
+		Redimension/S w3dRef1
+	endif
+	if(WaveType(w3dRef2) == 80 || WaveType(w3dRef2) == 16)
+		Redimension/S w3dRef2
+	endif
+	string normWaveStr = NameOfWave(w3dRef1) + "_norm"
+	MatrixOP/O $normWaveStr = w3dRef1 / w3dRef2
+End
 
 Function MXP_Normalise3DWaveWithProfile(WAVE w3dRef, WAVE profWaveRef)
 	// Normalise a 3d wave (stack) with a line profile (1d wave) along the z direction
-	
-	// consistency check
-	if(DimSize(w3dRef, 2) != DimSize(profWaveRef, 0))
-		string msg
-		sprintf msg, "Number of layers in *%s* is different from number of points in *%s*.  Normalisation " +\
-					 " after the last point will use *%s*'s last value.\n" +\
-					 "Would you like to continue anyway?", NameOfWave(w3dRef), NameOfWave(profWaveRef), NameOfWave(profWaveRef)
-		DoAlert/T="MAXPEEM would like you to make an informed decision", 1, msg
-		if (V_flag == 2 || V_flag == 3)
-			return -1
-		endif
-	endif
 	w3dRef /= profWaveRef[r]
 	return 0
 End
 
-Function MXP_NormaliseWaveWithProfile(WAVE wRef, WAVE profWaveRef)
+Function MXP_NormaliseWaveWithWave(WAVE wRef1, WAVE wRef2)
 	/// Normalise a wave with another
 	// consistency check
-	if(DimSize(wRef, 0) != DimSize(profWaveRef, 0))
-		printf "numpoints(%s) != numpoints(%s) \n", NameOfWave(wRef), NameOfWave(profWaveRef)
+	if(DimSize(wRef1, 0) != DimSize(wRef2, 0))
+		printf "numpoints(%s) != numpoints(%s) \n", NameOfWave(wRef1), NameOfWave(wRef2)
 		return -1
 	endif
-	wRef /= profWaveRef
+	wRef1 /= wRef2
 	return 0
 End
 

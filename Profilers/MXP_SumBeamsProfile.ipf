@@ -8,6 +8,8 @@
 
 /// Profiler can now have several instances.
 
+// TODO: Check if you have DoWindow/F for actions on graphs/panels. Use /W=Name instead.
+
 Function MXP_MainMenuLaunchZBeamProfiler()
 
 	// Create the modal data browser but do not display it
@@ -27,6 +29,13 @@ Function MXP_MainMenuLaunchZBeamProfiler()
 	// User selected a wave, check if it's 3d
 	string browserSelection = StringFromList(0, S_BrowserList)
 	WAVE w3dref = $browserSelection
+	// When plotting waves from calculations we might have NaNs or Infs.
+	// Remove them before starting and replace them with zeros
+	Wavestats/M=1/Q w3dref
+	if(V_numNaNs || V_numInfs)
+		printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
+		w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
+	endif
 	if(exists(browserSelection) && WaveDims(w3dref) == 3) // if it is a 3d wave
 		NewImage/K=1 w3dref
 		ModifyGraph width={Plan,1,top,left}
@@ -37,7 +46,6 @@ Function MXP_MainMenuLaunchZBeamProfiler()
 		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_ZProfPanel_" + winNameStr // Name of the panel we will make, used to send the kill signal to the panel
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
-
 	else
 		Abort "z-profiler needs a 3d wave. N.B Select only one wave"
 	endif
@@ -52,6 +60,13 @@ Function MXP_TraceMenuLaunchZBeamProfiler() // Trace menu launcher, inactive
 
 	if(WaveDims(w3dref) == 3) // if it is a 3d wave
 		KillWindow $winNameStr
+		// When plotting waves from calculations we might have NaNs or Infs.
+		// Remove them before starting and replace them with zeros
+		Wavestats/M=1/Q w3dref
+		if(V_numNaNs || V_numInfs)
+			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
+			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
+		endif
 		NewImage/K=1 w3dref
 		winNameStr = WinName(0, 1, 1)
 		ModifyGraph width={Plan,1,top,left}
@@ -74,6 +89,13 @@ Function MXP_BrowserMenuLaunchZBeamProfiler() // Browser menu launcher, active
 	 && MXP_CountSelectedWavesInDataBrowser() == 1) // If we selected a single 3D wave		
 	 	string selected3DWaveStr = GetBrowserSelection(0)
 		WAVE w3dRef = $selected3DWaveStr
+		// When plotting waves from calculations we might have NaNs or Infs.
+		// Remove them before starting and replace them with zeros
+		Wavestats/M=1/Q w3dref
+		if(V_numNaNs || V_numInfs)
+			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
+			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
+		endif
 		NewImage/K=1 w3dRef
 		string winNameStr = WinName(0, 1, 1)
 		ModifyGraph width={Plan,1,top,left}
@@ -167,8 +189,6 @@ Function MXP_DrawROIAndWaitHookToAct() // Function used by the hook
 	gMXP_right = V_right
 	gMXP_top = V_top
 	gMXP_bottom = V_bottom
-	// Have you closed the Z profiler window? If yes relaunch it.
-	//MXP_InitialiseZProfilerGraph() // Add this here?
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	DrawOval gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
@@ -190,6 +210,50 @@ Function MXP_ClearROIMarkings()
 	SetDrawLayer UserFront
 	DrawAction delete
 	SetDrawLayer ProgFront
+	return 0
+End
+
+Function MXP_InitialiseZProfilerGraph(DFREF dfr)
+	/// Here we will create the profile panel and graph and plot the profile
+	string panelNameStr = "MXP_ZProf_" + GetDataFolder(0, dfr)
+	if (WinType(panelNameStr) == 0) // line profile window is not displayed
+		MXP_CreateZProfilePanel(dfr)
+	else
+		DoWindow/F $panelNameStr // if it is bring it to the FG
+	endif
+	return 0
+End
+
+Function MXP_CreateZProfilePanel(DFREF dfr)
+	string rootFolderStr = GetDataFolder(1, dfr)
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(rootFolderStr)
+	SVAR/Z/SDFR=dfr gMXP_LineProfileWaveStr
+	SVAR/Z/SDFR=dfr gMXP_WindowNameStr 
+	if(!SVAR_Exists(gMXP_LineProfileWaveStr))
+		Abort "Launch z-profiler from the MAXPEEM > Plot menu and then use the 'Oval ROI z profile' Marquee Operation."
+	endif
+	string profilePanelStr = "MXP_ZProfPanel_" + gMXP_WindowNameStr 
+	NewPanel/N=$profilePanelStr /W=(580,53,995,316) // Linked to MXP_InitialiseZProfilerGraph()
+	SetWindow $profilePanelStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
+	SetWindow $profilePanelStr userdata(MXP_targetGraphWin) = "MXP_AreaProf_" + gMXP_WindowNameStr
+	ModifyPanel cbRGB=(61166,61166,61166), frameStyle=3
+	SetDrawLayer UserBack
+	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveZProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
+	CheckBox ShowProfile, pos={150.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ZProfilePanelCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 0
+	CheckBox ShowSelectedAread, pos={270.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ZProfilePanelCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 0
+	WAVE profile = dfr:$gMXP_LineProfileWaveStr
+	if (WaveExists(profile))
+		Display/N=MXP_ZLineProfilesPlot/W=(15,38,391,236)/HOST=# profile
+		ModifyGraph rgb=(1,12815,52428), tick(left)=2, fSize=12, lsize=1.5
+		Label left "\\u#2 Intensity (arb. u.)";DelayUpdate
+		Label bottom "\\u#2 Energy (eV)"
+		AutoPositionWindow/E/M=0/R=$gMXP_WindowNameStr
+
+	else
+		Abort "Unknown error!"
+	endif
+
+	SetDrawLayer UserFront
 	return 0
 End
 
@@ -247,14 +311,14 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStr // Here we need name of a wave, not a wave reference!
 				if(WaveExists(M_ROIMask))
 					MatrixOP/FREE/O/NTHR=4 buffer = sum(w3d*M_ROIMask) // Use two threads
-		   		 	MatrixOP/O profile = beam(buffer,0,0) 
+		   		 	MatrixOP/O profile = beam(buffer,0,0)
 		    			gMXP_left = -axisxlen * 0.5 + s.pointNumber * dx
 					gMXP_right = axisxlen * 0.5 + s.pointNumber * dx
 					gMXP_top = axisylen * 0.5 + s.yPointNumber * dy
 					gMXP_bottom = -(axisylen * 0.5) + s.yPointNumber * dy
 		    		endif
 		    endif
-		    hookresult = 1	// TODO: Return 0 here, i.e delete line?
+		    hookresult = 1
 	 		break
 	 	case 8: // We have a Window modification eveny
 	 		if(mouseTrackV < 0) // mouse outside of plot area
@@ -271,47 +335,6 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
     return hookResult       // If non-zero, we handled event and Igor will ignore it.
 End
 
-Function MXP_InitialiseZProfilerGraph(DFREF dfr)
-	/// Here we will create the profile panel and graph and plot the profile
-	string panelNameStr = "MXP_ZProf_" + GetDataFolder(0, dfr)
-	if (WinType(panelNameStr) == 0) // line profile window is not displayed
-		MXP_CreateZProfilePanel(dfr)
-	else
-		DoWindow/F $panelNameStr // if it is bring it to the FG
-	endif
-	return 0
-End
-
-Function MXP_CreateZProfilePanel(DFREF dfr)
-	string rootFolderStr = GetDataFolder(1, dfr)
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(rootFolderStr)
-	SVAR/Z/SDFR=dfr gMXP_LineProfileWaveStr
-	SVAR/Z/SDFR=dfr gMXP_WindowNameStr 
-	if(!SVAR_Exists(gMXP_LineProfileWaveStr))
-		Abort "Launch z-profiler from the MAXPEEM > Plot menu and then use the 'Oval ROI z profile' Marquee Operation."
-	endif
-	string profilePanelStr = "MXP_ZProfPanel_" + gMXP_WindowNameStr 
-	NewPanel/N=$profilePanelStr /W=(580,53,995,316) // Linked to MXP_InitialiseZProfilerGraph()
-	SetWindow $profilePanelStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
-	SetWindow $profilePanelStr userdata(MXP_targetGraphWin) = "MXP_AreaProf_" + gMXP_WindowNameStr
-	ModifyPanel cbRGB=(61166,61166,61166), frameStyle=3
-	SetDrawLayer UserBack
-	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveZProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
-	CheckBox ShowProfile, pos={150.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ZProfilePanelCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 0
-	CheckBox ShowSelectedAread, pos={270.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ZProfilePanelCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 0
-	Wave profile = dfr:$gMXP_LineProfileWaveStr
-	if (WaveExists(profile))
-		Display/N=MXP_ZLineProfilesPlot/W=(15,38,391,236)/HOST=#  profile
-		ModifyGraph rgb=(1,12815,52428), tick(left)=2, fSize=12, lsize=1.5
-		Label left "\\u#2 Intensity (arb. u.)";DelayUpdate
-		Label bottom "\\u#2 Energy (eV)"
-	else
-		Abort "Unknown error!"
-	endif
-
-	SetDrawLayer UserFront
-	return 0
-End
 
 Function MXP_SaveZProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 

@@ -154,7 +154,7 @@ Function MXP_OperationsOnGraphTracesWithMarquee(variable left, variable right, v
 					launchBrowserSwitch = 0
 				endif
 				
-				MXP_NormaliseWaveWithProfile(wRef, waveProf)
+				MXP_NormaliseWaveWithWave(wRef, waveProf)
 				
 				break
 			default:

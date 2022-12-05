@@ -66,6 +66,11 @@ Menu "DataBrowserObjectsPopup"
 	"MXP Line profile", MXP_BrowserMenuLaunchLineProfiler()
 	"MXP Average stack",  MXP_LaunchAverageStackToImageFromBrowserMenu()
 	"MXP Make stack", MXP_LaunchMake3DWaveDataBrowserSelection()
+	Submenu "MXP Normalise"
+		"Stack with image", MXP_LaunchNormalisationStackWithImage()
+		"Stack with profile", MXP_LaunchNormalisationStackWithProfile()
+		"Stack with stack", MXP_LaunchNormalisationStackWithStack()
+	End
 End
 
 Menu "TracePopup"
