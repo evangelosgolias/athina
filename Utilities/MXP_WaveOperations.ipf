@@ -268,8 +268,13 @@ Function MXP_Normalise3DWaveWithProfile(WAVE w3dRef, WAVE profWaveRef)
 	if(nlayers != npnts)
 		Duplicate/O/FREE profWaveRef, profWaveRefFREE
 		Redimension/N=(1, 1, nlayers) profWaveRefFREE
-		profWaveRefFREE[0][0][npnts,] = profWaveRef[npnts-1]
-		MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
+		if(nlayers > npnts)
+			profWaveRefFREE[0][0][npnts,] = profWaveRef[npnts-1]
+			MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
+		else
+			profWaveRefFREE = profWaveRef[r]
+			MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
+		endif
 		return 0
 	else 
 		Duplicate/O/FREE profWaveRef, profWaveRefFREE
