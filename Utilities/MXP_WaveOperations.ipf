@@ -254,8 +254,29 @@ End
 
 Function MXP_Normalise3DWaveWithProfile(WAVE w3dRef, WAVE profWaveRef)
 	// Normalise a 3d wave (stack) with a line profile (1d wave) along the z direction
-	w3dRef /= profWaveRef[r]
-	return 0
+	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
+		Redimension/S w3dRef
+	endif
+	if(WaveType(profWaveRef) == 80 || WaveType(profWaveRef) == 16)
+		Redimension/S profWaveRef
+	endif
+		
+	string normWaveStr = NameOfWave(w3dRef) + "_norm"
+	variable nlayers = DimSize(w3dRef, 2) 
+	variable npnts = DimSize(profWaveRef, 0)
+	
+	if(nlayers != npnts)
+		Duplicate/O profWaveRef, profWaveRefFREE
+		Redimension/N=(1, 1, nlayers) profWaveRefFREE
+		profWaveRefFREE[0][0][npnts,] = profWaveRef[npnts-1]
+		MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
+		return 0
+	else 
+		Duplicate/O/FREE profWaveRef, profWaveRefFREE
+		Redimension/N=(1, 1, nlayers) profWaveRefFREE
+		MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
+		return 0
+	endif
 End
 
 Function MXP_NormaliseWaveWithWave(WAVE wRef1, WAVE wRef2)

@@ -431,10 +431,12 @@ Function MXP_LaunchNormalisationStackWithImage()
 	string imageNameStr = StringFromList(0, MXP_SelectWavesInModalDataBrowser("Select an image (2d wave) for normalisation"))
 	WAVE imageWaveRef = $imageNameStr
 	// consistency check
-	if((DimSize(w3dRef, 0) != DimSize(imageWaveRef, 0)) || (DimSize(w3dRef, 1) != DimSize(imageWaveRef, 1)))
+	if((DimSize(w3dRef, 0) != DimSize(imageWaveRef, 0)) || (DimSize(w3dRef, 1) != DimSize(imageWaveRef, 1)) ||\
+		WaveDims(imageWaveRef) != 2 )
 		string msg
-		sprintf msg, "Number of rows or columns in *%s* is different from *%s*. " +\
-					 " Aborting operation.", NameOfWave(w3dRef), NameOfWave(imageWaveRef)
+		sprintf msg, "Number of rows or columns in *%s* is different from *%s*, " +\
+					 "or you did not select an image (2d wave).\n" +\
+					 "Aborting operation.", NameOfWave(w3dRef), NameOfWave(imageWaveRef)
 		Abort msg
 	endif
 	MXP_Normalise3DWaveWith2DWave(w3dRef, imageWaveRef)
@@ -450,11 +452,12 @@ Function MXP_LaunchNormalisationStackWithProfile()
 	string selectProfileStr = StringFromList(0, MXP_SelectWavesInModalDataBrowser("Select a profile (1d wave) for normalisation"))
 	WAVE profWaveRef = $selectProfileStr
 	// consistency check
-	if(DimSize(w3dRef, 2) != DimSize(profWaveRef, 0))
+	variable nlayers = DimSize(w3dRef, 2) 
+	variable npnts = DimSize(profWaveRef, 0)
+	if(nlayers != npnts)
 		string msg
-		sprintf msg, "Number of layers in *%s* is different from number of points in *%s*.  Normalisation " +\
-					 " after the last point will use *%s*'s last value.\n" +\
-					 "Would you like to continue anyway?", NameOfWave(w3dRef), NameOfWave(profWaveRef), NameOfWave(profWaveRef)
+		sprintf msg, "Number of layers in *%s* is different from number of points in *%s*.\n" +\
+					 "Would you like to continue anyway?", NameOfWave(w3dRef), NameOfWave(profWaveRef)
 		DoAlert/T="MAXPEEM would like you to make an informed decision", 1, msg
 		if (V_flag == 2 || V_flag == 3)
 			return -1
@@ -470,17 +473,44 @@ Function MXP_LaunchNormalisationStackWithStack()
 	endif
 	string wave3d1Str = StringFromList(0, GetBrowserSelection(0))
 	WAVE w3d1Ref = $wave3d1Str
-	string wave3d2Str = StringFromList(0, MXP_SelectWavesInModalDataBrowser("Select an image (2d wave) for normalisation"))
+	string wave3d2Str = StringFromList(0, MXP_SelectWavesInModalDataBrowser("Select an image stack (3d wave) for normalisation"))
 	WAVE w3d2Ref = $wave3d2Str
+	if(WaveDims(w3d2Ref) != 3)
+		Abort "You have to select an image stack (3d wave)"
+	endif
 	// consistency check
-	if((DimSize(w3d1Ref, 0) != DimSize(w3d2Ref, 0)) || (DimSize(w3d1Ref, 1) != DimSize(w3d2Ref, 1)) \
-	|| (DimSize(w3d1Ref, 2) != DimSize(w3d2Ref, 2)))
+	if((DimSize(w3d1Ref, 0) != DimSize(w3d2Ref, 0)) || (DimSize(w3d1Ref, 1) != DimSize(w3d2Ref, 1)))
 		string msg
-		sprintf msg, "Number of rows, columns or layers in *%s* is different from *%s*. " +\
+		sprintf msg, "Number of rows or columns in *%s* is different from *%s*. " +\
 					 " Aborting operation.", NameOfWave(w3d1Ref), NameOfWave(w3d2Ref)
 		Abort msg
 	endif
-	MXP_Normalise3DWaveWith3DWave(w3d1Ref, w3d2Ref)
+	// Select how many layers would you like to use for normalisation
+	string promptStr = "0 : Use first layer (default if nothing set)\nn1-n2 : Use  n1, ..., n2 layers (average), \n-1 : Layer by layer in 3d waves (in case of layer number"+\
+					   " operation will continue based on defaults of Igor pro)\n" +\
+					   " NB: zero-based layer indexing."
+	string inputStr = MXP_GenericSingleStrPrompt(promptStr, "How many layers would you like to use for Normalisation?")
+	string rangeStr = MXP_StrExpandRange(inputStr)
+	string normWaveStr = wave3d1Str + "_norm"
+	variable nLayer, minLayer, maxLayer, totLayers
+	if(!strlen(inputStr) || (ItemsInList(rangeStr) == 1 && !cmpstr(StringFromList(0, rangeStr), "0")))
+		nLayer = str2num(StringFromList(0, rangeStr))
+		MatrixOP/O/FREE normLayerFree= layer(w3d2Ref, 0)
+		normWaveStr = wave3d1Str + "_norm"
+		MatrixOP/O $normWaveStr = w3d1Ref/normLayerFree
+	elseif(ItemsInList(rangeStr) == 1 && !cmpstr(StringFromList(0, rangeStr), "-1"))
+		MatrixOP/O $normWaveStr = w3d1Ref/w3d2Ref
+	else
+		totLayers = ItemsInList(rangeStr)
+		minLayer = str2num(StringFromList(0,rangeStr))
+		maxLayer = str2num(StringFromList(totLayers-1,rangeStr))
+		if(minLayer < 0 || maxLayer > totLayers - 1)
+		endif
+		MatrixOP/O/FREE getWaveLayersFree = w3d2Ref[][][minLayer, maxLayer]
+		MatrixOP/O normLayerFree = sumBeams(getWaveLayersFree)/(maxLayer - minlayer + 1) 
+		MatrixOP/O $normWaveStr = w3d1Ref / normLayerFree
+	endif
+	
 End
 
 // Dialogs
