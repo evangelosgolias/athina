@@ -507,7 +507,7 @@ Function MXP_LaunchNormalisationStackWithStack()
 		if(minLayer < 0 || maxLayer > totLayers - 1)
 		endif
 		MatrixOP/O/FREE getWaveLayersFree = w3d2Ref[][][minLayer, maxLayer]
-		MatrixOP/O normLayerFree = sumBeams(getWaveLayersFree)/(maxLayer - minlayer + 1) 
+		MatrixOP/O/FREE normLayerFree = sumBeams(getWaveLayersFree)/(maxLayer - minlayer + 1) 
 		MatrixOP/O $normWaveStr = w3d1Ref / normLayerFree
 	endif
 	
