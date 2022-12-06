@@ -53,25 +53,86 @@ Function MXP_Wave2RGBImage(WAVE wRef)
 	Rename M_RGBOut, $newnameStr
 End
 
-Function MXP_NormaliseImageStackWithProfile()
+Function MXP_NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
+	// If you have 16-bit waves then Redimension/S to SP
+	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
+		Redimension/S w3dRef
+	endif
+	if(WaveType(w2dRef) == 80 || WaveType(w2dRef) == 16)
+		Redimension/S w2dRef
+	endif
+	string normWaveStr = NameOfWave(w3dRef) + "_norm"
+	MatrixOP/O $normWaveStr = w3dRef / w2dRef
+End
+
+Function MXP_NormaliseImageStackWithImageStack(WAVE w3dRef1, WAVE w3dRef2)
+	// If you have 16-bit waves then Redimension/S to SP
+	if(WaveType(w3dRef1) == 80 || WaveType(w3dRef1) == 16)
+		Redimension/S w3dRef1
+	endif
+	if(WaveType(w3dRef2) == 80 || WaveType(w3dRef2) == 16)
+		Redimension/S w3dRef2
+	endif
+	string normWaveStr = NameOfWave(w3dRef1) + "_norm"
+	MatrixOP/O $normWaveStr = w3dRef1 / w3dRef2
+End
+
+Function MXP_NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
+	// Normalise a 3d wave (stack) with a line profile (1d wave) along the layer (z) direction
+	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
+		Redimension/S w3dRef
+	endif
+	if(WaveType(profWaveRef) == 80 || WaveType(profWaveRef) == 16)
+		Redimension/S profWaveRef
+	endif
+		
+	string normWaveStr = NameOfWave(w3dRef) + "_norm"
+	variable nlayers = DimSize(w3dRef, 2) 
+	variable npnts = DimSize(profWaveRef, 0)
+	
+	if(nlayers != npnts)
+		Duplicate/O/FREE profWaveRef, profWaveRefFREE
+		Redimension/N=(1, 1, nlayers) profWaveRefFREE
+		if(nlayers > npnts)
+			profWaveRefFREE[0][0][npnts,] = profWaveRef[npnts-1]
+			MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
+		else
+			profWaveRefFREE = profWaveRef[r]
+			MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
+		endif
+		return 0
+	else 
+		Duplicate/O/FREE profWaveRef, profWaveRefFREE
+		Redimension/N=(1, 1, nlayers) profWaveRefFREE
+		MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
+		return 0
+	endif
+End
+
+Function MXP_GetLayerFromImageStack()
+	
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	WAVE w3d = ImageNameToWaveRef(winNameStr, imgNameTopGraphStr)
-	// Normalisation does not work if the image stack is Uint16.
-	// Check if this is the case and Redimension/S the 3D wave
-	if(WaveDims(w3d) != 3)
-		print "Operation needs a image stack (3d wave) in top graph!"
-		return -1
+	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	string msg
+	NVAR gLayer = root:Packages:WM3DImageSlider:$(winNameStr):gLayer	
+	if(NVAR_Exists(gLayer) && WaveDims(w3dref) == 3)
+		string layerSaveStr = imgNameTopGraphStr + "_layer_" + num2str(gLayer)
+		MatrixOP/O $layerSaveStr = layer(w3dref, gLayer)
+		sprintf msg, "Slice %d from wave %s", gLayer, imgNameTopGraphStr
+		Note $layerSaveStr, msg
+	else
+		Abort "Operation needs a stack (3d wave) with a slider activated"
 	endif
-	
-	if(WaveType(w3d) == 80) // if UInt16 (0x50)
-		Redimension/S w3d
+End
+
+Function MXP_StackImageToImageStack(WAVE w3dref, WAVE w2dRef)
+	if((DimSize(w3dref, 0) == DimSize(w2dRef, 0)) && DimSize(w3dref, 1) == DimSize(w2dRef, 1))
+		variable lastLayerNr = DimSize(w3dRef, 2)
+		if(lastLayerNr)
+			ImageTransform/O/INSW=w2dref/P=(lastLayerNr) insertZplane w3dRef
+		endif
+	else
+		Abort "Image and stack must have the same lateral dimensions."
 	endif
-	
-	// Select the profile wave from browser
-	string selectedWavesStr = MXP_SelectWavesInModalDataBrowser("Select profile to normalise image stack")
-	string profileWaveStr = StringFromList(0, selectedWavesStr)
-	WAVE profWave = $profileWaveStr
-	MXP_Normalise3DWaveWithProfile(w3d, profWave)
-	return 0
 End

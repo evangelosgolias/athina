@@ -67,9 +67,9 @@ Menu "DataBrowserObjectsPopup"
 	"MXP Average stack",  MXP_LaunchAverageStackToImageFromBrowserMenu()
 	"MXP Make stack", MXP_LaunchMake3DWaveDataBrowserSelection()
 	Submenu "MXP Normalise"
-		"Stack with image", MXP_LaunchNormalisationStackWithImage()
-		"Stack with profile", MXP_LaunchNormalisationStackWithProfile()
-		"Stack with stack", MXP_LaunchNormalisationStackWithStack()
+		"Stack with image", MXP_LaunchNormalisationImageStackWithImage()
+		"Stack with profile", MXP_LaunchNormalisationImageStackWithProfile()
+		"Stack with stack", MXP_LaunchNormalisationImageStackWithImageStack()
 	End
 End
 
@@ -77,10 +77,12 @@ Menu "TracePopup"
 	"-"
 	//"MXP line profile", MXP_TraceMenuLaunchLineProfiler()
 	//"MXP z profile", MXP_TraceMenuLaunchZBeamProfiler()
-	"MXP Scale Image", MXP_ScaleImage()
-	"MXP Normalise stack with profile", MXP_NormaliseImageStackWithProfile()
-	"MXP Select image to copy scales", MXP_ImageSelectToCopyScale()
+	//"MXP Normalise stack with profile", MXP_NormaliseImageStackWithProfile()
 	//"MXP Average stack",  MXP_LaunchAverageStackToImageFromTraceMenu()
+	"MXP Save layer", MXP_GetLayerFromImageStack()
+	"MXP Stack image", MXP_LaunchStackImageToImageStack()
+	"MXP Scale Image", MXP_ScaleImage()
+	"MXP Select image and copy scales", MXP_ImageSelectToCopyScale()
 	"MXP Calculate XMC(L)D", MXP_LaunchCalculateXMCDFromStack()
 	"MXP Draw Image Markups", MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
 	"MXP Clear UserFront layer", MXP_ClearROIMarkings()

@@ -228,62 +228,6 @@ Function MXP_ZapNaNAndInfWithValue(WAVE waveRef, variable val)
 	waveRef= (numtype(waveRef)) ? val : waveRef
 End
 
-Function MXP_Normalise3DWaveWith2DWave(WAVE w3dRef, WAVE w2dRef)
-	// If you have 16-bit waves then Redimension/S to SP
-	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
-		Redimension/S w3dRef
-	endif
-	if(WaveType(w2dRef) == 80 || WaveType(w2dRef) == 16)
-		Redimension/S w2dRef
-	endif
-	string normWaveStr = NameOfWave(w3dRef) + "_norm"
-	MatrixOP/O $normWaveStr = w3dRef / w2dRef
-End
-
-Function MXP_Normalise3DWaveWith3DWave(WAVE w3dRef1, WAVE w3dRef2)
-	// If you have 16-bit waves then Redimension/S to SP
-	if(WaveType(w3dRef1) == 80 || WaveType(w3dRef1) == 16)
-		Redimension/S w3dRef1
-	endif
-	if(WaveType(w3dRef2) == 80 || WaveType(w3dRef2) == 16)
-		Redimension/S w3dRef2
-	endif
-	string normWaveStr = NameOfWave(w3dRef1) + "_norm"
-	MatrixOP/O $normWaveStr = w3dRef1 / w3dRef2
-End
-
-Function MXP_Normalise3DWaveWithProfile(WAVE w3dRef, WAVE profWaveRef)
-	// Normalise a 3d wave (stack) with a line profile (1d wave) along the z direction
-	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
-		Redimension/S w3dRef
-	endif
-	if(WaveType(profWaveRef) == 80 || WaveType(profWaveRef) == 16)
-		Redimension/S profWaveRef
-	endif
-		
-	string normWaveStr = NameOfWave(w3dRef) + "_norm"
-	variable nlayers = DimSize(w3dRef, 2) 
-	variable npnts = DimSize(profWaveRef, 0)
-	
-	if(nlayers != npnts)
-		Duplicate/O/FREE profWaveRef, profWaveRefFREE
-		Redimension/N=(1, 1, nlayers) profWaveRefFREE
-		if(nlayers > npnts)
-			profWaveRefFREE[0][0][npnts,] = profWaveRef[npnts-1]
-			MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
-		else
-			profWaveRefFREE = profWaveRef[r]
-			MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
-		endif
-		return 0
-	else 
-		Duplicate/O/FREE profWaveRef, profWaveRefFREE
-		Redimension/N=(1, 1, nlayers) profWaveRefFREE
-		MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
-		return 0
-	endif
-End
-
 Function MXP_NormaliseWaveWithWave(WAVE wRef1, WAVE wRef2)
 	/// Normalise a wave with another
 	// consistency check

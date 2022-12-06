@@ -409,7 +409,7 @@ Function MXP_LaunchNewImageFromBrowserSelection()
 			endif
 		endif
 		
-		NewImage/K=1 $mxpImage
+		NewImage/G=1/K=1 $mxpImage
 		ModifyGraph width={Plan,1,top,left}
 		if(WaveDims($mxpImage)==3)
 			WMAppend3DImageSlider()
@@ -421,7 +421,7 @@ End
 
 // -------
 
-Function MXP_LaunchNormalisationStackWithImage()
+Function MXP_LaunchNormalisationImageStackWithImage()
 		
 	if(MXP_CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
 		Abort "Please select an image stack (3d wave)"
@@ -439,10 +439,10 @@ Function MXP_LaunchNormalisationStackWithImage()
 					 "Aborting operation.", NameOfWave(w3dRef), NameOfWave(imageWaveRef)
 		Abort msg
 	endif
-	MXP_Normalise3DWaveWith2DWave(w3dRef, imageWaveRef)
+	MXP_NormaliseImageStackWithImage(w3dRef, imageWaveRef)
 End
 
-Function MXP_LaunchNormalisationStackWithProfile()
+Function MXP_LaunchNormalisationImageStackWithProfile()
 	
 	if(MXP_CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
 		Abort "Please select an image stack (3d wave)"
@@ -463,10 +463,10 @@ Function MXP_LaunchNormalisationStackWithProfile()
 			return -1
 		endif
 	endif
-	MXP_Normalise3DWaveWithProfile(w3dRef, profWaveRef)
+	MXP_NormaliseImageStackWithProfile(w3dRef, profWaveRef)
 End
 
-Function MXP_LaunchNormalisationStackWithStack()
+Function MXP_LaunchNormalisationImageStackWithImageStack()
 
 	if(MXP_CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
 		Abort "Please select an image stack (3d wave)"
@@ -513,6 +513,21 @@ Function MXP_LaunchNormalisationStackWithStack()
 	
 End
 
+Function MXP_LaunchStackImageToImageStack()
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+
+	string selectImageStr = StringFromList(0, MXP_SelectWavesInModalDataBrowser("Select an image (2d wave) to add to stack"))
+	WAVE imageWaveRef = $selectImageStr
+	if(WaveDims(imageWaveRef) == 2)
+		MXP_StackImageToImageStack(w3dref, imageWaveRef)
+		KillWindow/Z $winNameStr
+		NewImage/G=1 w3dref
+		ModifyGraph width={Plan,1,top,left}
+		WMAppend3DImageSlider()
+	endif
+End
 // Dialogs
 Function/S MXP_GenericSinglePopupStrPrompt(string strPrompt, string popupStrSelection, string msgDialog)
 	string returnStrVar 
