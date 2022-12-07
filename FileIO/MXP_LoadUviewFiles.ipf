@@ -1028,7 +1028,7 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 	endif
 
 	if(stack3d)
-		ImageTransform stackImages $"MXPWaveToStack_idx_0"
+		ImageTransform/NP=(filesnr) stackImages $"MXPWaveToStack_idx_0"
 		WAVE M_Stack
 		//Add a note to the 3dwave about which files have been loaded
 		string note3d
