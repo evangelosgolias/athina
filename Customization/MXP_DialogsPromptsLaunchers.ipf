@@ -10,7 +10,8 @@ Function MXP_LaunchMake3DWaveUsingPattern()
 	MXP_Make3DWaveUsingPattern(wname3dStr, pattern)
 End
 
-Function MXP_LaunchMake3DWaveDataBrowserSelection()
+Function MXP_LaunchMake3DWaveDataBrowserSelection([variable displayStack])
+	displayStack = ParamIsDefault(displayStack) ? 0: displayStack // Give any non-zero to display the stack
 	string wname3dStr
 	wname3dStr = MXP_GenericSingleStrPrompt("Stack name", "Make a stack of pre-selected waves in data browser")
 	// if name in use by a global wave/variable 
@@ -19,6 +20,14 @@ Function MXP_LaunchMake3DWaveDataBrowserSelection()
 		wname3dStr += "_rn"
 	endif
 	MXP_Make3DWaveDataBrowserSelection(wname3dStr)
+	// Do you want to display the stack?
+	if(displayStack)
+		NewImage/G=1/K=1 $wname3dStr
+		ModifyGraph width={Plan,1,top,left}
+		if(WaveDims($wname3dStr)==3)
+			WMAppend3DImageSlider()
+		endif
+	endif
 End
 
 Function MXP_LauncherLoadDATFilesFromFolder()
@@ -156,6 +165,11 @@ Function MXP_LaunchRegisterQCalculateXRayDichroism()
 		saveWaveName = "MXPxmcd"
 	endif
 	MXP_CalculateXMCD(wimg1, wimg2copy, saveWaveName)
+	// if you use /P, the dimension scaling is copied in slope/intercept format 
+	// so that if srcWaveName  and the other waves have differing dimension size 
+	// (number of points if the wave is a 1D wave), then their dimension values 
+	// will still match for the points they have in common
+	CopyScales wimg1, $saveWaveName 
 	Note/K $saveWaveName, xmcdWaveNoteStr
 	return 0
 End
@@ -171,6 +185,11 @@ Function MXP_LaunchCalculateXMCDFromStack()
 	MatrixOP/O/FREE w2free = layer(w3dref, 1)
 	string xmcdWaveStr = NameofWave(w3dref) + "_xmcd"
 	MXP_CalculateXMCD(w1free, w2free, xmcdWaveStr)
+	// if you use /P, the dimension scaling is copied in slope/intercept format 
+	// so that if srcWaveName  and the other waves have differing dimension size 
+	// (number of points if the wave is a 1D wave), then their dimension values 
+	// will still match for the points they have in common
+	CopyScales w3dref, $xmcdWaveStr 
 	NewImage $xmcdWaveStr
 	ModifyGraph width={Plan,1,top,left}
 End
@@ -245,6 +264,11 @@ Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 		saveWaveName = "MXPxmcd"
 	endif
 	MXP_CalculateXMCD(wimg1, wimg2copy, saveWaveName)
+	// if you use /P, the dimension scaling is copied in slope/intercept format 
+	// so that if srcWaveName  and the other waves have differing dimension size 
+	// (number of points if the wave is a 1D wave), then their dimension values 
+	// will still match for the points they have in common
+	CopyScales wimg1, $saveWaveName 	
 	Note/K $saveWaveName, xmcdWaveNoteStr
 	return 0
 End

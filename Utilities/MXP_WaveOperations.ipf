@@ -98,10 +98,15 @@ Function MXP_Make3DWaveDataBrowserSelection(string wname3d)
 	
 	WAVE w3dref = $wname3d
 	
-	for(i = 0; i < nrwaves; i += 1)
+	for(i = 0; i < nrwaves; i += 1) // TODO: Change and use ImageTransform ...
 		Wave t2dwred = $(StringFromList(i,listOfSelectedWaves))
 		w3dref[][][i] = t2dwred[p][q]
 	endfor
+	// if you use /P, the dimension scaling is copied in slope/intercept format 
+	// so that if srcWaveName  and the other waves have differing dimension size 
+	// (number of points if the wave is a 1D wave), then their dimension values 
+	// will still match for the points they have in common
+	CopyScales t2dwred, w3dref 
 	return 0
 End
 
