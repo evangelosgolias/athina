@@ -398,6 +398,7 @@ Function MXP_SaveZProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 		sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
 								 "DrawCmd:DrawOval %f, %f, %f, %f", w3dPathName, red, green, blue, gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
+		return 1
 		break
 	endswitch
 	return 0

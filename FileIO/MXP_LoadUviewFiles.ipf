@@ -427,90 +427,92 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	variable singlePassSwitch = 1 
 	variable MetadataStart
 	variable fovScale
-	variable readMetadataOnce = 0 // When you skip metadata but you needa  scaled for the 3d wave
+	variable readMetadataOnce = 0 // When you skip metadata but you need to scale the 3d wave
 	if(stack3d)
 		readMetadataOnce = 1
 	endif
 	// while loop
 	do
-	mdatastr = "" // Reset metadata string
-	FSetPos numRef, MXPFileHeader.size + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
-	FBinRead numRef, MXPImageHeader
+		mdatastr = "" // Reset metadata string
+		FSetPos numRef, MXPFileHeader.size + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+		FBinRead numRef, MXPImageHeader
 	
-	if(MXPImageHeader.attachedMarkupSize == 0)
-		//no markups
-		ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
-	else
-		//Markup blocks multiple of 128 bytes after image header
-		ImageHeaderSize = 288 + 128 * ((trunc(MXPImageHeader.attachedMarkupSize/128))+1)
-	endif
+		if(MXPImageHeader.attachedMarkupSize == 0)
+			//no markups
+			ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
+		else
+			//Markup blocks multiple of 128 bytes after image header
+			ImageHeaderSize = 288 + 128 * ((trunc(MXPImageHeader.attachedMarkupSize/128))+1)
+		endif
 	
-	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
-	if(stack3d)
-		Make/W/U/O/FREE/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) datWave
-	else
-		Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $(waveNameStr + "_" + num2str(cnt)) /WAVE=datWave
-	endif
-	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + MXPImageHeader.LEEMdataVersion 
-	ImageDataStart +=  cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
-	FSetPos numRef, ImageDataStart
-	FBinRead/F=2 numRef, datWave
-	ImageTransform flipCols datWave // flip the y-axis
-	
-	if(!skipmetadata)
-		timestamp = MXPImageHeader.imagetime.LONG[0]+2^32 * MXPImageHeader.imagetime.LONG[1]
-		timestamp *= 1e-7 // t_i converted from 100ns to s
-		timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
-		MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
-		mdatastr += filepathStr + "\n"
-		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
-		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
-		if(autoscale)
+		//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
+		if(stack3d)
+			Make/W/U/O/FREE/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) datWave
+		else
+			Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $(waveNameStr + "_" + num2str(cnt)) /WAVE=datWave
+		endif
+		variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + MXPImageHeader.LEEMdataVersion 
+		ImageDataStart +=  cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+		FSetPos numRef, ImageDataStart
+		FBinRead/F=2 numRef, datWave
+		ImageTransform flipCols datWave // flip the y-axis
+		
+		if(!skipmetadata)
+			timestamp = MXPImageHeader.imagetime.LONG[0]+2^32 * MXPImageHeader.imagetime.LONG[1]
+			timestamp *= 1e-7 // t_i converted from 100ns to s
+			timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
+			MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+			mdatastr += filepathStr + "\n"
+			mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
+			mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
+			if(autoscale)
+				fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
+				SetScale/I x, 0, fovScale, datWave
+				SetScale/I y, 0, fovScale, datWave
+			endif
+		endif
+		// when you stack, skip metadata but scale the x, y dimensions of the 3d wave. 
+		// if(stack3d) branch at the end.
+		// Right before the start of the do...while loop readMetadataOnce = 1
+		if(skipmetadata && autoScale && readMetadataOnce) 
+			MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+			mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
 			fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
-			SetScale/I x, 0, fovScale, datWave
-			SetScale/I y, 0, fovScale, datWave
+			readMetadataOnce = 0
 		endif
-	endif
-	// when you stack, skip metadata but scale the x, y dimensions of the 3d wave. // if(stack3d) branch at the end.
-	// Right before the start of the do...while loop readMetadataOnce = 1
-	if(skipmetadata && autoScale && readMetadataOnce) 
-		MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
-		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
-		fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
-		readMetadataOnce = 0
-	endif
-	// Add image markups if any
-	if(MXPImageHeader.attachedMarkupSize)
-		mdatastr += MXP_StrGetImageMarkups(filepathStr)
-	endif
-	if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
-		Note/K datWave, mdatastr
-	endif
+		// Add image markups if any
+		if(MXPImageHeader.attachedMarkupSize)
+			mdatastr += MXP_StrGetImageMarkups(filepathStr)
+		endif
+		if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
+			Note/K datWave, mdatastr
+		endif
 
-	// Convert to SP or DP 
-	if(waveDataType == 1)
-		Redimension/S datWave
-	endif
+		// Convert to SP or DP 
+		if(waveDataType == 1)
+			Redimension/S datWave
+		endif
 	
-	if(waveDataType == 2)
-		Redimension/D datWave
-	endif
-
-	if(stack3d)
-		if(stack3d && singlePassSwitch) // We want stacking and yet the 3d wave is not created
-			variable nlayers = (totalBytesInDAVFile - 104)/(ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
-			Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight, nlayers) $(waveNameStr) /WAVE = stack3DWave
-			singlePassSwitch = 0
+		if(waveDataType == 2)
+			Redimension/D datWave
 		endif
-		stack3DWave[][][cnt] = datWave[p][q]
-	endif
-	WAVEClear datWave
-	cnt += 1
-	FGetPos numRef
-	if(totalBytesInDAVFile == V_filePos)
-		break
-	endif
+
+		if(stack3d) //TODO: Use ImageTransform here to make import faster
+			if(stack3d && singlePassSwitch) // We want stacking and yet the 3d wave is not created
+				variable nlayers = (totalBytesInDAVFile - 104)/(ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+				Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight, nlayers) $(waveNameStr) /WAVE = stack3DWave
+				singlePassSwitch = 0
+			endif
+			stack3DWave[][][cnt] = datWave[p][q]
+		endif
+		WAVEClear datWave
+		cnt += 1
+		FGetPos numRef
+		if(totalBytesInDAVFile == V_filePos)
+			break
+		endif
 	while(1)
+	
 	if(autoscale && stack3d) // Scale the 3d wave if you opt to
 		SetScale/I x, 0, fovScale, stack3DWave
 		SetScale/I y, 0, fovScale, stack3DWave
