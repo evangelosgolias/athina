@@ -46,17 +46,19 @@ Function MXP_CreateInteractiveDriftCorrectionPanel()
 	NewPanel/K=1/EXT=0/N=iDriftCorrection/W=(0,0,165,160)/HOST=$winNameStr
 	//ShowInfo/CP=0/W=$winNameStr
 	SetDrawLayer UserBack
+
 	SetDrawEnv/W=iDriftCorrection fsize= 13,fstyle= 1,textrgb= (1,12815,52428)
 	DrawText/W=iDriftCorrection 2,16,"Interactive drift correction"
-	SetDrawEnv/W=iDriftCorrection dash= 3,fillpat= 0
-	Button SetAnchorCursor,pos={23.00,38.00},size={120.00,20.00}
+	SetDrawEnv textrgb= (2,39321,1)
+	DrawText 5,44,"Selected layer drifts towards \r        the anchor point set"
+	//SetDrawEnv/W=iDriftCorrection dash= 3,fillpat= 0
+	Button SetAnchorCursor,pos={23.00,50.00},size={120.00,20.00}
 	Button SetAnchorCursor,title="(Re)Set anchor (I)",fSize=12
-	Button SetAnchorCursor,fColor=(49151,65535,57456), proc=MXP_SetAnchorCursorButton
-	Button DriftImage,pos={32.00,78.00},size={100.00,20.00},title="Drift Image"
-	Button DriftImage,fSize=12,proc=MXP_DriftImageButton
-	Button Restore3dwave,pos={32.00,118.00},size={100.00,20.00}
+	Button SetAnchorCursor,fColor=(56797,56797,56797), proc=MXP_SetAnchorCursorButton
+	Button DriftImage,pos={32.00,90.00},size={100.00,20.00},title="Drift Image"
+	Button DriftImage,fSize=12,fColor=(2,39321,1),proc=MXP_DriftImageButton
+	Button Restore3dwave,pos={32.00,130.00},size={100.00,20.00},fColor=(32768,54615,65535)
 	Button Restore3dwave,title="Restore stack",fSize=12,proc=Restore3DWaveButton
-	
 	//Tranfer info re dfr to controls
 	SetWindow $winNameStr#iDriftCorrection userdata(MXP_DFREF_iAlign) = "root:Packages:MXP_DataFolder:InteractiveDriftCorrection:" + PossiblyQuoteName(winNameStr)
 	SetWindow $winNameStr#iDriftCorrection hook(MyHook) = MXP_iDriftCorrectionPanelHookFunction
@@ -88,14 +90,19 @@ Function MXP_iDriftCorrectionPanelHookFunction(STRUCT WMWinHookStruct &s) // Cle
 	//Cleanup when window is closed
 	variable hookresult = 0
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "MXP_DFREF_iAlign"))
+	SVAR/SDFR=dfr gMXP_WindowNameStr
 	SVAR/Z/SDFR=dfr gMXP_w3dPathName
 	SVAR/Z/SDFR=dfr gMXP_w3dBackupPathNameStr
+
     switch(s.eventCode)
 		case 2: // Kill the window
 			//Restore wave scaling here as ImageTransform works better with non-scaled waves
 			CopyScales/I $gMXP_w3dBackupPathNameStr, $gMXP_w3dPathName
 			SetWindow $s.winName, hook(MyHook) = $""
 			Cursor/K I
+			SetDrawLayer/W=$gMXP_WindowNameStr Overlay
+			DrawAction/W=$gMXP_WindowNameStr delete
+			SetDrawLayer/W=$gMXP_WindowNameStr UserFront
 			hookresult = 1
 			break
 	endswitch
@@ -106,12 +113,24 @@ Function MXP_SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonContr
 	variable hookresult = 0
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_DFREF_iAlign"))
 	SVAR/SDFR=dfr gMXP_WindowNameStr
+	SVAR/SDFR=dfr gMXP_w3dPathname
 	NVAR/SDFR=dfr gMXP_AnchorPositionX
 	NVAR/SDFR=dfr gMXP_AnchorPositionY
+	variable xmax = DimSize($gMXP_w3dPathname, 0)
+	variable x0 = Dimoffset($gMXP_w3dPathname, 0)
+	variable ymax = DimSize($gMXP_w3dPathname, 1)
+	variable y0 = Dimoffset($gMXP_w3dPathname, 1)
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			gMXP_AnchorPositionX = hcsr(I, gMXP_WindowNameStr)
 			gMXP_AnchorPositionY = vcsr(I, gMXP_WindowNameStr)
+			SetDrawLayer/W=$gMXP_WindowNameStr Overlay
+			DrawAction/W=$gMXP_WindowNameStr delete
+			SetDrawEnv/W=$gMXP_WindowNameStr xcoord= top, ycoord= left, linefgc= (52428,52428,52428, 20000), dash=0
+			DrawLine/W=$gMXP_WindowNameStr x0, gMXP_AnchorPositionY, xmax, gMXP_AnchorPositionY
+			SetDrawEnv/W=$gMXP_WindowNameStr xcoord= top, ycoord= left, linefgc= (52428,52428,52428, 20000), dash=0
+			DrawLine/W=$gMXP_WindowNameStr gMXP_AnchorPositionX, y0, gMXP_AnchorPositionX, ymax
+			SetDrawLayer/W=$gMXP_WindowNameStr UserFront
 			hookresult =  1
 		break
 	endswitch
