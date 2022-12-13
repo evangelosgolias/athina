@@ -1,0 +1,9 @@
+# exclude hidden files
+.*
+#exclude local_dev folder
+local_dev/
+
+# ignores all .md files
+.md
+# but does not ignore the README.md file
+!README.md
