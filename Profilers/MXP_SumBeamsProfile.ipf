@@ -5,10 +5,18 @@
 
 #include <Imageslider>
 
+// ------------------------------------------------------- //
+// Developed by Evangelos Golias.
+// Contact: evangelos.golias@gmail.com
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, IN CONNECTION WITH THE USE OF SOFTWARE.
+// ------------------------------------------------------- //
 
 /// Profiler can now have several instances.
-
-// TODO: Check if you have DoWindow/F for actions on graphs/panels. Use /W=Name instead.
 
 Function MXP_MainMenuLaunchZBeamProfiler()
 

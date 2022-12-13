@@ -5,27 +5,20 @@
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and later
 
 // ------------------------------------------------------- //
-// Functions to import binary .dat & .dav files created by the Uview Software from Elmitec
-// of the MAXPEEM beamline of MAX IV.
-//
-// Developed by Evangelos Golias.
-// Contact: evangelos.golias@maxiv.lu.se
-//
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-//EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-//OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-//IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-//DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-//OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR
-//THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+// Functions to import binary .dat & .dav files created by Elmitec's Uview Software at
+// the MAXPEEM beamline at MAX IV.
 //
 // ------------------------------------------------------- //
-// v1.0
+// Developed by Evangelos Golias.
+// Contact: evangelos.golias@gmail.com
 //
-// Add some short description here.
-
-
-// TODO: The markups are placed inverted? Please check and correct, you might nee to reverse the y-axis or whatever.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, IN CONNECTION WITH THE USE OF SOFTWARE.
+// ------------------------------------------------------- //
+// v1.0
 
 
 Structure LONGLONG

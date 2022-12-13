@@ -3,6 +3,16 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
+// ------------------------------------------------------- //
+// Developed by Evangelos Golias.
+// Contact: evangelos.golias@gmail.com
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, IN CONNECTION WITH THE USE OF SOFTWARE.
+// ------------------------------------------------------- //
 
 Function/WAVE MXP_WAVECalculateXMCD(WAVE w1, WAVE w2)
 	/// Calculate XMCD/XMLD of two images

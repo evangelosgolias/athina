@@ -2,6 +2,19 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
+// ------------------------------------------------------- //
+// Developed by Evangelos Golias.
+// Contact: evangelos.golias@gmail.com
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, IN CONNECTION WITH THE USE OF SOFTWARE.
+// ------------------------------------------------------- //
+
+// Read metadata of the beamline
+
 Function MXP_ListHDF5Groups()
 	variable fileid_
 	Open /D/R/T="HDF5" fileid_
