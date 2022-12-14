@@ -27,7 +27,9 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "Analyse"
-		"***** ", print "Not yet implemented, however, Igor Pro has plently of tools to analyse your data."
+		Submenu "XPS"
+		"Subtract background ... ", BackgroundSubtractGUI($StringFromList(0,MXP_SelectWavesInModalDataBrowser("Select a wave (1d)")))
+		End
 	End
 	
 	Submenu "Align"
@@ -98,6 +100,6 @@ Menu "TracePopup"
 	"MXP Interactive drift correction", MXP_CreateInteractiveDriftCorrectionPanel()
 	"MXP Calculate XMC(L)D", MXP_LaunchCalculateXMCDFromStack()
 	"MXP Scale XPS spectrum", MXP_LaunchScaleXPSSpectrum()
-	"MXP Draw Image Markups", MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
+	"MXP Draw image markups", MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
 	"MXP Clear UserFront layer", MXP_ClearROIMarkings()
 End
