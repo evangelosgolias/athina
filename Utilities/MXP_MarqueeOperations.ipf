@@ -192,3 +192,25 @@ static Function CheckActiveAxis(string graphname, string axis)
 		return 0
 	endif
 End
+
+// TODO: move it and implement it properly.
+
+Function MXP_LaunchScaleXPSSpectrum()
+
+	string waveListStr = TraceNameList("", ";", 1)
+	WAVE wRef = $StringFromList(0, waveListStr)
+	variable STV, hv, wf, Escale, BE_min, BE_max
+	Prompt hv, "Photon energy"
+	Prompt STV, "Start Voltage"
+	Prompt Wf, "Work function"
+	Prompt Escale, "Energy scale"
+
+	DoPrompt "Scale to binding energy", hv, STV, Wf, Escale
+	if(V_flag) // User cancelled
+		return 1
+	endif
+	BE_min = hv - STV - Wf - Escale/2
+	BE_max = hv - STV - Wf + Escale/2
+	
+	SetScale/I x, BE_max, BE_min, wRef
+End

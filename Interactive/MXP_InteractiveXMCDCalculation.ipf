@@ -73,21 +73,28 @@ Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	Duplicate/O $wave1NameStr, dfr:iImg1
 	Duplicate/O $wave2NameStr, dfr:iImg2
 	Duplicate/O $wave1NameStr, dfr:iXMCD
+	Duplicate/O $wave1NameStr, dfr:iImgAdd
+	//Wave references
 	WAVE img1WaveRef = dfr:iImg1
 	WAVE img2WaveRef = dfr:iImg2
-	WAVE iXMCDWaveRef = dfr:iXMCD
+	Concatenate {img1WaveRef, img2WaveRef}, dfr:stackWaveRef // Stack the two images
+	WAVE imgStack = dfr:stackWaveRef
+	WAVE iXMCD = dfr:iXMCD
+	WAVE iImgAdd = dfr:iImgAdd
+	// Set dependency
+	iImgAdd := 2 + 1
 	// Add wave origin information
 	Note img1WaveRef, "Source: " + wave1NameStr
 	Note img2WaveRef, "Source: " + wave2NameStr
-	Note/K iXMCDWaveRef, "XMC(L)D = (iImg1 - iImg2)/(iImg1 + iImg2)"
+	Note/K iXMCD, "XMC(L)D = (iImg1 - iImg2)/(iImg1 + iImg2)"
 	// Set global variables
 	string/G dfr:gMXP_wave1NameStr = wave1NameStr
 	string/G dfr:gMXP_wave2NameStr = wave2NameStr
 	variable/G dfr:gMXP_driftStep = 1
 	variable/G dfr:gMXP_CursorAlignSwitch = 0
 
-	MXP_CalculateXMCDToWaveRef(img1WaveRef, img2WaveRef, iXMCDWaveRef)
-	MXP_CreateInteractiveXMCDCalculationPanel(img1WaveRef, img2WaveRef, iXMCDWaveRef, uniquePanelNameStr)
+	MXP_CalculateXMCDToWaveRef(img1WaveRef, img2WaveRef, iXMCD)
+	MXP_CreateInteractiveXMCDCalculationPanel(img1WaveRef, iImgAdd, iXMCD, uniquePanelNameStr)
 	DoWindow/F $uniquePanelNameStr
 	SetWindow $uniquePanelNameStr, hook(MyHook) = MXP_InteractiveImageDriftWindowHook // Set the hook
 
