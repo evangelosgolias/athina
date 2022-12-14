@@ -32,7 +32,7 @@ Function MXP_CreateInteractiveDriftCorrectionPanel()
 	//Set cursor
 	variable midOfImageX = 0.5 * DimSize(w3dref,0) * DimDelta(w3dref,0)
 	variable midOfImageY = 0.5 * DimSize(w3dref,1) * DimDelta(w3dref,1)
-	Cursor/W=$winNameStr/I/F/L=0/H=1/C=(65535,65535,0, 20000)/S=2 I $imgNameTopGraphStr midOfImageX, midOfImageY
+	Cursor/W=$winNameStr/I/F/L=0/H=1/C=(0,65535,0,20000)/S=2 I $imgNameTopGraphStr midOfImageX, midOfImageY
 	
 
 	//Duplicate the wave for backup
@@ -65,9 +65,9 @@ Function MXP_CreateInteractiveDriftCorrectionPanel()
 	//SetDrawEnv/W=iDriftCorrection dash= 3,fillpat= 0
 	Button SetAnchorCursor,pos={23.00,50.00},size={120.00,20.00}
 	Button SetAnchorCursor,title="(Re)Set anchor (I)",fSize=12
-	Button SetAnchorCursor,fColor=(56797,56797,56797), proc=MXP_SetAnchorCursorButton
+	Button SetAnchorCursor,fColor=(65535,0,0), proc=MXP_SetAnchorCursorButton
 	Button DriftImage,pos={32.00,90.00},size={100.00,20.00},title="Drift Image"
-	Button DriftImage,fSize=12,fColor=(2,39321,1),proc=MXP_DriftImageButton
+	Button DriftImage,fSize=12,fColor=(0,65535,0),proc=MXP_DriftImageButton
 	Button Restore3dwave,pos={32.00,130.00},size={100.00,20.00},fColor=(32768,54615,65535)
 	Button Restore3dwave,title="Restore stack",fSize=12,proc=Restore3DWaveButton
 	//Tranfer info re dfr to controls
@@ -137,9 +137,9 @@ Function MXP_SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonContr
 			gMXP_AnchorPositionY = vcsr(I, gMXP_WindowNameStr)
 			SetDrawLayer/W=$gMXP_WindowNameStr Overlay
 			DrawAction/W=$gMXP_WindowNameStr delete
-			SetDrawEnv/W=$gMXP_WindowNameStr xcoord= top, ycoord= left, linefgc= (52428,52428,52428, 20000), dash=0
+			SetDrawEnv/W=$gMXP_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,0,0,20000), dash=0
 			DrawLine/W=$gMXP_WindowNameStr x0, gMXP_AnchorPositionY, xmax, gMXP_AnchorPositionY
-			SetDrawEnv/W=$gMXP_WindowNameStr xcoord= top, ycoord= left, linefgc= (52428,52428,52428, 20000), dash=0
+			SetDrawEnv/W=$gMXP_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,0,0,20000), dash=0
 			DrawLine/W=$gMXP_WindowNameStr gMXP_AnchorPositionX, y0, gMXP_AnchorPositionX, ymax
 			SetDrawLayer/W=$gMXP_WindowNameStr UserFront
 			hookresult =  1

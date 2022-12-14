@@ -33,11 +33,7 @@ Function MXP_LaunchMake3DWaveDataBrowserSelection([variable displayStack])
 	MXP_Make3DWaveDataBrowserSelection(wname3dStr)
 	// Do you want to display the stack?
 	if(displayStack)
-		NewImage/G=1/K=1 $wname3dStr
-		ModifyGraph width={Plan,1,top,left}
-		if(WaveDims($wname3dStr)==3)
-			WMAppend3DImageSlider()
-		endif
+		MXP_DisplayImage($wname3dStr)
 	endif
 End
 
@@ -201,8 +197,7 @@ Function MXP_LaunchCalculateXMCDFromStack()
 	// (number of points if the wave is a 1D wave), then their dimension values 
 	// will still match for the points they have in common
 	CopyScales w3dref, $xmcdWaveStr 
-	NewImage $xmcdWaveStr
-	ModifyGraph width={Plan,1,top,left}
+	MXP_DisplayImage($xmcdWaveStr)
 End
 
 Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
@@ -444,13 +439,9 @@ Function MXP_LaunchNewImageFromBrowserSelection()
 			endif
 		endif
 		
-		NewImage/G=1/K=1 $mxpImage
-		ModifyGraph width={Plan,1,top,left}
-		if(WaveDims($mxpImage)==3)
-			WMAppend3DImageSlider()
-		endif
+		MXP_DisplayImage($mxpImage)
 		i++
-
+		WM_AutoSizeImage(0.5)
 	while (strlen(GetBrowserSelection(i)))
 End
 
