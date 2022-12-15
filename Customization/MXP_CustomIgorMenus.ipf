@@ -14,6 +14,7 @@
 // LIABILITY, IN CONNECTION WITH THE USE OF SOFTWARE.
 // ------------------------------------------------------- //
 
+
 Menu "MAXPEEM"
 
 	Submenu "Import"
@@ -55,8 +56,7 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "Report"
-		"List entries in a .h5 file...", MXP_ListHDF5Groups()
-		//"List big waves", print "Now yet implemented"
+		"List entries in a HDF (.h5) file...", MXP_ListHDF5Groups()
 	End
 End
 

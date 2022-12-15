@@ -510,12 +510,9 @@ static Function/DF getWorkFolder(gName)															// grab current working fo
 	endif
 	if (strlen(folder))
 	//EG: : Change to our data folder structure under Packages:MXP_DataFolder
-		print kWorkingDir, folder
-		DFREF dfr1 = root:Packages:MXP_DataFolder:$(kWorkingDir):$(folder)
-		return dfr1
-	else
-		DFREF dfr2 = root:Packages:MXP_DataFolder:$(kWorkingDir)		
-		return dfr2 												// backwards compatibility with older sessions
+		return root:Packages:MXP_DataFolder:$(kWorkingDir):$(folder)
+	else	
+		return root:Packages:MXP_DataFolder:$(kWorkingDir) 												// backwards compatibility with older sessions
 	endif
 End
 //################################################################################################
