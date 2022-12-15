@@ -99,7 +99,8 @@ Menu "TracePopup"
 	"MXP Select image and copy scales", MXP_ImageSelectToCopyScale()
 	"MXP Interactive drift correction", MXP_CreateInteractiveDriftCorrectionPanel()
 	"MXP Calculate XMC(L)D", MXP_LaunchCalculateXMCDFromStack()
-	"MXP Scale XPS spectrum", MXP_LaunchScaleXPSSpectrum()
+	"MXP Remove XPS background", MXP_LaunchRemoveXPSBackground()
+	"MXP BE-Scale XPS spectrum", MXP_LaunchScaleXPSSpectrum()
 	"MXP Draw image markups", MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
 	"MXP Clear UserFront layer", MXP_ClearROIMarkings()
 End

@@ -5,7 +5,11 @@
 #pragma version			= 1.51
 #pragma DefaultTab		= {3,20,4}		// set default tab width in Igor Pro 9 and later
 
-// Please check: https://www.wavemetrics.com/node/21532
+// Specta Background Remover was coded by Stephan Thuermer (user *chozo* in Igor Pro forums) and is
+// adopted here with minor modifications to adjust to the MXP naming conversions and workflow. Changes to the original 
+// code will be indicated by a comment starting with "EG:" followed by a short description.
+// If you want to learn more about the package, and see a guide of how to use it, visit:
+// https://www.wavemetrics.com/node/21532
 
 
 static Constant kVersion = 1.51
@@ -68,7 +72,8 @@ static StrConstant ksShortTitle = "Background Remover"											// the project 
 //							Minor bug-fixes and code improvements.
 //________________________________________________________________________________________________
 
-static StrConstant kWorkingDir = "Background_Remover"											// the name for the working dir
+// EG: Changed from Background_Remover to BackgroundRemover
+static StrConstant kWorkingDir = "BackgroundRemover"											// the name for the working dir
 static StrConstant kSettingsFileName = "Spectra Tools settings.dat"								// just for keyboard shortcuts for now.
 StrConstant kBackgroundTypes = "Constant;Step;Linear;Exponential;Polynomial;Total Sum;Shirley;Tougaard;Tougaard Data;"	// the various types of backgrounds used - non-static for backwards compatibility
 static StrConstant kTougaardIniPara = "2866;1643;0;0;"											// initial parameters B,C,D and T0 for the universal Tougaard background (common metal)
@@ -77,7 +82,9 @@ static Constant kTougaardSmoothStep = 0.5														// !only used if not set 
 static Constant kMaxIterations		= 50														// iteration limit for Shirley background calculation
 static Constant kConvergelimit		= 1e-6														// converge limit for Shirley background calculation
 
-// EG: Edited and moved the launcher to MXP_CustomIgorMenus.ipf
+// EG: Moved the launcher to MAXPEEM>Analysis>XPS. See MXP_CustomIgorMenus.ipf in "MAXPEEM" menu.
+// There you can find another was to launch the panel using the TracePopup menu (see MXP_LaunchRemoveXPSBackground())
+
 // Menu "Spectra Tools"
 //     BackgroundRemover#MenuEntry(),/Q, CreateBrowser; BackgroundSubtractGUI($GetBrowserSelection(0))
 // End
@@ -384,11 +391,15 @@ Function BackgroundSubtractGUI(inwave)
 	//+++++++++++++++++++++++++++++++++ generate working variables ++++++++++++++++++++++++++++++
 	String gTitle = "Background Remover (ver. "+num2str(kVersion)+" - "+kVersionDate+"): Background of "
 	String gName = UniqueName("InelasticBackDisplay", 6, 1)
-	String workF = "BG"+ReplaceString("InelasticBackDisplay",gName,"")+"_"+CleanupName(NameOfWave(inwave),0)[0,25]
-	NewDataFolder/O	root:Packages
-	NewDataFolder/O	root:Packages:$(kWorkingDir)
-	NewDataFolder/O	root:Packages:$(kWorkingDir):$(workF)										// the folder for temporary stuff
-	DFREF strg = root:Packages:$(kWorkingDir):$(workF)
+	//EG: We use Igor Pro 9  or later, we can have longer names
+	String workF = "BG"+ReplaceString("InelasticBackDisplay",gName,"")+"_"+CleanupName(NameOfWave(inwave),0)
+//	String workF = "BG"+ReplaceString("InelasticBackDisplay",gName,"")+"_"+CleanupName(NameOfWave(inwave),0)[0,25]
+	//EG: Change to our data folder structure under Packages:MXP_DataFolder
+//	NewDataFolder/O	root:Packages
+//	NewDataFolder/O	root:Packages:$(kWorkingDir)
+//	NewDataFolder/O	root:Packages:$(kWorkingDir):$(workF)										// the folder for temporary stuff
+//	DFREF strg = root:Packages:$(kWorkingDir):$(workF)
+	DFREF strg = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:" + kWorkingDir + ":" + workF)
 	
 	String/G strg:InwaveLocation = GetWavesDataFolder(inwave,2)									// save wave name and folder for later
 	Duplicate/O inwave strg:Data_Orig, strg:Data_Net, strg:Data_Back, strg:NegResiduals			// make copies of the original wave for all needed stuff and work with these
@@ -396,7 +407,9 @@ Function BackgroundSubtractGUI(inwave)
 	Data_Net = NaN; Data_Back = NaN; NegResiduals = NaN
 	//+++++++++++++++++++++++++++++++++++ generate the panels +++++++++++++++++++++++++++++++++++
 	Variable pix = 72/ScreenResolution
-	Display/W=(230*pix,50*pix,1115*pix,550*pix)/K=2/N=$gName Data_Orig as gTitle + NameOfWave(inwave)
+	//EG: changed /K flag, some users just close the window
+	Display/W=(230*pix,50*pix,1115*pix,550*pix)/K=1/N=$gName Data_Orig as gTitle + NameOfWave(inwave)
+//	Display/W=(230*pix,50*pix,1115*pix,550*pix)/K=1/N=$gName Data_Orig as gTitle + NameOfWave(inwave)
 	AppendToGraph/C=(0,0,65280) 							Data_Back							// the calculated background
 	AppendToGraph/C=(0,39168,0) 							Data_Net							// the spectrum with subtracted background
 	AppendToGraph/C=(0,0,0)/L=Lresid 						NegResiduals						// negative values of the net spectrum recalculated for display
@@ -496,9 +509,13 @@ static Function/DF getWorkFolder(gName)															// grab current working fo
 		folder = GetUserData(gName,"","workFolder")
 	endif
 	if (strlen(folder))
-		return root:Packages:$(kWorkingDir):$(folder)
+	//EG: : Change to our data folder structure under Packages:MXP_DataFolder
+		print kWorkingDir, folder
+		DFREF dfr1 = root:Packages:MXP_DataFolder:$(kWorkingDir):$(folder)
+		return dfr1
 	else
-		return root:Packages:$(kWorkingDir)														// backwards compatibility with older sessions
+		DFREF dfr2 = root:Packages:MXP_DataFolder:$(kWorkingDir)		
+		return dfr2 												// backwards compatibility with older sessions
 	endif
 End
 //################################################################################################
@@ -508,7 +525,8 @@ Function BackRem_WindowHook(s)																	// main window hook
 	
 	DFREF stg = getWorkFolder(s.winName)
 	DFREF pkroot = getWorkFolder("")
-	DFREF pkg = root:Packages:
+	//EG: Change to our data folder structure under Packages:MXP_DataFolder
+	DFREF pkg = root:Packages:MXP_DataFolder:
 	Switch (s.EventCode)
 		case 7:																					// cursor position was modified
 			BackRem_BackCalc(s.winName)
