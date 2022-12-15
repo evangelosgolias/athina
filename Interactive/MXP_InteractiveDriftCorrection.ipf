@@ -32,7 +32,7 @@ Function MXP_CreateInteractiveDriftCorrectionPanel()
 	//Set cursor
 	variable midOfImageX = 0.5 * DimSize(w3dref,0) * DimDelta(w3dref,0)
 	variable midOfImageY = 0.5 * DimSize(w3dref,1) * DimDelta(w3dref,1)
-	Cursor/W=$winNameStr/I/F/L=0/H=1/C=(0,65535,0,20000)/S=2 I $imgNameTopGraphStr midOfImageX, midOfImageY
+	Cursor/W=$winNameStr/I/F/L=0/H=1/C=(1,65535,33232,20000)/S=2 I $imgNameTopGraphStr midOfImageX, midOfImageY
 	
 
 	//Duplicate the wave for backup

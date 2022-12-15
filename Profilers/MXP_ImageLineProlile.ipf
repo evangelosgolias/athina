@@ -50,8 +50,8 @@ Function MXP_MainMenuLaunchLineProfiler()
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(selectedWave)) // Change root folder if you want
 		MXP_InitialiseLineProfilerGraph(dfr)
 		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionLineProfiler // Set the hook
-		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_LineProfPanel_" + winNameStr // Name of the panel we will make, used to communicate the
-		// name to the windows hook to kill the panel after completion
+		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
+		// name to the windows hook to kill the plot after completion
 	else
 		Abort "Line profiler needs an image or image stack."
 	endif
@@ -79,8 +79,8 @@ Function MXP_TraceMenuLaunchLineProfiler()
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 		MXP_InitialiseLineProfilerGraph(dfr)
 		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionLineProfiler // Set the hook
-		SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_LineProfPanel_" + winNameStr // Name of the panel we will make, used to communicate the
-		// name to the windows hook to kill the panel after completion
+		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
+		// name to the windows hook to kill the plot after completion
 	else
 		Abort "Line profiler needs an image or image stack."
 	endif
@@ -107,8 +107,8 @@ Function MXP_BrowserMenuLaunchLineProfiler()
 			DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 			MXP_InitialiseLineProfilerGraph(dfr)
 			SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionLineProfiler // Set the hook
-			SetWindow $winNameStr userdata(MXP_LinkedPanelStr) = "MXP_LineProfPanel_" + winNameStr // Name of the panel we will make, used to communicate the
-		// name to the windows hook to kill the panel after completion
+			SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
+		// name to the windows hook to kill the plot after completion
 		else
 			Abort "Line profile operation needs an image or an image stack."
 		endif
@@ -247,7 +247,7 @@ Function MXP_CursorHookFunctionLineProfiler(STRUCT WMWinHookStruct &s)
 			endif
 			break
 		case 2: // Kill the window
-			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedPanelStr"))
+			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedPlotStr"))
 			KillDataFolder/Z dfr
 			hookresult = 1
 			break
@@ -297,45 +297,45 @@ Function MXP_CursorHookFunctionLineProfiler(STRUCT WMWinHookStruct &s)
 End
 
 Function MXP_InitialiseLineProfilerGraph(DFREF dfr)
-	/// Here we will create the profile panel and graph and plot the profile
-	string panelNameStr = "MXP_LineProf_" + GetDataFolder(0, dfr)
-	if (WinType(panelNameStr) == 0) // line profile window is not displayed
-		MXP_CreateLineProfilePanel(dfr)
+	/// Here we will create the profile plot and graph and plot the profile
+	string plotNameStr = "MXP_LineProf_" + GetDataFolder(0, dfr)
+	if (WinType(plotNameStr) == 0) // line profile window is not displayed
+		MXP_CreateLineProfilePlot(dfr)
 	else
-		DoWindow/F $panelNameStr // if it is bring it to the FG
+		DoWindow/F $plotNameStr // if it is bring it to the FG
 	endif
 	return 0
 End
 
-Function MXP_CreateLineProfilePanel(DFREF dfr)
+Function MXP_CreateLineProfilePlot(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(rootFolderStr)
 	SVAR/SDFR=dfr gMXP_WindowNameStr
 	NVAR profileWidth = dfr:gMXP_profileWidth
-	string profilePanelStr = "MXP_LineProfPanel_" + gMXP_WindowNameStr
-	NewPanel/N=$profilePanelStr /W=(1254,103,1720,395) // Linked to MXP_InitialiseZProfilerGraph()
-	SetWindow $profilePanelStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
-	SetWindow $profilePanelStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + gMXP_WindowNameStr 
-	ModifyPanel cbRGB=(61166,61166,61166), frameStyle=3
-	SetDrawLayer UserBack
-	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=MXP_ProfilePanelSaveProfile
-	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=MXP_ProfilePanelSaveDefaultSettings
-	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=MXP_ProfilePanelRestoreDefaultSettings
-	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",fcolor=(65535,32768,32768),help={"Show width of integrated area while button is pressed"},proc=MXP_ProfilePanelShowProfileWidth
-	CheckBox PlotProfiles,pos={19.00,35.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=0,side=1,proc=MXP_ProfilePanelCheckboxPlotProfile
-	CheckBox MarkLines,pos={127.00,35.00},size={86.00,17.00},title="Mark lines ",fSize=14,value=0,side=1,proc=MXP_ProfilePanelCheckboxMarkLines
-	CheckBox ProfileLayer3D,pos={227.00,35.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=MXP_ProfilePanelProfileLayer3D
-	SetVariable setWidth,pos={331.00,35.00},size={123.00,20.00},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1},proc=MXP_ProfilePanelSetVariableWidth
+	string profilePlotStr = "MXP_LineProfPlot_" + gMXP_WindowNameStr
 	Make/O/N=0  dfr:W_LineProfileDisplacement, dfr:W_ImageLineProfile // Make a dummy wave to display 
-	Display/N=MXP_ZLineProfilesPlot/W=(16,63,456,280)/HOST=# dfr:W_ImageLineProfile vs dfr:W_LineProfileDisplacement // #: active window
+	variable pix = 72/ScreenResolution
+	Display/W=(0*pix,0*pix,500*pix,300*pix)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile vs dfr:W_LineProfileDisplacement as "Line profile " + gMXP_WindowNameStr
+	AutoPositionWindow/E/M=0/R=$gMXP_WindowNameStr
 	ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=12, lsize=1.5
 	Label left "Intensity (arb. u.)"
 	Label bottom "\\u#2 Distance (µm) / [Kinetic Energy (eV)]"
-	SetDrawLayer UserFront
+	
+	SetWindow $profilePlotStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
+	SetWindow $profilePlotStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + gMXP_WindowNameStr 
+	ControlBar 70	
+	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=MXP_ProfilePlotSaveProfile
+	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=MXP_ProfilePlotSaveDefaultSettings
+	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=MXP_ProfilePlotRestoreDefaultSettings
+	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",fcolor=(65535,32768,32768),help={"Show width of integrated area while button is pressed"},proc=MXP_ProfilePlotShowProfileWidth
+	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=0,side=1,proc=MXP_ProfilePlotCheckboxPlotProfile
+	CheckBox MarkLines,pos={127.00,40.00},size={86.00,17.00},title="Mark lines ",fSize=14,value=0,side=1,proc=MXP_ProfilePlotCheckboxMarkLines
+	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=MXP_ProfilePlotProfileLayer3D
+	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1},proc=MXP_ProfilePlotSetVariableWidth
 	return 0
 End
 
-Function MXP_ProfilePanelSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function MXP_ProfilePlotSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "MXP_targetGraphWin")
@@ -405,7 +405,7 @@ Function MXP_ProfilePanelSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonCon
 	return 0
 End
 
-Function MXP_ProfilePanelSaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function MXP_ProfilePlotSaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
 	DFREF dfr0 = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:DefaultSettings") // Settings here
 	NVAR/Z C1x = dfr:gMXP_C1x
@@ -433,7 +433,7 @@ Function MXP_ProfilePanelSaveDefaultSettings(STRUCT WMButtonAction &B_Struct): B
 	endswitch
 End
 
-Function MXP_ProfilePanelRestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function MXP_ProfilePlotRestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
 	DFREF dfr0 = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:DefaultSettings") // Settings here
 	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
@@ -461,7 +461,7 @@ Function MXP_ProfilePanelRestoreDefaultSettings(STRUCT WMButtonAction &B_Struct)
 	endswitch
 End
 
-Function MXP_ProfilePanelShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function MXP_ProfilePlotShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	/// We have to find the vertices of the polygon representing
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
 	SVAR/Z WindowNameStr= dfr:gMXP_WindowNameStr
@@ -520,7 +520,7 @@ Function MXP_ProfilePanelShowProfileWidth(STRUCT WMButtonAction &B_Struct): Butt
 	endswitch
 End
 
-Function MXP_ProfilePanelCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+Function MXP_ProfilePlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
 	NVAR/Z PlotSwitch = dfr:gMXP_PlotSwitch
@@ -535,7 +535,7 @@ Function MXP_ProfilePanelCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : Chec
 	return 0
 End
 
-Function MXP_ProfilePanelProfileLayer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+Function MXP_ProfilePlotProfileLayer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
 	NVAR/Z selectedLayer = dfr:gMXP_selectedLayer
 	NVAR/Z updateSelectedLayer = dfr:gMXP_updateSelectedLayer
@@ -559,7 +559,7 @@ Function MXP_ProfilePanelProfileLayer3D(STRUCT WMCheckboxAction& cb) : CheckBoxC
 	return 0
 End
 
-Function MXP_ProfilePanelCheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+Function MXP_ProfilePlotCheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
 	NVAR/Z MarkLinesSwitch = dfr:gMXP_MarkLinesSwitch
@@ -574,7 +574,7 @@ Function MXP_ProfilePanelCheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckB
 	return 0
 End
 
-Function MXP_ProfilePanelSetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
+Function MXP_ProfilePlotSetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "MXP_rootdfrStr"))

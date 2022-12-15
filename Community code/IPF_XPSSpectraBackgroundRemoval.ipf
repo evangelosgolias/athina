@@ -362,21 +362,21 @@ Function/S GenerateBackground(s, inwave, backwave, [from, to])
 End
 
 //################################################################################################
-
-static Function/S MenuEntry()
-	Variable fileID
-	String read = ""
-	Open/Z/R fileID as ParseFilePath(1, FunctionPath(""), ":", 1, 0)+kSettingsFileName
-	if (!V_flag)
-		do
-			FReadLine fileID, read
-		while (strlen(read) > 0 && !StringMatch(read, "start background remover*"))
-		read = ReplaceString("\t", ReplaceString(" ", read, ""), "")
-		read = StringByKey(ReplaceString(" ", "start background remover", ""),read,"=","\r")
-		Close fileID
-	endif
-	return "Background Subtraction ..."+SelectString(strlen(read),"","/"+read)
-End
+// EG: Not needed.
+//static Function/S MenuEntry()
+//	Variable fileID
+//	String read = ""
+//	Open/Z/R fileID as ParseFilePath(1, FunctionPath(""), ":", 1, 0)+kSettingsFileName
+//	if (!V_flag)
+//		do
+//			FReadLine fileID, read
+//		while (strlen(read) > 0 && !StringMatch(read, "start background remover*"))
+//		read = ReplaceString("\t", ReplaceString(" ", read, ""), "")
+//		read = StringByKey(ReplaceString(" ", "start background remover", ""),read,"=","\r")
+//		Close fileID
+//	endif
+//	return "Background Subtraction ..."+SelectString(strlen(read),"","/"+read)
+//End
 
 //################################################################################################
 
