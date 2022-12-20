@@ -86,4 +86,5 @@ Function WM_DoAutoSizeImage(variable forceSize)
 	if( forceSize==0 )
 		ModifyGraph width=0,height=0
 	endif
+	ModifyGraph height=0, width={Plan,1,top,left} // EG:  Make the window resizable 
 end

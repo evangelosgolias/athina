@@ -808,7 +808,7 @@ End
 
 Function/S MXP_StrGetImageMarkups(string filename)
 	/// Read markups from a dat file. Then generate a list containing the markups parameters (positions, \
-	///  \size, color,line thickness, text), copied from https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
+	///  \size, color,line thickness, text), based partially on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
 	
 	variable refNum
 	string fileFilters = "Data Files (*.dat):.dat;"
@@ -855,6 +855,7 @@ Function/S MXP_StrGetImageMarkups(string filename)
 		
 		do
 			FBinRead /F=2 refNum, marker
+			print marker
 			if (marker == 6)
 				FBinRead /F=2 refNum, markup_x
 				FBinRead /F=2 refNum, markup_y
@@ -879,6 +880,167 @@ Function/S MXP_StrGetImageMarkups(string filename)
 	
 	markupsList = RemoveEnding(markupsList) + ";" // Replace the last tidle with a semicolon
 	return markupsList
+End
+
+Function/S MXP_StrGetImageMarkupsDEV(string filename) // TODO: Work on the function.
+	/// Read markups from a dat file. Then generate a list containing the markups parameters (positions, \
+	///  \size, color,line thickness, text), based partially on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
+	
+	variable refNum
+	string fileFilters = "Data Files (*.dat):.dat;"
+	Open /R /F=fileFilters refNum as filename
+	
+	// Read attachedRecipeSize
+	variable attachedRecipeSize = 0
+	FSetPos refNum, 46
+	FBinRead /F=2 refNum, attachedRecipeSize
+	
+	// Follow Elmitec's instructions
+	if (attachedRecipeSize != 0)
+		attachedRecipeSize = 128
+	endif
+	
+	// Read aAttachedMarkupSize
+	variable attachedMarkupSize
+	FSetpos refNum, (126 + attachedRecipeSize)
+	FBinRead /F=2 refNum, attachedMarkupSize
+	attachedMarkupSize = (floor(attachedMarkupSize/128)+1)*128 // Follow Elmitec's instructions
+	
+	if(attachedMarkupSize)
+		variable markupStartPos = 104 + attachedRecipeSize + 288
+	
+		variable filePos = markupStartPos
+		variable readValue = 0	
+		
+		// Cross Section
+		variable indexX1, indexY1, indexX2, indexY2, indexCx, indexCy
+		// Markers
+		variable marker, markup_x, markup_y, markup_radius, markup_color_R, markup_color_G, markup_color_B
+		variable markup_type, markup_lsize
+		// Inclusion
+		variable indexRect, RectLeft, RectRight, RectTop, RectBottom
+		
+		string markup_text
+		string markupsList = "Markups:"
+		string markupsString = ""
+		
+		FSetPos refNum, FilePos
+		FBinRead /F=2 refNum, readValue // Block size
+		FBinRead /F=2 refNum, readValue // Reserved
+		
+		do
+			FBinRead /F=2 refNum, marker
+			if (marker == 1 || marker == 2 || marker == 3) // cross section
+				FBinRead /F=2 refNum, indexX1
+				FBinRead /F=2 refNum, indexY1
+				FBinRead /F=2 refNum, indexX2
+				FBinRead /F=2 refNum, indexY2
+				FBinRead /F=2 refNum, indexCx
+				FBinRead /F=2 refNum, indexCy
+
+				sprintf markupsString,"%s,%u,%u,%u,%u,%u,%u", "CrossSection", indexX1, indexY1, indexX2, indexY2, indexCx, indexCy
+				markupsList += markupsString
+			endif
+			if (marker == 6) // marker
+				FBinRead /F=2 refNum, markup_x
+				FBinRead /F=2 refNum, markup_y
+				FBinRead /F=2 refNum, markup_radius
+				FBinRead /F=2 refNum, readValue // always 0050
+				FBinRead /F=1/U refNum, markup_color_R; markup_color_R *= 257 // Make 65535 max
+				FBinRead /F=1/U refNum, markup_color_G; markup_color_G *= 257
+				FBinRead /F=1/U refNum, markup_color_B; markup_color_B *= 257
+				FBinRead /F=2 refNum, readValue // always 0000
+				FBinRead /F=2 refNum, readValue // always 0000
+				FBinRead /F=2 refNum, markup_type
+				FBinRead /F=1/U refNum, markup_lsize
+				FBinRead /F=2 refNum, readValue // always 0800
+				FReadLine /T=(num2char(0)) refNum, markup_text
+				
+				sprintf markupsString,"%s,%u,%u,%u,%u,%u,%u,%u,%u~",markup_text, markup_x, markup_y, markup_radius, markup_color_R, markup_color_G, markup_color_B, markup_type, markup_lSize
+				markupsList += markupsString
+			endif
+			if (marker == 7) // inclusion
+				FBinRead /F=2 refNum, indexRect // type: index of rectangle (0,1,2,3)
+				FBinRead /F=2 refNum, RectLeft
+				FBinRead /F=2 refNum, RectTop
+				FBinRead /F=2 refNum, RectRight
+				FBinRead /F=2 refNum, RectBottom
+
+				sprintf markupsString,"%s,%u,%u,%u,%u,%u~", "InclExlAreas", indexRect, RectLeft, RectTop, RectRight, RectBottom
+				markupsList += markupsString
+				print markupsList
+			endif
+		while (marker != 0)
+	endif
+	Close refNum
+	
+	markupsList = RemoveEnding(markupsList) + ";" // Replace the last tidle with a semicolon
+	return markupsList
+End
+
+Function MXP_AppendMarkupsToTopImageDEV()
+	/// Draw the markups on an image display (drawn on the UserFront layer)
+	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
+	/// markups are drawn on the top graph
+	string imgNamestr = StringFromList(0,ImageNameList("",";"))
+	wave w = ImageNameToWaveRef("", imgNamestr)
+	string graphName = WinName(0, 1)
+	// Newlines and line feeds create problems with StringByKey, replace with ;
+	string markupsList = StringByKey("Markups", note(w), ":", "\n")//ReplaceString("\n",note(w), ";"))
+
+	// Cross Section
+	variable indexX1, indexY1, indexX2, indexY2, indexCx, indexCy
+	// Markers
+	variable marker, markup_x, markup_y, markup_radius, markup_color_R, markup_color_G, markup_color_B
+	variable markup_type, markup_lsize
+	// Inclusion
+	variable indexRect, RectLeft, RectRight, RectTop, RectBottom
+	
+	string markup, markup_text
+
+	SetDrawLayer /W=$graphName userFront
+	variable factorX = DimDelta(w, 0) // Take into account wave scaling, edited EG 02.11.22
+	variable factorY = DimDelta(w, 1)
+	variable i = 0
+	for(i = 0; i < ItemsInList(markupsList, "~"); i++)
+		markup = StringFromList(i, markupsList, "~")
+		if(!cmpstr(markup, "CrossSection", 0))
+			indexX1 = str2num(StringFromList(1, markupsList, "~"))
+			indexY1 = str2num(StringFromList(2, markupsList, "~"))
+			indexX2 = str2num(StringFromList(3, markupsList, "~"))
+			indexY2 = str2num(StringFromList(4, markupsList, "~"))
+			indexCx = str2num(StringFromList(5, markupsList, "~"))
+			indexCy = str2num(StringFromList(6, markupsList, "~"))
+			print "CS"
+			SetDrawEnv/W=$graphName fillpat = 0,linefgc = (65535,0,0), ycoord = left, xcoord = top //$xaxis
+			DrawLine/W=$graphName indexX1, indexY1, indexX2, indexY2
+		elseif(!cmpstr(markup, "InclExlAreas", 0))
+			indexRect = str2num(StringFromList(1, markupsList, "~"))
+			RectLeft = str2num(StringFromList(2, markupsList, "~"))
+			RectRight = str2num(StringFromList(3, markupsList, "~"))
+			RectTop = str2num(StringFromList(4, markupsList, "~"))
+			RectBottom = str2num(StringFromList(5, markupsList, "~"))
+			SetDrawEnv/W=$graphName fillpat = 0,linefgc = (65535,0,0), ycoord = left, xcoord = top //$xaxis
+			DrawLine/W=$graphName indexX1, indexY1, indexX2, indexY2
+		else
+			markup_x = str2num(StringFromList(0, markup, ","))
+			markup_y = str2num(StringFromList(1, markup, ","))
+			markup_radius = str2num(StringFromList(2, markup, ","))
+			markup_color_R = str2num(StringFromList(3, markup, ","))
+			markup_color_G = str2num(StringFromList(4, markup, ","))
+			markup_color_B = str2num(StringFromList(5, markup, ","))
+			markup_lsize = str2num(StringFromList(7, markup, ","))
+			markup_text = StringFromList(8, markup, ",")
+			markup_x *= factorX
+			markup_y *= factorY
+			markup_radius *= factorX // assumed stuff here
+			SetDrawEnv/W=$graphName fillpat = 0,linefgc = (markup_color_R, markup_color_G, markup_color_B), linethick = markup_lsize, ycoord = left, xcoord = top //$xaxis
+			DrawOval/W=$graphName markup_x - markup_radius, markup_y - markup_radius, markup_x + markup_radius, markup_y + markup_radius
+			SetDrawEnv/W=$graphName fsize = 16, textRGB = (markup_color_R, markup_color_G, markup_color_B), textxjust = 1, textyjust = 1, ycoord = left, xcoord = top
+			DrawText/W=$graphName markup_x, markup_y, markup_text
+		endif
+	endfor
+	return 0
 End
 
 // ** TODO **: Do we need to flip the image ?
@@ -973,6 +1135,7 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 	endif
 	variable cnt = 0
 	string odlwname = wname3d
+	// IDEA: Use CreateDataObjectName(dfr, nameInStr, objectType, suffixNum, options)
 	// Handle the case where the 3d wave exists and find an appropriate name
 	if(stack3d && exists(wname3d) == 1)
 		do

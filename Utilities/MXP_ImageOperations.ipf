@@ -128,7 +128,7 @@ Function MXP_GetLayerFromImageStack()
 	string msg
 	NVAR gLayer = root:Packages:WM3DImageSlider:$(winNameStr):gLayer	
 	if(NVAR_Exists(gLayer) && WaveDims(w3dref) == 3)
-		string layerSaveStr = imgNameTopGraphStr + "_layer_" + num2str(gLayer)
+		string layerSaveStr = NameOfWave(w3dref) + "_layer_" + num2str(gLayer)
 		MatrixOP/O $layerSaveStr = layer(w3dref, gLayer)
 		sprintf msg, "Slice %d from wave %s", gLayer, imgNameTopGraphStr
 		Note $layerSaveStr, msg

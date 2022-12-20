@@ -81,8 +81,6 @@ Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	WAVE imgStack = dfr:stackWaveRef
 	WAVE iXMCD = dfr:iXMCD
 	WAVE iImgAdd = dfr:iImgAdd
-	// Set dependency
-	iImgAdd := 2 + 1
 	// Add wave origin information
 	Note img1WaveRef, "Source: " + wave1NameStr
 	Note img2WaveRef, "Source: " + wave2NameStr
@@ -92,25 +90,25 @@ Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	string/G dfr:gMXP_wave2NameStr = wave2NameStr
 	variable/G dfr:gMXP_driftStep = 1
 	variable/G dfr:gMXP_CursorAlignSwitch = 0
-
+	MXP_CalculateSumOfTwoImagesToWaveRef(img1WaveRef, img2WaveRef, iImgAdd)
 	MXP_CalculateXMCDToWaveRef(img1WaveRef, img2WaveRef, iXMCD)
-	MXP_CreateInteractiveXMCDCalculationPanel(img1WaveRef, iImgAdd, iXMCD, uniquePanelNameStr)
+	MXP_CreateInteractiveXMCDCalculationPanel(imgStack, iImgAdd, iXMCD, uniquePanelNameStr)
 	DoWindow/F $uniquePanelNameStr
 	SetWindow $uniquePanelNameStr, hook(MyHook) = MXP_InteractiveImageDriftWindowHook // Set the hook
 
 End
 
-Function MXP_CreateInteractiveXMCDCalculationPanel(WAVE Img1WaveRef, WAVE Img2WaveRef,WAVE XMCDWaveRef, string panelNameStr)
+Function MXP_CreateInteractiveXMCDCalculationPanel(WAVE wRef1, WAVE wRef2, WAVE wRef3, string panelNameStr)
  	
 	NewPanel/N=$panelNamestr /W=(1239,97,2036,876)
 	SetDrawLayer UserBack
 	SetDrawEnv linefgc= (1,12815,52428),linejoin= 1,fillpat= 3,fillfgc= (65535,65534,49151),fillbgc= (65535,65534,49151)
-	Display/N=Img1/W=(30,10,390,370)/HOST=$panelNamestr;AppendImage Img1WaveRef;ModifyGraph margin=15,tick=2,nticks=5,fSize=10
-	TextBox/W=$panelNamestr#Img1/B=1/N=text0/F=0/S=3/A=LT/X=1.00/Y=1.0 "\\Z14Img1"  //img1
-	Display/N=Img2/W=(426,10,786,370)/HOST=$panelNamestr;AppendImage Img2WaveRef;ModifyGraph margin=15,tick=2,nticks=5,fSize=10 //img2
-	TextBox/W=$panelNamestr#Img2/B=1/N=text0/F=0/S=3/A=LT/X=1.00/Y=1.00 "\\Z14Img2"  //img1
-	Display/N=XMCLD/W=(30,409,390,769)/HOST=$panelNamestr;AppendImage XMCDWaveRef;ModifyGraph margin=15,tick=2,nticks=5,fSize=10 //xmcd
-	TextBox/W=$panelNamestr#XMCLD/B=1/N=text0/F=0/S=3/A=LT/X=1.00/Y=1.00 "\\Z14XMC(L)D" 
+	Display/N=iImgStack/W=(30,10,390,370)/HOST=$panelNamestr;AppendImage wRef1; ModifyGraph margin=15,tick=2,nticks=5,fSize=10
+	TextBox/W=$panelNamestr#iImgStack/B=1/N=text0/F=0/S=3/A=LT/X=1.00/Y=1.0 "\\Z14Images" //imgStack
+	Display/N=iImgAdd/W=(426,10,786,370)/HOST=$panelNamestr;AppendImage wRef2;ModifyGraph margin=15,tick=2,nticks=5,fSize=10
+	TextBox/W=$panelNamestr#iImgAdd/B=1/N=text0/F=0/S=3/A=LT/X=1.00/Y=1.00 "\\Z14Sum"  //iImgAdd
+	Display/N=iXMCD/W=(30,409,390,769)/HOST=$panelNamestr;AppendImage wRef3;ModifyGraph margin=15,tick=2,nticks=5,fSize=10 //iXMCD
+	TextBox/W=$panelNamestr#iXMCD/B=1/N=text0/F=0/S=3/A=LT/X=1.00/Y=1.00 "\\Z14XMC(L)D" 
 	DrawRect/W=$panelNamestr 424,409,784,769
 	SetDrawEnv/W=$panelNamestr fsize= 16,textrgb= (1,12815,52428)
 	DrawText/W=$panelNamestr 442,431,"MAXPEEM: Interactive XMC(L)D calculation"

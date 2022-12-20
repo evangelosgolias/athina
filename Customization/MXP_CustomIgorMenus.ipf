@@ -51,8 +51,9 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "Profiles"
-		"Line profile...", MXP_MainMenuLaunchLineProfiler()
-		"z-profile...", MXP_MainMenuLaunchZBeamProfiler()
+		"Line profile...", MXP_MainMenuLaunchLineProfile()
+		"z-profile...", MXP_MainMenuLaunchSumBeamsProfile()
+		"Plane profile Z ...", MXP_MainMenuLaunchImagePlaneProfileZ()
 	End
 	
 	Submenu "Report"
@@ -75,8 +76,9 @@ End
 
 Menu "DataBrowserObjectsPopup"
 	"MXP Newimage", MXP_LaunchNewImageFromBrowserSelection()
-	"MXP Z profile", MXP_BrowserMenuLaunchZBeamProfiler()
-	"MXP Line profile", MXP_BrowserMenuLaunchLineProfiler()
+	"MXP Z profile", MXP_BrowserMenuLaunchSumBeamsProfile()
+	"MXP Line profile", MXP_BrowserMenuLaunchLineProfile()
+	"MXP Plane profile Z", MXP_BrowserMenuLaunchImagePlaneProfileZ()
 	"MXP Average stack",  MXP_LaunchAverageStackToImageFromBrowserMenu()
 	"MXP Make stack", MXP_LaunchMake3DWaveDataBrowserSelection()
 	"MXP Make stack and display", MXP_LaunchMake3DWaveDataBrowserSelection(displayStack = 1)
@@ -102,5 +104,5 @@ Menu "TracePopup"
 	//"MXP Remove XPS background", MXP_LaunchRemoveXPSBackground()
 	"MXP BE-Scale XPS spectrum", MXP_LaunchScaleXPSSpectrum()
 	"MXP Draw image markups", MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
-	"MXP Clear UserFront layer", MXP_ClearROIMarkings()
+	"MXP Clear UserFront layer", MXP_ClearROIMarkingsUserFront()
 End

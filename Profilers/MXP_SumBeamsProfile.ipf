@@ -3,8 +3,6 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 
-#include <Imageslider>
-
 // ------------------------------------------------------- //
 // Developed by Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -16,9 +14,9 @@
 // LIABILITY, IN CONNECTION WITH THE USE OF SOFTWARE.
 // ------------------------------------------------------- //
 
-/// Profiler can now have several instances.
+/// Profile can now have several instances.
 
-Function MXP_MainMenuLaunchZBeamProfiler()
+Function MXP_MainMenuLaunchSumBeamsProfile()
 
 	// Create the modal data browser but do not display it
 	CreateBrowser/M prompt="Select an image stack and press OK"
@@ -45,22 +43,23 @@ Function MXP_MainMenuLaunchZBeamProfiler()
 		w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
 	endif
 	if(exists(browserSelection) && WaveDims(w3dref) == 3) // if it is a 3d wave
-		NewImage/K=1 w3dref
-		ModifyGraph width={Plan,1,top,left}
-		MXP_InitialiseZProfilerFolder()
+//		NewImage/K=1 w3dref
+//		ModifyGraph width={Plan,1,top,left}
+		MXP_DisplayImage(w3dRef)
+		MXP_InitialiseZProfileFolder()
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
-		MXP_InitialiseZProfilerGraph(dfr)
+		MXP_InitialiseZProfileGraph(dfr)
 		SVAR winNameStr = dfr:gMXP_WindowNameStr
-		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
+		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 	else
-		Abort "z-profiler needs a 3d wave. N.B Select only one wave"
+		Abort "z-profile needs a 3d wave. N.B Select only one wave"
 	endif
 	return 0
 End
 
-Function MXP_TraceMenuLaunchZBeamProfiler() // Trace menu launcher, inactive
+Function MXP_TraceMenuLaunchSumBeamsProfile() // Trace menu launcher, inactive
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -75,22 +74,23 @@ Function MXP_TraceMenuLaunchZBeamProfiler() // Trace menu launcher, inactive
 			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
 			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
 		endif
-		NewImage/K=1 w3dref
+//		NewImage/K=1 w3dref
+//		ModifyGraph width={Plan,1,top,left}
+		MXP_DisplayImage(w3dRef)
 		winNameStr = WinName(0, 1, 1)
-		ModifyGraph width={Plan,1,top,left}
-		MXP_InitialiseZProfilerFolder()
+		MXP_InitialiseZProfileFolder()
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
-		MXP_InitialiseZProfilerGraph(dfr)
-		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
+		MXP_InitialiseZProfileGraph(dfr)
+		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 	else
-		Abort "z-profiler needs a 3d wave"
+		Abort "z-profile needs a 3d wave"
 	endif
 	return 0
 End
 
-Function MXP_BrowserMenuLaunchZBeamProfiler() // Browser menu launcher, active
+Function MXP_BrowserMenuLaunchSumBeamsProfile() // Browser menu launcher, active
 
 	// Check if you have selected a single 3D wave
 	if(MXP_CountSelectedWavesInDataBrowser(waveDimemsions = 3) == 1\
@@ -104,13 +104,14 @@ Function MXP_BrowserMenuLaunchZBeamProfiler() // Browser menu launcher, active
 			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
 			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
 		endif
-		NewImage/K=1 w3dRef
+		MXP_DisplayImage(w3dRef)
+//		NewImage/K=1 w3dRef
+//		ModifyGraph width={Plan,1,top,left}
 		string winNameStr = WinName(0, 1, 1)
-		ModifyGraph width={Plan,1,top,left}
-		MXP_InitialiseZProfilerFolder()
+		MXP_InitialiseZProfileFolder()
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
-		MXP_InitialiseZProfilerGraph(dfr)
-		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfiler // Set the hook
+		MXP_InitialiseZProfileGraph(dfr)
+		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 	else
@@ -119,7 +120,7 @@ Function MXP_BrowserMenuLaunchZBeamProfiler() // Browser menu launcher, active
 	return 0
 End
 
-Function MXP_InitialiseZProfilerFolder()
+Function MXP_InitialiseZProfileFolder()
 	/// All initialisation happens here. Folders, waves and local/global variables
 	/// needed are created here. Use the 3D wave in top window.
 
@@ -129,11 +130,11 @@ Function MXP_InitialiseZProfilerFolder()
 
 	string msg // Error reporting
 	if(!strlen(imgNameTopGraphStr)) // we do not have an image in top graph
-		Abort "No image in top graph. Start profiler with an image stack in top window."
+		Abort "No image in top graph. Start profile with an image stack in top window."
 	endif
 	
 	if(WaveDims(w3dref) != 3)
-		sprintf msg, "Z-profiler works with 3d waves only.  Wave %s is in top window", imgNameTopGraphStr
+		sprintf msg, "Z-profile works with 3d waves only.  Wave %s is in top window", imgNameTopGraphStr
 		Abort msg
 	endif
 	
@@ -205,8 +206,8 @@ Function MXP_DrawROIAndWaitHookToAct() // Function used by the hook
 	return 0
 End
 
-Function MXP_DrawImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
-	// Use MXP_DrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
+Function MXP_SumBeamsDrawImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
+	// Use MXP_SumBeamsDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
 	SetDrawLayer UserFront 
 	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
 	DrawOval left, top, right, bottom
@@ -214,25 +215,25 @@ Function MXP_DrawImageROI(variable left, variable top, variable right, variable 
 	return 0
 End
 
-Function MXP_ClearROIMarkings()
+Function MXP_ClearROIMarkingsUserFront()
 	SetDrawLayer UserFront
 	DrawAction delete
 	SetDrawLayer ProgFront
 	return 0
 End
 
-Function MXP_InitialiseZProfilerGraph(DFREF dfr)
+Function MXP_InitialiseZProfileGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
 	string plotNameStr = "MXP_ZProf_" + GetDataFolder(0, dfr)
 	if (WinType(plotNameStr) == 0) // line profile window is not displayed
-		MXP_CreateZProfilePlot(dfr)
+		MXP_CreateSumBeamsProfilePlot(dfr)
 	else
 		DoWindow/F $plotNameStr // if it is bring it to the FG
 	endif
 	return 0
 End
 
-Function MXP_CreateZProfilePlot(DFREF dfr)
+Function MXP_CreateSumBeamsProfilePlot(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(rootFolderStr)
 	SVAR/Z/SDFR=dfr gMXP_LineProfileWaveStr
@@ -240,7 +241,7 @@ Function MXP_CreateZProfilePlot(DFREF dfr)
 	WAVE profile = dfr:$gMXP_LineProfileWaveStr
 
 	if(!SVAR_Exists(gMXP_LineProfileWaveStr))
-		Abort "Launch z-profiler from data browser (right-click). In the image left-click and drag and then right-click and seelct 'Oval ROI z profile' Marquee Operation."
+		Abort "Launch z-profile from data browser (right-click). In the image left-click and drag and then right-click and seelct 'Oval ROI z profile' Marquee Operation."
 	endif
 	string profilePlotStr = "MXP_ZProfPlot_" + gMXP_WindowNameStr 
 	variable pix = 72/ScreenResolution
@@ -250,15 +251,15 @@ Function MXP_CreateZProfilePlot(DFREF dfr)
 	Label left "\\u#2 Intensity (arb. u.)";DelayUpdate
 	Label bottom "\\u#2 Energy (eV)"
 	ControlBar 40	
-	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveZProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
-	CheckBox ShowProfile, pos={150.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ZProfilePlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 0
-	CheckBox ShowSelectedAread, pos={270.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_ZProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 0
+	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveSumBeamsProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
+	CheckBox ShowProfile, pos={150.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 0
+	CheckBox ShowSelectedAread, pos={270.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 0
 	SetWindow $profilePlotStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(MXP_targetGraphWin) = "MXP_BeamProfile_" + gMXP_WindowNameStr
 	return 0
 End
 
-Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
+Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 	/// Window hook function
     variable hookResult = 0, i
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
@@ -304,7 +305,7 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 			break
         case 7: // cursor moved
         	if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor
-        		DrawAction/W=$WindowNameStr delete // TODO: Here add the env commands of MXP_DrawImageROICursor before switch and here only the draw command 
+        		DrawAction/W=$WindowNameStr delete // TODO: Here add the env commands of MXP_SumBeamsDrawImageROICursor before switch and here only the draw command 
         		SetDrawEnv/W=$WindowNameStr linefgc = (65535,65535,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 				DrawOval/W=$WindowNameStr -axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
 					  axisxlen * 0.5 + s.pointNumber * dx,  -(axisylen * 0.5) + s.yPointNumber * dy
@@ -337,7 +338,7 @@ Function MXP_CursorHookFunctionBeamProfiler(STRUCT WMWinHookStruct &s)
 End
 
 
-Function MXP_SaveZProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function MXP_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "MXP_targetGraphWin")
@@ -391,7 +392,7 @@ Function MXP_SaveZProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 							colorcnt += 1
 						endif
 						DoWindow/F $WindowNameStr
-						MXP_DrawImageROI(gMXP_left, gMXP_top, gMXP_right, gMXP_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+						MXP_SumBeamsDrawImageROI(gMXP_left, gMXP_top, gMXP_right, gMXP_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
 					endif
 				break // Stop if you go through the else branch
 				endif
@@ -406,7 +407,7 @@ Function MXP_SaveZProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 
-Function MXP_ZProfilePlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+Function MXP_SumBeamsProfilePlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
 	NVAR/Z DoPlotSwitch = dfr:gMXP_DoPlotSwitch
@@ -422,7 +423,7 @@ Function MXP_ZProfilePlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : Chec
 End
 
 
-Function MXP_ZProfilePlotCheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+Function MXP_SumBeamsProfilePlotCheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
 	NVAR/Z MarkAreasSwitch = dfr:gMXP_MarkAreasSwitch
@@ -441,7 +442,7 @@ End
 // ---------------------------------------------------------------------------------
 //static Function/WAVE MXP_WAVESumOverBeamsMasked(Wave w3d, Wave wMask)
 //	// No consistency checks here, we want to be fast and efficient
-//	// as the function is called in the MXP_CursorHookFunctionBeamProfiler
+//	// as the function is called in the MXP_CursorHookFunctionBeamProfile
 //	Make/N=(DimSize(w3d,2))/FREE retWave = 0
 //	variable nrows =DimSize(w3d, 0), i
 //	variable ncols =DimSize(w3d, 1), j
