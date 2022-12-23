@@ -252,8 +252,8 @@ Function MXP_CreateSumBeamsProfilePlot(DFREF dfr)
 	Label bottom "\\u#2 Energy (eV)"
 	ControlBar 40	
 	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveSumBeamsProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
-	CheckBox ShowProfile, pos={150.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 0
-	CheckBox ShowSelectedAread, pos={270.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 0
+	CheckBox ShowProfile, pos={150.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
+	CheckBox ShowSelectedAread, pos={270.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
 	SetWindow $profilePlotStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(MXP_targetGraphWin) = "MXP_BeamProfile_" + gMXP_WindowNameStr
 	return 0

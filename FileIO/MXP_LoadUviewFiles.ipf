@@ -855,7 +855,6 @@ Function/S MXP_StrGetImageMarkups(string filename)
 		
 		do
 			FBinRead /F=2 refNum, marker
-			print marker
 			if (marker == 6)
 				FBinRead /F=2 refNum, markup_x
 				FBinRead /F=2 refNum, markup_y
@@ -968,7 +967,6 @@ Function/S MXP_StrGetImageMarkupsDEV(string filename) // TODO: Work on the funct
 
 				sprintf markupsString,"%s,%u,%u,%u,%u,%u~", "InclExlAreas", indexRect, RectLeft, RectTop, RectRight, RectBottom
 				markupsList += markupsString
-				print markupsList
 			endif
 		while (marker != 0)
 	endif
@@ -1011,7 +1009,6 @@ Function MXP_AppendMarkupsToTopImageDEV()
 			indexY2 = str2num(StringFromList(4, markupsList, "~"))
 			indexCx = str2num(StringFromList(5, markupsList, "~"))
 			indexCy = str2num(StringFromList(6, markupsList, "~"))
-			print "CS"
 			SetDrawEnv/W=$graphName fillpat = 0,linefgc = (65535,0,0), ycoord = left, xcoord = top //$xaxis
 			DrawLine/W=$graphName indexX1, indexY1, indexX2, indexY2
 		elseif(!cmpstr(markup, "InclExlAreas", 0))
