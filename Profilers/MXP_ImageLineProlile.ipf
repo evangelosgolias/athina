@@ -312,7 +312,7 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 			endif
 			break
 	    case 7: // cursor moved
-			if(!cmpstr(s.cursorName, "G") || !cmpstr(s.cursorName, "H")) // It should work only with G, H you might have other pointers on the image
+			if(!cmpstr(s.cursorName, "G") || !cmpstr(s.cursorName, "H")) // It should work only with G, H you might have other cursors on the image
 				SetDrawLayer ProgFront
 			    DrawAction delete
 	   			SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left

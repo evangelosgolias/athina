@@ -312,7 +312,7 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 				Cursor/I/L=0/C=(65535,65535,0)/S=2 J $w3dNameStr, s.pointNumber * dx, s.yPointNumber * dy
 				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStr // Here we need name of a wave, not a wave reference!
 				if(WaveExists(M_ROIMask))
-					MatrixOP/FREE/O/NTHR=4 buffer = sum(w3d*M_ROIMask) // Use two threads
+					MatrixOP/FREE/O/NTHR=4 buffer = sum(w3d*M_ROIMask) // Use threads
 		   		 	MatrixOP/O profile = beam(buffer,0,0)
 		    			gMXP_left = -axisxlen * 0.5 + s.pointNumber * dx
 					gMXP_right = axisxlen * 0.5 + s.pointNumber * dx
