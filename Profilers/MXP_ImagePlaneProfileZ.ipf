@@ -265,7 +265,6 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 	NVAR/Z Xfactor = dfr:gMXP_Xfactor	
 	NVAR/Z Ystart = dfr:gMXP_Ystart
 	NVAR/Z Yend = dfr:gMXP_Yend
-	Wave/SDFR=dfr M_ExtractedSurface  // WAVE reference to plane profile
 	SetdataFolder dfr
 	switch(s.eventCode)
 		case 2: // Kill the window
@@ -273,14 +272,6 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 			KillDataFolder/Z dfr
 			hookresult = 1
 			break
-//		case 5:
-//			ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
-//		    SetScale/I x, 0, (Nx * Xfactor) , M_ExtractedSurface 
-//			SetScale/I y, Yend, Ystart, M_ExtractedSurface 
-//			hookresult = 0
-//			break
-
-//		Ask Wavemetrics
 	    case 7: // cursor moved
 			if(!cmpstr(s.cursorName, "G") || !cmpstr(s.cursorName, "H")) // It should work only with G, H you might have other cursors on the image
 				SetDrawLayer ProgFront
@@ -293,14 +284,15 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 		       	if(C1x == C2x && C1y == C2y) // Cursors G, H cannot overlap
 		       		break
 		       	endif
-		       	Ny = nLayers			
+		       	Ny = nLayers	
 		       	if(!OverrideNxy) // Do not override - Problematic
 		       		Nx = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))					
 				endif
-					DrawLine C1x, C1y, C2x, C2y
-		       		ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
-		      	 	SetScale/I x, 0, (Nx * Xfactor), M_ExtractedSurface
-		       		SetScale/I y, Ystart, Yend, M_ExtractedSurface
+				DrawLine C1x, C1y, C2x, C2y
+		       	ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
+		       	WAVE ww = M_ExtractedSurface
+		     	SetScale/I x, 0, (Nx * Xfactor), ww
+		       	SetScale/I y, Ystart, Yend, ww
 				hookResult = 1
 				break
 			endif
@@ -372,16 +364,10 @@ End
 
 Function MXP_ImagePlaneProfileZButtonSetScale(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
-	string targetGraphWin = GetUserData(B_Struct.win, "", "MXP_targetGraphWin")
-	Wave/SDFR=dfr M_ExtractedSurface  
-//	NVAR/Z OverrideNxy = dfr:gMXP_OverrideNxy
 	NVAR/Z C1x = dfr:gMXP_C1x
 	NVAR/Z C1y = dfr:gMXP_C1y
 	NVAR/Z C2x = dfr:gMXP_C2x
 	NVAR/Z C2y = dfr:gMXP_C2y
-	NVAR/Z Nx = dfr:gMXP_Nx
-	NVAR/Z Ny = dfr:gMXP_Ny
-	NVAR/Z nLayers =  dfr:gMXP_nLayers
 	NVAR/Z Xfactor = dfr:gMXP_Xfactor
 	NVAR/Z Ystart = dfr:gMXP_Ystart
 	NVAR/Z Yend = dfr:gMXP_Yend
@@ -397,7 +383,7 @@ Function MXP_ImagePlaneProfileZButtonSetScale(STRUCT WMButtonAction &B_Struct): 
 			endif
 			Ystart = Ystart_l
 			Yend   = Yend_l
-				Xfactor = Xscale / round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
+			Xfactor = Xscale / round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 		break
 	endswitch
 	return 0
@@ -458,20 +444,24 @@ Function MXP_ImagePlaneProfileZSetVariableNx(STRUCT WMSetVariableAction& sv) : S
 	NVAR/Z C2y = dfr:gMXP_C2y
 	NVAR/Z Nx = dfr:gMXP_Nx
 	NVAR/Z Ny = dfr:gMXP_Ny
+	NVAR/Z Xfactor = dfr:gMXP_Xfactor
 	NVAR/Z nLayers =  dfr:gMXP_nLayers
 	NVAR/Z OverrideNxy = dfr:gMXP_OverrideNxy
-	SetDataFolder dfr
 	SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
 	WAVE/Z w3dRef = $ImagePathname
+	SetDataFolder dfr
 	switch(sv.eventCode)
 		case 6:
 			if(OverrideNxy)
 				Nx = sv.dval
+				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
+				WAVE ww = M_ExtractedSurface
+				SetScale/I x, 0, (Nx * Xfactor), ww
 			else
-		      	Nx = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
+		       	Nx = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 		    endif
-       		ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 		break
+		print "Nx in SetVariable", Nx
 	endswitch
 	SetDataFolder currdfr
 	return 0
@@ -489,17 +479,21 @@ Function MXP_ImagePlaneProfileZSetVariableNy(STRUCT WMSetVariableAction& sv) : S
 	NVAR/Z Ny = dfr:gMXP_Ny
 	NVAR/Z nLayers =  dfr:gMXP_nLayers
 	NVAR/Z OverrideNxy = dfr:gMXP_OverrideNxy
-	SetDataFolder dfr
+	NVAR/Z Ystart = dfr:gMXP_Ystart
+	NVAR/Z Yend = dfr:gMXP_Yend
 	SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
 	WAVE/Z w3dRef = $ImagePathname
+	SetDataFolder dfr
 	switch(sv.eventCode)
 		case 6:
 			if(OverrideNxy)
 				Ny = sv.dval
+				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
+				WAVE ww = M_ExtractedSurface
+				SetScale/I y, Ystart, Yend, ww
 			else
 		      	Ny = nLayers
 		    endif	 
-       		ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef		
        	break
 	endswitch
 	SetDataFolder currdfr
