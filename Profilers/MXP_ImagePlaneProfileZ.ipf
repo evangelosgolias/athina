@@ -154,8 +154,8 @@ Function MXP_InitialiseImagePlaneProfileZFolder()
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:" + imgNameTopGraphStr) // Root folder here
 	DFREF dfr0 = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:DefaultSettings:") // Settings here
 
-	variable nrows = DimSize(imgWaveRef,0)
-	variable ncols = DimSize(imgWaveRef,1)
+	variable nrows = DimSize(imgWaveRef, 0)
+	variable ncols = DimSize(imgWaveRef, 1)
 
 	string/G dfr:gMXP_imgNameTopWindowStr = imgNameTopGraphStr
 	string/G dfr:gMXP_WindowNameStr = winNameStr
@@ -196,7 +196,7 @@ Function MXP_InitialiseImagePlaneProfileZGraph(DFREF dfr)
 	endif
 	return 0
 End
-ControlUpdate
+
 Function MXP_CreateImagePlaneProfileZ(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(rootFolderStr)
@@ -220,8 +220,8 @@ Function MXP_CreateImagePlaneProfileZ(DFREF dfr)
 	ImageTransform/X={ Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface wRef
 	SetDataFolder cdfr 
 	
-	NewImage/K=1/N=$profilePlotStr dfr:M_ExtractedSurface
-	ModifyGraph/W=$profilePlotStr width = 330, height = 480 //TODO: Fix it
+	NewImage/G=1/K=1/N=$profilePlotStr dfr:M_ExtractedSurface
+	ModifyGraph/W=$profilePlotStr width = 330, height = 470
 	AutoPositionWindow/E/M=0/R=$gMXP_WindowNameStr
 	
 	SetWindow $profilePlotStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
@@ -265,6 +265,7 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 	NVAR/Z Xfactor = dfr:gMXP_Xfactor	
 	NVAR/Z Ystart = dfr:gMXP_Ystart
 	NVAR/Z Yend = dfr:gMXP_Yend
+	variable normGHCursors = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 	SetdataFolder dfr
 	switch(s.eventCode)
 		case 2: // Kill the window
@@ -283,15 +284,20 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 		       	C2y = vcsr(H)
 		       	if(C1x == C2x && C1y == C2y) // Cursors G, H cannot overlap
 		       		break
-		       	endif
-		       	Ny = nLayers	
-		       	if(!OverrideNxy) // Do not override - Problematic
-		       		Nx = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))					
+		       	endif	
+		       	if(!OverrideNxy) // Do not override
+		       		Nx = normGHCursors
+		       		Ny = nLayers					
 				endif
 				DrawLine C1x, C1y, C2x, C2y
 		       	ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 		       	WAVE ww = M_ExtractedSurface
-		     	SetScale/I x, 0, (Nx * Xfactor), ww
+		       	if(OverrideNxy)
+		       		SetScale/I x, 0, (normGHCursors * Xfactor), ww
+		       	else
+		      		SetScale/I x, 0, (Nx * Xfactor), ww
+		       	endif
+		     	
 		       	SetScale/I y, Ystart, Yend, ww
 				hookResult = 1
 				break
@@ -323,9 +329,9 @@ Function MXP_ImagePlaneProfileZButtonSaveProfile(STRUCT WMButtonAction &B_Struct
 	NVAR/Z colorcnt = dfr:gMXP_colorcnt
 	string recreateCmdStr
 	DFREF savedfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:SavedImagePlaneProfileZ")
-	
-	variable postfix = 0
 	variable red, green, blue
+	variable postfix = 0
+	string saveImageStr
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			do
@@ -335,11 +341,9 @@ Function MXP_ImagePlaneProfileZButtonSaveProfile(STRUCT WMButtonAction &B_Struct
 				else
 					Duplicate dfr:M_ExtractedSurface, savedfr:$saveWaveNameStr
 					if(PlotSwitch)
-						NewImage/K=1/N=$targetGraphWin savedfr:$saveWaveNameStr
-						//TODO: Set here the dimensions of the image.
-						[red, green, blue] = MXP_GetColor(colorcnt)
-						AutopositionWindow/R=$B_Struct.win $targetGraphWin
-						DoWindow/F $targetGraphWin
+						saveImageStr = targetGraphWin + num2str(postfix)
+						NewImage/G=1/K=1/N=$saveImageStr savedfr:$saveWaveNameStr
+						ModifyGraph/W=$saveImageStr width = 330, height = 470
 						colorcnt += 1
 					endif
 					
@@ -444,19 +448,24 @@ Function MXP_ImagePlaneProfileZSetVariableNx(STRUCT WMSetVariableAction& sv) : S
 	NVAR/Z C2y = dfr:gMXP_C2y
 	NVAR/Z Nx = dfr:gMXP_Nx
 	NVAR/Z Ny = dfr:gMXP_Ny
+	NVAR/Z Ystart = dfr:gMXP_Ystart
+	NVAR/Z Yend = dfr:gMXP_Yend
 	NVAR/Z Xfactor = dfr:gMXP_Xfactor
 	NVAR/Z nLayers =  dfr:gMXP_nLayers
 	NVAR/Z OverrideNxy = dfr:gMXP_OverrideNxy
 	SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
 	WAVE/Z w3dRef = $ImagePathname
+	variable normGHCursors
 	SetDataFolder dfr
 	switch(sv.eventCode)
 		case 6:
 			if(OverrideNxy)
 				Nx = sv.dval
+				normGHCursors = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 				WAVE ww = M_ExtractedSurface
-				SetScale/I x, 0, (Nx * Xfactor), ww
+				SetScale/I x, 0, (normGHCursors * Xfactor), ww
+				SetScale/I y, Ystart, Yend, ww
 			else
 		       	Nx = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 		    endif
@@ -481,8 +490,10 @@ Function MXP_ImagePlaneProfileZSetVariableNy(STRUCT WMSetVariableAction& sv) : S
 	NVAR/Z OverrideNxy = dfr:gMXP_OverrideNxy
 	NVAR/Z Ystart = dfr:gMXP_Ystart
 	NVAR/Z Yend = dfr:gMXP_Yend
+	NVAR/Z Xfactor = dfr:gMXP_Xfactor
 	SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
 	WAVE/Z w3dRef = $ImagePathname
+	variable normGHCursors
 	SetDataFolder dfr
 	switch(sv.eventCode)
 		case 6:
@@ -490,7 +501,9 @@ Function MXP_ImagePlaneProfileZSetVariableNy(STRUCT WMSetVariableAction& sv) : S
 				Ny = sv.dval
 				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 				WAVE ww = M_ExtractedSurface
+				normGHCursors = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 				SetScale/I y, Ystart, Yend, ww
+				SetScale/I x, 0, (normGHCursors * Xfactor), ww
 			else
 		      	Ny = nLayers
 		    endif	 
