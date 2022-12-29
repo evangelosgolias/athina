@@ -172,10 +172,11 @@ Function MXP_InitialiseZProfileFolder()
 	variable/G dfr:gMXP_left = 0
 	variable/G dfr:gMXP_right = 0
 	variable/G dfr:gMXP_top = 0
-	variable/G dfr:gMXP_bottom = 0	
-	variable/G dfr:gMXP_DoPlotSwitch = 0
+	variable/G dfr:gMXP_bottom = 0
+	variable/G dfr:nLayers = nlayers
+	variable/G dfr:gMXP_DoPlotSwitch = 1
+	variable/G dfr:gMXP_MarkAreasSwitch = 1
 	variable/G dfr:gMXP_colorcnt = 0
-	variable/G dfr:gMXP_MarkAreasSwitch = 0
 	variable/G dfr:gMXP_mouseTrackV
 	return 0
 End
@@ -252,8 +253,8 @@ Function MXP_CreateSumBeamsProfilePlot(DFREF dfr)
 	Label bottom "\\u#2 Energy (eV)"
 	ControlBar 40	
 	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveSumBeamsProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
-	CheckBox ShowProfile, pos={150.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
-	CheckBox ShowSelectedAread, pos={270.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
+	CheckBox ShowProfile, pos={130.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
+	CheckBox ShowSelectedAread, pos={250.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
 	SetWindow $profilePlotStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(MXP_targetGraphWin) = "MXP_BeamProfile_" + gMXP_WindowNameStr
 	return 0
@@ -270,6 +271,7 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 	NVAR/SDFR=dfr gMXP_bottom
 	NVAR/Z dx = dfr:gMXP_ROI_dx
 	NVAR/Z dy = dfr:gMXP_ROI_dy
+	NVAR/Z nLayers = dfr:nLayers
 	NVAR/Z mouseTrackV = dfr:gMXP_mouseTrackV
 	variable axisxlen = gMXP_right - gMXP_left
 	variable axisylen = gMXP_bottom - gMXP_top
@@ -312,15 +314,22 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 				Cursor/I/L=0/C=(65535,65535,0)/S=2 J $w3dNameStr, s.pointNumber * dx, s.yPointNumber * dy
 				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStr // Here we need name of a wave, not a wave reference!
 				if(WaveExists(M_ROIMask))
-					MatrixOP/FREE/O/NTHR=4 buffer = sum(w3d*M_ROIMask) // Use threads
-		   		 	MatrixOP/O profile = beam(buffer,0,0)
+					MatrixOP/O/NTHR=4 profile = sum(w3d*M_ROIMask) // Use threads
+					Redimension/E=1/N=(nLayers) profile
 		    			gMXP_left = -axisxlen * 0.5 + s.pointNumber * dx
 					gMXP_right = axisxlen * 0.5 + s.pointNumber * dx
 					gMXP_top = axisylen * 0.5 + s.yPointNumber * dy
-					gMXP_bottom = -(axisylen * 0.5) + s.yPointNumber * dy
+					gMXP_bottom = -axisylen * 0.5 + s.yPointNumber * dy
 		    		endif
+//		    		print "Left:", gMXP_left, ",Right:",gMXP_right, ",Top:", gMXP_top, ",Bottom:", gMXP_bottom
+//		    		print "HookPointX:",(s.pointNumber * dx),",HookPointY:",(s.ypointNumber * dy), ",CursorX:", hcsr(J), ",CursorY:",vcsr(J)
+//		    		print "l+r/2:", (gMXP_left + gMXP_right)/2, ",t+b/2:", (gMXP_top + gMXP_bottom)/2
+//		    		print "leftP:",(gMXP_left/dx),",rightP:",(gMXP_right/dx),"topQ:",(gMXP_top/dy),",bottomQ:",(gMXP_bottom/dy)
+//		    		print "------"
+				hookresult = 1
+				break
 		    endif
-		    hookresult = 1
+		    hookresult = 0
 	 		break
 	 	case 8: // We have a Window modification eveny
 	 		if(mouseTrackV < 0) // mouse outside of plot area
@@ -330,8 +339,10 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 	 			DrawAction/W=$plotNameStr delete
 	 			SetDrawEnv/W=$plotNameStr xcoord= bottom, ycoord= prel,linefgc = (65535,0,0) //It should be after the draw action
             	DrawLine/W=$plotNameStr linePos, 0, linePos, 1
+            	hookresult = 1
+            	break
 	 		endif
-	 		hookresult = 1
+	 		hookresult = 0
 	 		break
     endswitch
     return hookResult       // If non-zero, we handled event and Igor will ignore it.
@@ -346,7 +357,7 @@ Function MXP_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonC
 	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
 	SVAR/Z w3dNameStr = dfr:gMXP_w3dNameStr
 	SVAR/Z w3dPathName = dfr:gMXP_w3dPathName
-	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
+	Wave/SDFR=dfr profile = $LineProfileWaveStr // full path to wave
 	NVAR/Z DoPlotSwitch = dfr:gMXP_DoPlotSwitch
 	NVAR/Z MarkAreasSwitch = dfr:gMXP_MarkAreasSwitch
 	NVAR/Z colorcnt = dfr:gMXP_colorcnt
@@ -380,7 +391,7 @@ Function MXP_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonC
 							Display/N=$targetGraphWin savedfr:$saveWaveNameStr // Do not kill the graph windows, user might want to save the profiles
 							[red, green, blue] = MXP_GetColor(colorcnt)
 							Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
-							AutopositionWindow/R=$B_Struct.win $targetGraphWin
+							AutopositionWindow/M=1/R=$B_Struct.win $targetGraphWin
 							DoWindow/F $targetGraphWin
 							colorcnt += 1
 						endif
@@ -438,16 +449,40 @@ Function MXP_SumBeamsProfilePlotCheckboxMarkAreas(STRUCT WMCheckboxAction& cb) :
 	return 0
 End
 
+// Alternative algo, loops over the rectangle enclosing the oval ROI.
+Threadsafe static function SumBeamsOvalROI(WAVE w3dRef, WAVE wMask, WAVE profile, DFREF dfr,
+						variable left, variable right, variable top, variable bottom)
+						
+	NVAR/SDFR=dfr gMXP_left
+	NVAR/SDFR=dfr gMXP_right
+	NVAR/SDFR=dfr gMXP_top
+	NVAR/SDFR=dfr gMXP_bottom
+	NVAR/SDFR=dfr gMXP_ROI_dx
+	NVAR/SDFR=dfr gMXP_ROI_dy
+	left = floor(gMXP_left/gMXP_ROI_dx)
+	right = floor(gMXP_right/gMXP_ROI_dx)
+	top = floor(top/gMXP_ROI_dy)
+	bottom = floor(bottom/gMXP_ROI_dy)
+	variable i, j
+	for(i = left; i < right + 1; i++)
+		for(j = top; j < bottom + 1; j++)
+			if(wMask[i][j] > 0) // comment out to use a box, Mask in not needed.
+				profile += w3dRef[i][j][p]
+			endif
+		endfor
+	endfor
+End
+
+
 // Alternative to MatrixOP in Window Hook function, currently (01.12.2022) disabled.
 // ---------------------------------------------------------------------------------
 //static Function/WAVE MXP_WAVESumOverBeamsMasked(Wave w3d, Wave wMask)
 //	// No consistency checks here, we want to be fast and efficient
 //	// as the function is called in the MXP_CursorHookFunctionBeamProfile
 //	Make/N=(DimSize(w3d,2))/FREE retWave = 0
-//	variable nrows =DimSize(w3d, 0), i
-//	variable ncols =DimSize(w3d, 1), j
-//	for(i = 0; i < nrows; i++)
-//		for(j = 0; j < ncols; j++)
+//	variable i, j
+//	for(i = 0; i < 2; i++)
+//		for(j = 0; j < 2; j++)
 //			if(wMask[i][j] > 0)
 //				retWave += w3d[i][j][p]
 //			endif
@@ -455,7 +490,7 @@ End
 //	endfor
 //	return retWave
 //End
-//
+// ImageTransform
 //
 //static Function MXP_MakeWaveWithMaskCoordinates(DFREF dfr, WAVE wMask) // Not used 
 //	// wMask should have 0 and 1 only, otherwise the wave dimensions of mxpBeamCoordinates will be wrong.

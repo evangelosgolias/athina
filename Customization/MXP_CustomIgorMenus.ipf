@@ -52,8 +52,8 @@ Menu "MAXPEEM"
 	
 	Submenu "Profiles"
 		"Line profile...", MXP_MainMenuLaunchLineProfile()
-		"z-profile...", MXP_MainMenuLaunchSumBeamsProfile()
-		"Plane profile Z ...", MXP_MainMenuLaunchImagePlaneProfileZ()
+		"Z profile...", MXP_MainMenuLaunchSumBeamsProfile()
+		"Plane profile...", MXP_MainMenuLaunchImagePlaneProfileZ()
 	End
 	
 	Submenu "Report"
@@ -78,7 +78,7 @@ Menu "DataBrowserObjectsPopup"
 	"MXP Newimage", MXP_LaunchNewImageFromBrowserSelection()
 	"MXP Z profile", MXP_BrowserMenuLaunchSumBeamsProfile()
 	"MXP Line profile", MXP_BrowserMenuLaunchLineProfile()
-	"MXP Plane profile Z", MXP_BrowserMenuLaunchImagePlaneProfileZ()
+	"MXP Plane profile", MXP_BrowserMenuLaunchImagePlaneProfileZ()
 	"MXP Average stack",  MXP_LaunchAverageStackToImageFromBrowserMenu()
 	"MXP Make stack", MXP_LaunchMake3DWaveDataBrowserSelection()
 	"MXP Make stack and display", MXP_LaunchMake3DWaveDataBrowserSelection(displayStack = 1)
