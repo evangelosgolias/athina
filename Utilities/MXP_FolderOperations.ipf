@@ -82,7 +82,7 @@ Function/DF MXP_CreateDataFolderGetDFREF(string fullpath)
 	variable fldrnum = ItemsInList(fldrs)
 	for(i = 0; i < fldrnum; i++)
 		fldrstr = StringFromList(i, fldrs)
-		if(!DataFolderExists(fldrstr)) // ":" at the end needed to function properly
+		if(!DataFolderExists(fldrstr)) // ":" at the end needed to function properly - No! (08.01.23)
 			NewDataFolder/O $RemoveEnding(fldrstr) // Here the last ":" pops an error
 		endif
 	endfor

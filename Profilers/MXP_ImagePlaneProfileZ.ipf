@@ -37,13 +37,14 @@ Function MXP_MainMenuLaunchImagePlaneProfileZ()
 	string browserSelection = StringFromList(0, S_BrowserList)
 	Wave selectedWave = $browserSelection
 	if(exists(browserSelection) && (WaveDims(selectedWave) == 3 || WaveDims(selectedWave) == 2)) // if it is a 3d wave
-		// Flush scales
-		SetScale/P x, 0, 1, selectedWave
-		SetScale/P y, 0, 1, selectedWave
 		MXP_DisplayImage(selectedWave)
 		string winNameStr = WinName(0, 1, 1)
 		string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 		MXP_InitialiseImagePlaneProfileZFolder()
+		// Flush scales
+		SetScale/P x, 0, 1, selectedWave
+		SetScale/P y, 0, 1, selectedWave
+		SetScale/P z, 0, 1, selectedWave	
 		//DoWindow/F $winNameStr // bring it to FG to set the cursors
 		variable nrows = DimSize(selectedWave,0)
 		variable ncols = DimSize(selectedWave,1)
@@ -68,12 +69,13 @@ Function MXP_TraceMenuLaunchImagePlaneProfileZ()
 
 	if(WaveDims(imgWaveRef) == 2 || WaveDims(imgWaveRef) == 3) // if it is not a 1d wave
 		KillWindow $winNameStr
-		//Flush scales
-		SetScale/P x, 0, 1, imgWaveRef
-		SetScale/P y, 0, 1, imgWaveRef
 		MXP_DisplayImage(imgWaveRef)
 		winNameStr = WinName(0, 1, 1) // update it just in case
 		MXP_InitialiseImagePlaneProfileZFolder()
+		//Flush scales
+		SetScale/P x, 0, 1, imgWaveRef
+		SetScale/P y, 0, 1, imgWaveRef
+		SetScale/P z, 0, 1, imgWaveRef
 		DoWindow/F $winNameStr // bring it to FG to set the cursors
 		variable nrows = DimSize(imgWaveRef,0)
 		variable ncols = DimSize(imgWaveRef,1)
@@ -96,13 +98,14 @@ Function MXP_BrowserMenuLaunchImagePlaneProfileZ()
 		string selectedImageStr = GetBrowserSelection(0)
 		WAVE imgWaveRef = $selectedImageStr
 		if(WaveDims(imgWaveRef) == 2 || WaveDims(imgWaveRef) == 3)
-			//Flush scales
-			SetScale/P x, 0, 1, imgWaveRef
-			SetScale/P y, 0, 1, imgWaveRef
 			MXP_DisplayImage(imgWaveRef)
 			string winNameStr = WinName(0, 1, 1) // update it just in case
 			string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 			MXP_InitialiseImagePlaneProfileZFolder()
+			//Flush scales
+			SetScale/P x, 0, 1, imgWaveRef
+			SetScale/P y, 0, 1, imgWaveRef
+			SetScale/P z, 0, 1, imgWaveRef
 			DoWindow/F $winNameStr // bring it to FG to set the cursors
 			variable nrows = DimSize(imgWaveRef,0)
 			variable ncols = DimSize(imgWaveRef,1)
@@ -128,7 +131,7 @@ Function MXP_InitialiseImagePlaneProfileZFolder()
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	Wave imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 
 	string msg // Error reporting
 	if(!strlen(imgNameTopGraphStr)) // we do not have an image in top graph
@@ -178,11 +181,15 @@ Function MXP_InitialiseImagePlaneProfileZFolder()
 	variable/G dfr:gMXP_PlotSwitch = 1
 	variable/G dfr:gMXP_MarkLinesSwitch = 0
 	variable/G dfr:gMXP_OverrideNxy = 0
+	//Restore scale of original wave
+	variable/G dfr:gMXP_Scale_x0 = DimOffset(imgWaveRef, 0)
+	variable/G dfr:gMXP_Scale_dx = DimDelta(imgWaveRef, 0)
+	variable/G dfr:gMXP_Scale_y0 = DimOffset(imgWaveRef, 1)
+	variable/G dfr:gMXP_Scale_dy = DimDelta(imgWaveRef, 1)
+	variable/G dfr:gMXP_Scale_z0 = DimOffset(imgWaveRef, 2)
+	variable/G dfr:gMXP_Scale_dz = DimDelta(imgWaveRef, 2)	
 	// Misc
 	variable/G dfr:gMXP_colorcnt = 0
-	
-	
-	variable/G dfr:gMXP_Xmax
 	return 0
 End
 
@@ -269,6 +276,17 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 	SetdataFolder dfr
 	switch(s.eventCode)
 		case 2: // Kill the window
+			// Restore original wave scaling
+			NVAR/SDFR=dfr gMXP_Scale_x0
+			NVAR/SDFR=dfr gMXP_Scale_dx
+			NVAR/SDFR=dfr gMXP_Scale_y0
+			NVAR/SDFR=dfr gMXP_Scale_dy
+			NVAR/SDFR=dfr gMXP_Scale_z0
+			NVAR/SDFR=dfr gMXP_Scale_dz
+			SetScale/P x, gMXP_Scale_x0, gMXP_Scale_dx, w3dRef
+			SetScale/P y, gMXP_Scale_y0, gMXP_Scale_dy, w3dRef
+			SetScale/P z, gMXP_Scale_z0, gMXP_Scale_dz, w3dRef
+			// Kill window and folder
 			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedPlotStr"))
 			KillDataFolder/Z dfr
 			hookresult = 1
@@ -380,7 +398,7 @@ Function MXP_ImagePlaneProfileZButtonSetScale(STRUCT WMButtonAction &B_Struct): 
 		case 2:	// "mouse up after mouse down"
 			Prompt Xscale, "X-scale: set cursors and enter a calibrating value"
 			Prompt Ystart_l, "Y start"			
-			Prompt Yend_l, "Y end (Offset = Delta = 0 - Remove scale.)"
+			Prompt Yend_l, "Y end (Y start = Y end = 0 => Remove scale.)"
 			DoPrompt "Set X, Y scale (All zeros remove scale)", Xscale, Ystart_l, Yend_l
 			if(V_flag) // User cancelled
 				return -1

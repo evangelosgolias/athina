@@ -6,8 +6,8 @@
 #pragma DefaultTab		= {3,20,4}		// set default tab width in Igor Pro 9 and later
 
 // Specta Background Remover was coded by Stephan Thuermer (user *chozo* in Igor Pro forums) and is
-// adopted here with minor modifications to adjust to the MXP naming conversions and workflow. Changes to the original 
-// code will be indicated by a comment starting with "EG:" followed by a short description.
+// adopted here with minor modifications to adjust to the MXP naming conversions and workflow.  
+// Changes to the original code are indicated by a comment starting with "EG:".
 // If you want to learn more about the package, and see a guide of how to use it, visit:
 // https://www.wavemetrics.com/node/21532
 
