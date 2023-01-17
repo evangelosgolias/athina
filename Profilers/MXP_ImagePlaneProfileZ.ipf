@@ -316,7 +316,7 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 		      		SetScale/I x, 0, (Nx * Xfactor), ww
 		       	endif
 		     	
-		       	SetScale/I y, Ystart, Yend, ww
+		       	SetScale/I y, Yend, Ystart, ww
 				hookResult = 1
 				break
 			endif
@@ -396,9 +396,9 @@ Function MXP_ImagePlaneProfileZButtonSetScale(STRUCT WMButtonAction &B_Struct): 
 	variable Xstart_l, Xend_l, Ystart_l, Yend_l, Xscale
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			Prompt Xscale, "X-scale: set cursors and enter a calibrating value"
-			Prompt Ystart_l, "Y start"			
-			Prompt Yend_l, "Y end (Y start = Y end = 0 => Remove scale.)"
+			Prompt Xscale, "X-scale: set cursors and enter the calibrating value"
+			Prompt Ystart_l, "Y start (top)"			
+			Prompt Yend_l, "Y end (bottom)"
 			DoPrompt "Set X, Y scale (All zeros remove scale)", Xscale, Ystart_l, Yend_l
 			if(V_flag) // User cancelled
 				return -1
@@ -483,7 +483,7 @@ Function MXP_ImagePlaneProfileZSetVariableNx(STRUCT WMSetVariableAction& sv) : S
 				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 				WAVE ww = M_ExtractedSurface
 				SetScale/I x, 0, (normGHCursors * Xfactor), ww
-				SetScale/I y, Ystart, Yend, ww
+				SetScale/I y, Yend, Ystart, ww
 			else
 		       	Nx = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 		    endif
@@ -520,7 +520,7 @@ Function MXP_ImagePlaneProfileZSetVariableNy(STRUCT WMSetVariableAction& sv) : S
 				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 				WAVE ww = M_ExtractedSurface
 				normGHCursors = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
-				SetScale/I y, Ystart, Yend, ww
+				SetScale/I y, Yend, Ystart, ww
 				SetScale/I x, 0, (normGHCursors * Xfactor), ww
 			else
 		      	Ny = nLayers
