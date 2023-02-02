@@ -620,7 +620,7 @@ static Function SlopePerpendicularToLineSegment(variable x1, variable x2, variab
 End
 
 static Function [variable xshift, variable yshift] GetVerticesPerpendicularToLine(variable radius, variable slope)
-	// Return the part of the solution of an intersection between a circly of radius = radius
+	// Return the part of the solution of an intersection between a circle of radius = radius
 	// with a line with slope = slope. If the center has coordinates (x0, y0) the two point that
 	// the line intersects the cicle have x =  x0 ± sqrt(radius^2 / (1 + slope^2)) and 
 	// y = slope * sqrt(radius^2 / (1 + slope^2)). 

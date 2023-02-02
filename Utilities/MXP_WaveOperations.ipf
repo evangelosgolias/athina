@@ -127,12 +127,13 @@ Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
 	/// @param w3d WAVE Wave name to average (3d wave)
 	/// @param avgImageName string optional Name of the output wave, default MXP_AvgStack.
 	avgImageName = SelectString(ParamIsDefault(avgImageName) ? 0: 1,"MXP_AvgStack", avgImageName)
-	ImageTransform averageImage w3d
-	WAVE M_AveImage
-	Duplicate/O M_AveImage, $avgImageName
-	KillWaves/Z M_AveImage, M_StdvImage
-	variable layers = DimSize(w3d, 2)
-	string w3dNoteStr = "Average of " + num2str(layers) + " images.\n"
+	variable nlayers = DimSize(w3d, 2)
+	ImageTransform sumplanes w3d // averageImage does not work for two layers!
+	WAVE M_SumPlanes
+	M_SumPlanes /= nlayers
+	Duplicate/O M_SumPlanes, $avgImageName
+	KillWaves/Z M_SumPlanes
+	string w3dNoteStr = "Average of " + num2str(nlayers) + " images.\n"
 	w3dNoteStr += "Copy of " + NameOfWave(w3d) + " note:\n"
 	w3dNoteStr += note(w3d)
 	Note/K $avgImageName w3dNoteStr

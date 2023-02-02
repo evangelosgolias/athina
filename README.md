@@ -8,10 +8,10 @@ Data analysis package for the experiments performed at the MAXPEEM beamline of M
 
 Download the repo and copy it to:
 
-**Windows**
+**Windows**:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
 
-**Mac**
+**Mac**:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
 
 When you update the scripts to a newer version it is stongly recommended to delete the _maxpeem-data-analysis_ folder and then paste the new folder.
