@@ -17,6 +17,12 @@
 /// Line profile is plotted from cursor G to H.
 /// Program based on MXP_ImageLineProfile.
 /// N.B: *Works with default wave scaling.*
+///
+/// TODO: Add averaging over a px width when you change Nx, Ny
+/// without the need to move the cursors
+
+
+
 
 Function MXP_MainMenuLaunchImagePlaneProfileZ()
 
@@ -32,7 +38,7 @@ Function MXP_MainMenuLaunchImagePlaneProfileZ()
 	ModifyBrowser/M showModalBrowser
 
 	if (V_Flag == 0)
-		return 0			// User cancelled
+		return -1			// User cancelled
 	endif
 	// User selected a wave, check if it's 3d
 	string browserSelection = StringFromList(0, S_BrowserList)
@@ -238,7 +244,7 @@ Function MXP_CreateImagePlaneProfileZ(DFREF dfr)
 	AutoPositionWindow/E/M=0/R=$gMXP_WindowNameStr
 	
 	SetWindow $profilePlotStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
-	SetWindow $profilePlotStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + gMXP_WindowNameStr 
+	SetWindow $profilePlotStr userdata(MXP_targetGraphWin) = "MXP_ImagePlaneProfileZ_" + gMXP_WindowNameStr 
 	ControlBar 50	
 
 	SetVariable setNx,pos={10,5},size={85,20.00},title="N\\Bx", fSize=14,fColor=(65535,0,0),value=Nx,limits={1,inf,1},proc=MXP_ImagePlaneProfileZSetVariableNx
@@ -251,8 +257,6 @@ Function MXP_CreateImagePlaneProfileZ(DFREF dfr)
 	CheckBox DisplayProfiles,pos={250,30.0},size={98.00,17.00},title="Display profiles",fSize=12,value=PlotSwitch,side=1,proc=MXP_ImagePlaneProfileZCheckboxPlotProfile
 	CheckBox OverrideNx,pos={8,30.00},size={86.00,17.00},title="Override N\\Bx",fSize=12,fColor=(65535,0,0),value=OverrideNx,side=1,proc=MXP_ImagePlaneProfileZOverrideNx
 	CheckBox OverrideNy,pos={100,30.00},size={86.00,17.00},title="N\\By",fSize=12,fColor=(65535,0,0),value=OverrideNy,side=1,proc=MXP_ImagePlaneProfileZOverrideNy
-	// Removed. TODO: Replace with a note of G, H positios
-	// CheckBox MarkLines,pos={269,30.00},size={86.00,17.00},title="Mark lines",fSize=12,value=MarkLinesSwitch,side=1,proc=MXP_ImagePlaneProfileZCheckboxMarkLines
 
 	return 0
 End
@@ -340,13 +344,14 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 						endif
 					endfor
 					MXP_WaveSumProfiles /= profileWidth
-				endif				
+				endif
+						
 				if(slp == inf)
 					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-						y1 = C1y
-						y2 = C2y
 						x1 = C1x + i // assume dx = dy = 1
 						x2 = C2x + i
+						y1 = C1y
+						y2 = C2y
 						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
 						if(makeWaveSwitch)
 							Duplicate/O M_ExtractedSurface, MXP_WaveSumProfiles
@@ -370,12 +375,15 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 						else
 							MXP_WaveSumProfiles += M_ExtractedSurface
 						endif
+						// Debug
+						// print x1,y1,x2,y2, "(",C1x, C1y, C2x, C2y,")", "√ ",sqrt((C1x-x1)^2 + (C1y-y1)^2), " | ", sqrt((C2x-x2)^2 + (C2y-y2)^2)
+						// print "Slope: ", slp, "Calc: ", (y2-y1)/(x2-x1), " x", slp * (y2-y1)/(x2-x1)
+						// print i, ":", (y2-y1)/(x2-x1)
 					endfor
 				endif
 				MXP_WaveSumProfiles /= profileWidth
 				Duplicate/O MXP_WaveSumProfiles, M_ExtractedSurface
 			endif
-			// TODO Friday.
 
 			normGHCursors = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 		    if(!OverrideNx) // Do not override
@@ -388,12 +396,17 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 		       	SetScale/I x, 0, (normGHCursors * Xfactor), M_ExtractedSurface
 		    else
 		      	SetScale/I x, 0, (Nx * Xfactor), M_ExtractedSurface
-		    endif
-		    
-		    SetScale/I y, Yend, Ystart, M_ExtractedSurface
+		    endif		    
+		    SetScale/I y, Ystart, Yend, M_ExtractedSurface
+		    SetDrawLayer UserFront
 			hookResult = 1
 		break
 		case 5:
+			SetDrawLayer ProgFront
+			DrawAction delete
+	   		SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left			
+			DrawLine C1x, C1y, C2x, C2y
+			slp = SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
 			if(slp == 0)
 				x1 = C1x
 				x2 = C1x
@@ -403,7 +416,8 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 				y2 = C1y - 0.5 * profileWidth
 				y3 = C2y - 0.5 * profileWidth
 				y4 = C2y + 0.5 * profileWidth 
-		elseif(slp == inf)
+			elseif(slp == inf)
+			print "inf"
 				y1 = C1y
 				y2 = C1y
 				y3 = C2y
@@ -412,133 +426,25 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 				x2 = C1x - 0.5 * profileWidth
 				x3 = C2x - 0.5 * profileWidth
 				x4 = C2x + 0.5 * profileWidth
-		else
-			[xs, ys] = GetVerticesPerpendicularToLine(profileWidth * 0.5, slp)
-			x1 = C1x + xs
-			x2 = C1x - xs
-			x3 = C2x - xs
-			x4 = C2x + xs
-			y1 = C1y + ys
-			y2 = C1y - ys
-			y3 = C2y - ys
-			y4 = C2y + ys
-		endif
-			SetDrawLayer ProgFront
-			SetDrawEnv gstart,gname= lineProfileWidth
+			else
+				[xs, ys] = GetVerticesPerpendicularToLine(profileWidth * 0.5, slp)
+				x1 = C1x + xs
+				x2 = C1x - xs
+				x3 = C2x - xs
+				x4 = C2x + xs
+				y1 = C1y + ys
+				y2 = C1y - ys
+				y3 = C2y - ys
+				y4 = C2y + ys
+			endif
+			SetDrawEnv gstart, gname=lineProfileWidth
 			SetDrawEnv linefgc = (65535,16385,16385,32767), fillbgc= (65535,16385,16385,32767), fillpat = -1, linethick = 0, xcoord = top, ycoord = left
 			DrawPoly x1, y1, 1, 1, {x1, y1, x2, y2, x3, y3, x4, y4}
 			SetDrawEnv gstop
-			break		
+			SetDrawLayer UserFront
+			hookResult = 1
+		break		
 	endswitch
-//	    case 7: // cursor moved
-//			if(!cmpstr(s.cursorName, "G") || !cmpstr(s.cursorName, "H")) // It should work only with G, H you might have other cursors on the image
-//				SetDrawLayer ProgFront
-//			    DrawAction delete
-//	   			SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-//	   			C1x = hcsr(G)
-//				C1y = vcsr(G)
-//				C2x = hcsr(H) 
-//		       	C2y = vcsr(H)
-//		       	DrawLine C1x, C1y, C2x, C2y
-//		       	if(C1x == C2x && C1y == C2y) // Cursors G, H cannot overlap
-//		       		break
-//		       	endif
-//		    endif
-//		    if(profileWidth == 1) //if_1
-//				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
-//				WAVE ww = M_ExtractedSurface
-//			else
-//				slp = SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
-//				if(slp == 0)
-//					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-//						x1 = C1x
-//						x2 = C2x
-//						y1 = C1y + i // assume dx = dy = 1
-//						y2 = C2y + i
-//						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
-//						WAVE ww = M_ExtractedSurface
-//						if(makeWaveSwitch)
-//							print "Duplicate"
-//							
-//							Duplicate/O ww, MXP_WaveSumProfiles
-//							makeWaveSwitch = 0
-//						else
-//							print "Sum"
-//							MXP_WaveSumProfiles += ww
-//						endif
-//						//print x1, x2, y1, y2
-//					endfor
-//					MXP_WaveSumProfiles /= profileWidth
-//					makeWaveSwitch = 1
-//				endif
-//				if(slp == inf)
-//					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-//						y1 = C1y
-//						y2 = C2y
-//						x1 = C1x + i // assume dx = dy = 1
-//						x2 = C2x + i
-//						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
-//						WAVE ww = M_ExtractedSurface
-//						if(makeWaveSwitch)
-//							print "Duplicate"
-//							Duplicate/O ww, MXP_WaveSumProfiles
-//							makeWaveSwitch = 0
-//						else
-//							print "Sum"
-//							MXP_WaveSumProfiles += ww
-//						endif
-//						//print x1, x2, y1, y2
-//					endfor
-//					MXP_WaveSumProfiles /= profileWidth
-//					makeWaveSwitch = 1
-//				endif
-//				if(slp != 0 && slp != inf)			
-//					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-//						[x1, y1] = GetSinglePointWithDistanceFromLine(C1x, C1y, slp, i)
-//						[x2, y2] = GetSinglePointWithDistanceFromLine(C2x, C2y, slp, i)
-//						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
-//						WAVE ww = M_ExtractedSurface
-//						if(makeWaveSwitch)
-//							print "Duplicate"
-//							Duplicate/O ww, MXP_WaveSumProfiles
-//							makeWaveSwitch = 0
-//						else
-//							print "Sum"
-//							MXP_WaveSumProfiles += ww
-//						endif
-//						//print x1, x2, y1, y2
-//					endfor
-//					MXP_WaveSumProfiles /= profileWidth
-//					makeWaveSwitch = 1
-//				endif
-//				Duplicate/O MXP_WaveSumProfiles, ww
-//
-//			endif //endif_1					     
-//
-//		    if(!OverrideNx) // Do not override
-//		   		Nx = normGHCursors	
-//			endif
-//	       	if(!OverrideNy) // Do not override
-//		      	Ny = nLayers					
-//			endif				
-//		    if(OverrideNx)
-//		    		normGHCursors = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
-//		       	SetScale/I x, 0, (normGHCursors * Xfactor), ww
-//		    else
-//		      	SetScale/I x, 0, (Nx * Xfactor), ww
-//		    endif
-//		    
-//		    SetScale/I y, Yend, Ystart, ww
-//			hookResult = 0
-//			break
-// 
-//		case 5:
-//			WAVE/Z MXP_WaveSumProfiles
-//			Duplicate/O MXP_WaveSumProfiles, M_ExtractedSurface
-//			hookResult = 1
-//			break
-//		break
-//    endswitch
     SetdataFolder currdfr
     return hookResult       // 0 if nothing done, else 1
 End
@@ -569,13 +475,13 @@ Function MXP_ImagePlaneProfileZButtonSaveProfile(STRUCT WMButtonAction &B_Struct
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			do
-				string saveWaveNameStr = w3dNameStr + "_plane" + num2str(postfix)
+				string saveWaveNameStr = w3dNameStr + num2str(postfix)
 				if(WaveExists(savedfr:$saveWaveNameStr) == 1)
 					postfix++
 				else
 					Duplicate dfr:M_ExtractedSurface, savedfr:$saveWaveNameStr
 					if(PlotSwitch)
-						saveImageStr = targetGraphWin + num2str(postfix)
+						saveImageStr = targetGraphWin + "_s" + num2str(postfix)
 						NewImage/G=1/K=1/N=$saveImageStr savedfr:$saveWaveNameStr
 						ModifyGraph/W=$saveImageStr width = 330, height = 470
 						colorcnt += 1
@@ -613,9 +519,9 @@ Function MXP_ImagePlaneProfileZButtonSetScale(STRUCT WMButtonAction &B_Struct): 
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			Prompt Xscale, "X-scale: set cursors and enter the calibrating value"
-			Prompt Ystart_l, "Y start (top)"			
-			Prompt Yend_l, "Y end (bottom)"
-			DoPrompt "Set X, Y scale (All zeros remove scale)", Xscale, Ystart_l, Yend_l
+			Prompt Ystart_l, "Y_top [if Y_top > Y_bottom flip the left axis!]"			
+			Prompt Yend_l, "Y_bottom"
+			DoPrompt "Set X, Y scale (Zero removes scale)", Xscale, Ystart_l, Yend_l
 			if(V_flag) // User cancelled
 				return -1
 			endif
@@ -719,7 +625,6 @@ Function MXP_ImagePlaneProfileZSetVariableNx(STRUCT WMSetVariableAction& sv) : S
 		       	Nx = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 		    endif
 		break
-		print "Nx in SetVariable", Nx
 	endswitch
 	SetDataFolder currdfr
 	return 0
@@ -778,8 +683,9 @@ Function MXP_ImagePlaneProfileZSetVariableProfileWidth(STRUCT WMSetVariableActio
 	NVAR/Z Xfactor = dfr:gMXP_Xfactor
 	NVAR/Z profileWidth = dfr:gMXP_profileWidth
 	SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
+	SVAR/Z WindowsNameStr = dfr:gMXP_WindowNameStr
 	WAVE/Z w3dRef = $ImagePathname
-	variable x1, x2, x3, x4, y1, y2, y3, y4, slp, i
+	variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys,slp, i
 	
 	variable makeWaveSwitch = 1
 
@@ -843,6 +749,46 @@ Function MXP_ImagePlaneProfileZSetVariableProfileWidth(STRUCT WMSetVariableActio
 				Duplicate/O MXP_WaveSumProfiles, M_ExtractedSurface
 				//KillWaves/Z waveSumProfiles
 			endif
+			SetDrawLayer/W=$WindowsNameStr ProgFront
+			DrawAction/W=$WindowsNameStr delete
+	   		SetDrawEnv/W=$WindowsNameStr linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left			
+			DrawLine/W=$WindowsNameStr C1x, C1y, C2x, C2y
+			slp = SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
+			if(slp == 0)
+				x1 = C1x
+				x2 = C1x
+				x3 = C2x
+				x4 = C2x
+				y1 = C1y + 0.5 * profileWidth
+				y2 = C1y - 0.5 * profileWidth
+				y3 = C2y - 0.5 * profileWidth
+				y4 = C2y + 0.5 * profileWidth 
+			elseif(slp == inf)
+			print "inf"
+				y1 = C1y
+				y2 = C1y
+				y3 = C2y
+				y4 = C2y
+				x1 = C1x + 0.5 * profileWidth
+				x2 = C1x - 0.5 * profileWidth
+				x3 = C2x - 0.5 * profileWidth
+				x4 = C2x + 0.5 * profileWidth
+			else
+				[xs, ys] = GetVerticesPerpendicularToLine(profileWidth * 0.5, slp)
+				x1 = C1x + xs
+				x2 = C1x - xs
+				x3 = C2x - xs
+				x4 = C2x + xs
+				y1 = C1y + ys
+				y2 = C1y - ys
+				y3 = C2y - ys
+				y4 = C2y + ys
+			endif
+			SetDrawEnv/W=$WindowsNameStr gstart, gname=lineProfileWidth
+			SetDrawEnv/W=$WindowsNameStr linefgc = (65535,16385,16385,32767), fillbgc= (65535,16385,16385,32767), fillpat = -1, linethick = 0, xcoord = top, ycoord = left
+			DrawPoly/W=$WindowsNameStr x1, y1, 1, 1, {x1, y1, x2, y2, x3, y3, x4, y4}
+			SetDrawEnv/W=$WindowsNameStr gstop
+			SetDrawLayer/W=$WindowsNameStr UserFront
 			SetScale/I y, Yend, Ystart, M_ExtractedSurface
 			SetScale/I x, 0, (round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2)) * Xfactor), M_ExtractedSurface
        	break
@@ -852,7 +798,7 @@ Function MXP_ImagePlaneProfileZSetVariableProfileWidth(STRUCT WMSetVariableActio
 End
 
 static Function [variable x0, variable y0] GetSinglePointWithDistanceFromLine(variable x1, variable y1, variable s, variable d)
-	/// Return the coordinates of points with distance d from a line passing from A(x1, y1) witl slope s.
+	/// Return the coordinates of a point with distance d from line passing from A(x1, y1) with slope s.
 	/// Use positive or *negative* distance to get a point on either side of A.
 	
 	x0 = x1 - d * s / sqrt(s^2 + 1)

@@ -476,7 +476,7 @@ Function MXP_LineProfilePlotShowProfileWidth(STRUCT WMButtonAction &B_Struct): B
 	NVAR/Z dx = dfr:gMXP_dx
 	NVAR/Z dy = dfr:gMXP_dy // assume here that dx = dy
 	variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys
-	variable slope = SlopePerpendicularToLineSegment(C1x, C2x, C1y, C2y)
+	variable slope = SlopePerpendicularToLineSegment(C1x, C1y,C2x, C2y)
 	if(slope == 0)
 		x1 = C1x
 		x2 = C1x
@@ -608,7 +608,7 @@ static Function PreviousOddNumPositiveEven(variable num)
 	return num
 end
 
-static Function SlopePerpendicularToLineSegment(variable x1, variable x2, variable y1, variable y2)
+static Function SlopePerpendicularToLineSegment(variable x1, variable y1, variable x2, variable y2)
 	// Return the slope of a line perpendicular to the line segment defined by (x1, y1) and (x2, y2)
 	if (y1 == y2)
 		return 0
