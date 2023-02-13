@@ -5,22 +5,22 @@
 #pragma version			= 1.51
 #pragma DefaultTab		= {3,20,4}		// set default tab width in Igor Pro 9 and later
 
-// Specta Background Remover was coded by Stephan Thuermer (user *chozo* in Igor Pro forums) and is
-// adopted here with minor modifications to adjust to the MXP naming conversions and workflow.  
+// Specta Background Remover was developed by Stephan Thuermer (user *chozo* in Igor Pro forums).
+// It is adopted here with minor modifications to adjust to the MXP naming conversions, database and workflow.  
 // Changes to the original code are indicated by a comment starting with "EG:".
-// If you want to learn more about the package, and see a guide of how to use it, visit:
+// If you want to learn more about the package, and see a hot-to guide, visit:
 // https://www.wavemetrics.com/node/21532
 
 
-static Constant kVersion = 1.51
-static StrConstant kVersionDate = "03/2022"
+ static Constant kVersion = 1.51
+ static StrConstant kVersionDate = "03/2022"
 
 // --------------------- Project Updater header ----------------------
 // If you're using Igor Pro 8 or later and have Project Updater
 // installed, this package can check periodically for new releases.
 // https://www.wavemetrics.com/project/Updater
-static Constant kProjectID = 21532 																// the project node on IgorExchange
-static StrConstant ksShortTitle = "Background Remover"											// the project short title on IgorExchange
+// static Constant kProjectID = 21532 																// the project node on IgorExchange
+// static StrConstant ksShortTitle = "Background Remover"											// the project short title on IgorExchange
 
 //________________________________________________________________________________________________
 //	Written by Stephan Thuermer - https://www.wavemetrics.com/user/chozo

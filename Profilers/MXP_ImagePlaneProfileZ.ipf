@@ -4,22 +4,39 @@
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 
 // ------------------------------------------------------- //
-// Developed by Evangelos Golias.
+// Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, IN CONNECTION WITH THE USE OF SOFTWARE.
+//	
+//	Permission is hereby granted, free of charge, to any person
+//	obtaining a copy of this software and associated documentation
+//	files (the "Software"), to deal in the Software without
+//	restriction, including without limitation the rights to use,
+//	copy, modify, merge, publish, distribute, sublicense, and/or sell
+//	copies of the Software, and to permit persons to whom the
+//	Software is furnished to do so, subject to the following
+//	conditions:
+//	
+//	The above copyright notice and this permission notice shall be
+//	included in all copies or substantial portions of the Software.
+//	
+//	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+//	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+//	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+//	NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+//	HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+//	WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+//	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+//	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
 /// Line profile is plotted from cursor G to H.
 /// Program based on MXP_ImageLineProfile.
 /// N.B: *Works with default wave scaling.*
 ///
-/// TODO: Add averaging over a px width when you change Nx, Ny
-/// without the need to move the cursors
+// TODO: Add averaging over a px width when you change Nx, Ny
+// without the need to move the cursors
+// Improvement(?): Make it work with scaled 3D wave. You need to check 
+// ImageLineProfile.ipf and change here accordingly.
 
 
 
@@ -238,14 +255,15 @@ Function MXP_CreateImagePlaneProfileZ(DFREF dfr)
 	SetDataFolder dfr
 	ImageTransform/X={ Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface wRef
 	SetDataFolder cdfr 
-	
+	variable pix = 72/ScreenResolution
 	NewImage/G=1/K=1/N=$profilePlotStr dfr:M_ExtractedSurface
-	ModifyGraph/W=$profilePlotStr width = 340, height = 470
+	ModifyGraph/W=$profilePlotStr width = 340 * pix, height = 470 * pix
+
+	ControlBar/W=$profilePlotStr 50	
 	AutoPositionWindow/E/M=0/R=$gMXP_WindowNameStr
-	
+		
 	SetWindow $profilePlotStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(MXP_targetGraphWin) = "MXP_ImagePlaneProfileZ_" + gMXP_WindowNameStr 
-	ControlBar 50	
 
 	SetVariable setNx,pos={10,5},size={85,20.00},title="N\\Bx", fSize=14,fColor=(65535,0,0),value=Nx,limits={1,inf,1},proc=MXP_ImagePlaneProfileZSetVariableNx
 	SetVariable setNy,pos={97,5},size={70,20.00},title="N\\By", fSize=14,fColor=(65535,0,0),value=Ny,limits={1,inf,1},proc=MXP_ImagePlaneProfileZSetVariableNy
@@ -257,7 +275,7 @@ Function MXP_CreateImagePlaneProfileZ(DFREF dfr)
 	CheckBox DisplayProfiles,pos={250,30.0},size={98.00,17.00},title="Display profiles",fSize=12,value=PlotSwitch,side=1,proc=MXP_ImagePlaneProfileZCheckboxPlotProfile
 	CheckBox OverrideNx,pos={8,30.00},size={86.00,17.00},title="Override N\\Bx",fSize=12,fColor=(65535,0,0),value=OverrideNx,side=1,proc=MXP_ImagePlaneProfileZOverrideNx
 	CheckBox OverrideNy,pos={100,30.00},size={86.00,17.00},title="N\\By",fSize=12,fColor=(65535,0,0),value=OverrideNy,side=1,proc=MXP_ImagePlaneProfileZOverrideNy
-
+	
 	return 0
 End
 
@@ -397,7 +415,7 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 		    else
 		      	SetScale/I x, 0, (Nx * Xfactor), M_ExtractedSurface
 		    endif		    
-		    SetScale/I y, Ystart, Yend, M_ExtractedSurface
+		    SetScale/I y, Yend, Ystart, M_ExtractedSurface
 		    SetDrawLayer UserFront
 			hookResult = 1
 		break
