@@ -266,6 +266,30 @@ Function MXP_NormaliseWaveWithWave(WAVE wRef1, WAVE wRef2)
 	return 0
 End
 
+
+Function [variable x0, variable y0, variable z0, variable dx, variable dy, variable dz] MXP_GetScalesP(WAVE wRef)
+	// Get the scales of waves per point. 
+	x0 = DimOffset(wRef, 0)
+	y0 = DimOffset(wRef, 1)
+	y0 = DimOffset(wRef, 2)
+	dx = DimDelta(wRef, 0)
+	dy = DimDelta(wRef, 1)
+	dz = DimDelta(wRef, 2)
+	return [x0, y0, z0, dx, dy, dz]
+End
+
+Function MXP_SetScalesP(WAVE wRef, variable x0, variable y0, variable z0, variable dx, variable dy, variable dz)
+	// Set scale of waves per point
+	// Usage:
+	// 		variable x0, y0, z0, dx, dy, dz
+	// 		[x0, y0, z0, dx, dy, dz] = MXP_GetScalesP(wRef)
+	// 		MXP_SetScalesP(wRef, x0, y0, z0, dx, dy, dz)
+	
+	SetScale/P x, x0, dx, wRef
+	SetScale/P y, y0, dy, wRef
+	SetScale/P z, z0, dz, wRef
+End
+
 // Helper functions
 static Function MXP_NextPowerOfTwo(variable num)
 	 /// Return the first power of two after num.
@@ -277,3 +301,5 @@ static Function MXP_NextPowerOfTwo(variable num)
 	while (result < num)
 	return result
 End
+
+

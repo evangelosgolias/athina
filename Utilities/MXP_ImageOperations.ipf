@@ -153,11 +153,14 @@ Function MXP_GetLayerFromImageStack()
 	endif
 End
 
-Function MXP_StackImageToImageStack(WAVE w3dref, WAVE w2dRef)
+Function MXP_StackImageToImageStack(WAVE w3dref, WAVE w2dRef) 
 	if((DimSize(w3dref, 0) == DimSize(w2dRef, 0)) && DimSize(w3dref, 1) == DimSize(w2dRef, 1))
 		variable lastLayerNr = DimSize(w3dRef, 2)
 		if(lastLayerNr)
+			variable x0, y0, z0, dx, dy, dz
+			[x0, y0, z0, dx, dy, dz] = MXP_GetScalesP(w3dRef)
 			ImageTransform/O/INSW=w2dref/P=(lastLayerNr) insertZplane w3dRef
+			MXP_SetScalesP(w3dRef, x0, y0, z0, dx, dy, dz)
 		endif
 	else
 		Abort "Image and stack must have the same lateral dimensions."
