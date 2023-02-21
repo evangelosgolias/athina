@@ -38,13 +38,19 @@ End
 
 Function MXP_LaunchMake3DWaveDataBrowserSelection([variable displayStack])
 	displayStack = ParamIsDefault(displayStack) ? 0: displayStack // Give any non-zero to display the stack
-	string wname3dStr
-	wname3dStr = MXP_GenericSingleStrPrompt("Stack name", "Make a stack of pre-selected waves in data browser")
-	// if name in use by a global wave/variable 
-	if(!exists(wname3dStr) == 0) // 0 - Name not in use, or does not conflict with a wave, numeric variable or string variable in the specified data folder.
-		print "MXP: Renamed your wave to \"" + (wname3dStr + "_rn") + "\" to avoid conflicts"
-		wname3dStr += "_rn"
+	//20.02.2023 change to "" to bypass dialog. Uncomment to restore	
+	string wname3dStr = ""
+	//wname3dStr = MXP_GenericSingleStrPrompt("Stack name", "Make a stack of pre-selected waves in data browser")
+	
+	if(!strlen(wname3dStr))
+		wname3dStr = "MXP_stack"
 	endif
+	if(exists(wname3dStr) == 1)
+		// We need a unique wave name
+		DFREF currDF = GetDataFolderDFR()
+		wname3dStr = CreatedataObjectName(currDF, "MXP_stack", 1, 0, 0)
+	endif
+	
 	MXP_Make3DWaveDataBrowserSelection(wname3dStr)
 	// Do you want to display the stack?
 	if(displayStack)
@@ -249,7 +255,7 @@ Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	string wave1Str = ParseFilePath(3, StringFromList(0, selectedFilesInDialogStr), ":", 0, 0)
 	string wave2Str = ParseFilePath(3, StringFromList(1, selectedFilesInDialogStr), ":", 0, 0)
 	string selectedFilesPopupStr = wave1Str + ";" + wave2Str
-	variable registerImageQ
+	variable registerImageQ = 2 // Default: No
 	string saveWaveName = ""
 	//Set defaults 
 	Prompt wave1Str, "img1", popup, selectedFilesPopupStr
@@ -260,8 +266,8 @@ Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	if(V_flag) // User cancelled
 		return 1
 	endif
-	WAVE wimg1 = MXP_WAVELoadSingleDATFile(StringFromList(0, selectedFilesInDialogStr), "")
-	WAVE wimg2 = MXP_WAVELoadSingleDATFile(StringFromList(1, selectedFilesInDialogStr), "")
+	WAVE wimg1 = MXP_WAVELoadSingleDATFile(StringFromList(0, selectedFilesInDialogStr), "", autoScale = 1)
+	WAVE wimg2 = MXP_WAVELoadSingleDATFile(StringFromList(1, selectedFilesInDialogStr), "", autoScale = 1)
 	// Make a note for the XMC(L)D image
 	string xmcdWaveNoteStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n"
 	xmcdWaveNoteStr += "img1: "
@@ -269,7 +275,7 @@ Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	xmcdWaveNoteStr += "\n"
 	xmcdWaveNoteStr += "\nimg2: "
 	xmcdWaveNoteStr += note(wimg2)
-		
+	
 	if(!(WaveType(wimg1) & 0x02))
 		Redimension/S wimg1
 	endif
@@ -277,20 +283,21 @@ Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 		Redimension/S wimg2
 	endif 
 	
-	Duplicate/FREE wimg2, wimg2copy
 	if(registerImageQ == 1)
-		MXP_ImageAlignmentByRegistration(wimg1, wimg2copy)
+		MXP_ImageAlignmentByRegistration(wimg1, wimg2) // wimg2 is overwritten here
 	endif
 	if(!strlen(saveWaveName))
-		saveWaveName = "MXPxmcd"
+		// We need a unique wave name
+		DFREF currDF = GetDataFolderDFR()
+		saveWaveName = CreatedataObjectName(currDF, "MXP_xmcd", 1, 0, 0)
 	endif
-	MXP_CalculateXMCD(wimg1, wimg2copy, saveWaveName)
+	MXP_CalculateXMCD(wimg1, wimg2, saveWaveName)
 	// if you use /P, the dimension scaling is copied in slope/intercept format 
 	// so that if srcWaveName  and the other waves have differing dimension size 
 	// (number of points if the wave is a 1D wave), then their dimension values 
 	// will still match for the points they have in common
-	CopyScales wimg1, $saveWaveName 	
-	Note/K $saveWaveName, xmcdWaveNoteStr
+	CopyScales wimg1, $saveWaveName
+	Note/K $saveWaveName, xmcdWaveNoteStr	
 	return 0
 End
 
@@ -456,7 +463,6 @@ Function MXP_LaunchNewImageFromBrowserSelection()
 		
 		MXP_DisplayImage($mxpImage)
 		i++
-		WM_AutoSizeImage(0.5)
 	while (strlen(GetBrowserSelection(i)))
 End
 
@@ -564,7 +570,7 @@ Function MXP_LaunchStackImageToImageStack()
 	if(WaveDims(imageWaveRef) == 2)
 		MXP_StackImageToImageStack(w3dref, imageWaveRef)
 		KillWindow/Z $winNameStr
-		NewImage/G=1 w3dref
+		MXP_DisplayImage(w3dref)
 		ModifyGraph width={Plan,1,top,left}
 		WMAppend3DImageSlider()
 	endif

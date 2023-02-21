@@ -28,7 +28,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-// Read metadata of the beamline
+// Read metadata of the beamline settings
 
 Function MXP_ListHDF5Groups()
 	variable fileid_

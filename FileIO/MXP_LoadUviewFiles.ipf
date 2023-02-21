@@ -90,7 +90,7 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
 
     PathInfo $pathNameStr
     string fileToOpen = S_path + fileNameStr
-    if(StringMatch(fileNameStr, "*.dat") && fileKind == 7) // Igor thinks that the .dat file is a General text (fileKind == 7)
+    if(StringMatch(fileNameStr, "*.dat") && fileKind == 7) // Igor treats .dat files is a General text (fileKind == 7)
         try	
         	MXP_LoadSingleDATFile(fileToOpen, "", autoscale = 1)
         	AbortOnRTE

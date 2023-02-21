@@ -105,19 +105,25 @@ Menu "DataBrowserObjectsPopup"
 End
 
 Menu "TracePopup"
-	"-"
+	//"-"
 	//"MXP line profile", MXP_TraceMenuLaunchLineProfiler()
 	//"MXP z profile", MXP_TraceMenuLaunchZBeamProfiler()
 	//"MXP Normalise stack with profile", MXP_NormaliseImageStackWithProfile()
 	//"MXP Average stack",  MXP_LaunchAverageStackToImageFromTraceMenu()
-	"MXP Save layer", MXP_GetLayerFromImageStack()
+	"MXP Save layer (3D)", MXP_GetLayerFromImageStack()
 	"MXP Stack image", MXP_LaunchStackImageToImageStack()
-	"MXP Scale Image", MXP_ScaleImage()
+	"MXP Scale Image stack", MXP_ScaleImage()
 	"MXP Select image and copy scales", MXP_ImageSelectToCopyScale()
 	"MXP Interactive drift correction", MXP_CreateInteractiveDriftCorrectionPanel()
 	"MXP Calculate XMC(L)D", MXP_LaunchCalculateXMCDFromStack()
 	//"MXP Remove XPS background", MXP_LaunchRemoveXPSBackground()
-	"MXP BE-Scale XPS spectrum", MXP_LaunchScaleXPSSpectrum()
+	//"MXP BE-Scale XPS spectrum", MXP_LaunchScaleXPSSpectrum()
+	Submenu "MXP markups ..."
 	"MXP Draw image markups", MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
 	"MXP Clear UserFront layer", MXP_ClearROIMarkingsUserFront()
+	End
+End
+
+Menu "GraphPopup"
+	"MXP BE-Scale XPS spectrum", MXP_LaunchScaleXPSSpectrum()
 End

@@ -71,7 +71,7 @@ Function MXP_ImageAlignmentByRegistration(WAVE w1, WAVE w2)
 	ImageRegistration/Q/STCK/PSTK/ROT={0,0,0}/TSTM=0/BVAL=0 refWave = w1, testWave = w2
 	WAVE M_RegOut
 	Duplicate/O M_RegOut, w2	
-	KillWaves/Z M_RegOut, M_RegOut, M_RegMaskOut, M_RegParams
+	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams
 	return 0
 End
 

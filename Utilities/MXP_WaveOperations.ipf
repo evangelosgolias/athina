@@ -73,24 +73,18 @@ Function MXP_Make3DWaveDataBrowserSelection(string wname3d)
 	// type, so if you select a folder or variable
 	// you will get an error.
 
-	//String wname3d //name of the output 3d wave
-	//DFREF cwd = GetDataFolderDFR()
 	string listOfSelectedWaves = ""
 
-
-	// CAUTION: We use this RegEx to avoid catching single quotes for waves with literal names.
-	// Because this will create problems when trying to use $wnamestr as returned from
-	// StringFromList(n,ListofMatchedWaves).
-
-	//String RegEx = "(\w+:)*('?)(\w+[^:?]+)\2$" // Match any character after the last colon!
 	if(!strlen(wname3d))
 		wname3d = "MXP_Stack"
 	endif
+	// Test not needed here -- Called from MXP_LaunchMake3DWaveDataBrowserSelection()
+	//
 	// if name in use by a global wave/variable 
-	if(!exists(wname3d) == 0) // 0 - Name not in use, or does not conflict with a wave, numeric variable or string variable in the specified data folder.
-		print "MXP: Renamed your wave to \"" + (wname3d + "_rn") + "\" to avoid conflicts"
-		wname3d += "_rn"
-	endif
+	//	if(!exists(wname3d) == 0) // 0 - Name not in use, or does not conflict with a wave, numeric variable or string variable in the specified data folder.
+	//		print "MXP: Renamed your wave to \"" + (wname3d + "_rn") + "\" to avoid conflicts"
+	//		wname3d += "_rn"
+	//	endif
 		
 	variable i = 0
 	do
@@ -105,14 +99,14 @@ Function MXP_Make3DWaveDataBrowserSelection(string wname3d)
 		return -1 // No wave or one wave is selected
 	endif
 	
-	string wname = StringFromList(0,listOfSelectedWaves)
+	string wname = StringFromList(0, listOfSelectedWaves)
 
 	WAVE wref = $wname
 	variable nx = DimSize(wref,0)
 	variable ny = DimSize(wref,1)
 	// TODO: Change here with ImageTransform stackImages
 	if(WaveType(wref) == 2) // 32-bit float
-		Make/I/N = (nx, ny, nrwaves) $wname3d
+		Make/R/N = (nx, ny, nrwaves) $wname3d
 	elseif(WaveType(wref) == 4) // 64-bit float
 		Make/D/N = (nx, ny, nrwaves) $wname3d
 	elseif(WaveType(wref) == 16) // 16-bit integer signed
