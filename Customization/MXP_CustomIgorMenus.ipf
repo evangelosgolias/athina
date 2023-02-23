@@ -71,7 +71,8 @@ Menu "MAXPEEM"
 		"Plane profile...", MXP_MainMenuLaunchImagePlaneProfileZ()
 	End
 	
-	Submenu "Report"
+	Submenu "Information"
+		"Photoionisation CrossSection",/Q, PhotoionisationCrossSection#PhotoionisationCrossSection()
 		"List entries in a HDF (.h5) file...", MXP_ListHDF5Groups()
 	End
 End
