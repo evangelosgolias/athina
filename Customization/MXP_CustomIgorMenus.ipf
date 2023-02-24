@@ -112,6 +112,7 @@ Menu "TracePopup"
 	//"MXP Normalise stack with profile", MXP_NormaliseImageStackWithProfile()
 	//"MXP Average stack",  MXP_LaunchAverageStackToImageFromTraceMenu()
 	"MXP Save layer (3D)", MXP_GetLayerFromImageStack()
+	"MXP Save current view (2D,3D)", MXP_GetScaledZoominImageWindow()
 	"MXP Stack image (3D)", MXP_LaunchStackImageToImageStack()
 	"MXP Scale Image stack (3D)", MXP_ScaleImage()
 	"MXP Select image and copy scales (2D,3D)", MXP_ImageSelectToCopyScale()

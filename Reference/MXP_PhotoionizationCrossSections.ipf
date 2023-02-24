@@ -10,6 +10,8 @@
 // Datasets for the following orbitals Ho3p, Tm3p, Dy3p, Er3p, Gd3p, Lu3p, Tb3p, Yb3p, V1s were empty 
 // and are not included in the Photoionisation cross section data table (2d wave)
 //
+// Tested on Igor Pro 9.01
+// Comment out the line with comment "//IP9 only" and the program will work for IP6+
 // ---------------------
 // Copy of original 
 //
@@ -435,17 +437,20 @@ static Function ShowButtonProc(ba) : ButtonControl
 			wave/T ElementSym= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:ElementSym
 			string str, graphName, elementStr, allSelectedElements
 			variable ii, iimax
-
+			string allGraphWindows = ""
 			allSelectedElements = GetSelectedElementsStr()
 			iimax =ItemsInList(allSelectedElements)
 			for (ii=0; ii<iimax;ii+=1)
 				elementStr = StringFromList(ii, allSelectedElements)
 				graphName = "MXP_" + elementStr + "_PhCs"
+				allGraphWindows += graphName +";"
 				DoWindow/F $graphname
 				if(!V_flag) // Window does not exist
 					PlotPhCrossSectionOfElement(elementStr)
 				endif
-			endfor	
+			endfor
+			// CAUTION: Tiling hard-coded, change /A=(x, y) if you like
+			TileWindows/WINS=allGraphWindows/O=1/A=(3,6) // //IP9 only (/WINS)
 			break
 		case -1: // control being killed
 			break
@@ -622,7 +627,7 @@ Function PlotPhCrossSectionOfElement(string elementStr)
 	endfor	
 	
 	ModifyGraph/W=$graphName grid(left)=1,log(left)=1,tick=2,mirror=1,fSize=12,lsize=2,gridRGB(left)=(43690,43690,43690)
-	SetAxis/W=$graphName bottom *,1000 // Energy range for MAXPEEM
+	SetAxis/W=$graphName bottom *,1000 // CHANGE: Energy range to your taste.
 	Label/W=$graphName left "\\Z14 Cross section (Mbarn)"
 	Label/W=$graphName bottom "\\Z14 Photon energy (eV)"
 	// Change colors for traces

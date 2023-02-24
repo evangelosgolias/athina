@@ -135,6 +135,101 @@ Function MXP_NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
 	endif
 End
 
+Function MXP_GetScaledZoominImageWindow()
+	// Get a the current window view as a new image with appropriate scaling.
+	// Works for 2D/3D waves
+	// CAUTION: If axes have different configuration the function will not work properly. 
+	// You should have left and top axis with the origin at the too left corner so 
+	// GetAxis/Q/W=$winNameStr left // MAXPEEM images V_min > V_max
+	// and
+	// GetAxis/Q/W=$winNameStr top // MAXPEEM images V_min < V_max
+
+
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE wref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	string msg, wavenameStr, bufferStr
+	variable newLeftAxisLen, newTopAxisLen, P0, Q0, P1, Q1, PMax, QMax, dx, dy, nrows, ncols
+	//Left axis
+	GetAxis/Q/W=$winNameStr top // MAXPEEM images V_min < V_max, see P0, P1
+	if(V_flag)
+		return -1
+	endif
+	dx = DimDelta(wref, 0)
+	P0 = ScaleToIndex(wref, V_min, 0)
+	P1 = ScaleToIndex(wref, V_max, 0)
+	PMax = DimSize(wref, 0) 
+	
+	if(P0 < 0)
+		P0 = 0
+	endif
+			
+	if(P1 > Pmax)
+		P1 = PMax
+	endif
+	
+	if((P0 < 0 && P1 < 0) || (P0 > PMax && P1 > PMax))
+		return -1
+	endif
+	
+	nrows = abs(P0-P1)
+	newTopAxisLen = (nrows - 1) * dx
+	//Top axis
+	GetAxis/Q/W=$winNameStr left // MAXPEEM images V_min > V_max, see Q0, Q1
+	if(V_flag)
+		return -1
+	endif
+	dy = DimDelta(wref, 1)
+	Q0 = ScaleToIndex(wref, V_max, 1)
+	Q1 = ScaleToIndex(wref, V_min, 1)	
+	QMax = DimSize(wref, 1)
+	if(Q0 < 0)
+		Q0 = 0
+	endif
+		
+	if(Q1 > Qmax)
+		Q1 = QMax
+	endif
+	
+	ncols = abs(Q0-Q1)
+	newLeftAxisLen = (ncols - 1)* dy
+		
+	if((Q0 < 0 && Q1 < 0) || (Q0 > QMax && Q1 > QMax))
+		return -1
+	endif
+	
+	DFREF cdfr = GetDataFolderDFR()
+	
+	// Reset now P0, Q0 use them as offsets
+	P0 = min(P0, P1)
+	Q0 = min(Q0, Q1)	
+	if(WaveDims(wref) == 3)
+		NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(winNameStr):gLayer	
+		if(NVAR_Exists(gLayer))
+			bufferStr = NameOfWave(wref) + "_layer_" + num2str(gLayer) + "_ZM"
+			wavenameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 4)
+			Make/N=(nrows, ncols) $wavenameStr /WAVE = wReftmp
+			SetScale/I x, 0, newTopAxisLen, wReftmp
+			SetScale/I y, 0, newLeftAxisLen, wReftmp
+			wReftmp = wref[P0 + p][Q0 + q][gLayer]
+			sprintf msg, "Part(R/C) of %s: (%d, %d, %d, %d) layer%d", NameOfWave(wref), P0, P1, Q0, Q1, gLayer
+		else
+			Abort "Add a slider in your image stack (3d wave), I cannot guess the layer you want me to act on!"
+		endif
+	elseif(WaveDims(wref) == 2)
+		bufferStr = NameOfWave(wref) + "_ZM"
+		wavenameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 4)
+		Make/N=(nrows, ncols) $wavenameStr /WAVE = wReftmp
+		SetScale/I x, 0, newTopAxisLen, wReftmp
+		SetScale/I y, 0, newLeftAxisLen, wReftmp
+		wReftmp = wref[P0 + p][Q0 + q]
+		sprintf msg, "Part(R/C) of %s: (%d, %d, %d, %d)", NameOfWave(wref), P0, P1, Q0, Q1
+	else
+		Abort "Operation needs a image or image stack (2d/3d wave)"
+	endif
+	Note wReftmp, msg
+End
+
 Function MXP_GetLayerFromImageStack()
 	
 	string winNameStr = WinName(0, 1, 1)
