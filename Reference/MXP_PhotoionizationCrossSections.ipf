@@ -4,7 +4,11 @@
 #pragma ModuleName = PhotoionisationCrossSection
 
 // Adapted with major modifications from:
-// Evangelos Golias 
+// Evangelos Golias (22.02.2023)
+// Photoionisation cross-section datasets in the 2d wave were downloaded from
+// https://vuo.elettra.eu/services/elements/WebElements.html
+// Datasets for the following orbitals Ho3p, Tm3p, Dy3p, Er3p, Gd3p, Lu3p, Tb3p, Yb3p, V1s were empty 
+// and are not included in the Photoionisation cross section data table (2d wave)
 //
 // ---------------------
 // Copy of original 
@@ -17,7 +21,7 @@
 //
 // Graphically select any number of elements, the resulting list is processed separately.
 //
-// The selection list is: root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:ElemSelect
+// The selection list is: root:Packages:MXP_DataFolder:PhotoionisationCrossSection:ElemSelect
 // see also waves AtNr and ElementSym in the same data folder.
 //
 // See the function SelectionActionProc() to perform action after element selection
@@ -79,7 +83,7 @@ Function PhotoionisationCrossSection() : Panel
 		if (strlen(WinList("PhotoionisationCrossSectionPanel", ";", "WIN:64"))!=0)
 			DoWindow/F PhotoionisationCrossSectionPanel
 		else
-			NVAR gscfpN = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:scfpN
+			NVAR gscfpN = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:scfpN
 			PTDisplayPanel()
 			PopupMenu PTresize mode=gscfpN
 		endif
@@ -118,8 +122,7 @@ Static Function PTInitPanel()
 	
 	if (!DataFolderExists("root:Packages:MXP_DataFolder:PhotoionisationCrossSection"))
 		NewDataFolder/S PhotoionisationCrossSection
-		NewDataFolder/S Globals
-		
+				
 		// create the globals and set them
 
 		string/G gMXP_OrbitalOrder = "H1s_E;H1s_CS;He1s_E;He1s_CS;Li1s_E;Li1s_CS;Li2s_E;Li2s_CS;Be1s_E;Be1s_CS;Be2s_E;Be2s_CS;B1s_E;B1s_CS;B2p_E;B2p_CS;B2s_E;B2s_CS;C1s_E;C1s_CS;C2p_E;C2p_CS;C2s_E;C2s_CS;N1s_E;N1s_CS;N2p_E;N2p_CS;N2s_E;N2s_CS;O1s_E;O1s_CS;O2p_E;O2p_CS;O2s_E;O2s_CS;F1s_E;F1s_CS;F2p_E;F2p_CS;F2s_E;F2s_CS;Ne1s_E;Ne1s_CS;"
@@ -198,11 +201,11 @@ End
 // PTDisplayPanel()
 // create the panel and element buttons
 Static Function PTDisplayPanel()
-	NVAR gscf = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:scf
-	NVAR gptleft = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:ptleft
-	NVAR gpttop = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:pttop
-	NVAR gkill = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:kill
-	wave Col= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:Col
+	NVAR gscf = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:scf
+	NVAR gptleft = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:ptleft
+	NVAR gpttop = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:pttop
+	NVAR gkill = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:kill
+	wave Col= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Col
 	
 	STRUCT PTPanelInitGlobals ptpig	
 	PTInitGlobals(ptpig)
@@ -226,7 +229,7 @@ Static Function PTDisplayPanel()
 		
 	NewPanel/K=(gkill)/W=(gptleft,gpttop,gptleft+ptwidth,gpttop+ptheight)
 	ModifyPanel cbRGB=(PTbgR,PTbgG,PTbgB), fixedSize=1//,noEdit=1
-	DoWindow/C/T PhotoionisationCrossSectionPanel,"Photoionisation CrossSection"
+	DoWindow/C/T PhotoionisationCrossSectionPanel," MAXPEEM Photoionisation CrossSection"
 
 	DefaultGUIControls/W=PhotoionisationCrossSectionPanel native
 	
@@ -377,8 +380,8 @@ End
 static Function PTResizePanel(pa) : PopupMenuControl
 	STRUCT WMPopupAction &pa
 	
-	NVAR gscf = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:scf
-	NVAR gscfpN = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:scfpN
+	NVAR gscf = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:scf
+	NVAR gscfpN = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:scfpN
 	
 	// wait for mouse up event
 	switch(pa.eventCode)
@@ -407,8 +410,8 @@ End
 //************************************************************
 Function GetAtNr(Estr)
 	string Estr
-	wave AtNr= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:AtNr
-	wave/T ElementSym= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:ElementSym
+	wave AtNr= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:AtNr
+	wave/T ElementSym= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:ElementSym
 	variable ii
 	
 	for (ii=0; ii<maxelem; ii+=1)
@@ -427,9 +430,9 @@ static Function ShowButtonProc(ba) : ButtonControl
 
 	switch( ba.eventCode )
 		case 2: // mouse up
-			wave Col= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:Col
-			wave ElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:ElemSelect
-			wave/T ElementSym= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:ElementSym
+			wave Col= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Col
+			wave ElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:ElemSelect
+			wave/T ElementSym= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:ElementSym
 			string str, graphName, elementStr, allSelectedElements
 			variable ii, iimax
 
@@ -457,9 +460,9 @@ static Function ClearButtonProc(ba) : ButtonControl
 
 	switch( ba.eventCode )
 		case 2: // mouse up
-			wave Col= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:Col
-			wave ElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:ElemSelect
-			wave/T ElementSym= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:ElementSym
+			wave Col= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Col
+			wave ElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:ElemSelect
+			wave/T ElementSym= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:ElementSym
 			string str, graphName, elementStr, allSelectedElements
 			variable ii, iimax
 			
@@ -497,9 +500,9 @@ End
 static Function PTGetState(bs) : ButtonControl
 	STRUCT WMButtonAction &bs
 	
-	wave Col= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:Col
-	wave ElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:ElemSelect
-	wave OldElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:OldElemSelect
+	wave Col= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Col
+	wave ElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:ElemSelect
+	wave OldElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:OldElemSelect
 	
 	string str
 	variable atomnr
@@ -556,11 +559,11 @@ end
 
 //************************************************************
 static Function PTcheckListChange()
-	wave ElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:ElemSelect
-	wave OldElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:OldElemSelect
+	wave ElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:ElemSelect
+	wave OldElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:OldElemSelect
 	
 	DFREF currDF = GetDataFolderDFR()
-	SetDataFolder root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:
+	SetDataFolder root:Packages:MXP_DataFolder:PhotoionisationCrossSection:
 	matrixop/O chgwv=sum(equal(ElemSelect,OldElemSelect))
 
 	if (chgwv[0]==numpnts(ElemSelect))
@@ -577,8 +580,8 @@ end
 
 Function/S GetSelectedElementsStr()
 	// Return a string list with the elements currently selected, e.g "Si;Co;Ir;"
-	wave ElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:ElemSelect
-	wave/T ElementSym= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:ElementSym
+	wave ElemSelect= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:ElemSelect
+	wave/T ElementSym= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:ElementSym
 	string selectedElementsStr = ""
 
 	variable ElemMax = numpnts(ElemSelect), i
@@ -593,7 +596,7 @@ Function/S GetSelectedElementsStr()
 End
 
 Function/S GetColumnOrderFromSelectedElement(string elementStr)
-	SVAR MXP_OrbitalOrder = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:gMXP_OrbitalOrder
+	SVAR MXP_OrbitalOrder = root:Packages:MXP_DataFolder:PhotoionisationCrossSection:gMXP_OrbitalOrder
 	string RegExpBaseStr = "[1-9]{1}[s,p,d,f]{1}" // Use "Symbol" + RegExpBaseStr
 	string matchedFilesStr = SortList(GrepList(MXP_OrbitalOrder, elementStr + RegExpBaseStr), ";", 16)
 	return matchedFilesStr
@@ -601,7 +604,7 @@ End
 
 Function PlotPhCrossSectionOfElement(string elementStr)
 	string allDimLabels = GetColumnOrderFromSelectedElement(elementStr)
-	wave PhCSWave= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:Globals:MXP_PhCrossSectionTable
+	wave PhCSWave= root:Packages:MXP_DataFolder:PhotoionisationCrossSection:MXP_PhCrossSectionTable
 	string graphName = "MXP_" + elementStr + "_PhCs" // Names for DoWindow/F
 	string titleGraph = elementStr + " Photoionisation cross-section"
 	variable i
@@ -619,6 +622,7 @@ Function PlotPhCrossSectionOfElement(string elementStr)
 	endfor	
 	
 	ModifyGraph/W=$graphName grid(left)=1,log(left)=1,tick=2,mirror=1,fSize=12,lsize=2,gridRGB(left)=(43690,43690,43690)
+	SetAxis/W=$graphName bottom *,1000 // Energy range for MAXPEEM
 	Label/W=$graphName left "\\Z14 Cross section (Mbarn)"
 	Label/W=$graphName bottom "\\Z14 Photon energy (eV)"
 	// Change colors for traces
@@ -637,10 +641,9 @@ Function PlotPhCrossSectionOfElement(string elementStr)
 		legendStr += "\\s(" + StringFromList(i,allTracesinGraph)+") " + bufferStr + "\r"	
 	endfor
 	legendStr = RemoveEnding(legendStr, "\r") // Drop the last "\r"
-	Legend/C/N=text0/J/F=0/S=3/A=RB ("\Z14" +legendStr)
+	Legend/C/N=text0/J/F=0/S=3/A=RB ("\Z12" +legendStr)
 End
 
-// 
 Function [variable red, variable green, variable blue] SetTraceColor(variable colorIndex)
 	/// Give a RGB triplet for 16 distinct colors.
 	/// https://www.wavemetrics.com/forum/general/different-colors-different-waves
