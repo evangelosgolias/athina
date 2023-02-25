@@ -44,13 +44,14 @@ Menu "MAXPEEM"
 	
 	Submenu "Analyse"
 		Submenu "XPS"
-		"Subtract background ... ", BackgroundSubtractGUI($StringFromList(0,MXP_SelectWavesInModalDataBrowser("Select a wave (1d)")))
+		//"Subtract background ... ", BackgroundSubtractGUI($StringFromList(0,MXP_SelectWavesInModalDataBrowser("Select a wave (1d)")))
+		"Subtract background (TG) ", BackgroundSubtractGUI()
 		End
 	End
 	
 	Submenu "Align"
-		"using a feature (recommended)...", MXP_LaunchImageStackAlignmentUsingAFeature()
-		"using the full image...", MXP_LaunchImageStackAlignmentByFullImage()
+		"using a feature (recommended) (TG)...", MXP_LaunchImageStackAlignmentUsingAFeature()
+		"using the full image (TG)...", MXP_LaunchImageStackAlignmentByFullImage()
 	End
 	
 	Submenu "Make"
@@ -60,15 +61,15 @@ Menu "MAXPEEM"
 	
 	Submenu "Calculation"
 		"Stack average...", MXP_LaunchAverageStackToImageFromMenu()
-		"Calculate XMC(L)D...", MXP_LaunchRegisterQCalculateXRayDichroism()
+		"Calculate XMC(L)D (TG)...", MXP_LaunchRegisterQCalculateXRayDichroism()
 		"Calculate XMC(L)D interactively...", MXP_LaunchInteractiveCalculateXRayDichroism()
 		"Import .dat files and calculate XMC(L)D...", MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	End
 	
-	Submenu "Profiles"
-		"Line profile...", MXP_MainMenuLaunchLineProfile()
-		"Z profile...", MXP_MainMenuLaunchSumBeamsProfile()
-		"Plane profile...", MXP_MainMenuLaunchImagePlaneProfileZ()
+	Submenu "Profiles "
+		"Line profile (TG)", MXP_MainMenuLaunchLineProfile()
+		"Z profile (TG)", MXP_MainMenuLaunchSumBeamsProfile()
+		"Plane profile (TG)", MXP_MainMenuLaunchImagePlaneProfileZ()
 	End
 	
 	Submenu "Information"

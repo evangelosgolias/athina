@@ -33,23 +33,9 @@
 
 Function MXP_MainMenuLaunchSumBeamsProfile()
 
-	// Create the modal data browser but do not display it
-	CreateBrowser/M prompt="Select an image stack and press OK"
-	// Show waves but not variables in the modal data browser
-	ModifyBrowser/M showWaves=1, showVars=0, showStrs=0
-	// Set the modal data browser to sort by name 
-	ModifyBrowser/M sort=1, showWaves=1, showVars=0, showStrs=0
-	// Hide the info and plot panes in the modal data browser 
-	ModifyBrowser/M showInfo=0, showPlot=1
-	// Display the modal data browser, allowing the user to make a selection
-	ModifyBrowser/M showModalBrowser
-
-	if (V_Flag == 0)
-		return 0			// User cancelled
-	endif
-	// User selected a wave, check if it's 3d
-	string browserSelection = StringFromList(0, S_BrowserList)
-	WAVE w3dref = $browserSelection
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	// When plotting waves from calculations we might have NaNs or Infs.
 	// Remove them before starting and replace them with zeros
 	Wavestats/M=1/Q w3dref
@@ -57,14 +43,11 @@ Function MXP_MainMenuLaunchSumBeamsProfile()
 		printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
 		w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
 	endif
-	if(exists(browserSelection) && WaveDims(w3dref) == 3) // if it is a 3d wave
-//		NewImage/K=1 w3dref
-//		ModifyGraph width={Plan,1,top,left}
-		MXP_DisplayImage(w3dRef)
+	if(WaveDims(w3dref) == 3) // if it is a 3d wave
+		//MXP_DisplayImage(w3dRef)
 		MXP_InitialiseZProfileFolder()
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
 		MXP_InitialiseZProfileGraph(dfr)
-		SVAR winNameStr = dfr:gMXP_WindowNameStr
 		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))

@@ -33,44 +33,18 @@
 
 Function MXP_MainMenuLaunchLineProfile()
 
-	// Create the modal data browser but do not display it
-	CreateBrowser/M prompt="Select an image or image stack and press OK"
-	// Show waves but not variables in the modal data browser
-	ModifyBrowser/M showWaves=1, showVars=0, showStrs=0
-	// Set the modal data browser to sort by name 
-	ModifyBrowser/M sort=1, showWaves=1, showVars=0, showStrs=0
-	// Hide the info and plot panes in the modal data browser 
-	ModifyBrowser/M showInfo=0, showPlot=1
-	// Display the modal data browser, allowing the user to make a selection
-	ModifyBrowser/M showModalBrowser
-
-	if (V_Flag == 0)
-		return 0			// User cancelled
-	endif
-	// User selected a wave, check if it's 3d
-	string browserSelection = StringFromList(0, S_BrowserList)
-	Wave selectedWave = $browserSelection
-	if(exists(browserSelection) && (WaveDims(selectedWave) == 3 || WaveDims(selectedWave) == 2)) // if it is a 3d wave
-//		NewImage/K=1 selectedWave
-//		ModifyGraph width={Plan,1,top,left}
-//		ShowInfo/CP={0,3}
-		MXP_DisplayImage(selectedWave)
-		string winNameStr = WinName(0, 1, 1)
-		string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-		MXP_InitialiseLineProfileFolder()
-		//DoWindow/F $winNameStr // bring it to FG to set the cursors
-		variable nrows = DimSize(selectedWave,0)
-		variable ncols = DimSize(selectedWave,1)
-		Cursor/I/C=(65535,0,0)/S=1/P G $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-		Cursor/I/C=(65535,0,0)/S=1/P H $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
-		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(selectedWave)) // Change root folder if you want
-		MXP_InitialiseLineProfileGraph(dfr)
-		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionLineProfile // Set the hook
-		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
-		// name to the windows hook to kill the plot after completion
-	else
-		Abort "Line profile needs an image or image stack."
-	endif
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	MXP_InitialiseLineProfileFolder()
+	variable nrows = DimSize(imgWaveRef,0)
+	variable ncols = DimSize(imgWaveRef,1)
+	Cursor/I/C=(65535,0,0)/S=1/P G $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
+	Cursor/I/C=(65535,0,0)/S=1/P H $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
+	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
+	MXP_InitialiseLineProfileGraph(dfr)
+	SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionLineProfile // Set the hook
+	SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
 	return 0
 End
 

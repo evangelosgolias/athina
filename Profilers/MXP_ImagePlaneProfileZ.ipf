@@ -43,38 +43,21 @@
 
 Function MXP_MainMenuLaunchImagePlaneProfileZ()
 
-	// Create the modal data browser but do not display it
-	CreateBrowser/M prompt="Select an image or image stack and press OK"
-	// Show waves but not variables in the modal data browser
-	ModifyBrowser/M showWaves=1, showVars=0, showStrs=0
-	// Set the modal data browser to sort by name 
-	ModifyBrowser/M sort=1, showWaves=1, showVars=0, showStrs=0
-	// Hide the info and plot panes in the modal data browser 
-	ModifyBrowser/M showInfo=0, showPlot=1
-	// Display the modal data browser, allowing the user to make a selection
-	ModifyBrowser/M showModalBrowser
-
-	if (V_Flag == 0)
-		return -1			// User cancelled
-	endif
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE w3dRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	// User selected a wave, check if it's 3d
-	string browserSelection = StringFromList(0, S_BrowserList)
-	Wave selectedWave = $browserSelection
-	if(exists(browserSelection) && (WaveDims(selectedWave) == 3 || WaveDims(selectedWave) == 2)) // if it is a 3d wave
-		MXP_DisplayImage(selectedWave)
-		string winNameStr = WinName(0, 1, 1)
-		string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	if(WaveDims(w3dRef) == 3) // if it is a 3d wave
 		MXP_InitialiseImagePlaneProfileZFolder()
 		// Flush scales
-		SetScale/P x, 0, 1, selectedWave
-		SetScale/P y, 0, 1, selectedWave
-		SetScale/P z, 0, 1, selectedWave	
-		//DoWindow/F $winNameStr // bring it to FG to set the cursors
-		variable nrows = DimSize(selectedWave,0)
-		variable ncols = DimSize(selectedWave,1)
+		SetScale/P x, 0, 1, w3dRef
+		SetScale/P y, 0, 1, w3dRef
+		SetScale/P z, 0, 1, w3dRef	
+		variable nrows = DimSize(w3dRef,0)
+		variable ncols = DimSize(w3dRef,1)
 		Cursor/I/C=(65535,0,0,65535)/S=1/P G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 		Cursor/I/C=(65535,0,0,65535)/S=1/P H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:" + NameOfWave(selectedWave)) // Change root folder if you want
+		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:" + NameOfWave(w3dRef)) // Change root folder if you want
 		MXP_InitialiseImagePlaneProfileZGraph(dfr)
 		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionImagePlaneProfileZ // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
