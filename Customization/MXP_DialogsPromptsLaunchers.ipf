@@ -322,9 +322,10 @@ Function MXP_LaunchImageStackAlignmentByFullImage()
 	endif
 	string backupWave = NameOfWave(w3dref) + "_undo"
 	if(!WaveExists($backupWave))
-		print PossiblyQuoteName(backupWave) + " has been created. To restore " + PossiblyQuoteName(imgNameTopGraphStr) + " run the command:\n"
-		print "Duplicate/O " + PossiblyQuoteName(backupWave) + ", " +  PossiblyQuoteName(imgNameTopGraphStr) + "; " + \
-		"KillWaves/Z " + PossiblyQuoteName(backupWave)
+		print GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + " has been created. To restore " + GetWavesDataFolder(w3dref, 2) + " run the command:\n"
+		print "Duplicate/O " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + ", " +  GetWavesDataFolder(w3dref, 2) + "; " + \
+		"KillWaves/Z " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave)
+		Duplicate $GetWavesDataFolder(w3dref, 2), $(GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave))
 	endif
 	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
 	//MXP_ImageStackAlignmentByPartitionRegistration
@@ -355,9 +356,10 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	endif
 	string backupWave = NameOfWave(w3dref) + "_undo"
 	if(!WaveExists($backupWave))
-		print PossiblyQuoteName(backupWave) + " has been created. To restore " + PossiblyQuoteName(imgNameTopGraphStr) + " run the command:\n"
-		print "Duplicate/O " + PossiblyQuoteName(backupWave) + ", " +  PossiblyQuoteName(imgNameTopGraphStr) + "; " + \
-		"KillWaves/Z " + PossiblyQuoteName(backupWave)
+		print GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + " has been created. To restore " + GetWavesDataFolder(w3dref, 2) + " run the command:\n"
+		print "Duplicate/O " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + ", " +  GetWavesDataFolder(w3dref, 2) + "; " + \
+		"KillWaves/Z " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave)
+		Duplicate $GetWavesDataFolder(w3dref, 2), $(GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave))
 	endif
 	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
 	// MXP_ImageStackAlignmentByPartitionRegistration
