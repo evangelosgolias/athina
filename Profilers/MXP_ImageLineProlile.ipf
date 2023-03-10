@@ -29,26 +29,35 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-/// Line profile is plotted from cursor G to H.
+/// Line profile is plotted from cursor E to F.
 
 Function MXP_MainMenuLaunchLineProfile()
-
+	
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	if(!strlen(imgNameTopGraphStr))
+		print "No image in top graph."
+		return -1
+	endif
 	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	MXP_InitialiseLineProfileFolder()
+	string LinkedPlotStr = GetUserData(winNameStr, "", "MXP_LinkedLineProfilePlotStr")
+	if(strlen(LinkedPlotStr))
+		DoWindow/F LinkedPlotStr
+		return 0
+	endif
+	MXP_InitialiseLineProfileFolder(winNameStr)
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
-	Cursor/I/C=(65535,0,0)/S=1/P G $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-	Cursor/I/C=(65535,0,0)/S=1/P H $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
+	Cursor/I/C=(65535,0,0)/S=1/P E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
+	Cursor/I/C=(65535,0,0)/S=1/P F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 	MXP_InitialiseLineProfileGraph(dfr)
-	SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionLineProfile // Set the hook
-	SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
+	SetWindow $winNameStr, hook(MyLineProfileHook) = MXP_CursorHookFunctionLineProfile // Set the hook
+	SetWindow $winNameStr userdata(MXP_LinkedLineProfilePlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
 	return 0
 End
 
-Function MXP_TraceMenuLaunchLineProfile()
+Function MXP_TraceMenuLaunchLineProfile() // Not in use
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -60,16 +69,16 @@ Function MXP_TraceMenuLaunchLineProfile()
 //		ModifyGraph width={Plan,1,top,left}
 //		ShowInfo/CP={0,3}
 		MXP_DisplayImage(imgWaveRef)
-		MXP_InitialiseLineProfileFolder()
+		MXP_InitialiseLineProfileFolder(winNameStr)
 		DoWindow/F $winNameStr // bring it to FG to set the cursors
 		variable nrows = DimSize(imgWaveRef,0)
 		variable ncols = DimSize(imgWaveRef,1)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P G $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P H $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
+		Cursor/I/C=(65535,0,0,65535)/S=1/P E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
+		Cursor/I/C=(65535,0,0,65535)/S=1/P F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 		MXP_InitialiseLineProfileGraph(dfr)
-		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionLineProfile // Set the hook
-		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
+		SetWindow $winNameStr, hook(MyLineProfileHook) = MXP_CursorHookFunctionLineProfile // Set the hook
+		SetWindow $winNameStr userdata(MXP_LinkedLineProfilePlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
 		// name to the windows hook to kill the plot after completion
 	else
 		Abort "Line profile needs an image or image stack."
@@ -89,19 +98,19 @@ Function MXP_BrowserMenuLaunchLineProfile()
 			MXP_DisplayImage(imgWaveRef)
 			string winNameStr = WinName(0, 1, 1) // update it just in case
 			string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-			MXP_InitialiseLineProfileFolder()
+			MXP_InitialiseLineProfileFolder(winNameStr)
 			DoWindow/F $winNameStr // bring it to FG to set the cursors
 			variable nrows = DimSize(imgWaveRef,0)
 			variable ncols = DimSize(imgWaveRef,1)
-			Cursor/I/C=(65535,0,0,65535)/S=1/P G $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-			Cursor/I/C=(65535,0,0,65535)/S=1/P H $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
+			Cursor/I/C=(65535,0,0,65535)/S=1/P E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
+			Cursor/I/C=(65535,0,0,65535)/S=1/P F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 			DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 			MXP_InitialiseLineProfileGraph(dfr)
-			SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionLineProfile // Set the hook
-			SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
+			SetWindow $winNameStr, hook(MyLineProfileHook) = MXP_CursorHookFunctionLineProfile // Set the hook
+			SetWindow $winNameStr userdata(MXP_LinkedLineProfilePlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
 		// name to the windows hook to kill the plot after completion
 		else
-			Abort "Line profile operation needs an image or an image stack."
+			Abort "Line profile needs an image or an image stack."
 		endif
 	else
 		Abort "Please select only one wave."
@@ -109,11 +118,11 @@ Function MXP_BrowserMenuLaunchLineProfile()
 	return 0
 End
 
-Function MXP_InitialiseLineProfileFolder()
+Function MXP_InitialiseLineProfileFolder(string winNameStr)
 	/// All initialisation happens here. Folders, waves and local/global variables
 	/// needed are created here. Use the 3D wave in top window.
 
-	string winNameStr = WinName(0, 1, 1)
+	//string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	Wave imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 
@@ -232,7 +241,7 @@ End
 
 Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 	/// Window hook function
-	/// The line profile is drawn from G to H
+	/// The line profile is drawn from E to F
     variable hookResult = 0
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
 	DFREF currdfr = GetDataFolderDFR()
@@ -268,8 +277,8 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 				SetDrawLayer ProgFront
 			    DrawAction delete
 	   			SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-				Cursor/I/C=(65535,0,0,30000)/S=1 G $imgNameTopGraphStr C1x0, C1y0
-				Cursor/I/C=(65535,0,0,30000)/S=1 H $imgNameTopGraphStr C2x0, C2y0
+				Cursor/I/C=(65535,0,0,30000)/S=1 E $imgNameTopGraphStr C1x0, C1y0
+				Cursor/I/C=(65535,0,0,30000)/S=1 F $imgNameTopGraphStr C2x0, C2y0
 				DrawLine C1x0, C1y0, C2x0, C2y0
 				Make/O/FREE/N=2 xTrace={C1x0, C2x0}, yTrace = {C1y0, C2y0}
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
@@ -277,7 +286,7 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 			endif
 			break
 		case 2: // Kill the window
-			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedPlotStr"))
+			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedLineProfilePlotStr"))
 			KillDataFolder/Z dfr
 			hookresult = 1
 			break
@@ -285,10 +294,10 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 			mouseTrackV = s.mouseLoc.v
 			break
        	case 5: // mouse up
-       		C1x = hcsr(G) 
-       		C1y = vcsr(G)
-       		C2x = hcsr(H)
-       		C2y = vcsr(H)
+       		C1x = hcsr(E) 
+       		C1y = vcsr(E)
+       		C2x = hcsr(F)
+       		C2y = vcsr(F)
        		hookResult = 1
 			break
 		case 8: // modifications, either move the slides or the cursors
@@ -301,18 +310,18 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 			endif
 			break
 	    case 7: // cursor moved
-			if(!cmpstr(s.cursorName, "G") || !cmpstr(s.cursorName, "H")) // It should work only with G, H you might have other cursors on the image
+			if(!cmpstr(s.cursorName, "E") || !cmpstr(s.cursorName, "F")) // It should work only with E, F you might have other cursors on the image
 				SetDrawLayer ProgFront
 			    DrawAction delete
 	   			SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	   			if(!cmpstr(s.cursorName, "G")) // if you move G
-	   				xc = hcsr(H)
-					yc = vcsr(H)
+	   			if(!cmpstr(s.cursorName, "E")) // if you move E
+	   				xc = hcsr(F)
+					yc = vcsr(F)
 					DrawLine s.pointNumber * dx, s.ypointNumber * dy, xc, yc
 	   				Make/O/FREE/N=2 xTrace={s.pointNumber * dx, xc}, yTrace = {s.ypointNumber * dy, yc}
-	   			elseif(!cmpstr(s.cursorName, "H")) // if you move H
-	   				xc = hcsr(G)
-					yc = vcsr(G)
+	   			elseif(!cmpstr(s.cursorName, "F")) // if you move F
+	   				xc = hcsr(E)
+					yc = vcsr(E)
 					DrawLine xc, yc, s.pointNumber * dx, s.ypointNumber * dy
 	   				Make/O/FREE/N=2 xTrace={xc, s.pointNumber * dx}, yTrace = {yc, s.ypointNumber * dy}
 	   			endif

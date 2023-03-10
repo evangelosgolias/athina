@@ -38,20 +38,15 @@ End
 
 Function MXP_LaunchMake3DWaveDataBrowserSelection([variable displayStack])
 	displayStack = ParamIsDefault(displayStack) ? 0: displayStack // Give any non-zero to display the stack
-	//20.02.2023 change to "" to bypass dialog. Uncomment to restore	
 	string wname3dStr = ""
+	//20.02.2023 changed to "" to bypass dialog. Uncomment to restore		
 	//wname3dStr = MXP_GenericSingleStrPrompt("Stack name", "Make a stack of pre-selected waves in data browser")
 	
 	if(!strlen(wname3dStr))
 		wname3dStr = "MXP_stack"
 	endif
-	if(exists(wname3dStr) == 1)
-		// We need a unique wave name
-		DFREF currDF = GetDataFolderDFR()
-		wname3dStr = CreatedataObjectName(currDF, "MXP_stack", 1, 0, 0)
-	endif
 	
-	MXP_Make3DWaveDataBrowserSelection(wname3dStr)
+	MXP_Make3DWaveDataBrowserSelection(wname3dStr, gotoFilesDFR = 0) // 0 - stack in cwd 1 - stack in files DFR
 	// Do you want to display the stack?
 	if(displayStack)
 		MXP_DisplayImage($wname3dStr)
@@ -112,23 +107,29 @@ Function MXP_LaunchAverageStackToImageFromTraceMenu()
 End
 
 Function MXP_LaunchAverageStackToImageFromBrowserMenu()
+	string bufferStr, wavenameStr
 	if(MXP_CountSelectedWavesInDataBrowser(waveDimemsions = 3) == 1\
 	 && MXP_CountSelectedWavesInDataBrowser() == 1) // If we selected a single 3D wave
 		string selected3DWaveStr = GetBrowserSelection(0)
 		WAVE w3dRef = $selected3DWaveStr	
 	else
-		Abort "Operation needs a single stack"
+		Abort "Operation needs an image stack (3d wave)"
 	endif
 
-	string strPrompt = "Averaged wave nane (leave empty for MXP_AvgStack)"
-	string msgDialog = "Average stack along z"
-	string waveNameStr
-	waveNameStr = MXP_GenericSingleStrPrompt(strPrompt, msgDialog)
-	if(!strlen(waveNameStr))
-		MXP_AverageStackToImage(w3dref)
-	else
-		MXP_AverageStackToImage(w3dref, avgImageName = waveNameStr)
-	endif
+//	string strPrompt = "Averaged wave nane (leave empty for MXP_AvgStack)"
+//	string msgDialog = "Average stack along z"
+//	string waveNameStr
+//	waveNameStr = MXP_GenericSingleStrPrompt(strPrompt, msgDialog)
+//	if(!strlen(waveNameStr))
+//		MXP_AverageStackToImage(w3dref)
+//	else
+//		MXP_AverageStackToImage(w3dref, avgImageName = waveNameStr)
+//	endif
+	// Changed and we give a unique name with an WaveName_avg suffix
+	DFREF cdfr = GetDataFolderDFR()
+	bufferStr = NameOfWave(w3dRef) + "_avg"
+	waveNameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 4)
+	MXP_AverageStackToImage(w3dref, avgImageName = waveNameStr)
 	KillWaves/Z M_StdvImage
 End
 

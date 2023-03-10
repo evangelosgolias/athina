@@ -383,13 +383,14 @@ End
 Function BackgroundSubtractGUI() //BackgroundSubtractGUI(inwave)
 	string winNameStr = WinName(0, 1, 1)
 	string graphNameStr = StringFromList(0, TraceNameList(winNameStr, ";", 1),";")
-	WAVE inwave = TraceNameToWaveRef(winNameStr, graphNameStr) // full path of wave
+	WAVE inwave = TraceNameToWaveRef(winNameStr, graphNameStr) // /Z for debug needed
 	// Remove the three lines above and uncomment the line below and use 
 	// BackgroundSubtractGUI(inwave) with Data Browser menu to select inwave, see Submenu "Analyse"
 	//Wave/Z inwave
 	if (!WaveExists(inwave))
 		return -1
 	endif
+	
 	if (WaveType(inwave,1) != 1 || WaveDims(inwave) > 1)										// make sure to only load 1D waves
 		Abort "This tool works only for numeric 1D waves."
 	endif

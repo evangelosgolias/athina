@@ -45,7 +45,19 @@ Function MXP_MainMenuLaunchImagePlaneProfileZ()
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	WAVE w3dRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+
+	if(!strlen(imgNameTopGraphStr))
+		print "No image in top graph."
+		return -1
+	endif
+	
+	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	string LinkedPlotStr = GetUserData(winNameStr, "", "MXP_LinkedSumBeamsZPlotStr")
+	if(strlen(LinkedPlotStr))
+		DoWindow/F LinkedPlotStr
+		return 0
+	endif
+	
 	// User selected a wave, check if it's 3d
 	if(WaveDims(w3dRef) == 3) // if it is a 3d wave
 		MXP_InitialiseImagePlaneProfileZFolder()
@@ -59,8 +71,8 @@ Function MXP_MainMenuLaunchImagePlaneProfileZ()
 		Cursor/I/C=(65535,0,0,65535)/S=1/P H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:" + NameOfWave(w3dRef)) // Change root folder if you want
 		MXP_InitialiseImagePlaneProfileZGraph(dfr)
-		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionImagePlaneProfileZ // Set the hook
-		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
+		SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = MXP_CursorHookFunctionImagePlaneProfileZ // Set the hook
+		SetWindow $winNameStr userdata(MXP_LinkedImagePlaneProfileZPlotStr) = "MXP_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
 		// name to the windows hook to kill the plot after completion
 	else
 		Abort "Line profile needs an image or image stack."
@@ -72,9 +84,9 @@ Function MXP_TraceMenuLaunchImagePlaneProfileZ()
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	Wave imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 
-	if(WaveDims(imgWaveRef) == 2 || WaveDims(imgWaveRef) == 3) // if it is not a 1d wave
+	if(WaveDims(imgWaveRef) == 3) // if it is not a 1d wave
 		KillWindow $winNameStr
 		MXP_DisplayImage(imgWaveRef)
 		winNameStr = WinName(0, 1, 1) // update it just in case
@@ -90,8 +102,8 @@ Function MXP_TraceMenuLaunchImagePlaneProfileZ()
 		Cursor/I/C=(65535,0,0,65535)/S=1/P H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 		MXP_InitialiseImagePlaneProfileZGraph(dfr)
-		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionImagePlaneProfileZ // Set the hook
-		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
+		SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = MXP_CursorHookFunctionImagePlaneProfileZ // Set the hook
+		SetWindow $winNameStr userdata(MXP_LinkedImagePlaneProfileZPlotStr) = "MXP_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
 		// name to the windows hook to kill the plot after completion
 	else
 		Abort "Line profile needs an image or image stack."
@@ -104,7 +116,7 @@ Function MXP_BrowserMenuLaunchImagePlaneProfileZ()
 	if(MXP_CountSelectedWavesInDataBrowser() == 1) // If we selected a single wave
 		string selectedImageStr = GetBrowserSelection(0)
 		WAVE imgWaveRef = $selectedImageStr
-		if(WaveDims(imgWaveRef) == 2 || WaveDims(imgWaveRef) == 3)
+		if(WaveDims(imgWaveRef) == 3)
 			MXP_DisplayImage(imgWaveRef)
 			string winNameStr = WinName(0, 1, 1) // update it just in case
 			string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -120,8 +132,8 @@ Function MXP_BrowserMenuLaunchImagePlaneProfileZ()
 			Cursor/I/C=(65535,0,0,65535)/S=1/P H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 			DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 			MXP_InitialiseImagePlaneProfileZGraph(dfr)
-			SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionImagePlaneProfileZ // Set the hook
-			SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
+			SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = MXP_CursorHookFunctionImagePlaneProfileZ // Set the hook
+			SetWindow $winNameStr userdata(MXP_LinkedImagePlaneProfileZPlotStr) = "MXP_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
 		// name to the windows hook to kill the plot after completion
 		else
 			Abort "Line profile operation needs an image or an image stack."
@@ -307,7 +319,7 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 			SetScale/P y, gMXP_Scale_y0, gMXP_Scale_dy, w3dRef
 			SetScale/P z, gMXP_Scale_z0, gMXP_Scale_dz, w3dRef
 			// Kill window and folder
-			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedPlotStr"))
+			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedImagePlaneProfileZPlotStr"))
 			KillDataFolder/Z dfr
 			hookresult = 1
 			break

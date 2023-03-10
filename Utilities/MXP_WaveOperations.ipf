@@ -66,18 +66,15 @@ Function MXP_Make3DWaveUsingPattern(string wname3d, string pattern)
 	return 0
 End
 
-Function MXP_Make3DWaveDataBrowserSelection(string wname3d)
+Function MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoFilesDFR])
 
 	// Like EGMake3DWave, but now waves are selected
 	// in the browser window. No check for selection
 	// type, so if you select a folder or variable
 	// you will get an error.
-
+	gotoFilesDFR = ParamIsDefault(gotoFilesDFR) ? 0: gotoFilesDFR
 	string listOfSelectedWaves = ""
-
-	if(!strlen(wname3d))
-		wname3d = "MXP_Stack"
-	endif
+	
 	// Test not needed here -- Called from MXP_LaunchMake3DWaveDataBrowserSelection()
 	//
 	// if name in use by a global wave/variable 
@@ -102,22 +99,35 @@ Function MXP_Make3DWaveDataBrowserSelection(string wname3d)
 	string wname = StringFromList(0, listOfSelectedWaves)
 
 	WAVE wref = $wname
+	
 	variable nx = DimSize(wref,0)
 	variable ny = DimSize(wref,1)
-	// TODO: Change here with ImageTransform stackImages
-	if(WaveType(wref) == 2) // 32-bit float
-		Make/R/N = (nx, ny, nrwaves) $wname3d
-	elseif(WaveType(wref) == 4) // 64-bit float
-		Make/D/N = (nx, ny, nrwaves) $wname3d
-	elseif(WaveType(wref) == 16) // 16-bit integer signed
-		Make/W/N = (nx, ny, nrwaves) $wname3d
-	elseif(WaveType(wref) == 80) // 16-bit integer unsigned
-		Make/W/U/N = (nx, ny, nrwaves) $wname3d
-	else
-		Make/N = (nx, ny, nrwaves) $wname3d //default
+	
+	DFREF currDFR = GetDataFolderDFR()
+	if(gotoFilesDFR)
+		SetDataFolder GetWavesDataFolderDFR(wref)
+		currDFR = GetDataFolderDFR()
 	endif
 	
-	WAVE w3dref = $wname3d
+	if(exists(wname3dStr) == 1)
+		// We need a unique wave name
+		wname3dStr = CreatedataObjectName(currDFR, "MXP_stack", 1, 0, 0)
+	endif
+	
+	// TODO: Change here with ImageTransform stackImages
+	if(WaveType(wref) == 2) // 32-bit float
+		Make/R/N = (nx, ny, nrwaves) $wname3dStr
+	elseif(WaveType(wref) == 4) // 64-bit float
+		Make/D/N = (nx, ny, nrwaves) $wname3dStr
+	elseif(WaveType(wref) == 16) // 16-bit integer signed
+		Make/W/N = (nx, ny, nrwaves) $wname3dStr
+	elseif(WaveType(wref) == 80) // 16-bit integer unsigned
+		Make/W/U/N = (nx, ny, nrwaves) $wname3dStr
+	else
+		Make/N = (nx, ny, nrwaves) $wname3dStr //default
+	endif
+	
+	WAVE w3dref = $wname3dStr
 	
 	for(i = 0; i < nrwaves; i += 1) // TODO: Change and use ImageTransform ...
 		Wave t2dwred = $(StringFromList(i,listOfSelectedWaves))
@@ -128,6 +138,10 @@ Function MXP_Make3DWaveDataBrowserSelection(string wname3d)
 	// (number of points if the wave is a 1D wave), then their dimension values 
 	// will still match for the points they have in common
 	CopyScales t2dwred, w3dref 
+	// Add a note about the stacked waves
+	Note w3dref, listOfSelectedWaves
+	// Go back to the cwd
+	SetDataFolder currDFR
 	return 0
 End
 
@@ -142,8 +156,9 @@ Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
 	M_SumPlanes /= nlayers
 	Duplicate/O M_SumPlanes, $avgImageName
 	KillWaves/Z M_SumPlanes
-	string w3dNoteStr = "Average of " + num2str(nlayers) + " images.\n"
-	w3dNoteStr += "Copy of " + NameOfWave(w3d) + " note:\n"
+	string nameofWaveStr = NameOfWave(w3d)
+	string w3dNoteStr = nameofWaveStr + " average (" + num2str(nlayers) + ")\n"
+	w3dNoteStr += "Copy of " + nameofWaveStr + " note:\n"
 	w3dNoteStr += note(w3d)
 	Note/K $avgImageName w3dNoteStr
 	return 0

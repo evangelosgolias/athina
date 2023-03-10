@@ -35,7 +35,19 @@ Function MXP_MainMenuLaunchSumBeamsProfile()
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	
+	if(!strlen(imgNameTopGraphStr))
+		print "No image in top graph."
+		return -1
+	endif
+	
 	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	string LinkedPlotStr = GetUserData(winNameStr, "", "MXP_LinkedSumBeamsZPlotStr")
+	if(strlen(LinkedPlotStr))
+		DoWindow/F LinkedPlotStr
+		return 0
+	endif
+
 	// When plotting waves from calculations we might have NaNs or Infs.
 	// Remove them before starting and replace them with zeros
 	Wavestats/M=1/Q w3dref
@@ -48,8 +60,8 @@ Function MXP_MainMenuLaunchSumBeamsProfile()
 		MXP_InitialiseZProfileFolder()
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
 		MXP_InitialiseZProfileGraph(dfr)
-		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
-		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
+		SetWindow $winNameStr, hook(MySumBeamsZHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
+		SetWindow $winNameStr userdata(MXP_LinkedSumBeamsZPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 	else
 		Abort "z-profile needs a 3d wave. N.B Select only one wave"
@@ -79,8 +91,8 @@ Function MXP_TraceMenuLaunchSumBeamsProfile() // Trace menu launcher, inactive
 		MXP_InitialiseZProfileFolder()
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
 		MXP_InitialiseZProfileGraph(dfr)
-		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
-		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
+		SetWindow $winNameStr, hook(MySumBeamsZHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
+		SetWindow $winNameStr userdata(MXP_LinkedSumBeamsZPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 	else
 		Abort "z-profile needs a 3d wave"
@@ -109,8 +121,8 @@ Function MXP_BrowserMenuLaunchSumBeamsProfile() // Browser menu launcher, active
 		MXP_InitialiseZProfileFolder()
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
 		MXP_InitialiseZProfileGraph(dfr)
-		SetWindow $winNameStr, hook(MyHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
-		SetWindow $winNameStr userdata(MXP_LinkedPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
+		SetWindow $winNameStr, hook(MySumBeamsZHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
+		SetWindow $winNameStr userdata(MXP_LinkedSumBeamsZPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 	else
 		Abort "Z profile opearation needs only one 3d wave."
@@ -290,7 +302,7 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 			hookresult = 1
 			break
 		case 2: // Kill the window
-			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedPlotStr"))
+			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedSumBeamsZPlotStr"))
 			KillDataFolder/Z dfr
 			KillWaves/Z M_ROIMask // Cleanup
 			hookresult = 1
@@ -330,7 +342,7 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 		    hookresult = 0
 	 		break
 	 	case 8: // We have a Window modification event
-	 		string plotNameStr = GetUserData(s.winName, "", "MXP_LinkedPlotStr")
+	 		string plotNameStr = GetUserData(s.winName, "", "MXP_LinkedSumBeamsZPlotStr")
 	 		if(mouseTrackV < 0 && strlen(WinList(plotNameStr,";",""))) // mouse outside image stack area and profile plot exists
 	 			NVAR/Z glayer = root:Packages:WM3DImageSlider:$(WindowNameStr):gLayer
 	 			variable linePos = DimOffset(profile, 0) + glayer * DimDelta(profile, 0)
