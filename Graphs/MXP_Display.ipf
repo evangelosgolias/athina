@@ -33,10 +33,37 @@
 Function MXP_DisplayImage(WAVE waveRef)
 	   // Display an image or stack
 		NewImage/G=1/K=1 waveRef
-		WM_AutoSizeImage(0.5)
+		
+		// Use the resolution of the main screen to scale the plots
+		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:DisplaySettings")
+		NVAR/SDFR=dfr/Z minScreenDim
+		if(!NVAR_Exists(minScreenDim))			
+			string igorInfoStr = StringByKey( "SCREEN1", IgorInfo(0)) // INFO: Change here if needed
+			igorInfoStr = RemoveListItem(0, igorInfoStr, ",")		
+			variable screenLeft, screenTop, screenRight, screenBottom
+			sscanf igorInfoStr, "RECT=%d,%d,%d,%d", screenLeft, screenTop, screenRight, screenBottom
+			variable screenWidth, screenLength
+			screenWidth = abs(screenRight - screenLeft)
+			screenLength = abs(screenBottom - screenTop)
+			variable/G dfr:minScreenDim = min(screenWidth, screenLength)
+		endif
+
+		variable nrows = DimSize(waveRef, 0)
+		variable ncols = DimSize(waveRef, 1)
+		
+		// Get the minumum dimension
+		variable waveMinDim = min(nrows, ncols)
+		variable scaleFactor = 0.25 * minScreenDim/waveMinDim // INFO: 25% os the smaller screen dimension
+		if(scalefactor < 0.01 || scalefactor > 20)
+			scalefactor = 0
+		endif
+		WM_AutoSizeImage(scaleFactor)
+		
 		if(WaveDims(waveRef)==3)
 			WMAppend3DImageSlider()
 		endif
+		
+		return 0
 		// Added a slider for contrast control
 //		ControlBar/R 30
 //		Wavestats/M=1/Q waveRef

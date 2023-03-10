@@ -43,10 +43,9 @@ Function WM_AutoSizeImage(variable forceSize)
 End
 
 Function WM_DoAutoSizeImage(variable forceSize)
-	
 	if( (forceSize != 0) )
-		if( (forceSize<0.1) %| (forceSize>20) )
-			Abort "Unlikely value for forceSize; usually 0 or between .1 and 20"
+		if( (forceSize<0.01) %| (forceSize>20) ) // EG: forceSize<0.1 was the original limit
+			Abort "Unlikely value for forceSize; usually 0 or between .01 and 20"
 			return 0
 		endif
 	endif
@@ -68,7 +67,7 @@ Function WM_DoAutoSizeImage(variable forceSize)
 	variable height= DimSize(w,1)
 	variable width= DimSize(w,0)
 	do
-		if(forceSize )
+		if(forceSize)
 			height *= forceSize;
 			width *= forceSize;
 			break
