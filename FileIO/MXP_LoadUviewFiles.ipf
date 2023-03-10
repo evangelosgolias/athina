@@ -5,8 +5,9 @@
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and later
 
 // ------------------------------------------------------- //
-// Functions to import binary .dat & .dav files created by Elmitec's Uview Software at
-// the MAXPEEM beamline at MAX IV.
+// Functions to import binary .dat & .dav files created by 
+// Elmitec's Uview Software at MAXPEEM beamline of MAX IV.
+// 
 //
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
