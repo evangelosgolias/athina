@@ -29,17 +29,21 @@
 // ------------------------------------------------------- //
 
 /// Use Shift + Space row to assign there the top window.
-/// TODO: Move linked windows to the same Space
+/// Double click to Rename
+/// New - Creates a new Space
+/// Delete - Deletes a Space
+/// All - Show/hide all windows (Graph, Table, Layout, Notebook or Panel)
+/// TODO: Move linked Panel/Graphs to the same Space
 /// TODO: Implement drag to rearrange spaces
 
 Function MXP_MainMenuLaunchSpaces()
 	
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Spaces")
-	WAVE/Z/T/SDFR=dfr mxpSpacesTextWave
+	WAVE/Z/T/SDFR=dfr mxpSpacesTW
 	NVAR/Z/SDFR=dfr gSelectedSpace
 	NVAR/Z/SDFR=dfr gShowAllWindowsSwitch
-	if(!WaveExists(mxpSpacesTextWave)) // If there is no text wave
-		Make/T/N=1 dfr:mxpSpacesTextWave = "Default"
+	if(!WaveExists(mxpSpacesTW)) // If there is no text wave
+		Make/T/N=1 dfr:mxpSpacesTW = "Default"
 		variable/G dfr:gSelectedSpace = 0
 		variable/G dfr:gShowAllWindowsSwitch = 0
 	endif
@@ -65,7 +69,7 @@ Function MXP_MakeSpacesPanel()
 	Button DeleteSpace,pos={81.00,8.00},size={61.00,20.00},title="Delete"
 	Button DeleteSpace,help={"Delete existing space"},fColor=(65535,16385,16385),proc=MXP_ListBoxSpacesDeleteSpace
 	ListBox listOfspaces,pos={1.00,37.00},size={197.00,516.00},proc=MXP_ListBoxSpacesHookFunction
-	ListBox listOfspaces,fSize=12,frame=2,listWave=dfr:mxpSpacesTextWave,mode=2,selRow=0
+	ListBox listOfspaces,fSize=14,frame=2,listWave=dfr:mxpSpacesTW,mode=2,selRow=0
 	Button ShowAll,pos={156.00,8.00},size={40.00,20.00},title="All"
 	Button ShowAll,help={"Show all windows"},fColor=(32768,40777,65535),proc=MXP_ListBoxSpacesShowAll
 End
@@ -76,11 +80,11 @@ Function AfterWindowCreatedHook(string windowNameStr, variable winTypevar)
 	// Every window created is assigned to the active Space IF the panel is there
 	if(WinType("MXP_SpacesPanel"))
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Spaces")
-		WAVE/Z/T/SDFR=dfr mxpSpacesTextWave
+		WAVE/Z/T/SDFR=dfr mxpSpacesTW
 		NVAR/SDFR=dfr gSelectedSpace
 		windowNameStr = WinName(0, 87, 1) // Window is created, visible only
-		if(DimSize(mxpSpacesTextWave,0) && cmpstr(windowNameStr,"MXP_SpacesPanel")) // We have to have at least one space
-			SetWindow $windowNameStr userdata(MXP_SpaceTag) = mxpSpacesTextWave[gSelectedSpace]
+		if(DimSize(mxpSpacesTW,0) && cmpstr(windowNameStr,"MXP_SpacesPanel")) // We have to have at least one space
+			SetWindow $windowNameStr userdata(MXP_SpacesTag) = mxpSpacesTW[gSelectedSpace]
 		endif
 	endif
 	return 0 // Ignored
@@ -89,10 +93,10 @@ End
 Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Spaces")
-	WAVE/T/SDFR=dfr mxpSpacesTextWave
+	WAVE/T/SDFR=dfr mxpSpacesTW
 	NVAR/SDFR=dfr gSelectedSpace
-	string msg, newSpaceNameStr, winNameStr
-	variable maxListEntries = DimSize(mxpSpacesTextWave, 0)
+	string msg, newSpaceNameStr, oldSpaceNameStr, winNameStr
+	variable maxListEntries = DimSize(mxpSpacesTW, 0)
 	variable hookresult = 0
 	switch(LB_Struct.eventCode)
 		case -1: // Control being killed
@@ -112,14 +116,16 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 				hookresult = 1
 				break
 			endif			
-			msg = "Rename Space \"" + mxpSpacesTextWave[gSelectedSpace] + "\""
-			newSpaceNameStr = MXP_GenericSingleStrPrompt("New name", msg)
-			if(!UniqueSpaceNameQ(mxpSpacesTextWave, newSpaceNameStr)) // if the name is not unique
+			msg = "Rename Space \"" + mxpSpacesTW[gSelectedSpace] + "\""
+			oldSpaceNameStr = mxpSpacesTW[gSelectedSpace]
+			newSpaceNameStr = TrimString(MXP_GenericSingleStrPrompt("New name", msg))
+			if(!UniqueSpaceNameQ(mxpSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr))) // if the name is not unique or empty string
 				do
-					newSpaceNameStr = MXP_GenericSingleStrPrompt("Space already exists ...", "Enter a *unique* name for the new Space")
-				while(!UniqueSpaceNameQ(mxpSpacesTextWave, newSpaceNameStr))
+					newSpaceNameStr = TrimString(MXP_GenericSingleStrPrompt("Space name already exists or you entered empty string.", "Enter a *unique* name for the new Space"))
+				while(!UniqueSpaceNameQ(mxpSpacesTW, newSpaceNameStr))
 			endif
-			mxpSpacesTextWave[gSelectedSpace] = newSpaceNameStr
+			mxpSpacesTW[gSelectedSpace] = newSpaceNameStr
+			MXP_RenameSpaceTagOnWindows(oldSpaceNameStr, newSpaceNameStr)
 			hookresult = 1
 			break
 		case 4: // Cell selection (mouse or arrow keys)
@@ -128,7 +134,7 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 				hookresult = 1
 				break
 			endif
-			MXP_ShowWindowsOfSpaceTag(mxpSpacesTextWave[gSelectedSpace], 1)			
+			MXP_ShowWindowsOfSpaceTag(mxpSpacesTW[gSelectedSpace], 1)			
 			DoWindow/F $LB_Struct.win // Bring panel to the FG
 			hookresult = 1
 			break
@@ -141,7 +147,7 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 			endif
 			winNameStr = WinName(1, 87, 0) // Top Window: Graph, Table, Layout, Notebook or Panel
 			gSelectedSpace = LB_Struct.row
-			SetWindow $winNameStr userdata(MXP_SpaceTag) = mxpSpacesTextWave[gSelectedSpace] // Assign tag to window
+			SetWindow $winNameStr userdata(MXP_SpacesTag) = mxpSpacesTW[gSelectedSpace] // Assign tag to window
 			hookresult = 1
 			break
 	endswitch
@@ -151,27 +157,30 @@ End
 Function MXP_ListBoxSpacesNewSpace(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Spaces")
-	WAVE/T/SDFR=dfr mxpSpacesTextWave
+	WAVE/T/SDFR=dfr mxpSpacesTW
 	variable index
-	variable numEntries = DimSize(mxpSpacesTextWave, 0)
+	variable numEntries = DimSize(mxpSpacesTW, 0)
 	NVAR/SDFR=dfr gSelectedSpace
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			string newSpaceNameStr = MXP_GenericSingleStrPrompt("Create a new Space", "Enter the name of the new Space")
-			if(!UniqueSpaceNameQ(mxpSpacesTextWave, newSpaceNameStr)) // if the name is not unique
+			string newSpaceNameStr = TrimString(MXP_GenericSingleStrPrompt("Create a new Space", "Enter the name of the new Space"))
+			if(!UniqueSpaceNameQ(mxpSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr))) // if the name is not unique or empty string
 				do
-					newSpaceNameStr = MXP_GenericSingleStrPrompt("Space already exists ...", "Enter a *unique* name for the new Space")
-				while(!UniqueSpaceNameQ(mxpSpacesTextWave, newSpaceNameStr))
+					newSpaceNameStr = TrimString(MXP_GenericSingleStrPrompt("Space name already exists or you entered empty string.", "Enter a *unique* name for the new Space"))
+				while(!UniqueSpaceNameQ(mxpSpacesTW, newSpaceNameStr))
 			endif
+			
+			
 			if (!numEntries) // If you have deleted all spaces
 				index = 0
 			else 
 				index = gSelectedSpace + 1
 			endif
-			InsertPoints index,1, mxpSpacesTextWave
-			mxpSpacesTextWave[index] = newSpaceNameStr
+			InsertPoints index,1, mxpSpacesTW
+			mxpSpacesTW[index] = newSpaceNameStr
 			// Set the space you created as active
 			ListBox listOfspaces, selRow = index
+			MXP_ShowWindowsOfSpaceTag(newSpaceNameStr, 1) // Show windows of the new Space - No windows to show!
 			break
 	endswitch
 End
@@ -179,27 +188,83 @@ End
 Function MXP_ListBoxSpacesDeleteSpace(STRUCT WMButtonAction &B_Struct): ButtonControl
 	
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Spaces")
-	WAVE/T/SDFR=dfr mxpSpacesTextWave
-	variable numSpaces = DimSize(mxpSpacesTextWave, 0)
+	WAVE/T/SDFR=dfr mxpSpacesTW
+	variable numSpaces = DimSize(mxpSpacesTW, 0)
 	NVAR/SDFR=dfr gSelectedSpace
 	string msg
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			if(numSpaces)
-				msg = "Do you want to delete \"" + mxpSpacesTextWave[gSelectedSpace] + "\""
+				msg = "Do you want to delete \"" + mxpSpacesTW[gSelectedSpace] + "\""
 				DoAlert/T="You are about to delete a Space", 1, msg
 				if(V_flag == 1)
-					MXP_ClearWindowsFromSpaceTag(mxpSpacesTextWave[gSelectedSpace]) // has to come first!
-					DeletePoints gSelectedSpace,1, mxpSpacesTextWave
-				endif			
-				
+					MXP_ClearWindowsFromSpaceTag(mxpSpacesTW[gSelectedSpace]) // has to come first!
+					DeletePoints gSelectedSpace, 1, mxpSpacesTW
+					ListBox listOfspaces, selRow = gSelectedSpace - 1
+				endif
 			endif
 			break
 	endswitch
 End
 
+Function MXP_ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
+	// showSwitch = 0 (hide window) 
+	// showSwitch = 1 (show window)
+	string winNameStr, getSpacetagStr
+	variable i = 0 
+	do
+		i++
+		winNameStr = WinName(i, 87, 0) // i = 0 is the MXP_SpacesPanel, so we skip checking it
+		if(!strlen(winNameStr))
+			break
+		endif
+		getSpacetagStr = GetUserData(winNameStr, "", "MXP_SpacesTag")
+		if(!cmpstr(getSpacetagStr, spacetagStr, 0)) // comparison is case-insensitive. 		
+			SetWindow $winNameStr hide = 1 - showSwitch // Match
+		else
+			SetWindow $winNameStr hide = showSwitch
+		endif
+	while(strlen(winNameStr))
+	return 0
+
+End
+
+Function MXP_RenameSpaceTagOnWindows(string oldspaceTagStr, string newspaceTagStr)
+
+
+	string winNameStr = "", getSpacetagStr
+	variable i = 0 
+	do
+		i++
+		winNameStr = WinName(i, 87, 0) // i = 0 is the MXP_SpacesPanel, so we skip checking it
+		getSpacetagStr = GetUserData(winNameStr, "", "MXP_SpacesTag")
+		if(!cmpstr(getSpacetagStr, oldspaceTagStr, 0)) // comparison is case-insensitive. 		
+			SetWindow $winNameStr userdata(MXP_SpacesTag) = newspaceTagStr
+		endif
+	while(strlen(winNameStr))
+	return 0
+End
+
+Function MXP_ClearWindowsFromSpaceTag(string spaceTagStr)
+
+	string winNameStr = "", getSpacetagStr
+	variable i = 0 
+	do
+		i++
+		winNameStr = WinName(i, 87, 0) // i = 0 is the MXP_SpacesPanel, so we skip checking it
+		// Catch "" from setting SetWindow $"" hide = 1/0
+		if(!strlen(winNameStr))
+			break
+		endif
+		getSpacetagStr = GetUserData(winNameStr, "", "MXP_SpacesTag")
+		if(!cmpstr(getSpacetagStr, spacetagStr, 0)) // comparison is case-insensitive. 		
+			SetWindow $winNameStr userdata(MXP_SpacesTag) = ""
+		endif
+	while(strlen(winNameStr))
+	return 0
+End
+
 Function MXP_ListBoxSpacesShowAll(STRUCT WMButtonAction &B_Struct): ButtonControl
-	// FIXIT: When double clicking on All button Panel hides
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Spaces")
 	NVAR/SDFR=dfr gShowAllWindowsSwitch
 	variable showSwitch
@@ -217,38 +282,6 @@ Function MXP_ListBoxSpacesShowAll(STRUCT WMButtonAction &B_Struct): ButtonContro
 	endswitch
 End
 
-Function MXP_ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
-	// showSwitch = 0 (hide window) 
-	// showSwitch = 1 (show window)
-	string winNameStr = "", getSpacetagStr
-	variable i = 0 
-	do
-		i++
-		winNameStr = WinName(i, 87, 0) // i = 0 is the MXP_SpacesPanel, so we skip checking it
-		getSpacetagStr = GetUserData(winNameStr, "", "MXP_SpaceTag")
-		if(!cmpstr(getSpacetagStr, spacetagStr, 0)) // comparison is case-insensitive. 		
-			SetWindow $winNameStr hide = 1 - showSwitch // Match
-		else
-			SetWindow $winNameStr hide = showSwitch
-	
-		endif
-	while(strlen(WinName(i, 87, 0)))
-End
-
-Function MXP_ClearWindowsFromSpaceTag(string spaceTagStr)
-
-	string winNameStr = "", getSpacetagStr
-	variable i = 0 
-	do
-		i++
-		winNameStr = WinName(i, 87, 0) // i = 0 is the MXP_SpacesPanel, so we skip checking it
-		getSpacetagStr = GetUserData(winNameStr, "", "MXP_SpaceTag")
-		if(!cmpstr(getSpacetagStr, spacetagStr, 0)) // comparison is case-insensitive. 		
-			SetWindow $winNameStr userdata(MXP_SpaceTag) = ""
-		endif
-	while(strlen(WinName(i, 87, 0)))
-End
-
 Function MXP_ShowAllWindows(variable showSwitch)
 	// showSwitch = 0 (hide window) 
 	// showSwitch = 1 (show window)
@@ -256,13 +289,17 @@ Function MXP_ShowAllWindows(variable showSwitch)
 	variable i = 0 
 	do
 		i++
+		winNameStr = WinName(i, 87, 0)
 		// Catch "" from setting SetWindow $"" hide = 1/0
-		if(!strlen(WinName(i, 87, 0))) // i = 0 is the MXP_SpacesPanel, so we skip it
+		if(!strlen(winNameStr))
 			break
 		endif
-		winNameStr = WinName(i, 87, 0) // i = 0 is the MXP_SpacesPanel, so we skip it
+		if(!cmpstr(winNameStr, "MXP_SpacesPanel", 0))
+			continue
+		endif
 		SetWindow $winNameStr hide = 1 - showSwitch
-	while(strlen(WinName(i, 87, 0)))
+	while(strlen(winNameStr))
+	return 0
 End
 
 static Function UniqueSpaceNameQ(WAVE/T textW, string spaceNameStr)
