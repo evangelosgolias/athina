@@ -33,76 +33,77 @@
 Menu "MAXPEEM"
 
 	Submenu "Import"
-		".dat file...", MXP_LoadSingleDATFile("", "", autoscale = 1)
-		".dat files...", MXP_LoadMultiplyDATFiles(autoscale = 1)
-		".dat files in folder...",  MXP_LoadDATFilesFromFolder("", "*", autoscale = 1)
-		".dat files in folder to stack ...", MXP_LauncherLoadDATFilesFromFolder()
-		".dav file in stack...", MXP_LoadSingleDAVFile("", "", stack3d = 1, skipmetadata = 1, autoscale = 1)
-		".dav file...", MXP_LoadSingleDAVFile("", "", autoscale = 1)
-		".h5 file ...", MXP_LauncherLoadHDF5GroupsFromFile()
+		".dat file...", /Q, MXP_LoadSingleDATFile("", "", autoscale = 1)
+		".dat files...", /Q, MXP_LoadMultiplyDATFiles(autoscale = 1)
+		".dat files in folder...", /Q, MXP_LoadDATFilesFromFolder("", "*", autoscale = 1)
+		".dat files in folder to stack ...", /Q, MXP_LauncherLoadDATFilesFromFolder()
+		".dav file in stack...", /Q, MXP_LoadSingleDAVFile("", "", stack3d = 1, skipmetadata = 1, autoscale = 1)
+		".dav file...", /Q, MXP_LoadSingleDAVFile("", "", autoscale = 1)
+		".h5 file ...", /Q, MXP_LauncherLoadHDF5GroupsFromFile()
 	End
 	
 	Submenu "Analyse"
 		Submenu "XPS"
 		//"Subtract background ... ", BackgroundSubtractGUI($StringFromList(0,MXP_SelectWavesInModalDataBrowser("Select a wave (1d)")))
-		"Subtract background (TG) ", BackgroundSubtractGUI()
+		"Subtract background (TG) ", /Q, BackgroundSubtractGUI()
 		End
 	End
 	
 	Submenu "Align"
-		"using a feature (recommended) (TG)...", MXP_LaunchImageStackAlignmentUsingAFeature()
-		"using the full image (TG)...", MXP_LaunchImageStackAlignmentByFullImage()
+		"using a feature (recommended) (TG)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
+		"using the full image (TG)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
 	End
 	
 	Submenu "Make"
-		"a stack from pattern", MXP_LaunchMake3DWaveUsingPattern()
-		"a stack from browser selection", MXP_LaunchMake3DWaveDataBrowserSelection()
+		"a stack from pattern", /Q, MXP_LaunchMake3DWaveUsingPattern()
+		"a stack from browser selection", /Q, MXP_LaunchMake3DWaveDataBrowserSelection()
 	End
 	
 	Submenu "Calculation"
-		"Stack average...", MXP_LaunchAverageStackToImageFromMenu()
-		"Calculate XMC(L)D (TG)...", MXP_LaunchRegisterQCalculateXRayDichroism()
-		"Calculate XMC(L)D interactively...", MXP_LaunchInteractiveCalculateXRayDichroism()
-		"Import .dat files and calculate XMC(L)D...", MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
+		"Stack average...", /Q, MXP_LaunchAverageStackToImageFromMenu()
+		"Calculate XMC(L)D (TG)...", /Q, MXP_LaunchRegisterQCalculateXRayDichroism()
+		"Calculate XMC(L)D interactively...", /Q, MXP_LaunchInteractiveCalculateXRayDichroism()
+		"Import .dat files and calculate XMC(L)D...", /Q, MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	End
 	
 	Submenu "Profiles "
-		"Line profile (TG)", MXP_MainMenuLaunchLineProfile()
-		"Z profile (TG)", MXP_MainMenuLaunchSumBeamsProfile()
-		"Plane profile (TG)", MXP_MainMenuLaunchImagePlaneProfileZ()
+		"Line profile (TG)", /Q, MXP_MainMenuLaunchLineProfile()
+		"Z profile (TG)", /Q, MXP_MainMenuLaunchSumBeamsProfile()
+		"Plane profile (TG)",/Q, MXP_MainMenuLaunchImagePlaneProfileZ()
 	End
 	
-	Submenu "Information"
+	Submenu "Utilities"
+		"Spaces",/Q, MXP_MainMenuLaunchSpaces()
 		"Photoionisation CrossSection",/Q, PhotoionisationCrossSection#PhotoionisationCrossSection()
-		"List entries in a HDF (.h5) file...", MXP_ListHDF5Groups()
+		"List an HDF5 (.h5) file...", /Q, MXP_ListHDF5Groups()
 	End
 End
 
 Menu "GraphMarquee"
-	"Oval ROI z profile", MXP_DrawROIAndWaitHookToAct()
-	"Marquee to mask", MXP_MarqueeToMask()
-	"Backup traces", MXP_BackupTraces()
-	"Restore traces", MXP_RestoreTraces()
-	"Normalise to profile", MXP_NormaliseTracesWithProfile()
-	"Normalize to one", MXP_NormalizeToOne()
-	"Pull to zero", MXP_PullToZero()
-	"Maximum to one", MXP_MaximumToOne()
-	"Partition 3D region", MXP_Partition3DRegion()
+	"Oval ROI z profile", /Q, MXP_DrawROIAndWaitHookToAct()
+	"Marquee to mask", /Q, MXP_MarqueeToMask()
+	"Backup traces", /Q, MXP_BackupTraces()
+	"Restore traces", /Q, MXP_RestoreTraces()
+	"Normalise to profile", /Q, MXP_NormaliseTracesWithProfile()
+	"Normalize to one", /Q, MXP_NormalizeToOne()
+	"Pull to zero", /Q, MXP_PullToZero()
+	"Maximum to one", /Q, MXP_MaximumToOne()
+	"Partition 3D region", /Q, MXP_Partition3DRegion()
 End
 
 
 Menu "DataBrowserObjectsPopup"
-	"MXP Newimage", MXP_LaunchNewImageFromBrowserSelection()
-	"MXP Z profile", MXP_BrowserMenuLaunchSumBeamsProfile()
-	"MXP Line profile", MXP_BrowserMenuLaunchLineProfile()
-	"MXP Plane profile", MXP_BrowserMenuLaunchImagePlaneProfileZ()
-	"MXP Average stack",  MXP_LaunchAverageStackToImageFromBrowserMenu()
-	"MXP Make stack", MXP_LaunchMake3DWaveDataBrowserSelection()
-	"MXP Make stack and display", MXP_LaunchMake3DWaveDataBrowserSelection(displayStack = 1)
+	"MXP Newimage", /Q, MXP_LaunchNewImageFromBrowserSelection()
+	"MXP Z profile", /Q, MXP_BrowserMenuLaunchSumBeamsProfile()
+	"MXP Line profile", /Q, MXP_BrowserMenuLaunchLineProfile()
+	"MXP Plane profile", /Q, MXP_BrowserMenuLaunchImagePlaneProfileZ()
+	"MXP Average stack", /Q, MXP_LaunchAverageStackToImageFromBrowserMenu()
+	"MXP Make stack", /Q, MXP_LaunchMake3DWaveDataBrowserSelection()
+	"MXP Make stack and display", /Q, MXP_LaunchMake3DWaveDataBrowserSelection(displayStack = 1)
 	Submenu "MXP Normalise"
-		"Stack with image", MXP_LaunchNormalisationImageStackWithImage()
-		"Stack with profile", MXP_LaunchNormalisationImageStackWithProfile()
-		"Stack with stack", MXP_LaunchNormalisationImageStackWithImageStack()
+		"Stack with image", /Q, MXP_LaunchNormalisationImageStackWithImage()
+		"Stack with profile", /Q, MXP_LaunchNormalisationImageStackWithProfile()
+		"Stack with stack", /Q, MXP_LaunchNormalisationImageStackWithImageStack()
 	End
 End
 
@@ -112,21 +113,21 @@ Menu "TracePopup"
 	//"MXP z profile", MXP_TraceMenuLaunchZBeamProfiler()
 	//"MXP Normalise stack with profile", MXP_NormaliseImageStackWithProfile()
 	//"MXP Average stack",  MXP_LaunchAverageStackToImageFromTraceMenu()
-	"MXP Save layer (3D)", MXP_GetLayerFromImageStack()
-	"MXP Save current view (2D,3D)", MXP_GetScaledZoominImageWindow()
-	"MXP Stack image (3D)", MXP_LaunchStackImageToImageStack()
-	"MXP Scale Image stack (3D)", MXP_ScaleImage()
-	"MXP Select image and copy scales (2D,3D)", MXP_ImageSelectToCopyScale()
-	"MXP Interactive drift correction (3D)", MXP_CreateInteractiveDriftCorrectionPanel()
-	"MXP Calculate XMC(L)D (3D[2])", MXP_LaunchCalculateXMCDFromStack()
+	"MXP Save layer (3D)", /Q, MXP_GetLayerFromImageStack()
+	"MXP Save current view (2D,3D)", /Q, MXP_GetScaledZoominImageWindow()
+	"MXP Stack image (3D)", /Q, MXP_LaunchStackImageToImageStack()
+	"MXP Scale Image stack (3D)", /Q, MXP_ScaleImage()
+	"MXP Select image and copy scales (2D,3D)", /Q, MXP_ImageSelectToCopyScale()
+	"MXP Interactive drift correction (3D)", /Q, MXP_CreateInteractiveDriftCorrectionPanel()
+	"MXP Calculate XMC(L)D (3D[2])", /Q, MXP_LaunchCalculateXMCDFromStack()
 	//"MXP Remove XPS background", MXP_LaunchRemoveXPSBackground()
 	//"MXP BE-Scale XPS spectrum", MXP_LaunchScaleXPSSpectrum()
 	Submenu "MXP markups ..."
-	"MXP Draw image markups", MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
-	"MXP Clear UserFront layer", MXP_ClearROIMarkingsUserFront()
+	"MXP Draw image markups", /Q, MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
+	"MXP Clear UserFront layer" ,/Q, MXP_ClearROIMarkingsUserFront()
 	End
 End
 
 Menu "GraphPopup"
-	"MXP BE-Scale XPS spectrum", MXP_LaunchScaleXPSSpectrum()
+	"MXP BE-Scale XPS spectrum", /Q, MXP_LaunchScaleXPSSpectrum()
 End
