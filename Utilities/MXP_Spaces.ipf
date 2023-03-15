@@ -34,7 +34,6 @@
 /// Delete - Deletes a Space
 /// All - Show/hide all windows (Graph, Table, Layout, Notebook or Panel)
 /// TODO: Move linked Panel/Graphs to the same Space
-/// TODO: Implement drag to rearrange spaces
 
 Function MXP_MainMenuLaunchSpaces()
 	
