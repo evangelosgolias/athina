@@ -249,8 +249,8 @@ Function MXP_ListBoxSpacesDeleteSpace(STRUCT WMButtonAction &B_Struct): ButtonCo
 				if(V_flag == 1)
 					MXP_ClearWindowsFromSpaceTag(mxpSpacesTW[gSelectedSpace]) // has to come first!
 					DeletePoints gSelectedSpace, 1, mxpSpacesTW
-					ListBox listOfspaces, selRow = gSelectedSpace - 1
-					gSelectedSpace -= 1
+					gSelectedSpace = gSelectedSpace == 0 ? 0: (gSelectedSpace - 1)
+					ListBox listOfspaces, selRow = gSelectedSpace
 				endif
 			endif
 			break
