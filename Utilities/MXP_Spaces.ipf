@@ -88,6 +88,8 @@ Function MXP_MakeSpacesPanel()
 		listlength = abs(panelBottom - panelTop) * 0.925
 		listwidth = abs(panelRight - panelLeft)
 	endif
+	
+	NVAR/Z/SDFR=dfr gSelectedSpace
 
 	NewPanel /N=MXP_SpacesPanel/W=(panelLeft, panelTop, panelRight, panelBottom) as "MXP Spaces"
 	SetDrawLayer UserBack
@@ -96,7 +98,7 @@ Function MXP_MakeSpacesPanel()
 	Button DeleteSpace,pos={5 + listwidth * 0.05 + listwidth * 0.25,8.00},size={listwidth * 0.25,20.00},title="Delete"
 	Button DeleteSpace,help={"Delete existing space"},fColor=(65535,16385,16385),proc=MXP_ListBoxSpacesDeleteSpace
 	ListBox listOfspaces,pos={1.00,37.00},size={listwidth,listlength},proc=MXP_ListBoxSpacesHookFunction
-	ListBox listOfspaces,fSize=14,frame=2,listWave=dfr:mxpSpacesTW,mode=2,selRow=0
+	ListBox listOfspaces,fSize=14,frame=2,listWave=dfr:mxpSpacesTW,mode=2,selRow=gSelectedSpace
 	Button ShowAll,pos={5 + listwidth * 0.05 * 2 + listwidth * 0.25 * 2,8.00},size={listwidth * 0.25,20.00},title="All"
 	Button ShowAll,help={"Show all windows"},fColor=(32768,40777,65535),proc=MXP_ListBoxSpacesShowAll
 	return 0
@@ -124,7 +126,7 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 	WAVE/T/SDFR=dfr mxpSpacesTW
 	NVAR/SDFR=dfr gSelectedSpace
 	string msg, newSpaceNameStr, oldSpaceNameStr, winNameStr
-	variable maxListEntries = DimSize(mxpSpacesTW, 0)
+	variable numSpaces = DimSize(mxpSpacesTW, 0)
 	variable hookresult = 0
 	switch(LB_Struct.eventCode)
 		// INFO: When you click outside of entry cells in the ListBox you get maxListEntries as row selection!
@@ -133,21 +135,21 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 			break
 		case 1: // Mouse down
 			gSelectedSpace = LB_Struct.row	
-			if(gSelectedSpace > maxListEntries - 1)
-				gSelectedSpace = maxListEntries - 1
+			if(gSelectedSpace > numSpaces - 1)
+				gSelectedSpace = numSpaces - 1
 			endif			
 			hookresult = 1
 			break
 		case 2: // Mouse up
 			gSelectedSpace = LB_Struct.row
-			if(gSelectedSpace > maxListEntries - 1)
-				gSelectedSpace = maxListEntries - 1
+			if(gSelectedSpace > numSpaces - 1)
+				gSelectedSpace = numSpaces - 1
 			endif	
 			hookresult = 1
 			break
 		case 3: // Double click
 			gSelectedSpace = LB_Struct.row
-			if (gSelectedSpace > maxListEntries - 1)
+			if (gSelectedSpace > numSpaces - 1)
 				hookresult = 1
 				break
 			endif			
@@ -165,8 +167,8 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 			break
 		case 4: // Cell selection (mouse or arrow keys)
 			gSelectedSpace = LB_Struct.row
-			if(gSelectedSpace > maxListEntries - 1)
-				gSelectedSpace = maxListEntries - 1
+			if(gSelectedSpace > numSpaces - 1)
+				gSelectedSpace = numSpaces - 1
 			endif	
 			// If you press Option (Mac) or Alt (Windows) -- DEV
 //			if(LB_Struct.eventMod == 5)
@@ -180,7 +182,7 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 		case 5: // Cell selection plus Shift key (Assign window to Space)
 			// WinName(0, 87) is the "MXP Spaces" panel
 			gSelectedSpace = LB_Struct.row
-			if (gSelectedSpace > maxListEntries - 1)
+			if (gSelectedSpace > numSpaces - 1)
 				hookresult = 1
 				break
 			endif
@@ -235,12 +237,16 @@ Function MXP_ListBoxSpacesDeleteSpace(STRUCT WMButtonAction &B_Struct): ButtonCo
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			if(numSpaces)
+				if(gSelectedSpace > numSpaces - 1)
+					gSelectedSpace = numSpaces - 1
+				endif	
 				msg = "Do you want to delete \"" + mxpSpacesTW[gSelectedSpace] + "\""
 				DoAlert/T="You are about to delete a Space", 1, msg
 				if(V_flag == 1)
 					MXP_ClearWindowsFromSpaceTag(mxpSpacesTW[gSelectedSpace]) // has to come first!
 					DeletePoints gSelectedSpace, 1, mxpSpacesTW
 					ListBox listOfspaces, selRow = gSelectedSpace - 1
+					gSelectedSpace -= 1
 				endif
 			endif
 			break
