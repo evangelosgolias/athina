@@ -62,16 +62,44 @@ End
 Function MXP_MakeSpacesPanel()
 	// Scale with IgorOptions here
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Spaces")
-	NewPanel /N=MXP_SpacesPanel /W=(1232,119,1440,681) as "MXP Spaces"
+	
+	string igorInfoStr = StringByKey( "SCREEN1", IgorInfo(0)) // INFO: Change here if needed
+	igorInfoStr = RemoveListItem(0, igorInfoStr, ",")		
+	variable screenLeft, screenTop, screenRight, screenBottom, panelLeft, panelTop, panelRight, panelBottom
+	sscanf igorInfoStr, "RECT=%d,%d,%d,%d", screenLeft, screenTop, screenRight, screenBottom
+	variable screenWidth, screenLength, listlength, listwidth
+	screenWidth = abs(screenRight - screenLeft)
+	screenLength = abs(screenBottom - screenTop)
+
+	
+	// TODO: Experimental scaling -- Not great atm.
+	if(screenWidth < 2000)
+		panelLeft = screenWidth * 0.85
+		panelRight = screenWidth
+		panelTop = screenLength * 0.2
+		panelBottom = screenLength * 0.8
+		listlength = abs(panelBottom - panelTop) * 0.925
+		listwidth = abs(panelRight - panelLeft)
+	else
+		panelLeft = screenWidth * 0.9
+		panelRight = screenWidth
+		panelTop = screenLength * 0.3
+		panelBottom = screenLength * 0.7
+		listlength = abs(panelBottom - panelTop) * 0.925
+		listwidth = abs(panelRight - panelLeft)
+	endif
+
+	NewPanel /N=MXP_SpacesPanel/W=(panelLeft, panelTop, panelRight, panelBottom) as "MXP Spaces"
 	SetDrawLayer UserBack
-	Button NewSpace,pos={7.00,8.00},size={61.00,20.00},help={"Create new space"}
+	Button NewSpace,pos={5,8.00},size={listwidth * 0.25,20.00},help={"Create new space"}
 	Button NewSpace,fColor=(3,52428,1),proc=MXP_ListBoxSpacesNewSpace
-	Button DeleteSpace,pos={81.00,8.00},size={61.00,20.00},title="Delete"
+	Button DeleteSpace,pos={5 + listwidth * 0.05 + listwidth * 0.25,8.00},size={listwidth * 0.25,20.00},title="Delete"
 	Button DeleteSpace,help={"Delete existing space"},fColor=(65535,16385,16385),proc=MXP_ListBoxSpacesDeleteSpace
-	ListBox listOfspaces,pos={1.00,37.00},size={197.00,516.00},proc=MXP_ListBoxSpacesHookFunction
+	ListBox listOfspaces,pos={1.00,37.00},size={listwidth,listlength},proc=MXP_ListBoxSpacesHookFunction
 	ListBox listOfspaces,fSize=14,frame=2,listWave=dfr:mxpSpacesTW,mode=2,selRow=0
-	Button ShowAll,pos={156.00,8.00},size={40.00,20.00},title="All"
+	Button ShowAll,pos={5 + listwidth * 0.05 * 2 + listwidth * 0.25 * 2,8.00},size={listwidth * 0.25,20.00},title="All"
 	Button ShowAll,help={"Show all windows"},fColor=(32768,40777,65535),proc=MXP_ListBoxSpacesShowAll
+	return 0
 End
 
 // AfterWindowCreatedHook
@@ -103,7 +131,7 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 			//Do nothing
 			break
 		case 1: // Mouse down
-			gSelectedSpace = LB_Struct.row
+			gSelectedSpace = LB_Struct.row			
 			hookresult = 1
 			break
 		case 2: // Mouse up
@@ -129,11 +157,17 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 			hookresult = 1
 			break
 		case 4: // Cell selection (mouse or arrow keys)
+			//oldSelectedSpace = gSelectedSpace
 			gSelectedSpace = LB_Struct.row
 			if (gSelectedSpace > maxListEntries - 1)
 				hookresult = 1
 				break
 			endif
+			// If you press Option (Mac) or Alt (Windows) -- DEV
+//			if(LB_Struct.eventMod == 5)
+//				TODO
+//			endif	
+			//Otherwise handle cell selection without pressed Alt
 			MXP_ShowWindowsOfSpaceTag(mxpSpacesTW[gSelectedSpace], 1)			
 			DoWindow/F $LB_Struct.win // Bring panel to the FG
 			hookresult = 1
@@ -180,6 +214,7 @@ Function MXP_ListBoxSpacesNewSpace(STRUCT WMButtonAction &B_Struct): ButtonContr
 			mxpSpacesTW[index] = newSpaceNameStr
 			// Set the space you created as active
 			ListBox listOfspaces, selRow = index
+			gSelectedSpace = index
 			MXP_ShowWindowsOfSpaceTag(newSpaceNameStr, 1) // Show windows of the new Space - No windows to show!
 			break
 	endswitch
