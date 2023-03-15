@@ -127,15 +127,22 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 	variable maxListEntries = DimSize(mxpSpacesTW, 0)
 	variable hookresult = 0
 	switch(LB_Struct.eventCode)
+		// INFO: When you click outside of entry cells in the ListBox you get maxListEntries as row selection!
 		case -1: // Control being killed
 			//Do nothing
 			break
 		case 1: // Mouse down
-			gSelectedSpace = LB_Struct.row			
+			gSelectedSpace = LB_Struct.row	
+			if(gSelectedSpace > maxListEntries - 1)
+				gSelectedSpace = maxListEntries - 1
+			endif			
 			hookresult = 1
 			break
 		case 2: // Mouse up
 			gSelectedSpace = LB_Struct.row
+			if(gSelectedSpace > maxListEntries - 1)
+				gSelectedSpace = maxListEntries - 1
+			endif	
 			hookresult = 1
 			break
 		case 3: // Double click
@@ -157,12 +164,10 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 			hookresult = 1
 			break
 		case 4: // Cell selection (mouse or arrow keys)
-			//oldSelectedSpace = gSelectedSpace
 			gSelectedSpace = LB_Struct.row
-			if (gSelectedSpace > maxListEntries - 1)
-				hookresult = 1
-				break
-			endif
+			if(gSelectedSpace > maxListEntries - 1)
+				gSelectedSpace = maxListEntries - 1
+			endif	
 			// If you press Option (Mac) or Alt (Windows) -- DEV
 //			if(LB_Struct.eventMod == 5)
 //				TODO
