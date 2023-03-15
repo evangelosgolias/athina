@@ -69,9 +69,8 @@ Function MXP_MakeSpacesPanel()
 	variable screenWidth, screenLength, listlength, listwidth
 	screenWidth = abs(screenRight - screenLeft)
 	screenLength = abs(screenBottom - screenTop)
-
 	
-	// TODO: Experimental scaling -- Not great atm.
+	// Tune 0.XXX coefficients
 	if(screenWidth < 2000)
 		panelLeft = screenWidth * 0.85
 		panelRight = screenWidth
@@ -92,19 +91,18 @@ Function MXP_MakeSpacesPanel()
 
 	NewPanel /N=MXP_SpacesPanel/W=(panelLeft, panelTop, panelRight, panelBottom) as "MXP Spaces"
 	SetDrawLayer UserBack
-	Button NewSpace,pos={5,8.00},size={listwidth * 0.25,20.00},help={"Create new space"}
+	Button NewSpace,pos={10,8.00},size={listwidth * 0.25,20.00},help={"Create new space"}
 	Button NewSpace,fColor=(3,52428,1),proc=MXP_ListBoxSpacesNewSpace
-	Button DeleteSpace,pos={5 + listwidth * 0.05 + listwidth * 0.25,8.00},size={listwidth * 0.25,20.00},title="Delete"
+	Button DeleteSpace,pos={10 + listwidth * 0.075 + listwidth * 0.25,8.00},size={listwidth * 0.25,20.00},title="Delete"
 	Button DeleteSpace,help={"Delete existing space"},fColor=(65535,16385,16385),proc=MXP_ListBoxSpacesDeleteSpace
 	ListBox listOfspaces,pos={1.00,37.00},size={listwidth,listlength},proc=MXP_ListBoxSpacesHookFunction
 	ListBox listOfspaces,fSize=14,frame=2,listWave=dfr:mxpSpacesTW,mode=2,selRow=gSelectedSpace
-	Button ShowAll,pos={5 + listwidth * 0.05 * 2 + listwidth * 0.25 * 2,8.00},size={listwidth * 0.25,20.00},title="All"
+	Button ShowAll,pos={10 + listwidth * 0.075 * 2 + listwidth * 0.25 * 2,8.00},size={listwidth * 0.25,20.00},title="All"
 	Button ShowAll,help={"Show all windows"},fColor=(32768,40777,65535),proc=MXP_ListBoxSpacesShowAll
 	return 0
 End
 
 // AfterWindowCreatedHook
-
 Function AfterWindowCreatedHook(string windowNameStr, variable winTypevar)
 	// Every window created is assigned to the active Space IF the panel is there
 	if(WinType("MXP_SpacesPanel"))
@@ -136,7 +134,19 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 			gSelectedSpace = LB_Struct.row	
 			if(gSelectedSpace > numSpaces - 1)
 				gSelectedSpace = numSpaces - 1
-			endif			
+			endif
+			// Press Option (Mac) or Alt (Windows) and click anywhere in the Listbox to
+			// pin the top window (show in all spaces).
+			if(LB_Struct.eventMod == 5)
+				winNameStr = WinName(1, 87, 0) // Top Window: Graph, Table, Layout, Notebook or Panel
+				SetWindow $winNameStr userdata(MXP_SpacesTag) = "MXP__PinnedWindow__MXP" // Assign special tag for pinned window			
+			endif
+			// Press Shift+Option (Mac) or Shift+Alt (Windows) and click in the Listbox to
+			// unpin the top window by setting an empty tag "" 
+			if(LB_Struct.eventMod == 7)
+				winNameStr = WinName(1, 87, 0) // Top Window: Graph, Table, Layout, Notebook or Panel
+				SetWindow $winNameStr userdata(MXP_SpacesTag) = "" // Assign special tag for pinned window			
+			endif	
 			hookresult = 1
 			break
 		case 2: // Mouse up
@@ -168,12 +178,7 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 			gSelectedSpace = LB_Struct.row
 			if(gSelectedSpace > numSpaces - 1)
 				gSelectedSpace = numSpaces - 1
-			endif	
-			// If you press Option (Mac) or Alt (Windows) -- DEV
-//			if(LB_Struct.eventMod == 5)
-//				TODO
-//			endif	
-			//Otherwise handle cell selection without pressed Alt
+			endif
 			MXP_ShowWindowsOfSpaceTag(mxpSpacesTW[gSelectedSpace], 1)			
 			DoWindow/F $LB_Struct.win // Bring panel to the FG
 			hookresult = 1
@@ -266,6 +271,8 @@ Function MXP_ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
 		getSpacetagStr = GetUserData(winNameStr, "", "MXP_SpacesTag")
 		if(!cmpstr(getSpacetagStr, spacetagStr, 0)) // comparison is case-insensitive. 		
 			SetWindow $winNameStr hide = 1 - showSwitch // Match
+		elseif(!cmpstr(getSpacetagStr, "MXP__PinnedWindow__MXP", 0)) // Pinned window
+			SetWindow $winNameStr hide = 0 // Always show
 		else
 			SetWindow $winNameStr hide = showSwitch
 		endif
