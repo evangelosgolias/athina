@@ -44,7 +44,7 @@ Function FermiEdge(WAVE w, variable E) : FitFunc
 	return w[0] + 1 / (exp((E-w[1])/w[2])+1)
 End
 
-Function FermiEdge_Line(WAVE w, variable E) : FitFunc
+Function FermiEdgeTimesLine(WAVE w, variable E) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ f(E) = y0 + (a * E + b) / (exp((E - Ef)/kT) + 1)
 	//CurveFitDialog/ 
@@ -59,3 +59,75 @@ Function FermiEdge_Line(WAVE w, variable E) : FitFunc
 	
 	return w[0] + (w[4]*E+w[3]) / (exp((E-w[1])/w[2])+1)
 End
+
+Function FermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+	/// FitFunc shared by Emile Rienks (BESSY-II, 1^3)
+	//
+	// pw[0] = offset
+	// pw[1] = slope
+	// pw[2] = T
+	// pw[3] = gaussian width (FWHM)
+	// pw[4] = amplitude
+	// pw[5] = location
+
+	Duplicate /O yw testw
+	variable dx = deltax(yw)
+	Make/D/O/N=121 gwave
+	SetScale/P x -60 * dx, dx, "eV", gwave
+
+	gwave = Gauss(x, 0, pw[3]/(2*sqrt(2*ln(2))))
+	
+	// Normalize kernel so that convolution doesn't change // the amplitude of the result
+
+	variable sumexp = sum(gwave)
+	gwave /= sumexp
+
+   // Put a Fermi-Dirac distribution into the output wave
+   yw = pw[4] / (exp((x-pw[5])/(k_B*pw[2]))+1)
+
+	Make /D/N=(numpnts(yw)+60)/O myw
+	myw[,59] = yw[0]
+	myw[60,] = yw[p-60]
+
+   Convolve/A gwave, myw
+	// Add the vertical offset AFTER the convolution to avoid end effects
+	yw = myw[p+60]
+	
+   yw += pw[0] + pw[1]*x
+End
+
+// Does not function well, fix it
+//Function FermiEdgeTimesLinearDOSGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc	
+//	// Linear DOS x Fermi convolved with Gaussian (energy resolution).
+//	// M. G. Helander, M. T. Greiner, Z. B. Wang, and Z. H. Lu, Review of Scientific Instruments 82, 096107 (2011)
+//	// https://aip.scitation.org/doi/pdf/10.1063/1.3642659
+//	//
+//	// pw[0] = offset
+//	// pw[1] = Fermi level
+//	// pw[2] = T
+//	// pw[3] = DOS offset
+//	// pw[4] = DOS slope
+//	// pw[5] = energy resolution FWHM (eV)
+//	
+//	// Make the resolution function wave W_res.
+//	variable x0 = xw[0]
+//	variable dx = (xw[inf] - xw[0])/(numpnts(xw) - 1)	// assumes even data spacing, which is necessary for the convolution anyway
+//	Make/FREE/D/N=(min(max(abs(3 * pw[5] / dx), 5), numpnts(yw))) W_res	// make the Gaussian resolution wave
+//	Redimension/N=(numpnts(W_res) + !mod(numpnts(W_res), 2)) W_res	// force W_res to have odd length
+//	SetScale/P x, -dx * (numpnts(W_res) - 1) / 2, dx, W_res
+//	W_res = gauss(x, 0, pw[5]/(2*sqrt(2*ln(2))) ) // In this form FWHM = pw[5]
+//	variable a = sum(W_res)
+//	W_res /= a
+//	
+//	// To eliminate edge effects due to the convolution, add points to yw
+//	// convolve and then delete the extra points.
+//	Redimension/N=(numpnts(yw) + 2 * numpnts(W_res)) xw, yw
+//	xw = (x0 - numpnts(W_res) * dx) + p * dx
+//	//pw[0] * (1 / (1 + exp((xw[p] - pw[1])/(kB * pw[2]))) + Heaviside(xw[p], pw[1]) * (pw[3] + pw[4] * xw[p]))
+//	yw = pw[0] + (1 / (1 + exp((xw[p] - pw[1])/(k_B * pw[2]))))
+//	Convolve/A W_res, yw
+//	yw += ((xw[p] > pw[1] ? 0 : 1) * (pw[3] + pw[4] * xw[p]))
+//	DeletePoints 0, numpnts(W_res), xw, yw
+//	DeletePoints numpnts(yw)-numpnts(W_res), numpnts(W_res), xw, yw
+//End
+

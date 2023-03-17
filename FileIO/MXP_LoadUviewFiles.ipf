@@ -93,12 +93,14 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
     string fileToOpen = S_path + fileNameStr
     if(StringMatch(fileNameStr, "*.dat") && fileKind == 7) // Igor treats .dat files is a General text (fileKind == 7)
         try	
-        	MXP_LoadSingleDATFile(fileToOpen, "", autoscale = 1)
+        	// MXP_WAVELoadSingleDATFile(fileToOpen, "", autoscale = 1)
+        	WAVE wIn = MXP_WAVELoadSingleDATFile(fileToOpen, "", autoscale = 1)
         	AbortOnRTE
         catch
         	print "Are you sure you are not trying to load a text file with .dat extention?"
         	Abort
         endtry
+        MXP_DisplayImage(wIn)
         return 1
     endif
     if(StringMatch(fileNameStr, "*.dav") && fileKind == 0) // fileKind == 0, unknown
