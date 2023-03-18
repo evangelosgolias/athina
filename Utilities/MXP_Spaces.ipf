@@ -33,7 +33,9 @@
 /// New - Creates a new Space
 /// Delete - Deletes a Space
 /// All - Show/hide all windows (Graph, Table, Layout, Notebook or Panel)
+///
 /// TODO: Move linked Panel/Graphs to the same Space
+/// TODO: Change all the function and use the same algorithm asa MXP_ShowWindowsOfSpaceTag
 
 Function MXP_MainMenuLaunchSpaces()
 	
@@ -261,13 +263,11 @@ Function MXP_ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
 	// showSwitch = 0 (hide window) 
 	// showSwitch = 1 (show window)
 	string winNameStr, getSpacetagStr
-	variable i = 0 
-	do
-		i++
-		winNameStr = WinName(i, 87, 0) // i = 0 is the MXP_SpacesPanel, so we skip checking it
-		if(!strlen(winNameStr))
-			break
-		endif
+	string allWindowsStr = SortList(RemoveFromList("MXP_SpacesPanel",WinList("*",";","WIN:87")), ";", 16)
+	variable i, imax = ItemsInList(allWindowsStr)
+	
+	for(i = 0; i < imax; i++)
+		winNameStr = StringFromList(i, allWindowsStr)
 		getSpacetagStr = GetUserData(winNameStr, "", "MXP_SpacesTag")
 		if(!cmpstr(getSpacetagStr, spacetagStr, 0)) // comparison is case-insensitive. 		
 			SetWindow $winNameStr hide = 1 - showSwitch // Match
@@ -276,13 +276,12 @@ Function MXP_ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
 		else
 			SetWindow $winNameStr hide = showSwitch
 		endif
-	while(strlen(winNameStr))
+	endfor
 	return 0
-
 End
 
-Function MXP_RenameSpaceTagOnWindows(string oldspaceTagStr, string newspaceTagStr)
 
+Function MXP_RenameSpaceTagOnWindows(string oldspaceTagStr, string newspaceTagStr)
 
 	string winNameStr = "", getSpacetagStr
 	variable i = 0 
