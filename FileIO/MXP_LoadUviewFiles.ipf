@@ -83,9 +83,7 @@ EndStructure
 //		uchar MarkupData[128]
 //EndStructure
 
-
-/// What to do if you drag and drop or a .dat file. Problem: Igor thinks .dat files are General text
-/// files and tries to read them using Igor routines. TODO: Fix it in the future if possible.
+static constant kpixelsTVIPS = 1024 // Change here if needed. Used for corrupted files
 
 static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string pathNameStr, string fileTypeStr, string fileCreatorStr, variable fileKind)
 
@@ -97,8 +95,10 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
         	WAVE wIn = MXP_WAVELoadSingleDATFile(fileToOpen, "", autoscale = 1)
         	AbortOnRTE
         catch
-        	print "Are you sure you are not trying to load a text file with .dat extention?"
-        	Abort
+        	// Added on the 17.03.2023 to deal with a corrupted file. 
+        	print fileNameStr, "metadataReadError"
+        	WAVE wIn = MXP_WAVELoadSingleCorruptedDATFile(fileToOpen, "")
+        	//Abort // Removed to stop the "Encoding window" from popping all the time.
         endtry
         MXP_DisplayImage(wIn)
         return 1
@@ -107,9 +107,9 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
     	DoAlert/T="Dropped a .dav file in Igror" 1, "Do you want to load the .dav file in a stack?"
         try
         if(V_flag == 1)
-        		MXP_LoadSingleDAVFile(fileToOpen, "", skipmetadata = 1, autoscale = 1, stack3d = 1)
+        	MXP_LoadSingleDAVFile(fileToOpen, "", skipmetadata = 1, autoscale = 1, stack3d = 1)
         else
-        		MXP_LoadSingleDAVFile(fileToOpen, "", autoscale = 1)
+        	MXP_LoadSingleDAVFile(fileToOpen, "", autoscale = 1)
         endif
         	AbortOnRTE
         catch
@@ -1260,3 +1260,162 @@ Function MXP_LoadMultiplyDATFiles([string filenames, int skipmetadata, int autos
 	return 0
 End
 
+Function/WAVE MXP_WAVELoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int waveDataType])
+	///< Function to load a single Elmitec binary .dat file by skipping reading the metadata.
+	/// We assume here that the image starts at sizeOfFile - kpixelsTVIPS^2 * 16
+	/// @param filepathStr string filename (including) pathname. 
+	/// If "" a dialog opens to select the file.
+	/// @param waveNameStr name of the imported wave. 
+	/// If "" the wave name is the filename without the path and extention.
+	/// @param skipmetadata int optional and if set to a non-zero value it skips metadata.
+	/// @param waveDataType int optional and sets the Wavetype of the loaded wave to single 
+	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
+	/// @return wave reference
+	
+	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
+	waveDataType = ParamIsDefault(waveDataType) ? 0: waveDataType
+
+	variable numRef
+	string separatorchar = ":"
+	string fileFilters = "dat File (*.dat):.dat;"
+	fileFilters += "All Files:.*;"
+	string message
+    if (!strlen(filepathStr) && !strlen(waveNameStr)) 
+		message = "Select .dat file. \nFilename will be wave's name. (overwrite)\n "
+   		Open/F=fileFilters/M=message/D/R numref
+   		filepathStr = S_filename
+   		
+   		if(!strlen(filepathStr)) // user cancel?
+   			Abort
+   		endif
+
+   		Open/F=fileFilters/R numRef as filepathStr
+		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
+		
+	elseif (strlen(filepathStr) && !strlen(waveNameStr))
+		message = "Select .dat file. \nWave names are filenames /O.\n "
+		Open/F=fileFilters/R numRef as filepathStr
+		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
+		
+	elseif (strlen(filepathStr) && strlen(waveNameStr))
+		message = "Select .dat file. \n Destination wave will be overwritten.\n "
+		Open/F=fileFilters/R numRef as filepathStr
+		
+	elseif (!strlen(filepathStr) && strlen(waveNameStr))
+		message = "Select .dat file. \n Destination wave will be overwritten\n "
+   		Open/F=fileFilters/M=message/D/R numref
+   		filepathStr = S_filename
+   		
+   		if(!strlen(filepathStr)) // user cancel?
+   			Abort
+   		endif
+   		
+		message = "Select .dat file. \nWave names are filenames /O.\n "
+		Open/F=fileFilters/R numRef as filepathStr
+	else
+		Abort "Path for datafile not specified (check MXP_WAVELoadSingleDATFile)!"
+	endif
+		
+	FStatus numRef
+	// change here if needed
+	variable imgSizeinBytes = kpixelsTVIPS^2 * 2 
+	variable ImageDataStart = V_logEOF - imgSizeinBytes
+	FSetPos numRef, ImageDataStart
+		
+	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
+	Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr /WAVE=datWave
+	FBinRead/F=2 numRef, datWave
+	ImageTransform flipCols datWave // flip the y-axis
+	Close numRef
+	
+	// Convert to SP or DP 	
+	if(waveDataType == 1)
+		Redimension/S datWave
+	endif
+	
+	if(waveDataType == 2)
+		Redimension/D datWave
+	endif
+	
+	return datwave
+End
+
+Function MXP_LoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int waveDataType])
+	///< Function to load a single Elmitec binary .dat file by skipping reading the metadata.
+	/// We assume here that the image starts at sizeOfFile - kpixelsTVIPS^2 * 16
+	/// @param filepathStr string filename (including) pathname. 
+	/// If "" a dialog opens to select the file.
+	/// @param waveNameStr name of the imported wave. 
+	/// If "" the wave name is the filename without the path and extention.
+	/// @param skipmetadata int optional and if set to a non-zero value it skips metadata.
+	/// @param waveDataType int optional and sets the Wavetype of the loaded wave to single 
+	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
+	/// @return wave reference
+	
+	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
+	waveDataType = ParamIsDefault(waveDataType) ? 0: waveDataType
+
+	variable numRef
+	string separatorchar = ":"
+	string fileFilters = "dat File (*.dat):.dat;"
+	fileFilters += "All Files:.*;"
+	string message
+    if (!strlen(filepathStr) && !strlen(waveNameStr)) 
+		message = "Select .dat file. \nFilename will be wave's name. (overwrite)\n "
+   		Open/F=fileFilters/M=message/D/R numref
+   		filepathStr = S_filename
+   		
+   		if(!strlen(filepathStr)) // user cancel?
+   			Abort
+   		endif
+
+   		Open/F=fileFilters/R numRef as filepathStr
+		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
+		
+	elseif (strlen(filepathStr) && !strlen(waveNameStr))
+		message = "Select .dat file. \nWave names are filenames /O.\n "
+		Open/F=fileFilters/R numRef as filepathStr
+		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
+		
+	elseif (strlen(filepathStr) && strlen(waveNameStr))
+		message = "Select .dat file. \n Destination wave will be overwritten.\n "
+		Open/F=fileFilters/R numRef as filepathStr
+		
+	elseif (!strlen(filepathStr) && strlen(waveNameStr))
+		message = "Select .dat file. \n Destination wave will be overwritten\n "
+   		Open/F=fileFilters/M=message/D/R numref
+   		filepathStr = S_filename
+   		
+   		if(!strlen(filepathStr)) // user cancel?
+   			Abort
+   		endif
+   		
+		message = "Select .dat file. \nWave names are filenames /O.\n "
+		Open/F=fileFilters/R numRef as filepathStr
+	else
+		Abort "Path for datafile not specified (check MXP_WAVELoadSingleDATFile)!"
+	endif
+		
+	FStatus numRef
+	// change here if needed
+	variable imgSizeinBytes = kpixelsTVIPS^2 * 2 
+	variable ImageDataStart = V_logEOF - imgSizeinBytes
+	FSetPos numRef, ImageDataStart
+		
+	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
+	Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr /WAVE=datWave
+	FBinRead/F=2 numRef, datWave
+	ImageTransform flipCols datWave // flip the y-axis
+	Close numRef
+	
+	// Convert to SP or DP 	
+	if(waveDataType == 1)
+		Redimension/S datWave
+	endif
+	
+	if(waveDataType == 2)
+		Redimension/D datWave
+	endif
+	
+	return 0
+End

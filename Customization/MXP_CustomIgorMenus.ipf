@@ -39,6 +39,7 @@ Menu "MAXPEEM"
 		".dat files in folder to stack ...", /Q, MXP_LauncherLoadDATFilesFromFolder()
 		".dav file in stack...", /Q, MXP_LoadSingleDAVFile("", "", stack3d = 1, skipmetadata = 1, autoscale = 1)
 		".dav file...", /Q, MXP_LoadSingleDAVFile("", "", autoscale = 1)
+		".dat file (img only)...", /Q, MXP_LoadSingleCorruptedDATFile("", "")
 		".h5 file ...", /Q, MXP_LauncherLoadHDF5GroupsFromFile()
 	End
 	

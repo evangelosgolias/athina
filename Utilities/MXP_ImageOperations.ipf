@@ -61,10 +61,11 @@ End
 Function MXP_ImageSelectToCopyScale() // Uses top graph
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr)
 	// Select the first wave from browser selection
 	string selectedWavesStr = MXP_SelectWavesInModalDataBrowser("Select an image to set common dimension scaling")
-	string firstWaveStr = StringFromList(0, selectedWavesStr)
-	CopyScales/I $firstWaveStr, $imgNameTopGraphStr // NB Use P if have an extended image with common parts
+	WAVE sourceWaveRef = $StringFromList(0, selectedWavesStr)
+	CopyScales/I sourceWaveRef, wRef
 End
 
 Function MXP_Wave2RGBImage(WAVE wRef)

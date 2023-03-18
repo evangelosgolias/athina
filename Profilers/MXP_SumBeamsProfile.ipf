@@ -64,7 +64,7 @@ Function MXP_MainMenuLaunchSumBeamsProfile()
 		SetWindow $winNameStr userdata(MXP_LinkedSumBeamsZPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 	else
-		Abort "z-profile needs a 3d wave. N.B Select only one wave"
+		Abort "z-profile needs a 3d wave."
 	endif
 	return 0
 End
