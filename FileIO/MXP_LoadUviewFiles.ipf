@@ -96,7 +96,8 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
         	AbortOnRTE
         catch
         	// Added on the 17.03.2023 to deal with a corrupted file. 
-        	print fileNameStr, "metadataReadError"
+        	print "!",fileNameStr, "metadataReadError"
+        	variable err = GetRTError(1) // Clears the error
         	WAVE wIn = MXP_WAVELoadSingleCorruptedDATFile(fileToOpen, "")
         	//Abort // Removed to stop the "Encoding window" from popping all the time.
         endtry
@@ -930,9 +931,9 @@ Function/S MXP_StrGetImageMarkupsDEV(string filename) // TODO: Work on the funct
 		
 		// Cross Section
 		variable indexX1, indexY1, indexX2, indexY2, indexCx, indexCy
-		// Markers
-		variable marker, markup_x, markup_y, markup_radius, markup_color_R, markup_color_G, markup_color_B
-		variable markup_type, markup_lsize
+		// typeOfMarkups
+		variable typeOfMarkup, markup_x, markup_y, markup_radius, markup_color_R, markup_color_G, markup_color_B
+		variable markup_type, markup_lsize, incl_type
 		// Inclusion
 		variable indexRect, RectLeft, RectRight, RectTop, RectBottom
 		
@@ -945,8 +946,8 @@ Function/S MXP_StrGetImageMarkupsDEV(string filename) // TODO: Work on the funct
 		FBinRead /F=2 refNum, readValue // Reserved
 		
 		do
-			FBinRead /F=2 refNum, marker
-			if (marker == 1 || marker == 2 || marker == 3) // cross section
+			FBinRead /F=2 refNum, typeOfMarkup
+			if (typeOfMarkup == 1 || typeOfMarkup == 2 || typeOfMarkup == 3) // cross section
 				FBinRead /F=2 refNum, indexX1
 				FBinRead /F=2 refNum, indexY1
 				FBinRead /F=2 refNum, indexX2
@@ -957,7 +958,7 @@ Function/S MXP_StrGetImageMarkupsDEV(string filename) // TODO: Work on the funct
 				sprintf markupsString,"%s,%u,%u,%u,%u,%u,%u", "CrossSection", indexX1, indexY1, indexX2, indexY2, indexCx, indexCy
 				markupsList += markupsString
 			endif
-			if (marker == 6) // marker
+			if (typeOfMarkup == 6) // typeOfMarkup
 				FBinRead /F=2 refNum, markup_x
 				FBinRead /F=2 refNum, markup_y
 				FBinRead /F=2 refNum, markup_radius
@@ -975,17 +976,21 @@ Function/S MXP_StrGetImageMarkupsDEV(string filename) // TODO: Work on the funct
 				sprintf markupsString,"%s,%u,%u,%u,%u,%u,%u,%u,%u~",markup_text, markup_x, markup_y, markup_radius, markup_color_R, markup_color_G, markup_color_B, markup_type, markup_lSize
 				markupsList += markupsString
 			endif
-			if (marker == 7) // inclusion
+			if (typeOfMarkup == 7) // inclusion
 				FBinRead /F=2 refNum, indexRect // type: index of rectangle (0,1,2,3)
+				FBinRead /F=2 refNum, incl_type
 				FBinRead /F=2 refNum, RectLeft
 				FBinRead /F=2 refNum, RectTop
 				FBinRead /F=2 refNum, RectRight
 				FBinRead /F=2 refNum, RectBottom
 
-				sprintf markupsString,"%s,%u,%u,%u,%u,%u~", "InclExlAreas", indexRect, RectLeft, RectTop, RectRight, RectBottom
+				sprintf markupsString,"%s,%u,%u,%u,%u,%u~", "InclExlAreas", indexRect, incl_type, RectLeft, RectTop, RectRight, RectBottom
 				markupsList += markupsString
 			endif
-		while (marker != 0)
+			if (typeOfMarkup == 9) // Macro
+				print "Macro in Markup notes! I do not know what to do!"
+			endif
+		while (typeOfMarkup != 0)
 	endif
 	Close refNum
 	
@@ -993,7 +998,7 @@ Function/S MXP_StrGetImageMarkupsDEV(string filename) // TODO: Work on the funct
 	return markupsList
 End
 
-Function MXP_AppendMarkupsToTopImageDEV()
+Function MXP_AppendMarkupsToTopImage() // TODO: DEV here
 	/// Draw the markups on an image display (drawn on the UserFront layer)
 	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
 	/// markups are drawn on the top graph
@@ -1058,7 +1063,7 @@ Function MXP_AppendMarkupsToTopImageDEV()
 End
 
 // ** TODO **: Do we need to flip the image ?
-Function MXP_AppendMarkupsToTopImage()
+Function MXP_AppendMarkupsToTopImage_orig()
 	/// Draw the markups on an image display (drawn on the UserFront layer)
 	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
 	/// markups are drawn on the top graph
