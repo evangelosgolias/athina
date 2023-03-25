@@ -29,7 +29,11 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-/// Profile can now have several instances.
+/// 25032023
+/// Added to all Launchers: SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_BeamProfile_" + winNameStr
+/// We have to unlink the profile plot window in case the profiler and source wave are killed. That 
+/// way another launch that could associate the same Window names is not anymore possible.
+/// We will use the metadata to change Window's name after the soruce/profiler are killed
 
 Function MXP_MainMenuLaunchSumBeamsProfile()
 
@@ -63,6 +67,7 @@ Function MXP_MainMenuLaunchSumBeamsProfile()
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedSumBeamsZPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
+		SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_BeamProfile_" + winNameStr  //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder
 	else
 		Abort "z-profile needs a 3d wave."
 	endif
@@ -94,6 +99,7 @@ Function MXP_TraceMenuLaunchSumBeamsProfile() // Trace menu launcher, inactive
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedSumBeamsZPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
+		SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_BeamProfile_" + winNameStr  //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder
 	else
 		Abort "z-profile needs a 3d wave"
 	endif
@@ -124,6 +130,8 @@ Function MXP_BrowserMenuLaunchSumBeamsProfile() // Browser menu launcher, active
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedSumBeamsZPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
+		SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_BeamProfile_" + winNameStr  //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder
+
 	else
 		Abort "Z profile opearation needs only one 3d wave."
 	endif
@@ -303,6 +311,7 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 			break
 		case 2: // Kill the window
 			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedSumBeamsZPlotStr"))
+			DoWindow/C/W=$(GetUserData(s.winName, "", "MXP_targetGraphWin")) $UniqueName("BeamProfile_unlnk_",6,0) // Change name of profile graph
 			KillDataFolder/Z dfr
 			KillWaves/Z M_ROIMask // Cleanup
 			hookresult = 1

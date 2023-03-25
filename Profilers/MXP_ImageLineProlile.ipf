@@ -30,6 +30,12 @@
 // ------------------------------------------------------- //
 
 /// Line profile is plotted from cursor E to F.
+/// 25032023
+/// Added to all Launchers: SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + gMXP_WindowNameStr 
+/// We have to unlink the profile plot window in case the profiler and source wave are killed. That 
+/// way another launch that could associate the same Window names is not anymore possible.
+/// We will use the metadata to change Window's name after the soruce/profiler are killed
+
 
 Function MXP_MainMenuLaunchLineProfile()
 	
@@ -54,6 +60,7 @@ Function MXP_MainMenuLaunchLineProfile()
 	MXP_InitialiseLineProfileGraph(dfr)
 	SetWindow $winNameStr, hook(MyLineProfileHook) = MXP_CursorHookFunctionLineProfile // Set the hook
 	SetWindow $winNameStr userdata(MXP_LinkedLineProfilePlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
+	SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + winNameStr //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder
 	return 0
 End
 
@@ -79,6 +86,8 @@ Function MXP_TraceMenuLaunchLineProfile() // Not in use
 		MXP_InitialiseLineProfileGraph(dfr)
 		SetWindow $winNameStr, hook(MyLineProfileHook) = MXP_CursorHookFunctionLineProfile // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedLineProfilePlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
+		SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + winNameStr //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder
+		
 		// name to the windows hook to kill the plot after completion
 	else
 		Abort "Line profile needs an image or image stack."
@@ -108,6 +117,8 @@ Function MXP_BrowserMenuLaunchLineProfile()
 			MXP_InitialiseLineProfileGraph(dfr)
 			SetWindow $winNameStr, hook(MyLineProfileHook) = MXP_CursorHookFunctionLineProfile // Set the hook
 			SetWindow $winNameStr userdata(MXP_LinkedLineProfilePlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
+			SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + winNameStr //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder
+			
 		// name to the windows hook to kill the plot after completion
 		else
 			Abort "Line profile needs an image or an image stack."
@@ -124,7 +135,7 @@ Function MXP_InitialiseLineProfileFolder(string winNameStr)
 
 	//string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	Wave imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 
 	string msg // Error reporting
 	if(!strlen(imgNameTopGraphStr)) // we do not have an image in top graph
@@ -287,6 +298,7 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 			break
 		case 2: // Kill the window
 			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedLineProfilePlotStr"))
+			DoWindow/C/W=$(GetUserData(s.winName, "", "MXP_targetGraphWin")) $UniqueName("LineProf_unlnk_",6,0) // Change name of profile graph
 			KillDataFolder/Z dfr
 			hookresult = 1
 			break

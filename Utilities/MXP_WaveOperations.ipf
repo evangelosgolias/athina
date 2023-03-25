@@ -131,6 +131,14 @@ Function MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoFil
 	
 	for(i = 0; i < nrwaves; i += 1) // TODO: Change and use ImageTransform ...
 		Wave t2dwred = $(StringFromList(i,listOfSelectedWaves))
+		
+		// We can stack only 2d waves. Added 25032023
+		if(WaveDims(t2dwred)!=2)
+			print "\"Make Stack\" operation stopped. I can only stack images (2d waves)!"
+			KillWaves/Z w3dref
+			return -1
+		endif
+		
 		w3dref[][][i] = t2dwred[p][q]
 	endfor
 	// if you use /P, the dimension scaling is copied in slope/intercept format 

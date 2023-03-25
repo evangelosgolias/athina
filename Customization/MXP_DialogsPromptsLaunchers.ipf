@@ -45,7 +45,7 @@ Function MXP_LaunchMake3DWaveDataBrowserSelection([variable displayStack])
 	if(!strlen(wname3dStr))
 		wname3dStr = "MXP_stack"
 	endif
-	
+
 	MXP_Make3DWaveDataBrowserSelection(wname3dStr, gotoFilesDFR = 0) // 0 - stack in cwd 1 - stack in files DFR
 	// Do you want to display the stack?
 	if(displayStack)

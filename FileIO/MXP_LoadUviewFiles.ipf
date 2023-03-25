@@ -899,6 +899,7 @@ Function/S MXP_StrGetImageMarkups(string filename)
 	return markupsList
 End
 
+// Developement
 Function/S MXP_StrGetImageMarkupsDEV(string filename) // TODO: Work on the function.
 	/// Read markups from a dat file. Then generate a list containing the markups parameters (positions, \
 	///  \size, color,line thickness, text), based partially on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
@@ -947,6 +948,11 @@ Function/S MXP_StrGetImageMarkupsDEV(string filename) // TODO: Work on the funct
 		
 		do
 			FBinRead /F=2 refNum, typeOfMarkup
+			print "MarkupType: ", typeOfMarkup
+//			if (typeOfMarkup == 0) // Macro	
+//				break
+//			endif	
+			
 			if (typeOfMarkup == 1 || typeOfMarkup == 2 || typeOfMarkup == 3) // cross section
 				FBinRead /F=2 refNum, indexX1
 				FBinRead /F=2 refNum, indexY1
@@ -955,25 +961,28 @@ Function/S MXP_StrGetImageMarkupsDEV(string filename) // TODO: Work on the funct
 				FBinRead /F=2 refNum, indexCx
 				FBinRead /F=2 refNum, indexCy
 
-				sprintf markupsString,"%s,%u,%u,%u,%u,%u,%u", "CrossSection", indexX1, indexY1, indexX2, indexY2, indexCx, indexCy
+				sprintf markupsString,"%s,%u,%u,%u,%u,%u,%u;", "CrossSection", indexX1, indexY1, indexX2, indexY2, indexCx, indexCy
 				markupsList += markupsString
 			endif
 			if (typeOfMarkup == 6) // typeOfMarkup
 				FBinRead /F=2 refNum, markup_x
 				FBinRead /F=2 refNum, markup_y
-				FBinRead /F=2 refNum, markup_radius
+				FBinRead /F=2 refNum, markup_radius // length/radius
 				FBinRead /F=2 refNum, readValue // always 0050
 				FBinRead /F=1/U refNum, markup_color_R; markup_color_R *= 257 // Make 65535 max
 				FBinRead /F=1/U refNum, markup_color_G; markup_color_G *= 257
 				FBinRead /F=1/U refNum, markup_color_B; markup_color_B *= 257
-				FBinRead /F=2 refNum, readValue // always 0000
-				FBinRead /F=2 refNum, readValue // always 0000
+				FBinRead /F=2 refNum, readValue // always 0000				
+				FBinRead /F=2 refNum, readValue // always 0000				
 				FBinRead /F=2 refNum, markup_type
 				FBinRead /F=1/U refNum, markup_lsize
-				FBinRead /F=2 refNum, readValue // always 0800
-				FReadLine /T=(num2char(0)) refNum, markup_text
-				
-				sprintf markupsString,"%s,%u,%u,%u,%u,%u,%u,%u,%u~",markup_text, markup_x, markup_y, markup_radius, markup_color_R, markup_color_G, markup_color_B, markup_type, markup_lSize
+				FBinRead /F=2 refNum, readValue // always 0800 // Not always 8! It can be 67 in case of text!
+				FReadLine /T=(num2char(0)) refNum, markup_text				
+				// Clue: markup_type = 3840 cross circle and 2304 for circle
+				// Here values are 1024 - pixelvalueY (from UView)
+				// seems that markup_type is the length/2 in pixels of one part of a cross if you divide by 256 . In Uview the length dx is shown.
+				sprintf markupsString,"%s,%u,%u,%u,%u,%u,%u,%u,%u;",markup_text, markup_x, markup_y, markup_radius, markup_color_R, markup_color_G, markup_color_B, markup_type, markup_lSize
+				print markupsString
 				markupsList += markupsString
 			endif
 			if (typeOfMarkup == 7) // inclusion
@@ -984,12 +993,13 @@ Function/S MXP_StrGetImageMarkupsDEV(string filename) // TODO: Work on the funct
 				FBinRead /F=2 refNum, RectRight
 				FBinRead /F=2 refNum, RectBottom
 
-				sprintf markupsString,"%s,%u,%u,%u,%u,%u~", "InclExlAreas", indexRect, incl_type, RectLeft, RectTop, RectRight, RectBottom
+				sprintf markupsString,"%s,%u,%u,%u,%u,%u;", "InclExlAreas", indexRect, incl_type, RectLeft, RectTop, RectRight, RectBottom
 				markupsList += markupsString
 			endif
 			if (typeOfMarkup == 9) // Macro
 				print "Macro in Markup notes! I do not know what to do!"
-			endif
+			endif	
+//			print markupsString
 		while (typeOfMarkup != 0)
 	endif
 	Close refNum
@@ -1022,23 +1032,24 @@ Function MXP_AppendMarkupsToTopImage() // TODO: DEV here
 	variable factorX = DimDelta(w, 0) // Take into account wave scaling, edited EG 02.11.22
 	variable factorY = DimDelta(w, 1)
 	variable i = 0
-	for(i = 0; i < ItemsInList(markupsList, "~"); i++)
-		markup = StringFromList(i, markupsList, "~")
+	variable totalMarkupElements = ItemsInList(markupsList)
+	for(i = 0; i < totalMarkupElements; i++)
+		markup = StringFromList(i, markupsList, ",")
 		if(!cmpstr(markup, "CrossSection", 0))
-			indexX1 = str2num(StringFromList(1, markupsList, "~"))
-			indexY1 = str2num(StringFromList(2, markupsList, "~"))
-			indexX2 = str2num(StringFromList(3, markupsList, "~"))
-			indexY2 = str2num(StringFromList(4, markupsList, "~"))
-			indexCx = str2num(StringFromList(5, markupsList, "~"))
-			indexCy = str2num(StringFromList(6, markupsList, "~"))
+			indexX1 = str2num(StringFromList(1, markupsList, ","))
+			indexY1 = str2num(StringFromList(2, markupsList, ","))
+			indexX2 = str2num(StringFromList(3, markupsList, ","))
+			indexY2 = str2num(StringFromList(4, markupsList, ","))
+			indexCx = str2num(StringFromList(5, markupsList, ","))
+			indexCy = str2num(StringFromList(6, markupsList, ","))
 			SetDrawEnv/W=$graphName fillpat = 0,linefgc = (65535,0,0), ycoord = left, xcoord = top //$xaxis
 			DrawLine/W=$graphName indexX1, indexY1, indexX2, indexY2
 		elseif(!cmpstr(markup, "InclExlAreas", 0))
-			indexRect = str2num(StringFromList(1, markupsList, "~"))
-			RectLeft = str2num(StringFromList(2, markupsList, "~"))
-			RectRight = str2num(StringFromList(3, markupsList, "~"))
-			RectTop = str2num(StringFromList(4, markupsList, "~"))
-			RectBottom = str2num(StringFromList(5, markupsList, "~"))
+			indexRect = str2num(StringFromList(1, markupsList, ","))
+			RectLeft = str2num(StringFromList(2, markupsList, ","))
+			RectRight = str2num(StringFromList(3, markupsList, ","))
+			RectTop = str2num(StringFromList(4, markupsList, ","))
+			RectBottom = str2num(StringFromList(5, markupsList, ","))
 			SetDrawEnv/W=$graphName fillpat = 0,linefgc = (65535,0,0), ycoord = left, xcoord = top //$xaxis
 			DrawLine/W=$graphName indexX1, indexY1, indexX2, indexY2
 		else
@@ -1063,7 +1074,7 @@ Function MXP_AppendMarkupsToTopImage() // TODO: DEV here
 End
 
 // ** TODO **: Do we need to flip the image ?
-Function MXP_AppendMarkupsToTopImage_orig()
+Function MXP_AppendMarkupsToTopImage_orig() // original function
 	/// Draw the markups on an image display (drawn on the UserFront layer)
 	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
 	/// markups are drawn on the top graph

@@ -122,7 +122,7 @@ Menu "TracePopup"
 	"MXP Interactive drift correction (3D)", /Q, MXP_CreateInteractiveDriftCorrectionPanel()
 	"MXP Calculate XMC(L)D (3D[2])", /Q, MXP_LaunchCalculateXMCDFromStack()
 	//"MXP Remove XPS background", MXP_LaunchRemoveXPSBackground()
-	//"MXP BE-Scale XPS spectrum", MXP_LaunchScaleXPSSpectrum()
+	//"MXP BE-Scale XPS spectrum", /Q, MXP_LaunchScaleXPSSpectrum()
 	Submenu "MXP markups ..."
 	"MXP Draw image markups", /Q, MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
 	"MXP Clear UserFront layer" ,/Q, MXP_ClearROIMarkingsUserFront()
