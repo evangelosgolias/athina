@@ -53,12 +53,36 @@ Function MXP_DisplayImage(WAVE waveRef)
 		
 		// Get the minumum dimension
 		variable waveMinDim = min(nrows, ncols)
-		variable scaleFactor = 0.25 * minScreenDim/waveMinDim // INFO: 25% os the smaller screen dimension
+		variable scaleFactor = 0.5 * minScreenDim/waveMinDim // INFO: 25% os the smaller screen dimension
 		if(scalefactor < 0.01 || scalefactor > 20)
 			scalefactor = 0
 		endif
 		WM_AutoSizeImage(scaleFactor)
 		
+		// Adjest the range in images
+//		if(WaveDims(waveRef) == 2)
+//			variable s = 0, i = 0 , tot, nzmin, nzmax
+//			Imagehistogram waveRef
+//			WAVE W_ImageHist
+//			variable npts = numpnts(W_ImageHist)
+//			tot = sum(W_ImageHist, pnt2x(W_ImageHist, 0), pnt2x(W_ImageHist, npts-1))
+//			variable cutoffVal = 0.06 // 0.06 - 94%
+//			do
+//				s += W_ImageHist[i]
+//				i += 1
+//			while( (s/tot) < cutoffVal/2 )
+//			nzmin = LeftX(W_ImageHist) + deltax(W_ImageHist) * i
+//
+//			s = 0;i = npts-1
+//			do
+//				s += W_ImageHist[i]
+//				i-=1
+//			while( (s/tot) < cutoffVal/2 )
+//			nzmax = LeftX(W_ImageHist) + deltax(W_ImageHist) * i
+//			KillWaves W_ImageHist
+//			ModifyImage $NameOfWave(waveRef) ctab= {nzmin,nzmax,}
+//		endif
+//		
 		if(WaveDims(waveRef)==3)
 			WMAppend3DImageSlider()
 		endif

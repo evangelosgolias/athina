@@ -450,7 +450,9 @@ static Function ShowButtonProc(ba) : ButtonControl
 				endif
 			endfor
 			// CAUTION: Tiling hard-coded, change /A=(x, y) if you like
-			TileWindows/WINS=allGraphWindows/O=1/A=(3,6) // //IP9 only (/WINS)
+			if(strlen(allGraphWindows)) // If "" TileWindows tiles everything 
+				TileWindows/WINS=allGraphWindows/A=(3,6) //IP9 only (/WINS)
+			endif
 			break
 		case -1: // control being killed
 			break
@@ -627,7 +629,7 @@ Function PlotPhCrossSectionOfElement(string elementStr)
 	endfor	
 	
 	ModifyGraph/W=$graphName grid(left)=1,log(left)=1,tick=2,mirror=1,fSize=12,lsize=2,gridRGB(left)=(43690,43690,43690)
-	SetAxis/W=$graphName bottom *,1000 // CHANGE: Energy range to your taste.
+	SetAxis/W=$graphName bottom *,500 // CHANGE: Energy range to your taste.
 	Label/W=$graphName left "\\Z14 Cross section (Mbarn)"
 	Label/W=$graphName bottom "\\Z14 Photon energy (eV)"
 	// Change colors for traces

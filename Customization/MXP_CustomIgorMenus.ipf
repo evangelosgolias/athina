@@ -76,7 +76,7 @@ Menu "MAXPEEM"
 	Submenu "Utilities"
 		"Spaces",/Q, MXP_MainMenuLaunchSpaces()
 		"Photoionisation CrossSection",/Q, PhotoionisationCrossSection#PhotoionisationCrossSection()
-		"List an HDF5 (.h5) file...", /Q, MXP_ListHDF5Groups()
+		"List HDF5 (.h5) entries...", /Q, MXP_ListHDF5Groups()
 	End
 End
 
