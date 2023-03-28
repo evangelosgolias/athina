@@ -170,7 +170,7 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 			if(!UniqueSpaceNameQ(mxpSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr))) // if the name is not unique or empty string
 				do
 					newSpaceNameStr = TrimString(MXP_GenericSingleStrPrompt("Space name already exists or you entered empty string.", "Enter a *unique* name for the new Space"))
-				while(!UniqueSpaceNameQ(mxpSpacesTW, newSpaceNameStr))
+				while(!UniqueSpaceNameQ(mxpSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)))
 			endif
 			mxpSpacesTW[gSelectedSpace] = newSpaceNameStr
 			MXP_RenameSpaceTagOnWindows(oldSpaceNameStr, newSpaceNameStr)
@@ -214,7 +214,7 @@ Function MXP_ListBoxSpacesNewSpace(STRUCT WMButtonAction &B_Struct): ButtonContr
 			if(!UniqueSpaceNameQ(mxpSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr))) // if the name is not unique or empty string
 				do
 					newSpaceNameStr = TrimString(MXP_GenericSingleStrPrompt("Space name already exists or you entered empty string.", "Enter a *unique* name for the new Space"))
-				while(!UniqueSpaceNameQ(mxpSpacesTW, newSpaceNameStr))
+				while(!UniqueSpaceNameQ(mxpSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)))
 			endif
 			
 			
