@@ -298,7 +298,9 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 			break
 		case 2: // Kill the window
 			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedLineProfilePlotStr"))
-			DoWindow/C/W=$(GetUserData(s.winName, "", "MXP_targetGraphWin")) $UniqueName("LineProf_unlnk_",6,0) // Change name of profile graph
+			if(WinType(GetUserData(s.winName, "", "MXP_targetGraphWin")) == 1)
+				DoWindow/C/W=$(GetUserData(s.winName, "", "MXP_targetGraphWin")) $UniqueName("LineProf_unlnk_",6,0) // Change name of profile graph
+			endif
 			KillDataFolder/Z dfr
 			hookresult = 1
 			break

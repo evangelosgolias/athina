@@ -900,7 +900,7 @@ Function/S MXP_StrGetImageMarkups(string filename)
 End
 
 // Developement
-Function/S MXP_StrGetImageMarkupsDEV(string filename) // TODO: Work on the function.
+Function/S MXP_StrGetImageMarkups_DEV(string filename) // TODO: Work on the function.
 	/// Read markups from a dat file. Then generate a list containing the markups parameters (positions, \
 	///  \size, color,line thickness, text), based partially on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
 	
@@ -1008,7 +1008,7 @@ Function/S MXP_StrGetImageMarkupsDEV(string filename) // TODO: Work on the funct
 	return markupsList
 End
 
-Function MXP_AppendMarkupsToTopImage() // TODO: DEV here
+Function MXP_AppendMarkupsToTopImage_DEV() // TODO: DEV here
 	/// Draw the markups on an image display (drawn on the UserFront layer)
 	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
 	/// markups are drawn on the top graph
@@ -1074,7 +1074,7 @@ Function MXP_AppendMarkupsToTopImage() // TODO: DEV here
 End
 
 // ** TODO **: Do we need to flip the image ?
-Function MXP_AppendMarkupsToTopImage_orig() // original function
+Function MXP_AppendMarkupsToTopImage() // original function
 	/// Draw the markups on an image display (drawn on the UserFront layer)
 	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
 	/// markups are drawn on the top graph

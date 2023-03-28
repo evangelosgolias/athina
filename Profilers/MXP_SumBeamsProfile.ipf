@@ -311,7 +311,9 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 			break
 		case 2: // Kill the window
 			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedSumBeamsZPlotStr"))
-			DoWindow/C/W=$(GetUserData(s.winName, "", "MXP_targetGraphWin")) $UniqueName("BeamProfile_unlnk_",6,0) // Change name of profile graph
+			if(WinType(GetUserData(s.winName, "", "MXP_targetGraphWin")) == 1)
+				DoWindow/C/W=$(GetUserData(s.winName, "", "MXP_targetGraphWin")) $UniqueName("BeamProfile_unlnk_",6,0) // Change name of profile graph
+			endif
 			KillDataFolder/Z dfr
 			KillWaves/Z M_ROIMask // Cleanup
 			hookresult = 1
