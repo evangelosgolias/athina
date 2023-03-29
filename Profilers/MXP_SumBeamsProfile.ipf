@@ -34,6 +34,11 @@
 /// We have to unlink the profile plot window in case the profiler and source wave are killed. That 
 /// way another launch that could associate the same Window names is not anymore possible.
 /// We will use the metadata to change Window's name after the soruce/profiler are killed
+/// 
+/// 29032023
+/// We changed the save directory to the current working directory
+/// DFREF savedfr = GetDataFolderDFR() //MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:SavedLineProfiles")
+
 
 Function MXP_MainMenuLaunchSumBeamsProfile()
 
@@ -389,7 +394,7 @@ Function MXP_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonC
 	NVAR/SDFR=dfr gMXP_bottom
 
 	string recreateDrawStr
-	DFREF savedfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:SavedZProfiles")
+	DFREF savedfr = GetDataFolderDFR() // MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:SavedZProfiles")
 	
 	variable postfix = 0
 	variable red, green, blue

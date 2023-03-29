@@ -37,7 +37,10 @@
 // without the need to move the cursors
 // Improvement(?): Make it work with scaled 3D wave. You need to check 
 // ImageLineProfile.ipf and change here accordingly.
-
+/// 
+/// 29032023
+/// We changed the save directory to the current working directory
+/// DFREF savedfr = GetDataFolderDFR() //MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:SavedLineProfiles")
 
 
 
@@ -283,7 +286,6 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 	DFREF currdfr = GetDataFolderDFR()
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
 	DFREF dfr0 = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:DefaultSettings") // Settings here
-	DFREF savedfr = root:Packages:MXP_DataFolder:ImagePlaneProfileZ:SavedImagePlaneProfileZ // Hard coded
 	SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
 	WAVE/Z w3dRef = $ImagePathname
 	NVAR/Z nlayers = dfr:gMXP_nLayers 
@@ -481,7 +483,7 @@ Function MXP_ImagePlaneProfileZButtonSaveProfile(STRUCT WMButtonAction &B_Struct
 	NVAR/Z nLayers =  dfr:gMXP_nLayers
 	NVAR/Z colorcnt = dfr:gMXP_colorcnt
 	string recreateCmdStr
-	DFREF savedfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:SavedImagePlaneProfileZ")
+	DFREF savedfr = GetDataFolderDFR()//MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:SavedImagePlaneProfileZ")
 	variable red, green, blue
 	variable postfix = 0
 	string saveImageStr

@@ -214,7 +214,6 @@ Function MXP_GetMarqueeWaveStats()
 		endP = (V_right - x0)/dx
 		startQ = (V_top - y0)/dy
 		endQ = (V_bottom - y0)/dy
-		print startP, endP, startQ, endQ
 		WaveStats/RMD=[startP, endP][startQ, endQ][]/M=1 waveRef
 	endif
 End
