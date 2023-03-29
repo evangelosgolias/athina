@@ -198,6 +198,27 @@ Function MXP_Partition3DRegion()
 	MXP_3DWavePartition(waveRef, "MXP_Partition3D", V_left, V_right, V_top, V_bottom, tetragonal = 1, poweroftwo = 1)
 End
 
+Function MXP_GetMarqueeWaveStats()
+	/// Wavestats for a marquee region in a 2D wave. In case of a 3D wave the stats 
+	/// are calculated for all layers.
+	GetMarquee left, top;
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList("", ";"),";")
+	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	if(WaveDims(waveRef) == 2 || WaveDims(waveRef) == 3)
+		variable x0 = ceil(DimOffset(waveRef, 0))
+		variable dx = ceil(DimDelta(waveRef, 0))
+		variable y0 = ceil(DimOffset(waveRef, 1))
+		variable dy = ceil(DimDelta(waveRef, 1))
+		variable startP, endP, startQ, endQ
+		startP = (V_left - x0)/dx
+		endP = (V_right - x0)/dx
+		startQ = (V_top - y0)/dy
+		endQ = (V_bottom - y0)/dy
+		print startP, endP, startQ, endQ
+		WaveStats/RMD=[startP, endP][startQ, endQ][]/M=1 waveRef
+	endif
+End
+
 static Function CheckActiveAxis(string graphname, string axis)
 	/// If axis is present, return 1 otherwise 0
 	/// graphnname = "" we refer to the top window

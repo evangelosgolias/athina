@@ -81,15 +81,16 @@ Menu "MAXPEEM"
 End
 
 Menu "GraphMarquee"
-	"Oval ROI z profile", /Q, MXP_DrawROIAndWaitHookToAct()
-	"Marquee to mask", /Q, MXP_MarqueeToMask()
-	"Backup traces", /Q, MXP_BackupTraces()
-	"Restore traces", /Q, MXP_RestoreTraces()
-	"Normalise to profile", /Q, MXP_NormaliseTracesWithProfile()
-	"Normalize to one", /Q, MXP_NormalizeToOne()
-	"Pull to zero", /Q, MXP_PullToZero()
-	"Maximum to one", /Q, MXP_MaximumToOne()
-	"Partition 3D region", /Q, MXP_Partition3DRegion()
+	"Oval ROI z profile (3D)", /Q, MXP_DrawROIAndWaitHookToAct()
+	"ROI stats (2D, 3D)", /Q, MXP_GetMarqueeWaveStats()
+	"Marquee to mask (2D, 3D)", /Q, MXP_MarqueeToMask()
+	"Backup traces (1D)", /Q, MXP_BackupTraces()
+	"Restore traces (1D)", /Q, MXP_RestoreTraces()
+	"Normalise to profile (1D)", /Q, MXP_NormaliseTracesWithProfile()
+	"Normalize to one (1D)", /Q, MXP_NormalizeToOne()
+	"Pull to zero (1D)", /Q, MXP_PullToZero()
+	"Maximum to one (1D)", /Q, MXP_MaximumToOne()
+	"Partition 3D region (3D)", /Q, MXP_Partition3DRegion()
 End
 
 
@@ -116,7 +117,7 @@ Menu "TracePopup"
 	//"MXP Average stack",  MXP_LaunchAverageStackToImageFromTraceMenu()
 	"MXP Save layer (3D)", /Q, MXP_GetLayerFromImageStack()
 	"MXP Save current view (2D,3D)", /Q, MXP_GetScaledZoominImageWindow()
-	"MXP Stack image (3D)", /Q, MXP_LaunchStackImageToImageStack()
+	"MXP Add images to Stack (3D)", /Q, MXP_LaunchStackImagesToImageStack()
 	"MXP Scale Image stack (3D)", /Q, MXP_ScaleImage()
 	"MXP Select image and copy scales (2D,3D)", /Q, MXP_ImageSelectToCopyScale()
 	"MXP Interactive drift correction (3D)", /Q, MXP_CreateInteractiveDriftCorrectionPanel()

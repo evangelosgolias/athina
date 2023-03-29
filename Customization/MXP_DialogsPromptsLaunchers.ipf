@@ -563,12 +563,32 @@ Function MXP_LaunchNormalisationImageStackWithImageStack()
 	
 End
 
-Function MXP_LaunchStackImageToImageStack()
+Function MXP_LaunchStackImagesToImageStack()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 
-	string selectImageStr = StringFromList(0, MXP_SelectWavesInModalDataBrowser("Select an image (2d wave) to add to stack"))
+	string selectImagesStr = MXP_SelectWavesInModalDataBrowser("Select an image (2d wave) to add to stack"), imageStr
+	variable imagesNr = ItemsInList(selectImagesStr), i
+	KillWindow/Z $winNameStr
+	for(i = 0; i < imagesNr; i++)
+		imageStr = StringFromList(i, selectImagesStr)
+		WAVE imageWaveRef = $imageStr
+		if(WaveDims(imageWaveRef) == 2)
+			MXP_StackImageToImageStack(w3dref, imageWaveRef)
+		endif
+	endfor
+	MXP_DisplayImage(w3dref)
+	ModifyGraph width={Plan,1,top,left}
+	WMAppend3DImageSlider()
+End
+
+Function MXP_LaunchStackSingleImageToImageStack() // Not used
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+
+	string selectImageStr = StringFromList(0, MXP_SelectWavesInModalDataBrowser("Select images (2d wave) to add to stack"))
 	WAVE imageWaveRef = $selectImageStr
 	if(WaveDims(imageWaveRef) == 2)
 		MXP_StackImageToImageStack(w3dref, imageWaveRef)
@@ -578,6 +598,7 @@ Function MXP_LaunchStackImageToImageStack()
 		WMAppend3DImageSlider()
 	endif
 End
+
 // Dialogs
 Function/S MXP_GenericSinglePopupStrPrompt(string strPrompt, string popupStrSelection, string msgDialog)
 	string returnStrVar 
