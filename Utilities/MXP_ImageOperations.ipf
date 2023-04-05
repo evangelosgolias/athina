@@ -262,3 +262,56 @@ Function MXP_StackImageToImageStack(WAVE w3dref, WAVE w2dRef)
 		Abort "Image and stack must have the same lateral dimensions."
 	endif
 End
+
+Function MXP_ImageEdgeDetectionToStack(WAVE w3dref)
+	/// Applied the edge detection operation to w3dref
+	/// and outputs a wave with name NameofWave(w3dref) + "_ed"
+	variable numlayers = DimSize(w3dref, 2), i
+	DFREF saveDF = GetDataFolderDFR()
+	string tmpDataFolder = CreateDataObjectName(saveDF, "MXPdataFolderImgsED", 11, 0, 1)
+	string wnameStr = "MXPWaveToStack_idx_", wnameStrInLoop
+	NewDataFolder/S $tmpDataFolder
+	DFREF tmpDF = GetDataFolderDFR()
+	
+	for(i = 0; i < numlayers; i++)
+		ImageEdgeDetection/P=(i)/M=1 kirsch w3dref // Change algorithm here
+		WAVE M_ImageEdges		
+		wnameStrInLoop = wnameStr + num2str(i)
+		Rename M_ImageEdges, $wnameStrInLoop
+	endfor
+	
+	ImageTransform/NP=(numlayers) stackImages $"MXPWaveToStack_idx_0"
+	WAVE M_Stack
+	SetDataFolder saveDF
+	string stacknameStr = CreateDataObjectName(saveDF, NameofWave(w3dref) + "_ed", 1, 0, 1)
+	MoveWave tmpDF:M_stack, saveDF:$stacknameStr
+	KillDataFolder tmpDF
+	return 0
+End
+
+Function/WAVE MXP_WAVEImageEdgeDetectionToStack(WAVE w3dref)
+	/// Applied the edge detection operation to w3dref
+	/// and returns a wave to NameofWave(w3dref) + "_ed"
+	variable numlayers = DimSize(w3dref, 2), i
+	DFREF saveDF = GetDataFolderDFR()
+	string tmpDataFolder = CreateDataObjectName(saveDF, "MXPdataFolderImgsED", 11, 0, 1)
+	string wnameStr = "MXPWaveToStack_idx_", wnameStrInLoop
+	NewDataFolder/S $tmpDataFolder
+	DFREF tmpDF = GetDataFolderDFR()
+	
+	for(i = 0; i < numlayers; i++)
+		ImageEdgeDetection/P=(i)/M=1 kirsch w3dref // Change algorithm here
+		WAVE M_ImageEdges		
+		wnameStrInLoop = wnameStr + num2str(i)
+		Rename M_ImageEdges, $wnameStrInLoop
+	endfor
+	
+	ImageTransform/NP=(numlayers) stackImages $"MXPWaveToStack_idx_0"
+	WAVE M_Stack
+	SetDataFolder saveDF
+	string stacknameStr = CreateDataObjectName(saveDF, NameofWave(w3dref) + "_ed", 1, 0, 1)
+	MoveWave tmpDF:M_stack, saveDF:$stacknameStr
+	KillDataFolder tmpDF
+	WAVE wRef = $stacknameStr
+	return wRef
+End

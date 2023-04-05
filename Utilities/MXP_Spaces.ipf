@@ -27,12 +27,35 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
-
+// ------------------------------------------------------- //
+// Igor Spaces organises windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate 
+// Spaces. When a Space is selected in the panel, only windows linked to it are shown. 
+// 
+// Igor Spaces organises windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate Spaces. 
+// When a Space is selected in the panel, only windows linked to it are shown. 
+// How it works: 
+// 1. Launch Igor Spaces from "Windows/Packages" submenu. 
+// 2. Press the "New" button to create a new Space, name should be unique, otherwise you will be 
+// prompted to change your input. When a new "Space" is created it becomes your active working Space. 
+// New Spaces are created below the active row selection, and at the moment you cannot change their order.
+// 3.Press "Delete" to delete the selected space. Windows associated with the space are released and not 
+// linked to any space ("" tag)
+// 4. Press "All" to show/hide all windows whether linked to a Space or not.
+// 5. When the Igor Spaces Panel is open any window you create is associated with the active Space.
+// 6. Double click on a row to rename the Space
+// 7. Press Shift + Click on a row of the ListBox to move the top window to the selected space
+// 8. Press Alt + Click anywhere in the ListBox of the panel (rows or empty space below) to pin the top 
+// window to all spaces (visible everywhere)
+// 9. To unpin press Shift + Alt + Click anywhere in the ListBox to unpin the window (becomes free floating).
+// You can also make a normal window free-floating using the same procedure. Alternatively, if you want to 
+// unpin and link it to a space goto 7.
+// ------------------------------------------------------- //
+///
+/// TL;DR:
 /// Use Shift + Space row to assign there the top window.
-/// Double click to Rename
-/// New - Creates a new Space
-/// Delete - Deletes a Space
-/// All - Show/hide all windows (Graph, Table, Layout, Notebook or Panel)
+/// Double click: Rename
+/// Alt + Click: Pin window
+/// Shift + Alt + Click; unpin
 ///
 /// TODO: Move linked Panel/Graphs to the same Space
 /// TODO: Change all the function and use the same algorithm asa MXP_ShowWindowsOfSpaceTag
