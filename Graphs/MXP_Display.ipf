@@ -33,32 +33,35 @@
 Function MXP_DisplayImage(WAVE waveRef)
 	   // Display an image or stack
 		NewImage/G=1/K=1 waveRef
-		
+		ModifyGraph width={Plan,1,top,left}
+		// Disable the scaling 07.04.2023. Find a better method to scale graphs.
 		// Use the resolution of the main screen to scale the plots
-		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:DisplaySettings")
-		NVAR/SDFR=dfr/Z minScreenDim
-		if(!NVAR_Exists(minScreenDim))			
-			string igorInfoStr = StringByKey( "SCREEN1", IgorInfo(0)) // INFO: Change here if needed
-			igorInfoStr = RemoveListItem(0, igorInfoStr, ",")		
-			variable screenLeft, screenTop, screenRight, screenBottom
-			sscanf igorInfoStr, "RECT=%d,%d,%d,%d", screenLeft, screenTop, screenRight, screenBottom
-			variable screenWidth, screenLength
-			screenWidth = abs(screenRight - screenLeft)
-			screenLength = abs(screenBottom - screenTop)
-			variable/G dfr:minScreenDim = min(screenWidth, screenLength)
-		endif
-
-		variable nrows = DimSize(waveRef, 0)
-		variable ncols = DimSize(waveRef, 1)
-		
+//		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:DisplaySettings")
+//		NVAR/SDFR=dfr/Z minScreenDim
+//		if(!NVAR_Exists(minScreenDim))			
+//			string igorInfoStr = StringByKey( "SCREEN1", IgorInfo(0)) // INFO: Change here if needed
+//			igorInfoStr = RemoveListItem(0, igorInfoStr, ",")		
+//			variable screenLeft, screenTop, screenRight, screenBottom
+//			sscanf igorInfoStr, "RECT=%d,%d,%d,%d", screenLeft, screenTop, screenRight, screenBottom
+//			variable screenWidth, screenLength
+//			screenWidth = abs(screenRight - screenLeft)
+//			screenLength = abs(screenBottom - screenTop)
+//			variable/G dfr:minScreenDim = min(screenWidth, screenLength)
+//		endif
+//
+//		variable nrows = DimSize(waveRef, 0)
+//		variable ncols = DimSize(waveRef, 1)	
 		// Get the minumum dimension
-		variable waveMinDim = min(nrows, ncols)
-		variable scaleFactor = 0.5 * minScreenDim/waveMinDim // INFO: 25% os the smaller screen dimension
-		if(scalefactor < 0.01 || scalefactor > 20)
-			scalefactor = 0
-		endif
-		WM_AutoSizeImage(scaleFactor)
-		
+		//variable waveMinDim = min(nrows, ncols)
+		// TODO: When waveMinDim is small, you might get big values of scalefactor
+		// Giving an error in 	ModifyGraph width=width,height=height in WM_DoAutoSizeImage (values > 8000 
+		// are invalid). Try to find another way to display images
+//		variable scaleFactor = 0.5 * minScreenDim/waveMinDim // INFO: 25% os the smaller screen dimension
+//		if(scalefactor < 0.01 || scalefactor > 20)
+//			scalefactor = 0
+//		endif
+//		WM_AutoSizeImage(scaleFactor)
+//		
 		// Adjest the range in images
 //		if(WaveDims(waveRef) == 2)
 //			variable s = 0, i = 0 , tot, nzmin, nzmax

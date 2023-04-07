@@ -343,15 +343,17 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	//string waveListStr = Wavelist("*",";","DIMS:3"), selectWaveStr
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
+	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
 	variable method = 1
 	variable printMode = 2
 	variable layerN = 0
+	variable edgeDetection = 2
 	string msg = "Align " + imgNameTopGraphStr + " using part of the image."
 	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
 	Prompt layerN, "Reference layer"
+	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!	
 	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt msg, method, layerN, printMode
+	DoPrompt msg, method, layerN, edgeDetection, printMode
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -364,22 +366,30 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	endif
 	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
 	// MXP_ImageStackAlignmentByPartitionRegistration
-	WAVE partiotionWave = WM_UserSetMarquee(winNameStr) // partitionWave might be a 2D wave to be used as a Mask
+	variable left, right, top, bottom
+	// Seems better to apply edge detection before partionining. 
+	
+	if(edgeDetection == 1)
+		[left, right, top, bottom] = WM_UserGetMarqueePositions(winNameStr)
+		// Apply image edge detection to the whole image, it's slower but to works better(?)
+		WAVE partitionWaveED = MXP_WAVEImageEdgeDetectionToStack(w3dref)
+		WAVE partitionWave = MXP_WAVE3DWavePartition(partitionWaveED, left, right, top, bottom, evenNum = 1) // Debug
+		Duplicate/O partitionWave, leavethishere		
+	else
+		WAVE partitionWave = WM_WAVEUserSetMarquee(winNameStr)
+		ImageFilter/O gauss3d partitionWave // Apply a 3x3x3 gaussian filter
+	endif
 
-	if(method == 1)
-		ImageFilter/O gauss3d partiotionWave // Apply a 3x3x3 gaussian filter
-		MatrixOP/FREE/O partiotionFreeWaveGaussNorm = normalize(partiotionWave)	
-		MXP_ImageStackAlignmentByPartitionRegistration(w3dRef, partiotionFreeWaveGaussNorm, layerN = layerN, printMode = printMode - 2)
+	if(method == 1)		
+		MXP_ImageStackAlignmentByPartitionRegistration(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2)
 	elseif(method == 2)
-		ImageFilter/O gauss3d partiotionWave // Apply a 3x3x3 gaussian filter
-		MatrixOP/FREE/O partiotionFreeWaveGaussNorm = normalize(partiotionWave)	
-		MXP_ImageStackAlignmentByPartitionCorrelation(w3dRef, partiotionFreeWaveGaussNorm, layerN = layerN, printMode = printMode - 2)
+		MXP_ImageStackAlignmentByPartitionCorrelation(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2)
 	else 
 		Abort "Please check MXP_LaunchImageStackAlignmentUsingAFeature(), method error."
 	endif
 End
 
-Function/WAVE WM_UserSetMarquee(string graphName)
+Function/WAVE WM_WAVEUserSetMarquee(string graphName)
 	/// Modified WM procedure to return a Free WAVE to MXP_LaunchMXP_ImageStackAlignmentByPartitionRegistration()
 	/// method = 0:partition wave 3d, method = 1, create a mask
 	DoWindow/F $graphName			// Bring graph to front
@@ -388,7 +398,7 @@ Function/WAVE WM_UserSetMarquee(string graphName)
 	endif
 
 	NewDataFolder/O root:tmp_PauseforCursorDF
-	Variable/G root:tmp_PauseforCursorDF:canceled= 0
+	variable/G root:tmp_PauseforCursorDF:canceled= 0
 
 	NewPanel/K=2 /W=(139,341,382,450) as "Set marquee on image"
 	DoWindow/C tmp_PauseforCursor					// Set to an unlikely name
@@ -420,6 +430,47 @@ Function/WAVE WM_UserSetMarquee(string graphName)
 	return partiotionWave
 End
 
+Function [variable leftR, variable rightR, variable topR, variable bottomR] WM_UserGetMarqueePositions(string graphName)
+	/// Modified WM procedure to return a Free WAVE to MXP_LaunchMXP_ImageStackAlignmentByPartitionRegistration()
+	/// method = 0:partition wave 3d, method = 1, create a mask
+	DoWindow/F $graphName			// Bring graph to front
+	if (V_Flag == 0)					// Verify that graph exists
+		Abort "WM_UserSetMarquee: No image in top window."
+	endif
+
+	NewDataFolder/O root:tmp_PauseforCursorDF
+	variable/G root:tmp_PauseforCursorDF:canceled= 0
+
+	NewPanel/K=2 /W=(139,341,382,450) as "Set marquee on image"
+	DoWindow/C tmp_PauseforCursor					// Set to an unlikely name
+	AutoPositionWindow/E/M=1/R=$graphName			// Put panel near the graph
+
+	DrawText 15,20,"Draw marquee and press continue..."
+	DrawText 15,35,"Can also use a marquee to zoom-in"
+	Button button0, pos={80,50},size={92,20}, title="Continue"
+	Button button0, proc=WM_UserSetMarquee_ContButtonProc
+	Button button1, pos={80,80},size={92,20}
+	Button button1, proc=WM_UserSetMarquee_CancelBProc, title="Cancel"
+
+	PauseForUser tmp_PauseforCursor, $graphName
+	NVAR/Z left = root:tmp_PauseforCursorDF:left
+	NVAR/Z right = root:tmp_PauseforCursorDF:right
+	NVAR/Z top = root:tmp_PauseforCursorDF:top
+	NVAR/Z bottom = root:tmp_PauseforCursorDF:bottom
+	NVAR/Z gCanceled= root:tmp_PauseforCursorDF:canceled
+	variable canceled= gCanceled			// Copy from global to local before global is killed
+	if(canceled)
+		GetMarquee/K
+		Abort
+	endif
+		
+	leftR = left
+	rightR = right
+	topR = top
+	bottomR = bottom
+	KillDataFolder root:tmp_PauseforCursorDF // Kill folder here, you have to use the left, right, top, bottom in MXP_WAVE3DWavePartition
+	return [leftR, rightR, topR, bottomR]
+End
 
 Function WM_UserSetMarquee_ContButtonProc(ctrlName) : ButtonControl
 	String ctrlName

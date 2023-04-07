@@ -30,6 +30,7 @@
 
 
 // Based on "Autoscale Images.ipf"
+// Not in use at the moment (07.04.2023)
 
 Function WM_AutoSizeImage(variable forceSize)
 
@@ -61,7 +62,7 @@ Function WM_DoAutoSizeImage(variable forceSize)
 	NewDataFolder/O/S root:Packages
 	NewDataFolder/O/S WMAutoSizeImages
 	SetDataFolder dfSav
-	
+
 	imagename= imagename[0,p1-1]
 	WAVE w= ImageNameToWaveRef("",imagename)
 	variable height= DimSize(w,1)
@@ -79,10 +80,10 @@ Function WM_DoAutoSizeImage(variable forceSize)
 		variable nsizes= numpnts(sizes),scale= 0,i= 0
 		do
 			if( maxdim < sizes[i] )
-				scale= scales[i]
+				scale = scales[i]
 				break;
 			endif
-			i+=1
+			i += 1
 		while(i<nsizes)
 		KillDataFolder :			// zap our two temp waves that were used as lookup tables
 		if( scale == 0 )
@@ -100,5 +101,5 @@ Function WM_DoAutoSizeImage(variable forceSize)
 	if( forceSize==0 )
 		ModifyGraph width=0,height=0
 	endif
-	ModifyGraph height=0, width={Plan,1,top,left} // EG:  Make the window resizable 
+	ModifyGraph height=0, width={Plan,1,top,left} // EG:  Make the window resizable
 end

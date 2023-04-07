@@ -285,6 +285,7 @@ Function MXP_ImageEdgeDetectionToStack(WAVE w3dref)
 	SetDataFolder saveDF
 	string stacknameStr = CreateDataObjectName(saveDF, NameofWave(w3dref) + "_ed", 1, 0, 1)
 	MoveWave tmpDF:M_stack, saveDF:$stacknameStr
+	CopyScales/I w3dref, saveDF:$stacknameStr
 	KillDataFolder tmpDF
 	return 0
 End
@@ -300,7 +301,7 @@ Function/WAVE MXP_WAVEImageEdgeDetectionToStack(WAVE w3dref)
 	DFREF tmpDF = GetDataFolderDFR()
 	
 	for(i = 0; i < numlayers; i++)
-		ImageEdgeDetection/P=(i)/M=1 kirsch w3dref // Change algorithm here
+		ImageEdgeDetection/P=(i)/M=1 Kirsch w3dref // Change algorithm here
 		WAVE M_ImageEdges		
 		wnameStrInLoop = wnameStr + num2str(i)
 		Rename M_ImageEdges, $wnameStrInLoop
@@ -308,10 +309,10 @@ Function/WAVE MXP_WAVEImageEdgeDetectionToStack(WAVE w3dref)
 	
 	ImageTransform/NP=(numlayers) stackImages $"MXPWaveToStack_idx_0"
 	WAVE M_Stack
+	//string stacknameStr = CreateDataObjectName(saveDF, NameofWave(w3dref) + "_ed", 1, 0, 1)
+	Duplicate/FREE M_stack, wRefFREE
+	CopyScales/I w3dref, wRefFREE
 	SetDataFolder saveDF
-	string stacknameStr = CreateDataObjectName(saveDF, NameofWave(w3dref) + "_ed", 1, 0, 1)
-	MoveWave tmpDF:M_stack, saveDF:$stacknameStr
 	KillDataFolder tmpDF
-	WAVE wRef = $stacknameStr
-	return wRef
+	return wRefFREE
 End
