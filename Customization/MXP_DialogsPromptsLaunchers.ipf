@@ -374,7 +374,6 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 		// Apply image edge detection to the whole image, it's slower but to works better(?)
 		WAVE partitionWaveED = MXP_WAVEImageEdgeDetectionToStack(w3dref)
 		WAVE partitionWave = MXP_WAVE3DWavePartition(partitionWaveED, left, right, top, bottom, evenNum = 1) // Debug
-		Duplicate/O partitionWave, leavethishere		
 	else
 		WAVE partitionWave = WM_WAVEUserSetMarquee(winNameStr)
 		ImageFilter/O gauss3d partitionWave // Apply a 3x3x3 gaussian filter
