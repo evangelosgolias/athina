@@ -256,7 +256,7 @@ Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	string wave1Str = ParseFilePath(3, StringFromList(0, selectedFilesInDialogStr), ":", 0, 0)
 	string wave2Str = ParseFilePath(3, StringFromList(1, selectedFilesInDialogStr), ":", 0, 0)
 	string selectedFilesPopupStr = wave1Str + ";" + wave2Str
-	variable registerImageQ = 2 // Default: No
+	variable registerImageQ = 1 // Default: Yes
 	string saveWaveName = ""
 	//Set defaults 
 	Prompt wave1Str, "img1", popup, selectedFilesPopupStr
@@ -285,7 +285,7 @@ Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	endif 
 	
 	if(registerImageQ == 1)
-		MXP_ImageAlignmentByRegistration(wimg1, wimg2) // wimg2 is overwritten here
+		MXP_ImageAlignmentByRegistration(wimg1, wimg2) // NB: wimg2 is overwritten here
 	endif
 	if(!strlen(saveWaveName))
 		// We need a unique wave name
@@ -299,6 +299,27 @@ Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	// will still match for the points they have in common
 	CopyScales wimg1, $saveWaveName
 	Note/K $saveWaveName, xmcdWaveNoteStr	
+	// Display the stack of images to check for correct registration 
+	// Display the XMCD image
+	WAVE xmcdWAVERef = $saveWaveName
+	MXP_DisplayImage(xmcdWAVERef)
+	string winNamesStr
+	winNamesStr = WinName(0, 1, 1)
+	winNamesStr += ";"
+	variable nx = DimSize(wimg1,0)
+	variable ny = DimSize(wimg1,1)
+		
+	string stackNameStr = saveWaveName + "_stk"
+	Make/N=(nx, ny, 2) $stackNameStr /WAVE=wstackRef
+	// We have checked before that we have two waves
+	// Make the stack
+	wstackRef[][][0] = wimg1[p][q]
+	wstackRef[][][1] = wimg2[p][q]
+	// Kill the waves and keep the stack
+	KillWaves wimg1, wimg2
+	MXP_DisplayImage(wstackRef)
+	winNamesStr += WinName(0, 1, 1)	
+	TileWindows/WINS=winNamesStr
 	return 0
 End
 
