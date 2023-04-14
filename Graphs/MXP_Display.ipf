@@ -257,3 +257,62 @@ Function MXP_Append3DImageSlider()
 	
 	SetDataFolder dfSav
 End
+
+Function MXP_SetImageRangeTo94Percent()
+
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	
+	NewDataFolder/S :MXP__Folder_ImageRangeTo94Percent
+	
+	variable planeN
+	
+	if(WaveDims(imgWaveRef) == 3)
+		string sss = ImageInfo(winNameStr, imgNameTopGraphStr, 0)
+		planeN  = numberbykey("plane", sss, "=")
+	elseif(WaveDims(imgWaveRef) == 2)
+		planeN = - 1
+	else
+		print "Operation needs an image or image stack"
+		return -1
+	endif
+
+	GetMarquee/K left, top
+	if(!V_flag)
+		return 0
+	endif
+	MXP_CoordinatesToROIMask(V_left, V_top, V_right, V_bottom, interior = 0, exterior = 1) // Needed by ImageHistogram
+	WAVE MXP_ROIMask
+
+	if(planeN < 0)
+		ImageHistogram/I/R=MXP_ROIMask imgWaveRef
+	else
+		ImageHistogram/I/P=(planeN)/R=MXP_ROIMask imgWaveRef
+	endif
+	
+	variable nzmin, nzmax
+	WAVE W_ImageHist
+	variable npts= numpnts(W_ImageHist)
+	variable tot = sum(W_ImageHist, pnt2x(W_ImageHist,0 ), pnt2x(W_ImageHist,npts-1 ))
+
+	variable s=0,i=0
+	do
+		s += W_ImageHist[i]
+		i+=1
+	while( (s/tot) < 0.03 )
+	nzmin= LeftX(W_ImageHist)+deltax(W_ImageHist)*i
+	
+	s=0;i=npts-1
+	do
+		s += W_ImageHist[i]
+		i-=1
+	while( (s/tot) < 0.03 )
+	nzmax= LeftX(W_ImageHist)+deltax(W_ImageHist)*i
+	
+	ModifyImage/W=$winNameStr $PossiblyQuoteName(nameOfWave(imgWaveRef)) ctab= {nzmin,nzmax,}
+	
+	SetDataFolder ::
+	KillDataFolder MXP__Folder_ImageRangeTo94Percent
+	return 0
+End

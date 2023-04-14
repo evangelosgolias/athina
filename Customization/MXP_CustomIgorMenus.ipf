@@ -81,7 +81,8 @@ Menu "MAXPEEM"
 End
 
 Menu "GraphMarquee"
-	"Oval ROI z profile (3D)", /Q, MXP_DrawROIAndWaitHookToAct()
+	"Set image range using ROI (2D, 3D)", /Q, MXP_SetImageRangeTo94Percent()
+	"Set oval ROI to launch z-profiler (3D)", /Q, MXP_DrawROIAndWaitHookToAct()
 	"ROI stats (2D, 3D)", /Q, MXP_GetMarqueeWaveStats()
 	"Marquee to mask (2D, 3D)", /Q, MXP_MarqueeToMask()
 	"Backup traces (1D)", /Q, MXP_BackupTraces()
