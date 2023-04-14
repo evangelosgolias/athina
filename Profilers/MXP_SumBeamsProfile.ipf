@@ -278,8 +278,12 @@ Function MXP_CreateSumBeamsProfilePlot(DFREF dfr)
 	Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_SaveSumBeamsProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
 	CheckBox ShowProfile, pos={130.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
 	CheckBox ShowSelectedAread, pos={250.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
+	
 	SetWindow $profilePlotStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(MXP_targetGraphWin) = "MXP_BeamProfile_" + gMXP_WindowNameStr
+	SetWindow $profilePlotStr userdata(MXP_parentGraphWin) = gMXP_WindowNameStr 	
+	SetWindow $profilePlotStr, hook(MySumBeamsProfileHook) = MXP_SumBeamsGraphHookFunction // Set the hook
+	
 	return 0
 End
 
@@ -374,6 +378,22 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
     return hookResult       // If non-zero, we handled event and Igor will ignore it.
 End
 
+Function MXP_SumBeamsGraphHookFunction(STRUCT WMWinHookStruct &s)
+	string parentGraphWin = GetUserData(s.winName, "", "MXP_parentGraphWin")
+	switch(s.eventCode)
+		case 2: // Kill the window
+			// parentGraphWin -- winNameStr
+			// Kill the MyLineProfileHook
+			SetWindow $parentGraphWin, hook(MySumBeamsProfileHook) = $""
+			// We need to reset the link between parentGraphwin (winNameStr) and MXP_LinkedLineProfilePlotStr
+			// see MXP_MainMenuLaunchLineProfile() when we test if with strlen(LinkedPlotStr)
+			SetWindow $parentGraphWin userdata(MXP_LinkedSumBeamsZPlotStr) = ""
+			Cursor/W=$parentGraphWin/K J
+			SetDrawLayer ProgFront
+			DrawAction delete
+			break
+	endswitch
+End
 
 Function MXP_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 

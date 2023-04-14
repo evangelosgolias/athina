@@ -95,7 +95,7 @@ Function MXP_TraceMenuLaunchLineProfile() // Not in use
 	return 0
 End
 
-Function MXP_BrowserMenuLaunchLineProfile()
+Function MXP_BrowserMenuLaunchLineProfile() // Not in use 
 
 	if(MXP_CountSelectedWavesInDataBrowser() == 1) // If we selected a single wave
 		string selectedImageStr = GetBrowserSelection(0)
@@ -219,6 +219,9 @@ Function MXP_CreateLineProfilePlot(DFREF dfr)
 	
 	SetWindow $profilePlotStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + gMXP_WindowNameStr 
+	SetWindow $profilePlotStr userdata(MXP_parentGraphWin) = gMXP_WindowNameStr 
+	SetWindow $profilePlotStr, hook(MyLineProfileGraphHook) = MXP_LineProfileGraphHookFunction // Set the hook
+	
 	ControlBar 70	
 	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=MXP_LineProfilePlotSaveProfile
 	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=MXP_LineProfilePlotSaveDefaultSettings
@@ -343,6 +346,25 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
     SetdataFolder currdfr
     return hookResult       // 0 if nothing done, else 1
 End
+
+Function MXP_LineProfileGraphHookFunction(STRUCT WMWinHookStruct &s)
+	string parentGraphWin = GetUserData(s.winName, "", "MXP_parentGraphWin")
+	switch(s.eventCode)
+		case 2: // Kill the window
+			// parentGraphWin -- winNameStr
+			// Kill the MyLineProfileHook
+			SetWindow $parentGraphWin, hook(MyLineProfileHook) = $""
+			// We need to reset the link between parentGraphwin (winNameStr) and MXP_LinkedLineProfilePlotStr
+			// see MXP_MainMenuLaunchLineProfile() when we test if with strlen(LinkedPlotStr)
+			SetWindow $parentGraphWin userdata(MXP_LinkedLineProfilePlotStr) = ""
+			Cursor/W=$parentGraphWin/K E
+			Cursor/W=$parentGraphWin/K F
+			SetDrawLayer ProgFront
+			DrawAction delete
+			break
+	endswitch
+End
+
 
 Function MXP_LineProfilePlotSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 

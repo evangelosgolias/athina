@@ -55,7 +55,7 @@ Function MXP_MainMenuLaunchImagePlaneProfileZ()
 	endif
 	
 	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	string LinkedPlotStr = GetUserData(winNameStr, "", "MXP_LinkedSumBeamsZPlotStr")
+	string LinkedPlotStr = GetUserData(winNameStr, "", "MXP_LinkedImagePlaneProfileZPlotStr")
 	if(strlen(LinkedPlotStr))
 		DoWindow/F LinkedPlotStr
 		return 0
@@ -78,7 +78,7 @@ Function MXP_MainMenuLaunchImagePlaneProfileZ()
 		SetWindow $winNameStr userdata(MXP_LinkedImagePlaneProfileZPlotStr) = "MXP_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
 		// name to the windows hook to kill the plot after completion
 	else
-		Abort "Line profile needs an image or image stack."
+		Abort "Plane profile operation needs a stack."
 	endif
 	return 0
 End
@@ -109,7 +109,7 @@ Function MXP_TraceMenuLaunchImagePlaneProfileZ()
 		SetWindow $winNameStr userdata(MXP_LinkedImagePlaneProfileZPlotStr) = "MXP_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
 		// name to the windows hook to kill the plot after completion
 	else
-		Abort "Line profile needs an image or image stack."
+		Abort "Plane profile operation needs a stack."
 	endif
 	return 0
 End
@@ -139,7 +139,7 @@ Function MXP_BrowserMenuLaunchImagePlaneProfileZ()
 			SetWindow $winNameStr userdata(MXP_LinkedImagePlaneProfileZPlotStr) = "MXP_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
 		// name to the windows hook to kill the plot after completion
 		else
-			Abort "Line profile operation needs an image or an image stack."
+			Abort "Plane profile operation needs a stack."
 		endif
 	else
 		Abort "Please select only one wave."
@@ -161,7 +161,7 @@ Function MXP_InitialiseImagePlaneProfileZFolder()
 	endif
 	
 	if(WaveDims(imgWaveRef) != 2 && WaveDims(imgWaveRef) != 3)
-		sprintf msg, "Z-profile works with images or image stacks.  Wave %s is in top window", imgNameTopGraphStr
+		sprintf msg, "Plane profile operation needs a stack.  Wave %s is in top window", imgNameTopGraphStr
 		Abort msg
 	endif
 	
@@ -262,6 +262,8 @@ Function MXP_CreateImagePlaneProfileZ(DFREF dfr)
 		
 	SetWindow $profilePlotStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(MXP_targetGraphWin) = "MXP_ImagePlaneProfileZ_" + gMXP_WindowNameStr 
+	SetWindow $profilePlotStr userdata(MXP_parentGraphWin) = gMXP_WindowNameStr 	
+	SetWindow $profilePlotStr, hook(MyImagePlaneProfileZHook) = MXP_ImagePlaneProfileZGraphHookFunction // Set the hook
 
 	SetVariable setNx,pos={10,5},size={85,20.00},title="N\\Bx", fSize=14,fColor=(65535,0,0),value=Nx,limits={1,inf,1},proc=MXP_ImagePlaneProfileZSetVariableNx
 	SetVariable setNy,pos={97,5},size={70,20.00},title="N\\By", fSize=14,fColor=(65535,0,0),value=Ny,limits={1,inf,1},proc=MXP_ImagePlaneProfileZSetVariableNy
@@ -462,6 +464,24 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 	endswitch
     SetdataFolder currdfr
     return hookResult       // 0 if nothing done, else 1
+End
+
+Function MXP_ImagePlaneProfileZGraphHookFunction(STRUCT WMWinHookStruct &s)
+	string parentGraphWin = GetUserData(s.winName, "", "MXP_parentGraphWin")
+	switch(s.eventCode)
+		case 2: // Kill the window
+			// parentGraphWin -- winNameStr
+			// Kill the MyLineProfileHook
+			SetWindow $parentGraphWin, hook(MyImagePlaneProfileZHook) = $""
+			// We need to reset the link between parentGraphwin (winNameStr) and MXP_LinkedLineProfilePlotStr
+			// see MXP_MainMenuLaunchLineProfile() when we test if with strlen(LinkedPlotStr)
+			SetWindow $parentGraphWin userdata(MXP_LinkedImagePlaneProfileZPlotStr) = ""
+			Cursor/W=$parentGraphWin/K G
+			Cursor/W=$parentGraphWin/K H			
+			SetDrawLayer ProgFront
+			DrawAction delete
+			break
+	endswitch
 End
 
 Function MXP_ImagePlaneProfileZButtonSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl // Change using UniqueName for displaying

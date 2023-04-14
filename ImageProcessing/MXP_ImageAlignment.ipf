@@ -149,7 +149,9 @@ Function MXP_ImageStackAlignmentByRegistration(WAVE w3d, [variable layerN, varia
 	MatrixOP/FREE refLayerWave = layer(w3d, layerN) 
 	// HERE /CONV=0 accelerates a lot the process in a 3d stack but you lose in accuracy?
 	variable timerRefNum, microSeconds
-	ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/SKEW={0,0,0}/TSTM=0/BVAL=0/CONV=(convMode) refwave = refLayerWave, testwave = w3d
+	// ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/SKEW={0,0,0}/TSTM=0/BVAL=0/CONV=(convMode) refwave = refLayerWave, testwave = w3d
+	// Changed on 12.04.2023 to test performace
+	ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,1}/ISOS/TSTM=0/BVAL=0/CONV=(convMode) refwave = refLayerWave, testwave = w3d	
 	WAVE M_RegOut, M_RegMaskOut, M_RegParams
 	if(printmode)
 		MatrixOP/FREE dx = row(M_RegParams, 0)
