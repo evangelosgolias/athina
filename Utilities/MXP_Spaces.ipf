@@ -120,10 +120,10 @@ Function MXP_MakeSpacesPanel()
 	Button NewSpace,fColor=(3,52428,1),proc=MXP_ListBoxSpacesNewSpace
 	Button DeleteSpace,pos={10 + listwidth * 0.075 + listwidth * 0.25,8.00},size={listwidth * 0.25,20.00},title="Delete"
 	Button DeleteSpace,help={"Delete existing space"},fColor=(65535,16385,16385),proc=MXP_ListBoxSpacesDeleteSpace
-	ListBox listOfspaces,pos={1.00,37.00},size={listwidth,listlength},proc=MXP_ListBoxSpacesHookFunction
-	ListBox listOfspaces,fSize=14,frame=2,listWave=dfr:mxpSpacesTW,mode=2,selRow=gSelectedSpace
 	Button ShowAll,pos={10 + listwidth * 0.075 * 2 + listwidth * 0.25 * 2,8.00},size={listwidth * 0.25,20.00},title="All"
 	Button ShowAll,help={"Show all windows"},fColor=(32768,40777,65535),proc=MXP_ListBoxSpacesShowAll
+	ListBox listOfspaces,pos={1.00,37.00},size={listwidth,listlength},proc=MXP_ListBoxSpacesHookFunction
+	ListBox listOfspaces,fSize=14,frame=2,listWave=dfr:mxpSpacesTW,mode=2,selRow=gSelectedSpace
 	return 0
 End
 

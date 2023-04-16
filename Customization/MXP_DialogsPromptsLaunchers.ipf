@@ -611,7 +611,7 @@ Function MXP_LaunchNormalisationImageStackWithImageStack()
 					   " operation will continue based on defaults of Igor pro)\n" +\
 					   " NB: zero-based layer indexing."
 	string inputStr = MXP_GenericSingleStrPrompt(promptStr, "How many layers would you like to use for Normalisation?")
-	string rangeStr = MXP_StrExpandRange(inputStr)
+	string rangeStr = MXP_ExpandRangeStr(inputStr)
 	string normWaveStr = wave3d1Str + "_norm"
 	variable nLayer, minLayer, maxLayer, totLayers
 	if(!strlen(inputStr) || (ItemsInList(rangeStr) == 1 && !cmpstr(StringFromList(0, rangeStr), "0")))

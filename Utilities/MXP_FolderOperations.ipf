@@ -106,43 +106,6 @@ Function/DF MXP_CreateDataFolderGetDFREF(string fullpath)
 	return dfr
 End
 
-
-Function/DF MXP_CreateDataFolderGetDFREF_bak(string fullpath)
-	/// Create a data folder using fullpath and return a DF reference. 
-	/// If parent directories do not exist they will be created.
-	/// CAUTION: Problems with libearl names might occur
-	// If the directory exists, avoid all the trouble
-	// First take care of liberal names
-	
-	
-	if(DataFolderExists(ParseFilePath(2, fullpath, ":", 0, 0))) // ":" at the end needed to function properly
-		DFREF dfr = $fullpath
-		return dfr
-	endif 
-	
-	/// Create a list of missing path, parent first.
-	variable steps = ItemsInlist(ParseFilePath(2, fullpath, ":", 0, 0), ":"), i // ParseFilePath adds potentially missing : ending.
-	string fldrs = "" // You will get an error if you do not initialise to "", you cannot fldrs += "another string"
-	for(i = 1; i < steps ; i++) // i = 0 & steps return NULL string
-		fldrs += ParseFilePath(1, fullpath, ":", 0, i) + ";"
-	endfor
-	fldrs += ParseFilePath(2, fullpath, ":", 0, 0)
-	// folder tree list created
-	print fldrs
-	// now create the folder from parent to child
-	string fldrstr
-	variable fldrnum = ItemsInList(fldrs)
-	for(i = 0; i < fldrnum; i++)
-		fldrstr = StringFromList(i, fldrs)
-		if(!DataFolderExists(fldrstr)) // ":" at the end needed to function properly
-			NewDataFolder/O $RemoveEnding(fldrstr) // Here the last ":" pops an error
-		endif
-	endfor
-	
-	DFREF dfr = $fullpath
-	return dfr
-End
-
 Function WM_PrintFoldersAndFiles(string pathName, string extension, variable recurse, variable level)
 	/// This is a WM function
 	/// Striwng pathName	Name of symbolic path in which to look for folders and files.
