@@ -316,3 +316,22 @@ Function/WAVE MXP_WAVEImageEdgeDetectionToStack(WAVE w3dref)
 	KillDataFolder tmpDF
 	return wRefFREE
 End
+
+Function MXP_ImageRotateAndScale(WAVE wRef, variable angle)
+	/// Rotate the wave wRef (2d or 3d) and scale it to 
+	/// conserve on image distances.
+	/// Math: If the side of the image is a, then the rotated image
+	/// will have side a_rot = a * (cos(angle) + sin(angle))
+	/// @param wRef: 2d or 3d wave
+	/// @param angle: clockwise rotation in degrees
+	
+	variable angleRad = angle * pi / 180
+	string rotWaveNameStr = NameOfWave(wRef) + "_rot"
+	Duplicate/O wRef, $rotWaveNameStr
+	WAVE wRefRot = $rotWaveNameStr
+	ImageRotate/O/E=0/A=(angle) wRefRot
+	string noteStr = NameOfWave(wRef) + " rotated by " + num2str(angle) + " deg"
+	Note/K wRefRot, noteStr
+	CopyScales/P wRef, wRefRot // /P needed here to prevent on image distances.
+	
+End

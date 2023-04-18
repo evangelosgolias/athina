@@ -28,7 +28,8 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-Function/S WMExecuteShellCommand(uCommand, printCommandInHistory, printResultInHistory [, asAdmin])
+Function/S MXP_ExecuteShellCommand(uCommand, printCommandInHistory, printResultInHistory [, asAdmin])
+	// Copy of WM procedure
 	String uCommand					// Unix command to execute
 	Variable printCommandInHistory
 	Variable printResultInHistory
@@ -56,10 +57,13 @@ Function/S WMExecuteShellCommand(uCommand, printCommandInHistory, printResultInH
 	return S_value
 End
 
-Function RecursiveExecution(string cmdStr, string rangeStr)
-	
+Function MXP_RecursiveCmdExecution(string cmdStr, string rangeStr)
+	/// Execute cmdStr with parameters the numbers in rangeStr
+	/// See MXP_ExpandRangeStr doc string.
+	/// e.g.: MXP_RecursiveCmdExecution("NewDataFolder 'FLDR#%s'", "2,3,11-14")
 	string numStrList = MXP_ExpandRangeStr(rangeStr)
 	string execmdStr
+	
 	variable imax = ItemsInList(numStrList), i
 	for(i = 0; i < imax; i++)
 		sprintf execmdStr, cmdStr, StringFromList(i, numStrList)
@@ -67,3 +71,4 @@ Function RecursiveExecution(string cmdStr, string rangeStr)
 	endfor
 	return 0
 End
+

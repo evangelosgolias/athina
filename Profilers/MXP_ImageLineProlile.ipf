@@ -504,7 +504,7 @@ Function MXP_LineProfilePlotShowProfileWidth(STRUCT WMButtonAction &B_Struct): B
 	NVAR/Z dx = dfr:gMXP_dx
 	NVAR/Z dy = dfr:gMXP_dy // assume here that dx = dy
 	variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys
-	variable slope = SlopePerpendicularToLineSegment(C1x, C1y,C2x, C2y)
+	variable slope = MXP_SlopePerpendicularToLineSegment(C1x, C1y,C2x, C2y)
 	if(slope == 0)
 		x1 = C1x
 		x2 = C1x
@@ -524,7 +524,7 @@ Function MXP_LineProfilePlotShowProfileWidth(STRUCT WMButtonAction &B_Struct): B
 		x3 = C2x - 0.5 * width * dx
 		x4 = C2x + 0.5 * width * dx
 	else
-		[xs, ys] = GetVerticesPerpendicularToLine(width * dx/2, slope)
+		[xs, ys] = MXP_GetVerticesPerpendicularToLine(width * dx/2, slope)
 		x1 = C1x + xs
 		x2 = C1x - xs
 		x3 = C2x - xs
@@ -628,32 +628,4 @@ Function MXP_LineProfilePlotSetVariableWidth(STRUCT WMSetVariableAction& sv) : S
 	return 0
 End
 
-static Function PreviousOddNumPositiveEven(variable num)
-	// return a negative number when num < 0
-	// accepts decimals and uses rounding to closest integer
-	num = round(num)
-	num = num > 0 && !mod(num, 2)? num-1: num
-	return num
-end
 
-static Function SlopePerpendicularToLineSegment(variable x1, variable y1, variable x2, variable y2)
-	// Return the slope of a line perpendicular to the line segment defined by (x1, y1) and (x2, y2)
-	if (y1 == y2)
-		return 0
-	elseif (x1 == x2)
-		return inf
-	else
-		return -(x2 - x1)/(y2 - y1)
-	endif
-End
-
-static Function [variable xshift, variable yshift] GetVerticesPerpendicularToLine(variable radius, variable slope)
-	// Return the part of the solution of an intersection between a circle of radius = radius
-	// with a line with slope = slope. If the center has coordinates (x0, y0) the two point that
-	// the line intersects the cicle have x =  x0 ± sqrt(radius^2 / (1 + slope^2)) and 
-	// y = slope * sqrt(radius^2 / (1 + slope^2)). 
-	// The funtion returns only the second terms.
-	 xshift = sqrt(radius^2 / (1 + slope^2))
-	 yshift = slope * sqrt(radius^2 / (1 + slope^2))
-	 return [xshift, yshift]
-End

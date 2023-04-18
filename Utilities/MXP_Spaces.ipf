@@ -117,11 +117,11 @@ Function MXP_MakeSpacesPanel()
 	NewPanel /N=MXP_SpacesPanel/W=(panelLeft, panelTop, panelRight, panelBottom) as "MXP Spaces"
 	SetDrawLayer UserBack
 	Button NewSpace,pos={10,8.00},size={listwidth * 0.25,20.00},help={"Create new space"}
-	Button NewSpace,fColor=(3,52428,1),proc=MXP_ListBoxSpacesNewSpace
+	Button NewSpace,fColor=(3,52428,1),proc=MXP_ListBoxSpacesNewSpaceButton
 	Button DeleteSpace,pos={10 + listwidth * 0.075 + listwidth * 0.25,8.00},size={listwidth * 0.25,20.00},title="Delete"
-	Button DeleteSpace,help={"Delete existing space"},fColor=(65535,16385,16385),proc=MXP_ListBoxSpacesDeleteSpace
+	Button DeleteSpace,help={"Delete existing space"},fColor=(65535,16385,16385),proc=MXP_ListBoxSpacesDeleteSpaceButton
 	Button ShowAll,pos={10 + listwidth * 0.075 * 2 + listwidth * 0.25 * 2,8.00},size={listwidth * 0.25,20.00},title="All"
-	Button ShowAll,help={"Show all windows"},fColor=(32768,40777,65535),proc=MXP_ListBoxSpacesShowAll
+	Button ShowAll,help={"Show all windows"},fColor=(32768,40777,65535),proc=MXP_ListBoxSpacesShowAllButton
 	ListBox listOfspaces,pos={1.00,37.00},size={listwidth,listlength},proc=MXP_ListBoxSpacesHookFunction
 	ListBox listOfspaces,fSize=14,frame=2,listWave=dfr:mxpSpacesTW,mode=2,selRow=gSelectedSpace
 	return 0
@@ -224,7 +224,7 @@ Function MXP_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 	return hookresult
 End
 
-Function MXP_ListBoxSpacesNewSpace(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function MXP_ListBoxSpacesNewSpaceButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Spaces")
 	WAVE/T/SDFR=dfr mxpSpacesTW
@@ -256,7 +256,7 @@ Function MXP_ListBoxSpacesNewSpace(STRUCT WMButtonAction &B_Struct): ButtonContr
 	endswitch
 End
 
-Function MXP_ListBoxSpacesDeleteSpace(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function MXP_ListBoxSpacesDeleteSpaceButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Spaces")
 	WAVE/T/SDFR=dfr mxpSpacesTW
@@ -338,7 +338,7 @@ Function MXP_ClearWindowsFromSpaceTag(string spaceTagStr)
 	return 0
 End
 
-Function MXP_ListBoxSpacesShowAll(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function MXP_ListBoxSpacesShowAllButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Spaces")
 	NVAR/SDFR=dfr gShowAllWindowsSwitch
 	variable showSwitch

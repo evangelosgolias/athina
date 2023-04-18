@@ -82,8 +82,8 @@ End
 
 Menu "GraphMarquee"
 	"Set image range using ROI (2D, 3D)", /Q, MXP_SetImageRangeTo94Percent()
-	"Set oval ROI to launch z-profiler (3D)", /Q, MXP_DrawROIAndWaitHookToAct()
 	"ROI stats (2D, 3D)", /Q, MXP_GetMarqueeWaveStats()
+	"Z-profiler: Set oval ROI  (3D)", /Q, MXP_DrawROIAndWaitHookToAct()
 	"Marquee to mask (2D, 3D)", /Q, MXP_MarqueeToMask()
 	"Backup traces (1D)", /Q, MXP_BackupTraces()
 	"Restore traces (1D)", /Q, MXP_RestoreTraces()

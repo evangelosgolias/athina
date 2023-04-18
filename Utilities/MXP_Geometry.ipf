@@ -1,0 +1,68 @@
+﻿#pragma TextEncoding = "UTF-8"
+#pragma rtGlobals=3				// Use modern global access method and strict wave access
+#pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+
+Function [variable x0, variable y0] MXP_GetSinglePointWithDistanceFromLine(variable x1, variable y1, variable s, variable d)
+	/// Return the coordinates of a point with distance d from line passing from A(x1, y1) with slope s.
+	/// Use positive or *negative* distance to get a point on either side of A.
+	
+	x0 = x1 - d * s / sqrt(s^2 + 1)
+	y0 = y1 + 1/s * (x1 - x0)
+	return [x0, y0]
+End
+
+Function [variable xp0, variable yp0, variable xp1, variable yp1 ] MXP_GetBothPointsWithDistanceFromLine(variable x1, variable y1, variable s, variable d)
+	/// Return the coordinates of points with distance d from a line passing from A(x1, y1) witl slope s.
+	/// Points are on either side of of A.
+	
+	xp0 = x1 - d * s / sqrt(s^2 + 1)
+	xp1 = x1 + d * s / sqrt(s^2 + 1)
+	yp0 = y1 + 1/s * (x1 - xp0)
+	yp1 = y1 + 1/s * (x1 - xp1)
+	return [xp0, yp0, xp1, yp1]
+End
+
+Function MXP_SlopePerpendicularToLineSegment(variable x1, variable y1, variable x2, variable y2)
+	// Return the slope of a line perpendicular to the line segment defined by (x1, y1) and (x2, y2)
+	if (y1 == y2)
+		return 0
+	elseif (x1 == x2)
+		return inf
+	else
+		return -(x2 - x1)/(y2 - y1)
+	endif
+End
+
+Function [variable xshift, variable yshift] MXP_GetVerticesPerpendicularToLine(variable radius, variable slope)
+	// Return the part of the solution of an intersection between a circle of radius = radius
+	// with a line with slope = slope. If the center has coordinates (x0, y0) the two point that
+	// the line intersects the cicle have x =  x0 ± sqrt(radius^2 / (1 + slope^2)) and 
+	// y = slope * sqrt(radius^2 / (1 + slope^2)). 
+	// The funtion returns only the second terms.
+	 xshift = sqrt(radius^2 / (1 + slope^2))
+	 yshift = slope * sqrt(radius^2 / (1 + slope^2))
+	 return [xshift, yshift]
+End
+
+Function [variable xn1, variable yn1, variable xn2, variable yn2] MXP_SymmetricLineShrink(variable x1, variable y1, variable x2, variable y2, variable Sfactor)
+	/// Returns the points (xn1, yn1) and (xn2, yn2) that define a line segnemt with
+	/// length Sfactor times the length of the line defined by (x1, y1) and (x2, y2).
+	/// The center of both line segments is fixed.
+	
+	variable lineLength = sqrt((x2 - x1)^2 + (y2 - y1)^2) // diameter of a circle
+	variable xc = (x1 + x2) / 2,  yc = (y1 + y2) / 2 // center of circle
+	variable slope = (y2 - y1) / (x2 - x1) // Slope of line passing from (xc, yc)
+
+	if (slope == inf)
+		xn1 = x1
+		xn2 = x2
+		yn1 = yc - (Sfactor * lineLength) / 2 
+		yn2 = yc + (Sfactor * lineLength) / 2
+	else
+		xn1 = xc - (Sfactor * lineLength) / (2 * sqrt((1 + slope^2)))
+		xn2 = xc + (Sfactor * lineLength) / (2  * sqrt((1 + slope^2)))
+		yn1 = yc - slope * (Sfactor * lineLength) / (2  * sqrt(1 + slope^2))
+		yn2 = yc + slope * (Sfactor * lineLength) / (2 * sqrt(1 + slope^2))
+	endif
+	return [xn1, yn1, xn2, yn2]
+End

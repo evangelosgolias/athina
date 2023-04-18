@@ -316,3 +316,18 @@ Function MXP_SetImageRangeTo94Percent()
 	KillDataFolder MXP__Folder_ImageRangeTo94Percent
 	return 0
 End
+
+Function MXP_ReAppend3DImageSlider(string graphNameStr)
+	/// When you duplicate a graph of a 3d wave with slider
+	/// then we do not have an linked folder in Packages:WM3DImageSlider
+	/// and the hook function in no set. MXP_ReAppend3DImageSlider
+	/// fixes the problem.
+	/// graphNameStr = "" for top graph.
+	
+	ControlBar/W=$graphNameStr 0
+	KillControl/W=$graphNameStr WM3DAxis
+	KillControl/W=$graphNameStr WM3DVal
+	KillControl/W=$graphNameStr WM3DDoneBtn
+	MXP_Append3DImageSlider()
+	return 0
+End

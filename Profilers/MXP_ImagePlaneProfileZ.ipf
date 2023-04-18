@@ -345,7 +345,7 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 			if(profileWidth == 1)
 				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 			else
-				slp = SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
+				slp = MXP_SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
 				if(slp == 0)
 					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
 						x1 = C1x
@@ -383,8 +383,8 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 				// If s is not 0 or inf do the work here	
 				if(slp != 0 && slp != inf)			
 					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-						[x1, y1] = GetSinglePointWithDistanceFromLine(C1x, C1y, slp, i)
-						[x2, y2] = GetSinglePointWithDistanceFromLine(C2x, C2y, slp, i)
+						[x1, y1] = MXP_GetSinglePointWithDistanceFromLine(C1x, C1y, slp, i)
+						[x2, y2] = MXP_GetSinglePointWithDistanceFromLine(C2x, C2y, slp, i)
 						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
 						if(makeWaveSwitch)
 							Duplicate/O M_ExtractedSurface, MXP_WaveSumProfiles
@@ -423,7 +423,7 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 			DrawAction delete
 	   		SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left			
 			DrawLine C1x, C1y, C2x, C2y
-			slp = SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
+			slp = MXP_SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
 			if(slp == 0)
 				x1 = C1x
 				x2 = C1x
@@ -444,7 +444,7 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 				x3 = C2x - 0.5 * profileWidth
 				x4 = C2x + 0.5 * profileWidth
 			else
-				[xs, ys] = GetVerticesPerpendicularToLine(profileWidth * 0.5, slp)
+				[xs, ys] = MXP_GetVerticesPerpendicularToLine(profileWidth * 0.5, slp)
 				x1 = C1x + xs
 				x2 = C1x - xs
 				x3 = C2x - xs
@@ -732,7 +732,7 @@ Function MXP_ImagePlaneProfileZSetVariableProfileWidth(STRUCT WMSetVariableActio
 			if(profileWidth == 1)
 				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 			else
-				slp = SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
+				slp = MXP_SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
 				if(slp == 0)
 					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
 						x1 = C1x
@@ -769,8 +769,8 @@ Function MXP_ImagePlaneProfileZSetVariableProfileWidth(STRUCT WMSetVariableActio
 				// If s is not 0 or inf do the work here	
 				if(slp != 0 && slp != inf)			
 					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-						[x1, y1] = GetSinglePointWithDistanceFromLine(C1x, C1y, slp, i)
-						[x2, y2] = GetSinglePointWithDistanceFromLine(C2x, C2y, slp, i)
+						[x1, y1] = MXP_GetSinglePointWithDistanceFromLine(C1x, C1y, slp, i)
+						[x2, y2] = MXP_GetSinglePointWithDistanceFromLine(C2x, C2y, slp, i)
 						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
 						if(makeWaveSwitch)
 							Duplicate/O M_ExtractedSurface, MXP_WaveSumProfiles
@@ -788,7 +788,7 @@ Function MXP_ImagePlaneProfileZSetVariableProfileWidth(STRUCT WMSetVariableActio
 			DrawAction/W=$WindowsNameStr delete
 	   		SetDrawEnv/W=$WindowsNameStr linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left			
 			DrawLine/W=$WindowsNameStr C1x, C1y, C2x, C2y
-			slp = SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
+			slp = MXP_SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
 			if(slp == 0)
 				x1 = C1x
 				x2 = C1x
@@ -809,7 +809,7 @@ Function MXP_ImagePlaneProfileZSetVariableProfileWidth(STRUCT WMSetVariableActio
 				x3 = C2x - 0.5 * profileWidth
 				x4 = C2x + 0.5 * profileWidth
 			else
-				[xs, ys] = GetVerticesPerpendicularToLine(profileWidth * 0.5, slp)
+				[xs, ys] = MXP_GetVerticesPerpendicularToLine(profileWidth * 0.5, slp)
 				x1 = C1x + xs
 				x2 = C1x - xs
 				x3 = C2x - xs
@@ -830,46 +830,4 @@ Function MXP_ImagePlaneProfileZSetVariableProfileWidth(STRUCT WMSetVariableActio
 	endswitch
 	SetDataFolder currdfr
 	return 0
-End
-
-static Function [variable x0, variable y0] GetSinglePointWithDistanceFromLine(variable x1, variable y1, variable s, variable d)
-	/// Return the coordinates of a point with distance d from line passing from A(x1, y1) with slope s.
-	/// Use positive or *negative* distance to get a point on either side of A.
-	
-	x0 = x1 - d * s / sqrt(s^2 + 1)
-	y0 = y1 + 1/s * (x1 - x0)
-	return [x0, y0]
-End
-
-static Function [variable xp0, variable yp0, variable xp1, variable yp1 ] GetBothPointsWithDistanceFromLine(variable x1, variable y1, variable s, variable d)
-	/// Return the coordinates of points with distance d from a line passing from A(x1, y1) witl slope s.
-	/// Points are on either side of of A.
-	
-	xp0 = x1 - d * s / sqrt(s^2 + 1)
-	xp1 = x1 + d * s / sqrt(s^2 + 1)
-	yp0 = y1 + 1/s * (x1 - xp0)
-	yp1 = y1 + 1/s * (x1 - xp1)
-	return [xp0, yp0, xp1, yp1]
-End
-
-static Function SlopePerpendicularToLineSegment(variable x1, variable y1, variable x2, variable y2)
-	// Return the slope of a line perpendicular to the line segment defined by (x1, y1) and (x2, y2)
-	if (y1 == y2)
-		return 0
-	elseif (x1 == x2)
-		return inf
-	else
-		return -(x2 - x1)/(y2 - y1)
-	endif
-End
-
-static Function [variable xshift, variable yshift] GetVerticesPerpendicularToLine(variable radius, variable slope)
-	// Return the part of the solution of an intersection between a circle of radius = radius
-	// with a line with slope = slope. If the center has coordinates (x0, y0) the two point that
-	// the line intersects the cicle have x =  x0 ± sqrt(radius^2 / (1 + slope^2)) and 
-	// y = slope * sqrt(radius^2 / (1 + slope^2)). 
-	// The funtion returns only the second terms.
-	 xshift = sqrt(radius^2 / (1 + slope^2))
-	 yshift = slope * sqrt(radius^2 / (1 + slope^2))
-	 return [xshift, yshift]
 End
