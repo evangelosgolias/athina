@@ -136,7 +136,6 @@ Function MXP_BrowserMenuLaunchSumBeamsProfile() // Browser menu launcher, active
 		SetWindow $winNameStr userdata(MXP_LinkedSumBeamsZPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_BeamProfile_" + winNameStr  //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder
-
 	else
 		Abort "Z profile opearation needs only one 3d wave."
 	endif
@@ -208,7 +207,7 @@ End
 Function MXP_DrawROIAndWaitHookToAct() // Function used by the hook
 	/// Here we use ProgFront to get a mask from ImageGenerateROIMask
 	
-	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine
+	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
 	string winNameStr = WinName(0, 1, 1)
 	DoWindow/F $winNameStr // You need to have your imange stack as a top window
 	GetMarquee/K left, top
@@ -226,7 +225,7 @@ Function MXP_DrawROIAndWaitHookToAct() // Function used by the hook
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	DrawOval gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
 	ImageGenerateROIMask $wnamestr
-	Cursor/I/L=0/C=(65535,65535,0)/S=2 J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
+	Cursor/I/C=(65535,0,0)/S=2 J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
 	return 0
 End
 
@@ -310,12 +309,12 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 	Wave/SDFR=wrk3dwave w3d = $w3dNameStr
 	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
 	Wave/Z M_ROIMask
-
+	string w3dNameStrQ = PossiblyQuoteName(w3dNameStr) // Dealing with name1#name2 waves names
 	SetDrawLayer/W=$WindowNameStr ProgFront // We need it for ImageGenerateROIMask
 	
     switch(s.eventCode)
 		case 0: //activate window rescales the profile to the layer scale of the 3d wave
-			SetScale/P x, DimOffset(w3d,2), DimDelta(w3d,2), profile // Remove it, not needed here.
+			SetScale/P x, DimOffset(w3d,2), DimDelta(w3d,2), profile // TODO: Change this, I do not like it.
 			hookresult = 1
 			break
 		case 2: // Kill the window
@@ -338,11 +337,11 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
         case 7: // cursor moved
         	if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor
         		DrawAction/W=$WindowNameStr delete // TODO: Here add the env commands of MXP_SumBeamsDrawImageROICursor before switch and here only the draw command 
-        		SetDrawEnv/W=$WindowNameStr linefgc = (65535,65535,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+        		SetDrawEnv/W=$WindowNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 				DrawOval/W=$WindowNameStr -axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
 					  axisxlen * 0.5 + s.pointNumber * dx,  -(axisylen * 0.5) + s.yPointNumber * dy
-				Cursor/I/L=0/C=(65535,65535,0)/S=2 J $w3dNameStr, s.pointNumber * dx, s.yPointNumber * dy
-				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStr // Here we need name of a wave, not a wave reference!
+				Cursor/W=$WindowNameStr/I/C=(65535,0,0)/S=2 J $w3dNameStrQ, s.pointNumber * dx, s.yPointNumber * dy
+				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStrQ 
 				if(WaveExists(M_ROIMask))
 					MatrixOP/O/NTHR=4 profile = sum(w3d*M_ROIMask) // Use threads
 					Redimension/E=1/N=(nLayers) profile
@@ -384,13 +383,13 @@ Function MXP_SumBeamsGraphHookFunction(STRUCT WMWinHookStruct &s)
 		case 2: // Kill the window
 			// parentGraphWin -- winNameStr
 			// Kill the MyLineProfileHook
-			SetWindow $parentGraphWin, hook(MySumBeamsProfileHook) = $""
+			SetWindow $parentGraphWin, hook(MySumBeamsZHook) = $""
 			// We need to reset the link between parentGraphwin (winNameStr) and MXP_LinkedLineProfilePlotStr
 			// see MXP_MainMenuLaunchLineProfile() when we test if with strlen(LinkedPlotStr)
 			SetWindow $parentGraphWin userdata(MXP_LinkedSumBeamsZPlotStr) = ""
 			Cursor/W=$parentGraphWin/K J
-			SetDrawLayer ProgFront
-			DrawAction delete
+			SetDrawLayer/W=$parentGraphWin ProgFront
+			DrawAction/W=$parentGraphWin delete
 			break
 	endswitch
 End
@@ -431,12 +430,12 @@ Function MXP_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonC
 						if(WinType(targetGraphWin) == 1)
 							AppendToGraph/W=$targetGraphWin savedfr:$saveWaveNameStr
 							[red, green, blue] = MXP_GetColor(colorcnt)
-							Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
+							Modifygraph/W=$targetGraphWin rgb($PossiblyQuoteName(saveWaveNameStr)) = (red, green, blue)
 							colorcnt += 1 // i++ does not work with globals?
 						else
 							Display/N=$targetGraphWin savedfr:$saveWaveNameStr // Do not kill the graph windows, user might want to save the profiles
 							[red, green, blue] = MXP_GetColor(colorcnt)
-							Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
+							Modifygraph/W=$targetGraphWin rgb($PossiblyQuoteName(saveWaveNameStr)) = (red, green, blue)
 							AutopositionWindow/M=1/R=$B_Struct.win $targetGraphWin
 							DoWindow/F $targetGraphWin
 							colorcnt += 1
