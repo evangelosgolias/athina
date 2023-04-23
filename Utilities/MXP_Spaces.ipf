@@ -54,7 +54,7 @@
 /// TL;DR:
 /// Use Shift + Space row to assign there the top window.
 /// Double click: Rename
-/// Alt + Click: Pin window
+/// Alt + Click (empty space): Pin window
 /// Shift + Alt + Click; unpin
 ///
 /// TODO: Move linked Panel/Graphs to the same Space

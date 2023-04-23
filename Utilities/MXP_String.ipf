@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
 Function/S MXP_ExpandRangeStr(string rangeStr)	
-	// expand a string like "2-5,7,9-12,50" to "2,3,4,5,7,9,10,11,12,50"
+	// expand a string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50"
 
 	variable i1, i2, i 
 	string str, outStr = ""

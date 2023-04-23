@@ -49,7 +49,7 @@ Function [variable xn1, variable yn1, variable xn2, variable yn2] MXP_SymmetricL
 	/// length Sfactor times the length of the line defined by (x1, y1) and (x2, y2).
 	/// The center of both line segments is fixed.
 	
-	variable lineLength = sqrt((x2 - x1)^2 + (y2 - y1)^2) // diameter of a circle
+	variable lineLength = sqrt((x2 - x1)^2 + (y2 - y1)^2) // diameter of the circle
 	variable xc = (x1 + x2) / 2,  yc = (y1 + y2) / 2 // center of circle
 	variable slope = (y2 - y1) / (x2 - x1) // Slope of line passing from (xc, yc)
 
@@ -59,10 +59,40 @@ Function [variable xn1, variable yn1, variable xn2, variable yn2] MXP_SymmetricL
 		yn1 = yc - (Sfactor * lineLength) / 2 
 		yn2 = yc + (Sfactor * lineLength) / 2
 	else
-		xn1 = xc - (Sfactor * lineLength) / (2 * sqrt((1 + slope^2)))
-		xn2 = xc + (Sfactor * lineLength) / (2  * sqrt((1 + slope^2)))
+		xn1 = xc - (Sfactor * lineLength) / (2 * sqrt(1 + slope^2))
+		xn2 = xc + (Sfactor * lineLength) / (2  * sqrt(1 + slope^2))
 		yn1 = yc - slope * (Sfactor * lineLength) / (2  * sqrt(1 + slope^2))
 		yn2 = yc + slope * (Sfactor * lineLength) / (2 * sqrt(1 + slope^2))
 	endif
 	return [xn1, yn1, xn2, yn2]
+End
+
+//Function [variable xn, variable yn]  MXP_GetAntipodalPoint(variable x1, variable y1, variable x0, variable y0, int solution)
+Function MXP_GetAntipodalPoint(variable x1, variable y1, variable x0, variable y0)
+
+	/// Returns the antipodal point (xn, yn) of (x1, x2) of a circle with center (x0, y0)
+	
+	variable radius = sqrt((x1 - x0)^2 + (y1 - y0)^2) // radius of the circle
+	variable slope = (y1 - y0) / (x1 - x0) // slope of line passing through (x0, y0) and (x1, y1)
+	variable xn, yn
+	if (slope == inf)
+		xn = x1
+		yn = y0 + radius / 2
+		if(yn == y1)
+			yn = y0 - radius / 2
+		endif
+	else
+		xn = x0 + radius / sqrt(1 + slope^2)
+		yn = y0 + (radius * slope) / sqrt(1 + slope^2)
+		if(xn == x1)
+			print "Have to change sign for xn"
+			xn = x0 - radius / sqrt(1 + slope^2)
+		endif
+		if(yn == y1)
+						print "Have to change sign for yn"
+			yn = y0 - (radius * slope) / sqrt(1 + slope^2)
+		endif
+	endif
+	print xn, yn
+	//return [xn, yn]
 End

@@ -58,8 +58,8 @@ Function MXP_MainMenuLaunchLineProfile()
 	MXP_InitialiseLineProfileFolder(winNameStr)
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
-	Cursor/I/C=(65535,0,0)/S=1/P E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-	Cursor/I/C=(65535,0,0)/S=1/P F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
+	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
+	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 	MXP_InitialiseLineProfileGraph(dfr)
 	SetWindow $winNameStr, hook(MyLineProfileHook) = MXP_CursorHookFunctionLineProfile // Set the hook
@@ -81,8 +81,8 @@ Function MXP_TraceMenuLaunchLineProfile() // Not in use
 		DoWindow/F $winNameStr // bring it to FG to set the cursors
 		variable nrows = DimSize(imgWaveRef,0)
 		variable ncols = DimSize(imgWaveRef,1)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
+		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
+		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 		MXP_InitialiseLineProfileGraph(dfr)
 		SetWindow $winNameStr, hook(MyLineProfileHook) = MXP_CursorHookFunctionLineProfile // Set the hook
@@ -108,8 +108,8 @@ Function MXP_BrowserMenuLaunchLineProfile() // Not in use
 			DoWindow/F $winNameStr // bring it to FG to set the cursors
 			variable nrows = DimSize(imgWaveRef,0)
 			variable ncols = DimSize(imgWaveRef,1)
-			Cursor/I/C=(65535,0,0,65535)/S=1/P E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-			Cursor/I/C=(65535,0,0,65535)/S=1/P F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
+			Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
+			Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 			DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 			MXP_InitialiseLineProfileGraph(dfr)
 			SetWindow $winNameStr, hook(MyLineProfileHook) = MXP_CursorHookFunctionLineProfile // Set the hook
@@ -285,8 +285,8 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 				SetDrawLayer ProgFront
 			    DrawAction delete
 	   			SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-				Cursor/I/C=(65535,0,0,30000)/S=1 E $imgNameTopGraphStr C1x0, C1y0
-				Cursor/I/C=(65535,0,0,30000)/S=1 F $imgNameTopGraphStr C2x0, C2y0
+				Cursor/I/C=(65535,0,0,30000)/S=1/N=1 E $imgNameTopGraphStr C1x0, C1y0
+				Cursor/I/C=(65535,0,0,30000)/S=1/N=1 F $imgNameTopGraphStr C2x0, C2y0
 				DrawLine C1x0, C1y0, C2x0, C2y0
 				Make/O/FREE/N=2 xTrace={C1x0, C2x0}, yTrace = {C1y0, C2y0}
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
@@ -359,8 +359,8 @@ Function MXP_LineProfileGraphHookFunction(STRUCT WMWinHookStruct &s)
 			SetWindow $parentGraphWin userdata(MXP_LinkedLineProfilePlotStr) = ""
 			Cursor/W=$parentGraphWin/K E
 			Cursor/W=$parentGraphWin/K F
-			SetDrawLayer ProgFront
-			DrawAction delete
+			SetDrawLayer/W=$parentGraphWin ProgFront
+			DrawAction/W=$parentGraphWin delete
 			break
 	endswitch
 End

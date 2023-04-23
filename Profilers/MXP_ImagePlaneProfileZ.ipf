@@ -70,8 +70,8 @@ Function MXP_MainMenuLaunchImagePlaneProfileZ()
 		SetScale/P z, 0, 1, w3dRef	
 		variable nrows = DimSize(w3dRef,0)
 		variable ncols = DimSize(w3dRef,1)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
+		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
+		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:" + NameOfWave(w3dRef)) // Change root folder if you want
 		MXP_InitialiseImagePlaneProfileZGraph(dfr)
 		SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = MXP_CursorHookFunctionImagePlaneProfileZ // Set the hook
@@ -101,8 +101,8 @@ Function MXP_TraceMenuLaunchImagePlaneProfileZ()
 		DoWindow/F $winNameStr // bring it to FG to set the cursors
 		variable nrows = DimSize(imgWaveRef,0)
 		variable ncols = DimSize(imgWaveRef,1)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
+		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
+		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 		MXP_InitialiseImagePlaneProfileZGraph(dfr)
 		SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = MXP_CursorHookFunctionImagePlaneProfileZ // Set the hook
@@ -131,8 +131,8 @@ Function MXP_BrowserMenuLaunchImagePlaneProfileZ()
 			DoWindow/F $winNameStr // bring it to FG to set the cursors
 			variable nrows = DimSize(imgWaveRef,0)
 			variable ncols = DimSize(imgWaveRef,1)
-			Cursor/I/C=(65535,0,0,65535)/S=1/P G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
-			Cursor/I/C=(65535,0,0,65535)/S=1/P H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
+			Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
+			Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 			DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 			MXP_InitialiseImagePlaneProfileZGraph(dfr)
 			SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = MXP_CursorHookFunctionImagePlaneProfileZ // Set the hook
@@ -478,8 +478,8 @@ Function MXP_ImagePlaneProfileZGraphHookFunction(STRUCT WMWinHookStruct &s)
 			SetWindow $parentGraphWin userdata(MXP_LinkedImagePlaneProfileZPlotStr) = ""
 			Cursor/W=$parentGraphWin/K G
 			Cursor/W=$parentGraphWin/K H			
-			SetDrawLayer ProgFront
-			DrawAction delete
+			SetDrawLayer/W=$parentGraphWin ProgFront
+			DrawAction/W=$parentGraphWin delete
 			break
 	endswitch
 End

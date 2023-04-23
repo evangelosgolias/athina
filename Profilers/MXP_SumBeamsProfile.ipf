@@ -225,7 +225,7 @@ Function MXP_DrawROIAndWaitHookToAct() // Function used by the hook
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	DrawOval gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
 	ImageGenerateROIMask $wnamestr
-	Cursor/I/C=(65535,0,0)/S=2 J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
+	Cursor/I/C=(65535,0,0)/S=2/N=1 J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
 	return 0
 End
 
@@ -340,7 +340,7 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
         		SetDrawEnv/W=$WindowNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 				DrawOval/W=$WindowNameStr -axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
 					  axisxlen * 0.5 + s.pointNumber * dx,  -(axisylen * 0.5) + s.yPointNumber * dy
-				Cursor/W=$WindowNameStr/I/C=(65535,0,0)/S=2 J $w3dNameStrQ, s.pointNumber * dx, s.yPointNumber * dy
+				Cursor/W=$WindowNameStr/I/C=(65535,0,0)/S=2/N=1 J $w3dNameStrQ, s.pointNumber * dx, s.yPointNumber * dy
 				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStrQ 
 				if(WaveExists(M_ROIMask))
 					MatrixOP/O/NTHR=4 profile = sum(w3d*M_ROIMask) // Use threads
