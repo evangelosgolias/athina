@@ -357,6 +357,9 @@ Function MXP_LineProfileGraphHookFunction(STRUCT WMWinHookStruct &s)
 			// We need to reset the link between parentGraphwin (winNameStr) and MXP_LinkedLineProfilePlotStr
 			// see MXP_MainMenuLaunchLineProfile() when we test if with strlen(LinkedPlotStr)
 			SetWindow $parentGraphWin userdata(MXP_LinkedLineProfilePlotStr) = ""
+			if(WinType(GetUserData(parentGraphWin, "", "MXP_targetGraphWin")) == 1)
+				DoWindow/C/W=$(GetUserData(s.winName, "", "MXP_targetGraphWin")) $UniqueName("LineProf_unlnk_",6,0) // Change name of profile graph
+			endif
 			Cursor/W=$parentGraphWin/K E
 			Cursor/W=$parentGraphWin/K F
 			SetDrawLayer/W=$parentGraphWin ProgFront
