@@ -45,7 +45,7 @@ Function MXP_LaunchMake3DWaveDataBrowserSelection([variable displayStack])
 	if(!strlen(wname3dStr))
 		wname3dStr = "MXP_stack"
 	endif
-
+	
 	MXP_Make3DWaveDataBrowserSelection(wname3dStr, gotoFilesDFR = 0) // 0 - stack in cwd 1 - stack in files DFR
 	// Do you want to display the stack?
 	if(displayStack)
@@ -356,7 +356,9 @@ Function MXP_LaunchImageStackAlignmentByFullImage()
 	else
 		MXP_ImageStackAlignmentByCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, windowing = windowing - 2)
 	endif
-
+	//Restore the note
+	string copyNoteStr = note($backupWave)
+	Note/K w3dref,copyNoteStr
 End
 
 
@@ -407,6 +409,9 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	else 
 		Abort "Please check MXP_LaunchImageStackAlignmentUsingAFeature(), method error."
 	endif
+	//Restore the note
+	string copyNoteStr = note($backupWave)
+	Note/K w3dref,copyNoteStr
 End
 
 Function/WAVE WM_WAVEUserSetMarquee(string graphName)
