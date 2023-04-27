@@ -43,11 +43,9 @@ Menu "MAXPEEM"
 		".h5 file ...", /Q, MXP_LauncherLoadHDF5GroupsFromFile()
 	End
 	
-	Submenu "Analyse"
-		Submenu "XPS"
-		//"Subtract background ... ", BackgroundSubtractGUI($StringFromList(0,MXP_SelectWavesInModalDataBrowser("Select a wave (1d)")))
-		"Subtract background (TG) ", /Q, BackgroundSubtractGUI()
-		End
+	Submenu "XPS"
+		"Extract XPS profile from image (TG)", /Q, MXP_MainMenuLaunchPESExtractor()
+		"Subtract background(TG) ", /Q, BackgroundSubtractGUI()
 	End
 	
 	Submenu "Align"

@@ -386,3 +386,81 @@ static Function MXP_NextPowerOfTwo(variable num)
 End
 
 
+// ----------------------------------------
+
+Function MXP_FindBigWaves(minSizeInMB[,df,depth,noShow])
+	/// Copy of https://www.wavemetrics.com/code-snippet/find-big-waves
+    Variable minSizeInMB // Minimum size in MB, e.g. 100 
+    variable depth // Used by the function recursion.  Ignore.  
+    variable noShow // Don't show the table at the end.  
+    dfref df // A folder to use as the top level of the search.  Default is root:  
+ 
+    if(paramisdefault(df))
+        dfref df=root:
+    endif
+    if(depth==0)
+        NewDataFolder /O root:Packages
+        NewDataFolder /O root:Packages:MXP_FindBigWaves
+        dfref packageDF=root:Packages:MXP_FindBigWaves
+        Make /o/T/n=0 packageDF:names
+        Make /o/n=0 packageDF:sizes
+    else
+        dfref packageDF=root:Packages:MXP_FindBigWaves
+    endif
+    variable i
+    wave /T/sdfr=packageDF names
+    wave /sdfr=packageDF sizes
+    variable points=numpnts(names)
+    for(i=0;i<CountObjectsDFR(df,1);i+=1)
+        wave w=df:$getindexedobjnamedfr(df,1,i)
+        variable size = sizeOfWave(w)
+        if(size > minSizeInMB)
+            names[points]={GetWavesDataFolder(w,2)}
+            sizes[points]={size}
+            points+=1
+        endif
+    endfor
+    i=0
+    Do
+        string folder=GetIndexedObjNamedfr(df,4,i)
+        if(strlen(folder))
+            dfref subDF=df:$folder
+            MXP_FindBigWaves(minSizeInMB,df=subDF,depth=depth+1)
+        else
+            break
+        endif
+        i+=1
+    While(1)
+    if(depth==0)
+        sort /R sizes,sizes,names
+        if(!noShow)
+            if(wintype("BigWaves"))
+                dowindow /f BigWaves
+            else
+                edit /K=1 /N=BigWaves names,sizes as "Big Waves"
+            endif
+        endif
+    endif
+End
+
+Function SizeOfWave(wv)
+    wave/Z wv
+
+    variable i, numEntries
+    
+    variable total = NumberByKey("SIZEINBYTES", WaveInfo(wv, 0))
+
+    if(WaveType(wv, 1) == 4)
+        WAVE/WAVE temp = wv
+        numEntries = numpnts(wv)
+        for(i = 0; i < numEntries; i += 1)
+            WAVE/Z elem = temp[i]
+            if(!WaveExists(elem))
+                continue
+            endif
+            total += SizeOfWave(elem)
+        endfor
+    endif
+
+    return total / 1024 / 1024
+End

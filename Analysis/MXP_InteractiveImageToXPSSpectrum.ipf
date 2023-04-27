@@ -366,6 +366,8 @@ Function MXP_PESExtractorGraphHookFunction(STRUCT WMWinHookStruct &s)
 			Cursor/W=$parentGraphWin/K F
 			SetDrawLayer/W=$parentGraphWin ProgFront
 			DrawAction/W=$parentGraphWin delete
+			SetDrawLayer/W=$parentGraphWin Overlay
+			DrawAction/W=$parentGraphWin delete			
 			break
 	endswitch
 End
@@ -697,13 +699,23 @@ Function MXP_PESExtractorPlotSetVariableWidth(STRUCT WMSetVariableAction& sv) : 
 	NVAR/Z C2y = dfr:gMXP_C2y
 	NVAR/Z profileWidth = dfr:gMXP_profileWidth
 	NVAR/Z selectedLayer = dfr:gMXP_selectedLayer
+	NVAR/Z Ax = dfr:gMXP_Ax	
+	NVAR/Z Ay = dfr:gMXP_Ay
+	NVAR/Z stv = dfr:gMXP_stv	
+	NVAR/Z epp = dfr:gMXP_epp	
+	NVAR/Z linepx = dfr:gMXP_linepx
 	SetDataFolder dfr
 	Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
 	SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
 	WAVE/Z imgWaveRef = $ImagePathname
+	WAVE/Z/SDFR=dfr W_ImageLineProfile
+	variable dAE, Eoffset
 	switch(sv.eventCode)
-		case 6:
+		case 6:		
 			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+    	   	dAE = sqrt((C1x - Ax)^2 + (C1y - Ay)^2)
+  	     	Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the top right energy (lowest KE)
+  	     	SetScale/P x, Eoffset, epp, W_ImageLineProfile	
 			break
 	endswitch
 	SetDataFolder currdfr

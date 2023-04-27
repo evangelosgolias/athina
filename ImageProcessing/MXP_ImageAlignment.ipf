@@ -100,7 +100,7 @@ Function MXP_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 	if(!WaveExists($(NameOfWave(w3d) + "_undo")))
 		Duplicate/O w3d, $(NameOfWave(w3d) + "_undo")
 	endif
-	ImageRegistration/Q/STCK/PSTK/TRNS={0,0,1}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d
+	ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d
 	WAVE M_RegParams
 	MatrixOP/FREE dx = row(M_RegParams,0)
 	MatrixOP/FREE dy = row(M_RegParams,1)
