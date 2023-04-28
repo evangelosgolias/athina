@@ -195,6 +195,7 @@ Function MXP_InitialiseZProfileFolder()
 	variable/G dfr:gMXP_right = 0
 	variable/G dfr:gMXP_top = 0
 	variable/G dfr:gMXP_bottom = 0
+	variable/G dfr:gMXP_Rect
 	variable/G dfr:nLayers = nlayers
 	variable/G dfr:gMXP_DoPlotSwitch = 1
 	variable/G dfr:gMXP_MarkAreasSwitch = 1
@@ -204,7 +205,7 @@ Function MXP_InitialiseZProfileFolder()
 End
 
 //Entry point
-Function MXP_DrawROIAndWaitHookToAct() // Function used by the hook
+Function MXP_DrawOvalROIAndWaitHookToAct() // Function used by the hook
 	/// Here we use ProgFront to get a mask from ImageGenerateROIMask
 	
 	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
@@ -221,6 +222,8 @@ Function MXP_DrawROIAndWaitHookToAct() // Function used by the hook
 	gMXP_right = V_right
 	gMXP_top = V_top
 	gMXP_bottom = V_bottom
+	NVAR/SDFR=dfr gMXP_Rect
+	gMXP_Rect = 0
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	DrawOval gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
@@ -229,7 +232,44 @@ Function MXP_DrawROIAndWaitHookToAct() // Function used by the hook
 	return 0
 End
 
-Function MXP_SumBeamsDrawImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
+//Entry point
+Function MXP_DrawRectROIAndWaitHookToAct() // Function used by the hook
+	/// Here we use ProgFront to get a mask from ImageGenerateROIMask
+	
+	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
+	string winNameStr = WinName(0, 1, 1)
+	DoWindow/F $winNameStr // You need to have your imange stack as a top window
+	GetMarquee/K left, top
+	string dfrStr = GetUserData(winNameStr, "", "MXP_DFREF")
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(dfrStr)
+	NVAR/SDFR=dfr gMXP_left
+	NVAR/SDFR=dfr gMXP_right
+	NVAR/SDFR=dfr gMXP_top
+	NVAR/SDFR=dfr gMXP_bottom
+	gMXP_left = V_left
+	gMXP_right = V_right
+	gMXP_top = V_top
+	gMXP_bottom = V_bottom
+	NVAR/SDFR=dfr gMXP_Rect
+	gMXP_Rect = 1
+	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
+	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+	DrawRect gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
+	ImageGenerateROIMask $wnamestr
+	Cursor/I/C=(65535,0,0)/S=2/N=1 J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
+	return 0
+End
+
+Function MXP_SumBeamsDrawOvalImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
+	// Use MXP_SumBeamsDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
+	SetDrawLayer UserFront 
+	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
+	DrawOval left, top, right, bottom
+	SetDrawLayer ProgFront 
+	return 0
+End
+
+Function MXP_SumBeamsDrawRectImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
 	// Use MXP_SumBeamsDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
 	SetDrawLayer UserFront 
 	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
@@ -299,6 +339,7 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 	NVAR/Z dy = dfr:gMXP_ROI_dy
 	NVAR/Z nLayers = dfr:nLayers
 	NVAR/Z mouseTrackV = dfr:gMXP_mouseTrackV
+	NVAR/SDFR=dfr gMXP_Rect
 	variable axisxlen = gMXP_right - gMXP_left
 	variable axisylen = gMXP_bottom - gMXP_top
 	SVAR/Z LineProfileWaveStr = dfr:gMXP_LineProfileWaveStr
@@ -338,8 +379,14 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
         	if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor
         		DrawAction/W=$WindowNameStr delete // TODO: Here add the env commands of MXP_SumBeamsDrawImageROICursor before switch and here only the draw command 
         		SetDrawEnv/W=$WindowNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+        		if(gMXP_Rect)
+				DrawRect/W=$WindowNameStr -axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
+					  axisxlen * 0.5 + s.pointNumber * dx,  -(axisylen * 0.5) + s.yPointNumber * dy
+        		
+        		else
 				DrawOval/W=$WindowNameStr -axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
 					  axisxlen * 0.5 + s.pointNumber * dx,  -(axisylen * 0.5) + s.yPointNumber * dy
+				endif
 				Cursor/W=$WindowNameStr/I/C=(65535,0,0)/S=2/N=1 J $w3dNameStrQ, s.pointNumber * dx, s.yPointNumber * dy
 				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStrQ 
 				if(WaveExists(M_ROIMask))
@@ -414,7 +461,7 @@ Function MXP_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonC
 	NVAR/SDFR=dfr gMXP_right
 	NVAR/SDFR=dfr gMXP_top
 	NVAR/SDFR=dfr gMXP_bottom
-
+	NVAR/SDFR=dfr gMXP_Rect
 	string recreateDrawStr
 	DFREF savedfr = GetDataFolderDFR() // MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:SavedZProfiles")
 	
@@ -451,13 +498,23 @@ Function MXP_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonC
 							colorcnt += 1
 						endif
 						DoWindow/F $WindowNameStr
-						MXP_SumBeamsDrawImageROI(gMXP_left, gMXP_top, gMXP_right, gMXP_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+						if(gMXP_Rect)
+							MXP_SumBeamsDrawRectImageROI(gMXP_left, gMXP_top, gMXP_right, gMXP_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+						else
+							MXP_SumBeamsDrawOvalImageROI(gMXP_left, gMXP_top, gMXP_right, gMXP_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+						endif
 					endif
 				break // Stop if you go through the else branch
 				endif
 			while(1)
-		sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
+			if(gMXP_Rect)
+				sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
+								 "DrawCmd:DrawRect %f, %f, %f, %f", w3dPathName, red, green, blue, gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
+			else
+				sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
 								 "DrawCmd:DrawOval %f, %f, %f, %f", w3dPathName, red, green, blue, gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
+			endif
+
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
 		return 1
 		break

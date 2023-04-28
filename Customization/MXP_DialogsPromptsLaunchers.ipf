@@ -675,6 +675,15 @@ Function MXP_LaunchStackSingleImageToImageStack() // Not used
 	endif
 End
 
+Function MXP_LaunchImageRotateAndScale()
+	/// Rotated/scaled wave in created in the working dfr.
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	variable angle = MXP_GenericSingleVarPrompt("Angle (deg)", "Image rotate and scale")
+	MXP_ImageRotateAndScale(wRef, angle)
+End
+
 // Dialogs
 Function/S MXP_GenericSinglePopupStrPrompt(string strPrompt, string popupStrSelection, string msgDialog)
 	string returnStrVar 

@@ -29,6 +29,8 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+constant kMXPEnergyPerPixel = 0.00780685 // energy per pixel - default setting
+
 
 Function MXP_MainMenuLaunchPESExtractor()
 	
@@ -113,7 +115,7 @@ Function MXP_InitialisePESExtractorFolder(string winNameStr)
 	// PES scaling values
 	variable/G dfr:gMXP_hv = 0
 	variable/G dfr:gMXP_Wf = 4.5
-	variable/G dfr:gMXP_epp = 1
+	variable/G dfr:gMXP_epp = kMXPEnergyPerPixel
 	variable/G dfr:gMXP_Ax = 0
 	variable/G dfr:gMXP_Ay = 0	
 	variable/G dfr:gMXP_Bx = 0

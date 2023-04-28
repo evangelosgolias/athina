@@ -53,6 +53,10 @@ Menu "MAXPEEM"
 		"using the full image (TG)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
 	End
 	
+	Submenu "Operations"
+		"Rotate image (TG) ... ", /Q, MXP_LaunchImageRotateAndScale()
+	End
+	
 	Submenu "Make"
 		"a stack from pattern", /Q, MXP_LaunchMake3DWaveUsingPattern()
 		"a stack from browser selection", /Q, MXP_LaunchMake3DWaveDataBrowserSelection()
@@ -81,7 +85,8 @@ End
 Menu "GraphMarquee"
 	"Set image range using ROI (2D, 3D)", /Q, MXP_SetImageRangeTo94Percent()
 	"ROI stats (2D, 3D)", /Q, MXP_GetMarqueeWaveStats()
-	"Z-profiler: Set oval ROI  (3D)", /Q, MXP_DrawROIAndWaitHookToAct()
+	"Z-profiler: Set oval ROI  (3D)", /Q, MXP_DrawOvalROIAndWaitHookToAct()
+	"Z-profiler: Set rectangular ROI  (3D)", /Q, MXP_DrawRectROIAndWaitHookToAct()	
 	"Marquee to mask (2D, 3D)", /Q, MXP_MarqueeToMask()
 	"Backup traces (1D)", /Q, MXP_BackupTraces()
 	"Restore traces (1D)", /Q, MXP_RestoreTraces()
