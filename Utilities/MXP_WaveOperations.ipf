@@ -90,7 +90,11 @@ Function MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoFil
 		endif
 		i++
 	while (strlen(GetBrowserSelection(i)))
+	
+	//Sort alphanumerically
 
+	listOfSelectedWaves = SortList(listOfSelectedWaves,";", 16)
+	
 	variable nrwaves = ItemsInList(listOfSelectedWaves)
 	if (nrwaves < 2)
 		return -1 // No wave or one wave is selected
@@ -237,10 +241,7 @@ Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startX,
 		nWaveRows = max(nWaveRows, nWaveCols)
 		nWaveCols = nWaveRows
 	endif
-
-	variable nlayers = DimSize(w3d, 2)
-	Make/O/N=(nWaveRows, nWavecols, nlayers) $partitionNameStr /WAVE=wRef
-	wRef[][][] = w3d[startP + p][startQ + q][r]
+	Duplicate/RMD=[startP, startP + nWaveRows][startQ, startQ + nWaveCols][] w3d, $partitionNameStr
 	return 0
 End
 

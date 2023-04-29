@@ -679,6 +679,10 @@ Function MXP_LaunchImageRotateAndScale()
 	/// Rotated/scaled wave in created in the working dfr.
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	if(!strlen(imgNameTopGraphStr))
+		//print "No image in top graph!"
+		return -1
+	endif
 	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	variable angle = MXP_GenericSingleVarPrompt("Angle (deg)", "Image rotate and scale")
 	MXP_ImageRotateAndScale(wRef, angle)

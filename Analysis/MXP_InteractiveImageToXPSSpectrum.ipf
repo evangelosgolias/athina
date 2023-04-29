@@ -29,7 +29,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-constant kMXPEnergyPerPixel = 0.00780685 // energy per pixel - default setting
+constant kMXPEnergyPerPixel = 0.00780685 // energy per pixel - default setting 30.04.2023
 
 
 Function MXP_MainMenuLaunchPESExtractor()
@@ -237,7 +237,7 @@ Function MXP_CursorHookFunctionPESExtractor(STRUCT WMWinHookStruct &s)
 	NVAR/Z C2y = dfr:gMXP_C2y
 	
 	NVAR/Z Ax = dfr:gMXP_Ax	
-	NVAR/Z Ay = dfr:gMXP_AY	
+	NVAR/Z Ay = dfr:gMXP_Ay	
 	NVAR/Z Bx = dfr:gMXP_Bx	
 	NVAR/Z By = dfr:gMXP_By	
 	NVAR/Z linepx = dfr:gMXP_linepx
@@ -392,8 +392,11 @@ Function MXP_PESExtractorPlotSaveProfile(STRUCT WMButtonAction &B_Struct): Butto
 	NVAR/Z C2x = dfr:gMXP_C2x
 	NVAR/Z C2y = dfr:gMXP_C2y
 	NVAR/Z colorcnt = dfr:gMXP_colorcnt
+	NVAR/Z profileWidth = dfr:gMXP_profileWidth
 	NVAR/Z Ax = dfr:gMXP_Ax	
-	NVAR/Z Ay = dfr:gMXP_AY	
+	NVAR/Z Ay = dfr:gMXP_Ay
+	NVAR/Z Bx = dfr:gMXP_Bx	
+	NVAR/Z By = dfr:gMXP_By	
 	NVAR/Z dx = dfr:gMXP_dx	
 	NVAR/Z dy = dfr:gMXP_dy	
 	NVAR/Z Eoffset = dfr:gMXP_Eoffset
@@ -419,7 +422,7 @@ Function MXP_PESExtractorPlotSaveProfile(STRUCT WMButtonAction &B_Struct): Butto
 					dAE = sqrt((C1x - Ax)^2/dx^2 + (C1y - Ay)^2/dy^2)
 					Eoffset = stv - (linepx/2 - dAE) * epp
 					SetScale/P x, Eoffset, epp, savedfr:$saveWaveNameStr
-					if(hv)
+					if(hv > Wf)
 						WaveFromKE2BE(savedfr:$saveWaveNameStr, hv, Wf)
 					endif
 					if(PlotSwitch)
@@ -436,6 +439,10 @@ Function MXP_PESExtractorPlotSaveProfile(STRUCT WMButtonAction &B_Struct): Butto
 							DoWindow/F $targetGraphWin
 							colorcnt += 1
 						endif
+						if(PlotSwitch && hv > Wf) // Reverse x-axis and add label
+							SetAxis/W=$targetGraphWin/A/R bottom
+							Label/W=$targetGraphWin bottom "\\u#2Binding Energy (eV)"
+						endif
 					endif
 					
 					if(MarkPESsSwitch)
@@ -449,11 +456,10 @@ Function MXP_PESExtractorPlotSaveProfile(STRUCT WMButtonAction &B_Struct): Butto
 				break // Stop if you go through the else branch
 				endif	
 			while(1)
-		sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv PESfgc = (%d, %d, %d), fillpat = 0, PESthick = 1, dash= 2, xcoord= top, ycoord= left;" + \
-								 "DrawCmd:DrawPES %f, %f, %f, %f;ProfileCmd:Make/O/N=2 xTrace={%f, %f}, yTrace = {%f, %f}\nImagePESExtractor/P=(%d) srcWave=%s," +\
-								 "xWave=xTrace, yWave=yTrace, width = %f\nDisplay/K=1 W_ImagePESExtractor vs W_PESExtractorDisplacement" + \
-								 "", ImagePathname, red, green, blue, C1x, C1y, C2x, C2y, C1x, C2x, C1y, C2y, selectedLayer, ImagePathname, profileWidth
+		sprintf recreateDrawStr, "pathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%d\n" + \
+								 "hv(eV):%d\nWf(eV):%d\nEPP(eV/px):%d", ImagePathname,  C1x, C1y, C2x, C2y, Ax, Ay, Bx, By, profileWidth, stv, hv, Wf, epp
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
+		// Add metadata
 		break
 	endswitch
 	return 0
@@ -471,7 +477,6 @@ Function MXP_PESExtractorPlotSaveDefaultSettings(STRUCT WMButtonAction &B_Struct
 	NVAR/Z Ay = dfr:gMXP_Ay	
 	NVAR/Z Bx = dfr:gMXP_Bx
 	NVAR/Z By = dfr:gMXP_By
-	NVAR/Z stv = dfr:gMXP_STV
 	NVAR/Z dx = dfr:gMXP_dx
 	NVAR/Z dy = dfr:gMXP_dy
 	NVAR/Z linepx = dfr:gMXP_linepx
@@ -539,7 +544,6 @@ Function MXP_PESExtractorPlotRestoreDefaultSettings(STRUCT WMButtonAction &B_Str
 	NVAR/Z Ay = dfr:gMXP_Ay	
 	NVAR/Z Bx = dfr:gMXP_Bx
 	NVAR/Z By = dfr:gMXP_By
-	NVAR/Z stv = dfr:gMXP_STV
 	NVAR/Z dx = dfr:gMXP_dx
 	NVAR/Z dy = dfr:gMXP_dy
 	NVAR/Z linepx = dfr:gMXP_linepx
