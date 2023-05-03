@@ -317,6 +317,7 @@ Function/WAVE MXP_WAVEImageEdgeDetectionToStack(WAVE w3dref)
 	return wRefFREE
 End
 
+// HERE
 Function MXP_ImageRotateAndScale(WAVE wRef, variable angle)
 	/// Rotate the wave wRef (2d or 3d) and scale it to 
 	/// conserve on image distances.
@@ -332,6 +333,46 @@ Function MXP_ImageRotateAndScale(WAVE wRef, variable angle)
 	ImageRotate/O/E=0/A=(angle) wRefRot
 	string noteStr = NameOfWave(wRef) + " rotated by " + num2str(angle) + " deg"
 	Note/K wRefRot, noteStr
-	CopyScales/P wRef, wRefRot // /P needed here to prevent on image distances.
+	CopyScales/P wRef, wRefRot // /P needed here to prevent on image distances.	
+End
+
+Function MXP_ImageBackupRotateAndScale(Wave wRef, variable angle)
+	/// Backup and rotate image
+	/// Math: If the side of the image is a, then the rotated image
+	/// will have side a_rot = a * (cos(angle) + sin(angle))
+	/// @param wRef: 2d or 3d wave	
+	/// @param angle: clockwise rotation in degrees
+	variable angleRad = angle * pi / 180
+	string backupWaveNameStr = NameOfWave(wRef) + "_undo"
+	Duplicate/O wRef, $backupWaveNameStr
+	ImageRotate/O/E=0/A=(angle) wRef
+	WAVE wRefbck = $backupWaveNameStr
+	string noteStr ="Image rotated by " + num2str(angle) + " deg"
+	Note/K wRef, noteStr
+	CopyScales/P wRef, wRefbck // /P needed here to prevent on image distances.	
+End
+
+Function MXP_RestoreTopImageFromBackup()
+	/// Restore the top image if there is a backup wave.
+	/// Backup wave's name is *assummed* to be NameOfWave(wRef) + "_undo" !!!!
+	///
+	/// Math: If the side of the image is a, then the rotated image
+	/// will have side a_rot = a * (cos(angle) + sin(angle))
+	/// @param angle: clockwise rotation in degrees
 	
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	Wave wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	string backupWaveNameStr = NameOfWave(wRef) + "_undo"
+	WAVE wRefbck = $backupWaveNameStr
+
+
+	if(WaveExists(wRefbck))
+		string noteBackupWaveStr = note(wRefbck)
+		Duplicate/O wRefbck, wRef
+		Note wRef
+		KillWaves wRefbck
+	endif
+	
+	return 0
 End

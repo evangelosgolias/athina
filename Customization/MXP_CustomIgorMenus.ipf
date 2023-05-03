@@ -42,31 +42,23 @@ Menu "MAXPEEM"
 		".dat file (img only)...", /Q, MXP_LoadSingleCorruptedDATFile("", "")
 		".h5 file ...", /Q, MXP_LauncherLoadHDF5GroupsFromFile()
 	End
+
 	
-	Submenu "XPS"
-		"Extract XPS profile from image (TG)", /Q, MXP_MainMenuLaunchPESExtractor()
-		"Subtract background(TG) ", /Q, BackgroundSubtractGUI()
+	Submenu "Image alignment"
+		"Using a feature (recommended) (TG)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
+		"Using the full image (TG)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
 	End
 	
-	Submenu "Align"
-		"using a feature (recommended) (TG)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
-		"using the full image (TG)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
+	Submenu "Image Operations"
+		"Rotate image (TG, 2D, 3D) ... ", /Q, MXP_LaunchImageRotateAndScale()
+		"Rotate image from metadata (TG, 2D, 3D) ... ", /Q, MXP_LaunchImageRotateAndScaleFromMetadata()
+		"Restore image from backup (TG)", /Q, MXP_RestoreTopImageFromBackup()
 	End
-	
-	Submenu "Operations"
-		"Rotate image (TG) ... ", /Q, MXP_LaunchImageRotateAndScale()
-	End
-	
-	Submenu "Make"
-		"a stack from pattern", /Q, MXP_LaunchMake3DWaveUsingPattern()
-		"a stack from browser selection", /Q, MXP_LaunchMake3DWaveDataBrowserSelection()
-	End
-	
-	Submenu "Calculation"
-		"Stack average...", /Q, MXP_LaunchAverageStackToImageFromMenu()
-		"Calculate XMC(L)D (TG)...", /Q, MXP_LaunchRegisterQCalculateXRayDichroism()
-		"Calculate XMC(L)D interactively...", /Q, MXP_LaunchInteractiveCalculateXRayDichroism()
-		"Import .dat files and calculate XMC(L)D...", /Q, MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
+
+	Submenu "Calculations"
+		"Average stack (3D)...", /Q, MXP_LaunchAverageStackToImageFromMenu()
+		"XMC(L)D (TG, 3D[2])...", /Q, MXP_LaunchRegisterQCalculateXRayDichroism()
+		"XMC(L)D (import)...", /Q, MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	End
 	
 	Submenu "Profiles "
@@ -75,12 +67,25 @@ Menu "MAXPEEM"
 		"Plane profile (TG)",/Q, MXP_MainMenuLaunchImagePlaneProfileZ()
 	End
 	
+	Submenu "XPS"
+		"Extract XPS profile from image (TG)", /Q, MXP_MainMenuLaunchPESExtractor()
+		"Subtract background(TG) ", /Q, BackgroundSubtractGUI()
+	End	
+	
 	Submenu "Utilities"
 		"Spaces",/Q, MXP_MainMenuLaunchSpaces()
 		"Photoionisation CrossSection",/Q, PhotoionisationCrossSection#PhotoionisationCrossSection()
 		"List HDF5 (.h5) entries...", /Q, MXP_ListHDF5Groups()
 	End
 End
+
+//"Calculate XMC(L)D interactively...", /Q, MXP_LaunchInteractiveCalculateXRayDichroism()
+//	Submenu "Make"
+//		"a stack from pattern", /Q, MXP_LaunchMake3DWaveUsingPattern()
+//		"a stack from browser selection", /Q, MXP_LaunchMake3DWaveDataBrowserSelection()
+//	End
+	
+// -------------------------------------------------------
 
 Menu "GraphMarquee"
 	"Set image range using ROI (2D, 3D)", /Q, MXP_SetImageRangeTo94Percent()

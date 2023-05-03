@@ -675,6 +675,7 @@ Function MXP_LaunchStackSingleImageToImageStack() // Not used
 	endif
 End
 
+//HERE
 Function MXP_LaunchImageRotateAndScale()
 	/// Rotated/scaled wave in created in the working dfr.
 	string winNameStr = WinName(0, 1, 1)
@@ -686,6 +687,22 @@ Function MXP_LaunchImageRotateAndScale()
 	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	variable angle = MXP_GenericSingleVarPrompt("Angle (deg)", "Image rotate and scale")
 	MXP_ImageRotateAndScale(wRef, angle)
+End
+
+Function MXP_LaunchImageRotateAndScaleFromMetadata()
+	/// Rotated/scaled wave in created in the working dfr.
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	Wave wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	
+	if(!strlen(imgNameTopGraphStr))
+		//print "No image in top graph!"
+		return -1
+	endif
+	
+	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	variable angle = NumberByKey("FOVRot(deg)", note(wRef), ":", "\n")
+	MXP_ImageBackupRotateAndScale(wRef, angle)
 End
 
 // Dialogs

@@ -86,17 +86,17 @@ Function MXP_CreateInteractiveDriftCorrectionPanel()
 	Button Restore3dwave,pos={32.00,130.00},size={100.00,20.00},fColor=(32768,54615,65535)
 	Button Restore3dwave,title="Restore stack",fSize=12,proc=Restore3DWaveButton
 	//Tranfer info re dfr to controls
-	SetWindow $winNameStr#iDriftCorrection userdata(MXP_DFREF_iAlign) = "root:Packages:MXP_DataFolder:InteractiveDriftCorrection:" + PossiblyQuoteName(winNameStr)
+	SetWindow $winNameStr#iDriftCorrection userdata(MXP_iImgAlignFolder) = "root:Packages:MXP_DataFolder:InteractiveDriftCorrection:" + winNameStr
 	SetWindow $winNameStr#iDriftCorrection hook(MyHook) = MXP_iDriftCorrectionPanelHookFunction
 	// Set hook to the graph, killing the graph kills the iDriftCorrection linked folder
-	SetWindow $winNameStr userdata(MXP_DFREF_iAlign) = "root:Packages:MXP_DataFolder:InteractiveDriftCorrection:" + PossiblyQuoteName(winNameStr)
+	SetWindow $winNameStr userdata(MXP_iImgAlignFolder) = "root:Packages:MXP_DataFolder:InteractiveDriftCorrection:" + winNameStr
 	SetWindow $winNameStr, hook(MyHook) = MXP_iDriftCorrectionGraphHookFunction // Set the hook
 End
 
 Function MXP_iDriftCorrectionGraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "MXP_DFREF_iAlign"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "MXP_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gMXP_w3dPathName
 	SVAR/Z/SDFR=dfr gMXP_w3dBackupPathNameStr
     switch(s.eventCode)
@@ -115,7 +115,7 @@ End
 Function MXP_iDriftCorrectionPanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "MXP_DFREF_iAlign"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "MXP_iImgAlignFolder"))
 	SVAR/SDFR=dfr gMXP_WindowNameStr
 	SVAR/Z/SDFR=dfr gMXP_w3dPathName
 	SVAR/Z/SDFR=dfr gMXP_w3dBackupPathNameStr
@@ -137,7 +137,7 @@ End
 
 Function MXP_SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_DFREF_iAlign"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_iImgAlignFolder"))
 	SVAR/SDFR=dfr gMXP_WindowNameStr
 	SVAR/SDFR=dfr gMXP_w3dPathname
 	NVAR/SDFR=dfr gMXP_AnchorPositionX
@@ -165,7 +165,7 @@ End
 
 Function MXP_DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_DFREF_iAlign"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gMXP_WindowNameStr
 	SVAR/Z/SDFR=dfr gMXP_w3dPathName
 	WAVE/Z w3dRef = $gMXP_w3dPathName
@@ -200,7 +200,7 @@ End
 Function Restore3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	//Complete
 	variable hookresult = 0
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_DFREF_iAlign"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_iImgAlignFolder"))
 	SVAR/SDFR=dfr gMXP_w3dBackupPathNameStr
 	SVAR/SDFR=dfr gMXP_w3dPathname
 	switch(B_Struct.eventCode)	// numeric switch
