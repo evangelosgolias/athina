@@ -60,7 +60,6 @@ Function MXP_CreateInteractiveImageRotationPanel()
 	string/G dfr:gMXP_wNameStr = NameOfWave(wRef)
 	string/G dfr:gMXP_wBackupPathNameStr = GetWavesDataFolder(dfr:$backupNameStr, 2)
 	variable/G dfr:gMXP_Angle = 0 // Not set
-	variable/G dfr:gMXP_OverwriteSwitch = 0 // Not set	
 	
 	NewPanel/K=1/EXT=0/N=iImageRotation/W=(0,0,300,130)/HOST=$winNameStr
 
@@ -74,11 +73,33 @@ Function MXP_CreateInteractiveImageRotationPanel()
 	Button OverwiteImg title="Overwite ",size={70,20}, pos={110,100},proc=MXP_InteractiveImageRotationOverwriteImgButton
 	Button RestoreImg title="Restore",size={80,20},pos={190,100},fColor=(3,52428,1),proc=MXP_InteractiveImageRotationRestoreImgButton
 
-	SetWindow $winNameStr#iImageRotation hook(MyHook) = MXP_iImageRotationPanelHookFunction
+	SetWindow $winNameStr#iImageRotation hook(MyImageRotationPanelHook) = MXP_iImageRotationPanelHookFunction
 	SetWindow $winNameStr#iImageRotation userdata(MXP_iRotateFolder) = "root:Packages:MXP_DataFolder:InteractiveImageRotation:" + winNameStr
-
+	SetWindow $winNameStr#iImageRotation userdata(MXP_iImageRotateParentWindow) = winNameStr
+	
+	SetWindow $winNameStr hook(MyImageRotationParentGraphHook) = MXP_ImageRotationParentGraphHookFunction
+	SetWindow $winNameStr userdata(MXP_iRotateFolder) = "root:Packages:MXP_DataFolder:InteractiveImageRotation:" + winNameStr
+	return 0
 End
 
+Function MXP_ImageRotationParentGraphHookFunction(STRUCT WMWinHookStruct &s)
+	variable hookresult = 0
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "MXP_iRotateFolder"))
+	SVAR/SDFR=dfr gMXP_WindowNameStr
+	SVAR/SDFR=dfr gMXP_wPathname
+	SVAR/SDFR=dfr gMXP_wBackupPathNameStr
+	WAVE wRef = $gMXP_wPathname
+	WAVE wRefbck = $gMXP_wBackupPathNameStr
+    switch(s.eventCode)
+		case 2: // Kill the window
+			Duplicate/O wRefbck, wRef
+			SetWindow $s.winName, hook(MyImageRotationParentGraphHook) = $""
+			KillDataFolder dfr
+			hookresult = 1
+			break
+	endswitch
+	return hookresult
+End
 
 Function MXP_iImageRotationPanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
@@ -92,7 +113,9 @@ Function MXP_iImageRotationPanelHookFunction(STRUCT WMWinHookStruct &s) // Clean
     switch(s.eventCode)
 		case 2: // Kill the window
 			Duplicate/O wRefbck, wRef
-			SetWindow $s.winName, hook(MyHook) = $""
+			SetWindow $s.winName, hook(MyImageRotationPanelHook) = $""
+			string parentWindow = GetUserData(s.winName, "", "MXP_iImageRotateParentWindow")
+			SetWindow $parentWindow, hook(MyImageRotationParentGraphHook) = $"" // Unhook the parent graph
 			KillDataFolder dfr
 			hookresult = 1
 			break
@@ -105,7 +128,6 @@ Function MXP_InteractiveImageRotationSliderProc(STRUCT WMSliderAction &sa) : Sli
 	SVAR/SDFR=dfr gMXP_wPathname
 	SVAR/SDFR=dfr gMXP_wBackupPathNameStr
 	NVAR/SDFR=dfr gMXP_Angle
-	variable angleRad
 	WAVE wRef = $gMXP_wPathname
 	WAVE wRefbck = $gMXP_wBackupPathNameStr
 	switch( sa.eventCode )
@@ -172,7 +194,6 @@ Function MXP_InteractiveImageRotationOverwriteImgButton(STRUCT WMButtonAction &b
 	SVAR/SDFR=dfr gMXP_wPathname
 	SVAR/SDFR=dfr gMXP_wBackupPathNameStr
 	NVAR/SDFR=dfr gMXP_Angle
-	NVAR/SDFR=dfr gMXP_OverwriteSwitch
 	WAVE wRef = $gMXP_wPathname
 	WAVE wRefbck = $gMXP_wBackupPathNameStr
 	switch( ba.eventCode )
@@ -183,11 +204,8 @@ Function MXP_InteractiveImageRotationOverwriteImgButton(STRUCT WMButtonAction &b
 				Duplicate/O wRef, wRefbck
 				Note wRefbck, noteStr
 				Note wRef, noteStr
-				gMXP_OverwriteSwitch = 1 // can you do this better?
-				if(gMXP_OverwriteSwitch)
-					Button RestoreImg fColor=(65535,0,0)
-					ControlUpdate/W=$ba.win#iImageRotation RestoreImg
-				endif
+				Button RestoreImg fColor=(65535,0,0)
+				ControlUpdate/W=$ba.win#iImageRotation RestoreImg
 			endif
 			break
 		case -1: // control being killed

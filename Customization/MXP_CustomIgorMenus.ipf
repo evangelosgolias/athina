@@ -42,29 +42,34 @@ Menu "MAXPEEM"
 		".dat file (img only)...", /Q, MXP_LoadSingleCorruptedDATFile("", "")
 		".h5 file ...", /Q, MXP_LauncherLoadHDF5GroupsFromFile()
 	End
-
-	
-	Submenu "Image alignment"
-		"Using a feature (recommended) (TG)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
-		"Using the full image (TG)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
-	End
 	
 	Submenu "Image Operations"
-		"Rotate image (TG, 2D, 3D) ... ", /Q, MXP_LaunchImageRotateAndScale()
-		"Rotate image from metadata (TG, 2D, 3D) ... ", /Q, MXP_LaunchImageRotateAndScaleFromMetadata()
+		"Rotate image (TG, 2D, 3D) ", /Q, MXP_LaunchImageRotateAndScale()
+		"Rotate image from metadata (TG, 2D, 3D)", /Q, MXP_LaunchImageRotateAndScaleFromMetadata()
 		"Restore image from backup (TG)", /Q, MXP_RestoreTopImageFromBackup()
 	End
-
-	Submenu "Calculations"
-		"Average stack (3D)...", /Q, MXP_LaunchAverageStackToImageFromMenu()
-		"XMC(L)D (TG, 3D[2])...", /Q, MXP_LaunchRegisterQCalculateXRayDichroism()
-		"XMC(L)D (import)...", /Q, MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
+	
+	Submenu "Interactive Operations"
+		"Rotate image (TG, 2D, 3D) ", /Q,  MXP_CreateInteractiveImageRotationPanel()
+		"Drift correction (TG, 2D, 3D) ", /Q, MXP_CreateInteractiveDriftCorrectionPanel() // TODO: Needs some tuning.
+		"XMC(L)D calculation ...", /Q, MXP_RestoreTopImageFromBackup() 
+	End
+	
+	Submenu "Drift Correction"
+		"Using a feature (recommended) (TG)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
+		"Using the full image (TG)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
 	End
 	
 	Submenu "Profiles "
 		"Line profile (TG)", /Q, MXP_MainMenuLaunchLineProfile()
 		"Z profile (TG)", /Q, MXP_MainMenuLaunchSumBeamsProfile()
 		"Plane profile (TG)",/Q, MXP_MainMenuLaunchImagePlaneProfileZ()
+	End
+	
+	Submenu "Calculations"
+		"Average stack (3D)...", /Q, MXP_LaunchAverageStackToImageFromMenu()
+		"XMC(L)D (TG, 3D[2])...", /Q, MXP_LaunchRegisterQCalculateXRayDichroism()
+		"XMC(L)D (import)...", /Q, MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	End
 	
 	Submenu "XPS"
@@ -79,12 +84,7 @@ Menu "MAXPEEM"
 	End
 End
 
-//"Calculate XMC(L)D interactively...", /Q, MXP_LaunchInteractiveCalculateXRayDichroism()
-//	Submenu "Make"
-//		"a stack from pattern", /Q, MXP_LaunchMake3DWaveUsingPattern()
-//		"a stack from browser selection", /Q, MXP_LaunchMake3DWaveDataBrowserSelection()
-//	End
-	
+
 // -------------------------------------------------------
 
 Menu "GraphMarquee"
@@ -102,7 +102,6 @@ Menu "GraphMarquee"
 	"Partition 3D region (3D)", /Q, MXP_Partition3DRegion()
 End
 
-
 Menu "DataBrowserObjectsPopup"
 	"MXP Newimage", /Q, MXP_LaunchNewImageFromBrowserSelection()
 	"MXP Z profile", /Q, MXP_BrowserMenuLaunchSumBeamsProfile()
@@ -119,26 +118,24 @@ Menu "DataBrowserObjectsPopup"
 End
 
 Menu "TracePopup"
-	//"-"
-	//"MXP line profile", MXP_TraceMenuLaunchLineProfiler()
-	//"MXP z profile", MXP_TraceMenuLaunchZBeamProfiler()
-	//"MXP Normalise stack with profile", MXP_NormaliseImageStackWithProfile()
-	//"MXP Average stack",  MXP_LaunchAverageStackToImageFromTraceMenu()
 	"MXP Save layer (3D)", /Q, MXP_GetLayerFromImageStack()
 	"MXP Save current view (2D,3D)", /Q, MXP_GetScaledZoominImageWindow()
 	"MXP Add images to Stack (3D)", /Q, MXP_LaunchStackImagesToImageStack()
 	"MXP Scale Image stack (3D)", /Q, MXP_ScaleImage()
 	"MXP Select image and copy scales (2D,3D)", /Q, MXP_ImageSelectToCopyScale()
-	"MXP Interactive drift correction (3D)", /Q, MXP_CreateInteractiveDriftCorrectionPanel()
 	"MXP Calculate XMC(L)D (3D[2])", /Q, MXP_LaunchCalculateXMCDFromStack()
-	//"MXP Remove XPS background", MXP_LaunchRemoveXPSBackground()
-	//"MXP BE-Scale XPS spectrum", /Q, MXP_LaunchScaleXPSSpectrum()
 	Submenu "MXP markups ..."
 	"MXP Draw image markups", /Q, MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
 	"MXP Clear UserFront layer" ,/Q, MXP_ClearROIMarkingsUserFront()
 	End
 End
 
-Menu "GraphPopup"
-	"MXP BE-Scale XPS spectrum", /Q, MXP_LaunchScaleXPSSpectrum()
-End
+//Menu "GraphPopup"
+//	"MXP BE-Scale XPS spectrum", /Q, MXP_LaunchScaleXPSSpectrum()
+//End
+
+// Hidden operations
+//	Submenu "Misc"
+//		"Make a stack from pattern", /Q, MXP_LaunchMake3DWaveUsingPattern()
+//		"Make a stack from browser selection", /Q, MXP_LaunchMake3DWaveDataBrowserSelection()
+//	End
