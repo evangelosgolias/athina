@@ -57,10 +57,10 @@ Function/S MXP_ExecuteShellCommand(uCommand, printCommandInHistory, printResultI
 	return S_value
 End
 
-Function MXP_RecursiveCmdExecution(string cmdStr, string rangeStr)
+Function MXP_CmdExecutionUsingRange(string cmdStr, string rangeStr)
 	/// Execute cmdStr with parameters the numbers in rangeStr
 	/// See MXP_ExpandRangeStr doc string.
-	/// e.g.: MXP_RecursiveCmdExecution("NewDataFolder 'FLDR#%s'", "2,3,11-14")
+	/// e.g.: MXP_CmdExecutionUsingRange("NewDataFolder 'FLDR#%s'", "2,3,11-14")
 	string numStrList = MXP_ExpandRangeStr(rangeStr)
 	string execmdStr
 	
@@ -72,3 +72,17 @@ Function MXP_RecursiveCmdExecution(string cmdStr, string rangeStr)
 	return 0
 End
 
+Function MXP_CmdExecutionInFolderWithPattern(string cmdStr, string pattern)
+	/// Execute cmdStr for wavelist using pattern
+	/// e.g.: MXP_CmdExecutionInFolderWithPattern("NewDataFolder", "waveP*")
+	
+	string wlistStr = Wavelist(pattern, ";", "")
+	string execmdStr
+	
+	variable imax = ItemsInList(wlistStr), i
+	for(i = 0; i < imax; i++)
+		sprintf execmdStr, cmdStr, StringFromList(i, wlistStr)
+		Execute execmdStr
+	endfor
+	return 0
+End

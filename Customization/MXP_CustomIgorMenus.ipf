@@ -44,6 +44,7 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "Image Operations"
+		"FFT (TG, 2D)", /Q, MXP_LaunchImageFFTTransform()
 		"Rotate image (TG, 2D, 3D) ", /Q, MXP_LaunchImageRotateAndScale()
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, MXP_LaunchImageRotateAndScaleFromMetadata()
 		"Restore image from backup (TG)", /Q, MXP_RestoreTopImageFromBackup()
@@ -52,7 +53,7 @@ Menu "MAXPEEM"
 	Submenu "Interactive Operations"
 		"Rotate image (TG, 2D, 3D) ", /Q,  MXP_CreateInteractiveImageRotationPanel()
 		"Drift correction (TG, 2D, 3D) ", /Q, MXP_CreateInteractiveDriftCorrectionPanel() // TODO: Needs some tuning.
-		"XMC(L)D calculation ...", /Q, MXP_RestoreTopImageFromBackup() 
+		"XMC(L)D calculation ...", /Q, print "Not yet implemented"
 	End
 	
 	Submenu "Drift Correction"

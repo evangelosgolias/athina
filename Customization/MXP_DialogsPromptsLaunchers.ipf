@@ -88,9 +88,7 @@ Function MXP_LaunchAverageStackToImageFromMenu()
 End
 
 Function MXP_LaunchAverageStackToImageFromTraceMenu()
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	WAVE/Z w3dref = MXP_TopGraphToImageWaveRef()
 	if(!DimSize(w3dref, 2))
 		Abort "Operation needs a stack"
 	endif
@@ -204,9 +202,7 @@ Function MXP_LaunchRegisterQCalculateXRayDichroism()
 End
 
 Function MXP_LaunchCalculateXMCDFromStack()
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	WAVE/Z w3dref = MXP_TopGraphToImageWaveRef()
 	if(DimSize(w3dref,2) != 2)
 		Abort "A stack with two layers in needed"
 	endif
@@ -678,15 +674,12 @@ End
 //HERE
 Function MXP_LaunchImageRotateAndScale()
 	/// Rotated/scaled wave in created in the working dfr.
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	if(!strlen(imgNameTopGraphStr))
-		//print "No image in top graph!"
-		return -1
-	endif
-	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	WAVE/Z wRef = MXP_TopGraphToImageWaveRef()
 	variable angle = MXP_GenericSingleVarPrompt("Angle (deg)", "Image rotate and scale")
-	MXP_ImageRotateAndScale(wRef, angle)
+	if(WaveExists(wRef))
+		MXP_ImageRotateAndScale(wRef, angle)
+	endif
+	return 0
 End
 
 Function MXP_LaunchImageRotateAndScaleFromMetadata()
@@ -705,6 +698,21 @@ Function MXP_LaunchImageRotateAndScaleFromMetadata()
 	MXP_ImageBackupRotateAndScale(wRef, angle)
 End
 
+
+Function MXP_LaunchImageFFTTransform()
+	// FFT of the top image
+	WAVE/Z wRef = MXP_TopGraphToImageWaveRef()
+	if(WaveExists(wRef))
+		MXP_2DFFT(wRef)
+		WAVE wREF_FFT = $(NameOfWave(wRef) + "_FFT")
+		MXP_DisplayImage(wREF_FFT)
+	endif
+	
+End
+
+
+
+// --------------------------- Helper functions ------------------------------------//
 // Dialogs
 Function/S MXP_GenericSinglePopupStrPrompt(string strPrompt, string popupStrSelection, string msgDialog)
 	string returnStrVar 

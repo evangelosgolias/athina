@@ -186,15 +186,15 @@ Function MXP_CreatePESExtractorPlot(DFREF dfr)
 	SetWindow $profilePlotStr, hook(MyPESExtractorGraphHook) = MXP_PESExtractorGraphHookFunction // Set the hook
 	
 	ControlBar 100	
-	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=MXP_PESExtractorPlotSaveProfile
-	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=MXP_PESExtractorPlotSaveDefaultSettings
-	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and PES width"},proc=MXP_PESExtractorPlotRestoreDefaultSettings
-	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Show width of integrated area while button is pressed"},proc=MXP_PESExtractorPlotShowProfileWidth
+	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save current profile"},proc=MXP_PESExtractorPlotSaveProfile
+	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile width as defaults"},proc=MXP_PESExtractorPlotSaveDefaultSettings
+	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=MXP_PESExtractorPlotRestoreDefaultSettings
+	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Shows width of integrated area while button is pressed"},proc=MXP_PESExtractorPlotShowProfileWidth
 	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=MXP_PESExtractorPlotCheckboxPlotProfile
 	CheckBox MarkPESs,pos={127.00,40.00},size={86.00,17.00},title="Mark Lines ",fSize=14,value=0,side=1,proc=MXP_PESExtractorPlotCheckboxMarkPES
 	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=MXP_PESExtractorPlotProfileLayer3D
 	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(1,39321,19939),value=profileWidth,limits={0,inf,1},proc=MXP_PESExtractorPlotSetVariableWidth
-	Button SetCursorsAB,valueColor=(1,12815,52428), pos={467,17},size={40,70.00},title="Set\n(A, B)",fcolor=(65535,0,0),help={"Set cursors A (top right), B (lower left) and press to calibrate energy scale"},proc=MXP_PESExtractorPlotSSetCursorsAB // Change here	
+	Button SetCursorsAB,valueColor=(1,12815,52428), pos={462,17},size={50,70.00},title="Set\nCsr\nA & B",fcolor=(65535,0,0),help={"Set cursors A (top right), B (lower left) and press button to calibrate the energy scale"},proc=MXP_PESExtractorPlotSSetCursorsAB // Change here	
 	SetVariable setSTV,pos={20,72.00},size={100,20.00},title="STV", fSize=14,fColor=(0,0,65535),value=stv,limits={0,inf,1},proc=MXP_PESExtractorPlotSetSTV // Energy per pixel
 	SetVariable sethv,pos={135,72.00},size={90,20.00},title="hv", fSize=14,fColor=(65535,0,0),value=hv,limits={0,inf,1},proc=MXP_PESExtractorPlotSethv
 	SetVariable setWf,pos={235,72.00},size={90,20.00},title="Wf", fSize=14,fColor=(1,39321,19939),value=Wf,limits={0,inf,0.1},proc=MXP_PESExtractorPlotSetWf

@@ -264,8 +264,8 @@ Function MXP_SetImageRangeTo94Percent()
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	
-	NewDataFolder/S :MXP__Folder_ImageRangeTo94Percent
-	
+	NewDataFolder/O/S :MXP__Folder__ImageRangeTo94Percent__tmp
+		
 	variable planeN
 	
 	if(WaveDims(imgWaveRef) == 3)
@@ -313,7 +313,7 @@ Function MXP_SetImageRangeTo94Percent()
 	ModifyImage/W=$winNameStr $PossiblyQuoteName(nameOfWave(imgWaveRef)) ctab= {nzmin,nzmax,}
 	
 	SetDataFolder ::
-	KillDataFolder MXP__Folder_ImageRangeTo94Percent
+	KillDataFolder MXP__Folder__ImageRangeTo94Percent__tmp
 	return 0
 End
 

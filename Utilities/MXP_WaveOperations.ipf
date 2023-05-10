@@ -375,7 +375,7 @@ Function MXP_SetScalesP(WAVE wRef, variable x0, variable y0, variable z0, variab
 End
 
 // Helper functions
-static Function MXP_NextPowerOfTwo(variable num)
+Function MXP_NextPowerOfTwo(variable num)
 	 /// Return the first power of two after num.
 	 /// @param num double 
 	variable bufferVar
@@ -414,7 +414,7 @@ Function MXP_FindBigWaves(minSizeInMB[,df,depth,noShow])
     variable points=numpnts(names)
     for(i=0;i<CountObjectsDFR(df,1);i+=1)
         wave w=df:$getindexedobjnamedfr(df,1,i)
-        variable size = sizeOfWave(w)
+        variable size = MXP_sizeOfWave(w)
         if(size > minSizeInMB)
             names[points]={GetWavesDataFolder(w,2)}
             sizes[points]={size}
@@ -444,7 +444,7 @@ Function MXP_FindBigWaves(minSizeInMB[,df,depth,noShow])
     endif
 End
 
-Function SizeOfWave(wv)
+Function MXP_SizeOfWave(wv)
     wave/Z wv
 
     variable i, numEntries
@@ -459,9 +459,22 @@ Function SizeOfWave(wv)
             if(!WaveExists(elem))
                 continue
             endif
-            total += SizeOfWave(elem)
+            total += MXP_SizeOfWave(elem)
         endfor
     endif
 
     return total / 1024 / 1024
+End
+
+Function/WAVE MXP_TopGraphToImageWaveRef()
+	// Return a wave reference from the top graph
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	// if there is no image in the top graph strlen(imgNameTopGraphStr) = 0
+	if(strlen(imgNameTopGraphStr))
+		WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+		return wRef
+	else 
+		return $""
+	endif
 End
