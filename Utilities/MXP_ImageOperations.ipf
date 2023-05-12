@@ -59,7 +59,7 @@ Function MXP_ScaleImage() // Uses top graph
 End
 
 Function MXP_ImageSelectToCopyScale() // Uses top graph
-	WAVE wRef =MXP_TopGraphToImageWaveRef()
+	WAVE wRef =MXP_TopImageToWaveRef()
 	// Select the first wave from browser selection
 	string selectedWavesStr = MXP_SelectWavesInModalDataBrowser("Select an image to set common dimension scaling")
 	WAVE sourceWaveRef = $StringFromList(0, selectedWavesStr)
@@ -358,7 +358,7 @@ Function MXP_RestoreTopImageFromBackup()
 	/// will have side a_rot = a * (cos(angle) + sin(angle))
 	/// @param angle: clockwise rotation in degrees
 	
-	WAVE/Z wRef = MXP_TopGraphToImageWaveRef()
+	WAVE/Z wRef = MXP_TopImageToWaveRef()
 	string backupWaveNameStr = NameOfWave(wRef) + "_undo"
 	WAVE/Z wRefbck = $backupWaveNameStr
 

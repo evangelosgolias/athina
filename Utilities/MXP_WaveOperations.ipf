@@ -466,7 +466,7 @@ Function MXP_SizeOfWave(wv)
     return total / 1024 / 1024
 End
 
-Function/WAVE MXP_TopGraphToImageWaveRef()
+Function/WAVE MXP_TopImageToWaveRef()
 	// Return a wave reference from the top graph
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")

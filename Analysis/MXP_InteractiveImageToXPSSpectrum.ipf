@@ -113,7 +113,7 @@ Function MXP_InitialisePESExtractorFolder(string winNameStr)
 	variable/G dfr:gMXP_updateSelectedLayer = 0
 	variable/G dfr:gMXP_updateCursorsPositions = 0
 	// PES scaling values
-	variable/G dfr:gMXP_hv = 0
+	variable/G dfr:gMXP_hv = MXP_GetPhotonEnergyFromFilename(imgNameTopGraphStr)
 	variable/G dfr:gMXP_Wf = 4.5
 	variable/G dfr:gMXP_epp = kMXPEnergyPerPixel
 	variable/G dfr:gMXP_Ax = 0

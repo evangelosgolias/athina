@@ -88,7 +88,7 @@ Function MXP_LaunchAverageStackToImageFromMenu()
 End
 
 Function MXP_LaunchAverageStackToImageFromTraceMenu()
-	WAVE/Z w3dref = MXP_TopGraphToImageWaveRef()
+	WAVE/Z w3dref = MXP_TopImageToWaveRef()
 	if(!DimSize(w3dref, 2))
 		Abort "Operation needs a stack"
 	endif
@@ -202,7 +202,7 @@ Function MXP_LaunchRegisterQCalculateXRayDichroism()
 End
 
 Function MXP_LaunchCalculateXMCDFromStack()
-	WAVE/Z w3dref = MXP_TopGraphToImageWaveRef()
+	WAVE/Z w3dref = MXP_TopImageToWaveRef()
 	if(DimSize(w3dref,2) != 2)
 		Abort "A stack with two layers in needed"
 	endif
@@ -674,7 +674,7 @@ End
 //HERE
 Function MXP_LaunchImageRotateAndScale()
 	/// Rotated/scaled wave in created in the working dfr.
-	WAVE/Z wRef = MXP_TopGraphToImageWaveRef()
+	WAVE/Z wRef = MXP_TopImageToWaveRef()
 	variable angle = MXP_GenericSingleVarPrompt("Angle (deg)", "Image rotate and scale")
 	if(WaveExists(wRef))
 		MXP_ImageRotateAndScale(wRef, angle)
@@ -701,7 +701,7 @@ End
 
 Function MXP_LaunchImageFFTTransform()
 	// FFT of the top image
-	WAVE/Z wRef = MXP_TopGraphToImageWaveRef()
+	WAVE/Z wRef = MXP_TopImageToWaveRef()
 	if(WaveExists(wRef))
 		MXP_2DFFT(wRef)
 		WAVE wREF_FFT = $(NameOfWave(wRef) + "_FFT")

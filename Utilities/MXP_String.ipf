@@ -33,3 +33,15 @@ Function/S MXP_ExpandRangeStr(string rangeStr)
 	
 	return SortList(outStr,";", 34) // remove duplicates and sorts
 End
+
+Function MXP_GetPhotonEnergyFromFilename(string nameStr)
+	// MAXPEEM specific: extract the photon energy from the filename and return it as number
+	// regex compiles the most  common ways of writing the energy in a filename.
+	string regex = "\s+(hv\s*=|hn\s*=|hn|hv)\s*([0-9]*[.]?[0-9]+)(\s*eV|\s*)"
+	string prefix, energy, suffix
+	SplitString/E=regex nameStr, prefix, energy, suffix
+	if(V_flag)
+		return str2num(energy)
+	endif
+	return 0
+End

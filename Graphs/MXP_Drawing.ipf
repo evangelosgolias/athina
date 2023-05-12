@@ -41,7 +41,7 @@ Function MXP_DrawLineUsingCursors(string C1, string C2, [string layer])
 	return 0
 End
 
-Function MXP_DrawCircleUsingTwoCursors(string C1, string C2, [string layer])
+Function MXP_DrawCircleUsingAntinodalCursors(string C1, string C2, [string layer])
 	// Draw a circle with antinodal points at C1 & C2
 	// Draws in Overlay layer if layer optional argument is not given
 
@@ -58,6 +58,32 @@ Function MXP_DrawCircleUsingTwoCursors(string C1, string C2, [string layer])
 	
 	//change now left, right, top, bottom
 	
+	left   = xc - radius
+	right  = xc + radius
+	top    = yc + radius
+	bottom = yc - radius
+	
+	SetDrawLayer $layer
+	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+	DrawOval left, top,right, bottom 
+	return 0
+End
+
+Function MXP_DrawCircleUsingCenterAndPointCursors(string C1, string C2, [string layer])
+	// Draw a circle with center at C1 that passed from C2
+	// Draws in Overlay layer if layer optional argument is not given
+
+	layer = SelectString(ParamIsDefault(layer), layer, "Overlay")
+	
+	variable left, right, top, bottom, xc, yc, radius
+	left = hcsr($C1); right = hcsr($C2)
+	top = vcsr($C1); bottom = vcsr($C2)
+	
+	xc = left
+	yc = top
+	
+	radius = MXP_GetDistanceFromCursors(C1, C2)
+		
 	left   = xc - radius
 	right  = xc + radius
 	top    = yc + radius
