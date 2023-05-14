@@ -251,7 +251,7 @@ End
 
 Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int waveDataType, int autoScale])
 	///< Function to load a single Elmitec binary .dat file.
-	/// @param filepathStr string filename (including) pathname. 
+	/// @param filepathStr string pathname. 
 	/// If "" a dialog opens to select the file.
 	/// @param waveNameStr name of the imported wave. 
 	/// If "" the wave name is the filename without the path and extention.
@@ -1165,12 +1165,12 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 	endif
 	variable cnt = 0
 	string odlwname = wname3d
-	// IDEA: Use CreateDataObjectName(dfr, nameInStr, objectType, suffixNum, options)
+	// TODO: Use CreateDataObjectName(dfr, nameInStr, objectType, suffixNum, options)
 	// Handle the case where the 3d wave exists and find an appropriate name
 	if(stack3d && exists(wname3d) == 1)
 		do
 			printf "Wave %s exists in %s renaming to %s\n", wname3d, GetDataFolder(1), (wname3d + num2str(cnt))
-			wname3d = odlwname + "_" + num2str(cnt)
+			wname3d = odlwname + num2str(cnt)
 			cnt++
 		while(exists(wname3d) == 1)
 		// if name in use by a global wave/variable 
@@ -1209,11 +1209,6 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 			endif
 		endif		
 	endfor
-	
-	// It is assumed that all the imported waves have the same dimensions, use it to scale the 3d wave
-	if(stack3d)
-		WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, ("MXPWaveToStack_idx_"+num2str(i)), skipmetadata = 0)
-	endif
 
 	if(stack3d)
 		ImageTransform/NP=(filesnr) stackImages $"MXPWaveToStack_idx_0"
@@ -1232,6 +1227,103 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 	endif
 	KillPath/Z MXP_DATFilesPathTMP
 	return 0
+End
+
+//TODO: Clean the code also! Use it to auto-load a folder
+Function/WAVE MXP_WAVELoadDATFilesFromFolder(string folder, string pattern, [int stack3d, string wname3dStr, int autoscale])
+	// We use ImageTransform stackImages X to create the 3d wave. Compared to 3d wave assignement it is faster by nearly 3x.
+
+	/// Import .dat files that match a pattern from a folder. Waves are named after their filename.
+	/// @param folder string folder of the .dat files
+	/// @param pattern string pattern to filter .dat files, use "*" for all .dat files- empty string gives an error
+	/// @param stack3d int optional stack imported .dat files to the 3d wave, kill the imported waves
+	/// @param autoScale int optional scales the imported waves if not 0
+	/// @param wname3dStr string optional name of the 3d wave, othewise defaults to MXP_w3d
+	
+	/// Modified on 14.05.2023 to use with MXP_LoadNewestFolderInPathTree. Clean the code **TODO**
+	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
+	wname3dStr = SelectString(ParamIsDefault(wname3dStr) ? 0: 1,"stack3d", wname3dStr)
+	
+	folder = ParseFilePath(2, folder, ":", 0, 0) // We need the last ":"  in path!!!
+	
+	NewPath/O MXP_DATFilesPathTMP, folder
+	
+	// Get all the .dat files. Use "????" for all files in IndexedFile third argument.
+	// Filter the matches with pattern at the second stage.
+	string allFiles = ListMatch(SortList(IndexedFile(MXP_DATFilesPathTMP, -1, ".dat"),";", 16), pattern)
+		
+	variable filesnr = ItemsInList(allFiles)
+
+	// If no files are selected (e.g match pattern return "") warn user
+	if (!filesnr)
+		Abort "No files match pattern: " + pattern
+	endif
+	variable cnt = 0
+	string odlwname = wname3dStr
+	// TODO: Use CreateDataObjectName(dfr, nameInStr, objectType, suffixNum, options)
+	// Handle the case where the 3d wave exists and find an appropriate name
+	if(stack3d && exists(wname3dStr) == 1)
+		do
+			printf "Wave %s exists in %s renaming to %s\n", wname3dStr, GetDataFolder(1), (wname3dStr + num2str(cnt))
+			wname3dStr = odlwname + num2str(cnt)
+			cnt++
+		while(exists(wname3dStr) == 1)
+		// if name in use by a global wave/variable 
+		if(!exists(wname3dStr) == 0) // 0 - Name not in use, or does not conflict with a wave, numeric variable or string variable in the specified data folder.
+			print "MXP: Renamed your wave to \"" + (wname3dStr + "_rn") + "\" to avoid conflicts"
+			wname3dStr += "_rn"
+		endif
+	endif
+	
+	string filenameBuffer, datafile2read, filenameStr
+	variable i, fovScale
+	
+	if(stack3d) // Make a folder to import files for the stack
+		NewDataFolder MPX_tmpStorageStackFolder
+		SetDataFolder MPX_tmpStorageStackFolder
+	endif
+	// Now get all the files
+	for(i = 0; i < filesnr; i += 1)
+		filenameBuffer = StringFromList(i, allFiles)
+		datafile2read = folder + filenameBuffer
+		if(stack3d) // Skip the metadata if you load to a 3dwave
+			// Here we assume all the waves have the same x, y scaling 
+			if(i == 0) // We get the wave scaling for rows and columnns using the first wave, assumed DimSize(w, 0) == DimSize(w, 1)
+					WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, ("MXPWaveToStack_idx_" + num2str(i)), skipmetadata = 0) 
+					variable getScaleXY = NumberByKey("FOV(µm)", note(wname), ":", "\n")
+				else
+					WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, ("MXPWaveToStack_idx_" + num2str(i)), skipmetadata = 1)
+			endif
+		else
+			filenameStr = ParseFilePath(3, datafile2read, ":", 0, 0)
+			WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 0)
+			fovScale = NumberByKey("FOV(µm)", note(wname), ":", "\n")
+			if(autoscale)
+				SetScale/I x, 0, fovScale, $filenameStr
+				SetScale/I y, 0, fovScale, $filenameStr 
+			endif
+		endif		
+	endfor
+	
+	if(stack3d)
+		ImageTransform/NP=(filesnr) stackImages $"MXPWaveToStack_idx_0"
+		WAVE M_Stack
+		//Add a note to the 3dwave about which files have been loaded
+		string note3d
+		sprintf note3d, "Timestamp: %s\nFolder: %s\nFiles: %s\n",(date() + " " + time()), folder, allFiles
+		Note/K M_Stack, note3d
+		MoveWave M_Stack ::$wname3dStr
+		SetDataFolder ::
+		KillDataFolder/Z MPX_tmpStorageStackFolder
+	endif
+	// It is assumed that all the imported waves have the same dimensions, use it to scale the 3d wave	
+	if(autoscale && stack3d)
+		SetScale/I x, 0, getScaleXY, $wname3dStr
+		SetScale/I y, 0, getScaleXY, $wname3dStr
+	endif
+	KillPath/Z MXP_DATFilesPathTMP
+	WAVE wRef = $wname3dStr
+	return wRef
 End
 
 Function MXP_LoadMultiplyDATFiles([string filenames, int skipmetadata, int autoscale])

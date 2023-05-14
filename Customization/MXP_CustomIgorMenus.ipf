@@ -41,6 +41,8 @@ Menu "MAXPEEM"
 		".dav file...", /Q, MXP_LoadSingleDAVFile("", "", autoscale = 1)
 		".dat file (img only)...", /Q, MXP_LoadSingleCorruptedDATFile("", "")
 		".h5 file ...", /Q, MXP_LauncherLoadHDF5GroupsFromFile()
+		"last saved file",/Q, MXP_LoadNewestFileInPathTree(".dat")
+		"stack from newest folder",/Q, MXP_LoadNewestFolderInPathTree()
 	End
 	
 	Submenu "Image Operations"
@@ -82,6 +84,9 @@ Menu "MAXPEEM"
 		"Spaces",/Q, MXP_MainMenuLaunchSpaces()
 		"Photoionisation CrossSection",/Q, PhotoionisationCrossSection#PhotoionisationCrossSection()
 		"List HDF5 (.h5) entries...", /Q, MXP_ListHDF5Groups()
+	End
+	Submenu "Configuration"
+		"Set experiment's root folder",/Q, MXP_SetOrResetBeamtimeRootFolder()
 	End
 End
 

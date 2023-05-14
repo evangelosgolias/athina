@@ -29,6 +29,7 @@
 // ------------------------------------------------------- //
 
 // Launchers
+
 Function MXP_LaunchMake3DWaveUsingPattern()
 	string wname3dStr, pattern
 	[wname3dStr, pattern] = MXP_GenericDoubleStrPrompt("Stack name","Match waves (use * wildcard)", "Make a stack from waves using a pattern")
