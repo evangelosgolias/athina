@@ -212,10 +212,10 @@ Function MXP_DeleteEverythingButSomeFolders(string baseFolderPattern, string kee
 	SetDataFolder dfr
 End
 
-Function MXP_SetOrResetBeamtimeRootFolder()
-	// Helper function for MXP_GetNewestCreatedFileInPathTree()
-	// Set of reset Igor Path for MXP_GetNewestCreatedFileInPathTree() function
-	// that reads the last saved file in a folder tree
+Function/S MXP_SetOrResetBeamtimeRootFolder()
+	// Helper function for functions in MXP_LoadFilesDuringBeamtime.ipf.
+	// Set or reset the Igor Path pMXP_LoadFilesBeamtimeIgorPath
+	// and return the full path linked with Igor Path
 	PathInfo pMXP_LoadFilesBeamtimeIgorPath 
 	if(V_flag) // path exists
 		KillPath/Z pMXP_LoadFilesBeamtimeIgorPath 
@@ -224,7 +224,7 @@ Function MXP_SetOrResetBeamtimeRootFolder()
 	GetFileFolderInfo/Z=2/Q/D //Select folder dialog
 	
 	if(!(V_flag == -1))
-		NewPath/O pMXP_LoadFilesBeamtimeIgorPath , S_path
+		NewPath/Q/O pMXP_LoadFilesBeamtimeIgorPath , S_path
 	endif
-	return 0
+	return S_path
 End

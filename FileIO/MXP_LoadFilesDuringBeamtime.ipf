@@ -55,18 +55,15 @@ Function/S MXP_GetNewestCreatedFileInPathTree(string pathName,
 	//  reset pass-by-value arguments. We could alternatively use SVAR and NVAR.
 	/// DO NOT CALL THE FUNCTION DIRECTLY.
 
-	PathInfo pMXP_LoadFilesBeamtimeIgorPath
-
-	if(!V_flag)
-		MXP_SetOrResetBeamtimeRootFolder()
+	PathInfo $pathName
+	string path = S_path	
+	if(!V_flag) // If path not defined
+		print "pMXP_LoadFilesBeamtimeIgorPath is not set!"
+		path = MXP_SetOrResetBeamtimeRootFolder()
 	endif
 	
 	// Reset or make the string variable
 	variable folderIndex, fileIndex
-	string path
-	
-	PathInfo $pathName	// Sets S_path
-	path = S_path
 
 	// Add files
 	fileIndex = 0
@@ -122,7 +119,7 @@ Function MXP_LoadNewestFolderInPathTreeAndDisplay()
 	string folderPathStr = MXP_GetNewestCreatedFolderInPathTree("pMXP_LoadFilesBeamtimeIgorPath", latestfolder, latestctime)
 	WAVE wRef = MXP_WAVELoadDATFilesFromFolder(folderPathStr, "*", stack3d = 1, autoscale = 1)
 	MXP_DisplayImage(wRef)
-	print "Loaded: ", folderPathStr	
+	print "Folder loaded: ", folderPathStr	
 	return 0
 End
 
@@ -134,18 +131,15 @@ Function/S MXP_GetNewestCreatedFolderInPathTree(string pathName, string &latestf
 	//	using NewPath or the Misc->New Path menu item.
 	/// DO NOT CALL THE FUNCTION DIRECTLY.
 
-	PathInfo pMXP_LoadFilesBeamtimeIgorPath
-	
-	if(!V_flag)
-		MXP_SetOrResetBeamtimeRootFolder()
+	PathInfo $pathName
+	string path = S_path	
+	if(!V_flag) // If path not defined
+		print "pMXP_LoadFilesBeamtimeIgorPath is not set!"
+		path = MXP_SetOrResetBeamtimeRootFolder()
 	endif
 	
 	// Reset or make the string variable
 	variable folderIndex
-	string path
-
-	PathInfo $pathName	// Sets S_path
-	path = S_path
 	
 	string allsubFolders = IndexedDir($pathName, -1, 1)
 	folderIndex = 0
@@ -177,29 +171,44 @@ Function/S MXP_GetNewestCreatedFolderInPathTree(string pathName, string &latestf
 	return latestfolder
 End
 
+Function MXP_LoadNewestFileInPathTreeAndDisplayPython(string ext) // TODO
+	/// Load the last file found in the directory tree with root set at pathName
+	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
+	/// will pop to set pathName. The path name is saved as pMXP_LoadLastFileIgorPath.
+
+	string filepathStr = MXP_GetLastSavedFileInFolderTreePython("pMXP_LoadFilesBeamtimeIgorPath", ext) // Change path!
+	//WAVE wRef = MXP_WAVELoadSingleDATFile(filepathStr, "")
+	//MXP_DisplayImage(wRef)
+	print "File loaded: ", filepathStr
+	return 0
+End
+
 Function/S MXP_GetLastSavedFileInFolderTreePython(string pathName, string ext)
 	// valid shell script
 	// do shell script "python3 -c \"from pathlib import Path;from os.path import getmtime;
 	// print(max(list(Path('/Users/evangelosgolias/Desktop/MAXPEEM March 2023').rglob('*.dat')),key=getmtime))\""
-	
+	// For WINDOWS python interpreter and runtime is needed.
 	PathInfo $pathName
-	if(!V_flag)
-		MXP_SetOrResetBeamtimeRootFolder()
+	string path = S_path	
+	if(!V_flag) // If path not defined, set it and call the function again
+		print "pMXP_LoadFilesBeamtimeIgorPath is not set!"
+		path = MXP_SetOrResetBeamtimeRootFolder()
 	endif
-	string path = S_path
-	// We need this to run the python script
-	#ifdef MACINTOSH
+	
+	#ifdef WINDOWS
+		path = RemoveEnding(ParseFilePath(5, path, "\\", 0, 0))// Remove last backslash because it is interpreted as escape character \'
+	#else // MACINTOSH
 		path = ParseFilePath(5, path, "/", 0, 0)
-	#elif WINDOWS	
-		path = ParseFilePath(5, path, "\\", 0, 0)
-	#else // UNC ?
-		path = ParseFilePath(5, path, "*", 0, 0) // Check if this works
 	#endif	
 	string 	unixCmd, igorCmd
 	string unixCmdBase = "python3 -c \\\"from pathlib import Path;from os.path import getmtime;print(max(list(Path('%s').rglob('*%s')),key=getmtime))\\\""
 	sprintf unixCmd, unixCmdBase, path, ext
-	sprintf igorCmd, "do shell script \"%s\" ", unixCmd
-	ExecuteScriptText/B/UNQ igorCmd
+	
+	#ifdef WINDOWS
+		sprintf igorCmd, "cmd.exe /C \"%s\"", unixCmd
+	#else // MACINTOSH
+		sprintf igorCmd, "do shell script \"%s\" ", unixCmd
+	#endif	
+	ExecuteScriptText/Z/B/UNQ igorCmd
 	return S_value
 End
-
