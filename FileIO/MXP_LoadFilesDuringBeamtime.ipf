@@ -28,29 +28,20 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-Function MXP_LoadNewestFileInPathTree(string extension)
+Function MXP_LoadNewestFileInPathTreeAndDisplay(string extension)
 	/// Load the last file found in the directory tree with root at pathName
-	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
-	/// will pop to set pathName. The path name is saved as pMXP_LoadFilesBeamtimeIgorPath
-	PathInfo pMXP_LoadFilesBeamtimeIgorPath
-	
-	if(!V_flag)
-		MXP_SetOrResetBeamtimeRootFolder()
-	endif
-	
-	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Config:Dirs:LoadFiles")
-	// We must reset the values at each call
-	string/G dfr:sMXP_NewestFilePath = ""
-	variable/G dfr:vMXP_CreatingDate = 0
-	string filepathStr = MXP_GetNewestCreatedFileInPathTree("pMXP_LoadFilesBeamtimeIgorPath", extension, 1, 0)
+	string latestfile = ""
+	variable latestctime = 0
+	string filepathStr = MXP_GetNewestCreatedFileInPathTree("pMXP_LoadFilesBeamtimeIgorPath", extension, latestfile, latestctime, 1, 0)
 	WAVE wRef = MXP_WAVELoadSingleDATFile(filepathStr, "")
 	MXP_DisplayImage(wRef)
-	print "Loaded: ", filepathStr
+	print "File loaded: ", filepathStr
 	return 0
 End
 
 Function/S MXP_GetNewestCreatedFileInPathTree(string pathName, 
-		   string extension, variable recurse, variable level)
+		   string extension, string &latestfile, variable &latestctime, 
+		   variable recurse, variable level)
 	//  MXP_GetNewestCreatedFileInPathTree is a modified WM code of
 	//	PrintFoldersAndFiles(pathName, extension, recurse, level)
 	//	It recursively finds all files in a folder and subfolders looking for 
@@ -59,13 +50,16 @@ Function/S MXP_GetNewestCreatedFileInPathTree(string pathName,
 	//	using NewPath or the Misc->New Path menu item.
 	//	extension is a file name extension like ".txt" or "????" for all files.
 	//	recurse is 1 to recurse or 0 to list just the top-level folder.
-	//	level is the recursion level - pass 0 when calling MXP_GetNewestCreatedFileInPathTree.	
-	/// *NB* sMXP_NewestFilePath, vMXP_CreatingDate must be created by another function.
+	//	level is the recursion level - pass 0 when calling MXP_GetNewestCreatedFileInPathTree.
+	//  latestfile and latestctime are called by reference as the recursive function call would 
+	//  reset pass-by-value arguments. We could alternatively use SVAR and NVAR.
 	/// DO NOT CALL THE FUNCTION DIRECTLY.
-	/// See MXP_SetOrResetRootFolder and MXP_LaunchLoadNewestFileInPathTree
-	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Config:Dirs:LoadFiles")
-	SVAR/SDFR=dfr sMXP_NewestFilePath
-	NVAR/SDFR=dfr vMXP_CreatingDate
+
+	PathInfo pMXP_LoadFilesBeamtimeIgorPath
+
+	if(!V_flag)
+		MXP_SetOrResetBeamtimeRootFolder()
+	endif
 	
 	// Reset or make the string variable
 	variable folderIndex, fileIndex
@@ -85,9 +79,9 @@ Function/S MXP_GetNewestCreatedFileInPathTree(string pathName,
 			
 		GetFileFolderInfo/Z/Q (path + fileName)
 		
-		if(V_creationDate > vMXP_CreatingDate)
-			sMXP_NewestFilePath = (path + fileName)
-			vMXP_CreatingDate = V_creationDate
+		if(V_creationDate > latestctime)
+			latestfile = (path + fileName)
+			latestctime = V_creationDate
 		endif
 	
 		fileIndex += 1
@@ -108,49 +102,44 @@ Function/S MXP_GetNewestCreatedFileInPathTree(string pathName,
 			subFolderPath = path
 			
 			NewPath/Q/O $subFolderPathName, subFolderPath
-			MXP_GetNewestCreatedFileInPathTree(subFolderPathName, extension, recurse, level+1)
+			MXP_GetNewestCreatedFileInPathTree(subFolderPathName, extension, latestfile, latestctime, recurse, level+1)
 			KillPath/Z $subFolderPathName
 			
 			folderIndex += 1
 		while(1)
 	endif
-
-	return sMXP_NewestFilePath
+	return latestfile
 End
 
-Function MXP_LoadNewestFolderInPathTree()
+
+Function MXP_LoadNewestFolderInPathTreeAndDisplay()
 	/// Load the last file found in the directory tree with root at pathName
 	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
 	/// will pop to set pathName. The path name is saved as pMXP_LoadLastFileIgorPath
-		
-	PathInfo pMXP_LoadFilesBeamtimeIgorPath
-	
-	if(!V_flag)
-		MXP_SetOrResetBeamtimeRootFolder()
-	endif
-	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Config:Dirs:LoadFolders")	
-	// We must reset the values at each call
-	string/G dfr:sMXP_NewestFolderPath = ""
-	variable/G dfr:vMXP_CreatingDate = 0
-	string folderPathStr = MXP_GetNewestCreatedFolderInPathTree("pMXP_LoadFilesBeamtimeIgorPath")
+
+	string latestfolder = ""
+	variable latestctime = 0
+	string folderPathStr = MXP_GetNewestCreatedFolderInPathTree("pMXP_LoadFilesBeamtimeIgorPath", latestfolder, latestctime)
 	WAVE wRef = MXP_WAVELoadDATFilesFromFolder(folderPathStr, "*", stack3d = 1, autoscale = 1)
 	MXP_DisplayImage(wRef)
-	print "Loaded: ", folderPathStr
+	print "Loaded: ", folderPathStr	
 	return 0
 End
 
-Function/S MXP_GetNewestCreatedFolderInPathTree(string pathName)
+Function/S MXP_GetNewestCreatedFolderInPathTree(string pathName, string &latestfolder, variable &latestctime)
 	//  MXP_GetNewestCreatedFileInPathTree is a modified WM code of
 	//	PrintFoldersAndFiles(pathName, extension, recurse, level)
 	//	It recursively searches for the newest folder in a folder tree.
 	//	pathName is the name of an Igor symbolic path that you created
 	//	using NewPath or the Misc->New Path menu item.
-	/// *NB* sMXP_NewestFilePath, vMXP_CreatingDate must be created by another function.
 	/// DO NOT CALL THE FUNCTION DIRECTLY.
-	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:Config:Dirs:LoadFolders")
-	SVAR/SDFR=dfr sMXP_NewestFolderPath
-	NVAR/SDFR=dfr vMXP_CreatingDate
 
+	PathInfo pMXP_LoadFilesBeamtimeIgorPath
+	
+	if(!V_flag)
+		MXP_SetOrResetBeamtimeRootFolder()
+	endif
+	
 	// Reset or make the string variable
 	variable folderIndex
 	string path
@@ -174,16 +163,43 @@ Function/S MXP_GetNewestCreatedFolderInPathTree(string pathName)
 		
 		GetFileFolderInfo/Z/Q path
 
-		if(V_creationDate > vMXP_CreatingDate)
-			sMXP_NewestFolderPath = path
-			vMXP_CreatingDate = V_creationDate
+		if(V_creationDate > latestctime)
+			latestfolder = path
+			latestctime = V_creationDate
 		endif
 		
 		NewPath/Q/O $subFolderPathName, subFolderPath
-		MXP_GetNewestCreatedFolderInPathTree(subFolderPathName)
+		MXP_GetNewestCreatedFolderInPathTree(subFolderPathName, latestfolder, latestctime)
 		KillPath/Z $subFolderPathName
 
 		folderIndex += 1
 	while(1)
-	return sMXP_NewestFolderPath
+	return latestfolder
 End
+
+Function/S MXP_GetLastSavedFileInFolderTreePython(string pathName, string ext)
+	// valid shell script
+	// do shell script "python3 -c \"from pathlib import Path;from os.path import getmtime;
+	// print(max(list(Path('/Users/evangelosgolias/Desktop/MAXPEEM March 2023').rglob('*.dat')),key=getmtime))\""
+	
+	PathInfo $pathName
+	if(!V_flag)
+		MXP_SetOrResetBeamtimeRootFolder()
+	endif
+	string path = S_path
+	// We need this to run the python script
+	#ifdef MACINTOSH
+		path = ParseFilePath(5, path, "/", 0, 0)
+	#elif WINDOWS	
+		path = ParseFilePath(5, path, "\\", 0, 0)
+	#else // UNC ?
+		path = ParseFilePath(5, path, "*", 0, 0) // Check if this works
+	#endif	
+	string 	unixCmd, igorCmd
+	string unixCmdBase = "python3 -c \\\"from pathlib import Path;from os.path import getmtime;print(max(list(Path('%s').rglob('*%s')),key=getmtime))\\\""
+	sprintf unixCmd, unixCmdBase, path, ext
+	sprintf igorCmd, "do shell script \"%s\" ", unixCmd
+	ExecuteScriptText/B/UNQ igorCmd
+	return S_value
+End
+

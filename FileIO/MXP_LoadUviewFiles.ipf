@@ -1246,7 +1246,7 @@ Function/WAVE MXP_WAVELoadDATFilesFromFolder(string folder, string pattern, [int
 	
 	folder = ParseFilePath(2, folder, ":", 0, 0) // We need the last ":"  in path!!!
 	
-	NewPath/O MXP_DATFilesPathTMP, folder
+	NewPath/Q/O MXP_DATFilesPathTMP, folder
 	
 	// Get all the .dat files. Use "????" for all files in IndexedFile third argument.
 	// Filter the matches with pattern at the second stage.

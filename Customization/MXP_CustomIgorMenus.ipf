@@ -41,8 +41,8 @@ Menu "MAXPEEM"
 		".dav file...", /Q, MXP_LoadSingleDAVFile("", "", autoscale = 1)
 		".dat file (img only)...", /Q, MXP_LoadSingleCorruptedDATFile("", "")
 		".h5 file ...", /Q, MXP_LauncherLoadHDF5GroupsFromFile()
-		"last saved file",/Q, MXP_LoadNewestFileInPathTree(".dat")
-		"stack from newest folder",/Q, MXP_LoadNewestFolderInPathTree()
+		"last saved file",/Q, MXP_LoadNewestFileInPathTreeAndDisplay(".dat")
+		"stack from newest folder",/Q, MXP_LoadNewestFolderInPathTreeAndDisplay()
 	End
 	
 	Submenu "Image Operations"
