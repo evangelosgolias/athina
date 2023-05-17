@@ -124,6 +124,7 @@ Menu "DataBrowserObjectsPopup"
 End
 
 Menu "TracePopup"
+	"MXP Autoscale Image (2D, 3D)", /Q, MXP_AutoScaleTopImage()
 	"MXP Save layer (3D)", /Q, MXP_GetLayerFromImageStack()
 	"MXP Save current view (2D,3D)", /Q, MXP_GetScaledZoominImageWindow()
 	"MXP Add images to Stack (3D)", /Q, MXP_LaunchStackImagesToImageStack()
@@ -135,10 +136,6 @@ Menu "TracePopup"
 	"MXP Clear UserFront layer" ,/Q, MXP_ClearROIMarkingsUserFront()
 	End
 End
-
-//Menu "GraphPopup"
-//	"MXP BE-Scale XPS spectrum", /Q, MXP_LaunchScaleXPSSpectrum()
-//End
 
 // Hidden operations
 //	Submenu "Misc"

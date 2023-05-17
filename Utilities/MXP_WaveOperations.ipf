@@ -66,12 +66,15 @@ Function MXP_Make3DWaveUsingPattern(string wname3d, string pattern)
 	return 0
 End
 
-Function MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoFilesDFR])
+Function/S MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoFilesDFR])
 
-	// Like EGMake3DWave, but now waves are selected
+	// Make a 3d wave using waves selected
 	// in the browser window. No check for selection
 	// type, so if you select a folder or variable
 	// you will get an error.
+	// Returns a string with the name of the created wave, as wname3dStr
+	// might be already taken
+	
 	gotoFilesDFR = ParamIsDefault(gotoFilesDFR) ? 0: gotoFilesDFR
 	string listOfSelectedWaves = ""
 	
@@ -97,7 +100,7 @@ Function MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoFil
 	
 	variable nrwaves = ItemsInList(listOfSelectedWaves)
 	if (nrwaves < 2)
-		return -1 // No wave or one wave is selected
+		return "" // No wave or one wave is selected
 	endif
 	
 	string wname = StringFromList(0, listOfSelectedWaves)
@@ -140,7 +143,7 @@ Function MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoFil
 		if(WaveDims(t2dwred)!=2)
 			print "\"Make Stack\" operation stopped. I can only stack images (2d waves)!"
 			KillWaves/Z w3dref
-			return -1
+			return ""
 		endif
 		
 		w3dref[][][i] = t2dwred[p][q]
@@ -154,7 +157,7 @@ Function MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoFil
 	Note w3dref, listOfSelectedWaves
 	// Go back to the cwd
 	SetDataFolder currDFR
-	return 0
+	return wname3dStr
 End
 
 Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])

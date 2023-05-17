@@ -39,15 +39,8 @@ End
 
 Function MXP_LaunchMake3DWaveDataBrowserSelection([variable displayStack])
 	displayStack = ParamIsDefault(displayStack) ? 0: displayStack // Give any non-zero to display the stack
-	string wname3dStr = ""
-	//20.02.2023 changed to "" to bypass dialog. Uncomment to restore		
-	//wname3dStr = MXP_GenericSingleStrPrompt("Stack name", "Make a stack of pre-selected waves in data browser")
-	
-	if(!strlen(wname3dStr))
-		wname3dStr = "MXP_stack"
-	endif
-	
-	MXP_Make3DWaveDataBrowserSelection(wname3dStr, gotoFilesDFR = 0) // 0 - stack in cwd 1 - stack in files DFR
+	string wname3dStr
+	wname3dStr = MXP_Make3DWaveDataBrowserSelection("MXP_stack", gotoFilesDFR = 0) // 0 - stack in cwd 1 - stack in files DFR
 	// Do you want to display the stack?
 	if(displayStack)
 		MXP_DisplayImage($wname3dStr)
@@ -368,12 +361,14 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	variable printMode = 2
 	variable layerN = 0
 	variable edgeDetection = 2
+	variable edgeAlgo = 1
 	string msg = "Align " + imgNameTopGraphStr + " using part of the image."
 	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
 	Prompt layerN, "Reference layer"
-	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!	
+	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"	
 	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt msg, method, layerN, edgeDetection, printMode
+	DoPrompt msg, method, layerN, edgeDetection, edgeAlgo, printMode
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -390,9 +385,11 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	// Seems better to apply edge detection before partionining. 
 	
 	if(edgeDetection == 1)
+		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
+		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
 		[left, right, top, bottom] = WM_UserGetMarqueePositions(winNameStr)
 		// Apply image edge detection to the whole image, it's slower but to works better(?)
-		WAVE partitionWaveED = MXP_WAVEImageEdgeDetectionToStack(w3dref)
+		WAVE partitionWaveED = MXP_WAVEImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo)
 		WAVE partitionWave = MXP_WAVE3DWavePartition(partitionWaveED, left, right, top, bottom, evenNum = 1) // Debug
 	else
 		WAVE partitionWave = WM_WAVEUserSetMarquee(winNameStr)

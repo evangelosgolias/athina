@@ -28,6 +28,16 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+Function MXP_AutoScaleTopImage()
+	// Autoscale image of the top grap
+	WAVE wRef = MXP_TopImageToWaveRef()
+	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
+	string colorScaleStr
+	variable cmapSwitch
+	sscanf StringByKey("RECREATION",Imageinfo("",NameOfWave(wRef),0)), matchPattern, colorScaleStr, cmapSwitch
+	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {*,*,$colorScaleStr,cmapSwitch} // Autoscale Image
+End
+
 Function MXP_ScaleImage() // Uses top graph
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -261,7 +271,7 @@ Function MXP_StackImageToImageStack(WAVE w3dref, WAVE w2dRef)
 	endif
 End
 
-Function MXP_ImageEdgeDetectionToStack(WAVE w3dref)
+Function MXP_ImageEdgeDetectionToStack(WAVE w3dref, string method)
 	/// Applied the edge detection operation to w3dref
 	/// and outputs a wave with name NameofWave(w3dref) + "_ed"
 	variable numlayers = DimSize(w3dref, 2), i
@@ -272,7 +282,7 @@ Function MXP_ImageEdgeDetectionToStack(WAVE w3dref)
 	DFREF tmpDF = GetDataFolderDFR()
 	
 	for(i = 0; i < numlayers; i++)
-		ImageEdgeDetection/P=(i)/M=1 kirsch w3dref // Change algorithm here
+		ImageEdgeDetection/P=(i)/M=-1 $method w3dref
 		WAVE M_ImageEdges		
 		wnameStrInLoop = wnameStr + num2str(i)
 		Rename M_ImageEdges, $wnameStrInLoop
@@ -288,7 +298,7 @@ Function MXP_ImageEdgeDetectionToStack(WAVE w3dref)
 	return 0
 End
 
-Function/WAVE MXP_WAVEImageEdgeDetectionToStack(WAVE w3dref)
+Function/WAVE MXP_WAVEImageEdgeDetectionToStack(WAVE w3dref, string method)
 	/// Applied the edge detection operation to w3dref
 	/// and returns a wave to NameofWave(w3dref) + "_ed"
 	variable numlayers = DimSize(w3dref, 2), i
@@ -299,7 +309,7 @@ Function/WAVE MXP_WAVEImageEdgeDetectionToStack(WAVE w3dref)
 	DFREF tmpDF = GetDataFolderDFR()
 	
 	for(i = 0; i < numlayers; i++)
-		ImageEdgeDetection/P=(i)/M=1 Kirsch w3dref // Change algorithm here
+		ImageEdgeDetection/P=(i)/M=-1 $method w3dref
 		WAVE M_ImageEdges		
 		wnameStrInLoop = wnameStr + num2str(i)
 		Rename M_ImageEdges, $wnameStrInLoop
