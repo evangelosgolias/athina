@@ -54,7 +54,7 @@ Function MXP_CalculateXMCD(WAVE w1, WAVE w2, string wxmcdStr)
 	wref = (w1 - w2)/(w1 + w2)
 End
 
-Function MXP_CalculateXMCDToWaveRef(WAVE w1, WAVE w2, WAVE wXMCD)
+Function MXP_CalculateXMCDFromToWave(WAVE w1, WAVE w2, WAVE wXMCD)
 	/// Calculate XMCD/XMLD of two images and save it to 
 	/// @param w1 WAVE Wave 1
 	/// @param w2 WAVE Wave 2
@@ -67,16 +67,29 @@ Function MXP_CalculateXMCDToWaveRef(WAVE w1, WAVE w2, WAVE wXMCD)
 	wXMCD = (w1 - w2)/(w1 + w2)
 End
 
-Function MXP_CalculateSumOfTwoImagesToWaveRef(WAVE w1, WAVE w2, WAVE wSum)
+Function MXP_CalculateXMCDFromStackToWave(WAVE w3d, WAVE wXMCD)
 	/// Calculate XMCD/XMLD of two images and save it to 
-	/// @param w1 WAVE Wave 1
-	/// @param w2 WAVE Wave 2
-	/// @param wSum WAVE w1 + w2
+	/// @param w13d WAVE Wave with 2 layers.
+	/// @param wXMCD WAVE Calculated XMCD/XMLD wave 
 	
-	if(!(WaveType(w1) & 0x02 && WaveType(w2) & 0x02))
-		Redimension/S w1, w2
+	if(DimSize(w3d, 2) != 2)
+		return -1
+	endif	
+	if(!(WaveType(w3d) & 0x02 && WaveType(wXMCD) & 0x02))
+		Redimension/S w3d, wXMCD
 	endif
 
-	wSum = w1 + w2
+	MatrixOP/O wXMCD = (layer(w3d,0) - layer(w3d,1))/(layer(w3d,0) + layer(w3d,1))
 End
 
+Function MXP_CalculateWaveSumFromStackToWave(WAVE w3d, WAVE wSum)
+	
+	if(DimSize(w3d, 2) != 2)
+		return -1
+	endif	
+	if(!(WaveType(w3d) & 0x02 && WaveType(wSum) & 0x02))
+		Redimension/S w3d, wSum
+	endif
+
+	MatrixOP/O wSum = (layer(w3d,0) + layer(w3d,1))/2
+End

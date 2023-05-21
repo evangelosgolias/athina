@@ -52,6 +52,7 @@
 //	s.driftStep = 1
 //End
 
+
 Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	/// Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
@@ -80,96 +81,94 @@ Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	Prompt wave2NameStr, "img2", popup, selectedWavesStr
 	DoPrompt "XMC(L)D = (img1 - img2)/(img1 + img2)", wave1NameStr, wave2NameStr
 	if(V_flag) // User cancelled
-		return 1
+		return -1
 	endif
 	// Create variables for the Panel. NB; Data Folders for panels can be overwritten
-	string uniquePanelNameStr = UniqueName("iXMCDPanel", 9, 0)
-	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:InteractiveXMCD:" + uniquePanelNameStr)
+	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:InteractiveXMCD:") 
+	string folderNameStr = CreateDataObjectName(dfr, "iXMCD",11, 0, 0)
+	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:InteractiveXMCD:" + folderNameStr) 
 	Duplicate/O $wave1NameStr, dfr:iImg1
 	Duplicate/O $wave2NameStr, dfr:iImg2
 	Duplicate/O $wave1NameStr, dfr:iXMCD
-	Duplicate/O $wave1NameStr, dfr:iImgAdd
+	Duplicate/O $wave1NameStr, dfr:iImgSum
 	//Wave references
 	WAVE img1WaveRef = dfr:iImg1
 	WAVE img2WaveRef = dfr:iImg2
-	Concatenate {img1WaveRef, img2WaveRef}, dfr:stackWaveRef // Stack the two images
-	WAVE imgStack = dfr:stackWaveRef
+	Concatenate/KILL {img1WaveRef, img2WaveRef}, dfr:imgStack // Stack the two images
+	WaveClear img1WaveRef, img2WaveRef
+	WAVE imgStack = dfr:imgStack
 	WAVE iXMCD = dfr:iXMCD
-	WAVE iImgAdd = dfr:iImgAdd
+	WAVE iImgSum = dfr:iImgSum
 	// Add wave origin information
-	Note img1WaveRef, "Source: " + wave1NameStr
-	Note img2WaveRef, "Source: " + wave2NameStr
-	Note/K iXMCD, "XMC(L)D = (iImg1 - iImg2)/(iImg1 + iImg2)"
+	Note/K imgStack, "Sources: " + wave1NameStr + "," + wave2NameStr
+	Note/K iXMCD, "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " + wave1NameStr + "\nimg2: " + wave2NameStr
 	// Set global variables
-	string/G dfr:gMXP_wave1NameStr = wave1NameStr
-	string/G dfr:gMXP_wave2NameStr = wave2NameStr
-	variable/G dfr:gMXP_driftStep = 1
-	variable/G dfr:gMXP_CursorAlignSwitch = 0
-	MXP_CalculateSumOfTwoImagesToWaveRef(img1WaveRef, img2WaveRef, iImgAdd)
-	MXP_CalculateXMCDToWaveRef(img1WaveRef, img2WaveRef, iXMCD)
-	MXP_CreateInteractiveXMCDCalculationPanel(imgStack, iImgAdd, iXMCD, uniquePanelNameStr)
-	DoWindow/F $uniquePanelNameStr
-	SetWindow $uniquePanelNameStr, hook(MyHook) = MXP_InteractiveImageDriftWindowHook // Set the hook
+	variable/G dfr:gMXP_planeCnt = 0
+	variable/G dfr:gMXP_driftStep = 0.1
+	variable/G dfr:gMXP_dx = 0	
+	variable/G dfr:gMXP_dy = 0	
+	//MXP_CalculateWaveSumFromStackToWave(imgStack, iImgSum)
+	//MXP_CalculateXMCDFromStackToWave(imgStack, iXMCD)
+	SetFormula dfr:iXMCD, "(dfr:iImg1 - dfr:iImg2)/(dfr:iImg1 + dfr:iImg2)"
+	SetFormula dfr:iImgSum, "dfr:iImg1 + dfr:iImg2"
+	MXP_CreateInteractiveXMCDCalculationPanel(imgStack, iXMCD, iImgSum)
 
 End
 
-Function MXP_CreateInteractiveXMCDCalculationPanel(WAVE wRef1, WAVE wRef2, WAVE wRef3, string panelNameStr)
- 	
-	NewPanel/N=$panelNamestr /W=(1239,97,2036,876)
-	SetDrawLayer UserBack
-	SetDrawEnv linefgc= (1,12815,52428),linejoin= 1,fillpat= 3,fillfgc= (65535,65534,49151),fillbgc= (65535,65534,49151)
-	Display/N=iImgStack/W=(30,10,390,370)/HOST=$panelNamestr;AppendImage wRef1; ModifyGraph margin=15,tick=2,nticks=5,fSize=10
-	TextBox/W=$panelNamestr#iImgStack/B=1/N=text0/F=0/S=3/A=LT/X=1.00/Y=1.0 "\\Z14Images" //imgStack
-	Display/N=iImgAdd/W=(426,10,786,370)/HOST=$panelNamestr;AppendImage wRef2;ModifyGraph margin=15,tick=2,nticks=5,fSize=10
-	TextBox/W=$panelNamestr#iImgAdd/B=1/N=text0/F=0/S=3/A=LT/X=1.00/Y=1.00 "\\Z14Sum"  //iImgAdd
-	Display/N=iXMCD/W=(30,409,390,769)/HOST=$panelNamestr;AppendImage wRef3;ModifyGraph margin=15,tick=2,nticks=5,fSize=10 //iXMCD
-	TextBox/W=$panelNamestr#iXMCD/B=1/N=text0/F=0/S=3/A=LT/X=1.00/Y=1.00 "\\Z14XMC(L)D" 
-	DrawRect/W=$panelNamestr 424,409,784,769
-	SetDrawEnv/W=$panelNamestr fsize= 16,textrgb= (1,12815,52428)
-	DrawText/W=$panelNamestr 442,431,"MAXPEEM: Interactive XMC(L)D calculation"
-	SetDrawEnv/W=$panelNamestr fsize= 11,textrgb= (1,12815,52428)
-	DrawText/W=$panelNamestr 528,447,"Use buttons or arrow keys"
-	SetDrawEnv/W=$panelNamestr fillpat= 0
-	DrawRect/W=$panelNamestr 473,451,722,590
-	SetDrawEnv/W=$panelNamestr fillpat= 0
-	DrawRect/W=$panelNamestr 449,601,754,691
+Function MXP_CreateInteractiveXMCDCalculationPanel(WAVE w3d, WAVE iXMCD, WAVE iImgSum)
+	DFREF dfr = GetWavesDataFolderDFR(w3d) // Recover the dfr	
+	NVAR/SDFR=dfr gMXP_driftStep
+	Display/N=iXMCD /K=1 
+	string winiXMCDNameStr = S_name
+	AppendImage/T iXMCD
+	// Fix the axes DisplayHelpTopic "ModifyGraph for Axes"
+	Display/N=CL_CR /K=1 
+	AppendImage/T w3d
+	string winiImgsNameStr = S_name
+	Display/N=iSum/K=1 
+	AppendImage/T w3d
+	string winiSumNameStr = S_name	
+//	AppendImage/T /b=bb iImgSum
+//	AppendImage/T /b=bc /R iXMCD
+//	ModifyImage '' ctab= {*,*,Grays,0}
+//	ModifyImage ''#1 ctab= {*,*,Grays,0}
+//	ModifyImage ''#2 ctab= {*,*,Grays,0}
+//	ModifyGraph axisEnab(top)={0,0.3},axisEnab(bb)={0.33,0.63}
+//	ModifyGraph axisEnab(bc)={0.66,1},freePos(bb)=0,freePos(bc)=0
+//	ModifyGraph lblPos(bb)=0,lblPos(bc)=0 // Not needed?
+//	ModifyGraph tick=2
+//	ModifyGraph width={Plan,1,top,left}
+	ControlBar 40
+	// Add buttons
+	Button ShowOtherImage, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_ShowOtherImageButton
+	Button ShowOtherImage, title="Show img1/2", help={"Display img1 or img2"}, valueColor=(1,12815,52428)
 	
-	CheckBox UseCursorsForAlignment,pos={460.00,607.00},size={283.00,17.00}
-	CheckBox UseCursorsForAlignment,title="Use Cursors to align (img1 - A,  img2 - B) "
-	CheckBox UseCursorsForAlignment,help={"Place Cursor A on both images to align img2 relative to img1. Hint: Mark a feature!"}
-	CheckBox UseCursorsForAlignment,fSize=14,value=0,proc=MXP_ActivateImageDriftWithCursors
-	SetVariable setDriftStep,pos={496.00,458.00},size={200.00,20.00}
-	SetVariable setDriftStep,title="Set drift step"
-	SetVariable setDriftStep,help={"Set drift value for img2.  Decimal values (sub-pixel drift) are valid."}
-	SetVariable setDriftStep,fSize=14,limits={-50,50,1},live=1,proc=MXP_SetDriftStepVar
-	Button moveLeft,pos={517.00,537.00},size={40.00,40.00},title="Left",fSize=11,proc=MXP_DriftImageWithCursorsButton
-	Button moveRight,pos={629.00,537.00},size={40.00,40.00},title="Right",fSize=11,proc=MXP_DriftImageWithCursorsButton
-	Button moveUp,pos={574.00,486.00},size={40.00,40.00},title="Up",fSize=11,proc=MXP_DriftImageWithCursorsButton
-	Button moveDown,pos={573.00,537.00},size={40.00,40.00},title="Down",fSize=11,proc=MXP_DriftImageWithCursorsButton
-	Button MoveToCursors,pos={460.00,644.00},size={150.00,20.00}
-	Button MoveToCursors,title="Move cursor B to A",fColor=(61166,61166,61166),proc=MXP_DriftImageWithCursorsButton
-	Button RestoreImages,pos={648.00,739.00},size={110.00,20.00}
-	Button RestoreImages,title="Restore Images",fColor=(49163,65535,32768),proc=MXP_RestoreImagesButton
-	Button SaveImages,pos={648.00,705.00},size={110.00,20.00},title="Save Images"
-	Button SaveImages,help={"Save drifed images and XMC(L)D result."}
-	Button SaveImages,fColor=(32768,54615,65535),proc=MXP_SaveImagesButton
-	Button ScaleXMCLD,pos={444.00,740.00},size={150.00,20.00}
-	Button ScaleXMCLD,title="Scale XMC(L)D range"
-	Button ScaleXMCLD,help={"Adjuct XMC(L)D range around maximum contrast."}
-	Button ScaleXMCLD,fColor=(65535,54611,49151),proc=MXP_SetImageRangeButton
-	Button ReloadImages,pos={444.00,705.00},size={150.00,20.00}
-	Button ReloadImages,title="Reload images",help={"Load another pair of images."}
-	Button ReloadImages,fColor=(32768,40777,65535),proc=MXP_ReloadImagesButton
-	ValDisplay CursorsDifference,pos={651.00,644.00},size={80.00,18.00}
-	ValDisplay CursorsDifference,title="\\$WMTEX$ \\Delta\\$/WMTEX$x\\BA-B"
-	ValDisplay CursorsDifference,help={"Pixel difference between cursor A and B"}
-	ValDisplay CursorsDifference,fSize=13,limits={0,0,0},barmisc={0,1000},value=#"0"
+	SetVariable setDriftStep,pos={150,10},size={200.00,20.00},title="Set drift step"
+	SetVariable setDriftStep,value=gMXP_driftStep,help={"Set drift value for img2.  Decimal values (sub-pixel drift) are ok."}
+	SetVariable setDriftStep,fSize=14,limits={-10,10,0.1},live=1,proc=MXP_SetDriftStepVar	
+
+	Button SaveXMCDImage, pos={20.00,10.00}, size={90.00,20.00},proc=MXP_SaveXMCDImageButton
+	Button SaveXMCDImage, title="Show img1/2", help={"Display img1 or img2"}, valueColor=(1,12815,52428)
+
+	SetWindow $winiImgsNameStr userdata(MXP_iXMCDPath) = GetWavesDataFolder(w3d, 1)
+	SetWindow $winiImgsNameStr userdata(MXP_iXMCDWindowNameStr) = winiImgsNameStr
+	SetWindow $winiImgsNameStr, hook(MyHook) = MXP_InteractiveImageDriftWindowHook // Set the hook
 End
 
 Function MXP_InteractiveImageDriftWindowHook(STRUCT WMWinHookStruct &s)
-	
+
+	string winNameStr = GetUserData(s.winName, "", "MXP_iXMCDWindowNameStr")
+	string dfrStr = GetUserData(s.winName, "", "MXP_iXMCDPath")
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(dfrStr)
+	NVAR/SDFR=dfr gMXP_driftStep
+	NVAR/SDFR=dfr gMXP_dx
+	NVAR/SDFR=dfr gMXP_dy
+	WAVE/SDFR=dfr imgStack
+	WAVE/SDFR=dfr iXMCD
+	WAVE/SDFR=dfr iImgSum
+	DFREF saveDFR = GetDataFolderDFR()
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
-	
+
 	switch(s.eventCode)
 		case 0: //activate window rescales the profile to the layer scale of the 3d wave
 			hookresult = 1
@@ -184,33 +183,67 @@ Function MXP_InteractiveImageDriftWindowHook(STRUCT WMWinHookStruct &s)
 		case 5: // mouse up
 			hookresult = 1
 			break
-        case 7: // cursor moved
-		    hookresult = 1	// TODO: Return 0 here, i.e delete line?
-	 		break
-	 	case 8: // We have a Window modification eveny
-	 		hookresult = 1
-	 		break
-    endswitch
-    
-	switch(s.eventCode)
+		case 7: // cursor moved
+			hookresult = 1	// TODO: Return 0 here, i.e delete line?
+			break
+		case 8: // We have a Window modification eveny
+			hookresult = 1
+			break
+			//
 		case 11:					// Keyboard event
 			switch (s.keycode)
-				case 28:
-					Print "Left arrow key pressed."
+				case 28: //left arrow
+					SetDataFolder dfr
+					ImageTransform/P=1 getPlane imgStack // get img2
+					WAVE M_ImagePlane
+					ImageTransform/P=1 removeZplane imgStack // get img1
+					WAVE M_ReducedWave
+					ImageTransform/IOFF={-gMXP_driftStep, 0, 0} offsetImage M_ImagePlane
+					WAVE M_OffsetImage
+					Concatenate/O/KILL {M_ReducedWave, M_OffsetImage}, imgStack
+					MXP_CalculateXMCDFromStackToWave(imgStack, iXMCD)
+					MXP_CalculateWaveSumFromStackToWave(imgStack, iImgSum)
 					hookResult = 1
 					break
-				case 29:
-					Print "Right arrow key pressed."
+				case 29: //right arrow
+					SetDataFolder dfr
+					ImageTransform/P=1 getPlane imgStack // get img2
+					WAVE M_ImagePlane
+					ImageTransform/P=1 removeZplane imgStack // get img1
+					WAVE M_ReducedWave
+					ImageTransform/IOFF={gMXP_driftStep, 0, 0} offsetImage M_ImagePlane
+					WAVE M_OffsetImage
+					Concatenate/O/KILL {M_ReducedWave, M_OffsetImage}, imgStack
+					MXP_CalculateXMCDFromStackToWave(imgStack, iXMCD)
+					MXP_CalculateWaveSumFromStackToWave(imgStack, iImgSum)
 					hookResult = 1
 					break
 				case 30:
-					Print "Up arrow key pressed."
+					SetDataFolder dfr
+					ImageTransform/P=1 getPlane imgStack // get img2
+					WAVE M_ImagePlane
+					ImageTransform/P=1 removeZplane imgStack // get img1
+					WAVE M_ReducedWave
+					ImageTransform/IOFF={0, gMXP_driftStep, 0} offsetImage M_ImagePlane
+					WAVE M_OffsetImage
+					Concatenate/O/KILL {M_ReducedWave, M_OffsetImage}, imgStack
+					MXP_CalculateXMCDFromStackToWave(imgStack, iXMCD)
+					MXP_CalculateWaveSumFromStackToWave(imgStack, iImgSum)
 					hookResult = 1
 					break
 				case 31:
-					Print "Down arrow key pressed."
+					SetDataFolder dfr
+					ImageTransform/P=1 getPlane imgStack // get img2
+					WAVE M_ImagePlane
+					ImageTransform/P=1 removeZplane imgStack // get img1
+					WAVE M_ReducedWave
+					ImageTransform/IOFF={0, -gMXP_driftStep, 0} offsetImage M_ImagePlane
+					WAVE M_OffsetImage
+					Concatenate/O/KILL {M_ReducedWave, M_OffsetImage}, imgStack
+					MXP_CalculateXMCDFromStackToWave(imgStack, iXMCD)
+					MXP_CalculateWaveSumFromStackToWave(imgStack, iImgSum)
 					hookResult = 1
-					break			
+					break
 				default:
 					// The keyText field requires Igor Pro 7 or later. See Keyboard Events.
 					printf "Exit interactive drifting, pressed: %s\r", s.keyText
@@ -218,11 +251,11 @@ Function MXP_InteractiveImageDriftWindowHook(STRUCT WMWinHookStruct &s)
 			endswitch
 			break
 	endswitch
-
+	SetDataFolder saveDFR
 	return hookResult	// If non-zero, we handled event and Igor will ignore it.
 End
 
-Function MXP_SaveImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function MXP_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
 
@@ -233,10 +266,20 @@ Function MXP_SaveImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	return 0
 End
 
-Function MXP_ReloadImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-
+Function MXP_ShowOtherImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+	string winNameStr = GetUserData(B_Struct.win, "", "MXP_iXMCDWindowNameStr")
+	string dfrStr = GetUserData(B_Struct.win, "", "MXP_iXMCDPath")
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(dfrStr)
+	NVAR/SDFR=dfr gMXP_planeCnt
+	WAVE imgStack = dfr:imgStack
+	string imgTagStr
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			ModifyImage/W=$winNameStr imgStack plane=mod(gMXP_planeCnt, 2)
+			imgTagStr = "\k(65535,0,0)\\Z14img" + num2str(mod(gMXP_planeCnt, 2) + 1)
+			//TextBox/K/N=imgTag
+			//TextBox/W=$winNameStr /B=1/N=imgTag/F=0/S=3/A=LT/X=1.00/Y=1.0  //imgStack
+			gMXP_planeCnt+=1
 		break
 	endswitch
 	return 0
@@ -251,57 +294,20 @@ Function MXP_RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	return 0
 End
 
-Function MXP_SetImageRangeButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:	// "mouse up after mouse down"
-		break
-	endswitch
-	return 0
-End
-
-Function MXP_DriftImageButtons(STRUCT WMButtonAction &B_Struct): ButtonControl
-
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:	// "mouse up after mouse down"
-		break
-	endswitch
-	return 0
-End
-
-Function MXP_DriftImageWithCursorsButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:	// "mouse up after mouse down"
-		break
-	endswitch
-	return 0
-End
-
 Function MXP_SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
-	SVAR/Z dvar
+	string winNameStr = GetUserData(sva.win, "", "MXP_iXMCDWindowNameStr")
+	string dfrStr = GetUserData(sva.win, "", "MXP_iXMCDPath")
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(dfrStr)
+	NVAR/SDFR=dfr gMXP_driftStep
 	switch (sva.eventCode)
 		case 1: 							// Mouse up
 		case 2:							// Enter key
 		case 3: 							// Live update
-			Variable dval = sva.dval
+			gMXP_driftStep = sva.dval
 			break
 		case -1: 							// Control being killed
 			break
 	endswitch
 
-	return 0
-End
-
-Function MXP_ActivateImageDriftWithCursors(STRUCT WMCheckboxAction& cb) : CheckBoxControl
-	
-	switch(cb.checked)
-		case 1:		// Mouse up
-			//MarkAreasSwitch = 1
-			break
-		case 0:
-			//MarkAreasSwitch = 0
-			break
-	endswitch
 	return 0
 End
