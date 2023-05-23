@@ -182,7 +182,12 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 	
 	STRUCT UKFileHeader MXPFileHeader
 	STRUCT UKImageHeader MXPImageHeader
-	
+
+	FStatus numRef
+	// change here if needed
+	variable imgSizeinBytes = kpixelsTVIPS^2 * 2 
+	variable GetImageDataStart = V_logEOF - imgSizeinBytes
+
 	FSetPos numRef, 0
 	FBinRead numRef, MXPFileHeader
 
@@ -206,9 +211,11 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 		ImageHeaderSize = 288 + 128 * ((trunc(MXPImageHeader.attachedMarkupSize/128))+1)
 	endif
 	
+	variable LEEMdataVersion = MXPImageHeader.LEEMdataVersion <= 2 ? 0: MXPImageHeader.LEEMdataVersion //NB here! Added 23.05.2023
+	
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
 	Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
-	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + MXPImageHeader.LEEMdataVersion
+	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + LEEMdataVersion
 	FSetPos numRef, ImageDataStart
 	FBinRead/F=2 numRef, datWave
 	ImageTransform flipCols datWave // flip the y-axis
@@ -218,7 +225,7 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 		timestamp = MXPImageHeader.imagetime.LONG[0]+2^32 * MXPImageHeader.imagetime.LONG[1]
 		timestamp *= 1e-7 // t_i converted from 100ns to s
 		timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
-		variable MetadataStart = MXPFileHeader.size + ImageHeaderSize
+		variable MetadataStart = MXPImageHeader.LEEMdataVersion <= 2 ? MXPFileHeader.size: (MXPFileHeader.size + ImageHeaderSize) //NB here! Added 23.05.2023
 		string mdatastr = filepathStr + "\n"
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
 		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
@@ -243,6 +250,7 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 	
 	if(autoScale && !skipmetadata)
 		variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
+		imgScaleVar = (numtype(imgScaleVar) == 2)? 0: imgScaleVar // NB Added 23.05.2023
 		SetScale/I x, 0, imgScaleVar, datWave
 		SetScale/I y, 0, imgScaleVar, datWave
 	endif
@@ -326,9 +334,11 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 		ImageHeaderSize = 288 + 128 * ((trunc(MXPImageHeader.attachedMarkupSize/128))+1)
 	endif
 	
+	variable LEEMdataVersion = MXPImageHeader.LEEMdataVersion <= 2 ? 0: MXPImageHeader.LEEMdataVersion //NB here! Added 23.05.2023
+	
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
 	Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
-	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + MXPImageHeader.LEEMdataVersion
+	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + LEEMdataVersion
 	FSetPos numRef, ImageDataStart
 	FBinRead/F=2 numRef, datWave
 	ImageTransform flipCols datWave // flip the y-axis
@@ -338,7 +348,7 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 		timestamp = MXPImageHeader.imagetime.LONG[0]+2^32 * MXPImageHeader.imagetime.LONG[1]
 		timestamp *= 1e-7 // t_i converted from 100ns to s
 		timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
-		variable MetadataStart = MXPFileHeader.size + ImageHeaderSize
+		variable MetadataStart = MXPImageHeader.LEEMdataVersion <= 2 ? MXPFileHeader.size: (MXPFileHeader.size + ImageHeaderSize) //NB here! Added 23.05.2023
 		string mdatastr = filepathStr + "\n"
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
 		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
@@ -442,10 +452,14 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	if(stack3d)
 		readMetadataOnce = 1
 	endif
+	
+	variable LEEMdataVersion = MXPImageHeader.LEEMdataVersion <= 2 ? 0: MXPImageHeader.LEEMdataVersion //NB here! Added 23.05.2023
+	
+	variable byteoffset = (ImageHeaderSize + LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
 	// while loop
 	do
 		mdatastr = "" // Reset metadata string
-		FSetPos numRef, MXPFileHeader.size + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+		FSetPos numRef, MXPFileHeader.size + cnt *  byteoffset  //NB here! Added 23.05.2023
 		FBinRead numRef, MXPImageHeader
 	
 		if(MXPImageHeader.attachedMarkupSize == 0)
@@ -463,7 +477,7 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 			Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $(waveNameStr + "_" + num2str(cnt)) /WAVE=datWave
 		endif
 		variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + MXPImageHeader.LEEMdataVersion 
-		ImageDataStart +=  cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+		ImageDataStart +=  cnt * byteoffset
 		FSetPos numRef, ImageDataStart
 		FBinRead/F=2 numRef, datWave
 		ImageTransform flipCols datWave // flip the y-axis
@@ -472,7 +486,7 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 			timestamp = MXPImageHeader.imagetime.LONG[0]+2^32 * MXPImageHeader.imagetime.LONG[1]
 			timestamp *= 1e-7 // t_i converted from 100ns to s
 			timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
-			MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+			MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * byteoffset
 			mdatastr += filepathStr + "\n"
 			mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
 			mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
@@ -486,7 +500,7 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 		// if(stack3d) branch at the end.
 		// Right before the start of the do...while loop readMetadataOnce = 1
 		if(skipmetadata && autoScale && readMetadataOnce) 
-			MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * (ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+			MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * byteoffset
 			mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
 			fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
 			readMetadataOnce = 0
@@ -510,7 +524,7 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 
 		if(stack3d) //TODO: Use ImageTransform here to make import faster
 			if(stack3d && singlePassSwitch) // We want stacking and yet the 3d wave is not created
-				variable nlayers = (totalBytesInDAVFile - 104)/(ImageHeaderSize + MXPImageHeader.LEEMdataVersion + 2 * MXPFileHeader.ImageWidth * MXPFileHeader.ImageHeight)
+				variable nlayers = (totalBytesInDAVFile - 104)/byteoffset
 				Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight, nlayers) $(waveNameStr) /WAVE = stack3DWave
 				singlePassSwitch = 0
 			endif
@@ -538,7 +552,6 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 	// tag (units): values, so it's easy to parse using the StringByKey function.
 	// The function is used by MXP_ImportImageFromSingleDatFile(string datafile, string FileNameStr)
 	// to add the most important metadata as note to the imported image.
-
 	variable numRef
    	Open/R numRef as datafile
    	FSetPos numRef, MetadataStartPos
@@ -563,7 +576,6 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 		if (buffer < 0)
 			buffer += 128
 		endif
-		
 		// LEEM modules from 0..99 have a fixed format
 		// address-name(str)-unit(ASCIII digit)-0-value(float)
 		// unit: ";V;mA;A;ºC;K;mV;pA;nA;µA"
