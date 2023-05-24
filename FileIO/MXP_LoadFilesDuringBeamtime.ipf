@@ -29,13 +29,16 @@
 // ------------------------------------------------------- //
 
 Function MXP_LoadNewestFileInPathTreeAndDisplay(string extension)
+	variable timerRefNum = StartMSTimer
 	/// Load the last file found in the directory tree with root at pathName
 	string latestfile = ""
 	variable latestctime = 0
 	string filepathStr = MXP_GetNewestCreatedFileInPathTree("pMXP_LoadFilesBeamtimeIgorPath", extension, latestfile, latestctime, 1, 0)
-	WAVE wRef = MXP_WAVELoadSingleDATFile(filepathStr, "")
-	MXP_DisplayImage(wRef)
-	print "File loaded: ", filepathStr
+	variable microSeconds = StopMSTimer(timerRefNum)
+	print "Time elapsed: ", microSeconds/1e6, " sec"
+	//WAVE wRef = MXP_WAVELoadSingleDATFile(filepathStr, "")
+	//MXP_DisplayImage(wRef)
+	//print "File loaded: ", filepathStr
 	return 0
 End
 
@@ -67,14 +70,15 @@ Function/S MXP_GetNewestCreatedFileInPathTree(string pathName,
 
 	// Add files
 	fileIndex = 0
+	string fileNames = IndexedFile($pathName, -1, extension)
 	do
 		string fileName
-		fileName = IndexedFile($pathName, fileIndex, extension)
+		filename = StringFromList(fileIndex, fileNames)
 		if (strlen(fileName) == 0)
 			break
 		endif
 			
-		GetFileFolderInfo/Z/Q (path + fileName)
+		GetFileFolderInfo/P=$pathName/Z/Q fileName
 		
 		if(V_creationDate > latestctime)
 			latestfile = (path + fileName)
@@ -107,7 +111,6 @@ Function/S MXP_GetNewestCreatedFileInPathTree(string pathName,
 	endif
 	return latestfile
 End
-
 
 Function MXP_LoadNewestFolderInPathTreeAndDisplay()
 	/// Load the last file found in the directory tree with root at pathName
@@ -188,6 +191,9 @@ Function/S MXP_GetLastSavedFileInFolderTreePython(string pathName, string ext)
 	// do shell script "python3 -c \"from pathlib import Path;from os.path import getmtime;
 	// print(max(list(Path('/Users/evangelosgolias/Desktop/MAXPEEM March 2023').rglob('*.dat')),key=getmtime))\""
 	// For WINDOWS python interpreter and runtime is needed.
+	
+	//variable timerRefNum = StartMSTimer
+
 	PathInfo $pathName
 	string path = S_path	
 	if(!V_flag) // If path not defined, set it and call the function again
@@ -210,5 +216,7 @@ Function/S MXP_GetLastSavedFileInFolderTreePython(string pathName, string ext)
 		sprintf igorCmd, "do shell script \"%s\" ", unixCmd
 	#endif	
 	ExecuteScriptText/Z/B/UNQ igorCmd
+	//variable microSeconds = StopMSTimer(timerRefNum)
+	//print "Time elapsed: ", microSeconds/1e6, " sec"
 	return S_value
 End

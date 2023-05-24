@@ -382,3 +382,63 @@ Function MXP_RestoreTopImageFromBackup()
 	
 	return 0
 End
+
+Function MXP_DATFileToTIFF(string pathname)
+	/// Read dat file and save a tiff copy in the same directory
+	/// and same name
+	WAVE datWave = MXP_WAVELoadSingleDATFile(pathname, "", skipmetadata = 1)
+	
+End
+
+Function MXP_ApplyOperationToFilesInFolderTree(string pathName, 
+		   string extension, variable recurse, variable level)
+	///
+	///  
+
+	PathInfo $pathName
+	string path = S_path	
+	if(!V_flag) // If path not defined
+		print "pathName not set!"
+		NewPath/O pathName
+	endif
+	
+	// Reset or make the string variable
+	variable folderIndex, fileIndex
+
+	// Add files
+	fileIndex = 0
+	do
+		string fileName
+		fileName = IndexedFile($pathName, fileIndex, extension)
+		if (strlen(fileName) == 0)
+			break
+		endif
+		WAVE datWave = MXP_WAVELoadSingleDATFile(fileName, "", skipmetadata = 1)
+		ImageSave/P=$pathName datWave
+		KillWaves datWave
+		fileIndex += 1
+	while(1)
+	
+	if (recurse)		// Do we want to go into subfolder?
+		folderIndex = 0
+		do
+			path = IndexedDir($pathName, folderIndex, 1)
+			if (strlen(path) == 0)
+				break	// No more folders
+			endif
+
+			string subFolderPathName = "tempPrintFoldersPath_" + num2istr(level+1)
+			
+			// Now we get the path to the new parent folder
+			string subFolderPath
+			subFolderPath = path
+			
+			NewPath/Q/O $subFolderPathName, subFolderPath
+			MXP_ApplyOperationToFilesInFolderTree(subFolderPathName, extension, recurse, level+1)
+			KillPath/Z $subFolderPathName
+			
+			folderIndex += 1
+		while(1)
+	endif
+	return 0
+End
