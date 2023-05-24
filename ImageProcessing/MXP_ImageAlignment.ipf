@@ -112,12 +112,77 @@ Function MXP_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 	endif
 	//Now translate each wave in the stack
 	variable i
+	DFREF saveDF = GetDataFolderDFR()
+	NewDataFolder/O/S tmpMXPdataFolderPartiotionReg
+	for(i = 0; i < layers; i++)
+		MatrixOP/O/FREE getFreeLayer = layer(w3d, i) // Scaled in pixels!
+		ImageInterpolate/APRM={1,0,dx[i],0,1,dy[i],1,0}/DEST=$("getStacklayer_" + num2str(i)) Affine2D getFreeLayer
+		if(printMode)
+			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "    " + num2str(dy[i]) + "\n"
+		endif
+	endfor
+	ImageTransform/NP=(layers) stackImages $"getStacklayer_0"
+	WAVE M_Stack
+	// Restore scale here
+	CopyScales w3d, M_Stack
+	Duplicate/O M_Stack, saveDF:$NameofWave(w3d)	
+
+	if(printMode)
+		string notebookName = NameOfWave(w3d)
+		KillWindow/Z notebookName
+		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
+		Notebook notebookName, text = driftLog
+	endif
+	SetDataFolder saveDF
+	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams, M_OffsetImage
+	KillDataFolder tmpMXPdataFolderPartiotionReg
+	return 0
+End
+
+// Backup of MXP_ImageStackAlignmentByPartitionRegistration. 
+Function MXP_ImageStackAlignmentByPartitionRegistrationBCK(WAVE w3d, WAVE partitionW3d, [variable layerN, variable printMode]) // Used in menu
+	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave. 
+	/// The partition 3d wave calls MXP_ImageStackAlignmentByFullRegistration
+	/// By default the function will  use the 0-th layer as a wave reference, uncless user chooses otherwise.
+	/// Only x, y translations are allowed.
+	/// @param w3d wave 3d we want to register for aligment
+	/// @param refLayer int optional Select refWave = refLayer for ImageRegistration.
+	/// @param convMode int optional Select convergence method /CONV = 0, 1 for Gravity (fast) or Marquardt (slow), respectively.
+	/// Note: When illumination conditions change considerably, (XAS along an edge)
+	/// it is better to use a mask to isolate a characteristic feature. 
+	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then default is 0
+	printMode = ParamIsDefault(printMode) ? 0: printMode
+	if(!(WaveType(w3d) & 0x02))
+		Redimension/S w3d
+	endif
+	if(!(WaveType(partitionW3d) & 0x02))
+		Redimension/S partitionW3d
+	endif
+	MatrixOP/FREE refLayerWave = layer(partitionW3d, layerN)
+	variable rows = DimSize(w3d, 0)
+	variable cols = DimSize(w3d, 1)
+	variable layers = DimSize(w3d, 2)
+	if(!WaveExists($(NameOfWave(w3d) + "_undo")))
+		Duplicate/O w3d, $(NameOfWave(w3d) + "_undo")
+	endif
+	ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d
+	WAVE M_RegParams
+	MatrixOP/FREE dx = row(M_RegParams,0)
+	MatrixOP/FREE dy = row(M_RegParams,1)
+	if(printMode)
+		string driftLog = ""
+		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
+		driftLog +=  "---- Drift ----\n"
+		driftLog +=  "layer  dx  dy\n"
+	endif
+	//Now translate each wave in the stack
+	variable i
 	for(i = 0; i < layers; i++)
 		MatrixOP/O/FREE getfreelayer = layer(w3d, i)
 		ImageTransform/IOFF={dx[i], dy[i], 0} offsetImage getfreelayer
 		WAVE M_OffsetImage
 		if(printMode)
-			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "    " + num2str(dy[i]) + "\n"
+			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "    " + num2str(dy[i]) + "\n"
 		endif
 		w3d[][][i] = M_OffsetImage[p][q]
 	endfor

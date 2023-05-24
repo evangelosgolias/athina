@@ -144,6 +144,7 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 	string fileFilters = "dat File (*.dat):.dat;"
 	fileFilters += "All Files:.*;"
 	string message
+	
     if (!strlen(filepathStr) && !strlen(waveNameStr)) 
 		message = "Select .dat file. \nFilename will be wave's name. (overwrite)\n "
    		Open/F=fileFilters/M=message/D/R numref
@@ -185,8 +186,6 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 
 	FStatus numRef
 	// change here if needed
-	variable imgSizeinBytes = kpixelsTVIPS^2 * 2 
-	variable GetImageDataStart = V_logEOF - imgSizeinBytes
 
 	FSetPos numRef, 0
 	FBinRead numRef, MXPFileHeader
@@ -202,7 +201,6 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 	FBinRead numRef, MXPImageHeader
 
 	//Elmitec files can have additional markup blocks hence the offsets of 128 bytes
-	
 	if(MXPImageHeader.attachedMarkupSize == 0)
 		//no markups
 		ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
@@ -211,7 +209,7 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 		ImageHeaderSize = 288 + 128 * ((trunc(MXPImageHeader.attachedMarkupSize/128))+1)
 	endif
 	
-	variable LEEMdataVersion = MXPImageHeader.LEEMdataVersion <= 2 ? 0: MXPImageHeader.LEEMdataVersion //NB here! Added 23.05.2023
+	variable LEEMdataVersion = MXPImageHeader.LEEMdataVersion <= 2 ? 0: MXPImageHeader.LEEMdataVersion //NB: Added 23.05.2023
 	
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
 	Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
@@ -225,10 +223,12 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 		timestamp = MXPImageHeader.imagetime.LONG[0]+2^32 * MXPImageHeader.imagetime.LONG[1]
 		timestamp *= 1e-7 // t_i converted from 100ns to s
 		timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
-		variable MetadataStart = MXPImageHeader.LEEMdataVersion <= 2 ? MXPFileHeader.size: (MXPFileHeader.size + ImageHeaderSize) //NB here! Added 23.05.2023
+		// If UView can fill the metadata in MXPFileHeader.size then MXPImageHeader.LEEMdataVersion==0, no need to allocate more space. 
+		// NB: Added on 23.05.2023.
+		variable metadataStart = MXPImageHeader.LEEMdataVersion <= 2 ? MXPFileHeader.size: (MXPFileHeader.size + ImageHeaderSize)
 		string mdatastr = filepathStr + "\n"
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
-		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
+		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart)
 	endif
 	
 	// Add image markups if any
@@ -310,7 +310,10 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	
 	STRUCT UKFileHeader MXPFileHeader
 	STRUCT UKImageHeader MXPImageHeader
-	
+
+	FStatus numRef
+	// change here if needed
+
 	FSetPos numRef, 0
 	FBinRead numRef, MXPFileHeader
 
@@ -325,7 +328,6 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	FBinRead numRef, MXPImageHeader
 
 	//Elmitec files can have additional markup blocks hence the offsets of 128 bytes
-	
 	if(MXPImageHeader.attachedMarkupSize == 0)
 		//no markups
 		ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
@@ -334,26 +336,28 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 		ImageHeaderSize = 288 + 128 * ((trunc(MXPImageHeader.attachedMarkupSize/128))+1)
 	endif
 	
-	variable LEEMdataVersion = MXPImageHeader.LEEMdataVersion <= 2 ? 0: MXPImageHeader.LEEMdataVersion //NB here! Added 23.05.2023
+	variable LEEMdataVersion = MXPImageHeader.LEEMdataVersion <= 2 ? 0: MXPImageHeader.LEEMdataVersion //NB: Added 23.05.2023
 	
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
 	Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
 	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + LEEMdataVersion
 	FSetPos numRef, ImageDataStart
 	FBinRead/F=2 numRef, datWave
-	ImageTransform flipCols datWave // flip the y-axis
-	Close numRef // Close the file
+	//ImageTransform flipCols datWave // flip the y-axis
+	Close numRef
 	
 	if(!skipmetadata)
 		timestamp = MXPImageHeader.imagetime.LONG[0]+2^32 * MXPImageHeader.imagetime.LONG[1]
 		timestamp *= 1e-7 // t_i converted from 100ns to s
 		timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
-		variable MetadataStart = MXPImageHeader.LEEMdataVersion <= 2 ? MXPFileHeader.size: (MXPFileHeader.size + ImageHeaderSize) //NB here! Added 23.05.2023
+		// If UView can fill the metadata in MXPFileHeader.size then MXPImageHeader.LEEMdataVersion==0, no need to allocate more space. 
+		// NB: Added on 23.05.2023.
+		variable metadataStart = MXPImageHeader.LEEMdataVersion <= 2 ? MXPFileHeader.size: (MXPFileHeader.size + ImageHeaderSize)
 		string mdatastr = filepathStr + "\n"
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
-		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
+		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart)
 	endif
-
+	
 	// Add image markups if any
 	if(MXPImageHeader.attachedMarkupSize)
 		mdatastr += MXP_StrGetImageMarkups(filepathStr)
@@ -361,8 +365,8 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
 		Note/K datWave, mdatastr
 	endif
-
-	// Convert to SP or DP 
+	
+	// Convert to SP or DP 	
 	if(waveDataType == 1)
 		Redimension/S datWave
 	endif
@@ -370,9 +374,10 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	if(waveDataType == 2)
 		Redimension/D datWave
 	endif
-
+	
 	if(autoScale && !skipmetadata)
 		variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
+		imgScaleVar = (numtype(imgScaleVar) == 2)? 0: imgScaleVar // NB: Added on 23.05.2023
 		SetScale/I x, 0, imgScaleVar, datWave
 		SetScale/I y, 0, imgScaleVar, datWave
 	endif
@@ -1208,6 +1213,7 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 			if(i == 0) // We get the wave scaling for rows and columnns using the first wave, assumed DimSize(w, 0) == DimSize(w, 1)
 					WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, ("MXPWaveToStack_idx_" + num2str(i)), skipmetadata = 0) 
 					variable getScaleXY = NumberByKey("FOV(µm)", note(wname), ":", "\n")
+					getScaleXY = (numtype(getScaleXY) == 2)? 0: getScaleXY // NB: Added on 23.05.2023
 				else
 					WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, ("MXPWaveToStack_idx_" + num2str(i)), skipmetadata = 1)
 			endif
@@ -1216,6 +1222,7 @@ Function MXP_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 			WAVE wname = MXP_WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 0)
 			fovScale = NumberByKey("FOV(µm)", note(wname), ":", "\n")
 			if(autoscale)
+				fovScale = (numtype(fovScale) == 2)? 0: fovScale // NB: Added on 23.05.2023
 				SetScale/I x, 0, fovScale, $filenameStr
 				SetScale/I y, 0, fovScale, $filenameStr 
 			endif

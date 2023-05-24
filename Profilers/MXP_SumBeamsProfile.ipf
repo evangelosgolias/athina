@@ -40,6 +40,8 @@
 /// DFREF savedfr = GetDataFolderDFR() //MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:SavedLineProfiles")
 
 
+/// TODO: Change the algorithm when we use a box for integration. See WM tips.
+
 Function MXP_MainMenuLaunchSumBeamsProfile()
 
 	string winNameStr = WinName(0, 1, 1)
@@ -94,8 +96,6 @@ Function MXP_TraceMenuLaunchSumBeamsProfile() // Trace menu launcher, inactive
 			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
 			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
 		endif
-//		NewImage/K=1 w3dref
-//		ModifyGraph width={Plan,1,top,left}
 		MXP_DisplayImage(w3dRef)
 		winNameStr = WinName(0, 1, 1)
 		MXP_InitialiseZProfileFolder()
@@ -126,8 +126,6 @@ Function MXP_BrowserMenuLaunchSumBeamsProfile() // Browser menu launcher, active
 			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
 		endif
 		MXP_DisplayImage(w3dRef)
-//		NewImage/K=1 w3dRef
-//		ModifyGraph width={Plan,1,top,left}
 		string winNameStr = WinName(0, 1, 1)
 		MXP_InitialiseZProfileFolder()
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
@@ -185,7 +183,6 @@ Function MXP_InitialiseZProfileFolder()
 	string/G dfr:gMXP_imgNameTopWindowStr = imgNameTopGraphStr
 	string/G dfr:gMXP_WindowNameStr = winNameStr
 	string/G dfr:gMXP_LineProfileWaveStr = zprofilestr // image profile wave
-	string/G dfr:gMXP_ProfileMetadata
 	string/G dfr:gMXP_w3dPathname = GetWavesDataFolder(w3dref, 2)
 	string/G dfr:gMXP_w3dPath = GetWavesDataFolder(w3dref, 1)
 	string/G dfr:gMXP_w3dNameStr = NameOfWave(w3dref)
