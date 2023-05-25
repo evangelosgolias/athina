@@ -29,16 +29,16 @@
 // ------------------------------------------------------- //
 
 Function MXP_LoadNewestFileInPathTreeAndDisplay(string extension)
-	variable timerRefNum = StartMSTimer
+	//variable timerRefNum = StartMSTimer
 	/// Load the last file found in the directory tree with root at pathName
 	string latestfile = ""
 	variable latestctime = 0
 	string filepathStr = MXP_GetNewestCreatedFileInPathTree("pMXP_LoadFilesBeamtimeIgorPath", extension, latestfile, latestctime, 1, 0)
-	variable microSeconds = StopMSTimer(timerRefNum)
-	print "Time elapsed: ", microSeconds/1e6, " sec"
-	//WAVE wRef = MXP_WAVELoadSingleDATFile(filepathStr, "")
-	//MXP_DisplayImage(wRef)
-	//print "File loaded: ", filepathStr
+	//variable microSeconds = StopMSTimer(timerRefNum)
+	//print "Time elapsed: ", microSeconds/1e6, " sec"
+	WAVE wRef = MXP_WAVELoadSingleDATFile(filepathStr, "")
+	MXP_DisplayImage(wRef)
+	print "File loaded: ", filepathStr
 	return 0
 End
 
