@@ -228,7 +228,7 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 		variable metadataStart = MXPImageHeader.LEEMdataVersion <= 2 ? MXPFileHeader.size: (MXPFileHeader.size + ImageHeaderSize)
 		string mdatastr = filepathStr + "\n"
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
-		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart)
+		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, MXPImageHeader.LEEMdataVersion)
 	endif
 	
 	// Add image markups if any
@@ -355,7 +355,7 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 		variable metadataStart = MXPImageHeader.LEEMdataVersion <= 2 ? MXPFileHeader.size: (MXPFileHeader.size + ImageHeaderSize)
 		string mdatastr = filepathStr + "\n"
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
-		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart)
+		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, MXPImageHeader.LEEMdataVersion)
 	endif
 	
 	// Add image markups if any
@@ -494,7 +494,7 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 			MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * byteoffset
 			mdatastr += filepathStr + "\n"
 			mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
-			mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
+			mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart, MXPImageHeader.LEEMdataVersion)
 			if(autoscale)
 				fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
 				SetScale/I x, 0, fovScale, datWave
@@ -506,7 +506,7 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 		// Right before the start of the do...while loop readMetadataOnce = 1
 		if(skipmetadata && autoScale && readMetadataOnce) 
 			MetadataStart = MXPFileHeader.size + ImageHeaderSize + cnt * byteoffset
-			mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart)
+			mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart, MXPImageHeader.LEEMdataVersion)
 			fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
 			readMetadataOnce = 0
 		endif
@@ -552,7 +552,8 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	return 0
 End
 
-Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable MetadataStartPos, variable MetadataEndPos)
+Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable MetadataStartPos, 
+		   variable MetadataEndPos, variable LEEMDataVersion)
 	// Read important metadata from a .dat file. Most metadata are stored in the form
 	// tag (units): values, so it's easy to parse using the StringByKey function.
 	// The function is used by MXP_ImportImageFromSingleDatFile(string datafile, string FileNameStr)
@@ -568,19 +569,22 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 	string strbuffer
 	
 	do
-		FBinRead/F=1 numRef, buffer 
-		/// We read numbers as signed. Following the FileFormats 2017.pdf
+		FBinRead/U/F=1 numRef, buffer 
+		/// We read numbers as unsigned. Following the FileFormats 2017.pdf
 		/// from Elmitec, the highest bit of a byte in the metadata section
-		/// is used to display or not a specific tag on an image. All metadata
-		/// though are recorded. When you choose not to diplay a tag the highest bit
-		/// is set. For example in MAXPEEM by default we choose to display the start 
-		/// voltage, therefore its value is 0x26 (38 decimal). This means that the value
-		/// read here is -90 decimal, which then changed to 38 but adding 2^8. If we opt
-		/// not to display the value then the tag is 38.
-		
-		if (buffer < 0)
-			buffer += 128
+		/// is used to display or not a specific tag on an image. When you choose not 
+		/// to diplay a tag the highest bit is set.
+		/// For example in MAXPEEM by default we choose to display the start 
+		/// voltage, therefore its value is 0x26 (38 decimal). If the value is recorded
+		/// but not shown on the image the value would be 0xA6 (166 decimal)
+		if (buffer == 255)
+			continue
 		endif
+				
+		if (buffer > 128)
+			buffer -= 128
+		endif
+		
 		// LEEM modules from 0..99 have a fixed format
 		// address-name(str)-unit(ASCIII digit)-0-value(float)
 		// unit: ";V;mA;A;ºC;K;mV;pA;nA;µA"
@@ -588,6 +592,7 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 		// Start Voltage, Sample Temp. and Objective
 		
 		// Use StringByKey to extract the metadata
+
 		if (buffer >= 0 && buffer <= 99)
 			FReadLine/T=(num2char(0)) numRef, strbuffer			
 			 
@@ -608,28 +613,39 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 			MXPMetaDataStr += "X(mm):" + num2str(buffer) + "\n"
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += "Y(mm):" + num2str(buffer) + "\n"
-		// added to be in line with Uwe's suggestions. Does not have any effect
 		elseif(buffer == 101)
 			FReadLine /T=(num2char(0)) numRef, strbuffer // old entry, drop
 		elseif(buffer == 102)
 			FBinRead/F=4 numRef, buffer // old entry, drop
 		elseif(buffer == 103)
 			FBinRead/F=4 numRef, buffer // old entry, drop
-		//	Remove 101, 102, 103 cases if you see abnormal behaviour		
 		elseif(buffer == 104)
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += "CamExp(s):" + num2str(buffer) + "\n"
-			
-			FBinRead/U/F=1 numRef, buffer
-			if(buffer == 0)
-				MXPMetaDataStr += "CamMode: No averaging\n"
-			elseif(buffer == 255)
-				MXPMetaDataStr += "CamMode: Sliding average\n"
-			else
-				MXPMetaDataStr += "Average images: " + num2str(buffer) + "\n"
-			endif				
+			if(LEEMDataVersion > 1)
+				FBinRead/U/F=1 numRef, buffer
+				if(buffer == 0)
+					MXPMetaDataStr += "CamMode: No averaging\n"
+				elseif(buffer < 0)
+					MXPMetaDataStr += "CamMode: Sliding average\n"
+				elseif(buffer > 0)
+					// // last case, ok to read buffer here
+					MXPMetaDataStr += "Average images: " + num2str(buffer) + "\n"
+					// From FileFormats 2017
+					// 2 bytes B1,B2 follow
+					// if B1>0 average is on , B2= number of averaged images 2 to 127
+					// if B1=0 average is off
+					// if B1<0 sliding average (<0 in this case -1: hex: 0xff, decimal :255)
+					// The Avg is in the first read, the second is usually 1!
+					// We have to read and drop it. Not sure if the manual is wrong.
+					FBinRead/U/F=1 numRef, buffer
+				else
+					print "Error104"
+				endif				
+			endif
 		elseif(buffer == 105)
 			FReadLine/T=(num2char(0)) numRef, strbuffer // drop title
+			print strbuffer
 		elseif(buffer == 106) // C1G1 - MCH
 			FReadLine/T=(num2char(0)) numRef, strbuffer 
 			MXPMetaDataStr += "MCH" // MAXPEEM naming conversion
@@ -677,15 +693,19 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 			FBinRead/F=4 numRef, buffer // MCP screen voltage in kV
 		elseif(buffer == 116) //drop
 			FBinRead/F=4 numRef, buffer // MCP channelplate voltage in KV
+		elseif(buffer >= 120 && buffer <= 130) //drop other gauges if any 
+			FReadLine /T=(num2char(0)) numRef, strbuffer // Name
+			FReadLine /T=(num2char(0)) numRef, strbuffer // Units
+			FBinRead/F=4 numRef, buffer // value
 		endif		
-	
 		FGetPos numRef
 	while (V_filePos < MetadataEndPos)
 	Close numRef
 	return MXPMetaDataStr // ConvertTextEncoding(MXPMetaDataStr, 1, 1, 3, 2)
 End
 
-Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataStartPos, variable MetadataEndPos)
+Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataStartPos, 
+           variable MetadataEndPos, variable LEEMDataVersion)
 	// Read all metadata from a .dat file. Most metadata are stored in the form
 	// tag (units): values, so it's easy to parse using the StringByKey function.
 	// The function is used by MXP_ImportImageFromSingleDatFile(string datafile, string FileNameStr)
@@ -702,14 +722,21 @@ Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataSt
 	string strBuffer, nametag, units
 	
 	do
-		FBinRead/F=1 numRef, buffer 
-		// We read numbers as signed. Following the FileFormats 2017.pdf
-		// from Elmitec, the highest bit of a byte in the metadata section
-		// is used to display or not a specific tag on the image. All metadata
-		// though are recorded.
+		FBinRead/U/F=1 numRef, buffer 
+		/// We read numbers as unsigned. Following the FileFormats 2017.pdf
+		/// from Elmitec, the highest bit of a byte in the metadata section
+		/// is used to display or not a specific tag on an image. When you choose not 
+		/// to diplay a tag the highest bit is set.
+		/// For example in MAXPEEM by default we choose to display the start 
+		/// voltage, therefore its value is 0x26 (38 decimal). If the value is recorded
+		/// but not shown on the image the value would be 0xA6 (166 decimal)
 		
-		if (buffer < 0)
-			buffer += 128
+		if (buffer == 255)
+			continue
+		endif
+				
+		if (buffer > 128)
+			buffer -= 128
 		endif
 		
 		// LEEM modules from 0..99 have a fixed format
@@ -718,7 +745,7 @@ Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataSt
 		// In ReadBasicMetadataBlock we will get only
 		// Start Voltage, Sample Temp. and Objective
 		// Use StringByKey to extract the metadata
-		
+
 		if (buffer >= 0 && buffer <= 99)
 			FReadLine/T=(num2char(0)) numRef, strBuffer
 			SplitString/E="(.+)(\d)\u0000" strBuffer, nametag, units
@@ -764,26 +791,36 @@ Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataSt
 			MXPMetaDataStr += "X(mm):" + num2str(buffer) + ";"
 			FBinRead/F=4 numRef, buffer
 			MXPMetaDataStr += "Y(mm):" + num2str(buffer) + ";"
-		// added to be in line with Uwe's suggestions. Does not have any effect
 		elseif(buffer == 101)
 			FReadLine /T=(num2char(0)) numRef, strbuffer
 		elseif(buffer == 102)
 			FBinRead/F=4 numRef, buffer
 		elseif(buffer == 103)
 			FBinRead/F=4 numRef, buffer
-		//	Remove 101, 102, 103 cases if you see abnormal behaviour
 		elseif(buffer == 104)
 			FBinRead/F=4 numRef, buffer
-			MXPMetaDataStr += "CamExp(s):" + num2str(buffer) + ";"
-			
-			FBinRead/U/F=1 numRef, buffer
-			if(buffer == 0)
-				MXPMetaDataStr += "CamMode: No averaging\n"
-			elseif(buffer == 255)
-				MXPMetaDataStr += "CamMode: Sliding average\n"
-			else
-				MXPMetaDataStr += "Average images: " + num2str(buffer) + ";"
-			endif			
+			MXPMetaDataStr += "CamExp(s):" + num2str(buffer) + "\n"
+			if(LEEMDataVersion > 1)
+				FBinRead/U/F=1 numRef, buffer
+				if(buffer == 0)
+					MXPMetaDataStr += "CamMode: No averaging\n"
+				elseif(buffer < 0)
+					MXPMetaDataStr += "CamMode: Sliding average\n"
+				elseif(buffer > 0)
+					// // last case, ok to read buffer here
+					MXPMetaDataStr += "Average images: " + num2str(buffer) + "\n"
+					// From FileFormats 2017
+					// 2 bytes B1,B2 follow
+					// if B1>0 average is on , B2= number of averaged images 2 to 127
+					// if B1=0 average is off
+					// if B1<0 sliding average (<0 in this case -1: hex: 0xff, decimal :255)
+					// The Avg is in the first read, the second is usually 1!
+					// We have to read and drop it. Not sure if the manual is wrong.
+					FBinRead/U/F=1 numRef, buffer
+				else
+					print "Error104"
+				endif				
+			endif	
 		elseif(buffer == 105)
 			FReadLine/T=(num2char(0)) numRef, strbuffer // drop title
 		elseif(buffer == 106) // C1G1
@@ -833,8 +870,11 @@ Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataSt
 			FBinRead/F=4 numRef, buffer // MCP screen voltage in kV
 		elseif(buffer == 116) //drop
 			FBinRead/F=4 numRef, buffer // MCP channelplate voltage in KV
+		elseif(buffer >= 120 && buffer <= 130) //drop other gauges if any 
+			FReadLine /T=(num2char(0)) numRef, strbuffer // Name
+			FReadLine /T=(num2char(0)) numRef, strbuffer // Units
+			FBinRead/F=4 numRef, buffer // value
 		endif		
-	
 		FGetPos numRef
 	while (V_filePos < MetadataEndPos)
 	Close numRef

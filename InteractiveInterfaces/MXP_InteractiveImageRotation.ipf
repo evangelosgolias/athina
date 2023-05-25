@@ -71,7 +71,7 @@ Function MXP_CreateInteractiveImageRotationPanel()
 	SetVariable RotAngle title="Set angle",fSize=14,size={120,20}, pos={90,70}, value = dfr:gMXP_Angle, proc=MXP_InteractiveImageRotationSetAngle
 	Button SaveImg title="Save copy",size={80,20},pos={20,100},proc=MXP_InteractiveImageRotationSaveCopyButton
 	Button OverwiteImg title="Overwite ",size={70,20}, pos={110,100},proc=MXP_InteractiveImageRotationOverwriteImgButton
-	Button RestoreImg title="Restore",size={80,20},pos={190,100},fColor=(3,52428,1),proc=MXP_InteractiveImageRotationRestoreImgButton
+	Button RestoreImageRot title="Restore",size={80,20},pos={190,100},fColor=(3,52428,1),proc=MXP_InteractiveImageRotationRestoreImageRotButton
 
 	SetWindow $winNameStr#iImageRotation hook(MyImageRotationPanelHook) = MXP_iImageRotationPanelHookFunction
 	SetWindow $winNameStr#iImageRotation userdata(MXP_iRotateFolder) = "root:Packages:MXP_DataFolder:InteractiveImageRotation:" + winNameStr
@@ -204,8 +204,8 @@ Function MXP_InteractiveImageRotationOverwriteImgButton(STRUCT WMButtonAction &b
 				Duplicate/O wRef, wRefbck
 				Note wRefbck, noteStr
 				Note wRef, noteStr
-				Button RestoreImg fColor=(65535,0,0)
-				ControlUpdate/W=$ba.win#iImageRotation RestoreImg
+				Button RestoreImageRot, win=$ba.win, fColor=(65535,0,0)
+				ControlUpdate/W=$ba.win RestoreImageRot
 			endif
 			break
 		case -1: // control being killed
@@ -215,7 +215,7 @@ Function MXP_InteractiveImageRotationOverwriteImgButton(STRUCT WMButtonAction &b
 	return 0
 End
 
-Function MXP_InteractiveImageRotationRestoreImgButton(STRUCT WMButtonAction &ba) : ButtonControl
+Function MXP_InteractiveImageRotationRestoreImageRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(ba.win, "", "MXP_iRotateFolder"))
 	SVAR/SDFR=dfr gMXP_wPathname
 	SVAR/SDFR=dfr gMXP_wBackupPathNameStr
