@@ -216,7 +216,7 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + LEEMdataVersion
 	FSetPos numRef, ImageDataStart
 	FBinRead/F=2 numRef, datWave
-	ImageTransform flipCols datWave // flip the y-axis
+	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
 	if(!skipmetadata)
@@ -343,7 +343,7 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + LEEMdataVersion
 	FSetPos numRef, ImageDataStart
 	FBinRead/F=2 numRef, datWave
-	//ImageTransform flipCols datWave // flip the y-axis
+	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
 	if(!skipmetadata)
@@ -581,7 +581,7 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 			continue
 		endif
 				
-		if (buffer > 128)
+		if (buffer > 127)
 			buffer -= 128
 		endif
 		
@@ -655,11 +655,11 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 			MXPMetaDataStr += num2str(buffer) + "\n"
 		elseif(buffer == 107) // C1G2 - COL
 			FReadLine/T=(num2char(0)) numRef, strbuffer
-			MXPMetaDataStr += "COL" // MAXPEEM naming conversion
+			//MXPMetaDataStr += "COL" // MAXPEEM naming conversion
 			FReadLine/T=(num2char(0)) numRef, strbuffer
-			MXPMetaDataStr += "(" + RemoveEnding(strbuffer) + "):"
+			//MXPMetaDataStr += "(" + RemoveEnding(strbuffer) + "):"
 			FBinRead/F=4 numRef, buffer
-			MXPMetaDataStr += num2str(buffer) + "\n"
+			//MXPMetaDataStr += num2str(buffer) + "\n"
 		elseif(buffer == 108) // C2G1 not used at MAXPEEM
 			FReadLine/T=(num2char(0)) numRef, strbuffer 
 			//MXPMetaDataStr += "MCH" // MAXPEEM naming conversion
@@ -669,11 +669,11 @@ Function/S MXP_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 			//MXPMetaDataStr += num2str(buffer) + "\n"
 		elseif(buffer == 109) // C2G1 - PCH
 			FReadLine /T=(num2char(0)) numRef, strbuffer
-			MXPMetaDataStr += "PCH" // MAXPEEM naming conversion
+			//MXPMetaDataStr += "PCH" // MAXPEEM naming conversion
 			FReadLine /T=(num2char(0)) numRef, strbuffer
-			MXPMetaDataStr += "(" + RemoveEnding(strbuffer) + "):"
+			//MXPMetaDataStr += "(" + RemoveEnding(strbuffer) + "):"
 			FBinRead/F=4 numRef, buffer
-			MXPMetaDataStr += num2str(buffer) + "\n"
+			//MXPMetaDataStr += num2str(buffer) + "\n"
 		elseif(buffer == 110)
 			FReadLine /T=(num2char(0))/ENCG={3,3,1} numRef, strbuffer // TODO: Fix the trailing tab and zeros!
 			sscanf strbuffer, "%dµm", buffer
@@ -735,7 +735,7 @@ Function/S MXP_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataSt
 			continue
 		endif
 				
-		if (buffer > 128)
+		if (buffer > 127)
 			buffer -= 128
 		endif
 		
@@ -1492,7 +1492,7 @@ Function/WAVE MXP_WAVELoadSingleCorruptedDATFile(string filepathStr, string wave
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
 	Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr /WAVE=datWave
 	FBinRead/F=2 numRef, datWave
-	ImageTransform flipCols datWave // flip the y-axis
+	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
 	// Convert to SP or DP 	
@@ -1572,7 +1572,7 @@ Function MXP_LoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, 
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
 	Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr /WAVE=datWave
 	FBinRead/F=2 numRef, datWave
-	ImageTransform flipCols datWave // flip the y-axis
+	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
 	// Convert to SP or DP 	
