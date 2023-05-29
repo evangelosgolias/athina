@@ -1317,21 +1317,10 @@ Function/WAVE MXP_WAVELoadDATFilesFromFolder(string folder, string pattern, [int
 	if (!filesnr)
 		Abort "No files match pattern: " + pattern
 	endif
-	variable cnt = 0
-	string odlwname = wname3dStr
-	// TODO: Use CreateDataObjectName(dfr, nameInStr, objectType, suffixNum, options)
-	// Handle the case where the 3d wave exists and find an appropriate name
-	if(stack3d && exists(wname3dStr) == 1)
-		do
-			printf "Wave %s exists in %s renaming to %s\n", wname3dStr, GetDataFolder(1), (wname3dStr + num2str(cnt))
-			wname3dStr = odlwname + num2str(cnt)
-			cnt++
-		while(exists(wname3dStr) == 1)
-		// if name in use by a global wave/variable 
-		if(!exists(wname3dStr) == 0) // 0 - Name not in use, or does not conflict with a wave, numeric variable or string variable in the specified data folder.
-			print "MXP: Renamed your wave to \"" + (wname3dStr + "_rn") + "\" to avoid conflicts"
-			wname3dStr += "_rn"
-		endif
+
+	if(stack3d)
+		DFREF currDF = GetDataFolderDFR()
+		wname3dStr = CreateDataObjectName(currDF, wname3dStr, 1, 0, 5)
 	endif
 	
 	string filenameBuffer, datafile2read, filenameStr

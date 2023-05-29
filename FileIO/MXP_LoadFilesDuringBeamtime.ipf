@@ -120,7 +120,7 @@ Function MXP_LoadNewestFolderInPathTreeAndDisplay()
 	string latestfolder = ""
 	variable latestctime = 0
 	string folderPathStr = MXP_GetNewestCreatedFolderInPathTree("pMXP_LoadFilesBeamtimeIgorPath", latestfolder, latestctime)
-	WAVE wRef = MXP_WAVELoadDATFilesFromFolder(folderPathStr, "*", stack3d = 1, autoscale = 1)
+	WAVE wRef = MXP_WAVELoadDATFilesFromFolder(folderPathStr, "*", stack3d = 1, autoscale = 1, wname3dStr = "autoLoadStack")
 	MXP_DisplayImage(wRef)
 	print "Folder loaded: ", folderPathStr	
 	return 0
@@ -174,14 +174,18 @@ Function/S MXP_GetNewestCreatedFolderInPathTree(string pathName, string &latestf
 	return latestfolder
 End
 
+
 Function MXP_LoadNewestFileInPathTreeAndDisplayPython(string ext) // TODO
 	/// Load the last file found in the directory tree with root set at pathName
 	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
 	/// will pop to set pathName. The path name is saved as pMXP_LoadLastFileIgorPath.
 
 	string filepathStr = MXP_GetLastSavedFileInFolderTreePython("pMXP_LoadFilesBeamtimeIgorPath", ext) // Change path!
-	//WAVE wRef = MXP_WAVELoadSingleDATFile(filepathStr, "")
-	//MXP_DisplayImage(wRef)
+	#ifdef MACINTOSH
+		filepathStr = ParseFilePath(10, filepathStr, "*", 0, 0)
+	#endif	
+	WAVE wRef = MXP_WAVELoadSingleDATFile(filepathStr, "")
+	MXP_DisplayImage(wRef)
 	print "File loaded: ", filepathStr
 	return 0
 End
@@ -223,6 +227,33 @@ Function/S MXP_GetLastSavedFileInFolderTreePython(string pathName, string ext)
 	return S_value
 End
 
+Function MXP_LoadNewestTwoFilesInPathTreeAndDisplayPython(string ext) // TODO
+	/// Load the last file found in the directory tree with root set at pathName
+	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
+	/// will pop to set pathName. The path name is saved as pMXP_LoadLastFileIgorPath.
+
+	string filepathsStr = MXP_GetLastTwoSavedFileInFolderTreePython("pMXP_LoadFilesBeamtimeIgorPath", ext) // Change path!
+	string filepath1Str = StringFromList(0, filepathsStr)
+	string filepath2Str = StringFromList(1, filepathsStr)	
+	#ifdef MACINTOSH
+		filepath1Str = ParseFilePath(10, filepath1Str, "*", 0, 0)
+		filepath2Str = ParseFilePath(10, filepath2Str, "*", 0, 0)		
+	#endif
+	DFREF saveDF = GetDataFolderDFR()
+	NewDataFolder/S tmpLoadLastTwoWavesAndStack_Beamtime
+	WAVE w1Ref = MXP_WAVELoadSingleDATFile(filepath1Str, "pyWave0", autoscale = 1)
+	WAVE w2Ref = MXP_WAVELoadSingleDATFile(filepath2Str, "pyWave1", autoscale = 1)
+	Imagetransform stackImages $"pyWave0"
+	WAVE M_Stack
+	string w3dStr = CreateDataObjectName(saveDF, "autoLoadL2F", 1, 0, 5)
+	MoveWave M_stack, saveDF:$w3dStr
+	SetDataFolder ::
+	KillDataFolder tmpLoadLastTwoWavesAndStack_Beamtime
+	MXP_DisplayImage($w3dStr)
+	print "Files loaded: \n1.", filepath1Str, "\n2.", filepath2Str, "\n", "◊ Stacked in: ", w3dStr
+	return 0
+End
+
 Function/S MXP_GetLastTwoSavedFileInFolderTreePython(string pathName, string ext)
 //	unixCmdBase = "python3 -c \"from pathlib import Path;from os.path import getmtime;"\
 //			  + "listFiles = sorted(Path('%s').rglob('*%s'), "\
@@ -249,13 +280,13 @@ Function/S MXP_GetLastTwoSavedFileInFolderTreePython(string pathName, string ext
 	#ifdef WINDOWS
 		unixCmdBase = "python -c \"from pathlib import Path;from os.path import getmtime;"\
 					  + "listFiles = sorted(Path('%s').rglob('*%s'), "\
-					  + "key = getmtime);print(listFiles[-2], end='');print(';');print(listFiles[-1], end='');print(';')\""		
+					  + "key = getmtime);print(listFiles[-2], end='');print(';',end='');print(listFiles[-1], end='');print(';',end='')\""		
 		sprintf unixCmd, unixCmdBase, path, ext	
 		sprintf igorCmd, "cmd.exe /C \"%s\"", unixCmd
 	#else // MACINTOSH, python3 is for my Mac! You could use python instead
 		unixCmdBase = "python3 -c \\\"from pathlib import Path;from os.path import getmtime;"\
 					  + "listFiles = sorted(Path('%s').rglob('*%s'), "\
-					  + "key = getmtime);print(listFiles[-2], end='');print(';');print(listFiles[-1], end='');print(';')\\\""	
+					  + "key = getmtime);print(listFiles[-2], end='');print(';',end='');print(listFiles[-1], end='');print(';',end='')\\\""	
 		sprintf unixCmd, unixCmdBase, path, ext	
 		sprintf igorCmd, "do shell script \"%s\" ", unixCmd
 	#endif	

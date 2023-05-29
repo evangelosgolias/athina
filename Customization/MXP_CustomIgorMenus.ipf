@@ -41,8 +41,6 @@ Menu "MAXPEEM"
 		".dav file...", /Q, MXP_LoadSingleDAVFile("", "", autoscale = 1)
 		".dat file (img only)...", /Q, MXP_LoadSingleCorruptedDATFile("", "")
 		".h5 file ...", /Q, MXP_LauncherLoadHDF5GroupsFromFile()
-		"last saved file",/Q, MXP_LoadNewestFileInPathTreeAndDisplay(".dat")
-		"stack from newest folder",/Q, MXP_LoadNewestFolderInPathTreeAndDisplay()
 	End
 	
 	Submenu "Image Operations"
@@ -85,8 +83,12 @@ Menu "MAXPEEM"
 		"Photoionisation CrossSection",/Q, PhotoionisationCrossSection#PhotoionisationCrossSection()
 		"List HDF5 (.h5) entries...", /Q, MXP_ListHDF5Groups()
 	End
-	Submenu "Configuration"
+	Submenu "Beamtime"
 		"Set experiment's root folder",/Q, MXP_SetOrResetBeamtimeRootFolder()
+		"Load newest file",/Q, MXP_LoadNewestFileInPathTreeAndDisplayPython(".dat")
+		"Load newest folder to stack",/Q, MXP_LoadNewestFolderInPathTreeAndDisplay()
+		"Load two newest files to stack",/Q, MXP_LoadNewestTwoFilesInPathTreeAndDisplayPython(".dat")
+
 	End
 End
 
