@@ -206,15 +206,60 @@ Function/S MXP_GetLastSavedFileInFolderTreePython(string pathName, string ext)
 	#else // MACINTOSH
 		path = ParseFilePath(5, path, "/", 0, 0)
 	#endif	
-	string 	unixCmd, igorCmd
-	string unixCmdBase = "python3 -c \\\"from pathlib import Path;from os.path import getmtime;print(max(list(Path('%s').rglob('*%s')),key=getmtime))\\\""
-	sprintf unixCmd, unixCmdBase, path, ext
+	string 	unixCmd, igorCmd, unixCmdBase
 	
 	#ifdef WINDOWS
-		sprintf igorCmd, "cmd.exe /C \"%s\"", unixCmd
+		unixCmdBase = "python -c \"from pathlib import Path;from os.path import getmtime;print(max(list(Path('%s').rglob('*%s')),key=getmtime))\""
+		sprintf unixCmd, unixCmdBase, path, ext
+		sprintf igorCmd, "cmd.exe /C \"%s\"", unixCmd	
 	#else // MACINTOSH
+		unixCmdBase = "python3 -c \\\"from pathlib import Path;from os.path import getmtime;print(max(list(Path('%s').rglob('*%s')),key=getmtime))\\\""
+		sprintf unixCmd, unixCmdBase, path, ext
 		sprintf igorCmd, "do shell script \"%s\" ", unixCmd
 	#endif	
+	ExecuteScriptText/Z/B/UNQ igorCmd
+	//variable microSeconds = StopMSTimer(timerRefNum)
+	//print "Time elapsed: ", microSeconds/1e6, " sec"
+	return S_value
+End
+
+Function/S MXP_GetLastTwoSavedFileInFolderTreePython(string pathName, string ext)
+//	unixCmdBase = "python3 -c \"from pathlib import Path;from os.path import getmtime;"\
+//			  + "listFiles = sorted(Path('%s').rglob('*%s'), "\
+//			  + "key = getmtime);print(listFiles[-2], end='');print(';');print(listFiles[-1], end='');print(';')\""	
+//
+//		
+	
+	//variable timerRefNum = StartMSTimer
+
+	PathInfo $pathName
+	string path = S_path	
+	if(!V_flag) // If path not defined, set it and call the function again
+		print "pMXP_LoadFilesBeamtimeIgorPath is not set!"
+		path = MXP_SetOrResetBeamtimeRootFolder()
+	endif
+	
+	#ifdef WINDOWS
+		path = RemoveEnding(ParseFilePath(5, path, "\\", 0, 0))// Remove last backslash because it is interpreted as escape character \'
+	#else // MACINTOSH
+		path = ParseFilePath(5, path, "/", 0, 0)
+	#endif	
+	string 	unixCmd, igorCmd, unixCmdBase
+	
+	#ifdef WINDOWS
+		unixCmdBase = "python -c \"from pathlib import Path;from os.path import getmtime;"\
+					  + "listFiles = sorted(Path('%s').rglob('*%s'), "\
+					  + "key = getmtime);print(listFiles[-2], end='');print(';');print(listFiles[-1], end='');print(';')\""		
+		sprintf unixCmd, unixCmdBase, path, ext	
+		sprintf igorCmd, "cmd.exe /C \"%s\"", unixCmd
+	#else // MACINTOSH, python3 is for my Mac! You could use python instead
+		unixCmdBase = "python3 -c \\\"from pathlib import Path;from os.path import getmtime;"\
+					  + "listFiles = sorted(Path('%s').rglob('*%s'), "\
+					  + "key = getmtime);print(listFiles[-2], end='');print(';');print(listFiles[-1], end='');print(';')\\\""	
+		sprintf unixCmd, unixCmdBase, path, ext	
+		sprintf igorCmd, "do shell script \"%s\" ", unixCmd
+	#endif	
+	
 	ExecuteScriptText/Z/B/UNQ igorCmd
 	//variable microSeconds = StopMSTimer(timerRefNum)
 	//print "Time elapsed: ", microSeconds/1e6, " sec"

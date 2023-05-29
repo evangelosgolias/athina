@@ -30,6 +30,8 @@
 
 #include <Imageslider> // Used in many .ipfs
 
+static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
+
 Function MXP_DisplayImage(WAVE waveRef)
 	   // Display an image or stack
 		NewImage/G=1/K=1 waveRef
@@ -180,6 +182,8 @@ End
 //	SetDataFolder dfSav
 //End
 
+/// Modified WM procedures to manage sliders in 3D wave display (Duplicate window etc)
+
 Function MXP_Append3DImageSlider()
 	/// Edited version of WMAppend3DImageSlider() to deal with 
 	/// liberal names in 3d waves
@@ -230,7 +234,7 @@ Function MXP_Append3DImageSlider()
 	Variable left = V_left*scale
 	Variable right = limit(V_right*scale, left+kImageSliderLMargin+50,inf)		// ST: 210601 - make sure the controls get not too small
 	
-	Slider WM3DAxis,pos={left+10,gOriginalHeight+10},size={right-left-kImageSliderLMargin,16},proc=WM3DImageSliderProc		// ST: 210601 - shift slider slightly down
+	Slider WM3DAxis,pos={left+10,gOriginalHeight+10},size={right-left-kImageSliderLMargin,16},proc=MXP_3DImageSliderProc		// ST: 210601 - shift slider slightly down
 	// uncomment the following line if you want do disable live updates when the slider moves.
 	// Slider WM3DAxis live=0	
 	Slider WM3DAxis,limits={0,gRightLim,1},value= 0,vert= 0,ticks=0,side=0,variable=gLayer	
@@ -251,9 +255,106 @@ Function MXP_Append3DImageSlider()
 	WaveStats/Q w
 	ModifyImage $imageName ctab= {V_min,V_max,,0}	// missing ctName to leave it unchanged.
 	
-	SetWindow $grfName hook(WM3Dresize)=WM3DImageSliderWinHook
+	SetWindow $grfName hook(WM3Dresize)=MXP_3DImageSliderWinHook
 	
 	SetDataFolder dfSav
+End
+
+Function MXP_3DImageSliderWinHook(STRUCT WMWinHookStruct &s)// ST: 310601 - graph hook to resize the controls dynamically
+	if(!DataFolderExists(WMkSliderDataFolderBase + s.winName))
+		KillControl/W=$s.winName WM3DAxis
+		KillControl/W=$s.winName WM3DVal
+		KillControl/W=$s.winName WM3DDoneBtn
+		DoWindow/F $s.winName
+		//ControlInfo kwControlBar
+		ControlBar/W=$s.winName 0		// TODO: We set ControlBar to 30, it might be something else already there, try to generalise  
+		MXP_Append3DImageSlider() // Call again to create all folders and 
+	else
+		DFREF valDF = $(WMkSliderDataFolderBase + s.winName)
+		NVAR gOriginalHeight = valDF:gOriginalHeight
+	endif
+	
+	// Needed to deal with Duplicates as we check in the start of the
+	// function for the existance of WMkSliderDataFolderBase + s.winName
+	if (s.EventCode == 2) 
+		KillDataFolder/Z $(WMkSliderDataFolderBase + s.winName)
+	elseif (s.EventCode == 6)	// resize
+		variable left = s.winRect.left
+		variable right = limit(s.winRect.right, left+kImageSliderLMargin+50,inf)
+		
+		Slider WM3DAxis		,win=$(s.winName)	,pos={left+10,gOriginalHeight+10}						,size={right-left-kImageSliderLMargin,16}
+		SetVariable WM3DVal	,win=$(s.winName)	,pos={right-kImageSliderLMargin+15,gOriginalHeight+6}	,size={60,18}
+		Button WM3DDoneBtn	,win=$(s.winName)	,pos={right-kImageSliderLMargin+85,gOriginalHeight+6}	,size={50,18}
+	elseif (s.EventCode == 8)	// modified
+		DFREF valDF = $(WMkSliderDataFolderBase + s.winName)
+		SVAR/Z/SDFR=valDF imageName
+		NVAR/Z/SDFR=valDF gLayer
+		if (SVAR_Exists(imageName) && NVAR_Exists(gLayer))
+			string info = ImageInfo(s.winName, imageName, 0)
+			variable pos = strsearch(info, "RECREATION", 0)
+			if (pos >= 0)
+				// If the user executes ModifyImage plane=#, make sure that the plane
+				// number displayed in the SetVariable control and the slider reflect the change.
+				string rec = info[pos + 11, strlen(info) - 1] // strlen("RECREATION:") = 11
+				variable plane = NumberByKey("plane", rec, "=", ";", 0)
+				if (numtype(plane) == 0 && (gLayer != plane))
+					gLayer = plane
+					MXP_3DImageSliderProc("",0,0)
+				endif
+			endif
+		endif
+	elseif (s.EventCode == 13)	// renamed
+		// Rename the data folder containing this package's globals.
+		DFREF oldDF = $(WMkSliderDataFolderBase + s.oldWinName)
+		if (DataFolderRefStatus(oldDF) == 1)
+			RenameDataFolder oldDF, $(s.winName)
+		endif
+	endif		
+		
+	return 0
+End
+
+Function MXP_3DImageSliderProc(string name, variable value, variable event)
+	//String name			// name of this slider control
+	//Variable value		// value of slider
+	//Variable event		// bit field: bit 0: value set; 1: mouse down, //   2: mouse up, 3: mouse moved
+
+	String dfSav= GetDataFolder(1)
+	String grfName= WinName(0, 1)
+	SetDataFolder $(WMkSliderDataFolderBase + grfName)
+
+	NVAR gLayer
+	SVAR imageName
+
+	ModifyImage  $imageName plane=(gLayer)
+	
+	string helpStr=""
+	WAVE/Z imageW = ImageNameToWaveRef(grfName, imageName)
+	if( WaveExists(imageW) )
+		variable zScale = DimOffset(imageW,2) + gLayer * DimDelta(imageW,2)
+		helpStr= "Z scale = "+num2str(zScale)
+	endif
+	ModifyControlList "WM3DVal;WM3DAxis;" win=$grfName, help={helpStr}
+	
+	SetDataFolder dfSav
+	
+	// Do we need the following? EG
+//	// 08JAN03 Tell us if there is an active LineProfile
+	SVAR/Z imageGraphName=root:Packages:WMImProcess:LineProfile:imageGraphName
+	if(SVAR_EXISTS(imageGraphName))
+		if(cmpstr(imageGraphName,grfName)==0)
+			ModifyGraph/W=$imageGraphName offset(lineProfileY)={0,0}			// This will fire the S_TraceOffsetInfo dependency
+		endif
+	endif	
+		
+	SVAR/Z imageGraphName=root:Packages:WMImProcess:ImageThreshold:ImGrfName
+	if(SVAR_EXISTS(imageGraphName))
+		if(cmpstr(imageGraphName,grfName)==0)
+			WMImageThreshUpdate()
+		endif
+	endif
+	
+	return 0				// other return values reserved
 End
 
 Function MXP_SetImageRangeTo94Percent()
@@ -312,20 +413,5 @@ Function MXP_SetImageRangeTo94Percent()
 	
 	SetDataFolder ::
 	KillDataFolder MXP__Folder__ImageRangeTo94Percent__tmp
-	return 0
-End
-
-Function MXP_ReAppend3DImageSlider(string graphNameStr)
-	/// When you duplicate a graph of a 3d wave with slider
-	/// then we do not have an linked folder in Packages:WM3DImageSlider
-	/// and the hook function in no set. MXP_ReAppend3DImageSlider
-	/// fixes the problem.
-	/// graphNameStr = "" for top graph.
-	
-	ControlBar/W=$graphNameStr 0
-	KillControl/W=$graphNameStr WM3DAxis
-	KillControl/W=$graphNameStr WM3DVal
-	KillControl/W=$graphNameStr WM3DDoneBtn
-	MXP_Append3DImageSlider()
 	return 0
 End
