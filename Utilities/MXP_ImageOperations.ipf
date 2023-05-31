@@ -28,7 +28,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-Function MXP_AutoScaleTopImage()
+Function MXP_AutoRangeTopImage()
 	// Autoscale image of the top grap
 	WAVE wRef = MXP_TopImageToWaveRef()
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
@@ -36,9 +36,20 @@ Function MXP_AutoScaleTopImage()
 	variable cmapSwitch
 	sscanf StringByKey("RECREATION",Imageinfo("",NameOfWave(wRef),0)), matchPattern, colorScaleStr, cmapSwitch
 	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {*,*,$colorScaleStr,cmapSwitch} // Autoscale Image
+	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=0 // Autoscale Image
 End
 
-Function MXP_ScaleImage() // Uses top graph
+Function MXP_AutoRangeTopImagePerPlaneAndVisibleArea()
+	// Autoscale image of the top grap
+	WAVE wRef = MXP_TopImageToWaveRef()
+	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
+	string colorScaleStr
+	variable cmapSwitch
+	sscanf StringByKey("RECREATION",Imageinfo("",NameOfWave(wRef),0)), matchPattern, colorScaleStr, cmapSwitch
+	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3 // Autoscale Image
+End
+
+Function MXP_SetScaleOfImageStack() // Uses top graph
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave

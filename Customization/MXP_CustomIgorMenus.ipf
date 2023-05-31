@@ -96,18 +96,18 @@ End
 // -------------------------------------------------------
 
 Menu "GraphMarquee"
-	"Set image range using ROI (2D, 3D)", /Q, MXP_SetImageRangeTo94Percent()
-	"ROI stats (2D, 3D)", /Q, MXP_GetMarqueeWaveStats()
-	"Z-profiler: Set oval ROI  (3D)", /Q, MXP_DrawOvalROIAndWaitHookToAct()
-	"Z-profiler: Set rectangular ROI  (3D)", /Q, MXP_DrawRectROIAndWaitHookToAct()	
-	"Marquee to mask (2D, 3D)", /Q, MXP_MarqueeToMask()
-	"Backup traces (1D)", /Q, MXP_BackupTraces()
-	"Restore traces (1D)", /Q, MXP_RestoreTraces()
-	"Normalise to profile (1D)", /Q, MXP_NormaliseTracesWithProfile()
-	"Normalize to one (1D)", /Q, MXP_NormalizeToOne()
-	"Pull to zero (1D)", /Q, MXP_PullToZero()
-	"Maximum to one (1D)", /Q, MXP_MaximumToOne()
-	"Partition 3D region (3D)", /Q, MXP_Partition3DRegion()
+	"MXP Set image range using ROI (2D, 3D)", /Q, MXP_SetImageRangeTo94Percent()
+	"MXP ROI stats (2D, 3D)", /Q, MXP_GetMarqueeWaveStats()
+	"MXP Z-profiler: Set oval ROI  (3D)", /Q, MXP_DrawOvalROIAndWaitHookToAct()
+	"MXP Z-profiler: Set rectangular ROI  (3D)", /Q, MXP_DrawRectROIAndWaitHookToAct()	
+	"MXP Marquee to mask (2D, 3D)", /Q, MXP_MarqueeToMask()
+	"MXP Backup traces (1D)", /Q, MXP_BackupTraces()
+	"MXP Restore traces (1D)", /Q, MXP_RestoreTraces()
+	"MXP Normalise to profile (1D)", /Q, MXP_NormaliseTracesWithProfile()
+	"MXP Normalize to one (1D)", /Q, MXP_NormalizeToOne()
+	"MXP Pull to zero (1D)", /Q, MXP_PullToZero()
+	"MXP Maximum to one (1D)", /Q, MXP_MaximumToOne()
+	"MXP Partition 3D region (3D)", /Q, MXP_Partition3DRegion()
 End
 
 Menu "DataBrowserObjectsPopup"
@@ -119,18 +119,19 @@ Menu "DataBrowserObjectsPopup"
 	"MXP Make stack", /Q, MXP_LaunchMake3DWaveDataBrowserSelection()
 	"MXP Make stack and display", /Q, MXP_LaunchMake3DWaveDataBrowserSelection(displayStack = 1)
 	Submenu "MXP Normalise"
-		"Stack with image", /Q, MXP_LaunchNormalisationImageStackWithImage()
-		"Stack with profile", /Q, MXP_LaunchNormalisationImageStackWithProfile()
-		"Stack with stack", /Q, MXP_LaunchNormalisationImageStackWithImageStack()
+		"MXP Stack with image", /Q, MXP_LaunchNormalisationImageStackWithImage()
+		"MXP Stack with profile", /Q, MXP_LaunchNormalisationImageStackWithProfile()
+		"MXP Stack with stack", /Q, MXP_LaunchNormalisationImageStackWithImageStack()
 	End
 End
 
 Menu "TracePopup"
-	"MXP Autoscale Image (2D, 3D)", /Q, MXP_AutoScaleTopImage()
+	"MXP Autoscale Image (2D, 3D)", /Q, MXP_AutoRangeTopImage()
+	"MXP Dynamic Autoscale Image Plane (3D)", /Q, MXP_AutoRangeTopImagePerPlaneAndVisibleArea()	
 	"MXP Save layer (3D)", /Q, MXP_GetLayerFromImageStack()
 	"MXP Save current view (2D,3D)", /Q, MXP_GetScaledZoominImageWindow()
 	"MXP Add images to Stack (3D)", /Q, MXP_LaunchStackImagesToImageStack()
-	"MXP Scale Image stack (3D)", /Q, MXP_ScaleImage()
+	"MXP Scale Image stack (3D)", /Q, MXP_SetScaleOfImageStack()
 	"MXP Select image and copy scales (2D,3D)", /Q, MXP_ImageSelectToCopyScale()
 	"MXP Calculate XMC(L)D (3D[2])", /Q, MXP_LaunchCalculateXMCDFromStack()
 	Submenu "MXP markups ..."
