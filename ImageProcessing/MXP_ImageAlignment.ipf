@@ -81,10 +81,7 @@ Function MXP_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 	/// By default the function will  use the 0-th layer as a wave reference, uncless user chooses otherwise.
 	/// Only x, y translations are allowed.
 	/// @param w3d wave 3d we want to register for aligment
-	/// @param refLayer int optional Select refWave = refLayer for ImageRegistration.
-	/// @param convMode int optional Select convergence method /CONV = 0, 1 for Gravity (fast) or Marquardt (slow), respectively.
-	/// Note: When illumination conditions change considerably, (XAS along an edge)
-	/// it is better to use a mask to isolate a characteristic feature. 
+	/// @param partitionW3d WAVE partition of w3d
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then default is 0
 	printMode = ParamIsDefault(printMode) ? 0: printMode
 	if(!(WaveType(w3d) & 0x02))
@@ -139,18 +136,14 @@ Function MXP_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 	return 0
 End
 
-// Backup of MXP_ImageStackAlignmentByPartitionRegistration. 
-Function MXP_ImageStackAlignmentByPartitionRegistrationBCK(WAVE w3d, WAVE partitionW3d, [variable layerN, variable printMode]) // Used in menu
-	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave. 
-	/// The partition 3d wave calls MXP_ImageStackAlignmentByFullRegistration
-	/// By default the function will  use the 0-th layer as a wave reference, uncless user chooses otherwise.
+Function MXP_CascadeImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partitionW3d, [variable printMode]) // Used in menu
+	/// Align a 3d wave using ImageRegistration using a partition of the target 3d wave.
+	/// We align sequentially with reference layer the previous layer of the stack. 
 	/// Only x, y translations are allowed.
-	/// @param w3d wave 3d we want to register for aligment
-	/// @param refLayer int optional Select refWave = refLayer for ImageRegistration.
-	/// @param convMode int optional Select convergence method /CONV = 0, 1 for Gravity (fast) or Marquardt (slow), respectively.
+	/// @param w3d WAVE 3d we want to register for aligment
+	/// @param partitionW3d WAVE partition of w3d
 	/// Note: When illumination conditions change considerably, (XAS along an edge)
 	/// it is better to use a mask to isolate a characteristic feature. 
-	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then default is 0
 	printMode = ParamIsDefault(printMode) ? 0: printMode
 	if(!(WaveType(w3d) & 0x02))
 		Redimension/S w3d
@@ -158,44 +151,55 @@ Function MXP_ImageStackAlignmentByPartitionRegistrationBCK(WAVE w3d, WAVE partit
 	if(!(WaveType(partitionW3d) & 0x02))
 		Redimension/S partitionW3d
 	endif
-	MatrixOP/FREE refLayerWave = layer(partitionW3d, layerN)
+	
 	variable rows = DimSize(w3d, 0)
 	variable cols = DimSize(w3d, 1)
 	variable layers = DimSize(w3d, 2)
 	if(!WaveExists($(NameOfWave(w3d) + "_undo")))
 		Duplicate/O w3d, $(NameOfWave(w3d) + "_undo")
 	endif
-	ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d
-	WAVE M_RegParams
-	MatrixOP/FREE dx = row(M_RegParams,0)
-	MatrixOP/FREE dy = row(M_RegParams,1)
+	
 	if(printMode)
 		string driftLog = ""
-		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
-		driftLog +=  "---- Drift ----\n"
+		driftLog +=  "---- Drift correction (relative to previous layer)----\n"
 		driftLog +=  "layer  dx  dy\n"
 	endif
 	//Now translate each wave in the stack
 	variable i
-	for(i = 0; i < layers; i++)
-		MatrixOP/O/FREE getfreelayer = layer(w3d, i)
-		ImageTransform/IOFF={dx[i], dy[i], 0} offsetImage getfreelayer
-		WAVE M_OffsetImage
+	DFREF saveDF = GetDataFolderDFR()
+	NewDataFolder/O/S tmpMXPdataFolderPartiotionReg // Change folder
+	variable dx, dy
+	// Get the first layer out
+	MatrixOP/O getStacklayer_0 = layer(w3d, 0) 
+	MatrixOP/O M_Affine = layer(partitionW3d, i) // Get the first layer from partitionW3d, name is M_Affine (ImageInterpolate default  output for Affine2D)
+	for(i = 0; i < layers - 1; i++) // (layers - 1)
+		MatrixOP/O/FREE targetLayer = layer(partitionW3d, i + 1)
+		ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = M_Affine, testwave = targetLayer
+		WAVE W_RegParams
+		dx = W_RegParams[0]; dy = W_RegParams[1]
+		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer // Will overwrite M_Affine
+		MatrixOP/O/FREE w3dLayer = layer(w3d, i + 1)
+		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i + 1)) Affine2D w3dLayer
 		if(printMode)
-			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "    " + num2str(dy[i]) + "\n"
+			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n"
 		endif
-		w3d[][][i] = M_OffsetImage[p][q]
 	endfor
-	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams, M_OffsetImage
+	ImageTransform/NP=(layers) stackImages $"getStacklayer_0"
+	WAVE M_Stack
+	// Restore scale here
+	CopyScales w3d, M_Stack
+	Duplicate/O M_Stack, saveDF:$NameofWave(w3d)	
+	//MoveWave M_Stack, saveDF:$NameofWave(w3d) // Move, do not duplicate
 	if(printMode)
 		string notebookName = NameOfWave(w3d)
 		KillWindow/Z notebookName
 		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
 		Notebook notebookName, text = driftLog
 	endif
+	SetDataFolder saveDF
+	KillDataFolder tmpMXPdataFolderPartiotionReg
 	return 0
 End
-
 
 Function MXP_ImageStackAlignmentByRegistration(WAVE w3d, [variable layerN, variable printMode, variable convMode])
 	/// Align a 3d wave using ImageRegistration. By default the function will
@@ -437,6 +441,73 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
 		Notebook notebookName, text = driftLog
 	endif
+	return 0
+End
+
+Function MXP_CascadeImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [int printMode])
+	/// Align a 3d wave using ImageRegistration using a partition of the target 3d wave.
+	/// We align sequentially with reference layer the previous layer of the stack. 
+	/// Only x, y translations are allowed.
+	/// @param w3d WAVE 3d we want to register for aligment
+	/// @param partitionW3d WAVE partition of w3d
+	/// Note: When illumination conditions change considerably, (XAS along an edge)
+	/// it is better to use a mask to isolate a characteristic feature. 
+	
+	printMode = ParamIsDefault(printMode) ? 0: printMode
+	
+	string driftLog = ""
+	
+	if(!(WaveType(w3d) & 0x02))
+		Redimension/S w3d
+	endif
+	if(!(WaveType(partitionW3d) & 0x02))
+		Redimension/S partitionW3d
+	endif
+	variable nlayers = DimSize(w3d, 2)
+	variable  i, x0, y0, x1, y1, dx, dy
+	if(!WaveExists($(NameOfWave(w3d)+"_undo")))
+		Duplicate/O w3d, $(NameOfWave(w3d)+"_undo")
+	endif	// Calculate drifts
+	if(printMode)
+		driftLog +=  "---- Drift correction (relative to previous layer)----\n"
+		driftLog +=  "layer  dx  dy\n"
+	endif
+	DFREF saveDF = GetDataFolderDFR()	
+	NewDataFolder/O/S tmpMXPdataFolderPartiotionReg // Change folder
+	MatrixOP/O getStacklayer_0 = layer(w3d, 0) // ImageTransform doesn't work with /FREE
+	MatrixOP/O M_Affine = layer(partitionW3d, 0)
+	for(i = 0; i < nlayers - 1; i++)
+		MatrixOP/O/FREE targetLayer = layer(partitionW3d, i + 1)
+		MatrixOP/O/FREE autocorrelationW = correlate(M_Affine, M_Affine, 0)
+		WaveStats/M=1/Q autocorrelationW
+		x0 = V_maxRowLoc
+		y0 = V_maxColLoc
+		MatrixOP/O/FREE correlationW = correlate(M_Affine, targetLayer, 0)
+		WaveStats/M=1/Q correlationW
+		x1 = V_maxRowLoc
+		y1 = V_maxColLoc
+		dx = x0 - x1
+		dy = y0 - y1
+		if(printMode)
+			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n"
+		endif
+		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer	// New reference layer, M_Affine
+		MatrixOP/O/FREE w3dLayer = layer(w3d, i + 1)
+		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i + 1)) Affine2D w3dLayer	
+		endfor
+	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
+	WAVE M_Stack
+	// Restore scale here
+	CopyScales w3d, M_Stack
+	Duplicate/O M_Stack, saveDF:$NameofWave(w3d)	
+	if(printMode)
+		string notebookName = NameOfWave(w3d)
+		KillWindow/Z notebookName
+		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
+		Notebook notebookName, text = driftLog
+	endif
+	SetDataFolder saveDF
+	KillDataFolder tmpMXPdataFolderPartiotionReg	
 	return 0
 End
 

@@ -57,8 +57,10 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "Drift Correction"
-		"Using a feature (recommended) (TG)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
-		"Using the full image (TG)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
+		"Using a feature, fixed ref (TG)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
+		"Using a feature, cascade ref (TG)...", /Q, MXP_LaunchCascadeImageStackAlignmentUsingAFeature()		
+		"Using the full image, fixed ref (TG)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
+		"Using the full image, cascade ref (TG)...", /Q, MXP_LaunchCascadeImageStackAlignmentByFullImage()	// TODO	
 	End
 	
 	Submenu "Profiles "

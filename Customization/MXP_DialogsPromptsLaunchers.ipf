@@ -403,7 +403,61 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	else 
 		Abort "Please check MXP_LaunchImageStackAlignmentUsingAFeature(), method error."
 	endif
-	//Restore the note
+	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
+	string copyNoteStr = note($backupWave)
+	Note/K w3dref,copyNoteStr
+End
+
+Function MXP_LaunchCascadeImageStackAlignmentUsingAFeature()
+	//string waveListStr = Wavelist("*",";","DIMS:3"), selectWaveStr
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
+	variable method = 1
+	variable printMode = 2
+	variable edgeDetection = 2
+	variable edgeAlgo = 1
+	string msg = "Align " + imgNameTopGraphStr + " using part of the image."
+	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
+	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"	
+	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
+	DoPrompt msg, method, edgeDetection, edgeAlgo, printMode
+	if(V_flag) // User cancelled
+		return -1
+	endif
+	string backupWave = NameOfWave(w3dref) + "_undo"
+	if(!WaveExists($backupWave))
+		print GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + " has been created. To restore " + GetWavesDataFolder(w3dref, 2) + " run the command:\n"
+		print "Duplicate/O " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + ", " +  GetWavesDataFolder(w3dref, 2) + "; " + \
+		"KillWaves/Z " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave)
+		Duplicate $GetWavesDataFolder(w3dref, 2), $(GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave))
+	endif
+	// CheckDisplayed $selectWaveStr -- add automations later, assume now we act on the top graph
+	// MXP_ImageStackAlignmentByPartitionRegistration
+	variable left, right, top, bottom
+	// Seems better to apply edge detection before partionining. 
+	
+	if(edgeDetection == 1)
+		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
+		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
+		[left, right, top, bottom] = WM_UserGetMarqueePositions(winNameStr)
+		// Apply image edge detection to the whole image, it's slower but to works better(?)
+		WAVE partitionWaveED = MXP_WAVEImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo)
+		WAVE partitionWave = MXP_WAVE3DWavePartition(partitionWaveED, left, right, top, bottom, evenNum = 1) // Debug
+	else
+		WAVE partitionWave = WM_WAVEUserSetMarquee(winNameStr)
+		ImageFilter/O gauss3d partitionWave // Apply a 3x3x3 gaussian filter
+	endif
+
+	if(method == 1)		
+		MXP_CascadeImageStackAlignmentByPartitionRegistration(w3dRef, partitionWave, printMode = printMode - 2)
+	elseif(method == 2)
+		MXP_CascadeImageStackAlignmentByPartitionCorrelation(w3dRef, partitionWave, printMode = printMode - 2)
+	else 
+		Abort "Please check MXP_LaunchImageStackAlignmentUsingAFeature(), method error."
+	endif
+	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
 	string copyNoteStr = note($backupWave)
 	Note/K w3dref,copyNoteStr
 End

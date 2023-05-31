@@ -35,8 +35,9 @@ Function MXP_AutoRangeTopImage()
 	string colorScaleStr
 	variable cmapSwitch
 	sscanf StringByKey("RECREATION",Imageinfo("",NameOfWave(wRef),0)), matchPattern, colorScaleStr, cmapSwitch
-	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {*,*,$colorScaleStr,cmapSwitch} // Autoscale Image
-	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=0 // Autoscale Image
+	variable wmin =WaveMin(wRef)
+	variable wmax =WaveMax(wRef)	
+	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {wmin,wmax,$colorScaleStr,cmapSwitch} // Autoscale Image
 End
 
 Function MXP_AutoRangeTopImagePerPlaneAndVisibleArea()
@@ -46,7 +47,8 @@ Function MXP_AutoRangeTopImagePerPlaneAndVisibleArea()
 	string colorScaleStr
 	variable cmapSwitch
 	sscanf StringByKey("RECREATION",Imageinfo("",NameOfWave(wRef),0)), matchPattern, colorScaleStr, cmapSwitch
-	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3 // Autoscale Image
+	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3 // Autoscale Image	
+	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {*,*,$colorScaleStr,cmapSwitch} // Autoscale Image	
 End
 
 Function MXP_SetScaleOfImageStack() // Uses top graph
