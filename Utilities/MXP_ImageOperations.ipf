@@ -51,7 +51,7 @@ Function MXP_AutoRangeTopImagePerPlaneAndVisibleArea()
 	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {*,*,$colorScaleStr,cmapSwitch} // Autoscale Image	
 End
 
-Function MXP_SetScaleOfImageStack() // Uses top graph
+Function MXP_SetZScaleOfImageStack() // Uses top graph
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
@@ -284,61 +284,61 @@ Function MXP_StackImageToImageStack(WAVE w3dref, WAVE w2dRef)
 	endif
 End
 
-Function MXP_ImageEdgeDetectionToStack(WAVE w3dref, string method)
+Function MXP_ImageEdgeDetectionToStack(WAVE w3dref, string method, [variable overwrite])
 	/// Applied the edge detection operation to w3dref
 	/// and outputs a wave with name NameofWave(w3dref) + "_ed"
+	/// You can optionally ovewrite the input wave
+	
+	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
+	
 	variable numlayers = DimSize(w3dref, 2), i
+	
 	DFREF saveDF = GetDataFolderDFR()
-	string tmpDataFolder = CreateDataObjectName(saveDF, "MXPdataFolderImgsED", 11, 0, 1)
-	string wnameStr = "MXPWaveToStack_idx_", wnameStrInLoop
-	NewDataFolder/S $tmpDataFolder
-	DFREF tmpDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
 	
 	for(i = 0; i < numlayers; i++)
 		ImageEdgeDetection/P=(i)/M=-1 $method w3dref
 		WAVE M_ImageEdges		
-		wnameStrInLoop = wnameStr + num2str(i)
-		Rename M_ImageEdges, $wnameStrInLoop
+		Rename M_ImageEdges, $("MXPWaveToStack_idx_" + num2str(i))
 	endfor
 	
 	ImageTransform/NP=(numlayers) stackImages $"MXPWaveToStack_idx_0"
 	WAVE M_Stack
-	SetDataFolder saveDF
 	string stacknameStr = CreateDataObjectName(saveDF, NameofWave(w3dref) + "_ed", 1, 0, 1)
-	MoveWave tmpDF:M_stack, saveDF:$stacknameStr
-	CopyScales/I w3dref, saveDF:$stacknameStr
-	KillDataFolder tmpDF
+	if(overwrite)
+		MoveWave M_stack, saveDF:$stacknameStr
+		CopyScales/I w3dref, saveDF:$stacknameStr
+	else
+		Duplicate/O M_stack, w3dref
+	endif
+	SetDataFolder saveDF
 	return 0
 End
 
 Function/WAVE MXP_WAVEImageEdgeDetectionToStack(WAVE w3dref, string method)
 	/// Applied the edge detection operation to w3dref
 	/// and returns a wave to NameofWave(w3dref) + "_ed"
+	
 	variable numlayers = DimSize(w3dref, 2), i
+	
 	DFREF saveDF = GetDataFolderDFR()
-	string tmpDataFolder = CreateDataObjectName(saveDF, "MXPdataFolderImgsED", 11, 0, 1)
-	string wnameStr = "MXPWaveToStack_idx_", wnameStrInLoop
-	NewDataFolder/S $tmpDataFolder
-	DFREF tmpDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
 	
 	for(i = 0; i < numlayers; i++)
 		ImageEdgeDetection/P=(i)/M=-1 $method w3dref
 		WAVE M_ImageEdges		
-		wnameStrInLoop = wnameStr + num2str(i)
-		Rename M_ImageEdges, $wnameStrInLoop
+		Rename M_ImageEdges, $("MXPWaveToStack_idx_" + num2str(i))
 	endfor
 	
 	ImageTransform/NP=(numlayers) stackImages $"MXPWaveToStack_idx_0"
 	WAVE M_Stack
-	//string stacknameStr = CreateDataObjectName(saveDF, NameofWave(w3dref) + "_ed", 1, 0, 1)
-	Duplicate/FREE M_stack, wRefFREE
+	Duplicate/O M_Stack, wRefFREE
 	CopyScales/I w3dref, wRefFREE
 	SetDataFolder saveDF
-	KillDataFolder tmpDF
 	return wRefFREE
 End
 
-// HERE
+
 Function MXP_ImageRotateAndScale(WAVE wRef, variable angle)
 	/// Rotate the wave wRef (2d or 3d) and scale it to 
 	/// conserve on image distances.
@@ -373,6 +373,14 @@ Function MXP_ImageBackupRotateAndScale(Wave wRef, variable angle)
 	CopyScales/P wRef, wRefbck // /P needed here to prevent on image distances.	
 End
 
+Function MXP_BackupTopImage()
+	/// Backup wave in the top window
+	
+	WAVE wRef = MXP_TopImageToWaveRef()
+	Duplicate/O wRef, $(NameOfWave(wRef) + "_undo")	
+	return 0
+End
+
 Function MXP_RestoreTopImageFromBackup()
 	/// Restore the top image if there is a backup wave.
 	/// Backup wave's name is *assummed* to be NameOfWave(wRef) + "_undo" !!!!
@@ -381,77 +389,127 @@ Function MXP_RestoreTopImageFromBackup()
 	/// will have side a_rot = a * (cos(angle) + sin(angle))
 	/// @param angle: clockwise rotation in degrees
 	
-	WAVE/Z wRef = MXP_TopImageToWaveRef()
+	WAVE wRef = MXP_TopImageToWaveRef()
 	string backupWaveNameStr = NameOfWave(wRef) + "_undo"
 	WAVE/Z wRefbck = $backupWaveNameStr
-
-
 	if(WaveExists(wRefbck))
-		string noteBackupWaveStr = note(wRefbck)
 		Duplicate/O wRefbck, wRef
-		Note wRef
 		KillWaves wRefbck
+	else
+		print backupWaveNameStr, " not found."
 	endif
 	
 	return 0
 End
 
-Function MXP_DATFileToTIFF(string pathname)
-	/// Read dat file and save a tiff copy in the same directory
-	/// and same name
-	WAVE datWave = MXP_WAVELoadSingleDATFile(pathname, "", skipmetadata = 1)
+Function MXP_ScalePlanesByMinMaxRange(WAVE w3d, [variable f64])
+	// f64: Return a float64 wave. 
+	// By default return a float32, unless w3d is float64
+	// 
+	f64 = ParamIsDefault(f64) ? 0: 1 //
 	
+	if((!MXP_IsFloat32Q(w3d) && !MXP_IsFloat64Q(w3d)))
+		Redimension/S w3d
+	elseif(f64 && !MXP_IsFloat64Q(w3d))
+		Redimension/D w3d
+	endif
+	MatrixOP/FREE zRangeFree = 1/(maxVal(w3d) - minVal(w3d))
+	ImageTransform/BEAM={0, 0} getBeam zRangeFree
+	WAVE W_Beam
+	ImageTransform/O/D=W_Beam scalePlanes w3d
+	KillWaves W_Beam
 End
 
-Function MXP_ApplyOperationToFilesInFolderTree(string pathName, 
-		   string extension, variable recurse, variable level)
-	///
-	///  
-
-	PathInfo $pathName
-	string path = S_path	
-	if(!V_flag) // If path not defined
-		print "pathName not set!"
-		NewPath/O pathName
-	endif
+Function MXP_ScalePlanesByMaxRange(WAVE w3d, [variable f64])
+	// f64: Return a float64 wave. 
+	// By default return a float32, unless w3d is float64
+	// 
+	f64 = ParamIsDefault(f64) ? 0: 1 //
 	
-	// Reset or make the string variable
-	variable folderIndex, fileIndex
-
-	// Add files
-	fileIndex = 0
-	do
-		string fileName
-		fileName = IndexedFile($pathName, fileIndex, extension)
-		if (strlen(fileName) == 0)
-			break
-		endif
-		WAVE datWave = MXP_WAVELoadSingleDATFile(fileName, "", skipmetadata = 1)
-		ImageSave/P=$pathName datWave
-		KillWaves datWave
-		fileIndex += 1
-	while(1)
-	
-	if (recurse)		// Do we want to go into subfolder?
-		folderIndex = 0
-		do
-			path = IndexedDir($pathName, folderIndex, 1)
-			if (strlen(path) == 0)
-				break	// No more folders
-			endif
-
-			string subFolderPathName = "tempPrintFoldersPath_" + num2istr(level+1)
-			
-			// Now we get the path to the new parent folder
-			string subFolderPath
-			subFolderPath = path
-			
-			NewPath/Q/O $subFolderPathName, subFolderPath
-			MXP_ApplyOperationToFilesInFolderTree(subFolderPathName, extension, recurse, level+1)
-			KillPath/Z $subFolderPathName
-			
-			folderIndex += 1
-		while(1)
+	if((!MXP_IsFloat32Q(w3d) && !MXP_IsFloat64Q(w3d)))
+		Redimension/S w3d
+	elseif(f64 && !MXP_IsFloat64Q(w3d))
+		Redimension/D w3d
 	endif
-	return 0
+	MatrixOP/FREE zRangeFree = 1/maxVal(w3d)
+	ImageTransform/BEAM={0, 0} getBeam zRangeFree
+	WAVE W_Beam
+	ImageTransform/O/D=W_Beam scalePlanes w3d
+	KillWaves W_Beam
 End
+
+Function MXP_ScalePlanesBetweenZeroAndOne(WAVE w3d, [variable f64])
+	// f64: Return a float64 wave. 
+	// By default return a float32, unless w3d is float64
+	// 
+	f64 = ParamIsDefault(f64) ? 0: 1 //
+	
+	if((!MXP_IsFloat32Q(w3d) && !MXP_IsFloat64Q(w3d)))
+		Redimension/S w3d
+	elseif(f64 && !MXP_IsFloat64Q(w3d))
+		Redimension/D w3d
+	endif
+	
+	MatrixOP/FREE minValsZ = minVal(w3d)
+	MatrixOP/FREE maxValsZ = maxVal(w3d)
+	w3d -= minValsZ[0][0][r]
+	MatrixOP/FREE zRangeFree = 1/(maxValsZ - minValsZ)
+	ImageTransform/BEAM={0, 0} getBeam zRangeFree
+	WAVE W_Beam
+	ImageTransform/O/D=W_Beam scalePlanes w3d
+	KillWaves W_Beam
+End
+
+//TODO
+//Function MXP_ApplyOperationToFilesInFolderTree(string pathName, 
+//		   string extension, variable recurse, variable level)
+//	///
+//	///  
+//
+//	PathInfo $pathName
+//	string path = S_path	
+//	if(!V_flag) // If path not defined
+//		print "pathName not set!"
+//		NewPath/O pathName
+//	endif
+//	
+//	// Reset or make the string variable
+//	variable folderIndex, fileIndex
+//
+//	// Add files
+//	fileIndex = 0
+//	do
+//		string fileName
+//		fileName = IndexedFile($pathName, fileIndex, extension)
+//		if (strlen(fileName) == 0)
+//			break
+//		endif
+//		WAVE datWave = MXP_WAVELoadSingleDATFile(fileName, "", skipmetadata = 1)
+//		ImageSave/P=$pathName datWave
+//		KillWaves datWave
+//		fileIndex += 1
+//	while(1)
+//	
+//	if (recurse)		// Do we want to go into subfolder?
+//		folderIndex = 0
+//		do
+//			path = IndexedDir($pathName, folderIndex, 1)
+//			if (strlen(path) == 0)
+//				break	// No more folders
+//			endif
+//
+//			string subFolderPathName = "tempPrintFoldersPath_" + num2istr(level+1)
+//			
+//			// Now we get the path to the new parent folder
+//			string subFolderPath
+//			subFolderPath = path
+//			
+//			NewPath/Q/O $subFolderPathName, subFolderPath
+//			MXP_ApplyOperationToFilesInFolderTree(subFolderPathName, extension, recurse, level+1)
+//			KillPath/Z $subFolderPathName
+//			
+//			folderIndex += 1
+//		while(1)
+//	endif
+//	return 0
+//End

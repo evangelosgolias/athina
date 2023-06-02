@@ -30,28 +30,6 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-//Structure InteractiveWaveDriftStruct
-//	variable mode			// [mandatory] 0: drift a 2D wave or 1: layer of a 3D wave
-//	WAVE driftWave			// [mandatory] wave to drift - will NOT be modified in any way
-//	WAVE refWave			// [mandatory] wave to compare - will NOT be modified in any way
-//	WAVE cmpWave			// [optional] result of comparison between orgWave and refWave will be written here
-//	WAVE modWave			// [optional] modified wave - saves the scaled and drifted version of driftWave
-//	WAVE dichroismWave		// [optional] calculates the XMCD/XMLD from driftWave and refWave
-//	variable xdrift 		// x drift	(default 0)
-//	variable ydrift     	// y drift	(default 0)
-//	variable driftStep  	// x position of the baseline		(default DimDelta(driftWave))
-//EndStructure
-//
-//Function InitializeDriftCorrection(STRUCT InteractiveWaveDriftStruct &s)
-//	// Initialise
-//	string winNameStr = WinName(0, 1, 1)
-//	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-//	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-//	s.xdrift = 1
-//	s.ydrift = 1
-//	s.driftStep = 1
-//End
-
 
 Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	/// Function to interactively drift images and get an updated
@@ -189,13 +167,13 @@ Function MXP_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 			SetFormula iXMCD, ""
 			SetFormula iSum, ""
 			SetWindow $winiXMCDNameStr, hook(MyiXMCDWinHook) = $"" 
-			KillWindow $winiXMCDNameStr
+			KillWindow/Z $winiXMCDNameStr
 			KillWindow $winiSumNameStr			
 			KillDataFolder dfr
 			hookresult = 1
 			break
 		case 4:
-			hookresult = 0 // Here hookresult = 1, supresses Marquee
+			hookresult = 1 // Here hookresult = 1, supresses Marquee
 			break
 		case 5: // mouse up
 			hookresult = 1

@@ -34,9 +34,14 @@ Function MXP_CreateInteractiveImageRotationPanel()
 	
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	
+	if(!strlen(imgNameTopGraphStr))
+		print "No image in top graph"
+		return -1
+	endif	
+	
 	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	//Check if you have already created the panel
-	
 	if(WinType(winNameStr + "#iImageRotation") == 7)
 		print "ImageRotation panel is already active"
 		return 1

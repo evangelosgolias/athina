@@ -47,20 +47,22 @@ Menu "MAXPEEM"
 		"FFT (TG, 2D)", /Q, MXP_LaunchImageFFTTransform()
 		"Rotate image (TG, 2D, 3D) ", /Q, MXP_LaunchImageRotateAndScale()
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, MXP_LaunchImageRotateAndScaleFromMetadata()
+		"Backup Image (TG)", /Q, MXP_BackupTopImage()	
 		"Restore image from backup (TG)", /Q, MXP_RestoreTopImageFromBackup()
+		"Normalize to [0, 1] (TG)", /Q, MXP_LaunchScalePlanesBetweenZeroAndOne()	
 	End
 	
 	Submenu "Interactive Operations"
 		"Rotate image (TG, 2D, 3D) ", /Q,  MXP_CreateInteractiveImageRotationPanel()
-		"Drift correction (TG, 2D, 3D) ", /Q, MXP_CreateInteractiveDriftCorrectionPanel() // TODO: Needs some tuning.
-		"XMC(L)D calculation ...", /Q, print "Not yet implemented"
+		"Drift correction (TG, 2D, 3D) ", /Q, MXP_CreateInteractiveDriftCorrectionPanel()
+		"XMC(L)D calculation ...", /Q, MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	End
 	
 	Submenu "Drift Correction"
 		"Using a feature, fixed ref (TG)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
 		"Using a feature, cascade ref (TG)...", /Q, MXP_LaunchCascadeImageStackAlignmentUsingAFeature()		
 		"Using the full image, fixed ref (TG)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
-		"Using the full image, cascade ref (TG)...", /Q, MXP_LaunchCascadeImageStackAlignmentByFullImage()	// TODO	
+		"Using the full image, cascade ref (TG)...", /Q, MXP_LaunchCascadeImageStackAlignmentByFullImage()
 	End
 	
 	Submenu "Profiles "
@@ -133,7 +135,7 @@ Menu "TracePopup"
 	"MXP Save layer (3D)", /Q, MXP_GetLayerFromImageStack()
 	"MXP Save current view (2D,3D)", /Q, MXP_GetScaledZoominImageWindow()
 	"MXP Add images to Stack (3D)", /Q, MXP_LaunchStackImagesToImageStack()
-	"MXP Scale Image stack (3D)", /Q, MXP_SetScaleOfImageStack()
+	"MXP Scale Image stack (3D)", /Q, MXP_SetZScaleOfImageStack()
 	"MXP Select image and copy scales (2D,3D)", /Q, MXP_ImageSelectToCopyScale()
 	"MXP Calculate XMC(L)D (3D[2])", /Q, MXP_LaunchCalculateXMCDFromStack()
 	Submenu "MXP markups ..."

@@ -481,3 +481,18 @@ Function/WAVE MXP_TopImageToWaveRef()
 		return $""
 	endif
 End
+
+Function MXP_IsFloatQ(WAVE wRef)
+	// Returns true of wRef is 32 or 64 bit float wave
+	return ((WaveType(wRef) & 0x02) || (WaveType(wRef) & 0x04))
+End
+
+Function MXP_IsFloat32Q(WAVE wRef)
+	// Returns true of wRef is 32 bit float wave
+	return WaveType(wRef) & 0x02 
+End
+
+Function MXP_IsFloat64Q(WAVE wRef)
+	// Returns true of wRef is 64 bit float wave
+	return WaveType(wRef) & 0x04 
+End

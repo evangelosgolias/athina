@@ -34,6 +34,12 @@ Function MXP_CreateInteractiveDriftCorrectionPanel()
 	
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	
+	if(!strlen(imgNameTopGraphStr))
+		print "No image in top graph"
+		return -1
+	endif
+		
 	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	//Check if you have already created the panel
 	if(WinType(winNameStr + "#iDriftCorrection") == 7)
