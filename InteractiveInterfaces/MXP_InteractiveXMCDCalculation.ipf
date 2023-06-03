@@ -46,7 +46,7 @@ Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	string wave2NameStr = StringFromList(1, selectedWavesStr)
 	if(nrSelectedWaves != 2 || WaveDims($wave1NameStr) != 2 || WaveDims($wave2NameStr) != 2)
 		DoAlert/T="MAXPEEM would like you to know that you have to ..." 1, "Please " +\
-				  "select two false-color images, i.e two 2d waves, non-RGB. \n" + \
+				  "select two images, i.e two 2d waves, non-RGB. \n" + \
 				  "Do you want a another chance with the browser selection?"
 		if(V_flag == 1)
 			MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
@@ -61,68 +61,54 @@ Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	if(V_flag) // User cancelled
 		return -1
 	endif
+	
+	if(!cmpstr(wave1NameStr, wave2NameStr))
+		print "Ok, you are subtracting a wave from itself! I hope you know what you are doing."
+	endif
+	
 	// Create variables for the Panel. NB; Data Folders for panels can be overwritten
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:InteractiveXMCD:") 
 	string folderNameStr = CreateDataObjectName(dfr, "iXMCD",11, 0, 0)
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:InteractiveXMCD:" + folderNameStr) 
-	Duplicate/O $wave1NameStr, dfr:iImg1
-	Duplicate/O $wave2NameStr, dfr:iImg2
-	Duplicate/O $wave1NameStr, dfr:iXMCD
-	Duplicate/O $wave1NameStr, dfr:iSum
+	Duplicate/O $wave1NameStr, dfr:wImg1
+	Duplicate/O $wave2NameStr, dfr:wImg2, dfr:wImg2_undo,  dfr:wXMCD, dfr:wSum
 	//Wave references
-	WAVE iImg1 = dfr:iImg1
-	WAVE iImg2 = dfr:iImg2	
-	WAVE iXMCD = dfr:iXMCD
-	WAVE iSum = dfr:iSum
+	WAVE wImg1 = dfr:wImg1
+	WAVE wImg2 = dfr:wImg2	
+	WAVE wXMCD = dfr:wXMCD
+	WAVE wSum = dfr:wSum
 	// Add wave origin information
-	Note/K iXMCD, "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " + NameOfWave(iImg1) + "\nimg2: " + NameOfWave(iImg2)
+	Note/K dfr:wXMCD, "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " \
+	+ NameOfWave(wImg1) + "\nimg2: " + NameOfWave(wImg2)
 	// Set global variables
-	variable/G dfr:gMXP_driftStep = 0.1
+	variable/G dfr:gMXP_driftStep = 1
 	variable/G dfr:gMXP_dx = 0	
 	variable/G dfr:gMXP_dy = 0	
 	//MXP_CalculateWaveSumFromStackToWave(imgStack, iSum)
 	//MXP_CalculateXMCDFromStackToWave(imgStack, iXMCD)
 //	SetFormula dfr:iXMCD, "(dfr:iImg1 - dfr:iImg2)/(dfr:iImg1 + dfr:iImg2)"
 //	SetFormula dfr:iSum, "dfr:iImg1 + dfr:iImg2"
-	SetFormula iXMCD, "(iImg1 - iImg2)/(iImg1 + iImg2)"
-	SetFormula iSum, "iImg1 + iImg2"
-
-	MXP_CreateInteractiveXMCDCalculationPanel(iImg1, iImg2, iXMCD, iSum)
+	SetFormula wXMCD, "(wImg1 - wImg2)/(wImg1 + wImg2)"
+	SetFormula wSum, "wImg1 + wImg2"
+	MXP_CreateInteractiveXMCDCalculationPanel(wXMCD, wSum)
 End
 
-Function MXP_CreateInteractiveXMCDCalculationPanel(WAVE iImg1, WAVE iImg2, WAVE iXMCD, WAVE iSum)
-	DFREF dfr = GetWavesDataFolderDFR(iXMCD) // Recover the dfr	
+Function calc00(wave w1, wave w2, wave df)
+	df = (w1-w2)
+	return 0
+End
+
+Function MXP_CreateInteractiveXMCDCalculationPanel(WAVE wXMCD, WAVE wSum)
+	DFREF dfr = GetWavesDataFolderDFR(wXMCD) // Recover the dfr	
 	NVAR/SDFR=dfr gMXP_driftStep
-//	Display/N=iXMCD /K=1 
-//	string winiXMCDNameStr = S_name
-	MXP_DisplayImage(iXMCD)
-	string winiXMCDNameStr = WinName(0,1)
-	//string winiXMCDNameStr = S_name	
-//	AppendImage iXMCD
-//	ModifyGraph width={Plan,1,top,left}
-	// Fix the axes DisplayHelpTopic "ModifyGraph for Axes"
-//	Display/N=iSum/K=1 
-//	AppendImage iSum
-//	ModifyGraph width={Plan,1,top,left}
-//	string winiSumNameStr = S_name	
-	MXP_DisplayImage(iSum)
+
+	MXP_DisplayImage(wSum)
 	string winiSumNameStr = WinName(0,1)
-//	AppendImage/T /b=bb iSum
-//	AppendImage/T /b=bc /R iXMCD
-//	ModifyImage '' ctab= {*,*,Grays,0}
-//	ModifyImage ''#1 ctab= {*,*,Grays,0}
-//	ModifyImage ''#2 ctab= {*,*,Grays,0}
-//	ModifyGraph axisEnab(top)={0,0.3},axisEnab(bb)={0.33,0.63}
-//	ModifyGraph axisEnab(bc)={0.66,1},freePos(bb)=0,freePos(bc)=0
-//	ModifyGraph lblPos(bb)=0,lblPos(bc)=0 // Not needed?
-//	ModifyGraph tick=2
-//	ModifyGraph width={Plan,1,top,left}
+	MXP_DisplayImage(wXMCD)
+	string winiXMCDNameStr = WinName(0,1)
 	ControlBar/W=$winiXMCDNameStr 40	
-	// Add buttons
-//	Button ShowOtherImage,win=$winiStackNameStr, pos={20.00,10.00}, size={90.00,20.00}, proc=MXP_ShowOtherImageButton
-//	Button ShowOtherImage,win=$winiStackNameStr, title="Show img1/2", help={"Display img1 or img2"}, valueColor=(1,12815,52428)
 	
-	SetVariable setDriftStep,win=$winiXMCDNameStr,pos={150,10},size={200.00,20.00},title="Set drift step"
+	SetVariable setDriftStep,win=$winiXMCDNameStr,pos={150,10},size={200.00,20.00},title="Drift step (px)"
 	SetVariable setDriftStep,win=$winiXMCDNameStr,value=gMXP_driftStep,help={"Set drift value for img2"}
 	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,10,1},live=1,proc=MXP_SetDriftStepVar	
 
@@ -130,100 +116,75 @@ Function MXP_CreateInteractiveXMCDCalculationPanel(WAVE iImg1, WAVE iImg2, WAVE 
 	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
 	
 	// Set the path to all windows
-	string dfrStr = GetWavesDataFolder(iXMCD, 1)
-	SetWindow $winiSumNameStr userdata(MXP_iXMCDPath) = dfrStr // winiSumNameStr and winiXMCDNameStr have the same tag
+	string dfrStr = GetWavesDataFolder(wXMCD, 1)
 	SetWindow $winiXMCDNameStr userdata(MXP_iXMCDPath) = dfrStr
-	//
-	SetWindow $winiSumNameStr userdata(MXP_iXMCDWin) = winiXMCDNameStr // winiSumNameStr and winiXMCDNameStr have the same tag
-	SetWindow $winiSumNameStr userdata(MXP_iSumWin) = winiSumNameStr
-	SetWindow $winiXMCDNameStr userdata(MXP_iXMCDWin) = winiXMCDNameStr // winiSumNameStr and winiXMCDNameStr have the same tag
+	SetWindow $winiXMCDNameStr userdata(MXP_iXMCDWin) = winiXMCDNameStr
 	SetWindow $winiXMCDNameStr userdata(MXP_iSumWin) = winiSumNameStr
 	
 	SetWindow $winiXMCDNameStr, hook(MyiXMCDWinHook) = MXP_InteractiveXMCDWindowHook // Set the hook
-	
+	return 0
 End
 
 Function MXP_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
-
 	string winiXMCDNameStr = GetUserData(s.winName, "", "MXP_iXMCDWin")
-	string winiSumNameStr = GetUserData(s.winName, "", "MXP_iSumWin")	
-	string dfrStr = GetUserData(s.winName, "", "MXP_iXMCDPath")
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(dfrStr)
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "MXP_iXMCDPath"))
 	NVAR/SDFR=dfr gMXP_driftStep
 	NVAR/SDFR=dfr gMXP_dx
 	NVAR/SDFR=dfr gMXP_dy
-	WAVE/SDFR=dfr iImg1	
-	WAVE/SDFR=dfr iImg2
-	WAVE/SDFR=dfr iXMCD
-	WAVE/SDFR=dfr iSum
-	DFREF saveDFR = GetDataFolderDFR()
+	WAVE/SDFR=dfr wImg1	
+	WAVE/SDFR=dfr wImg2
+	WAVE/SDFR=dfr wImg2_undo	
+	WAVE/SDFR=dfr wXMCD
+	WAVE/SDFR=dfr wSum
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
 
 	switch(s.eventCode)
-		case 0: //activate window rescales the profile to the layer scale of the 3d wave
-			hookresult = 1
-			break
-		case 2: // Kill the window
-			SetFormula iXMCD, ""
-			SetFormula iSum, ""
-			SetWindow $winiXMCDNameStr, hook(MyiXMCDWinHook) = $"" 
-			KillWindow/Z $winiXMCDNameStr
-			KillWindow $winiSumNameStr			
+		case 17: // Window is about to be killed
+			SetFormula wXMCD, ""
+			SetFormula wSum, ""
+			KillWindow $GetUserData(s.winName, "", "MXP_iSumWin")		
+			KillWindow $winiXMCDNameStr
 			KillDataFolder dfr
 			hookresult = 1
 			break
-		case 4:
-			hookresult = 1 // Here hookresult = 1, supresses Marquee
-			break
-		case 5: // mouse up
-			hookresult = 1
-			break
-		case 7: // cursor moved
-			hookresult = 1	// TODO: Return 0 here, i.e delete line?
-			break
-		case 8: // We have a Window modification eveny
-			hookresult = 1
-			break
-			//
 		case 11:					// Keyboard event
 			switch (s.keycode)
 				case 28: //left arrow
-					SetDataFolder dfr
-					ImageInterpolate/APRM={1,0,-gMXP_driftStep,0,1,0,1,0} Affine2D iImg2
-					WAVE M_Affine
-					Duplicate/O M_Affine, iImg2
+					ImageInterpolate/APRM={1,0,-gMXP_driftStep,0,1,0,1,0}/DEST=dfr:M_Affine Affine2D wImg2
+					WAVE/SDFR=dfr M_Affine
+					Duplicate/O M_Affine, wImg2
 					hookResult = 1
 					break
 				case 29: //right arrow
-					SetDataFolder dfr
-					ImageInterpolate/APRM={1,0,gMXP_driftStep,0,1,0,1,0} Affine2D iImg2
-					WAVE M_Affine
-					Duplicate/O M_Affine, iImg2
+					ImageInterpolate/APRM={1,0,gMXP_driftStep,0,1,0,1,0}/DEST=dfr:M_Affine Affine2D wImg2
+					WAVE/SDFR=dfr M_Affine
+					Duplicate/O M_Affine, wImg2
 					hookResult = 1
 					break
 				case 30: // up arrow
-					SetDataFolder dfr
-					ImageInterpolate/APRM={1,0,0,0,1,-gMXP_driftStep,1,0} Affine2D iImg2
-					WAVE M_Affine
-					Duplicate/O M_Affine, iImg2
+					ImageInterpolate/APRM={1,0,0,0,1,-gMXP_driftStep,1,0}/DEST=dfr:M_Affine Affine2D wImg2
+					WAVE/SDFR=dfr M_Affine
+					Duplicate/O M_Affine, wImg2
 					hookResult = 1
 					break
 				case 31: // down arrow
-					SetDataFolder dfr
-					ImageInterpolate/APRM={1,0,0,0,1,gMXP_driftStep,1,0} Affine2D iImg2
-					WAVE M_Affine
-					Duplicate/O M_Affine, iImg2
+					ImageInterpolate/APRM={1,0,0,0,1,gMXP_driftStep,1,0}/DEST=dfr:M_Affine Affine2D wImg2
+					WAVE/SDFR=dfr M_Affine
+					Duplicate/O M_Affine, wImg2
+					hookResult = 1
+					break
+				case 82: // R to restore.
+					Duplicate/O wImg2_undo, wImg2
 					hookResult = 1
 					break
 				default:
 					// The keyText field requires Igor Pro 7 or later. See Keyboard Events.
-					printf "Exit interactive drifting, pressed: %s\r", s.keyText
+					hookResult = 1
 					break
 			endswitch
-			DoUpdate // Update dependencies
 			break
 	endswitch
-	SetDataFolder saveDFR
+	//SetDataFolder saveDFR
 	return hookResult	// If non-zero, we handled event and Igor will ignore it.
 End
 
