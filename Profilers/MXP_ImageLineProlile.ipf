@@ -31,7 +31,7 @@
 
 /// Line profile is plotted from cursor E to F.
 /// 25032023
-/// Added to all Launchers: SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + gMXP_WindowNameStr 
+/// Added to all Launchers: SetWindow $winNameStr userdata(MXP_ShowSavedGraphsWindow) = "MXP_LineProf_" + gMXP_WindowNameStr 
 /// We have to unlink the profile plot window in case the profiler and source wave are killed. That 
 /// way another launch that could associate the same Window names is not anymore possible.
 /// We will use the metadata to change Window's name after the soruce/profiler are killed
@@ -50,9 +50,9 @@ Function MXP_MainMenuLaunchLineProfile()
 		return -1
 	endif
 	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	string LinkedPlotStr = GetUserData(winNameStr, "", "MXP_LinkedLineProfilePlotStr")
+	string LinkedPlotStr = GetUserData(winNameStr, "", "MXP_LinkedProfileWindowControl")
 	if(strlen(LinkedPlotStr))
-		DoWindow/F LinkedPlotStr
+		DoWindow/F $LinkedPlotStr
 		return 0
 	endif
 	MXP_InitialiseLineProfileFolder(winNameStr)
@@ -63,8 +63,8 @@ Function MXP_MainMenuLaunchLineProfile()
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 	MXP_InitialiseLineProfileGraph(dfr)
 	SetWindow $winNameStr, hook(MyLineProfileHook) = MXP_CursorHookFunctionLineProfile // Set the hook
-	SetWindow $winNameStr userdata(MXP_LinkedLineProfilePlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
-	SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + winNameStr //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder
+	SetWindow $winNameStr userdata(MXP_LinkedProfileWindowControl) = "MXP_LineProfileControlPlot_" + winNameStr // Name of the plot we will make, used to communicate the
+	SetWindow $winNameStr userdata(MXP_ShowSavedGraphsWindow) = "MXP_LineProf_" + winNameStr //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder
 	return 0
 End
 
@@ -86,8 +86,8 @@ Function MXP_TraceMenuLaunchLineProfile() // Not in use
 		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 		MXP_InitialiseLineProfileGraph(dfr)
 		SetWindow $winNameStr, hook(MyLineProfileHook) = MXP_CursorHookFunctionLineProfile // Set the hook
-		SetWindow $winNameStr userdata(MXP_LinkedLineProfilePlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
-		SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + winNameStr //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder	
+		SetWindow $winNameStr userdata(MXP_LinkedProfileWindowControl) = "MXP_LineProfileControlPlot_" + winNameStr // Name of the plot we will make, used to communicate the
+		SetWindow $winNameStr userdata(MXP_ShowSavedGraphsWindow) = "MXP_LineProf_" + winNameStr //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder	
 		// name to the windows hook to kill the plot after completion
 	else
 		Abort "Line profile needs an image or image stack."
@@ -113,8 +113,8 @@ Function MXP_BrowserMenuLaunchLineProfile() // Not in use
 			DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 			MXP_InitialiseLineProfileGraph(dfr)
 			SetWindow $winNameStr, hook(MyLineProfileHook) = MXP_CursorHookFunctionLineProfile // Set the hook
-			SetWindow $winNameStr userdata(MXP_LinkedLineProfilePlotStr) = "MXP_LineProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
-			SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + winNameStr //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder		
+			SetWindow $winNameStr userdata(MXP_LinkedProfileWindowControl) = "MXP_LineProfileControlPlot_" + winNameStr // Name of the plot we will make, used to communicate the
+			SetWindow $winNameStr userdata(MXP_ShowSavedGraphsWindow) = "MXP_LineProf_" + winNameStr //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder		
 		// name to the windows hook to kill the plot after completion
 		else
 			Abort "Line profile needs an image or an image stack."
@@ -208,7 +208,7 @@ Function MXP_CreateLineProfilePlot(DFREF dfr)
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(rootFolderStr)
 	SVAR/SDFR=dfr gMXP_WindowNameStr
 	NVAR profileWidth = dfr:gMXP_profileWidth
-	string profilePlotStr = "MXP_LineProfPlot_" + gMXP_WindowNameStr
+	string profilePlotStr = "MXP_LineProfileControlPlot_" + gMXP_WindowNameStr
 	Make/O/N=0  dfr:W_LineProfileDisplacement, dfr:W_ImageLineProfile // Make a dummy wave to display 
 	variable pix = 72/ScreenResolution
 	Display/W=(0*pix,0*pix,500*pix,300*pix)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile vs dfr:W_LineProfileDisplacement as "Line profile " + gMXP_WindowNameStr
@@ -217,9 +217,9 @@ Function MXP_CreateLineProfilePlot(DFREF dfr)
 	Label left "Intensity (arb. u.)"
 	Label bottom "\\u#2 Distance (µm) / [Kinetic Energy (eV)]"
 	
-	SetWindow $profilePlotStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
-	SetWindow $profilePlotStr userdata(MXP_targetGraphWin) = "MXP_LineProf_" + gMXP_WindowNameStr 
-	SetWindow $profilePlotStr userdata(MXP_parentGraphWin) = gMXP_WindowNameStr 
+	SetWindow $profilePlotStr userdata(MXP_LineProfRootDF) = rootFolderStr // pass the dfr to the button controls
+	SetWindow $profilePlotStr userdata(MXP_ShowSavedGraphsWindow) = "MXP_LineProf_" + gMXP_WindowNameStr 
+	SetWindow $profilePlotStr userdata(MXP_sourceImageWindow) = gMXP_WindowNameStr 
 	SetWindow $profilePlotStr, hook(MyLineProfileGraphHook) = MXP_LineProfileGraphHookFunction // Set the hook
 	
 	ControlBar 70	
@@ -293,10 +293,10 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 				updateCursorsPositions = 0
 			endif
 			break
-		case 2: // Kill the window
-			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedLineProfilePlotStr"))
-			if(WinType(GetUserData(s.winName, "", "MXP_targetGraphWin")) == 1)
-				DoWindow/C/W=$(GetUserData(s.winName, "", "MXP_targetGraphWin")) $UniqueName("LineProf_unlnk_",6,0) // Change name of profile graph
+		case 17: // case 2: MXP_LinkedProfileWindowControl in not killed when another hook kills s.winName
+			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedProfileWindowControl"))			
+			if(WinType(GetUserData(s.winName, "", "MXP_ShowSavedGraphsWindow")) == 1)
+				DoWindow/C/W=$(GetUserData(s.winName, "", "MXP_ShowSavedGraphsWindow")) $UniqueName("LineProf_unlnk_",6,0) // Change name of profile graph
 			endif
 			KillDataFolder/Z dfr
 			hookresult = 1
@@ -348,22 +348,26 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 End
 
 Function MXP_LineProfileGraphHookFunction(STRUCT WMWinHookStruct &s)
-	string parentGraphWin = GetUserData(s.winName, "", "MXP_parentGraphWin")
+	string parentImageWinStr = GetUserData(s.winName, "", "MXP_sourceImageWindow")
 	switch(s.eventCode)
 		case 2: // Kill the window
-			// parentGraphWin -- winNameStr
+			// parentImageWinStr -- winNameStr
 			// Kill the MyLineProfileHook
-			SetWindow $parentGraphWin, hook(MyLineProfileHook) = $""
-			// We need to reset the link between parentGraphwin (winNameStr) and MXP_LinkedLineProfilePlotStr
-			// see MXP_MainMenuLaunchLineProfile() when we test if with strlen(LinkedPlotStr)
-			SetWindow $parentGraphWin userdata(MXP_LinkedLineProfilePlotStr) = ""
-			if(WinType(GetUserData(parentGraphWin, "", "MXP_targetGraphWin")) == 1)
-				DoWindow/C/W=$(GetUserData(s.winName, "", "MXP_targetGraphWin")) $UniqueName("LineProf_unlnk_",6,0) // Change name of profile graph
+			DoWindow $parentImageWinStr
+			//if(WinType(GetUserData(parentImageWinStr, "", "MXP_ShowSavedGraphsWindow")) == 1)
+			if(V_flag)
+				SetWindow $parentImageWinStr, hook(MyLineProfileHook) = $""
+				// We need to reset the link between parentImageWinStr (winNameStr) and MXP_LinkedProfileWindowControl
+				// see MXP_MainMenuLaunchLineProfile() when we test if with strlen(LinkedPlotStr)	
+				SetWindow $parentImageWinStr userdata(MXP_LinkedProfileWindowControl) = ""
+				if(WinType(GetUserData(s.winName, "", "MXP_ShowSavedGraphsWindow")) == 1)
+					DoWindow/C/W=$(GetUserData(s.winName, "", "MXP_ShowSavedGraphsWindow")) $UniqueName("LineProf_unlnk_",6,0) // Change name of profile graph
+				endif
+				Cursor/W=$parentImageWinStr/K E
+				Cursor/W=$parentImageWinStr/K F
+				SetDrawLayer/W=$parentImageWinStr ProgFront
+				DrawAction/W=$parentImageWinStr delete	
 			endif
-			Cursor/W=$parentGraphWin/K E
-			Cursor/W=$parentGraphWin/K F
-			SetDrawLayer/W=$parentGraphWin ProgFront
-			DrawAction/W=$parentGraphWin delete
 			break
 	endswitch
 End
@@ -371,8 +375,8 @@ End
 
 Function MXP_LineProfilePlotSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
-	string targetGraphWin = GetUserData(B_Struct.win, "", "MXP_targetGraphWin")
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_LineProfRootDF"))
+	string targetGraphWin = GetUserData(B_Struct.win, "", "MXP_ShowSavedGraphsWindow")
 	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
 	SVAR/Z w3dNameStr = dfr:gMXP_ImageNameStr
 	SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
@@ -440,7 +444,7 @@ Function MXP_LineProfilePlotSaveProfile(STRUCT WMButtonAction &B_Struct): Button
 End
 
 Function MXP_LineProfilePlotSaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_LineProfRootDF"))
 	DFREF dfr0 = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:DefaultSettings") // Settings here
 	NVAR/Z C1x = dfr:gMXP_C1x
 	NVAR/Z C1y = dfr:gMXP_C1y
@@ -468,7 +472,7 @@ Function MXP_LineProfilePlotSaveDefaultSettings(STRUCT WMButtonAction &B_Struct)
 End
 
 Function MXP_LineProfilePlotRestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_LineProfRootDF"))
 	DFREF dfr0 = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:DefaultSettings") // Settings here
 	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
 	NVAR/Z C1x = dfr:gMXP_C1x
@@ -497,7 +501,7 @@ End
 
 Function MXP_LineProfilePlotShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	/// We have to find the vertices of the polygon representing
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_LineProfRootDF"))
 	SVAR/Z WindowNameStr= dfr:gMXP_WindowNameStr
 	NVAR/Z C1x = dfr:gMXP_C1x
 	NVAR/Z C1y = dfr:gMXP_C1y
@@ -556,7 +560,7 @@ End
 
 Function MXP_LineProfilePlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_LineProfRootDF"))
 	NVAR/Z PlotSwitch = dfr:gMXP_PlotSwitch
 	switch(cb.checked)
 		case 1:		// Mouse up
@@ -570,7 +574,7 @@ Function MXP_LineProfilePlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : C
 End
 
 Function MXP_LineProfilePlotProfileLayer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_LineProfRootDF"))
 	NVAR/Z selectedLayer = dfr:gMXP_selectedLayer
 	NVAR/Z updateSelectedLayer = dfr:gMXP_updateSelectedLayer
 	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
@@ -595,7 +599,7 @@ End
 
 Function MXP_LineProfilePlotCheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_LineProfRootDF"))
 	NVAR/Z MarkLinesSwitch = dfr:gMXP_MarkLinesSwitch
 	switch(cb.checked)
 		case 1:
@@ -611,7 +615,7 @@ End
 Function MXP_LineProfilePlotSetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "MXP_rootdfrStr"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "MXP_LineProfRootDF"))
 	NVAR/Z C1x = dfr:gMXP_C1x
 	NVAR/Z C1y = dfr:gMXP_C1y
 	NVAR/Z C2x = dfr:gMXP_C2x

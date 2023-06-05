@@ -93,11 +93,6 @@ Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	MXP_CreateInteractiveXMCDCalculationPanel(wXMCD, wSum)
 End
 
-Function calc00(wave w1, wave w2, wave df)
-	df = (w1-w2)
-	return 0
-End
-
 Function MXP_CreateInteractiveXMCDCalculationPanel(WAVE wXMCD, WAVE wSum)
 	DFREF dfr = GetWavesDataFolderDFR(wXMCD) // Recover the dfr	
 	NVAR/SDFR=dfr gMXP_driftStep
@@ -108,7 +103,7 @@ Function MXP_CreateInteractiveXMCDCalculationPanel(WAVE wXMCD, WAVE wSum)
 	string winiXMCDNameStr = WinName(0,1)
 	ControlBar/W=$winiXMCDNameStr 40	
 	
-	SetVariable setDriftStep,win=$winiXMCDNameStr,pos={150,10},size={200.00,20.00},title="Drift step (px)"
+	SetVariable setDriftStep,win=$winiXMCDNameStr,pos={120,10},size={180,20.00},title="Drift step (px)"
 	SetVariable setDriftStep,win=$winiXMCDNameStr,value=gMXP_driftStep,help={"Set drift value for img2"}
 	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,10,1},live=1,proc=MXP_SetDriftStepVar	
 
@@ -137,14 +132,17 @@ Function MXP_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	WAVE/SDFR=dfr wXMCD
 	WAVE/SDFR=dfr wSum
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
-
+	string dfrStr = GetUserData(s.winName, "", "MXP_iXMCDPath"), cmdStr
 	switch(s.eventCode)
-		case 17: // Window is about to be killed
+		case 2: // Window is about to be killed
 			SetFormula wXMCD, ""
 			SetFormula wSum, ""
 			KillWindow/Z $GetUserData(s.winName, "", "MXP_iSumWin")		
 			KillWindow/Z $winiXMCDNameStr
-			KillDataFolder dfr
+			cmdStr = "KillDataFolder " + dfrStr
+			// Runs when everything else has finished (Execute/P).
+			// Avoid issues with killing a graph or folder with wave in use (iXMCD here)
+			Execute/P/Q  cmdStr  
 			hookresult = 1
 			break
 		case 11:					// Keyboard event
