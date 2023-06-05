@@ -60,7 +60,7 @@ Menu "MAXPEEM"
 	
 	Submenu "Drift Correction"
 		"Using a feature, fixed ref (TG)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
-		"Using a feature, cascade ref (TG)...", /Q, MXP_LaunchCascadeImageStackAlignmentUsingAFeature()		
+		"Using a feature, cascade (TG)...", /Q, MXP_LaunchCascadeImageStackAlignmentUsingAFeature()		
 		"Using the full image, fixed ref (TG)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
 		"Using the full image, cascade ref (TG)...", /Q, MXP_LaunchCascadeImageStackAlignmentByFullImage()
 	End

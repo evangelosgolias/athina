@@ -185,7 +185,7 @@ Function MXP_CascadeImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE pa
 		MatrixOP/O/FREE w3dLayer = layer(w3d, i + 1)
 		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i + 1)) Affine2D w3dLayer
 		if(printMode)
-			driftLog +=  num2str(i + 2) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n" // Layer 1 is not shi
+			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n" // Layer 1 is not shi
 		endif
 	endfor
 	ImageTransform/NP=(layers) stackImages $"getStacklayer_0"
@@ -630,13 +630,14 @@ Function MXP_CascadeImageStackAlignmentByCorrelation(WAVE w3d, [int printMode])
 	return 0
 End
 
-Function MXP_CascadeImageStackAlignmentByRegistration(WAVE w3d, [int printMode])
+Function MXP_CascadeImageStackAlignmentByRegistration(WAVE w3d, [int convMode, int printMode])
 	/// Align a 3d wave using ImageRegistration using the full image
 	/// We align sequentially with reference layer the previous layer of the stack. 
 	/// Only x, y translations are allowed.
 	/// @param w3d WAVE 3d we want to register for aligment
 	
 	printMode = ParamIsDefault(printMode) ? 0: printMode
+	convMode = ParamIsDefault(convMode) ? 0: convMode // convMode = 0, 1 
 	
 	if(!(WaveType(w3d) & 0x02))
 		Redimension/S w3d
@@ -664,14 +665,14 @@ Function MXP_CascadeImageStackAlignmentByRegistration(WAVE w3d, [int printMode])
 	Duplicate/FREE getStacklayer_0, M_Affine
 	for(i = 0; i < layers - 1; i++) // (layers - 1)
 		MatrixOP/FREE/O targetLayer = layer(w3d, i + 1) 
-		ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = M_Affine, testwave = targetLayer // Correct!!!!:Error here. M_Affine differs by one!
+		ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0/CONV=(convMode) refwave = M_Affine, testwave = targetLayer // Correct!!!!:Error here. M_Affine differs by one!
 		WAVE W_RegParams
 		dx = W_RegParams[0]; dy = W_RegParams[1]
 		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer // Will overwrite M_Affine
 		MatrixOP/O/FREE w3dLayer = layer(w3d, i + 1)
 		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i + 1)) Affine2D w3dLayer
 		if(printMode)
-			driftLog +=  num2str(i + 2) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n" // Layer 1 is not shi
+			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n" // Layer 0 is not shifted
 		endif
 	endfor
 	ImageTransform/NP=(layers) stackImages $"getStacklayer_0"

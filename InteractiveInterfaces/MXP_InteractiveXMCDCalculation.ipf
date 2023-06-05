@@ -142,8 +142,8 @@ Function MXP_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 		case 17: // Window is about to be killed
 			SetFormula wXMCD, ""
 			SetFormula wSum, ""
-			KillWindow $GetUserData(s.winName, "", "MXP_iSumWin")		
-			KillWindow $winiXMCDNameStr
+			KillWindow/Z $GetUserData(s.winName, "", "MXP_iSumWin")		
+			KillWindow/Z $winiXMCDNameStr
 			KillDataFolder dfr
 			hookresult = 1
 			break

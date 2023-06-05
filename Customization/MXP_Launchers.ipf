@@ -444,7 +444,6 @@ Function MXP_LaunchCascadeImageStackAlignmentByFullImage()
 	variable edgeDetection = 2
 	variable edgeAlgo = 1	
 	variable histEq = 2	
-	variable windowing = 2
 	variable algo = 1
 	string msg = "Cascade alignment of full " + imgNameTopGraphStr
 	Prompt algo, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
@@ -453,9 +452,8 @@ Function MXP_LaunchCascadeImageStackAlignmentByFullImage()
 	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"		
 	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
 	Prompt convMode, "Convergence (Registration only)", popup, "Gravity (fast); Marquardt (slow)"
-	Prompt windowing, "Hanning windowing (Correlation only)", popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt msg, algo, layerN, edgeDetection, edgeAlgo, histEq, convMode, windowing, printMode
+	DoPrompt msg, algo, layerN, edgeDetection, edgeAlgo, histEq, convMode, printMode
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -482,9 +480,9 @@ Function MXP_LaunchCascadeImageStackAlignmentByFullImage()
 	endif	
 
 	if(algo == 1)
-		MXP_ImageStackAlignmentByRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1)
+		MXP_CascadeImageStackAlignmentByRegistration(w3dRef, printMode = printMode - 2, convMode = convMode - 1)
 	else
-		MXP_ImageStackAlignmentByCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, windowing = windowing - 2)
+		MXP_CascadeImageStackAlignmentByCorrelation(w3dRef, printMode = printMode - 2)
 	endif
 	//Restore the note
 	string copyNoteStr = note($backupWave)
@@ -498,18 +496,16 @@ Function MXP_LaunchCascadeImageStackAlignmentUsingAFeature()
 	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
 	variable method = 1
 	variable printMode = 2
-	variable layerN = 0
 	variable edgeDetection = 2
 	variable histEq = 2
 	variable edgeAlgo = 1
 	string msg = "Cascade alignment of full " + imgNameTopGraphStr
 	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
-	Prompt layerN, "Reference layer"
 	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"		
 	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
-	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"	
 	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt msg, method, layerN, histEq, edgeDetection, edgeAlgo, printMode
+	DoPrompt msg, method, histEq, edgeDetection, edgeAlgo, printMode
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -859,143 +855,4 @@ Function MXP_LaunchScalePlanesBetweenZeroAndOne()
 	MXP_ScalePlanesBetweenZeroAndOne(wRef)
 	print NameOfWave(wRef) + " scaled to [0, 1]"
 	MXP_AutoRangeTopImage() // Autoscale the image
-End
-
-
-// --------------------------- Helper functions ------------------------------------//
-// Dialogs
-Function/S MXP_GenericSinglePopupStrPrompt(string strPrompt, string popupStrSelection, string msgDialog)
-	string returnStrVar 
-	Prompt returnStrVar, strPrompt, popup, popupStrSelection
-	DoPrompt msgDialog, returnStrVar
-	if(V_flag)
-		Abort
-	endif
-	return returnStrVar
-End
-
-Function/S MXP_GenericSingleStrPrompt(string strPrompt, string msgDialog)
-	string returnStrVar 
-	Prompt returnStrVar, strPrompt
-	DoPrompt msgDialog, returnStrVar
-	if(V_flag)
-		Abort
-	endif
-	return returnStrVar
-End
-
-Function [string returnStrVar1, string returnStrVar2] MXP_GenericSingleStrPromptAndPopup(string strPrompt1,string strPrompt2, string popupStrSelection1, string msgDialog)
-	string strVar1, strVar2
-	Prompt strVar1, strPrompt1, popup, popupStrSelection1
-	Prompt strVar2, strPrompt2
-	DoPrompt msgDialog, strVar1, strVar2
-	if(V_flag)
-		Abort
-	endif
-	returnStrVar1 = strVar1
-	returnStrVar2 = strVar2
-	return [returnStrVar1, returnStrVar2] 
-End
-
-Function [string returnStrVar1, string returnStrVar2] MXP_GenericDoubleStrPromptPopup(string strPrompt1, string strPrompt2, string popupStrSelection1, string popupStrSelection2, string msgDialog)
-	string strVar1, strVar2
-	Prompt strVar1, strPrompt1, popup, popupStrSelection1
-	Prompt strVar2, strPrompt2, popup, popupStrSelection2
-	DoPrompt msgDialog, strVar1, strVar2
-	if(V_flag)
-		Abort
-	endif
-	returnStrVar1 = strVar1
-	returnStrVar2 = strVar2
-	return [returnStrVar1, returnStrVar2] 
-End
-
-Function [string returnStrVar1, string returnStrVar2] MXP_GenericDoubleStrPrompt(string strPrompt1, string strPrompt2, string msgDialog)
-	string strVar1, strVar2
-	Prompt strVar1, strPrompt1
-	Prompt strVar2, strPrompt2
-	DoPrompt msgDialog, strVar1, strVar2
-	if(V_flag)
-		Abort
-	endif
-	returnStrVar1 = strVar1
-	returnStrVar2 = strVar2
-	return [returnStrVar1, returnStrVar2] 
-End
-
-Function MXP_GenericSingleVarPrompt(string strPrompt, string msgDialog)
-	variable returnVar 
-	Prompt returnVar, strPrompt
-	DoPrompt msgDialog, returnVar
-	if(V_flag)
-		return 1
-	endif
-	return returnVar
-End
-
-// Browser selection
-
-Function/S MXP_SelectWavesInModalDataBrowser(string msg)
-	/// Launch modal browser to select waves
-	
-	// Create the modal data browser but do not display it
-	CreateBrowser/M prompt = msg
-	// Show waves but not variables in the modal data browser
-	ModifyBrowser/M showWaves = 1, showVars = 0, showStrs = 0
-	// Set the modal data browser to sort by name 
-	ModifyBrowser/M sort = 1, showWaves = 1, showVars = 0, showStrs = 0
-	// Hide the info and plot panes in the modal data browser 
-	ModifyBrowser/M showInfo = 1, showPlot = 1
-	// Display the modal data browser, allowing the user to make a selection
-	ModifyBrowser/M showModalBrowser
-	
-	if(!V_flag) // user cancelled
-		Abort
-	endif
-	
-	return S_BrowserList
-End
-
-/// Helper function
-
-Function MXP_CountSelectedObjectsInDataBrowser()
-	/// return how many objects of any kind you have 
-	/// selected in the data browser 
-	string selectedItemStr
-	variable cnt = 0 , i = 0
-	if(!strlen(GetBrowserSelection(0)))
-		return 0
-	endif
-	do
-		selectedItemStr = GetBrowserSelection(i)
-		i++
-		cnt++
-	while (strlen(GetBrowserSelection(i)))
-	return cnt
-End
-
-Function MXP_CountSelectedWavesInDataBrowser([variable waveDimemsions])
-	/// return how many waves are selected in the data browser
-	/// Function returns selected waves of dimensionality waveDimemsions
-	/// if the optional argument is set.
-	
-	waveDimemsions = ParamIsDefault(waveDimemsions) ? 0: waveDimemsions
-	if(waveDimemsions < 0 || waveDimemsions > 5)
-		return -1 // Bad arguments
-	endif
-	
-	string selectedItemStr
-	variable cnt = 0 , i = 0
-	if(!strlen(GetBrowserSelection(0)))
-		return 0
-	endif
-	do
-		selectedItemStr = GetBrowserSelection(i)
-		i++
-		if((exists(selectedItemStr) == 1 && !waveDimemsions) \
-		|| (exists(selectedItemStr) == 1 && WaveDims($selectedItemStr) == waveDimemsions))
-			cnt++
-		endif
-	while (strlen(GetBrowserSelection(i)))
-	return cnt
 End

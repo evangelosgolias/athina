@@ -71,11 +71,9 @@ End
 Function/DF MXP_CreateDataFolderGetDFREF(string fullpath)
 	/// Create a data folder using fullpath and return a DF reference. 
 	/// If parent directories do not exist they will be created.
-	/// CAUTION: Problems with libearl names might occur
-
-	// First take care of liberal names in path string. eg root:A folder will become root:'A folder'.
 	
-	variable steps = ItemsInlist(ParseFilePath(2, fullpath, ":", 0, 0), ":"), i // ParseFilePath adds potentially missing : ending.
+	// First take care of liberal names in path string. eg root:A folder will become root:'A folder'.
+	variable steps = ItemsInlist(ParseFilePath(2, fullpath, ":", 0, 0), ":"), i // ParseFilePath adds missing : at the end.
 	string correctFullPath = ""
 	for(i = 0; i < steps ; i++) // i = 0 & steps return NULL string
 		correctFullPath += PossiblyQuoteName(ParseFilePath(0, fullpath, ":", 0, i)) + ":"

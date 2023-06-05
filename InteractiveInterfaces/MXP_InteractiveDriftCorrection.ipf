@@ -75,7 +75,7 @@ Function MXP_CreateInteractiveDriftCorrectionPanel()
 	variable/G dfr:gMXP_CursorPositionX
 	variable/G dfr:gMXP_CursorPositionY
 	
-	NewPanel/K=1/EXT=0/N=iDriftCorrection/W=(0,0,165,160)/HOST=$winNameStr
+	NewPanel/K=1/EXT=0/N=iDriftCorrection/W=(0,0,165,250)/HOST=$winNameStr
 	//ShowInfo/CP=0/W=$winNameStr
 	SetDrawLayer UserBack
 
@@ -89,8 +89,12 @@ Function MXP_CreateInteractiveDriftCorrectionPanel()
 	Button SetAnchorCursor,fColor=(65535,0,0), proc=MXP_SetAnchorCursorButton
 	Button DriftImage,pos={32.00,90.00},size={100.00,20.00},title="Drift Image"
 	Button DriftImage,fSize=12,fColor=(0,65535,0),proc=MXP_DriftImageButton
-	Button Restore3dwave,pos={32.00,130.00},size={100.00,20.00},fColor=(32768,54615,65535)
-	Button Restore3dwave,title="Restore stack",fSize=12,proc=Restore3DWaveButton
+	Button CascadeDrift,pos={32.00,130.00},size={100.00,20.00},fColor=(65535,49157,16385)
+	Button CascadeDrift,title="Cascade drift",fSize=12,proc=CascadeDrift3DWaveButton
+	Button SelectedLayersDrift,pos={32.00,170.00},size={100.00,20.00},fColor=(52428,52425,1)
+	Button SelectedLayersDrift,title="Drift N layers",fSize=12,proc=DriftSelectedLayers3DWaveButton
+	Button Restore3dwave,pos={32.00,210.00},size={100.00,20.00},fColor=(32768,54615,65535)
+	Button Restore3dwave,title="Restore stack",fSize=12,proc=Restore3DWaveButton	
 	//Tranfer info re dfr to controls
 	SetWindow $winNameStr#iDriftCorrection userdata(MXP_iImgAlignFolder) = "root:Packages:MXP_DataFolder:InteractiveDriftCorrection:" + winNameStr
 	SetWindow $winNameStr#iDriftCorrection hook(MyHook) = MXP_iDriftCorrectionPanelHookFunction
@@ -184,19 +188,20 @@ Function MXP_DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			if(gMXP_AnchorPositionX < 0 || gMXP_AnchorPositionY < 0)
-				print "You have first to set a reference position (ancor)"
+				print "You have first to set a reference position (anchor)"
 			endif
 			gMXP_CursorPositionX = hcsr(I, gMXP_WindowNameStr)
 			gMXP_CursorPositionY = vcsr(I, gMXP_WindowNameStr)
 			ImageTransform/P=(gLayer) getPlane w3dRef // get the image
-			WAVE/Z M_ImagePlane
-			variable dx = gMXP_CursorPositionX - gMXP_AnchorPositionX
-			variable dy = gMXP_CursorPositionY - gMXP_AnchorPositionY
-			ImageTransform/IOFF={-dx, -dy, 0} offsetImage M_ImagePlane
-			WAVE/Z M_OffsetImage
+			WAVE M_ImagePlane
+			variable dx = gMXP_AnchorPositionX - gMXP_CursorPositionX
+			variable dy = gMXP_AnchorPositionY - gMXP_CursorPositionY 
+			MatrixOP/O/FREE layerFREE = layer(w3dRef, gLayer)
+			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D layerFREE // Will overwrite M_Affine	
+			WAVE M_Affine
 			ImageTransform/O/P=(gLayer) removeZplane w3dRef
-			ImageTransform/O/P=(gLayer)/INSW=M_OffsetImage insertZplane w3dRef
-			KillWaves/Z M_ImagePlane, M_OffsetImage
+			ImageTransform/O/P=(gLayer)/INSW=M_Affine insertZplane w3dRef
+			KillWaves/Z M_Affine, M_ImagePlane
 		hookresult =  1
 		break
 	endswitch
@@ -213,6 +218,104 @@ Function Restore3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 		case 2:	// "mouse up after mouse down"
 			Duplicate/O $gMXP_w3dBackupPathNameStr, $gMXP_w3dPathname
 			hookresult =  1
+		break
+	endswitch
+	return hookresult
+End
+
+
+Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+
+	variable hookresult = 0
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_iImgAlignFolder"))
+	SVAR/Z/SDFR=dfr gMXP_WindowNameStr
+	SVAR/Z/SDFR=dfr gMXP_w3dPathName
+	WAVE/Z w3dRef = $gMXP_w3dPathName
+	NVAR/SDFR=dfr gMXP_AnchorPositionX
+	NVAR/SDFR=dfr gMXP_AnchorPositionY
+	NVAR/SDFR=dfr gMXP_CursorPositionX
+	NVAR/SDFR=dfr gMXP_CursorPositionY
+	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gMXP_WindowNameStr):gLayer
+	
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			if(gMXP_AnchorPositionX < 0 || gMXP_AnchorPositionY < 0)
+				print "You have first to set a reference position (anchor)"
+			endif
+			gMXP_CursorPositionX = hcsr(I, gMXP_WindowNameStr)
+			gMXP_CursorPositionY = vcsr(I, gMXP_WindowNameStr)
+
+			variable dx = gMXP_AnchorPositionX - gMXP_CursorPositionX
+			variable dy = gMXP_AnchorPositionY - gMXP_CursorPositionY 
+			variable i, nLayerL
+			variable nlayers = DimSize(w3dRef, 2)
+			string layersListStr
+			string inputStr = MXP_GenericSingleStrPrompt("Select layers to drift, e.g \"2-5,7,9-12,50\", operation is slow for many layers", "Drift selected layers")
+			if(strlen(inputStr))	
+				layersListStr = MXP_ExpandRangeStr(inputStr)
+			else
+				hookresult =  1
+				return 1
+			endif
+			variable imax = ItemsInList(layersListStr)
+			print "Drift operation started (it might take some time)"
+			for(i = 0; i < imax; i++)
+				nLayerL = str2num(StringFromList(i, layersListStr))
+				if(nLayerL > nlayers)
+					print "Layer number out of range: ", num2str(nLayerL)
+					Abort
+				endif
+				ImageTransform/P=(nLayerL) getPlane w3dRef // get the image
+				WAVE M_ImagePlane				
+				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D M_ImagePlane // Will overwrite M_Affine
+				WAVE M_Affine
+				ImageTransform/O/P=(nLayerL) removeZplane w3dRef
+				ImageTransform/O/P=(nLayerL)/INSW=M_Affine insertZplane w3dRef
+			endfor
+			KillWaves/Z M_Affine, M_ImagePlane
+			print "Operation completed. Drifted layers " + inputStr
+		hookresult =  1
+		break
+	endswitch
+	return hookresult
+End
+
+Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+	variable hookresult = 0
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_iImgAlignFolder"))
+	SVAR/Z/SDFR=dfr gMXP_WindowNameStr
+	SVAR/Z/SDFR=dfr gMXP_w3dPathName
+	WAVE/Z w3dRef = $gMXP_w3dPathName
+	NVAR/SDFR=dfr gMXP_AnchorPositionX
+	NVAR/SDFR=dfr gMXP_AnchorPositionY
+	NVAR/SDFR=dfr gMXP_CursorPositionX
+	NVAR/SDFR=dfr gMXP_CursorPositionY
+	NVAR gLayer = root:Packages:WM3DImageSlider:$(gMXP_WindowNameStr):gLayer // Do not use /Z here.
+	
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			if(gMXP_AnchorPositionX < 0 || gMXP_AnchorPositionY < 0)
+				print "You have first to set a reference position (anchor)"
+			endif
+			variable nlayers = DimSize(w3dRef, 2)
+			if(gLayer==0 || gLayer == nlayers)
+				hookresult =  1
+				return hookresult
+			endif
+			gMXP_CursorPositionX = hcsr(I, gMXP_WindowNameStr)
+			gMXP_CursorPositionY = vcsr(I, gMXP_WindowNameStr)
+
+			variable dx = gMXP_AnchorPositionX - gMXP_CursorPositionX
+			variable dy = gMXP_AnchorPositionY - gMXP_CursorPositionY 
+			// TODO: IP bug, program crashes
+			// Remove the first glayer layers
+//			ImageTransform/P=0/NP=(gLayer) removeZplane w3dRef
+//			WAVE M_ReducedWave
+//			ImageTransform/O/P=(gLayer)/NP=(nlayers-gLayer) removeZplane w3dRef
+//			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D w3dRef
+//			WAVE M_Affine
+//			Concatenate/O/KILL/NP=2 {M_ReducedWave, M_Affine}, $gMXP_w3dPathName
+		hookresult =  1
 		break
 	endswitch
 	return hookresult
