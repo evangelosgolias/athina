@@ -293,6 +293,7 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 				updateCursorsPositions = 0
 			endif
 			break
+		// To revise. Case 17 is not recommended to use for killing windows. See JW's email.
 		case 17: // case 2: MXP_LinkedProfileWindowControl in not killed when another hook kills s.winName
 			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedProfileWindowControl"))			
 			if(WinType(GetUserData(s.winName, "", "MXP_ShowSavedGraphsWindow")) == 1)

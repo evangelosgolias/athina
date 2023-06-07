@@ -121,7 +121,6 @@ Function MXP_CreateInteractiveXMCDCalculationPanel(WAVE wXMCD, WAVE wSum)
 End
 
 Function MXP_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
-	string winiXMCDNameStr = GetUserData(s.winName, "", "MXP_iXMCDWin")
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "MXP_iXMCDPath"))
 	NVAR/SDFR=dfr gMXP_driftStep
 	NVAR/SDFR=dfr gMXP_dx
@@ -137,13 +136,14 @@ Function MXP_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 		case 2: // Window is about to be killed
 			SetFormula wXMCD, ""
 			SetFormula wSum, ""
-			KillWindow/Z $GetUserData(s.winName, "", "MXP_iSumWin")		
-			KillWindow/Z $winiXMCDNameStr
-			cmdStr = "KillDataFolder " + dfrStr
-			// Runs when everything else has finished (Execute/P).
-			// Avoid issues with killing a graph or folder with wave in use (iXMCD here)
-			Execute/P/Q  cmdStr  
-			hookresult = 1
+			string sumWinStr = GetUserData(s.winName, "", "MXP_iSumWin")
+			if (WinType(sumWinStr) == 1)
+				string killwincmd = "KillWindow "+sumWinStr
+				Execute/P/Q killWinCmd
+			endif
+			string killDFCmd = "KillDataFolder "+ GetDataFolder(1, dfr)
+			Execute/P/Q killDFCmd
+			hookresult = 0
 			break
 		case 11:					// Keyboard event
 			switch (s.keycode)
