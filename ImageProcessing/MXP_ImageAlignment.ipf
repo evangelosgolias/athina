@@ -58,17 +58,13 @@ Function MXP_ImageAlignmentByRegistration(WAVE w1, WAVE w2)
 	sprintf msg, "ImageRegistration with refWave = %s and testWave = %s.", NameOfWave(w1), NameOfWave(w2)
 	print msg		
 
-	if(!(WaveType(w1) & 0x02))
-		sprintf msg, "ImageRegistration needs SP precision waves. Converting %s to SP", NameOfWave(w1)
-		print msg		
+	if(!(WaveType(w1) & 0x02))	
 		Redimension/S w1
 	endif
 	if(!(WaveType(w2) & 0x02))
-		sprintf msg, "ImageRegistration needs SP precision waves. Converting %s to SP", NameOfWave(w2)
-		print msg	
 		Redimension/S w2
 	endif 
-	ImageRegistration/Q/STCK/PSTK/ROT={0,0,0}/TSTM=0/BVAL=0 refWave = w1, testWave = w2
+	ImageRegistration/Q/TRNS={1,1,0}/ISOS/ROT={0,0,1}/TSTM=0/BVAL=0 refWave = w1, testWave = w2
 	WAVE M_RegOut
 	Duplicate/O M_RegOut, w2	
 	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams

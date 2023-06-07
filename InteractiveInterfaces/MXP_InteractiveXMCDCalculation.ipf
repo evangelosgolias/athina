@@ -69,7 +69,16 @@ Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	// Create variables for the Panel. NB; Data Folders for panels can be overwritten
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:InteractiveXMCD:") 
 	string folderNameStr = CreateDataObjectName(dfr, "iXMCD",11, 0, 0)
-	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:InteractiveXMCD:" + folderNameStr) 
+	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:InteractiveXMCD:" + folderNameStr)
+	
+	if(WaveType($wave1NameStr) & 0x10) // If WORD (int16)
+		Redimension/S $wave1NameStr
+	endif
+	
+	if(WaveType($wave2NameStr) & 0x10) // If WORD (int16)
+		Redimension/S $wave2NameStr
+	endif	
+	
 	Duplicate/O $wave1NameStr, dfr:wImg1
 	Duplicate/O $wave2NameStr, dfr:wImg2, dfr:wImg2_undo,  dfr:wXMCD, dfr:wSum
 	//Wave references

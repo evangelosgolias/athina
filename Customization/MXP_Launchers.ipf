@@ -163,6 +163,11 @@ Function MXP_LaunchRegisterQCalculateXRayDichroism()
 	endif
 	WAVE wimg1 = $wave1Str
 	WAVE wimg2 = $wave2Str
+	
+	if(WaveDims(wimg1) != 2 || WaveDims(wimg2) != 2)
+		Abort "Operation need two images"
+	endif
+	
 	// Make a note for the XMC(L)D image
 	string xmcdWaveNoteStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n"
 	xmcdWaveNoteStr += "img1: "
@@ -174,6 +179,7 @@ Function MXP_LaunchRegisterQCalculateXRayDichroism()
 	if(!(WaveType(wimg1) & 0x02))
 		Redimension/S wimg1
 	endif
+	
 	if(!(WaveType(wimg2) & 0x02))
 		Redimension/S wimg2
 	endif 
@@ -440,20 +446,18 @@ Function MXP_LaunchCascadeImageStackAlignmentByFullImage()
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
 	variable convMode = 1
 	variable printMode = 2
-	variable layerN = 0
 	variable edgeDetection = 2
 	variable edgeAlgo = 1	
 	variable histEq = 2	
 	variable algo = 1
 	string msg = "Cascade alignment of full " + imgNameTopGraphStr
 	Prompt algo, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
-	Prompt layerN, "Reference layer"
 	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"		
 	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
 	Prompt convMode, "Convergence (Registration only)", popup, "Gravity (fast); Marquardt (slow)"
 	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt msg, algo, layerN, edgeDetection, edgeAlgo, histEq, convMode, printMode
+	DoPrompt msg, algo, edgeDetection, edgeAlgo, histEq, convMode, printMode
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -600,7 +604,7 @@ Function [variable leftR, variable rightR, variable topR, variable bottomR] WM_U
 	endif
 
 	NewDataFolder/O root:tmp_PauseforCursorDF
-	variable/G root:tmp_PauseforCursorDF:canceled= 0
+	variable/G root:tmp_PauseforCursorDF:canceled = 0
 
 	NewPanel/K=2 /W=(139,341,382,450) as "Set marquee on image"
 	DoWindow/C tmp_PauseforCursor					// Set to an unlikely name

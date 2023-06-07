@@ -49,7 +49,7 @@ Menu "MAXPEEM"
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, MXP_LaunchImageRotateAndScaleFromMetadata()
 		"Backup Image (TG)", /Q, MXP_BackupTopImage()	
 		"Restore image from backup (TG)", /Q, MXP_RestoreTopImageFromBackup()
-		"Normalize to [0, 1] (TG)", /Q, MXP_LaunchScalePlanesBetweenZeroAndOne()	
+		"Normalize to [0, 1] (TG)", /Q, MXP_LaunchScalePlanesBetweenZeroAndOne()
 	End
 	
 	Submenu "Interactive Operations"
@@ -100,8 +100,8 @@ End
 // -------------------------------------------------------
 
 Menu "GraphMarquee"
-	"MXP Set image range using ROI (2D, 3D)", /Q, MXP_SetImageRangeTo94Percent()
-	"MXP ROI stats (2D, 3D)", /Q, MXP_GetMarqueeWaveStats()
+	"MXP Range to 96% using ROI (2D, 3D)", /Q, MXP_SetImageRangeTo94Percent()
+	"MXP Print ROI stats (2D, 3D)", /Q, MXP_GetMarqueeWaveStats()
 	"MXP Z-profiler: Set oval ROI  (3D)", /Q, MXP_DrawOvalROIAndWaitHookToAct()
 	"MXP Z-profiler: Set rectangular ROI  (3D)", /Q, MXP_DrawRectROIAndWaitHookToAct()	
 	"MXP Marquee to mask (2D, 3D)", /Q, MXP_MarqueeToMask()

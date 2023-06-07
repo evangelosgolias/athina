@@ -53,7 +53,7 @@ Function MXP_CreateInteractiveDriftCorrectionPanel()
 	//Set cursor
 	variable midOfImageX = 0.5 * DimSize(w3dref,0) * DimDelta(w3dref,0)
 	variable midOfImageY = 0.5 * DimSize(w3dref,1) * DimDelta(w3dref,1)
-	Cursor/W=$winNameStr/I/F/L=0/H=1/C=(1,65535,33232,20000)/S=2 I $imgNameTopGraphStr midOfImageX, midOfImageY
+	Cursor/W=$winNameStr/I/F/L=0/H=1/C=(1,65535,33232)/S=2 I $imgNameTopGraphStr midOfImageX, midOfImageY
 	
 
 	//Duplicate the wave for backup
@@ -162,9 +162,9 @@ Function MXP_SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonContr
 			gMXP_AnchorPositionY = vcsr(I, gMXP_WindowNameStr)
 			SetDrawLayer/W=$gMXP_WindowNameStr Overlay
 			DrawAction/W=$gMXP_WindowNameStr delete
-			SetDrawEnv/W=$gMXP_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,0,0,20000), dash=0
+			SetDrawEnv/W=$gMXP_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,43690,0), dash=0
 			DrawLine/W=$gMXP_WindowNameStr x0, gMXP_AnchorPositionY, xmax, gMXP_AnchorPositionY
-			SetDrawEnv/W=$gMXP_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,0,0,20000), dash=0
+			SetDrawEnv/W=$gMXP_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,43690,0), dash=0
 			DrawLine/W=$gMXP_WindowNameStr gMXP_AnchorPositionX, y0, gMXP_AnchorPositionX, ymax
 			SetDrawLayer/W=$gMXP_WindowNameStr UserFront
 			hookresult =  1
@@ -304,17 +304,17 @@ Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 			endif
 			gMXP_CursorPositionX = hcsr(I, gMXP_WindowNameStr)
 			gMXP_CursorPositionY = vcsr(I, gMXP_WindowNameStr)
-
 			variable dx = gMXP_AnchorPositionX - gMXP_CursorPositionX
 			variable dy = gMXP_AnchorPositionY - gMXP_CursorPositionY 
 			// TODO: IP bug, program crashes
 			// Remove the first glayer layers
-//			ImageTransform/P=0/NP=(gLayer) removeZplane w3dRef
-//			WAVE M_ReducedWave
-//			ImageTransform/O/P=(gLayer)/NP=(nlayers-gLayer) removeZplane w3dRef
-//			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D w3dRef
-//			WAVE M_Affine
-//			Concatenate/O/KILL/NP=2 {M_ReducedWave, M_Affine}, $gMXP_w3dPathName
+			ImageTransform/P=(gLayer)/NP=(nlayers-gLayer) removeZplane w3dRef
+			print gLayer, (nlayers-gLayer)
+			WAVE M_ReducedWave	
+			ImageTransform/O/P=0/NP=(gLayer) removeZplane w3dRef	
+			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D w3dRef
+			WAVE M_Affine
+			Concatenate/O/KILL/NP=2 {M_ReducedWave, M_Affine}, $gMXP_w3dPathName
 		hookresult =  1
 		break
 	endswitch

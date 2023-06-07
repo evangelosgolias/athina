@@ -266,7 +266,7 @@ Function MXP_GetLayerFromImageStack()
 		CopyScales/I w3dref, $layerSaveStr
 		Note $layerSaveStr, msg
 	else
-		Abort "Operation needs a stack (3d wave) with a slider activated"
+		Abort "Operation needs a stack (3d wave) with an active slider."
 	endif
 End
 
