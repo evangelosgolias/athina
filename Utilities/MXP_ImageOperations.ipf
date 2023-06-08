@@ -460,6 +460,36 @@ Function MXP_ScalePlanesBetweenZeroAndOne(WAVE w3d, [variable f64])
 	KillWaves W_Beam
 End
 
+Function/WAVE MXP_WAVEAverageImageRangeInStack(WAVE w3d, variable NP0, variable NPL)
+	/// Average NPL image planes in stack starting from N0 
+	variable  nlayers = DimSize(w3d, 2), i
+	if(NP0 + NPL > nlayers)
+		Abort "Dimension mismatch."
+	endif
+	MatrixOP/FREE calcLayer = layer(w3d, 0)
+	calcLayer = 0
+	for(i = 0; i < NPL; i++)
+		MatrixOP/O/FREE gLayerFree = layer(w3d, NP0 + i)
+		MatrixOP/O calcLayer = calcLayer + gLayerFree
+	endfor
+	return calcLayer
+End
+
+Function MXP_AverageImageRangeInStack(WAVE w3d, variable NP0, variable NPL)
+	/// Average NPL image planes in stack starting from N0	
+	variable  nlayers = DimSize(w3d, 2), i
+	if(NP0 + NPL > nlayers)
+		Abort "Dimension mismatch."
+	endif
+	MatrixOP/O $(NameOfWave(w3d) + "_SPL_" + num2str(NP0) + "_" + num2str(NPL)) = layer(w3d, 0)
+	WAVE resW2d = $(NameOfWave(w3d) + "_SPL_" + num2str(NP0) + "_" + num2str(NPL))
+	for(i = 0; i < NPL; i++)
+		MatrixOP/O/FREE gLayerFree = layer(w3d, NP0 + i)
+		MatrixOP/O resW2d = resW2d + gLayerFree
+	endfor
+	return 0
+End
+
 //TODO
 //Function MXP_ApplyOperationToFilesInFolderTree(string pathName, 
 //		   string extension, variable recurse, variable level)

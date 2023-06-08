@@ -73,7 +73,7 @@ Function MXP_MainMenuLaunchSumBeamsProfile()
 		MXP_InitialiseZProfileGraph(dfr)
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedSumBeamsZPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
+		SetWindow $winNameStr userdata(MXP_SumBeamsDFRefEF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_BeamProfile_" + winNameStr  //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder
 	else
 		Abort "z-profile needs a 3d wave."
@@ -103,7 +103,7 @@ Function MXP_TraceMenuLaunchSumBeamsProfile() // Trace menu launcher, inactive
 		MXP_InitialiseZProfileGraph(dfr)
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedSumBeamsZPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
+		SetWindow $winNameStr userdata(MXP_SumBeamsDFRefEF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_BeamProfile_" + winNameStr  //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder
 	else
 		Abort "z-profile needs a 3d wave"
@@ -132,7 +132,7 @@ Function MXP_BrowserMenuLaunchSumBeamsProfile() // Browser menu launcher, active
 		MXP_InitialiseZProfileGraph(dfr)
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = MXP_CursorHookFunctionBeamProfile // Set the hook
 		SetWindow $winNameStr userdata(MXP_LinkedSumBeamsZPlotStr) = "MXP_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(MXP_DFREF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
+		SetWindow $winNameStr userdata(MXP_SumBeamsDFRefEF) = "root:Packages:MXP_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(MXP_targetGraphWin) = "MXP_BeamProfile_" + winNameStr  //  Same as gMXP_WindowNameStr, see MXP_InitialiseLineProfileFolder
 	else
 		Abort "Z profile opearation needs only one 3d wave."
@@ -209,7 +209,7 @@ Function MXP_DrawOvalROIAndWaitHookToAct() // Function used by the hook
 	string winNameStr = WinName(0, 1, 1)
 	DoWindow/F $winNameStr // You need to have your imange stack as a top window
 	GetMarquee/K left, top
-	string dfrStr = GetUserData(winNameStr, "", "MXP_DFREF")
+	string dfrStr = GetUserData(winNameStr, "", "MXP_SumBeamsDFRefEF")
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(dfrStr)
 	NVAR/SDFR=dfr gMXP_left
 	NVAR/SDFR=dfr gMXP_right
@@ -237,7 +237,7 @@ Function MXP_DrawRectROIAndWaitHookToAct() // Function used by the hook
 	string winNameStr = WinName(0, 1, 1)
 	DoWindow/F $winNameStr // You need to have your imange stack as a top window
 	GetMarquee/K left, top
-	string dfrStr = GetUserData(winNameStr, "", "MXP_DFREF")
+	string dfrStr = GetUserData(winNameStr, "", "MXP_SumBeamsDFRefEF")
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(dfrStr)
 	NVAR/SDFR=dfr gMXP_left
 	NVAR/SDFR=dfr gMXP_right
@@ -315,7 +315,7 @@ Function MXP_CreateSumBeamsProfilePlot(DFREF dfr)
 	CheckBox ShowProfile, pos={130.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
 	CheckBox ShowSelectedAread, pos={250.00,12.00}, side=1, size={70.00,16.00}, proc=MXP_SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
 	
-	SetWindow $profilePlotStr userdata(MXP_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
+	SetWindow $profilePlotStr userdata(MXP_rootdfrSumBeamsStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(MXP_targetGraphWin) = "MXP_BeamProfile_" + gMXP_WindowNameStr
 	SetWindow $profilePlotStr userdata(MXP_parentGraphWin) = gMXP_WindowNameStr 	
 	SetWindow $profilePlotStr, hook(MySumBeamsProfileHook) = MXP_SumBeamsGraphHookFunction // Set the hook
@@ -443,7 +443,7 @@ End
 
 Function MXP_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrStr"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_rootdfrSumBeamsStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "MXP_targetGraphWin")
 	SVAR/Z LineProfileWaveStr = dfr:gMXP_LineProfileWaveStr
 	SVAR/Z WindowNameStr = dfr:gMXP_WindowNameStr
@@ -522,7 +522,7 @@ End
 
 Function MXP_SumBeamsProfilePlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrSumBeamsStr"))
 	NVAR/Z DoPlotSwitch = dfr:gMXP_DoPlotSwitch
 	switch(cb.checked)
 		case 1:		// Mouse up
@@ -538,7 +538,7 @@ End
 
 Function MXP_SumBeamsProfilePlotCheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrStr"))
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrSumBeamsStr"))
 	NVAR/Z MarkAreasSwitch = dfr:gMXP_MarkAreasSwitch
 	switch(cb.checked)
 		case 1:		// Mouse up

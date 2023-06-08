@@ -142,7 +142,10 @@ Function MXP_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
 	string dfrStr = GetUserData(s.winName, "", "MXP_iXMCDPath"), cmdStr
 	switch(s.eventCode)
-		case 2: // Window is about to be killed
+	// Window is about to be killed case 17. 
+	// Needed if you want more than one hook functions to be able to cleanup/close 
+	// windows linked a parent window.
+		case 2: 
 			SetFormula wXMCD, ""
 			SetFormula wSum, ""
 			string sumWinStr = GetUserData(s.winName, "", "MXP_iSumWin")
@@ -152,7 +155,7 @@ Function MXP_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 			endif
 			string killDFCmd = "KillDataFolder "+ GetDataFolder(1, dfr)
 			Execute/P/Q killDFCmd
-			hookresult = 0
+			hookresult = 1
 			break
 		case 11:					// Keyboard event
 			switch (s.keycode)

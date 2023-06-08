@@ -300,7 +300,7 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 				DoWindow/C/W=$(GetUserData(s.winName, "", "MXP_ShowSavedGraphsWindow")) $UniqueName("LineProf_unlnk_",6,0) // Change name of profile graph
 			endif
 			KillDataFolder/Z dfr
-			hookresult = 1
+			hookresult = 0 // Prevent another case 17 somewhere to stop the window from being killed
 			break
 		case 4:
 			mouseTrackV = s.mouseLoc.v
