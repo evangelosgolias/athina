@@ -92,12 +92,11 @@ Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	// Set global variables
 	variable/G dfr:gMXP_driftStep = 1
 	variable/G dfr:gMXP_dx = 0	
-	variable/G dfr:gMXP_dy = 0	
-	//MXP_CalculateWaveSumFromStackToWave(imgStack, iSum)
-	//MXP_CalculateXMCDFromStackToWave(imgStack, iXMCD)
-//	SetFormula dfr:iXMCD, "(dfr:iImg1 - dfr:iImg2)/(dfr:iImg1 + dfr:iImg2)"
-//	SetFormula dfr:iSum, "dfr:iImg1 + dfr:iImg2"
-	SetFormula wXMCD, "(wImg1 - wImg2)/(wImg1 + wImg2)"
+	variable/G dfr:gMXP_dy = 0
+	variable/G dfr:calculationMethod = 0 // 0=sub/add, 1=div
+	string/G dfr:wName1Str = wave1NameStr
+	string/G dfr:wName2Str = wave2NameStr
+	SetFormula wXMCD, "(wImg1 - wImg2)/(wImg1 + wImg2)" // see MXP_XMCDCalcWithDivision
 	SetFormula wSum, "wImg1 + wImg2"
 	MXP_CreateInteractiveXMCDCalculationPanel(wXMCD, wSum)
 End
@@ -112,19 +111,20 @@ Function MXP_CreateInteractiveXMCDCalculationPanel(WAVE wXMCD, WAVE wSum)
 	string winiXMCDNameStr = WinName(0,1)
 	ControlBar/W=$winiXMCDNameStr 40	
 	
-	SetVariable setDriftStep,win=$winiXMCDNameStr,pos={120,10},size={180,20.00},title="Drift step (px)"
+	SetVariable setDriftStep,win=$winiXMCDNameStr,pos={130,10},size={160,20.00},title="Drift step (px)"
 	SetVariable setDriftStep,win=$winiXMCDNameStr,value=gMXP_driftStep,help={"Set drift value for img2"}
 	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,10,1},live=1,proc=MXP_SetDriftStepVar	
 
 	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20.00,10.00},size={90.00,20.00},proc=MXP_SaveXMCDImageButton
-	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
-	
+	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save XMCD", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
+
+	CheckBox CalcWithDivision,pos={310, 10.00},size={100,20.00},title="Use img1/img2 ",fSize=14,value=0,side=1,proc=MXP_XMCDCalcWithDivision
+
 	// Set the path to all windows
 	string dfrStr = GetWavesDataFolder(wXMCD, 1)
 	SetWindow $winiXMCDNameStr userdata(MXP_iXMCDPath) = dfrStr
 	SetWindow $winiXMCDNameStr userdata(MXP_iXMCDWin) = winiXMCDNameStr
 	SetWindow $winiXMCDNameStr userdata(MXP_iSumWin) = winiSumNameStr
-	
 	SetWindow $winiXMCDNameStr, hook(MyiXMCDWinHook) = MXP_InteractiveXMCDWindowHook // Set the hook
 	return 0
 End
@@ -201,38 +201,29 @@ End
 Function MXP_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "MXP_iXMCDPath"))
+	DFREF currDF = GetDataFolderDFR()
+	WAVE/SDFR=dfr wImg1
+	WAVE/SDFR=dfr wImg2
+	WAVE/SDFR=dfr wXMCD
+	NVAR/SDFR=dfr calculationMethod
+	SVAR/SDFR=dfr wName1Str
+	SVAR/SDFR=dfr wName2Str	
+	string saveWaveNameStr, note2WaveStr
 
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:	// "mouse up after mouse down"
-		break
-	endswitch
-	return 0
-End
-
-//Function MXP_ShowOtherImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-//	string winNameStr = GetUserData(B_Struct.win, "", "MXP_iStackWindowNameStr")
-//	string dfrStr = GetUserData(B_Struct.win, "", "MXP_iStackPath")
-//	DFREF dfr = MXP_CreateDataFolderGetDFREF(dfrStr)
-//	NVAR/SDFR=dfr gMXP_planeCnt
-//	WAVE imgStack = dfr:imgStack
-//	string imgTagStr
-//	switch(B_Struct.eventCode)	// numeric switch
-//		case 2:	// "mouse up after mouse down"
-//			ModifyImage/W=$winNameStr imgStack plane=mod(gMXP_planeCnt, 2)
-//			imgTagStr = "\k(65535,0,0)\\Z14img" + num2str(mod(gMXP_planeCnt, 2) + 1)
-//			//TextBox/K/N=imgTag
-//			//TextBox/W=$winNameStr /B=1/N=imgTag/F=0/S=3/A=LT/X=1.00/Y=1.0  //imgStack
-//			gMXP_planeCnt+=1
-//		break
-//	endswitch
-//	return 0
-//End
-
-Function MXP_RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:	// "mouse up after mouse down"
-		break
+	variable postfix = 0
+	switch(B_Struct.eventCode)	// numeric switch	
+		case 2:	// "mouse up after mouse down"	
+			if(calculationMethod)
+				note2WaveStr = "XMC(L)D = img1/img2\n" + "img1: " \
+				+ wName1Str + "\nimg2: " + wName2Str
+			else
+				 note2WaveStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " \
+				+ wName1Str + "\nimg2: " + wName2Str
+			endif
+			saveWaveNameStr = CreatedataObjectName(currDF, "iXMCD", 1, 0, 0)			
+			Duplicate wXMCD, $saveWaveNameStr
+			Note/K $saveWaveNameStr, note2WaveStr
+			break
 	endswitch
 	return 0
 End
@@ -240,7 +231,7 @@ End
 Function MXP_SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
 	string dfrStr = GetUserData(sva.win, "", "MXP_iXMCDPath")
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(dfrStr)
-	NVAR/SDFR=dfr gMXP_driftStep
+	NVAR/SDFR=dfr gMXP_driftStep	
 	switch (sva.eventCode)
 		case 1: 							// Mouse up
 		case 2:							// Enter key
@@ -251,5 +242,24 @@ Function MXP_SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableContr
 			break
 	endswitch
 
+	return 0
+End
+
+Function MXP_XMCDCalcWithDivision(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_iXMCDPath"))
+	WAVE/SDFR=dfr wImg1
+	WAVE/SDFR=dfr wImg2
+	WAVE/SDFR=dfr wXMCD	
+	NVAR/SDFR=dfr calculationMethod
+	switch(cb.checked)
+		case 1:
+			calculationMethod = 1
+			SetFormula wXMCD, "wImg1/wImg2"	
+			break
+		case 0:
+			calculationMethod = 0
+			SetFormula wXMCD, "(wImg1 - wImg2)/(wImg1 + wImg2)"
+			break
+	endswitch
 	return 0
 End

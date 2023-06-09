@@ -46,8 +46,7 @@ End
 Function WM_DoAutoSizeImage(variable forceSize)
 	if( (forceSize != 0) )
 		if( (forceSize<0.01) %| (forceSize>20) ) // EG: forceSize<0.1 was the original limit
-			Abort "Unlikely value for forceSize; usually 0 or between .01 and 20"
-			return 0
+			print "Unlikely value for forceSize; usually 0 or between .01 and 20...doing nothing" // EG: Chagnge behavior 08.06.2023
 		endif
 	endif
 	string imagename= ImageNameList("", ";")

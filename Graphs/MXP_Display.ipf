@@ -33,80 +33,80 @@
 static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
 
 Function MXP_DisplayImage(WAVE waveRef)
-	   // Display an image or stack
-		NewImage/G=1/K=1 waveRef
-		ModifyGraph width={Plan,1,top,left}
-		// Disable the scaling 07.04.2023. Find a better method to scale graphs.
-		// Use the resolution of the main screen to scale the plots
-//		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:DisplaySettings")
-//		NVAR/SDFR=dfr/Z minScreenDim
-//		if(!NVAR_Exists(minScreenDim))			
-			string igorInfoStr = StringByKey( "SCREEN1", IgorInfo(0)) // INFO: Change here if needed
-			igorInfoStr = RemoveListItem(0, igorInfoStr, ",")		
-			variable screenLeft, screenTop, screenRight, screenBottom
-			sscanf igorInfoStr, "RECT=%d,%d,%d,%d", screenLeft, screenTop, screenRight, screenBottom
-			variable screenWidth, screenLength
-			screenWidth = abs(screenRight - screenLeft)
-			screenLength = abs(screenBottom - screenTop)
-//			variable/G dfr:minScreenDim = min(screenWidth, screenLength)
-			variable minScreenDim = min(screenWidth, screenLength)
-//		endif
-//
-		variable nrows = DimSize(waveRef, 0)
-		variable ncols = DimSize(waveRef, 1)	
-		// Get the minumum dimension
-		variable waveMinDim = min(nrows, ncols)
-		// TODO: When waveMinDim is small, you might get big values of scalefactor
-		// Giving an error in 	ModifyGraph width=width,height=height in WM_DoAutoSizeImage (values > 8000 
-		// are invalid). Try to find another way to display images
-		variable scaleFactor = 0.5 * minScreenDim/waveMinDim // INFO: 25% os the smaller screen dimension
-		WM_AutoSizeImage(scaleFactor)
-//		
-		// Adjest the range in images
-//		if(WaveDims(waveRef) == 2)
-//			variable s = 0, i = 0 , tot, nzmin, nzmax
-//			Imagehistogram waveRef
-//			WAVE W_ImageHist
-//			variable npts = numpnts(W_ImageHist)
-//			tot = sum(W_ImageHist, pnt2x(W_ImageHist, 0), pnt2x(W_ImageHist, npts-1))
-//			variable cutoffVal = 0.06 // 0.06 - 94%
-//			do
-//				s += W_ImageHist[i]
-//				i += 1
-//			while( (s/tot) < cutoffVal/2 )
-//			nzmin = LeftX(W_ImageHist) + deltax(W_ImageHist) * i
-//
-//			s = 0;i = npts-1
-//			do
-//				s += W_ImageHist[i]
-//				i-=1
-//			while( (s/tot) < cutoffVal/2 )
-//			nzmax = LeftX(W_ImageHist) + deltax(W_ImageHist) * i
-//			KillWaves W_ImageHist
-//			ModifyImage $NameOfWave(waveRef) ctab= {nzmin,nzmax,}
-//		endif
-//		
-		if(WaveDims(waveRef)==3)
-			MXP_Append3DImageSlider()
-		endif
-		
-		return 0
-		// Added a slider for contrast control
-//		ControlBar/R 30
-//		Wavestats/M=1/Q waveRef
-//		
-//		Slider MXP_Contrast,limits={V_min,V_max,0},value=0,vert= 1,ticks=0,side=0//,variable=gLayer	
-//		
-//		GetWindow kwTopWin, gsize
-//		variable scale = ScreenResolution / 72										// ST: 210601 - properly scale position for windows
-//		variable bottom = V_bottom * scale
-//		variable top = limit(V_top * scale, bottom + kImageSliderLMargin + 50,inf)		// ST: 210601 - make sure the controls get not too small
-//		Slider MXP_Contrast,pos={bottom + 10, 100 + 10},size={200,16}//,proc=WM3DImageSliderProc		// ST: 21060
-//		
-		//SetVariable WM3DVal,pos={top-kImageSliderLMargin+15,gOriginalHeight+6},size={60,18}	// ST: 210601 - control slightly higher to line up with the slider
-		//SetVariable WM3DVal,limits={0,gRightLim,1},title=" "//,proc=WM3DImageSliderSetVarProc		// ST: 210601 - apply same limits as slider
-		//SetVariable WM3DVal,value=gLayer
-		
+	// Display an image or stack
+	NewImage/G=1/K=1 waveRef
+	ModifyGraph width={Plan,1,top,left}
+	// Disable the scaling 07.04.2023. Find a better method to scale graphs.
+	// Use the resolution of the main screen to scale the plots
+	//		DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:DisplaySettings")
+	//		NVAR/SDFR=dfr/Z minScreenDim
+	//		if(!NVAR_Exists(minScreenDim))
+	string igorInfoStr = StringByKey( "SCREEN1", IgorInfo(0)) // INFO: Change here if needed
+	igorInfoStr = RemoveListItem(0, igorInfoStr, ",")
+	variable screenLeft, screenTop, screenRight, screenBottom
+	sscanf igorInfoStr, "RECT=%d,%d,%d,%d", screenLeft, screenTop, screenRight, screenBottom
+	variable screenWidth, screenLength
+	screenWidth = abs(screenRight - screenLeft)
+	screenLength = abs(screenBottom - screenTop)
+	//			variable/G dfr:minScreenDim = min(screenWidth, screenLength)
+	variable minScreenDim = min(screenWidth, screenLength)
+	//		endif
+	//
+	variable nrows = DimSize(waveRef, 0)
+	variable ncols = DimSize(waveRef, 1)
+	// Get the minumum dimension
+	variable waveMinDim = min(nrows, ncols)
+	// TODO: When waveMinDim is small, you might get big values of scalefactor
+	// Giving an error in 	ModifyGraph width=width,height=height in WM_DoAutoSizeImage (values > 8000
+	// are invalid). Try to find another way to display images
+	variable scaleFactor = 0.5 * minScreenDim/waveMinDim // INFO: 25% os the smaller screen dimension
+	WM_AutoSizeImage(scaleFactor)
+	//
+	// Adjest the range in images
+	//		if(WaveDims(waveRef) == 2)
+	//			variable s = 0, i = 0 , tot, nzmin, nzmax
+	//			Imagehistogram waveRef
+	//			WAVE W_ImageHist
+	//			variable npts = numpnts(W_ImageHist)
+	//			tot = sum(W_ImageHist, pnt2x(W_ImageHist, 0), pnt2x(W_ImageHist, npts-1))
+	//			variable cutoffVal = 0.06 // 0.06 - 94%
+	//			do
+	//				s += W_ImageHist[i]
+	//				i += 1
+	//			while( (s/tot) < cutoffVal/2 )
+	//			nzmin = LeftX(W_ImageHist) + deltax(W_ImageHist) * i
+	//
+	//			s = 0;i = npts-1
+	//			do
+	//				s += W_ImageHist[i]
+	//				i-=1
+	//			while( (s/tot) < cutoffVal/2 )
+	//			nzmax = LeftX(W_ImageHist) + deltax(W_ImageHist) * i
+	//			KillWaves W_ImageHist
+	//			ModifyImage $NameOfWave(waveRef) ctab= {nzmin,nzmax,}
+	//		endif
+	//
+	if(WaveDims(waveRef)==3)
+		MXP_Append3DImageSlider()
+	endif
+
+	return 0
+	// Added a slider for contrast control
+	//		ControlBar/R 30
+	//		Wavestats/M=1/Q waveRef
+	//
+	//		Slider MXP_Contrast,limits={V_min,V_max,0},value=0,vert= 1,ticks=0,side=0//,variable=gLayer
+	//
+	//		GetWindow kwTopWin, gsize
+	//		variable scale = ScreenResolution / 72										// ST: 210601 - properly scale position for windows
+	//		variable bottom = V_bottom * scale
+	//		variable top = limit(V_top * scale, bottom + kImageSliderLMargin + 50,inf)		// ST: 210601 - make sure the controls get not too small
+	//		Slider MXP_Contrast,pos={bottom + 10, 100 + 10},size={200,16}//,proc=WM3DImageSliderProc		// ST: 21060
+	//
+	//SetVariable WM3DVal,pos={top-kImageSliderLMargin+15,gOriginalHeight+6},size={60,18}	// ST: 210601 - control slightly higher to line up with the slider
+	//SetVariable WM3DVal,limits={0,gRightLim,1},title=" "//,proc=WM3DImageSliderSetVarProc		// ST: 210601 - apply same limits as slider
+	//SetVariable WM3DVal,value=gLayer
+
 End
 //
 //Function MXP_Append3DImageSliderBottom()

@@ -100,7 +100,7 @@ End
 // -------------------------------------------------------
 
 Menu "GraphMarquee"
-	"MXP Range to 96% using ROI (2D, 3D)", /Q, MXP_SetImageRangeTo94Percent()
+	"MXP Image range 96% of ROI (2D, 3D)", /Q, MXP_SetImageRangeTo94Percent()
 	"MXP Print ROI stats (2D, 3D)", /Q, MXP_GetMarqueeWaveStats()
 	"MXP Z-profiler: Set oval ROI  (3D)", /Q, MXP_DrawOvalROIAndWaitHookToAct()
 	"MXP Z-profiler: Set rectangular ROI  (3D)", /Q, MXP_DrawRectROIAndWaitHookToAct()	
