@@ -250,15 +250,24 @@ Function MXP_XMCDCalcWithDivision(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	WAVE/SDFR=dfr wImg1
 	WAVE/SDFR=dfr wImg2
 	WAVE/SDFR=dfr wXMCD	
+	WAVE/SDFR=dfr wSum
 	NVAR/SDFR=dfr calculationMethod
+	string sumWinNameStr = GetUserData(cb.win.win, "", "MXP_iSumWin")
+	string xmcdWinNameStr = GetUserData(cb.win.win, "", "MXP_iXMCDWin")
 	switch(cb.checked)
 		case 1:
 			calculationMethod = 1
-			SetFormula wXMCD, "wImg1/wImg2"	
+			SetFormula wXMCD, "wImg1/wImg2"
+			SetFormula wSum, "wImg1 - wImg2"
+			DoWindow/T $sumWinNameStr, "iDifference"
+			DoWindow/T $xmcdWinNameStr, "iRatio"
 			break
 		case 0:
 			calculationMethod = 0
 			SetFormula wXMCD, "(wImg1 - wImg2)/(wImg1 + wImg2)"
+			SetFormula wSum, "wImg1 + wImg2"
+			DoWindow/T $sumWinNameStr, "iSum"
+			DoWindow/T $xmcdWinNameStr, "iXMC(L)D"
 			break
 	endswitch
 	return 0
