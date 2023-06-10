@@ -864,11 +864,55 @@ End
 Function MXP_LaunchAverageLayersRange()
 	WAVE/Z wRef = MXP_TopImageToWaveRef()
 	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
-		print "MXP_LaunchAverageLayersRange() needs a image stack in top graph."
+		print "MXP_LaunchAverageLayersRange() needs an image stack in top graph."
 		return -1
 	endif
 	string rangeStr = MXP_GenericSingleStrPrompt("Enter range as e.g. 3-7 or 7,11. First layer is 0!", "Average image range")
 	string sval1, sval2, separatorStr
 	SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
 	MXP_AverageImageRangeToStack(wRef, str2num(sval1), str2num(sval2))
+End
+
+Function MXP_LaunchExtractLayerRangeToStack()
+
+	WAVE/Z wRef = MXP_TopImageToWaveRef()
+	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
+		print "MXP_LaunchExtractLayersToStack() needs an image stack in top graph."
+		return -1
+	endif
+	string rangeStr = MXP_GenericSingleStrPrompt("Enter range as e.g. 3-7 or 7,11. First layer is 0!", "Average image range")
+	string sval1, sval2, separatorStr
+	SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
+	MXP_ExtractLayerRangeToStack(wRef, str2num(sval1), str2num(sval2))
+End
+
+Function MXP_LaunchSumImagePlanes()
+
+	WAVE/Z wRef = MXP_TopImageToWaveRef()
+	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
+		print "MXP_LaunchExtractLayersToStack() needs an image stack in top graph."
+		return -1
+	endif
+	DFREF dfr = GetDataFolderDFR()
+	ImageTransform sumPlanes wRef
+	WAVE M_SumPlanes
+	string basenameStr = NameOfWave(wRef) + "sumPL"
+	string sumPlanesNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 0)
+	Rename M_SumPlanes, $sumPlanesNameStr
+End
+
+Function MXP_LaunchAverageImagePlanes()
+
+	WAVE/Z wRef = MXP_TopImageToWaveRef()
+	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0 || DimSize(wRef,2) > 2) //  WaveDims(wRef) == 0 when wRef is NULL
+		print "MXP_LaunchExtractLayersToStack() needs an image stack with at least three layers in the top graph."
+		return -1
+	endif
+	DFREF dfr = GetDataFolderDFR()
+	ImageTransform averageImage wRef // At least three layers!
+	WAVE M_AveImage
+	string basenameStr = NameOfWave(wRef) + "avgPL"
+	string sumPlanesNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 0)
+	Rename M_SumPlanes, $sumPlanesNameStr
+	KillWaves/Z M_StdvImage
 End

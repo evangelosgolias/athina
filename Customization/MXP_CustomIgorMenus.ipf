@@ -45,7 +45,10 @@ Menu "MAXPEEM"
 	
 	Submenu "Image Operations"
 		"FFT (TG, 2D)", /Q, MXP_LaunchImageFFTTransform()
-		"Average layers (range) (TG, 3D)", /Q, MXP_LaunchAverageLayersRange()		
+		"Extract layers to stack (TG, 3D)", /Q, MXP_LaunchExtractLayerRangeToStack()
+		"Average layers (range) (TG, 3D)", /Q, MXP_LaunchAverageLayersRange()
+		"Average image stack(TG, 3D)", /Q, MXP_LaunchAverageImagePlanes()	
+		"Sum image stack(TG, 3D)", /Q, MXP_LaunchSumImagePlanes()				
 		"Rotate image (TG, 2D, 3D) ", /Q, MXP_LaunchImageRotateAndScale()
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, MXP_LaunchImageRotateAndScaleFromMetadata()
 		"Backup Image (TG)", /Q, MXP_BackupTopImage()	

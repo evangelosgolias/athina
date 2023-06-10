@@ -111,6 +111,7 @@ Function MXP_NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
 	endif
 	string normWaveStr = NameOfWave(w3dRef) + "_norm"
 	MatrixOP/O $normWaveStr = w3dRef / w2dRef
+	CopyScales w3dRef, $normWaveStr
 End
 
 Function MXP_NormaliseImageStackWithImageStack(WAVE w3dRef1, WAVE w3dRef2)
@@ -123,6 +124,7 @@ Function MXP_NormaliseImageStackWithImageStack(WAVE w3dRef1, WAVE w3dRef2)
 	endif
 	string normWaveStr = NameOfWave(w3dRef1) + "_norm"
 	MatrixOP/O $normWaveStr = w3dRef1 / w3dRef2
+	CopyScales w3dRef1, $normWaveStr
 End
 
 Function MXP_NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
@@ -148,13 +150,13 @@ Function MXP_NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
 			profWaveRefFREE = profWaveRef[r]
 			MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
 		endif
-		return 0
 	else 
 		Duplicate/O/FREE profWaveRef, profWaveRefFREE
 		Redimension/N=(1, 1, nlayers) profWaveRefFREE
 		MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
-		return 0
 	endif
+	CopyScales w3dRef, $normWaveStr
+	return 0
 End
 
 Function MXP_GetScaledZoominImageWindow()
@@ -460,6 +462,26 @@ Function MXP_ScalePlanesBetweenZeroAndOne(WAVE w3d, [variable f64])
 	KillWaves W_Beam
 End
 
+Function MXP_ExtractLayerRangeToStack(WAVE w3d, variable NP0, variable NP1)
+	/// Average image range NP0-NP1, including endpoints
+	variable  nlayers = DimSize(w3d, 2), i
+	if(NP1 > nlayers - 1 || NP1 < NP0)
+		Abort "Dimension mismatch."
+	endif
+	variable imax = NP1 - NP0 + 1// include endpoints
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	for(i = 0; i < imax; i++)
+		MatrixOP/O $("getLayer_" + num2str(i)) = layer(w3d, NP0 + i)
+	endfor
+	ImageTransform/NP=(imax) stackImages $"MXPWaveToStack_idx_0"
+	WAVE M_Stack
+	CopyScales w3d, M_Stack
+	Duplicate/O M_Stack, $(NameOfWave(w3d) + "_stkL_" + num2str(NP0) + "_" + num2str(NP1))
+	SetDataFolder saveDF
+	return 0
+End
+
 Function/WAVE MXP_WAVEAverageImageRangeToStack(WAVE w3d, variable NP0, variable NPL)
 	/// Average NPL image planes in stack starting from N0 
 	variable  nlayers = DimSize(w3d, 2), i
@@ -481,12 +503,13 @@ Function MXP_AverageImageRangeToStackOffset(WAVE w3d, variable NP0, variable NPL
 	if(NP0 + NPL > nlayers)
 		Abort "Dimension mismatch."
 	endif
-	MatrixOP/O $(NameOfWave(w3d) + "_SPL_" + num2str(NP0) + "_" + num2str((NP0 + NPL))) = layer(w3d, 0)
-	WAVE resW2d = $(NameOfWave(w3d) + "_SPL_" + num2str(NP0) + "_" + num2str((NP0 + NPL)))
+	MatrixOP/O $(NameOfWave(w3d) + "_avgPL_" + num2str(NP0) + "_" + num2str((NP0 + NPL))) = layer(w3d, 0)
+	WAVE resW2d = $(NameOfWave(w3d) + "_avgPL_" + num2str(NP0) + "_" + num2str((NP0 + NPL)))
 	for(i = 0; i < NPL; i++)
 		MatrixOP/O/FREE gLayerFree = layer(w3d, NP0 + i)
 		MatrixOP/O resW2d = resW2d + gLayerFree
 	endfor
+	CopyScales w3d, resW2d
 	return 0
 End
 
@@ -496,14 +519,16 @@ Function MXP_AverageImageRangeToStack(WAVE w3d, variable NP0, variable NP1)
 	if(NP1 > nlayers - 1 || NP1 < NP0)
 		Abort "Dimension mismatch."
 	endif
-	MatrixOP/O $(NameOfWave(w3d) + "_SPL_" + num2str(NP0) + "_" + num2str(NP1)) = layer(w3d, 0)
-	WAVE resW2d = $(NameOfWave(w3d) + "_SPL_" + num2str(NP0) + "_" + num2str(NP1))
+	MatrixOP/O $(NameOfWave(w3d) + "_avgPL_" + num2str(NP0) + "_" + num2str(NP1)) = layer(w3d, 0)
+	WAVE resW2d = $(NameOfWave(w3d) + "_avgPL_" + num2str(NP0) + "_" + num2str(NP1))
 	variable imax = NP1 - NP0 + 1// include endpoints
 
 	for(i = 0; i < imax; i++)
 		MatrixOP/O/FREE gLayerFree = layer(w3d, NP0 + i)
 		MatrixOP/O resW2d = resW2d + gLayerFree
 	endfor
+	MatrixOP/O resW2d = resW2d/imax
+	CopyScales w3d, resW2d
 	return 0
 End
 
