@@ -175,7 +175,7 @@ Function/S MXP_GetNewestCreatedFolderInPathTree(string pathName, string &latestf
 End
 
 
-Function MXP_LoadNewestFileInPathTreeAndDisplayPython(string ext) // TODO
+Function MXP_LoadNewestFileInPathTreeAndDisplayPython(string ext)
 	/// Load the last file found in the directory tree with root set at pathName
 	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
 	/// will pop to set pathName. The path name is saved as pMXP_LoadLastFileIgorPath.
@@ -227,10 +227,10 @@ Function/S MXP_GetLastSavedFileInFolderTreePython(string pathName, string ext)
 	return S_value
 End
 
-Function MXP_LoadNewestTwoFilesInPathTreeAndDisplayPython(string ext) // TODO
-	/// Load the last file found in the directory tree with root set at pathName
+Function MXP_LoadNewestTwoFilesInPathTreeAndDisplayPython(string ext)
+	/// Load the last two saved files in the tree with pathName as root folder
 	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
-	/// will pop to set pathName. The path name is saved as pMXP_LoadLastFileIgorPath.
+	/// will pop do so. The path name is saved as pMXP_LoadLastFileIgorPath.
 
 	string filepathsStr = MXP_GetLastTwoSavedFileInFolderTreePython("pMXP_LoadFilesBeamtimeIgorPath", ext) // Change path!
 	string filepath1Str = StringFromList(0, filepathsStr)
@@ -240,16 +240,16 @@ Function MXP_LoadNewestTwoFilesInPathTreeAndDisplayPython(string ext) // TODO
 		filepath2Str = ParseFilePath(10, filepath2Str, "*", 0, 0)		
 	#endif
 	DFREF saveDF = GetDataFolderDFR()
-	NewDataFolder/S tmpLoadLastTwoWavesAndStack_Beamtime
+	SetDataFolder NewFreeDataFolder()
 	WAVE w1Ref = MXP_WAVELoadSingleDATFile(filepath1Str, "pyWave0", autoscale = 1)
 	WAVE w2Ref = MXP_WAVELoadSingleDATFile(filepath2Str, "pyWave1", autoscale = 1)
 	Imagetransform stackImages $"pyWave0"
 	WAVE M_Stack
 	string w3dStr = CreateDataObjectName(saveDF, "autoLoadL2F", 1, 0, 5)
 	MoveWave M_stack, saveDF:$w3dStr
-	SetDataFolder ::
-	KillDataFolder tmpLoadLastTwoWavesAndStack_Beamtime
+	SetDataFolder saveDF
 	MXP_DisplayImage($w3dStr)
+	Note $w3dStr, ("file1: " + filepath1Str + "\nfile2: " + filepath2Str)
 	print "Files loaded: \n1.", filepath1Str, "\n2.", filepath2Str, "\n", "◊ Stacked in: ", w3dStr
 	return 0
 End

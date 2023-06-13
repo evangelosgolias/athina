@@ -33,7 +33,7 @@
 // Utilities
 
 /// Make waves ///
-Function MXP_Make3DWaveUsingPattern(string wname3d, string pattern)
+Function MXP_Make3DWaveUsingPattern(string wname3dStr, string pattern)
 	// Make a 3d wave named wname3d using the RegEx pattern
 	// Give "*" to match all waves
 
@@ -43,26 +43,23 @@ Function MXP_Make3DWaveUsingPattern(string wname3d, string pattern)
 		Abort "No matching 2D waves"
 	endif
 	
-	if(!strlen(wname3d))
-		wname3d = "MXP_Stack"
+	if(!strlen(wname3dStr))
+		wname3dStr = "MXP_Stack"
 	endif
 	// if name in use by a global wave/variable 
-	if(!exists(wname3d) == 0) // 0 - Name not in use, or does not conflict with a wave, numeric variable or string variable in the specified data folder.
-		print "MXP: Renamed your wave to \"" + (wname3d + "_rn") + "\" to avoid conflicts"
-		wname3d += "_rn"
-	endif
-	
-	WAVE wref = $(StringFromList(0,ListofMatchedWaves))
-	variable nx = DimSize(wref,0)
-	variable ny = DimSize(wref,1)
+	DFREF currDF = GetDataFolderDFR()
+	wname3dStr = CreatedataObjectName(currDFR, "MXP_stack", 1, 0, 0)
 
-	Make/N = (nx, ny, nrwaves) $wname3d /WAVE = w3dref
 	variable i
-
-	for(i = 0; i < nrwaves; i += 1)
-		WAVE t2dwred = $(StringFromList(i,ListofMatchedWaves))
-		w3dref[][][i] = t2dwred[p][q]
+	
+	Make/FREE/WAVE/N=(nrwaves) mxp_FREEwaveListWaveRef
+	 
+	for(i = 0; i < nrwaves; i++)
+		mxp_FREEwaveListWaveRef[i] = $(StringFromList(i,ListofMatchedWaves))
 	endfor
+	
+	Concatenate/NP=2 {mxp_FREEwaveListWaveRef}, $wname3dStr
+		
 	return 0
 End
 
@@ -121,40 +118,21 @@ Function/S MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoF
 		wname3dStr = CreatedataObjectName(currDFR, "MXP_stack", 1, 0, 0)
 	endif
 	
-	// TODO: Change here with ImageTransform stackImages
-	if(WaveType(wref) == 2) // 32-bit float
-		Make/R/N = (nx, ny, nrwaves) $wname3dStr
-	elseif(WaveType(wref) == 4) // 64-bit float
-		Make/D/N = (nx, ny, nrwaves) $wname3dStr
-	elseif(WaveType(wref) == 16) // 16-bit integer signed
-		Make/W/N = (nx, ny, nrwaves) $wname3dStr
-	elseif(WaveType(wref) == 80) // 16-bit integer unsigned
-		Make/W/U/N = (nx, ny, nrwaves) $wname3dStr
-	else
-		Make/N = (nx, ny, nrwaves) $wname3dStr //default
-	endif
-	
-	WAVE w3dref = $wname3dStr
-	
-	for(i = 0; i < nrwaves; i += 1) // TODO: Change and use ImageTransform ...
-		Wave t2dwred = $(StringFromList(i,listOfSelectedWaves))
-		
-		// We can stack only 2d waves. Added 25032023
-		if(WaveDims(t2dwred)!=2)
-			print "\"Make Stack\" operation stopped. I can only stack images (2d waves)!"
-			KillWaves/Z w3dref
-			return ""
-		endif
-		
-		w3dref[][][i] = t2dwred[p][q]
+	Make/FREE/WAVE/N=(nrwaves) mxp_FREEwaveListWaveRef
+	 
+	for(i = 0; i < nrwaves; i++)
+		mxp_FREEwaveListWaveRef[i] = $(StringFromList(i,listOfSelectedWaves))
 	endfor
+	
+	Concatenate/NP=2 {mxp_FREEwaveListWaveRef}, $wname3dStr
+	
 	// if you use /P, the dimension scaling is copied in slope/intercept format 
 	// so that if srcWaveName  and the other waves have differing dimension size 
 	// (number of points if the wave is a 1D wave), then their dimension values 
 	// will still match for the points they have in common
-	CopyScales t2dwred, w3dref 
+	//CopyScales t2dwred, w3dref 
 	// Add a note about the stacked waves
-	Note w3dref, listOfSelectedWaves
+	Note/K $wname3dStr, listOfSelectedWaves
 	// Go back to the cwd
 	SetDataFolder currDFR
 	return wname3dStr
