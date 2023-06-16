@@ -94,6 +94,7 @@ Function [variable xn1, variable yn1, variable xn2, variable yn2] MXP_SymmetricL
 	return [xn1, yn1, xn2, yn2]
 End
 
+// TODO: Test and uncomment 
 //Function [variable xn, variable yn]  MXP_GetAntipodalPoint(variable x1, variable y1, variable x0, variable y0, int solution)
 Function MXP_GetAntipodalPoint(variable x1, variable y1, variable x0, variable y0)
 

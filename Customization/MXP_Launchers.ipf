@@ -855,10 +855,16 @@ Function MXP_LaunchImageFFTTransform()
 End
 
 Function MXP_LaunchScalePlanesBetweenZeroAndOne()
-	WAVE wRef = MXP_TopImageToWaveRef()
+	WAVE wRef = MXP_TopImageToWaveRef() 
+	// If you have 2D do it fast here and return
+	if(WaveDims(wRef) == 2)
+		ImageTransform/O scalePlanes wRef
+		return 0
+	endif
 	MXP_ScalePlanesBetweenZeroAndOne(wRef)
 	print NameOfWave(wRef) + " scaled to [0, 1]"
 	MXP_AutoRangeTopImage() // Autoscale the image
+	return 0
 End
 
 Function MXP_LaunchAverageLayersRange()

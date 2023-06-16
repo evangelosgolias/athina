@@ -106,9 +106,10 @@ End
 Menu "GraphMarquee"
 	"MXP Image range 96% of ROI (2D, 3D)", /Q, MXP_SetImageRangeTo94Percent()
 	"MXP Print ROI stats (2D, 3D)", /Q, MXP_GetMarqueeWaveStats()
+	"MXP Save ROI (2D, 3D)", /Q, MXP_SaveROICoordinatesToDatabase()	
 	"MXP Z-profiler: Set oval ROI  (3D)", /Q, MXP_DrawOvalROIAndWaitHookToAct()
-	"MXP Z-profiler: Set rectangular ROI  (3D)", /Q, MXP_DrawRectROIAndWaitHookToAct()	
-	"MXP Marquee to mask (2D, 3D)", /Q, MXP_MarqueeToMask()
+	"MXP Z-profiler: Set rectangular ROI  (3D)", /Q, MXP_DrawRectROIAndWaitHookToAct()
+	//"MXP Marquee to mask (2D, 3D)", /Q, MXP_MarqueeToMask()
 	"MXP Backup traces (1D)", /Q, MXP_BackupTraces()
 	"MXP Restore traces (1D)", /Q, MXP_RestoreTraces()
 	"MXP Normalise to profile (1D)", /Q, MXP_NormaliseTracesWithProfile()
@@ -135,7 +136,8 @@ End
 
 Menu "TracePopup"
 	"MXP Autoscale Image (2D, 3D)", /Q, MXP_AutoRangeTopImage()
-	"MXP Dynamic Autoscale Image Plane (3D)", /Q, MXP_AutoRangeTopImagePerPlaneAndVisibleArea()	
+	"MXP Dynamic Autoscale Image Plane (3D)", /Q, MXP_AutoRangeTopImagePerPlaneAndVisibleArea()
+	"MXP Z-profiler: Use saved ROI  (3D)", /Q, MXP_UseSavedROIAndWaitHookToAct()		
 	"MXP Save layer (3D)", /Q, MXP_GetLayerFromImageStack()
 	"MXP Save current view (2D,3D)", /Q, MXP_GetScaledZoominImageWindow()
 	"MXP Add images to Stack (3D)", /Q, MXP_LaunchStackImagesToImageStack()

@@ -234,3 +234,15 @@ static Function CheckActiveAxis(string graphname, string axis)
 		return 0
 	endif
 End
+
+Function MXP_SaveROICoordinatesToDatabase()
+	// Save ROI data
+	string dfrStr = "root:Packages:MXP_DataFolder:SavedROI"
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(dfrStr)
+	GetMarquee/K left, top
+	variable/G dfr:gMXP_Sleft = V_left
+	variable/G dfr:gMXP_Sright = V_right
+	variable/G dfr:gMXP_Stop = V_top
+	variable/G dfr:gMXP_Sbottom = V_bottom
+	return 0
+End

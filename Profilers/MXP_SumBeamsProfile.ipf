@@ -257,6 +257,35 @@ Function MXP_DrawRectROIAndWaitHookToAct() // Function used by the hook
 	return 0
 End
 
+Function MXP_UseSavedROIAndWaitHookToAct()
+	
+	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
+	string winNameStr = WinName(0, 1, 1)
+	DoWindow/F $winNameStr // You need to have your imange stack as a top window
+	string dfrStr = GetUserData(winNameStr, "", "MXP_SumBeamsDFRefEF")
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(dfrStr)
+	NVAR/SDFR=dfr gMXP_left
+	NVAR/SDFR=dfr gMXP_right
+	NVAR/SDFR=dfr gMXP_top
+	NVAR/SDFR=dfr gMXP_bottom
+	// Read the data from the
+	DFREF dfrROI = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:SavedROI")
+	NVAR/SDFR=dfrROI gMXP_Sleft
+	NVAR/SDFR=dfrROI gMXP_Sright
+	NVAR/SDFR=dfrROI gMXP_Stop
+	NVAR/SDFR=dfrROI gMXP_Sbottom
+	gMXP_left = gMXP_Sleft
+	gMXP_right = gMXP_Sright
+	gMXP_top = gMXP_Stop
+	gMXP_bottom = gMXP_Sbottom
+	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
+	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+	DrawRect gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
+	ImageGenerateROIMask $wnamestr
+	Cursor/I/C=(65535,0,0)/S=2/N=1 J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
+	return 0
+	
+End
 Function MXP_SumBeamsDrawOvalImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
 	// Use MXP_SumBeamsDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
 	SetDrawLayer UserFront 
