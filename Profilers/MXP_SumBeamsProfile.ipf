@@ -270,6 +270,10 @@ Function MXP_UseSavedROIAndWaitHookToAct()
 	NVAR/SDFR=dfr gMXP_bottom
 	// Read the data from the
 	DFREF dfrROI = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:SavedROI")
+	NVAR/Z/SDFR=dfrROI gMXP_Sleft
+	if(!NVAR_Exists(gMXP_Sleft))
+		Abort "No Saved ROI found!"
+	endif
 	NVAR/SDFR=dfrROI gMXP_Sleft
 	NVAR/SDFR=dfrROI gMXP_Sright
 	NVAR/SDFR=dfrROI gMXP_Stop

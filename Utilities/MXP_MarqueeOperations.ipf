@@ -244,5 +244,8 @@ Function MXP_SaveROICoordinatesToDatabase()
 	variable/G dfr:gMXP_Sright = V_right
 	variable/G dfr:gMXP_Stop = V_top
 	variable/G dfr:gMXP_Sbottom = V_bottom
+	SetDrawLayer UserFront // ImageGenerateROIMask needs ProgFront layer
+	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, dash= 2, xcoord = top, ycoord = left
+	DrawOval V_left, V_top, V_right, V_bottom	
 	return 0
 End
