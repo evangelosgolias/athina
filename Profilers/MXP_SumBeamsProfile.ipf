@@ -192,6 +192,8 @@ Function MXP_InitialiseZProfileFolder()
 	variable/G dfr:gMXP_right = 0
 	variable/G dfr:gMXP_top = 0
 	variable/G dfr:gMXP_bottom = 0
+	variable/G dfr:gMXP_xScale = 1
+	variable/G dfr:gMXP_yScale = 1	
 	variable/G dfr:gMXP_Rect
 	variable/G dfr:nLayers = nlayers
 	variable/G dfr:gMXP_DoPlotSwitch = 1
@@ -220,12 +222,18 @@ Function MXP_DrawOvalROIAndWaitHookToAct() // Function used by the hook
 	gMXP_top = V_top
 	gMXP_bottom = V_bottom
 	NVAR/SDFR=dfr gMXP_Rect
-	gMXP_Rect = 0
+	gMXP_Rect = 0	
+	NVAR/SDFR=dfr gMXP_xScale
+	NVAR/SDFR=dfr gMXP_yScale
+	SVAR/SDFR=dfr gMXP_w3dPathname	
+	WAVE w3dRef = $gMXP_w3dPathname
+	gMXP_xScale = DimOffSet(w3dRef, 0) + (DimSize(w3dRef, 0) - 1) * DimDelta(w3dRef, 0)
+	gMXP_yScale = DimOffSet(w3dRef, 1) + (DimSize(w3dRef, 1) - 1) * DimDelta(w3dRef, 1)
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	DrawOval gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
 	ImageGenerateROIMask $wnamestr
-	Cursor/I/C=(65535,0,0)/S=2/N=1 J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
+	Cursor/I/C=(65535,0,0)/S=2/N=1/F J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
 	return 0
 End
 
@@ -249,11 +257,17 @@ Function MXP_DrawRectROIAndWaitHookToAct() // Function used by the hook
 	gMXP_bottom = V_bottom
 	NVAR/SDFR=dfr gMXP_Rect
 	gMXP_Rect = 1
+	NVAR/SDFR=dfr gMXP_xScale
+	NVAR/SDFR=dfr gMXP_yScale
+	SVAR/SDFR=dfr gMXP_w3dPathname	
+	WAVE w3dRef = $gMXP_w3dPathname
+	gMXP_xScale = DimOffSet(w3dRef, 0) + (DimSize(w3dRef, 0) - 1) * DimDelta(w3dRef, 0)
+	gMXP_yScale = DimOffSet(w3dRef, 1) + (DimSize(w3dRef, 1) - 1) * DimDelta(w3dRef, 1)	
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	DrawRect gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
 	ImageGenerateROIMask $wnamestr
-	Cursor/I/C=(65535,0,0)/S=2/N=1 J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
+	Cursor/I/C=(65535,0,0)/S=2/N=1/F J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
 	return 0
 End
 
@@ -282,11 +296,17 @@ Function MXP_UseSavedROIAndWaitHookToAct()
 	gMXP_right = gMXP_Sright
 	gMXP_top = gMXP_Stop
 	gMXP_bottom = gMXP_Sbottom
+	NVAR/SDFR=dfr gMXP_xScale
+	NVAR/SDFR=dfr gMXP_yScale
+	SVAR/SDFR=dfr gMXP_w3dPathname	
+	WAVE w3dRef = $gMXP_w3dPathname
+	gMXP_xScale = (DimSize(w3dRef, 0) - 1) * DimDelta(w3dRef, 0) // length of x-axis
+	gMXP_yScale = (DimSize(w3dRef, 1) - 1) * DimDelta(w3dRef, 1) // length of y-axis	
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	DrawRect gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
+	DrawOval gMXP_left, gMXP_top, gMXP_right, gMXP_bottom
 	ImageGenerateROIMask $wnamestr
-	Cursor/I/C=(65535,0,0)/S=2/N=1 J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
+	Cursor/I/C=(65535,0,0)/S=2/N=1/F J $wnamestr 0.5 * (gMXP_left + gMXP_right), 0.5 * (gMXP_top + gMXP_bottom)
 	return 0
 	
 End
@@ -365,8 +385,8 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 	NVAR/SDFR=dfr gMXP_right
 	NVAR/SDFR=dfr gMXP_top
 	NVAR/SDFR=dfr gMXP_bottom
-	NVAR/Z dx = dfr:gMXP_ROI_dx
-	NVAR/Z dy = dfr:gMXP_ROI_dy
+	NVAR/Z xScale = dfr:gMXP_xScale
+	NVAR/Z yScale = dfr:gMXP_yScale
 	NVAR/Z nLayers = dfr:nLayers
 	NVAR/Z mouseTrackV = dfr:gMXP_mouseTrackV
 	NVAR/SDFR=dfr gMXP_Rect
@@ -402,7 +422,7 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 			hookresult = 0 // Here hookresult = 1, supresses Marquee
 			break
 		case 5: // mouse up
-			KillWaves/Z M_ROIMask // Cleanup		
+			KillWaves/Z M_ROIMask // Cleanup
 			hookresult = 1
 			break
         case 7: // cursor moved
@@ -410,27 +430,27 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
         		DrawAction/W=$WindowNameStr delete // TODO: Here add the env commands of MXP_SumBeamsDrawImageROICursor before switch and here only the draw command 
         		SetDrawEnv/W=$WindowNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
         		if(gMXP_Rect)
-				DrawRect/W=$WindowNameStr -axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
-					  axisxlen * 0.5 + s.pointNumber * dx,  -(axisylen * 0.5) + s.yPointNumber * dy
+					DrawRect/W=$WindowNameStr -axisxlen * 0.5 + s.pointNumber * xScale, axisylen * 0.5 + s.yPointNumber * yScale, \
+						  axisxlen * 0.5 + s.pointNumber * xScale,  -(axisylen * 0.5) + s.yPointNumber * yScale
         		
         		else
-				DrawOval/W=$WindowNameStr -axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
-					  axisxlen * 0.5 + s.pointNumber * dx,  -(axisylen * 0.5) + s.yPointNumber * dy
+					DrawOval/W=$WindowNameStr -axisxlen * 0.5 + s.pointNumber * xScale, axisylen * 0.5 + s.yPointNumber * yScale, \
+						  axisxlen * 0.5 + s.pointNumber * xScale,  -(axisylen * 0.5) + s.yPointNumber * yScale
 				endif
-				Cursor/W=$WindowNameStr/I/C=(65535,0,0)/S=2/N=1 J $w3dNameStrQ, s.pointNumber * dx, s.yPointNumber * dy
+				Cursor/W=$WindowNameStr/I/C=(65535,0,0)/S=2/N=1/F J $w3dNameStrQ, s.pointNumber * xScale, s.yPointNumber * yScale
 				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStrQ 
 				if(WaveExists(M_ROIMask))
 					MatrixOP/O/NTHR=4 profile = sum(w3d*M_ROIMask) // Use threads
 					Redimension/E=1/N=(nLayers) profile
-		    			gMXP_left = -axisxlen * 0.5 + s.pointNumber * dx
-					gMXP_right = axisxlen * 0.5 + s.pointNumber * dx
-					gMXP_top = axisylen * 0.5 + s.yPointNumber * dy
-					gMXP_bottom = -axisylen * 0.5 + s.yPointNumber * dy
+		    			gMXP_left   = -axisxlen * 0.5 + s.pointNumber * xScale
+					gMXP_right  =  axisxlen * 0.5 + s.pointNumber * xScale
+					gMXP_top    =  axisylen * 0.5 + s.yPointNumber * yScale
+					gMXP_bottom = -axisylen * 0.5 + s.yPointNumber * yScale
 		    		endif
 //		    		print "Left:", gMXP_left, ",Right:",gMXP_right, ",Top:", gMXP_top, ",Bottom:", gMXP_bottom
-//		    		print "HookPointX:",(s.pointNumber * dx),",HookPointY:",(s.ypointNumber * dy), ",CursorX:", hcsr(J), ",CursorY:",vcsr(J)
+//		    		print "HookPointX:",(s.pointNumber * xScale),",HookPointY:",(s.ypointNumber * yScale), ",CursorX:", hcsr(J), ",CursorY:",vcsr(J)
 //		    		print "l+r/2:", (gMXP_left + gMXP_right)/2, ",t+b/2:", (gMXP_top + gMXP_bottom)/2
-//		    		print "leftP:",(gMXP_left/dx),",rightP:",(gMXP_right/dx),"topQ:",(gMXP_top/dy),",bottomQ:",(gMXP_bottom/dy)
+//		    		print "leftP:",(gMXP_left/xScale),",rightP:",(gMXP_right/xScale),"topQ:",(gMXP_top/yScale),",bottomQ:",(gMXP_bottom/xScale)
 //		    		print "------"
 				hookresult = 1
 				break
