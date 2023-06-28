@@ -303,7 +303,7 @@ Function MXP_SumBeamsDrawRectImageROI(variable left, variable top, variable righ
 	// Use MXP_SumBeamsDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
 	SetDrawLayer UserFront 
 	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
-	DrawOval left, top, right, bottom
+	DrawRect left, top, right, bottom
 	SetDrawLayer ProgFront 
 	return 0
 End

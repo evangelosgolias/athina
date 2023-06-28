@@ -457,7 +457,7 @@ Function MXP_PESExtractorPlotSaveProfile(STRUCT WMButtonAction &B_Struct): Butto
 				endif	
 			while(1)
 		sprintf recreateDrawStr, "pathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%d\n" + \
-								 "hv(eV):%d\nWf(eV):%d\nEPP(eV/px):%d", ImagePathname,  C1x, C1y, C2x, C2y, Ax, Ay, Bx, By, profileWidth, stv, hv, Wf, epp
+								 "hv(eV):%d\nWf(eV):%d\nEPP(eV/px):%f", ImagePathname,  C1x, C1y, C2x, C2y, Ax, Ay, Bx, By, profileWidth, stv, hv, Wf, epp
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
 		// Add metadata
 		break

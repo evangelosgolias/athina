@@ -441,7 +441,7 @@ Function MXP_CascadeImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE par
 	endif
 	DFREF saveDF = GetDataFolderDFR()	
 	SetDataFolder NewFreeDataFolder() // Change folder
-	MatrixOP/O getStacklayer_0 = layer(w3d, 0) // ImageTransform doesn't work with /FREE
+	MatrixOP/O getStacklayer_0 = layer(w3d, 0) // "getStacklayer_0" - ImageTransform doesn't work with /FREE
 	MatrixOP/O M_Affine = layer(partitionW3d, 0)
 	for(i = 0; i < nlayers - 1; i++)
 		MatrixOP/O/FREE targetLayer = layer(partitionW3d, i + 1)
@@ -455,6 +455,7 @@ Function MXP_CascadeImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE par
 		y1 = V_maxColLoc
 		dx = x0 - x1
 		dy = y0 - y1
+		print x0, y0, x1, y1
 		if(printMode)
 			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n"
 		endif

@@ -260,7 +260,7 @@ Function MXP_GetLayerFromImageStack()
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	string msg
-	NVAR gLayer = root:Packages:WM3DImageSlider:$(winNameStr):gLayer	
+	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(winNameStr):gLayer	
 	if(NVAR_Exists(gLayer) && WaveDims(w3dref) == 3)
 		string layerSaveStr = NameOfWave(w3dref) + "_layer_" + num2str(gLayer)
 		MatrixOP/O $layerSaveStr = layer(w3dref, gLayer)
@@ -474,10 +474,10 @@ Function MXP_ExtractLayerRangeToStack(WAVE w3d, variable NP0, variable NP1)
 	for(i = 0; i < imax; i++)
 		MatrixOP/O $("getLayer_" + num2str(i)) = layer(w3d, NP0 + i)
 	endfor
-	ImageTransform/NP=(imax) stackImages $"MXPWaveToStack_idx_0"
+	ImageTransform/NP=(imax) stackImages $"getLayer_0"
 	WAVE M_Stack
 	CopyScales w3d, M_Stack
-	Duplicate/O M_Stack, $(NameOfWave(w3d) + "_stkL_" + num2str(NP0) + "_" + num2str(NP1))
+	Duplicate/O M_Stack, saveDF:$(NameOfWave(w3d) + "_stkL_" + num2str(NP0) + "_" + num2str(NP1))
 	SetDataFolder saveDF
 	return 0
 End
@@ -531,6 +531,39 @@ Function MXP_AverageImageRangeToStack(WAVE w3d, variable NP0, variable NP1)
 	CopyScales w3d, resW2d
 	return 0
 End
+
+Function MXP_ResampleImageStackWithXYScales(WAVE w3d, variable Nx, variable Ny)
+	/// Resample the w3d with factors Nx, Ny => Nx * x, Ny * y
+	/// Works with 2D, 3D waves also	
+	
+	variable nlayers = DimSize(w3d, 2), i 
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	
+	for(i = 0; i < nlayers; i++)
+		MatrixOP/FREE gLayerFree = layer(w3d, i)
+		ImageInterpolate/FUNC=nn/TRNS={scaleShift, 0, Nx, 0, Ny} Resample gLayerFree
+		Rename M_InterpolatedImage, $("getStacklayer_" + num2str(i))
+	endfor
+	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
+	WAVE M_Stack
+	CopyScales w3d, M_Stack
+	string baseNameStr = NameOfWave(w3d) + num2str(Nx) + "x" + num2str(Ny)
+	string saveWaveNameStr = CreatedataObjectName(saveDF, baseNameStr, 1, 0, 0)
+	MoveWave M_Stack saveDF:$saveWaveNameStr
+	SetDataFolder saveDF
+	return 0
+End
+
+Function MXP_PixelateImageStackWithFactor(WAVE w3d, variable Nxy)
+	/// Pixelate (bin) the image or image stack with factor Nxy
+	/// Works with 2D, 3D waves 
+	
+	string waveNameStr = NameOfWave(w3d) + "_px" + num2str(Nxy)
+	ImageInterpolate/PXSZ={Nxy,Nxy}/DEST=$waveNameStr pixelate w3d
+	return 0
+End
+
 
 //TODO
 //Function MXP_ApplyOperationToFilesInFolderTree(string pathName, 
