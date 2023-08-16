@@ -54,6 +54,7 @@ Menu "MAXPEEM"
 		"Backup Image (TG)", /Q, MXP_BackupTopImage()	
 		"Restore image from backup (TG)", /Q, MXP_RestoreTopImageFromBackup()
 		"Normalize to [0, 1] (TG)", /Q, MXP_LaunchScalePlanesBetweenZeroAndOne()
+		"Center image histogram (TG)", /Q, MXP_LaunchHistogramShiftToGaussianCenter()
 	End
 	
 	Submenu "Interactive Operations"

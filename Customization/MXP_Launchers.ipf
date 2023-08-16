@@ -922,3 +922,8 @@ Function MXP_LaunchAverageImagePlanes()
 	Rename M_SumPlanes, $sumPlanesNameStr
 	KillWaves/Z M_StdvImage
 End
+
+Function MXP_LaunchHistogramShiftToGaussianCenter()
+	WAVE/Z wRef = MXP_TopImageToWaveRef()
+	MXP_HistogramShiftToGaussianCenter(wRef, overwrite=1)
+End

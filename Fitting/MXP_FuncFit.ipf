@@ -96,6 +96,23 @@ Function FermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc
    yw += pw[0] + pw[1]*x
 End
 
+Function XASStepBackground(WAVE w, variable E) : FitFunc
+	//CurveFitDialog/ Equation:
+	//CurveFitDialog/ I(E) = w[0] + w[1]/3 * (1 + 2/pi * atan((E-w[2])/w[3]) + w[1]/6 * (1 + 2/pi * atan((E-w[4])/w[5])
+	//CurveFitDialog/ 	
+	//CurveFitDialog/ Independent Variables 1
+	//CurveFitDialog/ E	
+	//CurveFitDialog/ Coefficients 6
+	//CurveFitDialog/ w[0] = baseline
+	//CurveFitDialog/ w[1] = h
+	//CurveFitDialog/ w[2] = E_L3
+	//CurveFitDialog/ w[3] = width_L3
+	//CurveFitDialog/ w[4] = E_L2
+	//CurveFitDialog/ w[5] = width_L2
+		
+	return w[0] + w[1]/3 * (1 + 2/pi * atan((E-w[2])/w[3])) + w[1]/6 * (1 + 2/pi * atan((E-w[4])/w[5]))
+End
+
 // Does not function well, fix it
 //Function FermiEdgeTimesLinearDOSGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc	
 //	// Linear DOS x Fermi convolved with Gaussian (energy resolution).

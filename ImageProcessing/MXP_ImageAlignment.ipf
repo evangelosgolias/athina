@@ -455,7 +455,6 @@ Function MXP_CascadeImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE par
 		y1 = V_maxColLoc
 		dx = x0 - x1
 		dy = y0 - y1
-		print x0, y0, x1, y1
 		if(printMode)
 			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n"
 		endif

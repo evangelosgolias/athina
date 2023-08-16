@@ -564,6 +564,36 @@ Function MXP_PixelateImageStackWithFactor(WAVE w3d, variable Nxy)
 	return 0
 End
 
+Function MXP_HistogramShiftToGaussianCenter(WAVE w2d, [variable overwrite])
+	/// Move the histogram center to the center of the fitted gaussian
+	/// Useful for symmetrising XMCD/XMLD images
+	
+	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
+	DFREF currDF = GetDataFolderDFR()
+	variable nrows = DimSize(w2d, 0)
+	variable ncols = DimSize(w2d, 1)
+	SetDataFolder NewFreeDataFolder()
+	
+	Make/N=(nrows, ncols)/B/U MXP_ROIMask = 0
+	ImageHistogram/R=MXP_ROIMask w2d
+	WAVE W_ImageHist
+	CurveFit/Q gauss W_ImageHist /D 
+	WAVE W_coef
+	variable x0 = W_coef[2] // Gaussian center
+	// Add the value to w2d
+	if(overwrite)
+		w2d -= x0
+	else
+		string baseWaveNameStr = NameofWave(w2d) + "_gc"
+		string saveWaveNameStr = CreatedataObjectName(currDF, baseWaveNameStr, 1, 0, 0)	
+		Duplicate w2d, currDF:$saveWaveNameStr
+		WAVE wref = currDF:$saveWaveNameStr
+		wref -= x0
+		CopyScales w2d, wref
+	endif
+	SetDataFolder currDF
+	return 0
+End
 
 //TODO
 //Function MXP_ApplyOperationToFilesInFolderTree(string pathName, 
