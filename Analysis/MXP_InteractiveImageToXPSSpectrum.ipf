@@ -831,7 +831,7 @@ End
 static Function WaveFromKE2BE(WAVE wRef, variable hv, variable Wf)
 	variable dx = DimDelta(wRef, 0)
 	variable offset = DimOffset(wRef, 0)
-	variable npts = DimSize(wRef, 0)
-	variable newoffset = hv - (offset + npts * dx) - Wf
+	variable nsteps = DimSize(wRef, 0) - 1
+	variable newoffset = hv - (offset + nsteps * dx) - Wf
 	SetScale/P x, newoffset, dx, wRef
 End
