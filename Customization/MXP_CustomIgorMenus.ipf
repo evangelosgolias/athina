@@ -108,8 +108,8 @@ Menu "GraphMarquee"
 	"MXP Image range 96% of ROI (2D, 3D)", /Q, MXP_SetImageRangeTo94Percent()
 	"MXP Print ROI stats (2D, 3D)", /Q, MXP_GetMarqueeWaveStats()
 	"MXP Save ROI (2D, 3D)", /Q, MXP_SaveROICoordinatesToDatabase()	
-	"MXP Z-profiler: Set oval ROI  (3D)", /Q, MXP_DrawOvalROIAndWaitHookToAct()
-	"MXP Z-profiler: Set rectangular ROI  (3D)", /Q, MXP_DrawRectROIAndWaitHookToAct()
+	"MXP Z-profiler: Set oval ROI  (3D)", /Q, MXP_TraceMenuLaunchOvalSumBeamsProfile()
+	"MXP Z-profiler: Set rectangular ROI  (3D)", /Q, MXP_TraceMenuLaunchRectangleSumBeamsProfile()
 	//"MXP Marquee to mask (2D, 3D)", /Q, MXP_MarqueeToMask()
 	"MXP Backup traces (1D)", /Q, MXP_BackupTraces()
 	"MXP Restore traces (1D)", /Q, MXP_RestoreTraces()
@@ -122,12 +122,14 @@ End
 
 Menu "DataBrowserObjectsPopup"
 	"MXP Newimage", /Q, MXP_LaunchNewImageFromBrowserSelection()
-	"MXP Z profile", /Q, MXP_BrowserMenuLaunchSumBeamsProfile()
-	"MXP Line profile", /Q, MXP_BrowserMenuLaunchLineProfile()
-	"MXP Plane profile", /Q, MXP_BrowserMenuLaunchImagePlaneProfileZ()
 	"MXP Average stack", /Q, MXP_LaunchAverageStackToImageFromBrowserMenu()
 	"MXP Make stack", /Q, MXP_LaunchMake3DWaveDataBrowserSelection()
 	"MXP Make stack and display", /Q, MXP_LaunchMake3DWaveDataBrowserSelection(displayStack = 1)
+	Submenu "MXP Profiles"
+		"MXP Z profile", /Q, MXP_BrowserMenuLaunchSumBeamsProfile()
+		"MXP Line profile", /Q, MXP_BrowserMenuLaunchLineProfile()
+		"MXP Plane profile", /Q, MXP_BrowserMenuLaunchImagePlaneProfileZ()
+	End	
 	Submenu "MXP Normalise"
 		"MXP Stack with image", /Q, MXP_LaunchNormalisationImageStackWithImage()
 		"MXP Stack with profile", /Q, MXP_LaunchNormalisationImageStackWithProfile()
