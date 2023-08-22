@@ -166,6 +166,8 @@ Function MXP_InitialiseLineProfileFolder(string winNameStr)
 	string/G dfr:gMXP_ImageNameStr = NameOfWave(imgWaveRef)
 	variable/G dfr:gMXP_dx = DimDelta(imgWaveRef,0)
 	variable/G dfr:gMXP_dy = DimDelta(imgWaveRef,1)
+	variable/G dfr:gMXP_xOff = DimOffset(imgWaveRef,0)
+	variable/G dfr:gMXP_yOff = DimOffset(imgWaveRef,1)	
 	variable/G dfr:gMXP_C1x = round(1.1 * nrows/2)
 	variable/G dfr:gMXP_C1y = round(0.9 * ncols/2)
 	variable/G dfr:gMXP_C2x = round(0.9 * nrows/2)
@@ -263,6 +265,8 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 	SVAR/Z ImageNameStr = dfr:gMXP_ImageNameStr
 	NVAR/Z dx = dfr:gMXP_dx
 	NVAR/Z dy = dfr:gMXP_dy
+	NVAR/Z xOff = dfr:gMXP_xOff
+	NVAR/Z yOff = dfr:gMXP_yOff	
 	NVAR/Z C1x = dfr:gMXP_C1x
 	NVAR/Z C1y = dfr:gMXP_C1y
 	NVAR/Z C2x = dfr:gMXP_C2x
@@ -322,6 +326,8 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 			endif
 			break
 	    case 7: // cursor moved
+	    	// Change 22.08.2023: I have to include xOff, yOff for waves with x(y)Off ≠ 0. ImageLineProfile and DrawLine
+	    	// do not function properly without offsets.
 			if(!cmpstr(s.cursorName, "E") || !cmpstr(s.cursorName, "F")) // It should work only with E, F you might have other cursors on the image
 				SetDrawLayer ProgFront
 			    DrawAction delete
@@ -329,16 +335,17 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 	   			if(!cmpstr(s.cursorName, "E")) // if you move E
 	   				xc = hcsr(F)
 					yc = vcsr(F)
-					DrawLine s.pointNumber * dx, s.ypointNumber * dy, xc, yc
-	   				Make/O/FREE/N=2 xTrace={s.pointNumber * dx, xc}, yTrace = {s.ypointNumber * dy, yc}
+					DrawLine xOff + s.pointNumber * dx, yOff + s.ypointNumber * dy, xc, yc
+	   				Make/O/FREE/N=2 xTrace={xOff + s.pointNumber * dx, xc}, yTrace = {yOff + s.ypointNumber * dy, yc}
 	   			elseif(!cmpstr(s.cursorName, "F")) // if you move F
 	   				xc = hcsr(E)
 					yc = vcsr(E)
-					DrawLine xc, yc, s.pointNumber * dx, s.ypointNumber * dy
-	   				Make/O/FREE/N=2 xTrace={xc, s.pointNumber * dx}, yTrace = {yc, s.ypointNumber * dy}
+					DrawLine xc, yc, xoff + s.pointNumber * dx, yOff + s.ypointNumber * dy
+	   				Make/O/FREE/N=2 xTrace={xc, xOff + s.pointNumber * dx}, yTrace = {yc, yOff + s.ypointNumber * dy}
 	   			endif
 	   			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
 	   			hookResult = 1
+	   			print xTrace, yTrace
 	   			break
 			endif
 			hookresult = 0
