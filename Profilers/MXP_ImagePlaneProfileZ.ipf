@@ -254,7 +254,7 @@ Function MXP_CreateImagePlaneProfileZ(DFREF dfr)
 	ImageTransform/X={ Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface wRef
 	SetDataFolder cdfr 
 	variable pix = 72/ScreenResolution
-	NewImage/G=1/K=1/N=$profilePlotStr dfr:M_ExtractedSurface
+	NewImage/F/G=1/K=1/N=$profilePlotStr dfr:M_ExtractedSurface // Flip image (/F) to get higher Ek
 	ModifyGraph/W=$profilePlotStr width = 340 * pix, height = 470 * pix
 
 	ControlBar/W=$profilePlotStr 50	

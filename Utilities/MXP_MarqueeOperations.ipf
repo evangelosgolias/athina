@@ -235,8 +235,9 @@ static Function CheckActiveAxis(string graphname, string axis)
 	endif
 End
 
-Function MXP_SaveROICoordinatesToDatabase()
-	// Save ROI data
+Function MXP_SaveROICoordinatesToDatabase([variable rect])
+	// Save ROI to database and draw it on image's UserFront
+	rect = ParamIsDefault(rect) ? 0: rect
 	string dfrStr = "root:Packages:MXP_DataFolder:SavedROI"
 	DFREF dfr = MXP_CreateDataFolderGetDFREF(dfrStr)
 	GetMarquee/K left, top
@@ -246,6 +247,10 @@ Function MXP_SaveROICoordinatesToDatabase()
 	variable/G dfr:gMXP_Sbottom = V_bottom
 	SetDrawLayer UserFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, dash= 2, xcoord = top, ycoord = left
-	DrawOval V_left, V_top, V_right, V_bottom	
+	if(rect)
+		DrawRect V_left, V_top, V_right, V_bottom
+	else
+		DrawOval V_left, V_top, V_right, V_bottom	
+	endif
 	return 0
 End

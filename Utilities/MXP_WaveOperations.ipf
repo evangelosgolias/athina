@@ -355,6 +355,26 @@ Function MXP_SetScalesP(WAVE wRef, variable x0, variable y0, variable z0, variab
 	SetScale/P z, z0, dz, wRef
 End
 
+Function MXP_MakeWaveFromROI(WAVE wRef)
+	// Extracts the ROI from wRef using the saved ROI coordinates in the database
+	// Works with 2D and 3D waves
+	DFREF dfrROI = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:SavedROI")
+	NVAR/Z/SDFR=dfrROI gMXP_Sleft
+	if(!NVAR_Exists(gMXP_Sleft))
+		Abort "No Saved ROI found. Use the Marquee to set the ROI first."
+	endif
+	NVAR/SDFR=dfrROI gMXP_Sleft
+	NVAR/SDFR=dfrROI gMXP_Sright
+	NVAR/SDFR=dfrROI gMXP_Stop
+	NVAR/SDFR=dfrROI gMXP_Sbottom
+	string wnameStr = NameOfWave(wRef) + "_roi"
+	Duplicate/RMD=[gMXP_Sleft, gMXP_SRight][gMXP_Stop, gMXP_SBottom] wRef, $wnameStr
+	string noteStr = "Extractes"
+	sprintf noteStr, "Image: %s, ROI:[%d, %d][%d, %d]", NameOfWave(wRef), gMXP_Sleft, gMXP_SRight, gMXP_Stop, gMXP_SBottom
+	Note $wnameStr, noteStr
+	return 0
+End
+
 // Helper functions
 Function MXP_NextPowerOfTwo(variable num)
 	 /// Return the first power of two after num.
@@ -445,19 +465,6 @@ Function MXP_SizeOfWave(wv)
     endif
 
     return total / 1024 / 1024
-End
-
-Function/WAVE MXP_TopImageToWaveRef()
-	// Return a wave reference from the top graph
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	// if there is no image in the top graph strlen(imgNameTopGraphStr) = 0
-	if(strlen(imgNameTopGraphStr))
-		WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-		return wRef
-	else 
-		return $""
-	endif
 End
 
 Function MXP_IsFloatQ(WAVE wRef)

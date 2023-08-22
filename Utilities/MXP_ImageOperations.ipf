@@ -89,18 +89,6 @@ Function MXP_ImageSelectToCopyScale() // Uses top graph
 	CopyScales/I sourceWaveRef, wRef
 End
 
-Function MXP_Wave2RGBImage(WAVE wRef)
-	ColorTab2Wave Grays
-	WAVE M_Colors
-	Wavestats/Q/M=1 wRef
-	SetScale/I x, V_min, V_max, M_Colors
-	ImageTransform/C=M_Colors cmap2rgb wRef
-	WAVE M_RGBOut
-	KillWaves/Z M_Colors
-	string newnameStr = NameOfWave(wRef) + "_RGB"
-	Rename M_RGBOut, $newnameStr
-End
-
 Function MXP_NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
 	// If you have 16-bit waves then Redimension/S to SP
 	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
@@ -594,6 +582,44 @@ Function MXP_HistogramShiftToGaussianCenter(WAVE w2d, [variable overwrite])
 	SetDataFolder currDF
 	return 0
 End
+
+Function/WAVE MXP_TopImageToWaveRef()
+	// Return a wave reference from the top graph
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	// if there is no image in the top graph strlen(imgNameTopGraphStr) = 0
+	if(strlen(imgNameTopGraphStr))
+		WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+		return wRef
+	else 
+		return $""
+	endif
+End
+
+Function MXP_Wave3DToRGBImage(WAVE wRef)
+	ColorTab2Wave Grays
+	WAVE M_Colors
+	Wavestats/Q/M=1 wRef
+	SetScale/I x, V_min, V_max, M_Colors
+	ImageTransform/C=M_Colors cmap2rgb wRef
+	WAVE M_RGBOut
+	KillWaves/Z M_Colors
+	string newnameStr = NameOfWave(wRef) + "_RGB"
+	Rename M_RGBOut, $newnameStr
+End
+
+Function MXP_RGBToGrayImage(WAVE wRef)
+	// Convert a 3D RGB image to grayscale (8-bit)
+	if(WaveDims(wRef) != 3)
+		return -1
+	endif
+	string wnaneStr = NameOfWave(wRef) + "_gray"
+	ImageTransform rgb2gray wRef
+	WAVE M_RGB2Gray
+	Rename M_RGB2Gray, $wnaneStr
+	return 0
+End
+
 
 //TODO
 //Function MXP_ApplyOperationToFilesInFolderTree(string pathName, 
