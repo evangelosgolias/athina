@@ -345,7 +345,6 @@ Function MXP_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 	   			endif
 	   			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
 	   			hookResult = 1
-	   			print xTrace, yTrace
 	   			break
 			endif
 			hookresult = 0

@@ -368,7 +368,12 @@ Function MXP_MakeWaveFromROI(WAVE wRef)
 	NVAR/SDFR=dfrROI gMXP_Stop
 	NVAR/SDFR=dfrROI gMXP_Sbottom
 	string wnameStr = NameOfWave(wRef) + "_roi"
-	Duplicate/RMD=[gMXP_Sleft, gMXP_SRight][gMXP_Stop, gMXP_SBottom] wRef, $wnameStr
+	variable p0, p1, q0, q1
+	p0 = scaleToIndex(wRef, gMXP_Sleft, 0)
+	p1 = scaleToIndex(wRef, gMXP_Sright, 0)
+	q0 = scaleToIndex(wRef, gMXP_Stop, 1)
+	q1 = scaleToIndex(wRef, gMXP_SBottom, 1)
+	Duplicate/RMD=[p0, p1][q0, q1] wRef, $wnameStr
 	string noteStr = "Extractes"
 	sprintf noteStr, "Image: %s, ROI:[%d, %d][%d, %d]", NameOfWave(wRef), gMXP_Sleft, gMXP_SRight, gMXP_Stop, gMXP_SBottom
 	Note $wnameStr, noteStr

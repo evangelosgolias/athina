@@ -227,8 +227,6 @@ Function MXP_InitialiseZProfileFolder()
 	
 	// Initialise the Package folder
 	variable nlayers = DimSize(w3dref, 2)
-	variable dx = DimDelta(w3dref, 0)
-	variable dy = DimDelta(w3dref, 1)
 	variable dz = DimDelta(w3dref, 2)
     variable z0 = DimOffset(w3dref, 2)
     
@@ -244,8 +242,10 @@ Function MXP_InitialiseZProfileFolder()
 	string/G dfr:gMXP_w3dPathname = GetWavesDataFolder(w3dref, 2)
 	string/G dfr:gMXP_w3dPath = GetWavesDataFolder(w3dref, 1)
 	string/G dfr:gMXP_w3dNameStr = NameOfWave(w3dref)
-	variable/G dfr:gMXP_ROI_dx = dx
-	variable/G dfr:gMXP_ROI_dy = dy
+	variable/G dfr:gMXP_dx = DimDelta(w3dref, 0)
+	variable/G dfr:gMXP_dy = DimDelta(w3dref, 1)
+	variable/G dfr:gMXP_xOff = DimOffset(w3dref,0)
+	variable/G dfr:gMXP_yOff = DimOffset(w3dref,1)		
 	variable/G dfr:gMXP_left = 0
 	variable/G dfr:gMXP_right = 0
 	variable/G dfr:gMXP_top = 0
@@ -414,8 +414,10 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 	NVAR/SDFR=dfr gMXP_right
 	NVAR/SDFR=dfr gMXP_top
 	NVAR/SDFR=dfr gMXP_bottom
-	NVAR/Z dx = dfr:gMXP_ROI_dx
-	NVAR/Z dy = dfr:gMXP_ROI_dy
+	NVAR/Z dx = dfr:gMXP_dx
+	NVAR/Z dy = dfr:gMXP_dy
+	NVAR/Z xOff = dfr:gMXP_xOff
+	NVAR/Z yOff = dfr:gMXP_yOff		
 	NVAR/Z nLayers = dfr:nLayers
 	NVAR/Z mouseTrackV = dfr:gMXP_mouseTrackV
 	NVAR/SDFR=dfr gMXP_Rect
@@ -459,22 +461,22 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
         		DrawAction/W=$WindowNameStr delete // TODO: Here add the env commands of MXP_SumBeamsDrawImageROICursor before switch and here only the draw command 
         		SetDrawEnv/W=$WindowNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
         		if(gMXP_Rect)
-				DrawRect/W=$WindowNameStr -axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
-					  axisxlen * 0.5 + s.pointNumber * dx,  -(axisylen * 0.5) + s.yPointNumber * dy
+				DrawRect/W=$WindowNameStr xOff - axisxlen * 0.5 + s.pointNumber * dx, yOff + axisylen * 0.5 + s.yPointNumber * dy, \
+					  xOff + axisxlen * 0.5 + s.pointNumber * dx,  yOff - (axisylen * 0.5) + s.yPointNumber * dy
         		
         		else
-				DrawOval/W=$WindowNameStr -axisxlen * 0.5 + s.pointNumber * dx, axisylen * 0.5 + s.yPointNumber * dy, \
-					  axisxlen * 0.5 + s.pointNumber * dx,  -(axisylen * 0.5) + s.yPointNumber * dy
+				DrawOval/W=$WindowNameStr xOff - axisxlen * 0.5 + s.pointNumber * dx, yOff + axisylen * 0.5 + s.yPointNumber * dy, \
+					  xOff + axisxlen * 0.5 + s.pointNumber * dx,  yOff - (axisylen * 0.5) + s.yPointNumber * dy
 				endif
-				Cursor/W=$WindowNameStr/I/C=(65535,0,0)/S=2/N=1 J $w3dNameStrQ, s.pointNumber * dx, s.yPointNumber * dy
+				Cursor/W=$WindowNameStr/I/C=(65535,0,0)/S=2/N=1 J $w3dNameStrQ, xOff + s.pointNumber * dx, yOff + s.yPointNumber * dy
 				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStrQ 
 				if(WaveExists(M_ROIMask))
 					MatrixOP/O/NTHR=4 profile = sum(w3d*M_ROIMask) // Use threads
 					Redimension/E=1/N=(nLayers) profile
-		    			gMXP_left = -axisxlen * 0.5 + s.pointNumber * dx
-					gMXP_right = axisxlen * 0.5 + s.pointNumber * dx
-					gMXP_top = axisylen * 0.5 + s.yPointNumber * dy
-					gMXP_bottom = -axisylen * 0.5 + s.yPointNumber * dy
+		    			gMXP_left = xOff - axisxlen * 0.5 + s.pointNumber * dx
+					gMXP_right = xOff + axisxlen * 0.5 + s.pointNumber * dx
+					gMXP_top = yOff + axisylen * 0.5 + s.yPointNumber * dy
+					gMXP_bottom = yOff - axisylen * 0.5 + s.yPointNumber * dy
 		    		endif
 //		    		print "Left:", gMXP_left, ",Right:",gMXP_right, ",Top:", gMXP_top, ",Bottom:", gMXP_bottom
 //		    		print "HookPointX:",(s.pointNumber * dx),",HookPointY:",(s.ypointNumber * dy), ",CursorX:", hcsr(J), ",CursorY:",vcsr(J)
@@ -641,12 +643,12 @@ Threadsafe static function SumBeamsOvalROI(WAVE w3dRef, WAVE wMask, WAVE profile
 	NVAR/SDFR=dfr gMXP_right
 	NVAR/SDFR=dfr gMXP_top
 	NVAR/SDFR=dfr gMXP_bottom
-	NVAR/SDFR=dfr gMXP_ROI_dx
-	NVAR/SDFR=dfr gMXP_ROI_dy
-	left = floor(gMXP_left/gMXP_ROI_dx)
-	right = floor(gMXP_right/gMXP_ROI_dx)
-	top = floor(top/gMXP_ROI_dy)
-	bottom = floor(bottom/gMXP_ROI_dy)
+	NVAR/SDFR=dfr gMXP_dx
+	NVAR/SDFR=dfr gMXP_dy
+	left = floor(gMXP_left/gMXP_dx)
+	right = floor(gMXP_right/gMXP_dx)
+	top = floor(top/gMXP_dy)
+	bottom = floor(bottom/gMXP_dy)
 	variable i, j
 	for(i = left; i < right + 1; i++)
 		for(j = top; j < bottom + 1; j++)
