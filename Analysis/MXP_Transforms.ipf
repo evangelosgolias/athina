@@ -7,6 +7,7 @@ Function MXP_2DFFT(WAVE wRef)
 	/// FFT of a 2D wave
 	
 	Duplicate/FREE wref, wRefFree
+	//MatrixFilter/N=5 gauss, wRefFree	
 	Redimension/C wRefFree 	
 	string destWaveNameStr = NameOfWave(wRef) + "_FFT"
 	FFT/OUT=3/WINF=Hanning/DEST=$destWaveNameStr wRefFree

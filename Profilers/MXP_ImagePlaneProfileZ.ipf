@@ -64,10 +64,6 @@ Function MXP_MainMenuLaunchImagePlaneProfileZ()
 	// User selected a wave, check if it's 3d
 	if(WaveDims(w3dRef) == 3) // if it is a 3d wave
 		MXP_InitialiseImagePlaneProfileZFolder()
-		// Flush scales
-		SetScale/P x, 0, 1, w3dRef
-		SetScale/P y, 0, 1, w3dRef
-		SetScale/P z, 0, 1, w3dRef	
 		variable nrows = DimSize(w3dRef,0)
 		variable ncols = DimSize(w3dRef,1)
 		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
@@ -94,10 +90,6 @@ Function MXP_TraceMenuLaunchImagePlaneProfileZ()
 		MXP_DisplayImage(imgWaveRef)
 		winNameStr = WinName(0, 1, 1) // update it just in case
 		MXP_InitialiseImagePlaneProfileZFolder()
-		//Flush scales
-		SetScale/P x, 0, 1, imgWaveRef
-		SetScale/P y, 0, 1, imgWaveRef
-		SetScale/P z, 0, 1, imgWaveRef
 		DoWindow/F $winNameStr // bring it to FG to set the cursors
 		variable nrows = DimSize(imgWaveRef,0)
 		variable ncols = DimSize(imgWaveRef,1)
@@ -124,10 +116,6 @@ Function MXP_BrowserMenuLaunchImagePlaneProfileZ()
 			string winNameStr = WinName(0, 1, 1) // update it just in case
 			string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 			MXP_InitialiseImagePlaneProfileZFolder()
-			//Flush scales
-			SetScale/P x, 0, 1, imgWaveRef
-			SetScale/P y, 0, 1, imgWaveRef
-			SetScale/P z, 0, 1, imgWaveRef
 			DoWindow/F $winNameStr // bring it to FG to set the cursors
 			variable nrows = DimSize(imgWaveRef,0)
 			variable ncols = DimSize(imgWaveRef,1)
@@ -181,24 +169,52 @@ Function MXP_InitialiseImagePlaneProfileZFolder()
 
 	variable nrows = DimSize(imgWaveRef, 0)
 	variable ncols = DimSize(imgWaveRef, 1)
-
+	variable p1 = round(0.9 * nrows/2)
+	variable q1 = round(1.1 * ncols/2)
+	variable p2 = round(1.1 * nrows/2)
+	variable q2 = round(0.9 * ncols/2)
+	variable dx = DimDelta(imgWaveRef, 0)
+	variable dy = DimDelta(imgWaveRef, 1)
+	// Use them to alculate default scale if wave is scaled
+	variable NxGH = sqrt((p1-p2)^2+(q1-q2)^2)
+	variable normGHCursors = sqrt(((p1-p2)*dx)^2+((q1-q2)*dy)^2)
+	
+	
 	string/G dfr:gMXP_imgNameTopWindowStr = imgNameTopGraphStr
 	string/G dfr:gMXP_WindowNameStr = winNameStr
 	string/G dfr:gMXP_ImagePathname = GetWavesDataFolder(imgWaveRef, 2)
 	string/G dfr:gMXP_ImagePath = GetWavesDataFolder(imgWaveRef, 1)
 	string/G dfr:gMXP_ImageNameStr = NameOfWave(imgWaveRef)
 	variable/G dfr:gMXP_nLayers =  DimSize(imgWaveRef,2)
-	variable/G dfr:gMXP_Nx = 100 // Startup value
+	variable/G dfr:gMXP_Nx = NxGH // Startup value
 	variable/G dfr:gMXP_Ny = DimSize(imgWaveRef,2)
-	variable/G dfr:gMXP_C1x = round(0.9 * nrows/2)
-	variable/G dfr:gMXP_C1y = round(1.1 * ncols/2)
-	variable/G dfr:gMXP_C2x = round(1.1 * nrows/2)
-	variable/G dfr:gMXP_C2y = round(0.9 * ncols/2)
-	// Set scale
-	variable/G dfr:gMXP_Ystart = 0
-	variable/G dfr:gMXP_Yend = 0
-	variable/G dfr:gMXP_XScale = 0
-	variable/G dfr:gMXP_Xfactor = 1
+	variable/G dfr:gMXP_C1x = p1
+	variable/G dfr:gMXP_C1y = q1
+	variable/G dfr:gMXP_C2x = p2
+	variable/G dfr:gMXP_C2y = q2
+	//Restore scale of original wave
+	variable/G dfr:gMXP_Scale_x0 = DimOffset(imgWaveRef, 0)
+	variable/G dfr:gMXP_Scale_dx = dx
+	variable/G dfr:gMXP_Scale_y0 = DimOffset(imgWaveRef, 1)
+	variable/G dfr:gMXP_Scale_dy = dy
+	variable/G dfr:gMXP_Scale_z0 = DimOffset(imgWaveRef, 2)
+	variable/G dfr:gMXP_Scale_dz = DimDelta(imgWaveRef, 2)
+	// Flush scales here
+	SetScale/P x, 0, 1, imgWaveRef
+	SetScale/P y, 0, 1, imgWaveRef
+	SetScale/P z, 0, 1, imgWaveRef		
+	// Set the default scale if there is one already
+	if(dx!=1 && dy!=1)
+		variable/G dfr:gMXP_Ystart = 0
+		variable/G dfr:gMXP_Yend = 0
+		variable/G dfr:gMXP_XScale = normGHCursors
+		variable/G dfr:gMXP_Xfactor = normGHCursors/NxGH
+	else
+		variable/G dfr:gMXP_Ystart = 0
+		variable/G dfr:gMXP_Yend = 0
+		variable/G dfr:gMXP_XScale = 0
+		variable/G dfr:gMXP_Xfactor = 1
+	endif
 	// Switches and indicators
 	variable/G dfr:gMXP_PlotSwitch = 1
 	variable/G dfr:gMXP_MarkLinesSwitch = 0
@@ -206,13 +222,6 @@ Function MXP_InitialiseImagePlaneProfileZFolder()
 	variable/G dfr:gMXP_OverrideNy = 0
 	// Profile width
 	variable/G dfr:gMXP_profileWidth = 1
-	//Restore scale of original wave
-	variable/G dfr:gMXP_Scale_x0 = DimOffset(imgWaveRef, 0)
-	variable/G dfr:gMXP_Scale_dx = DimDelta(imgWaveRef, 0)
-	variable/G dfr:gMXP_Scale_y0 = DimOffset(imgWaveRef, 1)
-	variable/G dfr:gMXP_Scale_dy = DimDelta(imgWaveRef, 1)
-	variable/G dfr:gMXP_Scale_z0 = DimOffset(imgWaveRef, 2)
-	variable/G dfr:gMXP_Scale_dz = DimDelta(imgWaveRef, 2)	
 	// Misc
 	variable/G dfr:gMXP_colorcnt = 0
 	return 0
@@ -468,6 +477,7 @@ End
 
 Function MXP_ImagePlaneProfileZGraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentGraphWin = GetUserData(s.winName, "", "MXP_parentGraphWin")
+	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "MXP_rootdfrStr"))
 	switch(s.eventCode)
 		case 2: // Kill the window
 			// parentGraphWin -- winNameStr
@@ -480,6 +490,17 @@ Function MXP_ImagePlaneProfileZGraphHookFunction(STRUCT WMWinHookStruct &s)
 			Cursor/W=$parentGraphWin/K H			
 			SetDrawLayer/W=$parentGraphWin ProgFront
 			DrawAction/W=$parentGraphWin delete
+			SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
+			WAVE/Z w3dRef = $ImagePathname	
+			NVAR/SDFR=dfr gMXP_Scale_x0
+			NVAR/SDFR=dfr gMXP_Scale_dx
+			NVAR/SDFR=dfr gMXP_Scale_y0
+			NVAR/SDFR=dfr gMXP_Scale_dy
+			NVAR/SDFR=dfr gMXP_Scale_z0
+			NVAR/SDFR=dfr gMXP_Scale_dz
+			SetScale/P x, gMXP_Scale_x0, gMXP_Scale_dx, w3dRef
+			SetScale/P y, gMXP_Scale_y0, gMXP_Scale_dy, w3dRef
+			SetScale/P z, gMXP_Scale_z0, gMXP_Scale_dz, w3dRef
 			break
 	endswitch
 End
@@ -562,7 +583,7 @@ Function MXP_ImagePlaneProfileZButtonSetScale(STRUCT WMButtonAction &B_Struct): 
 			endif
 			Ystart = Ystart_l
 			Yend   = Yend_l
-			Xfactor = Xscale / round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
+			Xfactor = Xscale / sqrt((C1x - C2x)^2 + (C1y - C2y)^2)
 		break
 	endswitch
 	return 0

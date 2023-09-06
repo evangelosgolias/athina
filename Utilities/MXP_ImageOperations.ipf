@@ -620,6 +620,18 @@ Function MXP_RGBToGrayImage(WAVE wRef)
 	return 0
 End
 
+Function MXP_ImageRemoveBackground(WAVE wRef, [variable order])
+	// Remove background of an image (default 1st order)
+	// Use order = n, n > 1 for higher order polynomial
+	// Use overwite = 1 to overwite the original wave
+	order = ParamIsDefault(order) ? 1: order
+	variable nrows, ncols
+	nrows = DimSize(wRef,0)
+	ncols = DimSize(wRef,1)
+	Make/O/FREE/N=(nrows,ncols)/B/U maskWFree = 1
+	ImageRemoveBackground/O/R=maskWFree/P=(order) wRef
+	return 0
+End
 
 //TODO
 //Function MXP_ApplyOperationToFilesInFolderTree(string pathName, 

@@ -374,9 +374,25 @@ Function MXP_MakeWaveFromROI(WAVE wRef)
 	q0 = scaleToIndex(wRef, gMXP_Stop, 1)
 	q1 = scaleToIndex(wRef, gMXP_SBottom, 1)
 	Duplicate/RMD=[p0, p1][q0, q1] wRef, $wnameStr
-	string noteStr = "Extractes"
+	MXP_SetWaveOffsetZero(wRef, dim = 0)
+	MXP_SetWaveOffsetZero(wRef, dim = 1)	
+	string noteStr
 	sprintf noteStr, "Image: %s, ROI:[%d, %d][%d, %d]", NameOfWave(wRef), gMXP_Sleft, gMXP_SRight, gMXP_Stop, gMXP_SBottom
 	Note $wnameStr, noteStr
+	return 0
+End
+
+Function MXP_SetWaveOffsetZero(WAVE wRef, [int dim])
+	// Zero the offset for dimension dim
+	dim = ParamIsDefault(dim) ? 0: dim
+	variable dx = DimDelta(wRef, dim)
+	string dimStr = "x;y;z;t"
+	if(dim < 0 || dim > 3)
+		return -1
+	endif
+	string selDim = StringFromList(dim, dimStr)
+	string cmd = "SetScale/P " + selDim + " 0, " + num2str(dx) + ", " + PossiblyQuoteName(NameOfWave(wRef))
+	Execute cmd
 	return 0
 End
 

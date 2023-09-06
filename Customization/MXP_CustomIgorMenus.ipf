@@ -45,6 +45,7 @@ Menu "MAXPEEM"
 	
 	Submenu "Image Operations"
 		"FFT (TG, 2D)", /Q, MXP_LaunchImageFFTTransform()
+		"Remove plane background (TG, 2D)", /Q, MXP_LaunchImageRemoveBackground()		
 		"Extract layers to stack (TG, 3D)", /Q, MXP_LaunchExtractLayerRangeToStack()
 		"Average layers (range) (TG, 3D)", /Q, MXP_LaunchAverageLayersRange()
 		"Average image stack(TG, 3D)", /Q, MXP_LaunchAverageImagePlanes()	
@@ -55,6 +56,7 @@ Menu "MAXPEEM"
 		"Restore image from backup (TG)", /Q, MXP_RestoreTopImageFromBackup()
 		"Normalize to [0, 1] (TG)", /Q, MXP_LaunchScalePlanesBetweenZeroAndOne()
 		"Center image histogram (TG)", /Q, MXP_LaunchHistogramShiftToGaussianCenter()
+		"Rotate 3d wave axes (TG, 3D)", /Q, MXP_LaunchRotate3DWaveAxes()
 	End
 	
 	Submenu "Interactive Operations"

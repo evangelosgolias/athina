@@ -114,7 +114,7 @@ Function MXP_InitialisePESExtractorFolder(string winNameStr)
 	variable/G dfr:gMXP_updateCursorsPositions = 0
 	// PES scaling values
 	variable/G dfr:gMXP_hv = MXP_GetPhotonEnergyFromFilename(imgNameTopGraphStr)
-	variable/G dfr:gMXP_Wf = 4.5
+	variable/G dfr:gMXP_Wf = 4.27
 	variable/G dfr:gMXP_epp = kMXPEnergyPerPixel
 	variable/G dfr:gMXP_Ax = 0
 	variable/G dfr:gMXP_Ay = 0	
@@ -456,8 +456,8 @@ Function MXP_PESExtractorPlotSaveProfile(STRUCT WMButtonAction &B_Struct): Butto
 				break // Stop if you go through the else branch
 				endif	
 			while(1)
-		sprintf recreateDrawStr, "pathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%d\n" + \
-								 "hv(eV):%d\nWf(eV):%d\nEPP(eV/px):%f", ImagePathname,  C1x, C1y, C2x, C2y, Ax, Ay, Bx, By, profileWidth, stv, hv, Wf, epp
+		sprintf recreateDrawStr, "pathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%.2f\n" + \
+								 "hv(eV):%.2f\nWf(eV):%.2f\nEPP(eV/px):%.8f", ImagePathname,  C1x, C1y, C2x, C2y, Ax, Ay, Bx, By, profileWidth, stv, hv, Wf, epp
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
 		// Add metadata
 		break
@@ -744,7 +744,7 @@ Function MXP_PESExtractorPlotSSetCursorsAB(STRUCT WMButtonAction &B_Struct): But
 	NVAR/Z CursorABSwitch = dfr:gMXP_CursorABSwitch
 	
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(parentWindow, ";"),";")
-
+	
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			if(!CursorABSwitch) // if not yet set
@@ -763,7 +763,7 @@ Function MXP_PESExtractorPlotSSetCursorsAB(STRUCT WMButtonAction &B_Struct): But
 				DrawLine/W=$parentWindow Ax, Ay, Bx, By
 				SetDrawEnv/W=$parentWindow linefgc = (1,39321,19939, 32767), fillfgc= (0,65535,0, 32767), fillpat = 1, linethick = 1, dash= 1, xcoord= top, ycoord= left	
 				DrawOval/W=$parentWindow (Ax + Bx)/2 + 3 * dx, (Ay + By)/2 + 3 * dy, (Ax + Bx)/2 - 3 * dx, (Ay + By)/2 - 3 * dy
-				SetDrawLayer/W=$parentWindow ProgFront 
+				SetDrawLayer/W=$parentWindow ProgFront
 				CursorABSwitch = 1
 			else
 				Cursor/W=$parentWindow/I/C=(0,65535,0)/H=1/P/N=1 A $imgNameTopGraphStr Ax, Ay

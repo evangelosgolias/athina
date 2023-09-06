@@ -815,7 +815,35 @@ Function MXP_LaunchStackSingleImageToImageStack() // Not used
 	endif
 End
 
-//HERE
+Function MXP_LaunchImageRemoveBackground()
+	WAVE wRef = MXP_TopImageToWaveRef()
+	MXP_ImageRemoveBackground(wRef)
+End
+
+Function MXP_LaunchRotate3DWaveAxes()
+	WAVE/Z wRef = MXP_TopImageToWaveRef()
+	if(WaveDims(wRef) !=3)
+		Abort "Operation needs a 3d wave (image stack)!"
+	endif
+	variable num = 0
+	string modeStr = "XZY;ZXY;ZYX;YZX;YXZ"
+	Prompt num, "Select axes rotation", popup, modeStr 
+	DoPrompt "Rotate 3d wave axes",num
+	string newwaveNameStr = NameOfWave(wRef) + "_" + StringFromList((num-1),modeStr)
+	if(WaveExists($newwaveNameStr))
+		print "Wave", newwaveNameStr, "already exists."
+		return -1
+	endif	
+	ImageTransform/G=(num) transposeVol wRef
+	WAVE M_VolumeTranspose
+	string wnameStr = NameOfWave(wRef)
+	string noteStr = "ImageTransform/G=" + num2str(num)+ " transposeVol " + wnameStr	
+	DFREF dfr = GetDataFolderDFR()
+	Rename M_VolumeTranspose, $newwaveNameStr
+	CopyScales/P $wnameStr, $newwaveNameStr
+	Note $newwaveNameStr, noteStr
+End
+
 Function MXP_LaunchImageRotateAndScale()
 	/// Rotated/scaled wave in created in the working dfr.
 	WAVE/Z wRef = MXP_TopImageToWaveRef()

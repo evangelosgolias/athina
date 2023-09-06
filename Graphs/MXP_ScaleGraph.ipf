@@ -78,9 +78,9 @@ Function WM_DoAutoSizeImage(variable forceSize)
 		NewDataFolder/S tmpAutoSizeImage
 		Make/O sizes={20,50,100,200,600,1000,2000,10000,50000,100000}		// temp waves used as lookup tables
 		Make/O scales={16,8,4,2,1,0.5,0.25,0.125,0.0626,0.03125}
-		variable nsizes= numpnts(sizes),scale= 0,i= 0
+		variable nsizes= numpnts(sizes),scale= 0,i=0
 		do
-			if( maxdim < sizes[i] )
+			if(maxdim < sizes[i])
 				scale = scales[i]
 				break;
 			endif
@@ -99,7 +99,7 @@ Function WM_DoAutoSizeImage(variable forceSize)
 	height *= 72/ScreenResolution					// make image pixels match screen pixels
 	ModifyGraph width=width,height=height
 	DoUpdate
-	if( forceSize==0 )
+	if(forceSize==0)
 		ModifyGraph width=0,height=0
 	endif
 	ModifyGraph height=0, width={Plan,1,top,left} // EG:  Make the window resizable
