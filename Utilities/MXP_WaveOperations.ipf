@@ -138,6 +138,20 @@ Function/S MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoF
 	return wname3dStr
 End
 
+Function MXP_MakeSquare3DWave(WAVE w3d, [variable size])
+	/// Creates a 3d waves with the same rows, cols by interpolation of w3d.
+	/// The wave scaling using the interval /I.
+	if(WaveDims(w3d) != 3)
+		return -1
+	endif
+	size = ParamIsDefault(size) ? max(DimSize(w3d, 0), DimSize(w3d, 1)) : size
+	string wavenameStr = NameOfWave(w3d) + "_ip3d"
+	Make/N=(size, size, DimSize(w3d, 2))/O $wavenameStr /WAVE=wRef
+	CopyScales/I w3d, wRef
+	wRef = interp3D(w3d, x, y, z)
+	return 0
+End
+
 Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
 	/// Average a 3d wave along z.
 	/// @param w3d WAVE Wave name to average (3d wave)

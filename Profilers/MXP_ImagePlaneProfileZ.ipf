@@ -43,6 +43,7 @@
 /// DFREF savedfr = GetDataFolderDFR() //MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:LineProfiles:SavedLineProfiles")
 
 
+/// If you want everything to work as expected you need dz > 0, otherwise the profile plot will be flipped.
 
 Function MXP_MainMenuLaunchImagePlaneProfileZ()
 
@@ -165,16 +166,20 @@ Function MXP_InitialiseImagePlaneProfileZFolder()
 	endif
     
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:" + imgNameTopGraphStr) // Root folder here
-	DFREF dfr0 = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:DefaultSettings:") // Settings here
 
 	variable nrows = DimSize(imgWaveRef, 0)
 	variable ncols = DimSize(imgWaveRef, 1)
+	variable nlayers = DimSize(imgWaveRef,2)
 	variable p1 = round(0.9 * nrows/2)
 	variable q1 = round(1.1 * ncols/2)
 	variable p2 = round(1.1 * nrows/2)
 	variable q2 = round(0.9 * ncols/2)
 	variable dx = DimDelta(imgWaveRef, 0)
 	variable dy = DimDelta(imgWaveRef, 1)
+	variable dz = DimDelta(imgWaveRef, 2)
+	variable x0 = DimOffset(imgWaveRef, 0)
+	variable y0 = DimOffset(imgWaveRef, 1)
+	variable z0 = DimOffset(imgWaveRef, 2)			
 	// Use them to alculate default scale if wave is scaled
 	variable NxGH = sqrt((p1-p2)^2+(q1-q2)^2)
 	variable normGHCursors = sqrt(((p1-p2)*dx)^2+((q1-q2)*dy)^2)
@@ -186,26 +191,26 @@ Function MXP_InitialiseImagePlaneProfileZFolder()
 	string/G dfr:gMXP_ImageNameStr = NameOfWave(imgWaveRef)
 	variable/G dfr:gMXP_nLayers =  DimSize(imgWaveRef,2)
 	variable/G dfr:gMXP_Nx = NxGH // Startup value
-	variable/G dfr:gMXP_Ny = DimSize(imgWaveRef,2)
+	variable/G dfr:gMXP_Ny = nlayers
 	variable/G dfr:gMXP_C1x = p1
 	variable/G dfr:gMXP_C1y = q1
 	variable/G dfr:gMXP_C2x = p2
 	variable/G dfr:gMXP_C2y = q2
 	//Restore scale of original wave
-	variable/G dfr:gMXP_Scale_x0 = DimOffset(imgWaveRef, 0)
-	variable/G dfr:gMXP_Scale_dx = dx
-	variable/G dfr:gMXP_Scale_y0 = DimOffset(imgWaveRef, 1)
-	variable/G dfr:gMXP_Scale_dy = dy
-	variable/G dfr:gMXP_Scale_z0 = DimOffset(imgWaveRef, 2)
-	variable/G dfr:gMXP_Scale_dz = DimDelta(imgWaveRef, 2)
+	variable/G dfr:gMXP_x0 = x0
+	variable/G dfr:gMXP_dx = dx
+	variable/G dfr:gMXP_y0 = y0
+	variable/G dfr:gMXP_dy = dy
+	variable/G dfr:gMXP_z0 = z0
+	variable/G dfr:gMXP_dz = dz
 	// Flush scales here
 	SetScale/P x, 0, 1, imgWaveRef
 	SetScale/P y, 0, 1, imgWaveRef
 	SetScale/P z, 0, 1, imgWaveRef		
 	// Set the default scale if there is one already
 	if(dx!=1 && dy!=1)
-		variable/G dfr:gMXP_Ystart = 0
-		variable/G dfr:gMXP_Yend = 0
+		variable/G dfr:gMXP_Ystart = z0
+		variable/G dfr:gMXP_Yend = z0 + (nlayers - 1) * dz
 		variable/G dfr:gMXP_XScale = normGHCursors
 		variable/G dfr:gMXP_Xfactor = normGHCursors/NxGH
 	else
@@ -217,7 +222,7 @@ Function MXP_InitialiseImagePlaneProfileZFolder()
 	
 	if(DimSize(imgWaveRef, 0) != DimSize(imgWaveRef, 1))
 	string alertStr = "Number of pixels in X, Y dimesions is not the same. \nThe program is not optimised/tested for these conditions."+\
-		"\nWe suggest to create a new 3d wave and interpolate using interp3D.\n"+\
+		"\nWe suggest to create a new 3d wave using MXP_MakeSquare3DWave(wavename).\n"+\
 		"If you want to continue use 1 px width and good luck."
 		DoAlert 0, alertStr
 	endif
@@ -256,6 +261,7 @@ Function MXP_CreateImagePlaneProfileZ(DFREF dfr)
 	NVAR/Z C2y = dfr:gMXP_C2y
 	NVAR/Z Nx = dfr:gMXP_Nx
 	NVAR/Z Ny = dfr:gMXP_Ny
+	NVAR/Z dz = dfr:gMXP_dz 
 	NVAR/Z nLayers = dfr:gMXP_nLayers
 	NVAR/Z PlotSwitch = dfr:gMXP_PlotSwitch
 	NVAR/Z MarkLinesSwitch = dfr:gMXP_MarkLinesSwitch
@@ -270,7 +276,8 @@ Function MXP_CreateImagePlaneProfileZ(DFREF dfr)
 	ImageTransform/X={ Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface wRef
 	SetDataFolder cdfr 
 	variable pix = 72/ScreenResolution
-	NewImage/F/G=1/K=1/N=$profilePlotStr dfr:M_ExtractedSurface // Flip image (/F) to get higher Ek
+	NewImage/G=1/K=1/N=$profilePlotStr dfr:M_ExtractedSurface // Do not Flip image (/F) to get top axis
+	SetAxis/A left
 	ModifyGraph/W=$profilePlotStr width = 340 * pix, height = 470 * pix
 
 	ControlBar/W=$profilePlotStr 50	
@@ -303,7 +310,6 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
 	DFREF currdfr = GetDataFolderDFR()
 	DFREF dfr = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
-	DFREF dfr0 = MXP_CreateDataFolderGetDFREF("root:Packages:MXP_DataFolder:ImagePlaneProfileZ:DefaultSettings") // Settings here
 	SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
 	WAVE/Z w3dRef = $ImagePathname
 	NVAR/Z nlayers = dfr:gMXP_nLayers 
@@ -329,15 +335,15 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 	switch(s.eventCode)
 		case 2: // Kill the window
 			// Restore original wave scaling
-			NVAR/SDFR=dfr gMXP_Scale_x0
-			NVAR/SDFR=dfr gMXP_Scale_dx
-			NVAR/SDFR=dfr gMXP_Scale_y0
-			NVAR/SDFR=dfr gMXP_Scale_dy
-			NVAR/SDFR=dfr gMXP_Scale_z0
-			NVAR/SDFR=dfr gMXP_Scale_dz
-			SetScale/P x, gMXP_Scale_x0, gMXP_Scale_dx, w3dRef
-			SetScale/P y, gMXP_Scale_y0, gMXP_Scale_dy, w3dRef
-			SetScale/P z, gMXP_Scale_z0, gMXP_Scale_dz, w3dRef
+			NVAR/SDFR=dfr gMXP_x0
+			NVAR/SDFR=dfr gMXP_dx
+			NVAR/SDFR=dfr gMXP_y0
+			NVAR/SDFR=dfr gMXP_dy
+			NVAR/SDFR=dfr gMXP_z0
+			NVAR/SDFR=dfr gMXP_dz
+			SetScale/P x, gMXP_x0, gMXP_dx, w3dRef
+			SetScale/P y, gMXP_y0, gMXP_dy, w3dRef
+			SetScale/P z, gMXP_z0, gMXP_dz, w3dRef
 			// Kill window and folder
 			KillWindow/Z $(GetUserData(s.winName, "", "MXP_LinkedImagePlaneProfileZPlotStr"))
 			KillDataFolder/Z dfr
@@ -430,7 +436,7 @@ Function MXP_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
 		    else
 		      	SetScale/I x, 0, (Nx * Xfactor), M_ExtractedSurface
 		    endif		    
-		    SetScale/I y, Yend, Ystart, M_ExtractedSurface
+		    SetScale/I y, Ystart, Yend, M_ExtractedSurface
 		    SetDrawLayer UserFront
 			hookResult = 1
 		break
@@ -499,15 +505,15 @@ Function MXP_ImagePlaneProfileZGraphHookFunction(STRUCT WMWinHookStruct &s)
 			DrawAction/W=$parentGraphWin delete
 			SVAR/Z ImagePathname = dfr:gMXP_ImagePathname
 			WAVE/Z w3dRef = $ImagePathname	
-			NVAR/SDFR=dfr gMXP_Scale_x0
-			NVAR/SDFR=dfr gMXP_Scale_dx
-			NVAR/SDFR=dfr gMXP_Scale_y0
-			NVAR/SDFR=dfr gMXP_Scale_dy
-			NVAR/SDFR=dfr gMXP_Scale_z0
-			NVAR/SDFR=dfr gMXP_Scale_dz
-			SetScale/P x, gMXP_Scale_x0, gMXP_Scale_dx, w3dRef
-			SetScale/P y, gMXP_Scale_y0, gMXP_Scale_dy, w3dRef
-			SetScale/P z, gMXP_Scale_z0, gMXP_Scale_dz, w3dRef
+			NVAR/SDFR=dfr gMXP_x0
+			NVAR/SDFR=dfr gMXP_dx
+			NVAR/SDFR=dfr gMXP_y0
+			NVAR/SDFR=dfr gMXP_dy
+			NVAR/SDFR=dfr gMXP_z0
+			NVAR/SDFR=dfr gMXP_dz
+			SetScale/P x, gMXP_x0, gMXP_dx, w3dRef
+			SetScale/P y, gMXP_y0, gMXP_dy, w3dRef
+			SetScale/P z, gMXP_z0, gMXP_dz, w3dRef
 			break
 	endswitch
 End
@@ -581,16 +587,22 @@ Function MXP_ImagePlaneProfileZButtonSetScale(STRUCT WMButtonAction &B_Struct): 
 	variable Xstart_l, Xend_l, Ystart_l, Yend_l, Xscale
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			Prompt Xscale, "X-scale: set cursors and enter the calibrating value"
-			Prompt Ystart_l, "Y_top [if Y_top > Y_bottom flip the left axis!]"			
-			Prompt Yend_l, "Y_bottom"
+			Prompt Xscale, "X-scale: set cursors and enter the calibrating value \n(0: pixel scale, X-scale < 0 : do nothing)"
+			Prompt Ystart_l, "Y top value"			
+			Prompt Yend_l, "Y bottom value"
 			DoPrompt "Set X, Y scale (Zero removes scale)", Xscale, Ystart_l, Yend_l
 			if(V_flag) // User cancelled
 				return -1
 			endif
 			Ystart = Ystart_l
 			Yend   = Yend_l
-			Xfactor = Xscale / sqrt((C1x - C2x)^2 + (C1y - C2y)^2)
+			if(Ystart_l > Yend_l)
+				Ystart = Yend_l
+				Yend = Ystart_l
+			endif			
+			if(Xfactor >= 0)
+				Xfactor = Xscale / sqrt((C1x - C2x)^2 + (C1y - C2y)^2)
+			endif
 		break
 	endswitch
 	return 0
@@ -683,7 +695,7 @@ Function MXP_ImagePlaneProfileZSetVariableNx(STRUCT WMSetVariableAction& sv) : S
 				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 				WAVE ww = M_ExtractedSurface
 				SetScale/I x, 0, (normGHCursors * Xfactor), ww
-				SetScale/I y, Yend, Ystart, ww
+				SetScale/I y, Ystart, Yend, ww
 			else
 		       	Nx = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 		    endif
@@ -719,7 +731,7 @@ Function MXP_ImagePlaneProfileZSetVariableNy(STRUCT WMSetVariableAction& sv) : S
 				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 				WAVE ww = M_ExtractedSurface
 				normGHCursors = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
-				SetScale/I y, Yend, Ystart, ww
+				SetScale/I y, Ystart, Yend, ww
 				SetScale/I x, 0, (normGHCursors * Xfactor), ww
 			else
 		      	Ny = nLayers
@@ -852,7 +864,7 @@ Function MXP_ImagePlaneProfileZSetVariableProfileWidth(STRUCT WMSetVariableActio
 			DrawPoly/W=$WindowsNameStr x1, y1, 1, 1, {x1, y1, x2, y2, x3, y3, x4, y4}
 			SetDrawEnv/W=$WindowsNameStr gstop
 			SetDrawLayer/W=$WindowsNameStr UserFront
-			SetScale/I y, Yend, Ystart, M_ExtractedSurface
+			SetScale/I y, Ystart, Yend, M_ExtractedSurface
 			SetScale/I x, 0, (round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2)) * Xfactor), M_ExtractedSurface
        	break
 	endswitch
