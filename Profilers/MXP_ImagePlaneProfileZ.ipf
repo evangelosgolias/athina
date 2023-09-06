@@ -179,7 +179,6 @@ Function MXP_InitialiseImagePlaneProfileZFolder()
 	variable NxGH = sqrt((p1-p2)^2+(q1-q2)^2)
 	variable normGHCursors = sqrt(((p1-p2)*dx)^2+((q1-q2)*dy)^2)
 	
-	
 	string/G dfr:gMXP_imgNameTopWindowStr = imgNameTopGraphStr
 	string/G dfr:gMXP_WindowNameStr = winNameStr
 	string/G dfr:gMXP_ImagePathname = GetWavesDataFolder(imgWaveRef, 2)
@@ -215,6 +214,14 @@ Function MXP_InitialiseImagePlaneProfileZFolder()
 		variable/G dfr:gMXP_XScale = 0
 		variable/G dfr:gMXP_Xfactor = 1
 	endif
+	
+	if(DimSize(imgWaveRef, 0) != DimSize(imgWaveRef, 1))
+	string alertStr = "Number of pixels in X, Y dimesions is not the same. \nThe program is not optimised/tested for these conditions."+\
+		"\nWe suggest to create a new 3d wave and interpolate using interp3D.\n"+\
+		"If you want to continue use 1 px width and good luck."
+		DoAlert 0, alertStr
+	endif
+	
 	// Switches and indicators
 	variable/G dfr:gMXP_PlotSwitch = 1
 	variable/G dfr:gMXP_MarkLinesSwitch = 0

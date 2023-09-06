@@ -59,7 +59,7 @@ Function MXP_DisplayImage(WAVE waveRef)
 	DoAutoSizeImage(scaleFactor, -1)
 	// Simple solution when Dims x, y are the same
 	if(DimSize(waveRef, 0) == DimSize(waveRef, 1))
-		ModifyGraph width={Aspect,1}, height = 0
+		ModifyGraph width={Plan,1,top,left}, height = 0
 	else
 		ModifyGraph width = 0, height = 0
 	endif
