@@ -837,10 +837,11 @@ Function MXP_LaunchRotate3DWaveAxes()
 	ImageTransform/G=(num) transposeVol wRef
 	WAVE M_VolumeTranspose
 	string wnameStr = NameOfWave(wRef)
+	DFREF srcDFR = GetWavesDataFolderDFR(wRef)
+	DFREF dfr = GetDataFolderDFR()	
 	string noteStr = "ImageTransform/G=" + num2str(num)+ " transposeVol " + wnameStr	
-	DFREF dfr = GetDataFolderDFR()
 	Rename M_VolumeTranspose, $newwaveNameStr
-	CopyScales/P $wnameStr, $newwaveNameStr
+	CopyScales/P srcDFR:$wnameStr, dfr:$newwaveNameStr
 	Note $newwaveNameStr, noteStr
 End
 
