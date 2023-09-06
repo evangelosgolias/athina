@@ -38,7 +38,6 @@ Function MXP_DisplayImage(WAVE waveRef)
 	NewImage/G=1/K=1 waveRef
 	string igorInfoStr = StringByKey( "SCREEN1", IgorInfo(0)) // INFO: Change here if needed	
 	igorInfoStr = RemoveListItem(0, igorInfoStr, ",")
-	print igorInfoStr
 	variable screenLeft, screenTop, screenRight, screenBottom
 	sscanf igorInfoStr, "RECT=%d,%d,%d,%d", screenLeft, screenTop, screenRight, screenBottom
 	variable screenWidth, screenLength
