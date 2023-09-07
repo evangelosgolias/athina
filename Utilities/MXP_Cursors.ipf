@@ -83,10 +83,10 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	string topTraceNameStr = StringFromList(0, TraceNameList(s.WinName,";",1))
 	if(strlen(topTraceNameStr)) // If you have a trace
 		baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
-		notXStr + "\nd\Bv\M\Z12 ="+ notYStr +"\""
+		notXStr + "\nd\Bv\M\Z12 = "+ notYStr +"\""
 	else
 		baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
-		notXStr + "\nd\Bv\M\Z12 ="+ notYStr + "\nd\B\M\Z12 =" + notYStr + "\""
+		notXStr + "\nd\Bv\M\Z12 = "+ notYStr + "\nd\B\M\Z12 = " + notYStr + "\""
 		imgSwitch = 1
 	endif
 	
@@ -106,10 +106,10 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 				y2 = vcsr(D, s.WinName)
 				if(imgSwitch)
 					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " +\
-					notXStr + "\n1/d\Bv\M\Z12 ="+ notYStr + "\n1/d\B\M\Z12 ="+ notYStr +"\""
+					notXStr + "\n1/d\Bv\M\Z12 = "+ notYStr + "\n1/d\B\M\Z12 = "+ notYStr +"\""
 					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2), 1/sqrt(abs(x1-x2)^2 + abs(y1-y2)^2)
 				else
-					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " + notXStr + "\n1/d\Bv\M\Z12 ="+ notYStr +"\""
+					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " + notXStr + "\n1/d\Bv\M\Z12  = "+ notYStr +"\""
 					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2)
 				endif
 
