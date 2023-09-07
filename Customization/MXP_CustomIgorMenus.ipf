@@ -66,16 +66,16 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "Drift Correction"
-		"Using a feature, fixed ref (TG)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
-		"Using a feature, cascade (TG)...", /Q, MXP_LaunchCascadeImageStackAlignmentUsingAFeature()		
-		"Using the full image, fixed ref (TG)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
-		"Using the full image, cascade ref (TG)...", /Q, MXP_LaunchCascadeImageStackAlignmentByFullImage()
+		"Using a feature, fixed ref (TG, 3D)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
+		"Using a feature, cascade (TG, 3D)...", /Q, MXP_LaunchCascadeImageStackAlignmentUsingAFeature()		
+		"Using the full image, fixed ref (TG, 3D)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
+		"Using the full image, cascade ref (TG, 3D)...", /Q, MXP_LaunchCascadeImageStackAlignmentByFullImage()
 	End
 	
 	Submenu "Profiles "
-		"Line profile (TG)", /Q, MXP_MainMenuLaunchLineProfile()
-		"Z profile (TG)", /Q, MXP_MainMenuLaunchSumBeamsProfile()
-		"Plane profile (TG)",/Q, MXP_MainMenuLaunchImagePlaneProfileZ()
+		"Line profile (TG, 2D, 3D)", /Q, MXP_MainMenuLaunchLineProfile()
+		"Z profile (TG, 3D)", /Q, MXP_MainMenuLaunchSumBeamsProfile()
+		"Plane profile (TG, 3D)",/Q, MXP_MainMenuLaunchImagePlaneProfileZ()
 	End
 	
 	Submenu "Calculations"
@@ -85,8 +85,8 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "XPS"
-		"Extract XPS profile from image (TG)", /Q, MXP_MainMenuLaunchPESExtractor()
-		"Subtract background(TG) ", /Q, BackgroundSubtractGUI()
+		"Extract XPS profile from image (TG, 2D)", /Q, MXP_MainMenuLaunchPESExtractor()
+		"Subtract background(TG, 1D) ", /Q, BackgroundSubtractGUI()
 	End	
 	
 	Submenu "Utilities"
@@ -145,10 +145,10 @@ Menu "TracePopup"
 	"MXP Dynamic Autoscale Image Plane (3D)", /Q, MXP_AutoRangeTopImagePerPlaneAndVisibleArea()
 	"MXP Z-profiler: Use saved ROI  (3D)", /Q, MXP_UseSavedROIAndWaitHookToAct()		
 	"MXP Save layer (3D)", /Q, MXP_GetLayerFromImageStack()
-	"MXP Save current view (2D,3D)", /Q, MXP_GetScaledZoominImageWindow()
+	"MXP Save current view (2D, 3D)", /Q, MXP_GetScaledZoominImageWindow()
 	"MXP Add images to Stack (3D)", /Q, MXP_LaunchStackImagesToImageStack()
 	"MXP Scale Image stack (3D)", /Q, MXP_SetZScaleOfImageStack()
-	"MXP Select image and copy scales (2D,3D)", /Q, MXP_ImageSelectToCopyScale()
+	"MXP Select image and copy scales (2D, 3D)", /Q, MXP_ImageSelectToCopyScale()
 	"MXP Calculate XMC(L)D (3D[2])", /Q, MXP_LaunchCalculateXMCDFromStack()
 	Submenu "MXP markups ..."
 	"MXP Draw image markups", /Q, MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
@@ -156,8 +156,11 @@ Menu "TracePopup"
 	End
 End
 
-// Hidden operations
-//	Submenu "Misc"
-//		"Make a stack from pattern", /Q, MXP_LaunchMake3DWaveUsingPattern()
-//		"Make a stack from browser selection", /Q, MXP_LaunchMake3DWaveDataBrowserSelection()
-//	End
+Menu "GraphPopup" // Right click not on a trace or in the margin of an image
+	"MXP Text Annotation (TG)", /Q, MXP_LaunchQuickTextAnnotation()
+	"MXP Measure Distance (TG)", /Q, MXP_MeasureDistanceUsingFreeCursorsCD()
+End
+
+Menu "AllTracesPopup" // Use SHIFT + right click
+	"MXP Measure Distance (TG)", /Q, MXP_MeasureDistanceUsingFreeCursorsCD()
+End

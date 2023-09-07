@@ -956,3 +956,17 @@ Function MXP_LaunchHistogramShiftToGaussianCenter()
 	WAVE/Z wRef = MXP_TopImageToWaveRef()
 	MXP_HistogramShiftToGaussianCenter(wRef, overwrite=1)
 End
+
+Function MXP_LaunchQuickTextAnnotation()
+	string textStr = "" 
+	string color ="black"
+	variable fSize = 4 // Forth selectio, fSize = 12
+	string fSizeList = "9;10;11;12;13;14;16;18;20;22;24"
+	Prompt textStr, "Text"
+	Prompt color, "Color", popup, "black;red;green;blue"
+	Prompt fSize, "Font Size", popup, fSizeList
+	DoPrompt "Enter text annotation for the top graph", textStr, color, fSize
+	fSize = str2num(StringFromList(fSize, fSizeList))
+	MXP_TextAnnotationOnTopGraph(textStr, fSize = fSize, color = color)
+	
+End
