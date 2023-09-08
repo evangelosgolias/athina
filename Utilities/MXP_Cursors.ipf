@@ -107,12 +107,11 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 				if(imgSwitch)
 					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " +\
 					notXStr + "\n1/d\Bv\M\Z12 = "+ notYStr + "\n1/d\B\M\Z12 = "+ notYStr +"\""
-					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2), 1/sqrt(abs(x1-x2)^2 + abs(y1-y2)^2)
+					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2), 1/sqrt((x1-x2)^2 + (y1-y2)^2)
 				else
 					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " + notXStr + "\n1/d\Bv\M\Z12  = "+ notYStr +"\""
 					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2)
 				endif
-
 				Execute/P/Q/Z cmdStr
 			endif
 			hookResult = 1
@@ -123,7 +122,7 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 			y1 = vcsr(C, s.WinName)
 			y2 = vcsr(D, s.WinName)
 			if(imgSwitch)
-				sprintf cmdStr, baseTextStr, abs(x1-x2), abs(y1-y2), sqrt(abs(x1-x2)^2 + abs(y1-y2)^2)
+				sprintf cmdStr, baseTextStr, abs(x1-x2), abs(y1-y2), sqrt((x1-x2)^2 + (y1-y2)^2)
 			else
 				sprintf cmdStr, baseTextStr, abs(x1-x2), abs(y1-y2)
 			endif

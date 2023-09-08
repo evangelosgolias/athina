@@ -215,9 +215,9 @@ Function MXP_CreateLineProfilePlot(DFREF dfr)
 	variable pix = 72/ScreenResolution
 	Display/W=(0*pix,0*pix,500*pix,300*pix)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile vs dfr:W_LineProfileDisplacement as "Line profile " + gMXP_WindowNameStr
 	AutoPositionWindow/E/M=0/R=$gMXP_WindowNameStr
-	ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=12, lsize=1.5
-	Label left "Intensity (arb. u.)"
-	Label bottom "\\u#2 Distance (µm) / [Kinetic Energy (eV)]"
+	ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=14, lsize=1.5
+	Label left "\\u#2 Intensity (arb. u.)"
+	Label bottom "\\u#2 \$WMTEX$ d_{E \\ \to \\ F} \\ (u.)$/WMTEX$"
 	
 	SetWindow $profilePlotStr userdata(MXP_LineProfRootDF) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(MXP_ShowSavedGraphsWindow) = "MXP_LineProf_" + gMXP_WindowNameStr 

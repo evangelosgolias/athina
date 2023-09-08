@@ -3,6 +3,23 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
 
+Function MXP_DuplicateWaveAndDisplayOfTopImage()
+	/// Duplicate the graph of an image (2d, 3d wave) along with the wave at its
+	/// data folder (not cwd). 
+	string winNameStr = WinName(0, 1)
+	WAVE wRef = MXP_TopImageToWaveRef()
+	DFREF cdfr = GetDataFolderDFR()
+	DFREF wdfr = GetWavesDataFolderDFR(wRef) 
+	SetDataFolder wdfr
+    string duplicateWinNameStr = UniqueName(winNameStr + "_", 6, 1, winNameStr)
+    string waveNameStr = CreateDataObjectName(wdfr, NameOfWave(wRef) + "_dp", 1, 0, 4) 
+    Duplicate wRef, $waveNameStr
+	MXP_DisplayImage($waveNameStr)
+	DoWindow/C $duplicateWinNameStr
+	SetDataFolder cdfr
+	return 0
+End
+
 Function MXP_TextAnnotationOnTopGraph(string text, [variable fSize, string color])
 	/// Add text on the top graph. Optionally you can set fSize and text color.
 	/// Defaults are fSize = 12 and color = black.
@@ -36,4 +53,5 @@ Function MXP_TextAnnotationOnTopGraph(string text, [variable fSize, string color
 	string cmdStr = "TextBox/C/N=" + textNameStr +" /F=0/A=MC" +\
 	 				" \"" + colorCode + fontSizeStr + text + "\"" 				
 	Execute/P/Z cmdStr
+	return 0
 End

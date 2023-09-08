@@ -52,6 +52,7 @@ Menu "MAXPEEM"
 		"Sum image stack(TG, 3D)", /Q, MXP_LaunchSumImagePlanes()				
 		"Rotate image (TG, 2D, 3D) ", /Q, MXP_LaunchImageRotateAndScale()
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, MXP_LaunchImageRotateAndScaleFromMetadata()
+		"Duplicate image and data (TG, 2D, 3D)", /Q, MXP_DuplicateWaveAndDisplayOfTopImage()
 		"Backup Image (TG)", /Q, MXP_BackupTopImage()	
 		"Restore image from backup (TG)", /Q, MXP_RestoreTopImageFromBackup()
 		"Normalize to [0, 1] (TG)", /Q, MXP_LaunchScalePlanesBetweenZeroAndOne()
