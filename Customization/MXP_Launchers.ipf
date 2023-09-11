@@ -270,6 +270,7 @@ Function MXP_DialogLoadTwoImagesAndRegisterQ()
 	WAVE w3d = $saveWaveName
 	w3d[][][0] = wimg1[p][q]
 	w3d[][][1] = wimg2[p][q]
+	KillWaves wimg1, wimg2
 	MXP_DisplayImage(w3d)
 	return 0
 End
