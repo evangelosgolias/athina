@@ -2,7 +2,6 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
-
 Function MXP_DuplicateWaveAndDisplayOfTopImage()
 	/// Duplicate the graph of an image (2d, 3d wave) along with the wave at its
 	/// data folder (not cwd). 

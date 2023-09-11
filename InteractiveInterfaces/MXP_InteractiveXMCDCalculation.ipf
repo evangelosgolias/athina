@@ -34,8 +34,6 @@
 Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	/// Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
-	/// @param w1 WAVE Wave 1
-	/// @param w2 WAVE Wave 2
 	
 	string msg = "Select two waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
 	string selectedWavesInBrowserStr = MXP_SelectWavesInModalDataBrowser(msg)
@@ -208,7 +206,7 @@ Function MXP_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/SDFR=dfr calculationMethod
 	SVAR/SDFR=dfr wName1Str
 	SVAR/SDFR=dfr wName2Str	
-	string saveWaveNameStr, note2WaveStr
+	string saveWaveNameStr, backupWaveNameStr, note2WaveStr, basenameStr
 
 	variable postfix = 0
 	switch(B_Struct.eventCode)	// numeric switch	
@@ -223,6 +221,16 @@ Function MXP_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 			saveWaveNameStr = CreatedataObjectName(currDF, "iXMCD", 1, 0, 0)			
 			Duplicate wXMCD, $saveWaveNameStr
 			Note/K $saveWaveNameStr, note2WaveStr
+			//Copy the interpolated wave
+			basenameStr = NameofWave($wName2Str) + "_undo"
+			if(WaveExists($basenameStr))
+				backupWaveNameStr = CreatedataObjectName(currDF, basenameStr, 1, 0, 5)
+			else
+				backupWaveNameStr = basenameStr
+			endif
+			Duplicate $wName2Str, $backupWaveNameStr
+			Note $backupWaveNameStr, ("Backup of " + wName2Str)
+			Duplicate/O wimg2, $wName2Str
 			break
 	endswitch
 	return 0

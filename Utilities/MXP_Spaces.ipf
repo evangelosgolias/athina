@@ -52,13 +52,13 @@
 // ------------------------------------------------------- //
 ///
 /// TL;DR:
-/// Use Shift + Space row to assign there the top window.
+/// Use Shift + Click row to assign there the top window.
 /// Double click: Rename
 /// Alt + Click (empty space): Pin window
 /// Shift + Alt + Click; unpin
 ///
 /// TODO: Move linked Panel/Graphs to the same Space
-/// TODO: Change all the function and use the same algorithm asa MXP_ShowWindowsOfSpaceTag
+/// TODO: Change all the function and use the same algorithm as MXP_ShowWindowsOfSpaceTag
 
 Function MXP_MainMenuLaunchSpaces()
 	

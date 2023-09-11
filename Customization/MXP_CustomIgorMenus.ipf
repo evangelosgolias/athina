@@ -36,10 +36,11 @@ Menu "MAXPEEM"
 		".dat file...", /Q, MXP_LoadSingleDATFile("", "", autoscale = 1)
 		".dat files...", /Q, MXP_LoadMultiplyDATFiles(autoscale = 1)
 		".dat files in folder...", /Q, MXP_LoadDATFilesFromFolder("", "*", autoscale = 1)
-		".dat files in folder to stack ...", /Q, MXP_LauncherLoadDATFilesFromFolder()
+		".dat files in folder to stack .../1", /Q, MXP_LauncherLoadDATFilesFromFolder()
 		".dav file in stack...", /Q, MXP_LoadSingleDAVFile("", "", stack3d = 1, skipmetadata = 1, autoscale = 1)
 		".dav file...", /Q, MXP_LoadSingleDAVFile("", "", autoscale = 1)
 		".dat file (img only)...", /Q, MXP_LoadSingleCorruptedDATFile("", "")
+		"XMC(L)D pair ...", /Q, MXP_DialogLoadTwoImagesAndRegisterQ()
 		".h5 file ...", /Q, MXP_LauncherLoadHDF5GroupsFromFile()
 	End
 	
@@ -74,15 +75,9 @@ Menu "MAXPEEM"
 	End
 	
 	Submenu "Profiles "
-		"Line profile (TG, 2D, 3D)", /Q, MXP_MainMenuLaunchLineProfile()
-		"Z profile (TG, 3D)", /Q, MXP_MainMenuLaunchSumBeamsProfile()
+		"Line profile (TG, 2D, 3D)/2", /Q, MXP_MainMenuLaunchLineProfile()
+		"Z profile (TG, 3D)/3", /Q, MXP_MainMenuLaunchSumBeamsProfile()
 		"Plane profile (TG, 3D)",/Q, MXP_MainMenuLaunchImagePlaneProfileZ()
-	End
-	
-	Submenu "Calculations"
-		"Average stack (3D)...", /Q, MXP_LaunchAverageStackToImageFromMenu()
-		"XMC(L)D (TG, 3D[2])...", /Q, MXP_LaunchRegisterQCalculateXRayDichroism()
-		"XMC(L)D (import)...", /Q, MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism()
 	End
 	
 	Submenu "XPS"

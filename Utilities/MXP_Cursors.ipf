@@ -55,30 +55,37 @@ Function MXP_MeasureDistanceUsingFreeCursorsCD()
 		Cursor/I/A=1/F/H=1/S=0/C=(65535,0,0,30000)/P C $imgNameTopGraphStr 0.25, 0.5
 		Cursor/I/A=1/F/H=1/S=0/C=(65535,0,0,30000)/P D $imgNameTopGraphStr 0.75, 0.5
 	endif
-	SetWindow $winNameStr, hook(MeasureDistanceCsrDCHook) = MXP_MeasureDistanceUsingFreeCursorsCDHook
-	TextBox/W=$winNameStr/C/A=LT/G=(65535,0,0)/N=DistanceCDQuit "Z - 1/d\nEsc to quit"
+	SetWindow $winNameStr, hook(MXP_MeasureDistanceCsrDCHook) = MXP_MeasureDistanceUsingFreeCursorsCDHook
+	TextBox/W=$winNameStr/C/A=LB/G=(65535,0,0)/E=2/N=DistanceCDInfo "\Z10Z-1/d\nm(M)- mark d(1/d)\nEsc - quit"
+	print "Help"
 End
 
 Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	/// Hook function for MXP_MeasureDistanceUsingFreeCursorsCD()
 	variable hookResult = 0
-	variable x1, x2, y1, y2
+	variable x1, x2, y1, y2, z1, z2
 	x1 = hcsr(C, s.WinName)
 	x2 = hcsr(D, s.WinName)
 	y1 = vcsr(C, s.WinName)
 	y2 = vcsr(D, s.WinName)
-	string baseTextStr, cmdStr, notXStr, notYStr
+	z1 = zcsr(C, s.WinName)
+	z2 = zcsr(D, s.WinName)
+	string baseTextStr, cmdStr, notXStr, notYStr, notZStr, axisX, axisY
 	if(abs(x1-x2) < 1e-4)
-		notXStr = "%.5e"
+		notXStr = "%.3e"
 	else
-		notXStr = "%.5f"
+		notXStr = "%.4f"
 	endif
 	if(abs(y1-y2) < 1e-4)
-		notYStr = "%.5e"
+		notYStr = "%.3e"
 	else
-		notYStr = "%.5f"
+		notYStr = "%.4f"
 	endif
-	
+	if(abs(z1-z2) < 1e-4)
+		notZStr = "%.3e"
+	else 
+		notZStr = "%.4f"
+	endif
 	variable imgSwitch = 0
 	string topTraceNameStr = StringFromList(0, TraceNameList(s.WinName,";",1))
 	if(strlen(topTraceNameStr)) // If you have a trace
@@ -86,16 +93,16 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 		notXStr + "\nd\Bv\M\Z12 = "+ notYStr +"\""
 	else
 		baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
-		notXStr + "\nd\Bv\M\Z12 = "+ notYStr + "\nd\B\M\Z12 = " + notYStr + "\""
+		notXStr + "\nd\Bv\M\Z12 = "+ notYStr + "\nd\B\M\Z12 = " + notYStr + "\nΔz\BCD\M\Z12 = " + notZStr + "\""
 		imgSwitch = 1
 	endif
-	
+
 	switch(s.eventCode)
 		case 11:
 			if(s.keycode == 27)
 				TextBox/W=$s.WinName/K/N=DistanceCD
-				TextBox/W=$s.WinName/K/N=DistanceCDQuit
-				SetWindow $s.WinName, hook(MeasureDistanceCsrDCHook) = $""
+				TextBox/W=$s.WinName/K/N=DistanceCDInfo
+				SetWindow $s.WinName, hook(MXP_MeasureDistanceCsrDCHook) = $""
 				Cursor/W=$s.WinName/K C
 				Cursor/W=$s.WinName/K D
 			endif
@@ -106,15 +113,79 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 				y2 = vcsr(D, s.WinName)
 				if(imgSwitch)
 					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " +\
-					notXStr + "\n1/d\Bv\M\Z12 = "+ notYStr + "\n1/d\B\M\Z12 = "+ notYStr +"\""
-					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2), 1/sqrt((x1-x2)^2 + (y1-y2)^2)
+					notXStr + "\n1/d\Bv\M\Z12 = "+ notYStr + "\n1/d\B\M\Z12 = "+ notYStr + "\nΔz\BCD\M\Z12 = " + notZStr +"\""
+					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2), 1/sqrt((x1-x2)^2 + (y1-y2)^2), (zcsr(D) - zcsr(C))
 				else
 					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " + notXStr + "\n1/d\Bv\M\Z12  = "+ notYStr +"\""
-					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2)
+					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(x1-x2)
 				endif
-				Execute/P/Q/Z cmdStr
+				Execute/Q/Z cmdStr
 			endif
-			hookResult = 1
+			if(s.keycode == 109) // Press m to mark
+				x1 = hcsr(C, s.WinName)
+				x2 = hcsr(D, s.WinName)
+				y1 = vcsr(C, s.WinName)
+				y2 = vcsr(D, s.WinName)
+
+				if(strlen(topTraceNameStr))
+					SetDrawLayer/W=$s.WinName UserFront
+					GetAxis/Q top
+					if(V_flag) // V_flag == 1, top is not active
+						axisX = "bottom"
+					else
+						axisX = "top"
+					endif
+					GetAxis/Q left
+					if(V_flag) // V_flag == 1, left is not active
+						axisY = "right"
+					else
+						axisY = "left"
+					endif
+					SetDrawEnv/W=$s.WinName xcoord =$axisX, ycoord = $axisY
+					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(x2-x1)
+					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =$axisX, ycoord = $axisY
+					DrawLine/W=$s.WinName x1, (y1+y2)/2, x2, (y1+y2)/2
+				else
+					SetDrawLayer/W=$s.WinName UserFront
+					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =top, ycoord = left
+					DrawLine/W=$s.WinName x1, y1, x2, y2
+					SetDrawEnv/W=$s.WinName xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
+					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(sqrt((x1-x2)^2 + (y1-y2)^2))
+				endif
+			endif
+			if(s.keycode == 77) // Press M to mark 1/d or dy in graphs
+				x1 = hcsr(C, s.WinName)
+				x2 = hcsr(D, s.WinName)
+				y1 = vcsr(C, s.WinName)
+				y2 = vcsr(D, s.WinName)
+				if(strlen(topTraceNameStr))
+					SetDrawLayer/W=$s.WinName UserFront
+					GetAxis/Q top
+					if(V_flag) // V_flag == 1, top is not active
+						axisX = "bottom"
+					else
+						axisX = "top"
+					endif
+					GetAxis/Q left
+					if(V_flag) // V_flag == 1, left is not active
+						axisY = "right"
+					else
+						axisY = "left"
+					endif
+					SetDrawEnv/W=$s.WinName xcoord =$axisX, ycoord = $axisY,  textrot= 90
+					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(y2-y1)
+					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =$axisX, ycoord = $axisY
+					DrawLine/W=$s.WinName (x1+x2)/2, y1, (x1+x2)/2, y2
+				else
+					SetDrawLayer/W=$s.WinName UserFront
+					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =top, ycoord = left
+					DrawLine/W=$s.WinName x1, y1, x2, y2
+					SetDrawEnv/W=$s.WinName xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
+					print (atan((y2-y1)/(x2-x1))*180/pi)
+					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(1/sqrt((x1-x2)^2 + (y1-y2)^2))
+				endif
+			endif
+			hookResult = 1 // Do not focus on Command window!
 			break
 		case 7:
 			x1 = hcsr(C, s.WinName)
@@ -122,11 +193,11 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 			y1 = vcsr(C, s.WinName)
 			y2 = vcsr(D, s.WinName)
 			if(imgSwitch)
-				sprintf cmdStr, baseTextStr, abs(x1-x2), abs(y1-y2), sqrt((x1-x2)^2 + (y1-y2)^2)
+				sprintf cmdStr, baseTextStr, abs(x1-x2), abs(y1-y2), sqrt((x1-x2)^2 + (y1-y2)^2), (zcsr(D) - zcsr(C))
 			else
 				sprintf cmdStr, baseTextStr, abs(x1-x2), abs(y1-y2)
 			endif
-			Execute/P/Q/Z cmdStr
+			Execute/Q/Z cmdStr
 			hookResult = 1
 			break
 	endswitch
