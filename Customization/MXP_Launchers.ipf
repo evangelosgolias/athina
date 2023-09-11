@@ -149,6 +149,12 @@ Function MXP_LaunchRegisterQCalculateXRayDichroism()
 	endif
 	string wave1Str = StringFromList(0, selectedWavesStr) // The last dat has been eliminated when importing waves, so we are ok
 	string wave2Str = StringFromList(1, selectedWavesStr)
+	WAVE wimg1 = $wave1Str
+	WAVE wimg2 = $wave2Str
+	
+	if(WaveDims(wimg1) != 2 || WaveDims(wimg2) != 2)
+		Abort "Operation need two images"
+	endif	
 	string selectedWavesPopupStr = wave1Str + ";" + wave2Str
 	variable registerImageQ
 	string saveWaveName = ""
@@ -160,12 +166,6 @@ Function MXP_LaunchRegisterQCalculateXRayDichroism()
 	DoPrompt "XMC(L)D = (img1 - img2)/(img1 + img2)", wave1Str, wave2Str, registerImageQ, saveWaveName
 	if(V_flag) // User cancelled
 		return 1
-	endif
-	WAVE wimg1 = $wave1Str
-	WAVE wimg2 = $wave2Str
-	
-	if(WaveDims(wimg1) != 2 || WaveDims(wimg2) != 2)
-		Abort "Operation need two images"
 	endif
 	
 	// Make a note for the XMC(L)D image
@@ -275,104 +275,41 @@ Function MXP_DialogLoadTwoImagesAndRegisterQ()
 	return 0
 End
 
-Function MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism_undo()
-
-	variable numRef
-	string fileFilters = "dat File (*.dat):.dat;"
-	fileFilters += "All Files:.*;"
-	string msgStr = "Select two images for XMC(L)D calculation."
-	Open/D/R/MULT=1/M=msgStr/F=fileFilters numRef
-	if(!strlen(S_filename))
-		Abort
-	endif
+Function MXP_LaunchCalculationXMCD3d()
+	string msg = "Select two 3d waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
+	string selectedWavesInBrowserStr = MXP_SelectWavesInModalDataBrowser(msg)
+	
 	// S_fileName is a carriage-return-separated list of full paths to one or more files.
-	variable nrSelectedFiles = ItemsInList(S_filename, "\r")
-	string selectedFilesInDialogStr = SortList(S_fileName, "\r", 16)
-	if(nrSelectedFiles != 2)
-		DoAlert/T="MAXPEEM would like you to know" 1, "Select two (2) .dat files only.\n" + \
-				"Do you want a another chance with the dialog selection?"
+	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
+	string selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)
+	if(nrSelectedWaves != 2)
+		DoAlert/T="MAXPEEM would like you to know" 1, "Select two (2) 3d waves only.\n" + \
+				"Do you want a another chance with the browser selection?"
 		if(V_flag == 1)
-			MXP_DialogLoadTwoImagesInFolderRegisterQCalculateXRayDichroism_undo()
+			MXP_LaunchCalculationXMCD3d()
 		elseif(V_flag == 2)
 			Abort
 		else
-			print "Check MXP_MenuLoadTwoImagesRegisterMagContrast()! Abormal behavior."
+			print "MXP_LaunchCalculationXMCD3d(). Abormal behavior."
 		endif
 		
 		Abort // Abort the running instance otherwise the code that follows will run 
 			  // as many times as the dialog will be displayed. Equavalenty, it can 
 			  // be placed in the if (V_flag == 1) branch.
 	endif
-	//string selectedFilesStr = ""
-	selectedFilesInDialogStr = ReplaceString("\r", selectedFilesInDialogStr, ";")
-
-	string wave1Str = ParseFilePath(3, StringFromList(0, selectedFilesInDialogStr), ":", 0, 0)
-	string wave2Str = ParseFilePath(3, StringFromList(1, selectedFilesInDialogStr), ":", 0, 0)
-	string selectedFilesPopupStr = wave1Str + ";" + wave2Str
-	variable registerImageQ = 2 // Default: Yes
-	string saveWaveName = ""
+	string wave1Str = StringFromList(0, selectedWavesStr) // The last dat has been eliminated when importing waves, so we are ok
+	string wave2Str = StringFromList(1, selectedWavesStr)
+	string selectedWavesPopupStr = wave1Str + ";" + wave2Str
 	//Set defaults 
-	Prompt wave1Str, "img1", popup, selectedFilesPopupStr
-	Prompt wave2Str, "img2", popup, selectedFilesPopupStr
-	Prompt registerImageQ, "Automatic image registration?", popup, "Yes;No" // Yes = 1, No = 2!
-	Prompt saveWaveName, "Name of the XMC(L)D wave (default: MXPxmcd)"
-	DoPrompt "XMC(L)D = (img1 - img2)/(img1 + img2)", wave1Str, wave2Str, registerImageQ, saveWaveName
+	Prompt wave1Str, "w1", popup, selectedWavesPopupStr
+	Prompt wave2Str, "w2", popup, selectedWavesPopupStr
+	DoPrompt "XMC(L)D = (w1 - w2)/(w1 + w2)", wave1Str, wave2Str
 	if(V_flag) // User cancelled
 		return 1
 	endif
-	WAVE wimg1 = MXP_WAVELoadSingleDATFile(StringFromList(0, selectedFilesInDialogStr), "", autoScale = 1)
-	WAVE wimg2 = MXP_WAVELoadSingleDATFile(StringFromList(1, selectedFilesInDialogStr), "", autoScale = 1)
-	// Make a note for the XMC(L)D image
-	string xmcdWaveNoteStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n"
-	xmcdWaveNoteStr += "img1: "
-	xmcdWaveNoteStr += note(wimg1)
-	xmcdWaveNoteStr += "\n"
-	xmcdWaveNoteStr += "\nimg2: "
-	xmcdWaveNoteStr += note(wimg2)
-	
-	if(!(WaveType(wimg1) & 0x02))
-		Redimension/S wimg1
-	endif
-	if(!(WaveType(wimg2) & 0x02))
-		Redimension/S wimg2
-	endif 
-	
-	if(registerImageQ == 1)
-		MXP_ImageAlignmentByRegistration(wimg1, wimg2) // NB: wimg2 is overwritten here
-	endif
-	if(!strlen(saveWaveName))
-		// We need a unique wave name
-		DFREF currDF = GetDataFolderDFR()
-		saveWaveName = CreatedataObjectName(currDF, "MXP_xmcd", 1, 0, 0)
-	endif
-	MXP_CalculateXMCD(wimg1, wimg2, saveWaveName)
-	// if you use /P, the dimension scaling is copied in slope/intercept format 
-	// so that if srcWaveName  and the other waves have differing dimension size 
-	// (number of points if the wave is a 1D wave), then their dimension values 
-	// will still match for the points they have in common
-	CopyScales wimg1, $saveWaveName
-	Note/K $saveWaveName, xmcdWaveNoteStr	
-	// Display the stack of images to check for correct registration 
-	// Display the XMCD image
-	WAVE xmcdWAVERef = $saveWaveName
-	MXP_DisplayImage(xmcdWAVERef)
-	string winNamesStr
-	winNamesStr = WinName(0, 1, 1)
-	winNamesStr += ";"
-	variable nx = DimSize(wimg1,0)
-	variable ny = DimSize(wimg1,1)
-		
-	string stackNameStr = saveWaveName + "_stk"
-	Make/N=(nx, ny, 2) $stackNameStr /WAVE=wstackRef
-	// We have checked before that we have two waves
-	// Make the stack
-	wstackRef[][][0] = wimg1[p][q]
-	wstackRef[][][1] = wimg2[p][q]
-	// Kill the waves and keep the stack
-	KillWaves wimg1, wimg2
-	MXP_DisplayImage(wstackRef)
-	winNamesStr += WinName(0, 1, 1)	
-	TileWindows/WINS=winNamesStr
+	WAVE w3d1 = $wave1Str
+	WAVE w3d2 = $wave2Str
+	MXP_CalculateXMCD3D(w3d1, w3d2)
 	return 0
 End
 

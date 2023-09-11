@@ -40,7 +40,6 @@ Menu "MAXPEEM"
 		".dav file in stack...", /Q, MXP_LoadSingleDAVFile("", "", stack3d = 1, skipmetadata = 1, autoscale = 1)
 		".dav file...", /Q, MXP_LoadSingleDAVFile("", "", autoscale = 1)
 		".dat file (img only)...", /Q, MXP_LoadSingleCorruptedDATFile("", "")
-		"XMC(L)D pair ...", /Q, MXP_DialogLoadTwoImagesAndRegisterQ()
 		".h5 file ...", /Q, MXP_LauncherLoadHDF5GroupsFromFile()
 	End
 	
@@ -79,7 +78,13 @@ Menu "MAXPEEM"
 		"Z profile (TG, 3D)/3", /Q, MXP_MainMenuLaunchSumBeamsProfile()
 		"Plane profile (TG, 3D)",/Q, MXP_MainMenuLaunchImagePlaneProfileZ()
 	End
-	
+
+	Submenu "XMC(L)D calculation"
+		"XMC(L)D (Import two .dat files) ...", /Q, MXP_DialogLoadTwoImagesAndRegisterQ()
+		"XMC(L)D (3D[2]) ... ", /Q, MXP_LaunchCalculationXMCD3d()
+		"XMC(L)D (2D[2]) ...", /Q, MXP_LaunchRegisterQCalculateXRayDichroism()
+	End	
+		
 	Submenu "XPS"
 		"Extract XPS profile from image (TG, 2D)", /Q, MXP_MainMenuLaunchPESExtractor()
 		"Subtract background(TG, 1D) ", /Q, BackgroundSubtractGUI()

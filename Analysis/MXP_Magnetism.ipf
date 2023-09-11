@@ -93,3 +93,28 @@ Function MXP_CalculateWaveSumFromStackToWave(WAVE w3d, WAVE wSum)
 
 	MatrixOP/O wSum = (layer(w3d,0) + layer(w3d,1))/2
 End
+
+Function MXP_CalculateXMCD3D(WAVE w3d1, WAVE w3d2)
+	// Calculate XMC(L)D for 3D waves over layers.
+	// XMC(L)D = (w3d1 - w3d2)/(w3d1 + w3d2)
+	if(WaveDims(w3d1) != 3 || WaveDims(w3d2) != 3 || (DimSize(w3d1, 2) != DimSize(w3d2, 2)))
+		return -1
+	endif
+	if((DimSize(w3d1, 0) != DimSize(w3d2, 0)) || (DimSize(w3d1, 1) != DimSize(w3d2, 1)) )
+		return -1
+	endif
+	if(WaveType(w3d1) & 0x10) // If WORD (int16)
+		Redimension/S w3d1
+	endif
+
+	if(WaveType(w3d2) & 0x10) // If WORD (int16)
+		Redimension/S w3d2
+	endif
+	DFREF currDFR = GetDataFolderDFR()
+	string saveWaveName = CreatedataObjectName(currDFR, "XMCD3d", 1, 0, 0)
+	MatrixOP $saveWaveName = (w3d1 - w3d2)/(w3d1 + w3d2)
+	string noteStr = "XMC(L)D = (w1 - w2)/(w1 + w2)\nw1: " + NameOfWave(w3d1) + "\nw2: " + NameOfWave(w3d2)
+	CopyScales w3d1, $saveWaveName
+	Note $saveWaveName, noteStr
+	return 0
+End
