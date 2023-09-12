@@ -933,17 +933,18 @@ End
 Function MXP_LaunchAverageImagePlanes()
 
 	WAVE/Z wRef = MXP_TopImageToWaveRef()
-	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0 || DimSize(wRef,2) > 2) //  WaveDims(wRef) == 0 when wRef is NULL
-		print "MXP_LaunchExtractLayersToStack() needs an image stack with at least three layers in the top graph."
+	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0 || !DimSize(wRef,2) > 2) //  WaveDims(wRef) == 0 when wRef is NULL
+		print "MXP_LaunchAverageImagePlanes() needs an image stack with at least three layers in the top graph."
 		return -1
 	endif
 	DFREF dfr = GetDataFolderDFR()
 	ImageTransform averageImage wRef // At least three layers!
 	WAVE M_AveImage
-	string basenameStr = NameOfWave(wRef) + "avgPL"
+	string basenameStr = NameOfWave(wRef) + "_avg"
 	string sumPlanesNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 0)
-	Rename M_SumPlanes, $sumPlanesNameStr
-	KillWaves/Z M_StdvImage
+	Duplicate M_AveImage, $sumPlanesNameStr
+	CopyScales wRef, $sumPlanesNameStr
+	KillWaves/Z M_StdvImage, M_AveImage
 End
 
 Function MXP_LaunchHistogramShiftToGaussianCenter()
