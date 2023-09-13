@@ -381,17 +381,20 @@ Function MXP_MakeWaveFromROI(WAVE wRef)
 	NVAR/SDFR=dfrROI gMXP_Sright
 	NVAR/SDFR=dfrROI gMXP_Stop
 	NVAR/SDFR=dfrROI gMXP_Sbottom
-	string wnameStr = NameOfWave(wRef) + "_roi"
+	string basewavenameStr = NameOfWave(wRef) + "_roi"
 	variable p0, p1, q0, q1
 	p0 = scaleToIndex(wRef, gMXP_Sleft, 0)
 	p1 = scaleToIndex(wRef, gMXP_Sright, 0)
 	q0 = scaleToIndex(wRef, gMXP_Stop, 1)
 	q1 = scaleToIndex(wRef, gMXP_SBottom, 1)
+	DFREF currDF = GetDataFolderDFR()
+	string wnameStr = CreatedataObjectName(currDFR, basewavenameStr, 1, 0, 0)	
 	Duplicate/RMD=[p0, p1][q0, q1] wRef, $wnameStr
 	MXP_SetWaveOffsetZero(wRef, dim = 0)
 	MXP_SetWaveOffsetZero(wRef, dim = 1)	
 	string noteStr
-	sprintf noteStr, "Image: %s, ROI:[%d, %d][%d, %d]", NameOfWave(wRef), gMXP_Sleft, gMXP_SRight, gMXP_Stop, gMXP_SBottom
+	string waveNameStr = GetWavesDataFolder(wRef, 2)
+	sprintf noteStr, "Image: %s, ROI:[%.4f, %.4f][%.4f, %.4f]", waveNameStr, gMXP_Sleft, gMXP_SRight, gMXP_Stop, gMXP_SBottom
 	Note $wnameStr, noteStr
 	return 0
 End
@@ -405,8 +408,9 @@ Function MXP_SetWaveOffsetZero(WAVE wRef, [int dim])
 		return -1
 	endif
 	string selDim = StringFromList(dim, dimStr)
-	string cmd = "SetScale/P " + selDim + " 0, " + num2str(dx) + ", " + PossiblyQuoteName(NameOfWave(wRef))
-	Execute cmd
+	string waveNameStr = GetWavesDataFolder(wRef, 2)
+	string cmd = "SetScale/P " + selDim + " 0, " + num2str(dx) + ", " + waveNameStr
+	Execute/Q cmd
 	return 0
 End
 

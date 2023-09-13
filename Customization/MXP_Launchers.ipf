@@ -919,15 +919,18 @@ Function MXP_LaunchSumImagePlanes()
 
 	WAVE/Z wRef = MXP_TopImageToWaveRef()
 	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
-		print "MXP_LaunchExtractLayersToStack() needs an image stack in top graph."
+		print "MXP_LaunchSumImagePlanes() needs an image stack in top graph."
 		return -1
 	endif
 	DFREF dfr = GetDataFolderDFR()
 	ImageTransform sumPlanes wRef
 	WAVE M_SumPlanes
-	string basenameStr = NameOfWave(wRef) + "sumPL"
+	string basenameStr = NameOfWave(wRef) + "sum"
 	string sumPlanesNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 0)
-	Rename M_SumPlanes, $sumPlanesNameStr
+	Duplicate M_SumPlanes, $sumPlanesNameStr
+	CopyScales wRef, $sumPlanesNameStr
+	KillWaves/Z M_SumPlanes
+	return 0
 End
 
 Function MXP_LaunchAverageImagePlanes()
@@ -941,9 +944,9 @@ Function MXP_LaunchAverageImagePlanes()
 	ImageTransform averageImage wRef // At least three layers!
 	WAVE M_AveImage
 	string basenameStr = NameOfWave(wRef) + "_avg"
-	string sumPlanesNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 0)
-	Duplicate M_AveImage, $sumPlanesNameStr
-	CopyScales wRef, $sumPlanesNameStr
+	string avgPlanesNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 0)
+	Duplicate M_AveImage, $avgPlanesNameStr
+	CopyScales wRef, $avgPlanesNameStr
 	KillWaves/Z M_StdvImage, M_AveImage
 End
 
@@ -964,4 +967,9 @@ Function MXP_LaunchQuickTextAnnotation()
 	fSize = str2num(StringFromList(fSize, fSizeList))
 	MXP_TextAnnotationOnTopGraph(textStr, fSize = fSize, color = color)
 	
+End
+
+Function MXP_LaunchMakeWaveFromSavedROI()
+	WAVE wref = MXP_TopImageToWaveRef()
+	MXP_MakeWaveFromROI(wRef)
 End

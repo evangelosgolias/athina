@@ -47,6 +47,7 @@ Menu "MAXPEEM"
 		"FFT (TG, 2D)", /Q, MXP_LaunchImageFFTTransform()
 		"Remove plane background (TG, 2D)", /Q, MXP_LaunchImageRemoveBackground()		
 		"Extract layers to stack (TG, 3D)", /Q, MXP_LaunchExtractLayerRangeToStack()
+		"New image (stack) from saved ROI (TG, 2D, 3D)", /Q, MXP_LaunchMakeWaveFromSavedROI()
 		"Average layers (range) (TG, 3D)", /Q, MXP_LaunchAverageLayersRange()
 		"Average image stack(TG, 3D)", /Q, MXP_LaunchAverageImagePlanes()	
 		"Sum image stack(TG, 3D)", /Q, MXP_LaunchSumImagePlanes()				
