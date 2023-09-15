@@ -193,7 +193,8 @@ Function MXP_3DImageSliderWinHook(STRUCT WMWinHookStruct &s)// ST: 310601 - grap
 	elseif (s.EventCode == 13)	// renamed
 		// Rename the data folder containing this package's globals.
 		DFREF oldDF = $(WMkSliderDataFolderBase + s.oldWinName)
-		if (DataFolderRefStatus(oldDF) == 1)
+		DFREF newDF = $(WMkSliderDataFolderBase + s.winName)
+		if(DataFolderRefStatus(oldDF) == 1 && DataFolderRefStatus(newDF) == 0)
 			RenameDataFolder oldDF, $(s.winName)
 		endif
 	endif		

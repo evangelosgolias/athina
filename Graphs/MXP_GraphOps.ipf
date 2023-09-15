@@ -2,6 +2,8 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
+static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
+
 Function MXP_DuplicateWaveAndDisplayOfTopImage()
 	/// Duplicate the graph of an image (2d, 3d wave) along with the wave at its
 	/// data folder (not cwd). 
@@ -11,10 +13,16 @@ Function MXP_DuplicateWaveAndDisplayOfTopImage()
 	DFREF wdfr = GetWavesDataFolderDFR(wRef) 
 	SetDataFolder wdfr
     string duplicateWinNameStr = UniqueName(winNameStr + "_", 6, 1, winNameStr)
-    string waveNameStr = CreateDataObjectName(wdfr, NameOfWave(wRef) + "_dp", 1, 0, 4) 
-    Duplicate wRef, $waveNameStr
-	MXP_DisplayImage($waveNameStr)
-	DoWindow/C $duplicateWinNameStr
+    string waveNameStr = CreateDataObjectName(wdfr, NameOfWave(wRef) + "_d", 1, 0, 5)
+    print waveNameStr
+    Duplicate wRef, cdfr:$waveNameStr // Copy the wave to the working dir
+    ControlInfo/W=$winNameStr WM3DAxis
+    if(!V_flag && WaveDims(wRef) == 3) // If there is no 3d axis, there should be a reason.
+    	NewImage/G=1/K=1 cdfr:$waveNameStr
+    else    	
+    	MXP_DisplayImage(cdfr:$waveNameStr)
+    endif
+    DoWindow/C $duplicateWinNameStr
 	SetDataFolder cdfr
 	return 0
 End

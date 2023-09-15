@@ -67,7 +67,7 @@ Function MXP_MainMenuLaunchSpaces()
 	NVAR/Z/SDFR=dfr gSelectedSpace
 	NVAR/Z/SDFR=dfr gShowAllWindowsSwitch
 	if(!WaveExists(mxpSpacesTW)) // If there is no text wave
-		Make/T/N=1 dfr:mxpSpacesTW = "Default"
+		Make/T/N=1 dfr:mxpSpacesTW = "Main"
 		variable/G dfr:gSelectedSpace = 0
 		variable/G dfr:gShowAllWindowsSwitch = 0
 	endif

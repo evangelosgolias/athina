@@ -68,7 +68,7 @@ Function MXP_ZapAllDataFoldersInPath(string path)
 	SetDataFolder saveDF 
 End
 
-Function/DF MXP_CreateDataFolderGetDFREF(string fullpath)
+Function/DF MXP_CreateDataFolderGetDFREF(string fullpath) // Cornerstone function
 	/// Create a data folder using fullpath and return a DF reference. 
 	/// If parent directories do not exist they will be created.
 	
