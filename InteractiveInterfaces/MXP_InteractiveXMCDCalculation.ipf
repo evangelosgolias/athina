@@ -224,7 +224,7 @@ Function MXP_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 			//Copy the interpolated wave
 			basenameStr = NameofWave($wName2Str) + "_undo"
 			if(WaveExists($basenameStr))
-				backupWaveNameStr = CreatedataObjectName(currDF, basenameStr, 1, 0, 5)
+				backupWaveNameStr = CreatedataObjectName(currDF, basenameStr, 1, 0, 1)
 			else
 				backupWaveNameStr = basenameStr
 			endif

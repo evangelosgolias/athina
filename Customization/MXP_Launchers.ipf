@@ -120,7 +120,7 @@ Function MXP_LaunchAverageStackToImageFromBrowserMenu()
 	// Changed and we give a unique name with an WaveName_avg suffix
 	DFREF cdfr = GetDataFolderDFR()
 	bufferStr = NameOfWave(w3dRef) + "_avg"
-	waveNameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 4)
+	waveNameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 1)
 	MXP_AverageStackToImage(w3dref, avgImageName = waveNameStr)
 	KillWaves/Z M_StdvImage
 End
@@ -261,7 +261,7 @@ Function MXP_DialogLoadTwoImagesAndRegisterQ()
 	if(!strlen(saveWaveName))
 		// We need a unique wave name
 		DFREF currDF = GetDataFolderDFR()
-		saveWaveName = CreatedataObjectName(currDF, "MXP_XMCD_stk", 1, 0, 0)
+		saveWaveName = CreatedataObjectName(currDF, "MXP_XMCD_stk", 1, 0, 1)
 	endif
 	variable nrows = DimSize(wimg1, 0)
 	variable ncols = DimSize(wimg1, 1)	
@@ -926,7 +926,7 @@ Function MXP_LaunchSumImagePlanes()
 	ImageTransform sumPlanes wRef
 	WAVE M_SumPlanes
 	string basenameStr = NameOfWave(wRef) + "sum"
-	string sumPlanesNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 0)
+	string sumPlanesNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 1)
 	Duplicate M_SumPlanes, $sumPlanesNameStr
 	CopyScales wRef, $sumPlanesNameStr
 	KillWaves/Z M_SumPlanes
@@ -944,7 +944,7 @@ Function MXP_LaunchAverageImagePlanes()
 	ImageTransform averageImage wRef // At least three layers!
 	WAVE M_AveImage
 	string basenameStr = NameOfWave(wRef) + "_avg"
-	string avgPlanesNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 0)
+	string avgPlanesNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 1)
 	Duplicate M_AveImage, $avgPlanesNameStr
 	CopyScales wRef, $avgPlanesNameStr
 	KillWaves/Z M_StdvImage, M_AveImage
