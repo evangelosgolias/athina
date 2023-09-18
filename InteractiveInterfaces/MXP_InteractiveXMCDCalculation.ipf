@@ -94,6 +94,8 @@ Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	variable/G dfr:calculationMethod = 0 // 0=sub/add, 1=div
 	string/G dfr:wName1Str = wave1NameStr
 	string/G dfr:wName2Str = wave2NameStr
+	SetFormula wXMCD, "(wImg1 - wImg2)/(wImg1 + wImg2)"
+	SetFormula wSum, "wImg1 + wImg2"	
 	MXP_CreateInteractiveXMCDCalculationPanel(wXMCD, wSum)
 End
 
