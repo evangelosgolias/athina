@@ -94,8 +94,6 @@ Function MXP_LaunchInteractiveImageDriftCorrectionFromMenu()
 	variable/G dfr:calculationMethod = 0 // 0=sub/add, 1=div
 	string/G dfr:wName1Str = wave1NameStr
 	string/G dfr:wName2Str = wave2NameStr
-	SetFormula wXMCD, "(wImg1 - wImg2)/(wImg1 + wImg2)" // see MXP_XMCDCalcWithDivision
-	SetFormula wSum, "wImg1 + wImg2"
 	MXP_CreateInteractiveXMCDCalculationPanel(wXMCD, wSum)
 End
 
@@ -140,6 +138,16 @@ Function MXP_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
 	string dfrStr = GetUserData(s.winName, "", "MXP_iXMCDPath"), cmdStr
 	switch(s.eventCode)
+		case 0: // activate
+			SetFormula wXMCD, "(wImg1 - wImg2)/(wImg1 + wImg2)"
+			SetFormula wSum, "wImg1 + wImg2"
+			hookresult = 1
+			break
+		case 1: // deactivate
+			SetFormula wXMCD, ""
+			SetFormula wSum, ""
+			hookresult = 1
+			break
 	// Window is about to be killed case 17. 
 	// Needed if you want more than one hook functions to be able to cleanup/close 
 	// windows linked a parent window.
