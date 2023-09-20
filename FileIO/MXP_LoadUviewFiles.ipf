@@ -123,7 +123,7 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
 End
 
 
-Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int autoScale])
+Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int autoScale, int binX, int binY])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
@@ -131,12 +131,15 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 	/// If "" the wave name is the filename without the path and extention.
 	/// @param skipmetadata int optional and if set to a non-zero value it skips metadata.
 	/// @param autoScale int optional scales the imported waves if not 0
-	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
+	/// @param binX binning for rows
+	/// @param binY binning for cols
 	/// @return wave reference
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
 	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
-
+	binX = ParamIsDefault(binX) ? 1: binX
+	binY = ParamIsDefault(binY) ? 1: binY
+	
 	variable numRef
 	string separatorchar = ":"
 	string fileFilters = "dat File (*.dat):.dat;"
@@ -208,12 +211,20 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 	endif
 	
 	variable LEEMdataVersion = MXPImageHeader.LEEMdataVersion <= 2 ? 0: MXPImageHeader.LEEMdataVersion //NB: Added 23.05.2023
-	
-	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
-	Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
 	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + LEEMdataVersion
-	FSetPos numRef, ImageDataStart
-	FBinRead/F=2 numRef, datWave
+	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
+	if(binX == 1 && binY == 1)
+		Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
+		FSetPos numRef, ImageDataStart
+		FBinRead/F=2 numRef, datWave
+	else
+		Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight)/FREE datWaveFree
+		FSetPos numRef, ImageDataStart
+		FBinRead/F=2 numRef, datWaveFree
+		Redimension/S datWaveFree
+		ImageInterpolate/PXSZ={binX, binY}/DEST=$waveNameStr Pixelate datWaveFree		
+		WAVE datWave = $waveNameStr
+	endif
 	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
@@ -224,8 +235,11 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 		// If UView can fill the metadata in MXPFileHeader.size then MXPImageHeader.LEEMdataVersion==0, no need to allocate more space. 
 		// NB: Added on 23.05.2023.
 		variable metadataStart = MXPImageHeader.LEEMdataVersion <= 2 ? MXPFileHeader.size: (MXPFileHeader.size + ImageHeaderSize)
-		string mdatastr = filepathStr + "\n"
+		string mdatastr = filepathStr + "\n"		
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
+		if(binX != 1 || binY != 1)
+			mdatastr += "Binning: (" + num2str(binX) + ", " + num2str(binY) + ")\n"
+		endif			
 		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, MXPImageHeader.LEEMdataVersion)
 	endif
 	
@@ -233,6 +247,7 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 	if(MXPImageHeader.attachedMarkupSize)
 		mdatastr += MXP_StrGetImageMarkups(filepathStr)
 	endif
+	
 	if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
 		Note/K datWave, mdatastr
 	endif
@@ -243,10 +258,10 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 		SetScale/I x, 0, imgScaleVar, datWave
 		SetScale/I y, 0, imgScaleVar, datWave
 	endif
-	return datwave
+	return datWave
 End
 
-Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int autoScale])
+Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int autoScale, int binX, int binY])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string pathname. 
 	/// If "" a dialog opens to select the file.
@@ -254,11 +269,14 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	/// If "" the wave name is the filename without the path and extention.
 	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
 	/// @param autoScale int optional scales the imported waves if not 0
-	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
+	/// @param binX binning for rows
+	/// @param binY binning for cols
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
 	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
-	
+	binX = ParamIsDefault(binX) ? 1: binX
+	binY = ParamIsDefault(binY) ? 1: binY
+		
 	variable numRef
 	string separatorchar = ":"
 	string fileFilters = "dat File (*.dat):.dat;"
@@ -325,12 +343,20 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	endif
 	
 	variable LEEMdataVersion = MXPImageHeader.LEEMdataVersion <= 2 ? 0: MXPImageHeader.LEEMdataVersion //NB: Added 23.05.2023
-	
-	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
-	Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
 	variable ImageDataStart = MXPFileHeader.size + ImageHeaderSize + LEEMdataVersion
-	FSetPos numRef, ImageDataStart
-	FBinRead/F=2 numRef, datWave
+	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
+	if(binX == 1 && binY == 1)
+		Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
+		FSetPos numRef, ImageDataStart
+		FBinRead/F=2 numRef, datWave
+	else
+		Make/W/U/O/N=(MXPFileHeader.ImageWidth, MXPFileHeader.ImageHeight)/FREE datWaveFree
+		FSetPos numRef, ImageDataStart
+		FBinRead/F=2 numRef, datWaveFree
+		Redimension/S datWaveFree
+		ImageInterpolate/PXSZ={binX, binY}/DEST=$waveNameStr Pixelate datWaveFree		
+		WAVE datWave = $waveNameStr
+	endif
 	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
@@ -341,8 +367,11 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 		// If UView can fill the metadata in MXPFileHeader.size then MXPImageHeader.LEEMdataVersion==0, no need to allocate more space. 
 		// NB: Added on 23.05.2023.
 		variable metadataStart = MXPImageHeader.LEEMdataVersion <= 2 ? MXPFileHeader.size: (MXPFileHeader.size + ImageHeaderSize)
-		string mdatastr = filepathStr + "\n"
+		string mdatastr = filepathStr + "\n"		
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
+		if(binX != 1 || binY != 1)
+			mdatastr += "Binning: (" + num2str(binX) + ", " + num2str(binY) + ")\n"
+		endif			
 		mdatastr += MXP_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, MXPImageHeader.LEEMdataVersion)
 	endif
 	
@@ -363,7 +392,7 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	return 0
 End
 
-Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skipmetadata, int waveDataType, int autoScale, int stack3d])
+Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skipmetadata, int autoScale, int stack3d])
 	///< Function to load a single Elmitec binary .dav file. dav files comprise of many dat entries in sequence.
 	/// @param filepathStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
@@ -376,7 +405,6 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
-	waveDataType = ParamIsDefault(waveDataType) ? 0: waveDataType
 	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
 	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
 
@@ -495,15 +523,6 @@ Function MXP_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 		endif
 		if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
 			Note/K datWave, mdatastr
-		endif
-
-		// Convert to SP or DP 
-		if(waveDataType == 1)
-			Redimension/S datWave
-		endif
-	
-		if(waveDataType == 2)
-			Redimension/D datWave
 		endif
 
 		if(stack3d) //TODO: Use ImageTransform here to make import faster
@@ -1395,7 +1414,7 @@ Function MXP_LoadMultiplyDATFiles([string filenames, int skipmetadata, int autos
 	return 0
 End
 
-Function/WAVE MXP_WAVELoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int waveDataType])
+Function/WAVE MXP_WAVELoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int skipmetadata])
 	///< Function to load a single Elmitec binary .dat file by skipping reading the metadata.
 	/// We assume here that the image starts at sizeOfFile - kpixelsTVIPS^2 * 16
 	/// @param filepathStr string filename (including) pathname. 
@@ -1403,12 +1422,9 @@ Function/WAVE MXP_WAVELoadSingleCorruptedDATFile(string filepathStr, string wave
 	/// @param waveNameStr name of the imported wave. 
 	/// If "" the wave name is the filename without the path and extention.
 	/// @param skipmetadata int optional and if set to a non-zero value it skips metadata.
-	/// @param waveDataType int optional and sets the Wavetype of the loaded wave to single 
-	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
 	/// @return wave reference
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
-	waveDataType = ParamIsDefault(waveDataType) ? 0: waveDataType
 
 	variable numRef
 	string separatorchar = ":"
@@ -1462,15 +1478,6 @@ Function/WAVE MXP_WAVELoadSingleCorruptedDATFile(string filepathStr, string wave
 	FBinRead/F=2 numRef, datWave
 	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
-	
-	// Convert to SP or DP 	
-	if(waveDataType == 1)
-		Redimension/S datWave
-	endif
-	
-	if(waveDataType == 2)
-		Redimension/D datWave
-	endif
 	
 	return datwave
 End
