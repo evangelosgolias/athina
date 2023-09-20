@@ -132,7 +132,7 @@ Function/S MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoF
 	// will still match for the points they have in common
 	//CopyScales t2dwred, w3dref 
 	// Add a note about the stacked waves
-	Note/K $wname3dStr, listOfSelectedWaves
+	Note/K $wname3dStr, ReplaceString(";", listOfSelectedWaves, "\n")
 	// Go back to the cwd
 	SetDataFolder currDFR
 	return wname3dStr

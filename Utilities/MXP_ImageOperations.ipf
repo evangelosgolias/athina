@@ -633,6 +633,92 @@ Function MXP_ImageRemoveBackground(WAVE wRef, [variable order])
 	return 0
 End
 
+Function MXP_ImageResampling(WAVE wRef,  string func, variable xOffset, variable yOffset,
+							 [int newWave, variable xscale, variable yscale])
+	// Calculate image interpolation using scaleShift and one of the following intepolating functions.
+	//
+	//	nn	Nearest neighbor interpolation uses the value of the nearest neighbor without interpolation. 
+	//		This is the fastest function.
+	//	bilinear	Bilinear interpolation uses the immediately surrounding pixels and computes a linear 
+	//				interpolation in each dimension. This is the second fastest function.
+	//	cubic	Cubic polynomial (photoshop-like) uses a 4x4 neighborhood value to compute the sampled pixel value.
+	//	spline	Spline smoothed sampled value uses a 4x4 neighborhood around the pixel.
+	//	sinc		Slowest function using a 16x16 neighborhood.
+	//
+	// Image is shifted by xOffset and yOffset. 
+	// Optional parameters: int newWave -- Create a new wave by adding _rsl at the working directory
+	// xscale, yscale: over/undersampling parameters
+	
+	string funcMethods = "bilinear;nn;cubic;spline;sinc"
+	variable ifunc = WhichListItem(func, funcMethods)
+	
+	if(ifunc == -1 || WaveDims(wRef) != 2)
+		return -1
+	endif
+	
+	
+	newWave =  ParamIsDefault(newWave) ? 0: newWave
+	xscale = ParamIsDefault(xscale) ? 1: xscale
+	yscale = ParamIsDefault(yscale) ? 1: yscale
+	string wRefStr = GetWavesDataFolder(wRef, 2), cmdTemplateStr, cmdStr
+
+	if(newWave) // New wave is createed at the working directory
+		DFREF cwdfr = GetDataFolderDFR()
+		STRING baseWaveNameStr = NameOfWave(wRef) + "_rsl"
+		string newWaveNameStr = CreateDataObjectName(cwdfr, baseWaveNameStr, 1, 0, 1)
+		cmdTemplateStr = "ImageInterpolate/FUNC=%s/TRNS={scaleShift, %.4f, %.4f, %.4f, %.4f}/DEST=%s Resample %s"
+		sprintf cmdStr, cmdTemplateStr, func, xOffset, xscale, yOffset, yscale, PossiblyQuoteName(newWaveNameStr), wRefStr
+		Execute/Z/Q cmdStr
+		CopyScales/I wRef, $newWaveNameStr
+	else
+		cmdTemplateStr = "ImageInterpolate/FUNC=%s/TRNS={scaleShift, %.4f, %.4f, %.4f, %.4f} Resample %s"
+		sprintf cmdStr, cmdTemplateStr, func, xOffset, xscale, yOffset, yscale, wRefStr
+		Execute/Z/Q cmdStr
+		WAVE M_InterpolatedImage
+		CopyScales/I wRef, M_InterpolatedImage
+		Duplicate/O M_InterpolatedImage, wRef
+		KillWaves M_InterpolatedImage
+	endif
+	return 0
+End
+
+Function MXP_PixelateImage(WAVE wRef, variable nx, variable ny, [variable i16])
+	/// Pixalate a 2D image using a (nx, ny) binning
+	/// Set i16 to preserve a 16-bit integer wave.
+	if(WaveDims(wRef) != 2)
+		return -1
+	endif
+	
+	if(WaveType(wRef) & 0x10 && ParamIsDefault(i16)) // If WaveType is 16-bit integer and not i16
+		Redimension/S wRef // 32-bit float
+	endif 
+	string wnameStr = NameofWave(wRef) + "_" + num2str(nx) + "x" + num2str(ny) + "_px"
+	ImageInterpolate/PXSZ={nx, ny}/DEST=$wnameStr Pixelate wRef
+	string noteStr = "Pixelated " + NameofWave(wRef) + "{" + num2str(nx) + ", " + num2str(ny) + "}"
+	CopyScales/I wRef, $wnameStr
+	Note/K $wnameStr, noteStr
+	return 0
+End
+
+Function MXP_PixelateImageStack(WAVE wRef, variable nx, variable ny, variable nz, [variable i16])
+	/// Pixalate a 3D image stack using a (nx, ny, nz) binning
+	/// Set i16 to preserve a 16-bit integer wave.
+
+	if(WaveDims(wRef) != 3)
+		return -1
+	endif
+	
+	if(WaveType(wRef) & 0x10 && ParamIsDefault(i16)) // If WaveType is 16-bit integer and not i16
+		Redimension/S wRef // 32-bit float
+	endif 
+	string wnameStr = NameofWave(wRef) + "_" + num2str(nx) + "x" + num2str(ny) + "_px"
+	ImageInterpolate/PXSZ={nx, ny, nz}/DEST=$wnameStr Pixelate wRef
+	string noteStr = "Pixelated " + NameofWave(wRef) + "{" + num2str(nx) + ", " + num2str(ny) + ", " + num2str(nz) + "}"
+	CopyScales/I wRef, $wnameStr
+	Note/K $wnameStr, noteStr
+	return 0
+End
+
 //TODO
 //Function MXP_ApplyOperationToFilesInFolderTree(string pathName, 
 //		   string extension, variable recurse, variable level)

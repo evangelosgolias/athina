@@ -123,20 +123,18 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
 End
 
 
-Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int waveDataType, int autoScale])
+Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int autoScale])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
 	/// @param waveNameStr name of the imported wave. 
 	/// If "" the wave name is the filename without the path and extention.
 	/// @param skipmetadata int optional and if set to a non-zero value it skips metadata.
-	/// @param waveDataType int optional and sets the Wavetype of the loaded wave to single 
 	/// @param autoScale int optional scales the imported waves if not 0
 	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
 	/// @return wave reference
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
-	waveDataType = ParamIsDefault(waveDataType) ? 0: waveDataType
 	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
 
 	variable numRef
@@ -239,15 +237,6 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 		Note/K datWave, mdatastr
 	endif
 	
-	// Convert to SP or DP 	
-	if(waveDataType == 1)
-		Redimension/S datWave
-	endif
-	
-	if(waveDataType == 2)
-		Redimension/D datWave
-	endif
-	
 	if(autoScale && !skipmetadata)
 		variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
 		imgScaleVar = (numtype(imgScaleVar) == 2)? 0: imgScaleVar // NB Added 23.05.2023
@@ -257,19 +246,18 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 	return datwave
 End
 
-Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int waveDataType, int autoScale])
+Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int autoScale])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string pathname. 
 	/// If "" a dialog opens to select the file.
 	/// @param waveNameStr name of the imported wave. 
 	/// If "" the wave name is the filename without the path and extention.
 	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
-	/// @param waveDataType is optional and sets the Wavetype of the loaded wave to single 
 	/// @param autoScale int optional scales the imported waves if not 0
 	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
-	waveDataType = ParamIsDefault(waveDataType) ? 0: waveDataType
+	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
 	
 	variable numRef
 	string separatorchar = ":"
@@ -364,15 +352,6 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	endif
 	if(strlen(mdatastr)) // Added to allow MXP_LoadDATFilesFromFolder function to skip Note/K without error
 		Note/K datWave, mdatastr
-	endif
-	
-	// Convert to SP or DP 	
-	if(waveDataType == 1)
-		Redimension/S datWave
-	endif
-	
-	if(waveDataType == 2)
-		Redimension/D datWave
 	endif
 	
 	if(autoScale && !skipmetadata)
