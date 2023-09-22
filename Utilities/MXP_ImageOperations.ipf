@@ -260,18 +260,54 @@ Function MXP_GetLayerFromImageStack()
 	endif
 End
 
-Function MXP_StackImageToImageStack(WAVE w3dref, WAVE w2dRef) 
+Function MXP_RemoveImagesFromImageStack(WAVE w3dref, variable startLayer, variable nrLayers)
+	// Remove nrLayers starting at startLayer from w3dRef
+	variable nL = DimSize(w3dref, 2)
+	if(nl < 2 || startLayer > nL)
+		return -1
+	endif
+	ImageTransform/O/P=(startLayer)/NP=(nrLayers) removeZplane w3dRef
+	return 0
+End
+
+Function MXP_InsertImageToImageStack(WAVE w3dref, WAVE w2dRef, variable layerN)
+	// Insert an image at the position layerN of an image stack
+	// Here the z dimension will change, as the DimDelta is used to scale the resulting 
+	// image stack
 	if((DimSize(w3dref, 0) == DimSize(w2dRef, 0)) && DimSize(w3dref, 1) == DimSize(w2dRef, 1))
-		variable lastLayerNr = DimSize(w3dRef, 2)
-		if(lastLayerNr)
-			variable x0, y0, z0, dx, dy, dz
-			[x0, y0, z0, dx, dy, dz] = MXP_GetScalesP(w3dRef)
-			ImageTransform/O/INSW=w2dref/P=(lastLayerNr) insertZplane w3dRef
-			MXP_SetScalesP(w3dRef, x0, y0, z0, dx, dy, dz)
-		endif
+		variable x0, y0, z0, dx, dy, dz
+		[x0, y0, z0, dx, dy, dz] = MXP_GetScalesP(w3dRef)
+		ImageTransform/O/INSW=w2dref/P=(layerN) insertZplane w3dRef
+		MXP_SetScalesP(w3dRef, x0, y0, z0, dx, dy, dz)
 	else
 		Abort "Image and stack must have the same lateral dimensions."
 	endif
+End
+
+Function MXP_AppendImagesToImageStack(WAVE wRef, string waveListStr) 
+	//
+	// Append images in waveListStr to wRef
+	//
+	WAVE/WAVE wRefw = MXP_StringWaveListToWaveRef(waveListStr, isFree = 1)
+	InsertPoints 0, 1, wRefw
+	Duplicate/FREE wRef, wRefFREE
+	wRefw[0] = wRefFREE
+	string destWave = GetWavesDataFolder(wRef, 2)
+	if(MXP_AllImagesEqualDimensionsQ(wRefw))
+		Concatenate/O/NP=2 {wRefw}, $destWave
+		return 0
+	else
+		print "Dimension mismatch, no op!"
+		return -1
+	endif
+End
+
+Function MXP_ConcatenateImages(string destWaveStr, string waveListStr) 
+	//
+	// Concatenate wave to destWaveStr
+	//
+	WAVE/WAVE wRefw = MXP_StringWaveListToWaveRef(waveListStr, isFree = 1)
+	Concatenate/O/NP=2 {wRefw}, $destWaveStr
 End
 
 Function MXP_ImageEdgeDetectionToStack(WAVE w3dref, string method, [variable overwrite])
@@ -520,37 +556,6 @@ Function MXP_AverageImageRangeToStack(WAVE w3d, variable NP0, variable NP1)
 	return 0
 End
 
-Function MXP_ResampleImageStackWithXYScales(WAVE w3d, variable Nx, variable Ny)
-	/// Resample the w3d with factors Nx, Ny => Nx * x, Ny * y
-	/// Works with 2D, 3D waves also	
-	
-	variable nlayers = DimSize(w3d, 2), i 
-	DFREF saveDF = GetDataFolderDFR()
-	SetDataFolder NewFreeDataFolder()
-	
-	for(i = 0; i < nlayers; i++)
-		MatrixOP/FREE gLayerFree = layer(w3d, i)
-		ImageInterpolate/FUNC=nn/TRNS={scaleShift, 0, Nx, 0, Ny} Resample gLayerFree
-		Rename M_InterpolatedImage, $("getStacklayer_" + num2str(i))
-	endfor
-	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
-	WAVE M_Stack
-	CopyScales w3d, M_Stack
-	string baseNameStr = NameOfWave(w3d) + num2str(Nx) + "x" + num2str(Ny)
-	string saveWaveNameStr = CreatedataObjectName(saveDF, baseNameStr, 1, 0, 0)
-	MoveWave M_Stack saveDF:$saveWaveNameStr
-	SetDataFolder saveDF
-	return 0
-End
-
-Function MXP_PixelateImageStackWithFactor(WAVE w3d, variable Nxy)
-	/// Pixelate (bin) the image or image stack with factor Nxy
-	/// Works with 2D, 3D waves 
-	
-	string waveNameStr = NameOfWave(w3d) + "_px" + num2str(Nxy)
-	ImageInterpolate/PXSZ={Nxy,Nxy}/DEST=$waveNameStr pixelate w3d
-	return 0
-End
 
 Function MXP_HistogramShiftToGaussianCenter(WAVE w2d, [variable overwrite])
 	/// Move the histogram center to the center of the fitted gaussian
@@ -718,6 +723,39 @@ Function MXP_PixelateImageStack(WAVE wRef, variable nx, variable ny, variable nz
 	Note/K $wnameStr, noteStr
 	return 0
 End
+
+//Function MXP_ResampleImageStackWithXYScales(WAVE w3d, variable Nx, variable Ny)
+//	/// Resample the w3d with factors Nx, Ny => Nx * x, Ny * y
+//	/// Works with 2D, 3D waves also	
+//	
+//	variable nlayers = DimSize(w3d, 2), i 
+//	DFREF saveDF = GetDataFolderDFR()
+//	SetDataFolder NewFreeDataFolder()
+//	
+//	for(i = 0; i < nlayers; i++)
+//		MatrixOP/FREE gLayerFree = layer(w3d, i)
+//		ImageInterpolate/FUNC=nn/TRNS={scaleShift, 0, Nx, 0, Ny} Resample gLayerFree
+//		Rename M_InterpolatedImage, $("getStacklayer_" + num2str(i))
+//	endfor
+//	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
+//	WAVE M_Stack
+//	CopyScales w3d, M_Stack
+//	string baseNameStr = NameOfWave(w3d) + num2str(Nx) + "x" + num2str(Ny)
+//	string saveWaveNameStr = CreatedataObjectName(saveDF, baseNameStr, 1, 0, 0)
+//	MoveWave M_Stack saveDF:$saveWaveNameStr
+//	SetDataFolder saveDF
+//	return 0
+//End
+//
+//Function MXP_PixelateImageStackWithFactor(WAVE w3d, variable Nxy)
+//	/// Pixelate (bin) the image or image stack with factor Nxy
+//	/// Works with 2D, 3D waves 
+//	
+//	string waveNameStr = NameOfWave(w3d) + "_px" + num2str(Nxy)
+//	ImageInterpolate/PXSZ={Nxy,Nxy}/DEST=$waveNameStr pixelate w3d
+//	return 0
+//End
+
 
 //TODO
 //Function MXP_ApplyOperationToFilesInFolderTree(string pathName, 

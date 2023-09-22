@@ -226,3 +226,60 @@ Function/S MXP_SetOrResetBeamtimeRootFolder()
 	endif
 	return S_path
 End
+
+// ----------------------------------------
+
+Function MXP_FindBigWaves(minSizeInMB[,df,depth,noShow])
+	/// Copy of https://www.wavemetrics.com/code-snippet/find-big-waves
+    Variable minSizeInMB // Minimum size in MB, e.g. 100 
+    variable depth // Used by the function recursion.  Ignore.  
+    variable noShow // Don't show the table at the end.  
+    dfref df // A folder to use as the top level of the search.  Default is root:  
+ 
+    if(paramisdefault(df))
+        dfref df=root:
+    endif
+    if(depth==0)
+        NewDataFolder /O root:Packages
+        NewDataFolder /O root:Packages:MXP_FindBigWaves
+        dfref packageDF=root:Packages:MXP_FindBigWaves
+        Make /o/T/n=0 packageDF:names
+        Make /o/n=0 packageDF:sizes
+    else
+        dfref packageDF=root:Packages:MXP_FindBigWaves
+    endif
+    variable i
+    wave /T/sdfr=packageDF names
+    wave /sdfr=packageDF sizes
+    variable points=numpnts(names)
+    for(i=0;i<CountObjectsDFR(df,1);i+=1)
+        wave w=df:$getindexedobjnamedfr(df,1,i)
+        variable size = MXP_sizeOfWave(w)
+        if(size > minSizeInMB)
+            names[points]={GetWavesDataFolder(w,2)}
+            sizes[points]={size}
+            points+=1
+        endif
+    endfor
+    i=0
+    Do
+        string folder=GetIndexedObjNamedfr(df,4,i)
+        if(strlen(folder))
+            dfref subDF=df:$folder
+            MXP_FindBigWaves(minSizeInMB,df=subDF,depth=depth+1)
+        else
+            break
+        endif
+        i+=1
+    While(1)
+    if(depth==0)
+        sort /R sizes,sizes,names
+        if(!noShow)
+            if(wintype("BigWaves"))
+                dowindow /f BigWaves
+            else
+                edit /K=1 /N=BigWaves names,sizes as "Big Waves"
+            endif
+        endif
+    endif
+End

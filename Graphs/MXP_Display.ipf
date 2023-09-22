@@ -33,9 +33,17 @@
 
 static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
 
-Function MXP_DisplayImage(WAVE waveRef)
+Function MXP_DisplayImage(WAVE wRef)
 	// Display an image or stack
-	NewImage/G=1/K=1 waveRef
+	NewImage/G=1/K=1 wRef
+	// Copy from MXP_AutoRangeTopImagePerPlaneAndVisibleArea()
+	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
+	string colorScaleStr
+	variable cmapSwitch
+	sscanf StringByKey("RECREATION",Imageinfo("",NameOfWave(wRef),0)), matchPattern, colorScaleStr, cmapSwitch
+	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3 // Autoscale Image	
+	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {*,*,$colorScaleStr,cmapSwitch} // Autoscale Image	
+	//
 	string igorInfoStr = StringByKey( "SCREEN1", IgorInfo(0)) // INFO: Change here if needed	
 	igorInfoStr = RemoveListItem(0, igorInfoStr, ",")
 	variable screenLeft, screenTop, screenRight, screenBottom
@@ -43,27 +51,28 @@ Function MXP_DisplayImage(WAVE waveRef)
 	variable screenWidth, screenLength
 	screenWidth = abs(screenRight - screenLeft)
 	screenLength = abs(screenBottom - screenTop)
+	variable imgFactor = (floor(DimSize(wRef, 0) / 1024)) ? (floor(DimSize(wRef, 0) / 1024)):1
 	variable scaleFactor
 	if(screenWidth > 3835)
-		scaleFactor = 0.75
+		scaleFactor = 0.75 / imgFactor
 	elseif(screenWidth > 2555)
-		scaleFactor = 0.5	
+		scaleFactor = 0.5 / imgFactor
 	elseif(screenWidth > 1915)
-		scaleFactor = 0.33
+		scaleFactor = 0.33 / imgFactor
 	elseif(screenWidth > 1275)	
-		scaleFactor = 0.25
+		scaleFactor = 0.25 / imgFactor
 	else
 		scaleFactor = 0
 	endif
 	DoAutoSizeImage(scaleFactor, -1)
 	// Simple solution when Dims x, y are the same
-	if(DimSize(waveRef, 0) == DimSize(waveRef, 1))
+	if(DimSize(wRef, 0) == DimSize(wRef, 1))
 		ModifyGraph width={Plan,1,top,left}, height = 0
 	else
 		ModifyGraph width = 0, height = 0
 	endif
 	
-	if(WaveDims(waveRef)==3)
+	if(WaveDims(wRef)==3)
 		MXP_Append3DImageSlider()
 	endif
 	return 0

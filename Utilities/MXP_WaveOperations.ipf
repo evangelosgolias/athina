@@ -118,13 +118,8 @@ Function/S MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoF
 		wname3dStr = CreatedataObjectName(currDFR, "MXP_stack", 1, 0, 0)
 	endif
 	
-	Make/FREE/WAVE/N=(nrwaves) mxp_FREEwaveListWaveRef
-	 
-	for(i = 0; i < nrwaves; i++)
-		mxp_FREEwaveListWaveRef[i] = $(StringFromList(i,listOfSelectedWaves))
-	endfor
-	
-	Concatenate/NP=2 {mxp_FREEwaveListWaveRef}, $wname3dStr
+	WAVE/WAVE waveListFree = MXP_StringWaveListToWaveRef(listOfSelectedWaves, isFree = 1)
+	Concatenate/NP=2 {waveListFree}, $wname3dStr
 	
 	// if you use /P, the dimension scaling is copied in slope/intercept format 
 	// so that if srcWaveName  and the other waves have differing dimension size 
@@ -136,6 +131,27 @@ Function/S MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoF
 	// Go back to the cwd
 	SetDataFolder currDFR
 	return wname3dStr
+End
+
+Function/WAVE MXP_StringWaveListToWaveRef(string wavelistStr, [int isFree])
+	// Gets a wavelist and retuns a Wave reference Wave.
+	// Wave is free is isFree is set
+	
+	variable nrwaves = ItemsInList(wavelistStr), i
+	if(!nrwaves)
+		return $""
+	endif
+	
+	if(ParamIsDefault(isFree)) // if you do not set then it is not free
+		Make/WAVE/N=(nrwaves) wRefw
+	else
+		Make/FREE/WAVE/N=(nrwaves) wRefw
+	endif
+	
+	for(i = 0; i < nrwaves; i++)
+		wRefw[i] = $(StringFromList(i, wavelistStr))
+	endfor
+	return wRefw
 End
 
 Function MXP_MakeSquare3DWave(WAVE w3d, [variable size])
@@ -156,7 +172,7 @@ Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
 	/// Average a 3d wave along z.
 	/// @param w3d WAVE Wave name to average (3d wave)
 	/// @param avgImageName string optional Name of the output wave, default MXP_AvgStack.
-	avgImageName = SelectString(ParamIsDefault(avgImageName) ? 0: 1,"MXP_AvgStack", avgImageName)
+	avgImageName = SelectString(ParamIsDefault(avgImageName) ? 0: 1, "MXP_AvgStack", avgImageName)
 	variable nlayers = DimSize(w3d, 2)
 	ImageTransform sumplanes w3d // averageImage does not work for two layers!
 	WAVE M_SumPlanes
@@ -414,6 +430,68 @@ Function MXP_SetWaveOffsetZero(WAVE wRef, [int dim])
 	return 0
 End
 
+Function MXP_ImageDimensionsEqualQ(WAVE w1, WAVE w2)
+	// Return 1 if images have equal number of rows, cols and 0 otherwise.
+	// Works for 2D and 3D waves.
+	if(WaveDims(w1) > 1 && WaveDims(w1) < 4 && WaveDims(w2) > 1 && WaveDims(w2) < 4)
+		return ((DimSize(w1, 0) == DimSize(w2, 0)) && (DimSize(w1, 1) == DimSize(w2, 1)) ? 1: 0)
+	endif
+End
+
+Function MXP_AllImagesEqualDimensionsQ(WAVE/WAVE wRefw)
+	// Check whether all images have the same rows, cols
+	variable nwaves = DimSize(wRefw, 0), i
+	if(nwaves < 2)
+		return -1
+	endif
+	WAVE w1 = wRefw[0]
+	for(i = 1; i < nwaves; i++)
+		WAVE w2 = wRefw[i]
+		if(!MXP_ImageDimensionsEqualQ(w1, w2))
+			return 0
+		endif
+	endfor
+	return 1
+End
+
+Function MXP_MatchWaveTypes(WAVE wRef, WAVE wDest)
+	// Change WaveType of wDest to the one of wRef
+	variable wTypeRef = WaveType(wRef)
+	switch(wTypeRef)
+		case 2: // 32-bit float
+			Redimension/S wDest
+			break
+		case 4: // 64-bit float
+			Redimension/D wDest
+			break
+		case 8: // 8-bit integer
+			Redimension/B wDest
+			break
+		case 16: // 16-bit integer
+			Redimension/W wDest
+			break
+		case 32: // 32-bit integer
+			Redimension/I wDest
+			break
+		case 72: // 8-bit unsigned integer
+			Redimension/B/U wDest
+			break
+		case 80: // 16-bit unsigned integer
+			Redimension/W/U wDest
+			break
+		case 96: // 32-bit unsigned integer
+			Redimension/I/U wDest
+			break
+		case 128: // 64-bit integer
+			Redimension/L wDest
+			break
+		case 196: // 64-bit unsigned integer
+			Redimension/L/U wDest
+			break
+	endswitch
+	return 0
+End
+
 // Helper functions
 Function MXP_NextPowerOfTwo(variable num)
 	 /// Return the first power of two after num.
@@ -424,64 +502,6 @@ Function MXP_NextPowerOfTwo(variable num)
 		result *= 2
 	while (result < num)
 	return result
-End
-
-
-// ----------------------------------------
-
-Function MXP_FindBigWaves(minSizeInMB[,df,depth,noShow])
-	/// Copy of https://www.wavemetrics.com/code-snippet/find-big-waves
-    Variable minSizeInMB // Minimum size in MB, e.g. 100 
-    variable depth // Used by the function recursion.  Ignore.  
-    variable noShow // Don't show the table at the end.  
-    dfref df // A folder to use as the top level of the search.  Default is root:  
- 
-    if(paramisdefault(df))
-        dfref df=root:
-    endif
-    if(depth==0)
-        NewDataFolder /O root:Packages
-        NewDataFolder /O root:Packages:MXP_FindBigWaves
-        dfref packageDF=root:Packages:MXP_FindBigWaves
-        Make /o/T/n=0 packageDF:names
-        Make /o/n=0 packageDF:sizes
-    else
-        dfref packageDF=root:Packages:MXP_FindBigWaves
-    endif
-    variable i
-    wave /T/sdfr=packageDF names
-    wave /sdfr=packageDF sizes
-    variable points=numpnts(names)
-    for(i=0;i<CountObjectsDFR(df,1);i+=1)
-        wave w=df:$getindexedobjnamedfr(df,1,i)
-        variable size = MXP_sizeOfWave(w)
-        if(size > minSizeInMB)
-            names[points]={GetWavesDataFolder(w,2)}
-            sizes[points]={size}
-            points+=1
-        endif
-    endfor
-    i=0
-    Do
-        string folder=GetIndexedObjNamedfr(df,4,i)
-        if(strlen(folder))
-            dfref subDF=df:$folder
-            MXP_FindBigWaves(minSizeInMB,df=subDF,depth=depth+1)
-        else
-            break
-        endif
-        i+=1
-    While(1)
-    if(depth==0)
-        sort /R sizes,sizes,names
-        if(!noShow)
-            if(wintype("BigWaves"))
-                dowindow /f BigWaves
-            else
-                edit /K=1 /N=BigWaves names,sizes as "Big Waves"
-            endif
-        endif
-    endif
 End
 
 Function MXP_SizeOfWave(wv)

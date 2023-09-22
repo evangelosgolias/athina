@@ -174,12 +174,11 @@ Function MXP_InitialiseLineProfileFolder(string winNameStr)
 	variable/G dfr:gMXP_C2y = round(1.1 * ncols/2)
 	variable/G dfr:gMXP_profileWidth = 0
 	variable/G dfr:gMXP_selectedLayer = 0
-	variable/G dfr:gMXP_updateSelectedLayer = 0
 	variable/G dfr:gMXP_updateCursorsPositions = 0
 	// Switches and indicators
 	variable/G dfr:gMXP_PlotSwitch = 1
 	variable/G dfr:gMXP_MarkLinesSwitch = 0
-	variable/G dfr:gMXP_SelectLayer = 0
+	variable/G dfr:gMXP_updateSelectedLayer = 1	
 	variable/G dfr:gMXP_colorcnt = 0
 	variable/G dfr:gMXP_mouseTrackV
 	// Default settings
@@ -231,7 +230,7 @@ Function MXP_CreateLineProfilePlot(DFREF dfr)
 	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",fcolor=(65535,32768,32768),help={"Show width of integrated area while button is pressed"},proc=MXP_LineProfilePlotShowProfileWidth
 	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=MXP_LineProfilePlotCheckboxPlotProfile
 	CheckBox MarkLines,pos={127.00,40.00},size={86.00,17.00},title="Mark lines ",fSize=14,value=0,side=1,proc=MXP_LineProfilePlotCheckboxMarkLines
-	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=MXP_LineProfilePlotProfileLayer3D
+	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,value=1,proc=MXP_LineProfilePlotProfileLayer3D
 	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1},proc=MXP_LineProfilePlotSetVariableWidth
 	return 0
 End

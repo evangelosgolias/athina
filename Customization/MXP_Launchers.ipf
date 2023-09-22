@@ -42,9 +42,12 @@ Function MXP_LaunchMake3DWaveDataBrowserSelection([variable displayStack])
 	string wname3dStr
 	wname3dStr = MXP_Make3DWaveDataBrowserSelection("MXP_stack", gotoFilesDFR = 0) // 0 - stack in cwd 1 - stack in files DFR
 	// Do you want to display the stack?
-	if(displayStack)
+	if(displayStack && strlen(wname3dStr)) // wname3dStr = "" when you select no or one wave
 		MXP_DisplayImage($wname3dStr)
+	else
+		return 1
 	endif
+	return 0
 End
 
 Function MXP_LauncherLoadDATFilesFromFolder()
@@ -275,7 +278,7 @@ Function MXP_DialogLoadTwoImagesAndRegisterQ()
 	return 0
 End
 
-Function MXP_LaunchCalculationXMCD3d()
+Function MXP_LaunchCalculationXMCD3D()
 	string msg = "Select two 3d waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
 	string selectedWavesInBrowserStr = MXP_SelectWavesInModalDataBrowser(msg)
 	
@@ -773,40 +776,70 @@ Function MXP_LaunchNormalisationImageStackWithImageStack()
 	
 End
 
+Function MXP_LaunchRemoveImagesFromImageStack()
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	variable startLayer, nrLayers
+	if(WaveDims(w3dref) == 3 && DataFolderExists("root:Packages:WM3DImageSlider:" + winNameStr))
+		NVAR glayer = root:Packages:WM3DImageSlider:$(winNameStr):gLayer
+		startLayer = glayer
+	else
+		return -1
+	endif
+	nrLayers = MXP_GenericSingleVarPrompt("How many layers you want to remove (start from top image)?", "MXP_RemoveImagesFromImageStack")
+	if(nrLayers)
+		KillWindow/Z $winNameStr
+		MXP_RemoveImagesFromImageStack(w3dref, startLayer, nrLayers)
+		MXP_DisplayImage(w3dref)
+	endif
+	return 0
+End
+
 Function MXP_LaunchStackImagesToImageStack()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 
-	string selectImagesStr = MXP_SelectWavesInModalDataBrowser("Select an image (2d wave) to add to stack"), imageStr
+	string selectImagesStr = MXP_SelectWavesInModalDataBrowser("Select image(s) (2d, 3d waves) to append to image(stack)"), imageStr
 	variable imagesNr = ItemsInList(selectImagesStr), i
-	KillWindow/Z $winNameStr
-	for(i = 0; i < imagesNr; i++)
-		imageStr = StringFromList(i, selectImagesStr)
-		WAVE imageWaveRef = $imageStr
-		if(WaveDims(imageWaveRef) == 2)
-			MXP_StackImageToImageStack(w3dref, imageWaveRef)
-		endif
-	endfor
-	MXP_DisplayImage(w3dref)
-	ModifyGraph width={Plan,1,top,left}
-	WMAppend3DImageSlider()
-End
-
-Function MXP_LaunchStackSingleImageToImageStack() // Not used
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-
-	string selectImageStr = StringFromList(0, MXP_SelectWavesInModalDataBrowser("Select images (2d wave) to add to stack"))
-	WAVE imageWaveRef = $selectImageStr
-	if(WaveDims(imageWaveRef) == 2)
-		MXP_StackImageToImageStack(w3dref, imageWaveRef)
+	
+	if(!ItemsInList(selectImagesStr))
+		return 1
+	endif
+	if(!MXP_AppendImagesToImageStack(w3dref, selectImagesStr))
 		KillWindow/Z $winNameStr
 		MXP_DisplayImage(w3dref)
-		ModifyGraph width={Plan,1,top,left}
-		WMAppend3DImageSlider()
+	endif	
+	return 0
+End
+
+Function MXP_LaunchInsertImageToStack()
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	variable layerN
+	if(WaveDims(w3dref) == 3 && DataFolderExists("root:Packages:WM3DImageSlider:" + winNameStr))
+		NVAR glayer = root:Packages:WM3DImageSlider:$(winNameStr):gLayer
+		layerN = glayer
+	else
+		return -1
 	endif
+	string selectImagesStr = MXP_SelectWavesInModalDataBrowser("Select one image to insert to stack."), imageStr
+	imageStr = StringFromList(0, selectImagesStr)
+	if(!strlen(imageStr))
+		return 1
+	endif
+	WAVE w2dref = $imageStr
+	variable wType = WaveType(w3dref)
+	if(wType == WaveType(w2dref))
+		MXP_InsertImageToImageStack(w3dref, w2dref, layerN)
+	else
+		MXP_MatchWaveTypes(w3dref, w2dref)
+		MXP_InsertImageToImageStack(w3dref, w2dref, layerN)
+	endif
+	return 0	
+
 End
 
 Function MXP_LaunchImageRemoveBackground()
