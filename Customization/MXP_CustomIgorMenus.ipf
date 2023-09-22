@@ -114,10 +114,10 @@ End
 Menu "GraphMarquee"
 	"MXP Image range 96% of ROI (2D, 3D)", /Q, MXP_SetImageRangeTo94Percent()
 	"MXP Print ROI stats (2D, 3D)", /Q, MXP_GetMarqueeWaveStats()
+	"MXP Save Rect ROI (2D, 3D)", /Q, MXP_SaveROICoordinatesToDatabase(rect = 1)		
 	"MXP Save Oval ROI (2D, 3D)", /Q, MXP_SaveROICoordinatesToDatabase()
-	"MXP Save Rect ROI (2D, 3D)", /Q, MXP_SaveROICoordinatesToDatabase(rect = 1)	
+	"MXP Z-profiler: Set rectangular ROI  (3D)", /Q, MXP_TraceMenuLaunchRectangleSumBeamsProfile()	
 	"MXP Z-profiler: Set oval ROI  (3D)", /Q, MXP_TraceMenuLaunchOvalSumBeamsProfile()
-	"MXP Z-profiler: Set rectangular ROI  (3D)", /Q, MXP_TraceMenuLaunchRectangleSumBeamsProfile()
 	//"MXP Marquee to mask (2D, 3D)", /Q, MXP_MarqueeToMask()
 	"MXP Backup traces (1D)", /Q, MXP_BackupTraces()
 	"MXP Restore traces (1D)", /Q, MXP_RestoreTraces()

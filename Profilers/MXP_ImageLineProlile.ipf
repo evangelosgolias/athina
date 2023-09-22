@@ -215,6 +215,7 @@ Function MXP_CreateLineProfilePlot(DFREF dfr)
 	Display/W=(0*pix,0*pix,500*pix,300*pix)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile vs dfr:W_LineProfileDisplacement as "Line profile " + gMXP_WindowNameStr
 	AutoPositionWindow/E/M=0/R=$gMXP_WindowNameStr
 	ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=14, lsize=1.5
+	//ModifyGraph mode=7,useNegRGB=1,usePlusRGB=1,hbFill=5,negRGB=(65535,32768,32768),plusRGB=(32768,40777,65535) // delay at 4K?
 	Label left "\\u#2 Intensity (arb. u.)"
 	Label bottom "\\u#2 \$WMTEX$ d_{E \\ \to \\ F} \\ (u.)$/WMTEX$"
 	
