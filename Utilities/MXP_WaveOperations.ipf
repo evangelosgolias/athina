@@ -119,7 +119,12 @@ Function/S MXP_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoF
 	endif
 	
 	WAVE/WAVE waveListFree = MXP_StringWaveListToWaveRef(listOfSelectedWaves, isFree = 1)
-	Concatenate/NP=2 {waveListFree}, $wname3dStr
+	if(MXP_AllImagesEqualDimensionsQ(waveListFree))
+		Concatenate/NP=2 {waveListFree}, $wname3dStr
+	else
+		print "Dimension mismatch. Aborting stacking ..."
+		return ""
+	endif
 	
 	// if you use /P, the dimension scaling is copied in slope/intercept format 
 	// so that if srcWaveName  and the other waves have differing dimension size 
