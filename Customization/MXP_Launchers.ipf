@@ -789,9 +789,8 @@ Function MXP_LaunchRemoveImagesFromImageStack()
 	endif
 	nrLayers = MXP_GenericSingleVarPrompt("How many layers you want to remove (start from top image)?", "MXP_RemoveImagesFromImageStack")
 	if(nrLayers)
-		KillWindow/Z $winNameStr
 		MXP_RemoveImagesFromImageStack(w3dref, startLayer, nrLayers)
-		MXP_DisplayImage(w3dref)
+		MXP_RestartWM3DImageSlider(winNameStr)
 	endif
 	return 0
 End
@@ -808,8 +807,7 @@ Function MXP_LaunchStackImagesToImageStack()
 		return 1
 	endif
 	if(!MXP_AppendImagesToImageStack(w3dref, selectImagesStr))
-		KillWindow/Z $winNameStr
-		MXP_DisplayImage(w3dref)
+		MXP_RestartWM3DImageSlider(winNameStr)
 	endif	
 	return 0
 End
@@ -838,6 +836,7 @@ Function MXP_LaunchInsertImageToStack()
 		MXP_MatchWaveTypes(w3dref, w2dref)
 		MXP_InsertImageToImageStack(w3dref, w2dref, layerN)
 	endif
+	MXP_RestartWM3DImageSlider(winNameStr)
 	return 0	
 
 End

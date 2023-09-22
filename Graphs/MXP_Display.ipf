@@ -76,8 +76,6 @@ Function MXP_DisplayImage(WAVE wRef)
 		MXP_Append3DImageSlider()
 	endif
 	return 0
-
-	
 End
 
 Function MXP_Append3DImageSlider()
@@ -120,7 +118,7 @@ Function MXP_Append3DImageSlider()
 		gRightLim=DimSize(w,2)-1					//image is 3D grayscale
 	endif
 	
-	String/G imageName=possiblyQuoteName(nameOfWave(w)) // EG.
+	String/G imageName=PossiblyQuoteName(nameOfWave(w)) // EG.
 	ControlInfo kwControlBar
 	Variable/G gOriginalHeight= V_Height			// we append below original controls (if any)
 	ControlBar gOriginalHeight+30
@@ -310,5 +308,21 @@ Function MXP_SetImageRangeTo94Percent()
 	ModifyImage/W=$winNameStr $PossiblyQuoteName(nameOfWave(imgWaveRef)) ctab= {nzmin,nzmax,}
 	
 	SetDataFolder saveDF
+	return 0
+End
+
+Function MXP_RestartWM3DImageSlider(string winNameStr)
+	// Kill and restart WM3DImageSlider and restart in case 
+	// of changed in the source 3d wave.
+	DFREF dfr = $(WMkSliderDataFolderBase + winNameStr)
+	NVAR originalHeight = dfr:gOriginalHeight
+	SetWindow $(winNameStr) hook(WM3Dresize)=$""
+	
+	ControlBar originalHeight
+	KillControl/W=$winNameStr WM3DAxis
+	KillControl/W=$winNameStr WM3DVal
+	KillControl/W=$winNameStr WM3DDoneBtn
+	KillDataFolder/Z dfr
+	MXP_Append3DImageSlider()
 	return 0
 End
