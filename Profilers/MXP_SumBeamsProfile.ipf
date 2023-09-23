@@ -434,7 +434,7 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
 	string w3dNameStrQ = PossiblyQuoteName(w3dNameStr) // Dealing with name1#name2 waves names
 	SetDrawLayer/W=$WindowNameStr ProgFront // We need it for ImageGenerateROIMask
-
+	variable rs, re, cs, ce // MatrixOP
 	switch(s.eventCode)
 		case 0: //activate window rescales the profile to the layer scale of the 3d wave
 			SetScale/P x, DimOffset(w3d,2), DimDelta(w3d,2), profile // TODO: Change this, I do not like it.
@@ -493,7 +493,11 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 					break
 				endif
 				// We always use a square ROI while moving the cursor, it is faster.
-				MatrixOP/O/NTHR=0 profile = sum(subrange(w3d, gMXP_left/dx, gMXP_right/dx, gMXP_bottom/dy, gMXP_top/dy))
+				rs = ScaleToIndex(w3d, gMXP_left, 0)
+				re = ScaleToIndex(w3d, gMXP_right, 0)
+				cs = ScaleToIndex(w3d, gMXP_bottom, 1)
+				ce = ScaleToIndex(w3d, gMXP_top, 1)
+				MatrixOP/O/NTHR=0 profile = sum(subrange(w3d, rs, re, cs, ce))
 				Redimension/E=1/N=(nLayers) profile
 				//	Debug:
 				//		    		print "Left:", gMXP_left, ",Right:",gMXP_right, ",Top:", gMXP_top, ",Bottom:", gMXP_bottom
