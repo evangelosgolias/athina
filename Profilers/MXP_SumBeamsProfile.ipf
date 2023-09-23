@@ -1,4 +1,5 @@
-﻿#pragma TextEncoding = "UTF-8"
+﻿
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals    = 3		
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
@@ -113,6 +114,10 @@ Function MXP_TraceMenuLaunchOvalSumBeamsProfile() // Launch directly from trace 
 	gMXP_right = V_right
 	gMXP_top = V_top
 	gMXP_bottom = V_bottom
+	NVAR/SDFR=dfr gMXP_aXlen
+	NVAR/SDFR=dfr gMXP_aYlen
+	gMXP_aXlen = abs(V_left-V_right)
+	gMXP_aYlen = abs(V_top-V_bottom)		
 	NVAR/SDFR=dfr gMXP_Rect
 	gMXP_Rect = 0
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
@@ -157,6 +162,10 @@ Function MXP_TraceMenuLaunchRectangleSumBeamsProfile() // Launch directly from t
 	gMXP_right = V_right
 	gMXP_top = V_top
 	gMXP_bottom = V_bottom
+	NVAR/SDFR=dfr gMXP_aXlen
+	NVAR/SDFR=dfr gMXP_aYlen
+	gMXP_aXlen = abs(V_left-V_right)
+	gMXP_aYlen = abs(V_top-V_bottom)		
 	NVAR/SDFR=dfr gMXP_Rect
 	gMXP_Rect = 1
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
@@ -242,6 +251,8 @@ Function MXP_InitialiseZProfileFolder()
 	string/G dfr:gMXP_w3dNameStr = NameOfWave(w3dref)
 	variable/G dfr:gMXP_dx = DimDelta(w3dref, 0)
 	variable/G dfr:gMXP_dy = DimDelta(w3dref, 1)
+	variable/G dfr:gMXP_Nx = DimSize(w3dref, 0) - 1 // Last element's index X
+	variable/G dfr:gMXP_Ny = DimSize(w3dref, 1)	- 1 // Last element's index Y
 	variable/G dfr:gMXP_xOff = DimOffset(w3dref,0)
 	variable/G dfr:gMXP_yOff = DimOffset(w3dref,1)
 	variable/G dfr:gMXP_xLast = DimOffset(w3dref,0) + DimDelta(w3dref,0) * (DimSize(w3dref,0) - 1)
@@ -250,6 +261,8 @@ Function MXP_InitialiseZProfileFolder()
 	variable/G dfr:gMXP_right = 0
 	variable/G dfr:gMXP_top = 0
 	variable/G dfr:gMXP_bottom = 0
+	variable/G dfr:gMXP_aXlen
+	variable/G dfr:gMXP_aYlen
 	variable/G dfr:gMXP_Rect
 	variable/G dfr:nLayers = nlayers
 	variable/G dfr:gMXP_DoPlotSwitch = 1
@@ -277,6 +290,10 @@ Function MXP_DrawOvalROIAndWaitHookToAct() // Function used by the hook
 	gMXP_right = V_right
 	gMXP_top = V_top
 	gMXP_bottom = V_bottom
+	NVAR/SDFR=dfr gMXP_aXlen
+	NVAR/SDFR=dfr gMXP_aYlen
+	gMXP_aXlen = abs(V_left-V_right)
+	gMXP_aYlen = abs(V_top-V_bottom)		
 	NVAR/SDFR=dfr gMXP_Rect
 	gMXP_Rect = 0
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
@@ -305,6 +322,10 @@ Function MXP_DrawRectROIAndWaitHookToAct() // Function used by the hook
 	gMXP_right = V_right
 	gMXP_top = V_top
 	gMXP_bottom = V_bottom
+	NVAR/SDFR=dfr gMXP_aXlen
+	NVAR/SDFR=dfr gMXP_aYlen
+	gMXP_aXlen = abs(V_left-V_right)
+	gMXP_aYlen = abs(V_top-V_bottom)	
 	NVAR/SDFR=dfr gMXP_Rect
 	gMXP_Rect = 1
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
@@ -419,12 +440,14 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 	NVAR/Z xOff = dfr:gMXP_xOff
 	NVAR/Z yOff = dfr:gMXP_yOff
 	NVAR/Z xLast = dfr:gMXP_xLast
-	NVAR/Z yLast = dfr:gMXP_yLast	
+	NVAR/Z yLast = dfr:gMXP_yLast
+	NVAR/SDFR=dfr gMXP_Nx
+	NVAR/SDFR=dfr gMXP_Ny
 	NVAR/Z nLayers = dfr:nLayers
 	NVAR/Z mouseTrackV = dfr:gMXP_mouseTrackV
 	NVAR/SDFR=dfr gMXP_Rect
-	variable axisxlen = abs(gMXP_right - gMXP_left)
-	variable axisylen = abs(gMXP_bottom - gMXP_top)
+	NVAR/SDFR=dfr gMXP_aXlen
+	NVAR/SDFR=dfr gMXP_aYlen
 	SVAR/Z LineProfileWaveStr = dfr:gMXP_LineProfileWaveStr
 	SVAR/Z w3dNameStr = dfr:gMXP_w3dNameStr
 	SVAR/Z w3dPath = dfr:gMXP_w3dPath
@@ -458,7 +481,6 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 			ImageGenerateROIMask/W=$WindowNameStr $w3dNameStrQ
 			WAVE/Z M_ROIMask
 			if(!gMXP_Rect && WaveExists(M_ROIMask))
-				WAVE M_ROIMask
 				MatrixOP/O/NTHR=0 profile = sum(w3d*M_ROIMask) // Use threads
 				Redimension/E=1/N=(nLayers) profile
 			endif
@@ -470,41 +492,32 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 				DrawAction/W=$WindowNameStr delete // TODO: Here add the env commands of MXP_SumBeamsDrawImageROICursor before switch and here only the draw command
 				SetDrawEnv/W=$WindowNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 				if(gMXP_Rect)
-					DrawRect/W=$WindowNameStr xOff - axisxlen * 0.5 + s.pointNumber * dx, yOff + axisylen * 0.5 + s.yPointNumber * dy, \
-					xOff + axisxlen * 0.5 + s.pointNumber * dx,  yOff - (axisylen * 0.5) + s.yPointNumber * dy
+					DrawRect/W=$WindowNameStr xOff - gMXP_aXlen * 0.5 + s.pointNumber * dx, yOff + gMXP_aYlen * 0.5 + s.yPointNumber * dy, \
+					xOff + gMXP_aXlen * 0.5 + s.pointNumber * dx,  yOff - (gMXP_aYlen * 0.5) + s.yPointNumber * dy
 
 				else
-					DrawOval/W=$WindowNameStr xOff - axisxlen * 0.5 + s.pointNumber * dx, yOff + axisylen * 0.5 + s.yPointNumber * dy, \
-					xOff + axisxlen * 0.5 + s.pointNumber * dx,  yOff - (axisylen * 0.5) + s.yPointNumber * dy
+					DrawOval/W=$WindowNameStr xOff - gMXP_aXlen * 0.5 + s.pointNumber * dx, yOff + gMXP_aYlen * 0.5 + s.yPointNumber * dy, \
+					xOff + gMXP_aXlen * 0.5 + s.pointNumber * dx,  yOff - (gMXP_aYlen * 0.5) + s.yPointNumber * dy
 				endif
 				Cursor/W=$WindowNameStr/I/C=(65535,0,0)/S=2/N=1/A=0 J $w3dNameStrQ, xOff + s.pointNumber * dx, yOff + s.yPointNumber * dy
-				gMXP_left  = xOff - axisxlen * 0.5 + s.pointNumber * dx
-				gMXP_right = xOff + axisxlen * 0.5 + s.pointNumber * dx
-				gMXP_top   = yOff + axisylen * 0.5 + s.yPointNumber * dy
-				gMXP_bottom= yOff - axisylen * 0.5 + s.yPointNumber * dy
-				// When in boundaries use the mask to calculate the profile
-				if(gMXP_left/dx < xOff || gMXP_bottom/dy < yOff || gMXP_right > xLast|| gMXP_top > yLast)
-					ImageGenerateROIMask/W=$WindowNameStr $w3dNameStrQ
-					WAVE/Z M_ROIMask
-					MatrixOP/O/NTHR=0 profile = sum(w3d*M_ROIMask) // Use threads
-					Redimension/E=1/N=(nLayers) profile
-					KillWaves/Z M_ROIMask
-					hookresult = 1
-					break
-				endif
-				// We always use a square ROI while moving the cursor, it is faster.
-				rs = ScaleToIndex(w3d, gMXP_left, 0)
-				re = ScaleToIndex(w3d, gMXP_right, 0)
-				cs = ScaleToIndex(w3d, gMXP_bottom, 1)
-				ce = ScaleToIndex(w3d, gMXP_top, 1)
+				gMXP_left   = xOff - gMXP_aXlen * 0.5 + s.pointNumber * dx
+				gMXP_right  = xOff + gMXP_aXlen * 0.5 + s.pointNumber * dx
+				gMXP_top    = yOff + gMXP_aYlen * 0.5 + s.yPointNumber * dy
+				gMXP_bottom = yOff - gMXP_aYlen * 0.5 + s.yPointNumber * dy
+				// What if the box goes out of the image?
+				rs = (gMXP_left  < xOff)   ? 0  :  ScaleToIndex(w3d, gMXP_left, 0)
+				re = (gMXP_right > xLast) ? gMXP_Nx :  ScaleToIndex(w3d, gMXP_right, 0)
+				cs = (gMXP_bottom < yOff)  ? 0  :  ScaleToIndex(w3d, gMXP_bottom, 1)
+				ce = (gMXP_top > yLast)   ? gMXP_Ny :  ScaleToIndex(w3d, gMXP_top, 1)
 				MatrixOP/O/NTHR=0 profile = sum(subrange(w3d, rs, re, cs, ce))
 				Redimension/E=1/N=(nLayers) profile
 				//	Debug:
 				//		    		print "Left:", gMXP_left, ",Right:",gMXP_right, ",Top:", gMXP_top, ",Bottom:", gMXP_bottom
 				//		    		print "HookPointX:",(s.pointNumber * dx),",HookPointY:",(s.ypointNumber * dy), ",CursorX:", hcsr(J), ",CursorY:",vcsr(J)
 				//		    		print "l+r/2:", (gMXP_left + gMXP_right)/2, ",t+b/2:", (gMXP_top + gMXP_bottom)/2
-				//		    		print "leftP:",(gMXP_left/dx),",rightP:",(gMXP_right/dx),"topQ:",(gMXP_top/dy),",bottomQ:",(gMXP_bottom/dy)
+				//    			print "leftP:",(gMXP_left/dx),",rightP:",(gMXP_right/dx),"topQ:",(gMXP_top/dy),",bottomQ:",(gMXP_bottom/dy)
 				//		    		print "------"
+				//		    		print rs,re,cs,ce
 				hookresult = 1
 				break
 			endif
