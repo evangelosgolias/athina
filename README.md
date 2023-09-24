@@ -26,7 +26,7 @@ If you don't know where the folders are, choose Menubar > Help > Show Igor Pro U
 
 ** To launch the package, choose Macros > MAXPEEM **
 
-_CAUTION: When you update the scripts to a newer version it is stongly recommended to delete the _maxpeem-data-analysis_ folder and then paste the new folder._
+_CAUTION: When you update the scripts to a newer version it is strongly recommended to delete the _maxpeem-data-analysis_ folder and then paste the new folder._
 
 ## Guide
 
