@@ -6,24 +6,34 @@ Data analysis package for the experiments performed at the MAXPEEM beamline of M
 
 ### Installation
 
-Download the repo and copy it to:
+Download the repo and unpack.
 
+1. Copy the MXP_StartUp.ipf file in:
 **Windows**:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
 
 **Mac**:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
 
-When you update the scripts to a newer version it is stongly recommended to delete the _maxpeem-data-analysis_ folder and then paste the new folder.
+2. Copy the MAXPEEM folder in:
+**Windows**:
+C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
+
+**Mac**:
+/Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/User Procedures
+
+If you don't know where the folders are, choose Menubar > Help > Show Igor Pro User Files in Igor Pro.
+
+** To launch the package, choose Macros > MAXPEEM **
+
+_CAUTION: When you update the scripts to a newer version it is stongly recommended to delete the _maxpeem-data-analysis_ folder and then paste the new folder._
 
 ## Guide
 
-Coming soon...
-
-Quick tip: Most functionalities reside on the contexual menus. Right click on an image, trace or item in the data browser and see your options. Import and alignemt is launched only from the program menu, entry MAXPEEM.
+Quick tip: Lots of functionalities reside on the contexual menus. Right click on an image, trace or item in the data browser and see your options. Import and alignemt is launched only from the program menu, entry MAXPEEM.
 
 ## Name
-Choose a self-explaining name for your project.
+MAXPEEM Data Analysis Package
 
 ## Description
 Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
