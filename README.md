@@ -8,25 +8,25 @@ Data analysis package for the experiments performed at the MAXPEEM beamline of M
 
 Download the repo and unpack.
 
-1. Copy the MXP_StartUp.ipf file in:
-**Windows**:
-C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
+1. Copy the **MXP_StartUp.ipf** file in:
 
-**Mac**:
+*Windows*:
+C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
+*Mac*:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
 
-2. Copy the MAXPEEM folder in:
-**Windows**:
-C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
+2. Copy the **MAXPEEM** folder in:
 
-**Mac**:
+*Windows*:
+C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
+*Mac*:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/User Procedures
 
 If you don't know where the folders are, choose Menubar > Help > Show Igor Pro User Files in Igor Pro.
 
 ** To launch the package, choose Macros > MAXPEEM **
 
-_CAUTION: When you update the scripts to a newer version it is strongly recommended to delete the _maxpeem-data-analysis_ folder and then paste the new folder._
+_CAUTION: When you update you should delete the _MAXPEEM_ folder before copying the newer version, as filenames might differ in future versions._
 
 ## Guide
 
