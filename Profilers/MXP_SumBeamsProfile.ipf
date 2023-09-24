@@ -477,15 +477,19 @@ Function MXP_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 			hookresult = 0 // Here hookresult = 1, supresses Marquee
 			break
 		case 5: // mouse up
-			// Fix the profile in case you have an oval
-			ImageGenerateROIMask/W=$WindowNameStr $w3dNameStrQ
-			WAVE/Z M_ROIMask
-			if(!gMXP_Rect && WaveExists(M_ROIMask))
-				MatrixOP/O/NTHR=0 profile = sum(w3d*M_ROIMask) // Use threads
+			if(!gMXP_Rect)
+				rs = (gMXP_left  < xOff)   ? 0  :  ScaleToIndex(w3d, gMXP_left, 0)
+				re = (gMXP_right > xLast) ? gMXP_Nx :  ScaleToIndex(w3d, gMXP_right, 0)
+				cs = (gMXP_bottom < yOff)  ? 0  :  ScaleToIndex(w3d, gMXP_bottom, 1)
+				ce = (gMXP_top > yLast)   ? gMXP_Ny :  ScaleToIndex(w3d, gMXP_top, 1)
+				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStrQ
+				WAVE M_ROIMask
+				MatrixOP/O/FREE partitionMask = subrange(M_ROIMask, rs, re, cs, ce)
+				MatrixOP/O/NTHR=0 profile = sum(subrange(w3d, rs, re, cs, ce) * partitionMask)
 				Redimension/E=1/N=(nLayers) profile
+				KillWaves/Z M_ROIMask
+				hookresult = 1
 			endif
-			KillWaves/Z M_ROIMask // Cleanup
-			hookresult = 1
 			break
 		case 7: // cursor moved
 			if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor
@@ -650,22 +654,6 @@ Function MXP_SumBeamsProfilePlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb)
 			break
 		case 0:
 			DoPlotSwitch = 0
-			break
-	endswitch
-	return 0
-End
-
-
-Function MXP_SumBeamsProfilePlotCheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : CheckBoxControl
-	
-	DFREF dfr = MXP_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "MXP_rootdfrSumBeamsStr"))
-	NVAR/Z MarkAreasSwitch = dfr:gMXP_MarkAreasSwitch
-	switch(cb.checked)
-		case 1:		// Mouse up
-			MarkAreasSwitch = 1
-			break
-		case 0:
-			MarkAreasSwitch = 0
 			break
 	endswitch
 	return 0
