@@ -12,6 +12,7 @@ Download the repo and unpack.
 
 *Windows*:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
+
 *Mac*:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
 
@@ -19,6 +20,7 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
 
 *Windows*:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
+
 *Mac*:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/User Procedures
 
