@@ -30,7 +30,7 @@
 // ------------------------------------------------------- //
 
 
-Menu "MAXPEEM"
+Menu "Athina"
 
 	Submenu "Import"
 		".dat file...", /Q, MXP_LoadSingleDATFile("", "", autoscale = 1)

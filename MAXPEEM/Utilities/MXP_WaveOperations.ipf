@@ -327,8 +327,7 @@ Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, variable startX, variable endX, 
 	endif
 
 	variable nlayers = DimSize(w3d, 2)
-	Make/FREE/N=(nWaveRows, nWavecols, nlayers) wFreeRef
-	wFreeRef[][][] = w3d[startP + p][startQ + q][r]
+	MatrixOP/FREE wFreeRef = subrange(w3d, startP, startP + nWaveRows, startQ, startQ + nWaveCols)
 	return wFreeRef
 End
 

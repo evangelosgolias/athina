@@ -1,14 +1,15 @@
-# MAXPEEM Data Analysis
+# Athina
 
-Data analysis package for the experiments performed at the MAXPEEM beamline of MAXIV, using Igor Pro from Wavemetrics. The package was developed using Igor Pro 9.
+**Athina** is a data analysis package for the experiments performed at the MAXPEEM beamline of MAXIV, using Igor Pro from Wavemetrics. The package was developed using Igor Pro 9.
 
 ## Getting started
 
 ### Installation
 
-Download the repo and unpack.
+Download the repo and unpack. You have two options for installation
 
-1. Copy the **MXP_StartUp.ipf** file in:
+### Option 1
+Copy the **MXP_StartUp.ipf** file in:
 
 *Windows*:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
@@ -16,7 +17,7 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
 *Mac*:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
 
-2. Copy the **MAXPEEM** folder in:
+Copy the **MAXPEEM** folder in:
 
 *Windows*:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
@@ -24,9 +25,21 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
 *Mac*:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/User Procedures
 
-If you don't know where the folders are, choose Menubar > Help > Show Igor Pro User Files in Igor Pro.
-
 ** To launch the package, choose Macros > MAXPEEM **
+
+### Option 2
+
+Copy the **MAXPEEM** folder in:
+
+*Windows*:
+C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
+
+*Mac*:
+/Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
+
+** MAXPEEM is automatically loaded when you launch Igor Pro, every time!**
+
+If you don't know where the folders are, choose Menubar > Help > Show Igor Pro User Files in Igor Pro.
 
 _CAUTION: When you update you should delete the _MAXPEEM_ folder before copying the newer version, as filenames might differ in future versions._
 
@@ -35,7 +48,7 @@ _CAUTION: When you update you should delete the _MAXPEEM_ folder before copying 
 Quick tip: Lots of functionalities reside on the contexual menus. Right click on an image, trace or item in the data browser and see your options. Import and alignemt is launched only from the program menu, entry MAXPEEM.
 
 ## Name
-MAXPEEM Data Analysis Package
+**Athina** data analysis package
 
 ## Description
 Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
