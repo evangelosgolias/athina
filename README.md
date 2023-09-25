@@ -8,7 +8,20 @@
 
 Download the repo and unpack. You have two options for installation
 
-### Option 1
+### Option 1 (Auto)
+
+Copy the **MAXPEEM** folder (or any other) in:
+
+*Windows*:
+C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
+
+*Mac*:
+/Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
+
+** Athina will automatically load when you launch Igor Pro**
+
+### Option 2 (Manual)
+
 Copy the **MXP_StartUp.ipf** file in:
 
 *Windows*:
@@ -25,19 +38,7 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
 *Mac*:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/User Procedures
 
-** To launch the package, choose Macros > MAXPEEM **
-
-### Option 2
-
-Copy the **MAXPEEM** folder in:
-
-*Windows*:
-C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
-
-*Mac*:
-/Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
-
-** MAXPEEM is automatically loaded when you launch Igor Pro, every time!**
+** To launch the package, choose Macros > Athina **
 
 If you don't know where the folders are, choose Menubar > Help > Show Igor Pro User Files in Igor Pro.
 

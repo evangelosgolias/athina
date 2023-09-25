@@ -5,7 +5,7 @@
 //******************************************************************************
 //	Start MAXPEEM
 //******************************************************************************
-Function MXP_MAXPEEMStartUp()
+Function MXP_AthinaStartUp()
 	Execute/P "INSERTINCLUDE \"MXP_Colors\""
 	Execute/P "INSERTINCLUDE \"MXP_Cursors\""
 	Execute/P "INSERTINCLUDE \"MXP_CustomIgorMenus\""
@@ -50,5 +50,5 @@ End
 //******************************************************************************
 Menu "Macros", dynamic
 	//	Nothing is displayed after MAXPEEM is started
-	SelectString(strlen(FunctionList("MXP_LoadDATFilesFromFolder",";","")), "MAXPEEM", ""), /Q, MXP_MAXPEEMStartUp()
+	SelectString(strlen(FunctionList("MXP_LoadDATFilesFromFolder",";","")), "Athina", ""), /Q, MXP_AthinaStartUp()
 End
