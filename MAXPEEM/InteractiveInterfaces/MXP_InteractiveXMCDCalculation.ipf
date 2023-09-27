@@ -105,8 +105,10 @@ Function MXP_CreateInteractiveXMCDCalculationPanel(WAVE wXMCD, WAVE wSum)
 
 	MXP_DisplayImage(wSum)
 	string winiSumNameStr = WinName(0,1)
+	DoWindow/T $winiSumNameStr "iSum"	
 	MXP_DisplayImage(wXMCD)
 	string winiXMCDNameStr = WinName(0,1)
+	DoWindow/T $winiXMCDNameStr "iXMC(L)D"		
 	ControlBar/W=$winiXMCDNameStr 40	
 	
 	SetVariable setDriftStep,win=$winiXMCDNameStr,pos={130,10},size={160,20.00},title="Drift step (px)"
@@ -200,6 +202,7 @@ Function MXP_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 					hookResult = 1
 					break
 			endswitch
+			CopyScales/I wimg1, wimg2 // Copy back the scale, M_Affine is pixel-scaled
 			break
 	endswitch
 	//SetDataFolder saveDFR
@@ -232,14 +235,15 @@ Function MXP_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 			Duplicate wXMCD, $saveWaveNameStr
 			Note/K $saveWaveNameStr, note2WaveStr
 			//Copy the interpolated wave
-			basenameStr = NameofWave($wName2Str) + "_undo"
-			if(WaveExists($basenameStr))
-				backupWaveNameStr = CreatedataObjectName(currDF, basenameStr, 1, 0, 1)
-			else
-				backupWaveNameStr = basenameStr
-			endif
-			Duplicate $wName2Str, $backupWaveNameStr
+			backupWaveNameStr = NameofWave($wName2Str) + "_iDrift_undo"
+//			if(WaveExists($basenameStr))
+//				backupWaveNameStr = CreatedataObjectName(currDF, basenameStr, 1, 0, 1)
+//			else
+//				backupWaveNameStr = basenameStr
+//			endif
+			Duplicate/O $wName2Str, $backupWaveNameStr
 			Note $backupWaveNameStr, ("Backup of " + wName2Str)
+			//CopyScales/I wimg2, $backupWaveNameStr
 			Duplicate/O wimg2, $wName2Str
 			break
 	endswitch
