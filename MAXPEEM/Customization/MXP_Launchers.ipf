@@ -408,16 +408,15 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	if(edgeDetection == 1 && histEq == 1)	
 		print "You applied edge detection and histrogram equalisation on the same stack! I hope you know what you are doing"
 	endif
-		
+	[left, right, top, bottom] = WM_UserGetMarqueePositions(winNameStr)
 	if(edgeDetection == 1)
 		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
 		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
-		[left, right, top, bottom] = WM_UserGetMarqueePositions(winNameStr)
 		// Apply image edge detection to the whole image, it's slower but to works better(?)
-		WAVE partitionWaveED = MXP_WAVEImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo)
-		WAVE partitionWave = MXP_WAVE3DWavePartition(partitionWaveED, left, right, top, bottom, evenNum = 1) // Debug
+		WAVE partitionWaveT = MXP_WAVE3DWavePartition(w3dref, left, right, top, bottom, evenNum = 1) // Debug
+		WAVE partitionWave = MXP_WAVEImageEdgeDetectionToStack(partitionWaveT, applyEdgeDetectionAlgo)
 	else
-		WAVE partitionWave = WM_WAVEUserSetMarquee(winNameStr)
+		WAVE partitionWave = MXP_WAVE3DWavePartition(w3dref, left, right, top, bottom, evenNum = 1)
 		//ImageFilter/O gauss3d partitionWave // Apply a 3x3x3 gaussian filter
 	endif
 	
