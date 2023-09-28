@@ -192,6 +192,150 @@ Function MXP_AverageStackToImage(WAVE w3d, [string avgImageName])
 	return 0
 End
 
+Function/WAVE MXP_WAVE2DWavePartition(WAVE wRef, variable startX, variable endX, variable startY, variable endY, [variable evenNum, variable tetragonal])
+	/// Get a part of a 2D image
+	evenNum = ParamIsDefault(evenNum) ? 0: evenNum
+	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
+
+	if(WaveDims(wRef) == 1)
+		return $""
+	endif
+	
+	variable nrows = DimSize(wRef, 0)
+	variable ncols = DimSize(wRef, 1)
+	variable rowsOff = DimOffset(wRef, 0)
+	variable colsOff = DimOffset(wRef, 1)
+	
+	variable xmin = rowsOff
+	variable ymin = colsOff
+	variable xmax = rowsOff + (nrows - 1) * DimDelta(wRef, 0)
+	variable ymax = colsOff + (ncols - 1) * DimDelta(wRef, 1)
+	
+	if(startX < xmin)
+		startX = xmin
+	endif
+	
+	if(endX > xmax)
+		endX = xmax
+	endif
+	
+	if(startY < ymin)
+		startY = ymin
+	endif
+	
+	if(endY > ymax)
+		endY = ymax
+	endif	
+	
+	if (!(startX < endX && startY < endY && startX >= rowsOff && startY >= colsOff))
+		Abort “Error: Out of bounds p, q values or X_min >= X_max.”
+	endif
+	
+	variable startP, endP, startQ, endQ
+	// P, Q values might come from scaled images
+	startP = ScaleToIndex(wRef, startX, 0)
+	endP   = ScaleToIndex(wRef, endX, 0)
+	startQ = ScaleToIndex(wRef, startY, 1)
+	endQ   = ScaleToIndex(wRef, endY, 1)
+	
+	variable nWaveRows = endP - startP
+	variable nWaveCols = endQ - startQ
+	
+	if(evenNum)
+		if(mod(nWaveRows, 2))
+			nWaveRows += 1			
+		endif
+		if(mod(nWaveCols, 2))
+			nWaveCols += 1
+		endif
+	endif
+
+	if(tetragonal) // should follow evenNum, so no need to add extra conditions here
+		nWaveRows = max(nWaveRows, nWaveCols)
+		nWaveCols = nWaveRows
+	endif
+	
+	if(WaveDims(wRef) == 2)
+		Duplicate/FREE/RMD=[startP, startP + nWaveRows + 1][startQ, startQ + nWaveCols + 1] wRef, wFreeRegion
+		Note wFreeRegion, ("Partition of " + NameOfWave(wRef))
+	else
+		return $""
+	endif
+	return wFreeRegion
+End
+
+Function MXP_2DWavePartition(WAVE wRef, string wPartitionStr, variable startX, variable endX, variable startY, variable endY, [variable evenNum, variable tetragonal])
+	/// Get a new image from Marquee region
+	evenNum = ParamIsDefault(evenNum) ? 0: evenNum
+	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
+	
+	if(WaveDims(wRef) == 1)
+		return -1
+	endif
+	
+	variable nrows = DimSize(wRef, 0)
+	variable ncols = DimSize(wRef, 1)
+	variable rowsOff = DimOffset(wRef, 0)
+	variable colsOff = DimOffset(wRef, 1)
+	
+	variable xmin = rowsOff
+	variable ymin = colsOff
+	variable xmax = rowsOff + (nrows - 1) * DimDelta(wRef, 0)
+	variable ymax = colsOff + (ncols - 1) * DimDelta(wRef, 1)
+	
+	if(startX < xmin)
+		startX = xmin
+	endif
+	
+	if(endX > xmax)
+		endX = xmax
+	endif
+	
+	if(startY < ymin)
+		startY = ymin
+	endif
+	
+	if(endY > ymax)
+		endY = ymax
+	endif	
+	
+	if (!(startX < endX && startY < endY && startX >= rowsOff && startY >= colsOff))
+		Abort "Error: Out of bounds p, q values or X_min >= X_max."
+	endif
+	
+	variable startP, endP, startQ, endQ, planeN
+	// P, Q values might come from scaled images
+	startP = ScaleToIndex(wRef, startX, 0)
+	endP   = ScaleToIndex(wRef, endX, 0)
+	startQ = ScaleToIndex(wRef, startY, 1)
+	endQ   = ScaleToIndex(wRef, endY, 1)
+	
+	variable nWaveRows = endP-startP
+	variable nWaveCols = endQ-startQ
+	
+	if(evenNum)
+		if(mod(nWaveRows, 2))
+			nWaveRows += 1			
+		endif
+		if(mod(nWaveCols, 2))
+			nWaveCols += 1
+		endif
+	endif
+
+	if(tetragonal) // should follow evenNum, so no need to add extra conditions here
+		nWaveRows = max(nWaveRows, nWaveCols)
+		nWaveCols = nWaveRows
+	endif
+	
+	if(WaveDims(wRef) == 2)
+		Duplicate/RMD=[startP, startP + nWaveRows + 1][startQ, startQ + nWaveCols + 1] wRef, $wPartitionStr
+		Note $wPartitionStr, ("Partition of " + NameOfWave(wRef))
+	else
+		return -1
+	endif
+	return 0
+End
+
 Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startX, variable endX, variable startY, variable endY, [variable evenNum, variable tetragonal])
 	/// Partition a 3D to get an orthorhombic 3d wave
 	/// @param startP int
@@ -257,7 +401,8 @@ Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startX,
 		nWaveRows = max(nWaveRows, nWaveCols)
 		nWaveCols = nWaveRows
 	endif
-	Duplicate/RMD=[startP, startP + nWaveRows][startQ, startQ + nWaveCols][] w3d, $partitionNameStr
+	MatrixOP $partitionNameStr = subrange(w3d, startP, startP + nWaveRows + 1, startQ, startQ + nWaveCols + 1) // Need to add 1 to have even number of rows/cols with MatrixOP subrange
+	Note $partitionNameStr, ("Partition of " + NameOfWave(w3d))
 	return 0
 End
 
@@ -328,6 +473,7 @@ Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, variable startX, variable endX, 
 
 	variable nlayers = DimSize(w3d, 2)
 	MatrixOP/FREE wFreeRef = subrange(w3d, startP, startP + nWaveRows + 1, startQ, startQ + nWaveCols + 1) // Need to add 1 to have even number of rows/cols with MatrixOP subrange
+	Note wFreeRef, ("Partition of " + NameOfWave(w3d))
 	return wFreeRef
 End
 
