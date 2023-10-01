@@ -397,7 +397,7 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 		return -1
 	endif
 	string backupWave = NameOfWave(w3dref) + "_undo"
-	if(!WaveExists($backupWave))
+	if(!WaveExists($(GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave))))
 		print GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + " has been created. To restore " + GetWavesDataFolder(w3dref, 2) + " run the command:\n"
 		print "Duplicate/O " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + ", " +  GetWavesDataFolder(w3dref, 2) + "; " + \
 		"KillWaves/Z " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave)
@@ -624,7 +624,7 @@ Function [variable leftR, variable rightR, variable topR, variable bottomR] WM_U
 		GetMarquee/K
 		Abort
 	endif
-		
+	
 	leftR = left
 	rightR = right
 	topR = top

@@ -360,10 +360,10 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 		ImageWindow/O Hanning refLayerWave
 	endif
 	MatrixOP/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
-	WaveStats/M=1/Q autocorrelationW
-	variable x0 = V_maxRowLoc, y0 = V_maxColLoc, x1, y1, i
+	WaveStats/M=1/Q/P autocorrelationW
+	variable p0 = V_maxRowLoc, q0 = V_maxColLoc, p1, q1, i
 	variable layers = DimSize(w3d, 2)
-	Make/FREE/N=(layers) dx, dy 
+	Make/FREE/N=(layers) dp, dq 
 	
 	for(i = 0; i < layers; i++)
 		MatrixOP/O/FREE freeLayer = layer(partitionW3d, i)
@@ -371,11 +371,11 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 			ImageWindow/O Hanning freeLayer
 		endif
 		MatrixOP/O/FREE correlationW = correlate(refLayerWave, freeLayer, 0)
-		WaveStats/M=1/Q correlationW
-		x1 = V_maxRowLoc
-		y1 = V_maxColLoc
-		dx[i] = x0 - x1
-		dy[i] = y0 - y1
+		WaveStats/M=1/Q/P correlationW
+		p1 = V_maxRowLoc
+		q1 = V_maxColLoc
+		dp[i] = p0 - p1
+		dq[i] = q0 - q1
 	endfor
 	if(printMode)
 		string driftLog = "Called MXP_ImageStackAlignmentByPartitionCorrelation\n"
@@ -386,12 +386,12 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 	//Now translate each wave in the stack (w3d)
 	for(i = 0; i < layers; i++)
 		MatrixOP/O/FREE getfreelayer = layer(w3d, i)
-		ImageTransform/IOFF={dx[i], dy[i], 0} offsetImage getfreelayer
+		ImageTransform/IOFF={dp[i], dq[i], 0} offsetImage getfreelayer
 		WAVE M_OffsetImage
 		//w3d[][][i] = M_OffsetImage[p][q]
 		Rename M_OffsetImage, $("getStacklayer_" + num2str(i))
 		if(printMode)
-			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "    " + num2str(dy[i]) + "\n"
+			driftLog +=  num2str(i) + ": "+ num2str(dp[i]) + "    " + num2str(dq[i]) + "\n"
 		endif
 	endfor
 	ImageTransform/NP=(layers) stackImages $"getStacklayer_0"
