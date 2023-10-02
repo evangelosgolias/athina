@@ -71,10 +71,8 @@ Menu "Athina"
 	End
 	
 	Submenu "Drift Correction"
-		"Using a feature, fixed ref (TG, 3D)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
-		"Using a feature, cascade (TG, 3D)...", /Q, MXP_LaunchCascadeImageStackAlignmentUsingAFeature()		
-		"Using the full image, fixed ref (TG, 3D)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
-		"Using the full image, cascade ref (TG, 3D)...", /Q, MXP_LaunchCascadeImageStackAlignmentByFullImage()
+		"Using a feature (TG, 3D)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
+		"Using the full image (TG, 3D)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
 	End
 	
 	Submenu "Profiles "

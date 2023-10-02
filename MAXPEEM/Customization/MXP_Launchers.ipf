@@ -385,14 +385,18 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	variable edgeDetection = 2
 	variable histEq = 2
 	variable edgeAlgo = 1
+	variable gaussianFilter = 2
+	variable nrTimes = 1
 	string msg = "Align " + imgNameTopGraphStr + " using part of the image."
 	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
 	Prompt layerN, "Reference layer"
+	Prompt gaussianFilter, "Apply Guassian filter", popup, "Yes;No"
+	Prompt nrTimes, "Apply Guassian filter N = 1...5"
 	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!
-	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
-	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"	
+	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"
 	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt msg, method, layerN, histEq, edgeDetection, edgeAlgo, printMode
+	DoPrompt msg, method, layerN, gaussianFilter, nrTimes, histEq, edgeDetection, edgeAlgo, printMode
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -403,8 +407,8 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 		print "Backup before drift correction: ", backupWavePathStr
 	endif
 	variable left, right, top, bottom
-	
-	if(edgeDetection == 1 && histEq == 1)	
+
+	if(edgeDetection == 1 && histEq == 1)
 		print "You applied edge detection and histrogram equalisation on the same stack! I hope you know what you are doing"
 	endif
 	[left, right, top, bottom] = WM_UserGetMarqueePositions(winNameStr)
@@ -416,18 +420,27 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 		WAVE partitionWave = MXP_WAVEImageEdgeDetectionToStack(partitionWaveT, applyEdgeDetectionAlgo)
 	else
 		WAVE partitionWave = MXP_WAVE3DWavePartition(w3dref, left, right, top, bottom, evenNum = 1)
-		//ImageFilter/O gauss3d partitionWave // Apply a 3x3x3 gaussian filter
+
+	endif
+
+	if(gaussianFilter == 1)
+		if(nrTimes > 5)
+			nrTimes = 5
+		elseif(nrTimes < 1)
+			nrTimes = 1
+		endif
+		ImageFilter/O/P=(nrTimes) gauss3d partitionWave // Apply a 3x3x3 gaussian filter
 	endif
 	
 	if(histEq == 1)
 		ImageHistModification/O/I partitionWave
 	endif
-	
-	if(method == 1)		
+
+	if(method == 1)
 		MXP_ImageStackAlignmentByPartitionRegistration(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2)
 	elseif(method == 2)
 		MXP_ImageStackAlignmentByPartitionCorrelation(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2)
-	else 
+	else
 		Abort "Please check MXP_LaunchImageStackAlignmentUsingAFeature(), method error."
 	endif
 	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
@@ -435,109 +448,111 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	Note/K w3dref,copyNoteStr
 End
 
-Function MXP_LaunchCascadeImageStackAlignmentByFullImage()
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
-	variable convMode = 1
-	variable printMode = 2
-	variable edgeDetection = 2
-	variable edgeAlgo = 1	
-	variable histEq = 2	
-	variable algo = 1
-	string msg = "Cascade alignment of full " + imgNameTopGraphStr
-	Prompt algo, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
-	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!
-	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"		
-	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
-	Prompt convMode, "Convergence (Registration only)", popup, "Gravity (fast); Marquardt (slow)"
-	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt msg, algo, edgeDetection, edgeAlgo, histEq, convMode, printMode
-	if(V_flag) // User cancelled
-		return -1
-	endif
-	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(NameOfWave(w3dref) + "_undo")
-
-	if(!WaveExists($backupWavePathStr))
-		Duplicate/O w3dref, $backupWavePathStr
-		print "Backup before drift correction: ", backupWavePathStr
-	endif
-
-	if(edgeDetection == 1)
-		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
-		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
-		MXP_ImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo, overwrite = 1)
-	endif
-	
-	if(histEq == 1)
-		ImageHistModification/O/I w3dref
-	endif	
-
-	if(algo == 1)
-		MXP_CascadeImageStackAlignmentByRegistration(w3dRef, printMode = printMode - 2, convMode = convMode - 1)
-	else
-		MXP_CascadeImageStackAlignmentByCorrelation(w3dRef, printMode = printMode - 2)
-	endif
-	//Restore the note
-	string copyNoteStr = note($backupWavePathStr)
-	Note/K w3dref,copyNoteStr
-End
-
-Function MXP_LaunchCascadeImageStackAlignmentUsingAFeature()
-	//string waveListStr = Wavelist("*",";","DIMS:3"), selectWaveStr
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
-	variable method = 1
-	variable printMode = 2
-	variable edgeDetection = 2
-	variable histEq = 2
-	variable edgeAlgo = 1
-	string msg = "Cascade alignment of full " + imgNameTopGraphStr
-	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
-	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!
-	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"		
-	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
-	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt msg, method, histEq, edgeDetection, edgeAlgo, printMode
-	if(V_flag) // User cancelled
-		return -1
-	endif
-	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(NameOfWave(w3dref) + "_undo")
-
-	if(!WaveExists($backupWavePathStr))
-		Duplicate/O w3dref, $backupWavePathStr
-		print "Backup before drift correction: ", backupWavePathStr
-	endif
-	variable left, right, top, bottom
-	
-	if(edgeDetection == 1)
-		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
-		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
-		[left, right, top, bottom] = WM_UserGetMarqueePositions(winNameStr)
-		// Apply image edge detection to the whole image, it's slower but to works better(?)
-		WAVE partitionWaveED = MXP_WAVEImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo)
-		WAVE partitionWave = MXP_WAVE3DWavePartition(partitionWaveED, left, right, top, bottom, evenNum = 1) // Debug
-	else
-		WAVE partitionWave = WM_WAVEUserSetMarquee(winNameStr)
-		//ImageFilter/O gauss3d partitionWave // Apply a 3x3x3 gaussian filter
-	endif
-
-	if(histEq == 1)
-		ImageHistModification/O/I partitionWave
-	endif
-
-	if(method == 1)		
-		MXP_CascadeImageStackAlignmentByPartitionRegistration(w3dRef, partitionWave, printMode = printMode - 2)
-	elseif(method == 2)
-		MXP_CascadeImageStackAlignmentByPartitionCorrelation(w3dRef, partitionWave, printMode = printMode - 2)
-	else 
-		Abort "Please check MXP_LaunchImageStackAlignmentUsingAFeature(), method error."
-	endif
-	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
-	string copyNoteStr = note($backupWavePathStr)
-	Note/K w3dref,copyNoteStr
-End
+// Not in use since 02.10.2023
+//Function MXP_LaunchCascadeImageStackAlignmentByFullImage()
+//	string winNameStr = WinName(0, 1, 1)
+//	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+//	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
+//	variable convMode = 1
+//	variable printMode = 2
+//	variable edgeDetection = 2
+//	variable edgeAlgo = 1	
+//	variable histEq = 2	
+//	variable algo = 1
+//	string msg = "Cascade alignment of full " + imgNameTopGraphStr
+//	Prompt algo, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
+//	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!
+//	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"		
+//	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
+//	Prompt convMode, "Convergence (Registration only)", popup, "Gravity (fast); Marquardt (slow)"
+//	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
+//	DoPrompt msg, algo, edgeDetection, edgeAlgo, histEq, convMode, printMode
+//	if(V_flag) // User cancelled
+//		return -1
+//	endif
+//	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(NameOfWave(w3dref) + "_undo")
+//
+//	if(!WaveExists($backupWavePathStr))
+//		Duplicate/O w3dref, $backupWavePathStr
+//		print "Backup before drift correction: ", backupWavePathStr
+//	endif
+//
+//	if(edgeDetection == 1)
+//		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
+//		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
+//		MXP_ImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo, overwrite = 1)
+//	endif
+//	
+//	if(histEq == 1)
+//		ImageHistModification/O/I w3dref
+//	endif	
+//
+//	if(algo == 1)
+//		MXP_CascadeImageStackAlignmentByRegistration(w3dRef, printMode = printMode - 2, convMode = convMode - 1)
+//	else
+//		MXP_CascadeImageStackAlignmentByCorrelation(w3dRef, printMode = printMode - 2)
+//	endif
+//	//Restore the note
+//	string copyNoteStr = note($backupWavePathStr)
+//	Note/K w3dref,copyNoteStr
+//End
+//
+// Not in use since 02.10.2023
+//Function MXP_LaunchCascadeImageStackAlignmentUsingAFeature()
+//	//string waveListStr = Wavelist("*",";","DIMS:3"), selectWaveStr
+//	string winNameStr = WinName(0, 1, 1)
+//	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+//	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
+//	variable method = 1
+//	variable printMode = 2
+//	variable edgeDetection = 2
+//	variable histEq = 2
+//	variable edgeAlgo = 1
+//	string msg = "Cascade alignment of full " + imgNameTopGraphStr
+//	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
+//	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!
+//	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"		
+//	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
+//	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
+//	DoPrompt msg, method, histEq, edgeDetection, edgeAlgo, printMode
+//	if(V_flag) // User cancelled
+//		return -1
+//	endif
+//	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(NameOfWave(w3dref) + "_undo")
+//
+//	if(!WaveExists($backupWavePathStr))
+//		Duplicate/O w3dref, $backupWavePathStr
+//		print "Backup before drift correction: ", backupWavePathStr
+//	endif
+//	variable left, right, top, bottom
+//	
+//	if(edgeDetection == 1)
+//		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
+//		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
+//		[left, right, top, bottom] = WM_UserGetMarqueePositions(winNameStr)
+//		// Apply image edge detection to the whole image, it's slower but to works better(?)
+//		WAVE partitionWaveED = MXP_WAVEImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo)
+//		WAVE partitionWave = MXP_WAVE3DWavePartition(partitionWaveED, left, right, top, bottom, evenNum = 1) // Debug
+//	else
+//		WAVE partitionWave = WM_WAVEUserSetMarquee(winNameStr)
+//		//ImageFilter/O gauss3d partitionWave // Apply a 3x3x3 gaussian filter
+//	endif
+//
+//	if(histEq == 1)
+//		ImageHistModification/O/I partitionWave
+//	endif
+//
+//	if(method == 1)		
+//		MXP_CascadeImageStackAlignmentByPartitionRegistration(w3dRef, partitionWave, printMode = printMode - 2)
+//	elseif(method == 2)
+//		MXP_CascadeImageStackAlignmentByPartitionCorrelation(w3dRef, partitionWave, printMode = printMode - 2)
+//	else 
+//		Abort "Please check MXP_LaunchImageStackAlignmentUsingAFeature(), method error."
+//	endif
+//	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
+//	string copyNoteStr = note($backupWavePathStr)
+//	Note/K w3dref,copyNoteStr
+//End
 
 Function/WAVE WM_WAVEUserSetMarquee(string graphName)
 	/// Modified WM procedure to return a Free WAVE to MXP_LaunchMXP_ImageStackAlignmentByPartitionRegistration()

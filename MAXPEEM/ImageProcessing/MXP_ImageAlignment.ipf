@@ -251,7 +251,6 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int pr
 		Redimension/S w3d
 	endif
 	
-	//Now translate each wave in the stack
 	variable i 
 	if(printMode)
 		string driftLog = "Called MXP_ImageStackAlignmentByCorrelation\n "
@@ -300,7 +299,7 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int pr
 				Rename M_OffsetImage, $("getStacklayer_" + num2str(i))
 			else
 				if(windowing)
-				Duplicate freeLayerCopy, $("getStacklayer_" + num2str(i)) // Translate the backed up layer
+					Duplicate freeLayerCopy, $("getStacklayer_" + num2str(i)) // Translate the backed up layer
 				else
 					Duplicate freeLayer, $("getStacklayer_" + num2str(i))
 				endif
@@ -357,25 +356,29 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 	variable p0 = V_maxRowLoc, q0 = V_maxColLoc, p1, q1, i
 	variable layers = DimSize(w3d, 2)
 	Make/FREE/N=(layers) dp, dq 
-	
+
 	for(i = 0; i < layers; i++)
-		MatrixOP/O/FREE freeLayer = layer(partitionW3d, i)
-		if(windowing)
-			ImageWindow/O Hanning freeLayer
+		if(i != layerN)
+			MatrixOP/O/FREE freeLayer = layer(partitionW3d, i)
+			if(windowing)
+				ImageWindow/O Hanning freeLayer
+			endif
+			MatrixOP/O/FREE correlationW = correlate(refLayerWave, freeLayer, 0)
+			WaveStats/M=1/Q/P correlationW
+			p1 = V_maxRowLoc
+			q1 = V_maxColLoc
+			dp[i] = p0 - p1
+			dq[i] = q0 - q1
 		endif
-		MatrixOP/O/FREE correlationW = correlate(refLayerWave, freeLayer, 0)
-		WaveStats/M=1/Q/P correlationW
-		p1 = V_maxRowLoc
-		q1 = V_maxColLoc
-		dp[i] = p0 - p1
-		dq[i] = q0 - q1
 	endfor
+	
 	if(printMode)
 		string driftLog = "Called MXP_ImageStackAlignmentByPartitionCorrelation\n"
 		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
 		driftLog +=  "---- Drift ----\n"
 		driftLog +=  "layer  dx  dy\n"
 	endif
+	
 	//Now translate each wave in the stack (w3d)
 	for(i = 0; i < layers; i++)
 		MatrixOP/O/FREE getfreelayer = layer(w3d, i)
@@ -552,120 +555,122 @@ Function MXP_ImageAlignmentByCorrelation(WAVE w1, WAVE w2, string alignedImageSt
 	return 0
 End
 
-Function MXP_CascadeImageStackAlignmentByCorrelation(WAVE w3d, [int printMode])
-	/// Align a 3d wave using Correlation of the full image	
-	/// We align sequentially with reference layer the previous layer of the stack. 
-	/// Only x, y translations are allowed.
-	/// @param w3d WAVE 3d we want to register for aligment
-	
-	printMode = ParamIsDefault(printMode) ? 0: printMode
-	
-	if(!(WaveType(w3d) & 0x02))
-		Redimension/S w3d
-	endif
-
-	variable nlayers = DimSize(w3d, 2)
-	variable  i, x0, y0, x1, y1, dx, dy
-	
-	if(printMode)
-		string driftLog = "Called MXP_CascadeImageStackAlignmentByCorrelation\n"
-		driftLog +=  "---- Drift correction (relative to previous layer)----\n"
-		driftLog +=  "layer  dx  dy\n"
-	endif
-	
-	DFREF saveDF = GetDataFolderDFR()
-	DFREF saveWaveDF = GetWavesDataFolderDFR(w3d) // Location of w3d			
-	SetDataFolder NewFreeDataFolder() // Change folder
-	
-	MatrixOP/O getStacklayer_0 = layer(w3d, 0) // ImageTransform doesn't work with /FREE
-	Duplicate/FREE/O getStacklayer_0, M_Affine
-	for(i = 0; i < nlayers - 1; i++)
-		MatrixOP/O/FREE autocorrelationW = correlate(M_Affine, M_Affine, 0)
-		WaveStats/M=1/Q autocorrelationW
-		x0 = V_maxRowLoc
-		y0 = V_maxColLoc
-		MatrixOP/FREE/O targetLayer = layer(w3d, i + 1)
-		MatrixOP/O/FREE correlationW = correlate(M_Affine, targetLayer, 0)
-		WaveStats/M=1/Q correlationW
-		x1 = V_maxRowLoc
-		y1 = V_maxColLoc
-		dx = x0 - x1
-		dy = y0 - y1
-		if(printMode)
-			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n"
-		endif
-		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer	// New reference layer, M_Affine
-		MatrixOP/O/FREE w3dLayer = layer(w3d, i + 1)
-		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i + 1)) Affine2D w3dLayer	
-		endfor
-	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
-	WAVE M_Stack
-	// Restore scale here
-	CopyScales w3d, M_Stack
-	Duplicate/O M_Stack, saveWaveDF:$NameofWave(w3d)	
-	if(printMode)
-		string notebookName = NameOfWave(w3d)
-		KillWindow/Z notebookName
-		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
-		Notebook notebookName, text = driftLog
-	endif
-	SetDataFolder saveDF
-	return 0
-End
-
-Function MXP_CascadeImageStackAlignmentByRegistration(WAVE w3d, [int convMode, int printMode])
-	/// Align a 3d wave using ImageRegistration using the full image
-	/// We align sequentially with reference layer the previous layer of the stack. 
-	/// Only x, y translations are allowed.
-	/// @param w3d WAVE 3d we want to register for aligment
-	
-	printMode = ParamIsDefault(printMode) ? 0: printMode
-	convMode = ParamIsDefault(convMode) ? 0: convMode // convMode = 0, 1 
-	
-	if(!(WaveType(w3d) & 0x02))
-		Redimension/S w3d
-	endif
-
-	variable rows = DimSize(w3d, 0)
-	variable cols = DimSize(w3d, 1)
-	variable layers = DimSize(w3d, 2)
-	
-	if(printMode)
-		string driftLog = "Called MXP_CascadeImageStackAlignmentByRegistration\n"
-		driftLog +=  "---- Drift correction (relative to previous layer)----\n"
-		driftLog +=  "layer  dx  dy\n"
-	endif
-	
-	DFREF saveDF = GetDataFolderDFR()
-	DFREF saveWaveDF = GetWavesDataFolderDFR(w3d) // Location of w3d	
-	SetDataFolder NewFreeDataFolder()
-	variable i, dx, dy
-	// Get the first layer out
-	MatrixOP/O getStacklayer_0 = layer(w3d, 0) 
-	Duplicate/FREE getStacklayer_0, M_Affine
-	for(i = 0; i < layers - 1; i++) // (layers - 1)
-		MatrixOP/FREE/O targetLayer = layer(w3d, i + 1) 
-		ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0/CONV=(convMode) refwave = M_Affine, testwave = targetLayer // Correct!!!!:Error here. M_Affine differs by one!
-		WAVE W_RegParams
-		dx = W_RegParams[0]; dy = W_RegParams[1]
-		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer // Will overwrite M_Affine
-		MatrixOP/O/FREE w3dLayer = layer(w3d, i + 1)
-		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i + 1)) Affine2D w3dLayer
-		if(printMode)
-			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n" // Layer 0 is not shifted
-		endif
-	endfor
-	ImageTransform/NP=(layers) stackImages $"getStacklayer_0"
-	WAVE M_Stack
-	// Restore scale here
-	CopyScales w3d, M_Stack
-	Duplicate/O M_Stack, saveWaveDF:$NameofWave(w3d)	
-	if(printMode)
-		string notebookName = NameOfWave(w3d)
-		KillWindow/Z notebookName
-		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
-		Notebook notebookName, text = driftLog
-	endif
-	SetDataFolder saveDF
-	return 0
-End
+//// Not in use since 02.10.2023
+//Function MXP_CascadeImageStackAlignmentByCorrelation(WAVE w3d, [int printMode])
+//	/// Align a 3d wave using Correlation of the full image	
+//	/// We align sequentially with reference layer the previous layer of the stack. 
+//	/// Only x, y translations are allowed.
+//	/// @param w3d WAVE 3d we want to register for aligment
+//	
+//	printMode = ParamIsDefault(printMode) ? 0: printMode
+//	
+//	if(!(WaveType(w3d) & 0x02))
+//		Redimension/S w3d
+//	endif
+//
+//	variable nlayers = DimSize(w3d, 2)
+//	variable  i, x0, y0, x1, y1, dx, dy
+//	
+//	if(printMode)
+//		string driftLog = "Called MXP_CascadeImageStackAlignmentByCorrelation\n"
+//		driftLog +=  "---- Drift correction (relative to previous layer)----\n"
+//		driftLog +=  "layer  dx  dy\n"
+//	endif
+//	
+//	DFREF saveDF = GetDataFolderDFR()
+//	DFREF saveWaveDF = GetWavesDataFolderDFR(w3d) // Location of w3d			
+//	SetDataFolder NewFreeDataFolder() // Change folder
+//	
+//	MatrixOP/O getStacklayer_0 = layer(w3d, 0) // ImageTransform doesn't work with /FREE
+//	Duplicate/FREE/O getStacklayer_0, M_Affine
+//	for(i = 0; i < nlayers - 1; i++)
+//		MatrixOP/O/FREE autocorrelationW = correlate(M_Affine, M_Affine, 0)
+//		WaveStats/M=1/Q autocorrelationW
+//		x0 = V_maxRowLoc
+//		y0 = V_maxColLoc
+//		MatrixOP/FREE/O targetLayer = layer(w3d, i + 1)
+//		MatrixOP/O/FREE correlationW = correlate(M_Affine, targetLayer, 0)
+//		WaveStats/M=1/Q correlationW
+//		x1 = V_maxRowLoc
+//		y1 = V_maxColLoc
+//		dx = x0 - x1
+//		dy = y0 - y1
+//		if(printMode)
+//			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n"
+//		endif
+//		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer	// New reference layer, M_Affine
+//		MatrixOP/O/FREE w3dLayer = layer(w3d, i + 1)
+//		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i + 1)) Affine2D w3dLayer	
+//		endfor
+//	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
+//	WAVE M_Stack
+//	// Restore scale here
+//	CopyScales w3d, M_Stack
+//	Duplicate/O M_Stack, saveWaveDF:$NameofWave(w3d)	
+//	if(printMode)
+//		string notebookName = NameOfWave(w3d)
+//		KillWindow/Z notebookName
+//		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
+//		Notebook notebookName, text = driftLog
+//	endif
+//	SetDataFolder saveDF
+//	return 0
+//End
+//
+//// Not in use since 02.10.2023
+//Function MXP_CascadeImageStackAlignmentByRegistration(WAVE w3d, [int convMode, int printMode])
+//	/// Align a 3d wave using ImageRegistration using the full image
+//	/// We align sequentially with reference layer the previous layer of the stack. 
+//	/// Only x, y translations are allowed.
+//	/// @param w3d WAVE 3d we want to register for aligment
+//	
+//	printMode = ParamIsDefault(printMode) ? 0: printMode
+//	convMode = ParamIsDefault(convMode) ? 0: convMode // convMode = 0, 1 
+//	
+//	if(!(WaveType(w3d) & 0x02))
+//		Redimension/S w3d
+//	endif
+//
+//	variable rows = DimSize(w3d, 0)
+//	variable cols = DimSize(w3d, 1)
+//	variable layers = DimSize(w3d, 2)
+//	
+//	if(printMode)
+//		string driftLog = "Called MXP_CascadeImageStackAlignmentByRegistration\n"
+//		driftLog +=  "---- Drift correction (relative to previous layer)----\n"
+//		driftLog +=  "layer  dx  dy\n"
+//	endif
+//	
+//	DFREF saveDF = GetDataFolderDFR()
+//	DFREF saveWaveDF = GetWavesDataFolderDFR(w3d) // Location of w3d	
+//	SetDataFolder NewFreeDataFolder()
+//	variable i, dx, dy
+//	// Get the first layer out
+//	MatrixOP/O getStacklayer_0 = layer(w3d, 0) 
+//	Duplicate/FREE getStacklayer_0, M_Affine
+//	for(i = 0; i < layers - 1; i++) // (layers - 1)
+//		MatrixOP/FREE/O targetLayer = layer(w3d, i + 1) 
+//		ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0/CONV=(convMode) refwave = M_Affine, testwave = targetLayer // Correct!!!!:Error here. M_Affine differs by one!
+//		WAVE W_RegParams
+//		dx = W_RegParams[0]; dy = W_RegParams[1]
+//		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer // Will overwrite M_Affine
+//		MatrixOP/O/FREE w3dLayer = layer(w3d, i + 1)
+//		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i + 1)) Affine2D w3dLayer
+//		if(printMode)
+//			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n" // Layer 0 is not shifted
+//		endif
+//	endfor
+//	ImageTransform/NP=(layers) stackImages $"getStacklayer_0"
+//	WAVE M_Stack
+//	// Restore scale here
+//	CopyScales w3d, M_Stack
+//	Duplicate/O M_Stack, saveWaveDF:$NameofWave(w3d)	
+//	if(printMode)
+//		string notebookName = NameOfWave(w3d)
+//		KillWindow/Z notebookName
+//		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
+//		Notebook notebookName, text = driftLog
+//	endif
+//	SetDataFolder saveDF
+//	return 0
+//End
