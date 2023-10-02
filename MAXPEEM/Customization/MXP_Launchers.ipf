@@ -342,11 +342,13 @@ Function MXP_LaunchImageStackAlignmentByFullImage()
 		return -1
 	endif
 	string backupWave = NameOfWave(w3dref) + "_undo"
-	if(!WaveExists($backupWave))
-		print GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + " has been created. To restore " + GetWavesDataFolder(w3dref, 2) + " run the command:\n"
-		print "Duplicate/O " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + ", " +  GetWavesDataFolder(w3dref, 2) + "; " + \
-		"KillWaves/Z " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave)
-		Duplicate $GetWavesDataFolder(w3dref, 2), $(GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave))
+	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave)
+
+	if(!WaveExists($backupWavePathStr))
+		Duplicate/O w3dref, $backupWavePathStr
+		print backupWavePathStr + " has been created. To restore " + GetWavesDataFolder(w3dref, 2) + " run the command:\n"
+		print "Duplicate/O " + backupWavePathStr + ", " +  GetWavesDataFolder(w3dref, 2) + "; " + \
+		"KillWaves/Z " + backupWavePathStr
 	endif
 
 	if(edgeDetection == 1 && histEq == 1)	
@@ -369,7 +371,7 @@ Function MXP_LaunchImageStackAlignmentByFullImage()
 		MXP_ImageStackAlignmentByCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, windowing = windowing - 2)
 	endif
 	//Restore the note
-	string copyNoteStr = note($backupWave)
+	string copyNoteStr = note($backupWavePathStr)
 	Note/K w3dref,copyNoteStr
 End
 
@@ -398,10 +400,10 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	endif
 	string backupWave = NameOfWave(w3dref) + "_undo"
 	if(!WaveExists($(GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave))))
+		Duplicate/O w3dref, $(GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave))
 		print GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + " has been created. To restore " + GetWavesDataFolder(w3dref, 2) + " run the command:\n"
 		print "Duplicate/O " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + ", " +  GetWavesDataFolder(w3dref, 2) + "; " + \
 		"KillWaves/Z " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave)
-		Duplicate $GetWavesDataFolder(w3dref, 2), $(GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave))
 	endif
 	variable left, right, top, bottom
 	
