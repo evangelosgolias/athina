@@ -168,7 +168,7 @@ Function MXP_CascadeImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE pa
 	
 	for(i = 0; i < layers - 1; i++) // (layers - 1)
 		MatrixOP/O/FREE targetLayer = layer(partitionW3d, i + 1)
-		ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = M_Affine, testwave = targetLayer // Correct!!!!:Error here. M_Affine differs by one!
+		ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = M_Affine, testwave = targetLayer
 		WAVE W_RegParams
 		dx = W_RegParams[0]; dy = W_RegParams[1]
 		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer // Will overwrite M_Affine
@@ -259,7 +259,7 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int pr
 		driftLog +=  "---- Drift ----\n"
 		driftLog +=  "layer  dx  dy\n"
 	endif
-	
+
 	DFREF saveDF = GetDataFolderDFR()
 	DFREF saveWaveDF = GetWavesDataFolderDFR(w3d) // Location of w3d
 	SetDataFolder NewFreeDataFolder()
@@ -271,7 +271,7 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int pr
 	endif
 	MatrixOP/FREE autocorrelationW = correlate(refLayerFreeWave, refLayerFreeWave, 0)
 	WaveStats/M=1/Q autocorrelationW
-	variable x0 = V_maxRowLoc, y0 = V_maxColLoc, x1, y1, dx, dy
+	variable x0 = V_maxRowLoc, y0 = V_maxColLoc, x1, y1, dx, dy // x, y -> p, q
 	variable layers = DimSize(w3d, 2)
 
 	for(i = 0; i < layers; i++)
@@ -292,14 +292,18 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int pr
 			endif
 			if(dx || dy) // Replace a slice only if you have to offset
 				if(windowing)
-					ImageTransform/IOFF={dx, dy, 0} offsetImage freeLayerCopy // Translate the backed up slayer
+					ImageTransform/IOFF={dx, dy, 0} offsetImage freeLayerCopy // Translate the backed up layer
 				else
 					ImageTransform/IOFF={dx, dy, 0} offsetImage freeLayer
 				endif
 				WAVE M_OffsetImage
 				Rename M_OffsetImage, $("getStacklayer_" + num2str(i))
 			else
-				Duplicate freeLayer, $("getStacklayer_" + num2str(i))
+				if(windowing)
+				Duplicate freeLayerCopy, $("getStacklayer_" + num2str(i)) // Translate the backed up layer
+				else
+					Duplicate freeLayer, $("getStacklayer_" + num2str(i))
+				endif
 			endif
 		endif
 	endfor
@@ -377,7 +381,6 @@ Function MXP_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 		MatrixOP/O/FREE getfreelayer = layer(w3d, i)
 		ImageTransform/IOFF={dp[i], dq[i], 0} offsetImage getfreelayer
 		WAVE M_OffsetImage
-		//w3d[][][i] = M_OffsetImage[p][q]
 		Rename M_OffsetImage, $("getStacklayer_" + num2str(i))
 		if(printMode)
 			driftLog +=  num2str(i) + ": "+ num2str(dp[i]) + "    " + num2str(dq[i]) + "\n"

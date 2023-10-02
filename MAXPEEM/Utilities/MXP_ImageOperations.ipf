@@ -409,15 +409,14 @@ End
 
 Function MXP_RestoreTopImageFromBackup()
 	/// Restore the top image if there is a backup wave.
-	/// Backup wave's name is *assummed* to be NameOfWave(wRef) + "_undo" !!!!
-	///
-	/// Math: If the side of the image is a, then the rotated image
-	/// will have side a_rot = a * (cos(angle) + sin(angle))
-	/// @param angle: clockwise rotation in degrees
+	/// Backup wave's name is *assummed* to be NameOfWave(wRef) + "_undo"
+	/// and it is located on the same folder as the source image
+
 	
 	WAVE wRef = MXP_TopImageToWaveRef()
+	DFREF wdfr = GetWavesDataFolderDFR(wRef)
 	string backupWaveNameStr = NameOfWave(wRef) + "_undo"
-	WAVE/Z wRefbck = $backupWaveNameStr
+	WAVE/SDFR=wdfr/Z wRefbck = $backupWaveNameStr
 	if(WaveExists(wRefbck))
 		Duplicate/O wRefbck, wRef
 		KillWaves wRefbck

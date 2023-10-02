@@ -341,14 +341,12 @@ Function MXP_LaunchImageStackAlignmentByFullImage()
 	if(V_flag) // User cancelled
 		return -1
 	endif
-	string backupWave = NameOfWave(w3dref) + "_undo"
-	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave)
+	
+	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(NameOfWave(w3dref) + "_undo")
 
 	if(!WaveExists($backupWavePathStr))
 		Duplicate/O w3dref, $backupWavePathStr
-		print backupWavePathStr + " has been created. To restore " + GetWavesDataFolder(w3dref, 2) + " run the command:\n"
-		print "Duplicate/O " + backupWavePathStr + ", " +  GetWavesDataFolder(w3dref, 2) + "; " + \
-		"KillWaves/Z " + backupWavePathStr
+		print "Backup before drift correction: ", backupWavePathStr
 	endif
 
 	if(edgeDetection == 1 && histEq == 1)	
@@ -398,12 +396,11 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	if(V_flag) // User cancelled
 		return -1
 	endif
-	string backupWave = NameOfWave(w3dref) + "_undo"
-	if(!WaveExists($(GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave))))
-		Duplicate/O w3dref, $(GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave))
-		print GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + " has been created. To restore " + GetWavesDataFolder(w3dref, 2) + " run the command:\n"
-		print "Duplicate/O " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + ", " +  GetWavesDataFolder(w3dref, 2) + "; " + \
-		"KillWaves/Z " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave)
+	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(NameOfWave(w3dref) + "_undo")
+
+	if(!WaveExists($backupWavePathStr))
+		Duplicate/O w3dref, $backupWavePathStr
+		print "Backup before drift correction: ", backupWavePathStr
 	endif
 	variable left, right, top, bottom
 	
@@ -434,7 +431,7 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 		Abort "Please check MXP_LaunchImageStackAlignmentUsingAFeature(), method error."
 	endif
 	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
-	string copyNoteStr = note($backupWave)
+	string copyNoteStr = note($backupWavePathStr)
 	Note/K w3dref,copyNoteStr
 End
 
@@ -459,18 +456,13 @@ Function MXP_LaunchCascadeImageStackAlignmentByFullImage()
 	if(V_flag) // User cancelled
 		return -1
 	endif
-	string backupWave = NameOfWave(w3dref) + "_undo"
-	if(!WaveExists($backupWave))
-		print GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + " has been created. To restore " + GetWavesDataFolder(w3dref, 2) + " run the command:\n"
-		print "Duplicate/O " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + ", " +  GetWavesDataFolder(w3dref, 2) + "; " + \
-		"KillWaves/Z " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave)
-		Duplicate $GetWavesDataFolder(w3dref, 2), $(GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave))
+	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(NameOfWave(w3dref) + "_undo")
+
+	if(!WaveExists($backupWavePathStr))
+		Duplicate/O w3dref, $backupWavePathStr
+		print "Backup before drift correction: ", backupWavePathStr
 	endif
 
-	if(edgeDetection == 1 && histEq == 1)	
-		print "You applied edge detection and histrogram equalisation on the same stack! I hope you know what you are doing"
-	endif
-	
 	if(edgeDetection == 1)
 		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
 		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
@@ -487,7 +479,7 @@ Function MXP_LaunchCascadeImageStackAlignmentByFullImage()
 		MXP_CascadeImageStackAlignmentByCorrelation(w3dRef, printMode = printMode - 2)
 	endif
 	//Restore the note
-	string copyNoteStr = note($backupWave)
+	string copyNoteStr = note($backupWavePathStr)
 	Note/K w3dref,copyNoteStr
 End
 
@@ -511,18 +503,13 @@ Function MXP_LaunchCascadeImageStackAlignmentUsingAFeature()
 	if(V_flag) // User cancelled
 		return -1
 	endif
-	string backupWave = NameOfWave(w3dref) + "_undo"
-	if(!WaveExists($backupWave))
-		print GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + " has been created. To restore " + GetWavesDataFolder(w3dref, 2) + " run the command:\n"
-		print "Duplicate/O " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave) + ", " +  GetWavesDataFolder(w3dref, 2) + "; " + \
-		"KillWaves/Z " + GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave)
-		Duplicate $GetWavesDataFolder(w3dref, 2), $(GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(backupWave))
+	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(NameOfWave(w3dref) + "_undo")
+
+	if(!WaveExists($backupWavePathStr))
+		Duplicate/O w3dref, $backupWavePathStr
+		print "Backup before drift correction: ", backupWavePathStr
 	endif
 	variable left, right, top, bottom
-	
-	if(edgeDetection == 1 && histEq == 1)	
-		print "You applied edge detection and histrogram equalisation on the same stack! I hope you know what you are doing"
-	endif
 	
 	if(edgeDetection == 1)
 		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
@@ -548,7 +535,7 @@ Function MXP_LaunchCascadeImageStackAlignmentUsingAFeature()
 		Abort "Please check MXP_LaunchImageStackAlignmentUsingAFeature(), method error."
 	endif
 	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
-	string copyNoteStr = note($backupWave)
+	string copyNoteStr = note($backupWavePathStr)
 	Note/K w3dref,copyNoteStr
 End
 
