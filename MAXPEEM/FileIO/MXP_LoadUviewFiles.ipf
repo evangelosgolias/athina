@@ -225,7 +225,7 @@ Function/WAVE MXP_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 		ImageInterpolate/PXSZ={binX, binY}/DEST=$waveNameStr Pixelate datWaveFree		
 		WAVE datWave = $waveNameStr
 	endif
-	//ImageTransform flipRows datWave // flip the y-axis
+	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
 	if(!skipmetadata)
@@ -357,7 +357,7 @@ Function MXP_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 		ImageInterpolate/PXSZ={binX, binY}/DEST=$waveNameStr Pixelate datWaveFree		
 		WAVE datWave = $waveNameStr
 	endif
-	//ImageTransform flipRows datWave // flip the y-axis
+	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
 	if(!skipmetadata)
@@ -1476,7 +1476,7 @@ Function/WAVE MXP_WAVELoadSingleCorruptedDATFile(string filepathStr, string wave
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
 	Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr /WAVE=datWave
 	FBinRead/F=2 numRef, datWave
-	//ImageTransform flipRows datWave // flip the y-axis
+	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
 	return datwave
@@ -1547,7 +1547,7 @@ Function MXP_LoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, 
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
 	Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr /WAVE=datWave
 	FBinRead/F=2 numRef, datWave
-	//ImageTransform flipRows datWave // flip the y-axis
+	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
 	// Convert to SP or DP 	

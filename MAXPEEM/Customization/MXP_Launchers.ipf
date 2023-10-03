@@ -404,14 +404,15 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 
 	if(!WaveExists($backupWavePathStr))
 		Duplicate/O w3dref, $backupWavePathStr
-		print "Backup before drift correction: ", backupWavePathStr
+		print "Backup wave before drift correction: ", backupWavePathStr
 	endif
 	variable left, right, top, bottom
 
 	if(edgeDetection == 1 && histEq == 1)
 		print "You applied edge detection and histrogram equalisation on the same stack! I hope you know what you are doing"
 	endif
-	[left, right, top, bottom] = WM_UserGetMarqueePositions(winNameStr)
+	STRUCT sUserMarqueePositions s
+	[left, right, top, bottom] = MXP_UserGetMarqueePositions(s)
 	if(edgeDetection == 1)
 		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
 		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
@@ -448,209 +449,88 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	Note/K w3dref,copyNoteStr
 End
 
-// Not in use since 02.10.2023
-//Function MXP_LaunchCascadeImageStackAlignmentByFullImage()
-//	string winNameStr = WinName(0, 1, 1)
-//	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-//	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
-//	variable convMode = 1
-//	variable printMode = 2
-//	variable edgeDetection = 2
-//	variable edgeAlgo = 1	
-//	variable histEq = 2	
-//	variable algo = 1
-//	string msg = "Cascade alignment of full " + imgNameTopGraphStr
-//	Prompt algo, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
-//	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!
-//	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"		
-//	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
-//	Prompt convMode, "Convergence (Registration only)", popup, "Gravity (fast); Marquardt (slow)"
-//	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-//	DoPrompt msg, algo, edgeDetection, edgeAlgo, histEq, convMode, printMode
-//	if(V_flag) // User cancelled
-//		return -1
-//	endif
-//	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(NameOfWave(w3dref) + "_undo")
-//
-//	if(!WaveExists($backupWavePathStr))
-//		Duplicate/O w3dref, $backupWavePathStr
-//		print "Backup before drift correction: ", backupWavePathStr
-//	endif
-//
-//	if(edgeDetection == 1)
-//		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
-//		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
-//		MXP_ImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo, overwrite = 1)
-//	endif
-//	
-//	if(histEq == 1)
-//		ImageHistModification/O/I w3dref
-//	endif	
-//
-//	if(algo == 1)
-//		MXP_CascadeImageStackAlignmentByRegistration(w3dRef, printMode = printMode - 2, convMode = convMode - 1)
-//	else
-//		MXP_CascadeImageStackAlignmentByCorrelation(w3dRef, printMode = printMode - 2)
-//	endif
-//	//Restore the note
-//	string copyNoteStr = note($backupWavePathStr)
-//	Note/K w3dref,copyNoteStr
-//End
-//
-// Not in use since 02.10.2023
-//Function MXP_LaunchCascadeImageStackAlignmentUsingAFeature()
-//	//string waveListStr = Wavelist("*",";","DIMS:3"), selectWaveStr
-//	string winNameStr = WinName(0, 1, 1)
-//	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-//	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
-//	variable method = 1
-//	variable printMode = 2
-//	variable edgeDetection = 2
-//	variable histEq = 2
-//	variable edgeAlgo = 1
-//	string msg = "Cascade alignment of full " + imgNameTopGraphStr
-//	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
-//	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!
-//	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"		
-//	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
-//	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-//	DoPrompt msg, method, histEq, edgeDetection, edgeAlgo, printMode
-//	if(V_flag) // User cancelled
-//		return -1
-//	endif
-//	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(NameOfWave(w3dref) + "_undo")
-//
-//	if(!WaveExists($backupWavePathStr))
-//		Duplicate/O w3dref, $backupWavePathStr
-//		print "Backup before drift correction: ", backupWavePathStr
-//	endif
-//	variable left, right, top, bottom
-//	
-//	if(edgeDetection == 1)
-//		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
-//		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
-//		[left, right, top, bottom] = WM_UserGetMarqueePositions(winNameStr)
-//		// Apply image edge detection to the whole image, it's slower but to works better(?)
-//		WAVE partitionWaveED = MXP_WAVEImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo)
-//		WAVE partitionWave = MXP_WAVE3DWavePartition(partitionWaveED, left, right, top, bottom, evenNum = 1) // Debug
-//	else
-//		WAVE partitionWave = WM_WAVEUserSetMarquee(winNameStr)
-//		//ImageFilter/O gauss3d partitionWave // Apply a 3x3x3 gaussian filter
-//	endif
-//
-//	if(histEq == 1)
-//		ImageHistModification/O/I partitionWave
-//	endif
-//
-//	if(method == 1)		
-//		MXP_CascadeImageStackAlignmentByPartitionRegistration(w3dRef, partitionWave, printMode = printMode - 2)
-//	elseif(method == 2)
-//		MXP_CascadeImageStackAlignmentByPartitionCorrelation(w3dRef, partitionWave, printMode = printMode - 2)
-//	else 
-//		Abort "Please check MXP_LaunchImageStackAlignmentUsingAFeature(), method error."
-//	endif
-//	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
-//	string copyNoteStr = note($backupWavePathStr)
-//	Note/K w3dref,copyNoteStr
-//End
+Structure sUserMarqueePositions
+	variable left
+	variable right
+	variable top
+	variable bottom
+	variable canceled
+EndStructure
 
-Function/WAVE WM_WAVEUserSetMarquee(string graphName)
-	/// Modified WM procedure to return a Free WAVE to MXP_LaunchMXP_ImageStackAlignmentByPartitionRegistration()
-	/// method = 0:partition wave 3d, method = 1, create a mask
-	DoWindow/F $graphName			// Bring graph to front
+Function [variable leftR, variable rightR, variable topR, variable bottomR] MXP_UserGetMarqueePositions(STRUCT sUserMarqueePositions &s)
+	//
+	string winNameStr = WinName(0, 1, 1)	
+	DoWindow/F $winNameStr			// Bring graph to front
 	if (V_Flag == 0)					// Verify that graph exists
 		Abort "WM_UserSetMarquee: No image in top window."
 	endif
-
-	NewDataFolder/O root:tmp_PauseforCursorDF
-	variable/G root:tmp_PauseforCursorDF:canceled= 0
-
-	NewPanel/K=2 /W=(139,341,382,450) as "Set marquee on image"
-	DoWindow/C tmp_PauseforCursor					// Set to an unlikely name
-	AutoPositionWindow/E/M=1/R=$graphName			// Put panel near the graph
-
-	DrawText 15,20,"Draw marquee and press continue..."
-	DrawText 15,35,"Can also use a marquee to zoom-in"
-	Button button0, pos={80,50},size={92,20}, title="Continue"
-	Button button0, proc=WM_UserSetMarquee_ContButtonProc
-	Button button1, pos={80,80},size={92,20}
-	Button button1, proc=WM_UserSetMarquee_CancelBProc, title="Cancel"
-
-	PauseForUser tmp_PauseforCursor,$graphName
-	NVAR/Z left = root:tmp_PauseforCursorDF:left
-	NVAR/Z right = root:tmp_PauseforCursorDF:right
-	NVAR/Z top = root:tmp_PauseforCursorDF:top
-	NVAR/Z bottom = root:tmp_PauseforCursorDF:bottom
-	NVAR/Z gCanceled= root:tmp_PauseforCursorDF:canceled
-	Variable canceled= gCanceled			// Copy from global to local before global is killed
-	if(canceled)
-		GetMarquee/K
-		Abort
-	endif
-		
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(graphName, ";"),";")
-	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	WAVE partiotionWave = MXP_WAVE3DWavePartition(w3dref, left, right, top, bottom, evenNum = 1) // Change here the partition
-	KillDataFolder root:tmp_PauseforCursorDF // Kill folder here, you have to use the left, right, top, bottom in MXP_WAVE3DWavePartition
-	return partiotionWave
-End
-
-Function [variable leftR, variable rightR, variable topR, variable bottomR] WM_UserGetMarqueePositions(string graphName)
-	/// Modified WM procedure to return a Free WAVE to MXP_LaunchMXP_ImageStackAlignmentByPartitionRegistration()
-	/// method = 0:partition wave 3d, method = 1, create a mask
-	DoWindow/F $graphName			// Bring graph to front
-	if (V_Flag == 0)					// Verify that graph exists
-		Abort "WM_UserSetMarquee: No image in top window."
-	endif
-
-	NewDataFolder/O root:tmp_PauseforCursorDF
-	variable/G root:tmp_PauseforCursorDF:canceled = 0
-
-	NewPanel/K=2 /W=(139,341,382,450) as "Set marquee on image"
-	DoWindow/C tmp_PauseforCursor					// Set to an unlikely name
-	AutoPositionWindow/E/M=1/R=$graphName			// Put panel near the graph
-
-	DrawText 15,20,"Draw marquee and press continue..."
-	DrawText 15,35,"Can also use a marquee to zoom-in"
-	Button button0, pos={80,50},size={92,20}, title="Continue"
-	Button button0, proc=WM_UserSetMarquee_ContButtonProc
-	Button button1, pos={80,80},size={92,20}
-	Button button1, proc=WM_UserSetMarquee_CancelBProc, title="Cancel"
-
-	PauseForUser tmp_PauseforCursor, $graphName
-	NVAR/Z left = root:tmp_PauseforCursorDF:left
-	NVAR/Z right = root:tmp_PauseforCursorDF:right
-	NVAR/Z top = root:tmp_PauseforCursorDF:top
-	NVAR/Z bottom = root:tmp_PauseforCursorDF:bottom
-	NVAR/Z gCanceled= root:tmp_PauseforCursorDF:canceled
-	variable canceled= gCanceled			// Copy from global to local before global is killed
-	if(canceled)
-		GetMarquee/K
-		Abort
-	endif
+	string structStr
+	string panelNameStr = UniqueName("PauseforCursor", 9, 0)
+	NewPanel/N=$panelNameStr/K=2/W=(139,341,382,450) as "Set marquee on image"
+	AutoPositionWindow/E/M=1/R=$winNameStr			// Put panel near the graph
 	
-	leftR = left
-	rightR = right
-	topR = top
-	bottomR = bottom
-	KillDataFolder root:tmp_PauseforCursorDF // Kill folder here, you have to use the left, right, top, bottom in MXP_WAVE3DWavePartition
-	return [leftR, rightR, topR, bottomR]
+	StructPut /S s, structStr
+	DrawText 15,20,"Draw marquee and press continue..."
+	DrawText 15,35,"Can also use a marquee to zoom-in"
+	Button buttonContinue, win=$panelNameStr, pos={80,50},size={92,20}, title="Continue", proc=MXP_UserSetMarquee_ContButtonProc 
+	Button buttonCancel, win=$panelNameStr, pos={80,80},size={92,20}, title="Cancel", proc=MXP_UserSetMarquee_CancelBProc
+	SetWindow $winNameStr userdata(sMXP_Coords)=structStr 
+	SetWindow $winNameStr userdata(sMXP_panelNameStr)= panelNameStr
+	SetWindow $panelNameStr userdata(sMXP_winNameStr) = winNameStr 
+	SetWindow $panelNameStr userdata(sMXP_panelNameStr) = panelNameStr
+	PauseForUser $panelNameStr, $winNameStr
+	StructGet/S s, GetUserData(winNameStr, "", "sMXP_Coords")
+	
+	if(s.canceled)
+		GetMarquee/W=$winNameStr/K
+		Abort
+	endif
+	leftR = s.left
+	rightR = s.right
+	topR = s.top
+	bottomR = s.bottom
+	return [leftR, rightR , topR, bottomR]
 End
 
-Function WM_UserSetMarquee_ContButtonProc(ctrlName) : ButtonControl
-	String ctrlName
-	GetMarquee/K left, top
-	variable/G root:tmp_PauseforCursorDF:left = V_left
-	variable/G root:tmp_PauseforCursorDF:right = V_right
-	variable/G root:tmp_PauseforCursorDF:top = V_top
-	variable/G root:tmp_PauseforCursorDF:bottom = V_bottom	
-	KillWindow/Z tmp_PauseforCursor			// Kill self
+Function MXP_UserSetMarquee_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
+	STRUCT sUserMarqueePositions s
+	string winNameStr = GetUserData(B_Struct.win, "", "sMXP_winNameStr")
+	StructGet/S s, GetUserData(winNameStr, "", "sMXP_Coords")
+	string structStr
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			GetMarquee/W=$winNameStr/K left, top
+			s.left = V_left
+			s.right = V_right
+			s.top = V_top
+			s.bottom = V_bottom
+			s.canceled = 0
+			StructPut/S s, structStr
+			SetWindow $winNameStr userdata(sMXP_Coords) = structStr
+			KillWindow/Z $GetUserData(B_Struct.win, "", "sMXP_panelNameStr")
+			break
+	endswitch
+	return 0
 End
 
-Function WM_UserSetMarquee_CancelBProc(ctrlName) : ButtonControl
-	String ctrlName
-	Variable/G root:tmp_PauseforCursorDF:canceled = 1
-	KillWindow/Z tmp_PauseforCursor			// Kill self
+Function MXP_UserSetMarquee_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
+	STRUCT sUserMarqueePositions s
+	string winNameStr = GetUserData(B_Struct.win, "", "sMXP_winNameStr")
+	StructGet/S s, GetUserData(winNameStr, "", "sMXP_Coords")
+	string structStr	
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			s.left = 0
+			s.right = 0
+			s.top = 0
+			s.bottom = 0
+			s.canceled = 1
+			StructPut/S s, structStr
+			SetWindow $winNameStr userdata(sMXP_Coords) = structStr
+			KillWindow/Z $GetUserData(B_Struct.win, "", "sMXP_panelNameStr")			
+			break
+	endswitch
+	return 0
 End
 
 // ---- ///

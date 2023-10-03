@@ -245,8 +245,8 @@ Function MXP_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int pr
 	/// @param printMode int optional print the drift corrections in pixels
 	
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then 0 is your choice
-	printMode = ParamIsDefault(printMode) ? 0: printMode // print if not 0
-	windowing = ParamIsDefault(windowing) ? 0: windowing // print if not 0
+	printMode = ParamIsDefault(printMode) ? 0: printMode
+	windowing = ParamIsDefault(windowing) ? 0: windowing 
 	if(!(WaveType(w3d) & 0x02))
 		Redimension/S w3d
 	endif

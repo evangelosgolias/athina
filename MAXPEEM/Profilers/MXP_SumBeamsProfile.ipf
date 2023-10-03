@@ -637,7 +637,6 @@ Function MXP_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonC
 			endif
 
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
-		return 1
 		break
 	endswitch
 	return 0

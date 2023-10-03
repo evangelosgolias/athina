@@ -227,8 +227,9 @@ Function/WAVE MXP_WAVE2DWavePartition(WAVE wRef, variable startX, variable endX,
 		endY = ymax
 	endif	
 	
-	if (!(startX < endX && startY < endY && startX >= rowsOff && startY >= colsOff))
-		Abort “Error: Out of bounds p, q values or X_min >= X_max.”
+	if (!(startX < endX && startY < endY && startX >= xmin && startY >= ymin \
+		&& endX <= xmax && endY <= ymax))
+		Abort "Error: Out of bounds p, q values or X_min >= X_max."
 	endif
 	
 	variable startP, endP, startQ, endQ
@@ -299,7 +300,8 @@ Function MXP_2DWavePartition(WAVE wRef, string wPartitionStr, variable startX, v
 		endY = ymax
 	endif	
 	
-	if (!(startX < endX && startY < endY && startX >= rowsOff && startY >= colsOff))
+	if (!(startX < endX && startY < endY && startX >= xmin && startY >= ymin \
+		&& endX <= xmax && endY <= ymax))
 		Abort "Error: Out of bounds p, q values or X_min >= X_max."
 	endif
 	
@@ -374,7 +376,8 @@ Function MXP_3DWavePartition(WAVE w3d, string partitionNameStr, variable startX,
 		endY = ymax
 	endif	
 	
-	if (!(startX < endX && startY < endY && startX >= rowsOff && startY >= colsOff))
+	if (!(startX < endX && startY < endY && startX >= xmin && startY >= ymin \
+		&& endX <= xmax && endY <= ymax))
 		Abort "Error: Out of bounds p, q values or X_min >= X_max."
 	endif
 	
@@ -443,7 +446,8 @@ Function/WAVE MXP_WAVE3DWavePartition(WAVE w3d, variable startX, variable endX, 
 		endY = ymax
 	endif	
 	
-	if (!(startX < endX && startY < endY && startX >= rowsOff && startY >= colsOff))
+	if (!(startX < endX && startY < endY && startX >= xmin && startY >= ymin \
+		&& endX <= xmax && endY <= ymax))
 		Abort "Error: Out of bounds p, q values or X_min >= X_max."
 	endif
 	
