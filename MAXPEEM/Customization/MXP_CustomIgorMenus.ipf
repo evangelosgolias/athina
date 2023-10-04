@@ -131,6 +131,7 @@ Menu "DataBrowserObjectsPopup"
 	"MXP Average stack", /Q, MXP_LaunchAverageStackToImageFromBrowserMenu()
 	"MXP Make stack", /Q, MXP_LaunchMake3DWaveDataBrowserSelection()
 	"MXP Make stack and display", /Q, MXP_LaunchMake3DWaveDataBrowserSelection(displayStack = 1)
+	"MXP Restore image from backup", /Q, MXP_LaunchImageBackupFromBrowserSelection()
 	Submenu "MXP Profiles"
 		"MXP Z profile", /Q, MXP_BrowserMenuLaunchSumBeamsProfile()
 		"MXP Line profile", /Q, MXP_BrowserMenuLaunchLineProfile()

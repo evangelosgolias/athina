@@ -407,13 +407,24 @@ Function MXP_BackupTopImage()
 	return 0
 End
 
-Function MXP_RestoreTopImageFromBackup()
-	/// Restore the top image if there is a backup wave.
+Function MXP_RestoreTopImageFromBackup([string wname])
+	/// Restore an image from backup. When ParamIsDefault (wavenameStr = "")
+	/// the image on the top window is used, otherwise WAVE $wavenameStr.
 	/// Backup wave's name is *assummed* to be NameOfWave(wRef) + "_undo"
 	/// and it is located on the same folder as the source image
-
 	
-	WAVE wRef = MXP_TopImageToWaveRef()
+	wname = SelectString(ParamIsDefault(wname) ? 0: 1,"", wname)
+
+	if(!ParamIsDefault(wname))
+		WAVE wRef = $wname
+	else
+		WAVE wRef = MXP_TopImageToWaveRef()
+	endif
+	
+	if(!WaveExists(wRef))
+		return -1
+	endif
+	
 	DFREF wdfr = GetWavesDataFolderDFR(wRef)
 	string backupWaveNameStr = NameOfWave(wRef) + "_undo"
 	WAVE/SDFR=wdfr/Z wRefbck = $backupWaveNameStr
@@ -421,9 +432,8 @@ Function MXP_RestoreTopImageFromBackup()
 		Duplicate/O wRefbck, wRef
 		KillWaves wRefbck
 	else
-		print backupWaveNameStr, " not found."
+		return -1
 	endif
-	
 	return 0
 End
 

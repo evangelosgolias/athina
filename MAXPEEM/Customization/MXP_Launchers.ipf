@@ -449,90 +449,6 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	Note/K w3dref,copyNoteStr
 End
 
-Structure sUserMarqueePositions
-	variable left
-	variable right
-	variable top
-	variable bottom
-	variable canceled
-EndStructure
-
-Function [variable leftR, variable rightR, variable topR, variable bottomR] MXP_UserGetMarqueePositions(STRUCT sUserMarqueePositions &s)
-	//
-	string winNameStr = WinName(0, 1, 1)	
-	DoWindow/F $winNameStr			// Bring graph to front
-	if (V_Flag == 0)					// Verify that graph exists
-		Abort "WM_UserSetMarquee: No image in top window."
-	endif
-	string structStr
-	string panelNameStr = UniqueName("PauseforCursor", 9, 0)
-	NewPanel/N=$panelNameStr/K=2/W=(139,341,382,450) as "Set marquee on image"
-	AutoPositionWindow/E/M=1/R=$winNameStr			// Put panel near the graph
-	
-	StructPut /S s, structStr
-	DrawText 15,20,"Draw marquee and press continue..."
-	DrawText 15,35,"Can also use a marquee to zoom-in"
-	Button buttonContinue, win=$panelNameStr, pos={80,50},size={92,20}, title="Continue", proc=MXP_UserSetMarquee_ContButtonProc 
-	Button buttonCancel, win=$panelNameStr, pos={80,80},size={92,20}, title="Cancel", proc=MXP_UserSetMarquee_CancelBProc
-	SetWindow $winNameStr userdata(sMXP_Coords)=structStr 
-	SetWindow $winNameStr userdata(sMXP_panelNameStr)= panelNameStr
-	SetWindow $panelNameStr userdata(sMXP_winNameStr) = winNameStr 
-	SetWindow $panelNameStr userdata(sMXP_panelNameStr) = panelNameStr
-	PauseForUser $panelNameStr, $winNameStr
-	StructGet/S s, GetUserData(winNameStr, "", "sMXP_Coords")
-	
-	if(s.canceled)
-		GetMarquee/W=$winNameStr/K
-		Abort
-	endif
-	leftR = s.left
-	rightR = s.right
-	topR = s.top
-	bottomR = s.bottom
-	return [leftR, rightR , topR, bottomR]
-End
-
-Function MXP_UserSetMarquee_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
-	STRUCT sUserMarqueePositions s
-	string winNameStr = GetUserData(B_Struct.win, "", "sMXP_winNameStr")
-	StructGet/S s, GetUserData(winNameStr, "", "sMXP_Coords")
-	string structStr
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:	// "mouse up after mouse down"
-			GetMarquee/W=$winNameStr/K left, top
-			s.left = V_left
-			s.right = V_right
-			s.top = V_top
-			s.bottom = V_bottom
-			s.canceled = 0
-			StructPut/S s, structStr
-			SetWindow $winNameStr userdata(sMXP_Coords) = structStr
-			KillWindow/Z $GetUserData(B_Struct.win, "", "sMXP_panelNameStr")
-			break
-	endswitch
-	return 0
-End
-
-Function MXP_UserSetMarquee_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
-	STRUCT sUserMarqueePositions s
-	string winNameStr = GetUserData(B_Struct.win, "", "sMXP_winNameStr")
-	StructGet/S s, GetUserData(winNameStr, "", "sMXP_Coords")
-	string structStr	
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:	// "mouse up after mouse down"
-			s.left = 0
-			s.right = 0
-			s.top = 0
-			s.bottom = 0
-			s.canceled = 1
-			StructPut/S s, structStr
-			SetWindow $winNameStr userdata(sMXP_Coords) = structStr
-			KillWindow/Z $GetUserData(B_Struct.win, "", "sMXP_panelNameStr")			
-			break
-	endswitch
-	return 0
-End
-
 // ---- ///
 
 Function MXP_LaunchNewImageFromBrowserSelection()
@@ -563,6 +479,15 @@ Function MXP_LaunchNewImageFromBrowserSelection()
 		MXP_DisplayImage($mxpImage)
 		i++
 	while (strlen(GetBrowserSelection(i)))
+End
+
+Function MXP_LaunchImageBackupFromBrowserSelection()
+	string mxpImage = GetBrowserSelection(0)
+	if(WaveDims($mxpImage) != 3 && WaveDims($mxpImage) != 2)
+		Abort "Operation needs an image or image stack"
+	endif
+	MXP_RestoreTopImageFromBackup(wname = mxpImage)
+	return 0
 End
 
 // -------
