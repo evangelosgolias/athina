@@ -46,6 +46,6 @@ _CAUTION: When you update you should delete the _MAXPEEM_ folder before copying 
 
 ## Guide
 
-Quick tip: Lots of functionalities reside on the contexual menus. Right click on an image, trace or item in the data browser and see your options. Import and alignemt is launched only from the program menu, entry MAXPEEM.
+Quick tip: Lots of functionalities reside on the contexual menus. Right click on an image, trace or item in the data browser and see your options. Import and alignemt is launched only from the program menu, entry **Athina**.
 Detailed guide, howtos, etc coming soon ...
 
