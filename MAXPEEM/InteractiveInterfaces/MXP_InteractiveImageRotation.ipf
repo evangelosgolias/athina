@@ -243,7 +243,7 @@ End
 static Function sImageRestoreAndRotate(WAVE source, WAVE dest, variable angle)
 	/// Rotate dest, restore source
 	Duplicate/O source, dest
-	ImageRotate/Q/O/A=(angle) dest
+	ImageRotate/Q/O/A=(angle)/E=0 dest
 	return 0
 End
 
