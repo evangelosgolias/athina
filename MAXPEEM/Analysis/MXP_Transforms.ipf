@@ -10,5 +10,6 @@ Function MXP_2DFFT(WAVE wRef)
 	//MatrixFilter/N=5 gauss, wRefFree	
 	Redimension/C wRefFree 	
 	string destWaveNameStr = NameOfWave(wRef) + "_FFT"
-	FFT/OUT=3/WINF=Hanning/DEST=$destWaveNameStr wRefFree
+	//ImageFilter/N=3/P=2 gauss wRefFree
+	FFT/OUT=3/DEST=$destWaveNameStr wRefFree
 End

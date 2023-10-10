@@ -203,3 +203,93 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	endswitch
 	return hookResult
 End
+
+Structure sUserCursorPositions
+	// Used in MXP_UserGetMarqueePositions
+	variable xstart
+	variable ystart
+	variable xend
+	variable yend
+	variable canceled
+EndStructure
+
+// The following three function let you set two cursors (AB) on an image stack
+Function [variable xstart, variable ystart , variable xend, variable yend] MXP_UserGetABCursorPositions(STRUCT sUserCursorPositions &s)
+	//
+	string winNameStr = WinName(0, 1, 1)	
+	DoWindow/F $winNameStr			// Bring graph to front
+	if (V_Flag == 0)					// Verify that graph exists
+		Abort "WM_UserSetMarquee: No image in top window."
+	endif
+	string structStr
+	string panelNameStr = UniqueName("PauseforABCursors", 9, 0)
+	NewPanel/N=$panelNameStr/K=2/W=(139,341,382,450) as "Set marquee on image"
+	AutoPositionWindow/E/M=1/R=$winNameStr			// Put panel near the graph
+	
+	StructPut /S s, structStr
+	DrawText 15,20,"Set cursors A, B and press continue..."
+	DrawText 15,35,"Can also use a marquee to zoom-in"
+	Button buttonContinue, win=$panelNameStr, pos={80,50},size={92,20}, title="Continue", proc=MXP_UserGetCursorsPositions_ContButtonProc 
+	Button buttonCancel, win=$panelNameStr, pos={80,80},size={92,20}, title="Cancel", proc=MXP_UserGetCursorsPositions_CancelBProc
+	SetWindow $winNameStr userdata(sMXP_ABCoords)=structStr 
+	SetWindow $winNameStr userdata(sMXP_ABpanelNameStr)= panelNameStr
+	SetWindow $panelNameStr userdata(sMXP_ABwinNameStr) = winNameStr 
+	SetWindow $panelNameStr userdata(sMXP_ABpanelNameStr) = panelNameStr
+	PauseForUser $panelNameStr, $winNameStr
+	StructGet/S s, GetUserData(winNameStr, "", "sMXP_ABCoords")
+	
+	if(s.canceled)
+		Cursor/W=$winNameStr/K A
+		Cursor/W=$winNameStr/K B
+		Abort
+	endif
+	xstart = s.xstart
+	ystart = s.ystart
+	xend = s.xend
+	yend = s.yend
+	return [xstart, ystart , xend, yend]
+End
+
+Function MXP_UserGetCursorsPositions_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
+	STRUCT sUserCursorPositions s
+	string winNameStr = GetUserData(B_Struct.win, "", "sMXP_ABwinNameStr")
+	StructGet/S s, GetUserData(winNameStr, "", "sMXP_ABCoords")
+	string structStr
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			GetMarquee/W=$winNameStr/K left, top
+			s.xstart = hcsr(A, winNameStr)
+			s.ystart = vcsr(A, winNameStr)
+			s.xend   = hcsr(B, winNameStr)
+			s.yend   = vcsr(B, winNameStr)
+			s.canceled = 0
+			StructPut/S s, structStr
+			SetWindow $winNameStr userdata(sMXP_ABCoords) = structStr
+			KillWindow/Z $GetUserData(B_Struct.win, "", "sMXP_ABpanelNameStr")
+			Cursor/W=$winNameStr/K A
+			Cursor/W=$winNameStr/K B
+			break
+	endswitch
+	return 0
+End
+
+Function MXP_UserGetCursorsPositions_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
+	STRUCT sUserCursorPositions s
+	string winNameStr = GetUserData(B_Struct.win, "", "sMXP_ABwinNameStr")
+	StructGet/S s, GetUserData(winNameStr, "", "sMXP_ABCoords")
+	string structStr	
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			s.xstart = 0
+			s.ystart = 0
+			s.xend   = 0
+			s.yend   = 0
+			s.canceled = 1
+			StructPut/S s, structStr
+			SetWindow $winNameStr userdata(sMXP_ABCoords) = structStr
+			KillWindow/Z $GetUserData(B_Struct.win, "", "sMXP_ABpanelNameStr")			
+			break
+	endswitch
+	return 0
+End
+// End of marquee coordinates

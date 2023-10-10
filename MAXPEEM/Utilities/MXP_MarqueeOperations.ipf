@@ -28,6 +28,15 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+Structure sUserMarqueePositions
+	// Used in MXP_UserGetMarqueePositions
+	variable left
+	variable right
+	variable top
+	variable bottom
+	variable canceled
+EndStructure
+
 Function MXP_MarqueeToMask()
 	if(CheckActiveAxis("", "top") && CheckActiveAxis("", "left"))
 		GetMarquee/K left, top;

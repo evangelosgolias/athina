@@ -646,6 +646,19 @@ Function MXP_MatchWaveTypes(WAVE wRef, WAVE wDest)
 	return 0
 End
 
+Function/S MXP_BackupWaveInWaveDF(WAVE wref)
+	// Backup a wave in the same DF. If a wave with wavename_undo exists, nothing is done
+	// If a backup wave is created a message is printed in the command window.
+	// The function returns a string of backupWavePathStr
+	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref) + "_undo")
+
+	if(!WaveExists($backupWavePathStr))
+		Duplicate/O wref, $backupWavePathStr
+		print "Backup wave: ", backupWavePathStr
+	endif
+	return backupWavePathStr
+End
+
 // Helper functions
 Function MXP_NextPowerOfTwo(variable num)
 	 /// Return the first power of two after num.

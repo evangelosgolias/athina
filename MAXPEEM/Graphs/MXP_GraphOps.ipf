@@ -4,14 +4,6 @@
 
 static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
 
-Structure sUserMarqueePositions
-	// Used in MXP_UserGetMarqueePositions
-	variable left
-	variable right
-	variable top
-	variable bottom
-	variable canceled
-EndStructure
 
 Function MXP_DuplicateWaveAndDisplayOfTopImage()
 	/// Duplicate the graph of an image (2d, 3d wave) along with the wave at its

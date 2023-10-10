@@ -225,6 +225,7 @@ Function MXP_ImageStackAlignmentByRegistration(WAVE w3d, [variable layerN, varia
 			driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "    " + num2str(dy[i]) + "\n"		
 		endfor
 	endif
+	CopyScales w3d, M_RegOut
 	Duplicate/O M_RegOut, w3d
 	KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams
 	if(printMode)
@@ -552,6 +553,47 @@ Function MXP_ImageAlignmentByCorrelation(WAVE w1, WAVE w2, string alignedImageSt
 		print "dx=", dx,",dy=", dy
 	endif
 	KillWaves M_OffsetImage
+	return 0
+End
+
+
+Function MXP_LinearDriftCorrectionUsingABCursors(WAVE w3d, WAVE wx, WAVE wy)
+	/// Linear drift correction w3d using wx and wy displacements
+	
+	if(!(WaveType(w3d) & 0x02))
+		Redimension/S w3d
+	endif
+	variable i
+	variable nlayers = DimSize(w3d, 2)
+	variable nx = DimSize(wx, 0)
+	variable ny = DimSize(wy, 0)
+	if(!(nlayers == nx && nx == ny))
+		return -1
+	endif
+	variable dx, dy
+	// Drifts for ImageInterpolate should be in pixels.
+	
+	DFREF saveDF = GetWavesDataFolderDFR(w3d)
+	DFREF currDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	MatrixOP/O getStacklayer_0 = layer(w3d, 0)
+	
+	for(i = 1; i < nlayers; i++)
+		dx = wx[i]
+		dy = wy[i]
+		MatrixOP/O/FREE targetLayer = layer(w3d, i)
+		CopyScales w3d, targetLayer
+		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer	// New reference layer, M_Affine
+		WAVE M_Affine
+		Rename M_Affine, $("getStacklayer_" + num2str(i)) 
+	endfor
+
+	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
+	WAVE M_Stack
+	// Restore scale here
+	CopyScales w3d, M_Stack
+	Duplicate/O M_Stack, saveDF:$NameofWave(w3d)
+	SetDataFolder currDF
 	return 0
 End
 

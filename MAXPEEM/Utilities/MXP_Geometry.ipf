@@ -124,3 +124,32 @@ Function MXP_GetAntipodalPoint(variable x1, variable y1, variable x0, variable y
 	print xn, yn
 	//return [xn, yn]
 End
+
+Function [variable slope, variable shift] MXP_LineEquationFromTwoPoints(variable x0, variable y0, variable x1, variable y1)
+	/// Returns A, B for y = A x + B passing through A(x0, y0), B(x1, y1)
+	slope = (y1 - y0) /(x1 - x0)
+		
+	if (slope == Inf)
+		return [Inf, 0]
+	endif
+	shift = y0 - slope * x0
+	return [slope, shift]
+End
+
+Function [WAVE wx, WAVE wy] MXP_XYWavesOfLineFromTwoPoints(variable x0, variable y0, variable x1, variable y1, variable npts)
+	
+	Make/FREE/N=(npts) wx, wy
+	SetScale/I x, x0, x1, wx
+	SetScale/I x, y0, y1, wy	
+	variable slope, shift
+	[slope, shift] = MXP_LineEquationFromTwoPoints(x0, y0, x1, y1)
+	if(slope == Inf)
+		wx = x0
+		wy = x
+	else // simple and works with any axes
+		wx = x
+		wy = x
+	endif
+	
+	return [wx, wy]
+End

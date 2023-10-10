@@ -71,8 +71,10 @@ Menu "Athina"
 	End
 	
 	Submenu "Drift Correction"
-		"Using a feature (TG, 3D)...", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
-		"Using the full image (TG, 3D)...", /Q, MXP_LaunchImageStackAlignmentByFullImage()
+		"Using a feature (TG, 3D)", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
+		"Using the full image (TG, 3D)", /Q, MXP_LaunchImageStackAlignmentByFullImage()
+		"Linear drift correction using cursors (TG, 3D)",/Q, MXP_LaunchLinearImageStackAlignmentUsingABCursors()
+
 	End
 	
 	Submenu "Profiles "

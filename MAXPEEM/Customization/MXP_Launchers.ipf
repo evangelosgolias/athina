@@ -342,12 +342,7 @@ Function MXP_LaunchImageStackAlignmentByFullImage()
 		return -1
 	endif
 	
-	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(NameOfWave(w3dref) + "_undo")
-
-	if(!WaveExists($backupWavePathStr))
-		Duplicate/O w3dref, $backupWavePathStr
-		print "Backup before drift correction: ", backupWavePathStr
-	endif
+	string backupWavePathStr = MXP_BackupWaveInWaveDF(w3dref)
 
 	if(edgeDetection == 1 && histEq == 1)	
 		print "You applied edge detection and histrogram equalisation on the same stack! I hope you know what you are doing"
@@ -400,12 +395,9 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	if(V_flag) // User cancelled
 		return -1
 	endif
-	string backupWavePathStr = GetWavesDataFolder(w3dref, 1) + PossiblyQuoteName(NameOfWave(w3dref) + "_undo")
 
-	if(!WaveExists($backupWavePathStr))
-		Duplicate/O w3dref, $backupWavePathStr
-		print "Backup wave before drift correction: ", backupWavePathStr
-	endif
+	string backupWavePathStr = MXP_BackupWaveInWaveDF(w3dref)
+
 	variable left, right, top, bottom
 
 	if(edgeDetection == 1 && histEq == 1)
@@ -447,6 +439,40 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
 	string copyNoteStr = note($backupWavePathStr)
 	Note/K w3dref,copyNoteStr
+End
+
+Function MXP_LaunchLinearImageStackAlignmentUsingABCursors()
+	// Use AB to linearly correct an image stack drift
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // MXP_ImageStackAlignmentByPartitionRegistration needs a wave reference
+	variable nlayers = DimSize(w3dref, 2)
+	
+	if(nlayers < 3)
+		return -1
+	endif
+	
+	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/P A $imgNameTopGraphStr 0.25, 0.5
+	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/P B $imgNameTopGraphStr 0.75, 0.5
+	variable slope, shift
+	
+	string backupWavePathStr = MXP_BackupWaveInWaveDF(w3dref)	
+	
+	variable x0, y0, x1, y1
+	STRUCT sUserCursorPositions s
+	[x0, y0, x1, y1] = MXP_UserGetABCursorPositions(s)
+	[slope, shift] = MXP_LineEquationFromTwoPoints(x0, y0, x1, y1)
+	
+	
+	//WAVE/Z wx, wy // x, y drifts for each layer
+	[WAVE wx, WAVE wy] = MXP_XYWavesOfLineFromTwoPoints(x0, y0, x1, y1, nlayers)
+	wx -= x0 // Relative xshift
+	wy -= y0 // Relative yshift
+	// ImageInterpolate needs pixels, multiply by -1 to have the proper behavior in /ARPM={...}
+	variable dx = DimDelta(w3dref, 0) ; variable dy = DimDelta(w3dref, 1)
+	wx /= (-dx) ; wy /= (-dy)
+	MXP_LinearDriftCorrectionUsingABCursors(w3dref, wx, wy)
+	return 0
 End
 
 // ---- ///
