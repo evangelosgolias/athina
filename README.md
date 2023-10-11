@@ -11,7 +11,7 @@ Download the repo and unpack. You have two options for installation:
 
 ### Option 1 (Auto)
 
-Copy the **src** folder to:
+Copy the **src/MAXPEEM** folder to:
 
 *Windows*:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
@@ -31,7 +31,7 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
 *Mac*:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
 
-Copy the **MAXPEEM** folder in:
+Copy the **src/MAXPEMM** folder in:
 
 *Windows*:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
@@ -43,7 +43,7 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
 
 If you don't know where the folders are, choose Menubar > Help > Show Igor Pro User Files in Igor Pro.
 
-_CAUTION: When you update you should delete the _src_ contents folder before copying the newer version, as filenames might differ in future versions._
+_CAUTION: When you update you should delete the _MAXPEEM_ contents folder before copying the newer version, as filenames might differ in future versions._
 
 ## Guide
 
