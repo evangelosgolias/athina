@@ -1,7 +1,7 @@
 # Athina
 
 **Athina** is a data analysis package for the experiments performed at the MAXPEEM beamline of MAXIV, using Igor Pro from Wavemetrics. 
-The package is being developed using Igor Pro 9. A small subset of the code could run on earlier versions of Igor Pro (for example: the proprietary .dat file loader) but not the package .**Athina**.
+The package is being developed using Igor Pro 9. A small subset of the code could run on earlier versions of Igor Pro (for example: the proprietary Elmitexc .dat file loader) but not the package .**Athina**.
 
 ## Getting started
 
@@ -11,7 +11,7 @@ Download the repo and unpack. You have two options for installation:
 
 ### Option 1 (Auto)
 
-Copy the **MAXPEEM** folder (or any other, STM, ...) to:
+Copy the **src** folder to:
 
 *Windows*:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
@@ -43,7 +43,7 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
 
 If you don't know where the folders are, choose Menubar > Help > Show Igor Pro User Files in Igor Pro.
 
-_CAUTION: When you update you should delete the _MAXPEEM_ folder before copying the newer version, as filenames might differ in future versions._
+_CAUTION: When you update you should delete the _src_ contents folder before copying the newer version, as filenames might differ in future versions._
 
 ## Guide
 

@@ -142,7 +142,7 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 						axisY = "left"
 					endif
 					SetDrawEnv/W=$s.WinName xcoord =$axisX, ycoord = $axisY
-					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(x2-x1)
+					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(abs(x2-x1))
 					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =$axisX, ycoord = $axisY
 					DrawLine/W=$s.WinName x1, (y1+y2)/2, x2, (y1+y2)/2
 				else
@@ -173,7 +173,7 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 						axisY = "left"
 					endif
 					SetDrawEnv/W=$s.WinName xcoord =$axisX, ycoord = $axisY,  textrot= 90
-					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(y2-y1)
+					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(abs(y2-y1))
 					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =$axisX, ycoord = $axisY
 					DrawLine/W=$s.WinName (x1+x2)/2, y1, (x1+x2)/2, y2
 				else
@@ -181,7 +181,6 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =top, ycoord = left
 					DrawLine/W=$s.WinName x1, y1, x2, y2
 					SetDrawEnv/W=$s.WinName xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
-					print (atan((y2-y1)/(x2-x1))*180/pi)
 					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(1/sqrt((x1-x2)^2 + (y1-y2)^2))
 				endif
 			endif

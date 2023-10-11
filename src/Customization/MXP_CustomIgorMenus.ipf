@@ -56,7 +56,7 @@ Menu "Athina"
 		"Rotate image (TG, 2D, 3D) ", /Q, MXP_LaunchImageRotateAndScale()
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, MXP_LaunchImageRotateAndScaleFromMetadata()
 		"Remove plane background (TG, 2D)", /Q, MXP_LaunchImageRemoveBackground()	
-		"Duplicate image and data (TG, 2D, 3D)", /Q, MXP_DuplicateWaveAndDisplayOfTopImage()
+		"Duplicate image and data (TG, 2D, 3D)/1", /Q, MXP_DuplicateWaveAndDisplayOfTopImage()
 		"Backup Image (TG)", /Q, MXP_BackupTopImage()	
 		"Restore image from backup (TG)", /Q, MXP_RestoreTopImageFromBackup()
 		"Normalize to [0, 1] (TG)", /Q, MXP_LaunchScalePlanesBetweenZeroAndOne()

@@ -474,6 +474,7 @@ Function MXP_ScalePlanesByMaxRange(WAVE w3d, [variable f64])
 End
 
 Function MXP_ScalePlanesBetweenZeroAndOne(WAVE w3d, [variable f64])
+	// Each plane is normalised between [0, 1]
 	// f64: Return a float64 wave. 
 	// By default return a float32, unless w3d is float64
 	// 
