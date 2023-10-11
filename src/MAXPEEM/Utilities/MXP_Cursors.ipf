@@ -48,12 +48,12 @@ Function MXP_MeasureDistanceUsingFreeCursorsCD()
 	string topTraceNameStr = StringFromList(0, TraceNameList(winNameStr,";",1))
 	
 	if(strlen(topTraceNameStr)) // If you have a trace
-		Cursor/A=1/F/H=1/S=0/C=(65535,0,0,30000)/P C $topTraceNameStr 0.25, 0.5
-		Cursor/A=1/F/H=1/S=0/C=(65535,0,0,30000)/P D $topTraceNameStr 0.75, 0.5
+		Cursor/A=1/F/H=1/S=1/C=(0,65535,0)/N=1/P C $topTraceNameStr 0.25, 0.45
+		Cursor/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $topTraceNameStr 0.75, 0.55
 	else
 		string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-		Cursor/I/A=1/F/H=1/S=0/C=(65535,0,0,30000)/P C $imgNameTopGraphStr 0.25, 0.5
-		Cursor/I/A=1/F/H=1/S=0/C=(65535,0,0,30000)/P D $imgNameTopGraphStr 0.75, 0.5
+		Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0)/N=1/P C $imgNameTopGraphStr 0.25, 0.45
+		Cursor/I/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $imgNameTopGraphStr 0.75, 0.55
 	endif
 	SetWindow $winNameStr, hook(MXP_MeasureDistanceCsrDCHook) = MXP_MeasureDistanceUsingFreeCursorsCDHook
 	TextBox/W=$winNameStr/C/A=LB/G=(65535,0,0)/E=2/N=DistanceCDInfo "\Z10Z-1/d\nm(M)- mark d(1/d)\nEsc - quit"
@@ -70,7 +70,7 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	y2 = vcsr(D, s.WinName)
 	z1 = zcsr(C, s.WinName)
 	z2 = zcsr(D, s.WinName)
-	string baseTextStr, cmdStr, notXStr, notYStr, notZStr, axisX, axisY
+	string baseTextStr, cmdStr, notXStr, notYStr, notDStr, notZStr, axisX, axisY
 	if(abs(x1-x2) < 1e-4)
 		notXStr = "%.3e"
 	else
@@ -86,6 +86,11 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	else 
 		notZStr = "%.4f"
 	endif
+	if(sqrt((x1-x2)^2 + (y1-y2)^2) < 1e-4)
+		notDStr = "%.3e"
+	else
+		notDStr = "%.4f"
+	endif
 	variable imgSwitch = 0
 	string topTraceNameStr = StringFromList(0, TraceNameList(s.WinName,";",1))
 	if(strlen(topTraceNameStr)) // If you have a trace
@@ -93,7 +98,7 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 		notXStr + "\nd\Bv\M\Z12 = "+ notYStr +"\""
 	else
 		baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
-		notXStr + "\nd\Bv\M\Z12 = "+ notYStr + "\nd\B\M\Z12 = " + notYStr + "\nΔz\BCD\M\Z12 = " + notZStr + "\""
+		notXStr + "\nd\Bv\M\Z12 = "+ notYStr + "\nd\B\M\Z12 = " + notDStr + "\nΔz\BCD\M\Z12 = " + notZStr + "\""
 		imgSwitch = 1
 	endif
 

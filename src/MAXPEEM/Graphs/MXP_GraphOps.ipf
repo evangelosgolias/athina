@@ -11,11 +11,8 @@ Function MXP_DuplicateWaveAndDisplayOfTopImage()
 	string winNameStr = WinName(0, 1)
 	WAVE wRef = MXP_TopImageToWaveRef()
 	DFREF cdfr = GetDataFolderDFR()
-	DFREF wdfr = GetWavesDataFolderDFR(wRef) 
-	SetDataFolder wdfr
     string duplicateWinNameStr = UniqueName(winNameStr + "_", 6, 1, winNameStr)
-    string waveNameStr = CreateDataObjectName(wdfr, NameOfWave(wRef) + "_d", 1, 0, 5)
-    print waveNameStr
+    string waveNameStr = CreateDataObjectName(cdfr, NameOfWave(wRef) + "_d", 1, 0, 5)
     Duplicate wRef, cdfr:$waveNameStr // Copy the wave to the working dir
     ControlInfo/W=$winNameStr WM3DAxis
     if(!V_flag && WaveDims(wRef) == 3) // If there is no 3d axis, there should be a reason.
@@ -24,7 +21,8 @@ Function MXP_DuplicateWaveAndDisplayOfTopImage()
     	MXP_DisplayImage(cdfr:$waveNameStr)
     endif
     DoWindow/C $duplicateWinNameStr
-	SetDataFolder cdfr
+    string addTocopyNoteStr = "Duplicate of " + GetWavesDataFolder(wRef, 2)
+    Note wRef, addTocopyNoteStr
 	return 0
 End
 

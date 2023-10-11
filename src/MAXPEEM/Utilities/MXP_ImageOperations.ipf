@@ -219,7 +219,7 @@ Function MXP_GetScaledZoominImageWindow()
 		NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(winNameStr):gLayer	
 		if(NVAR_Exists(gLayer))
 			bufferStr = NameOfWave(wref) + "_layer_" + num2str(gLayer) + "_ZM"
-			wavenameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 4)
+			wavenameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 5)
 			Make/N=(nrows, ncols) $wavenameStr /WAVE = wReftmp
 			SetScale/I x, 0, newTopAxisLen, wReftmp
 			SetScale/I y, 0, newLeftAxisLen, wReftmp
@@ -611,7 +611,7 @@ Function/WAVE MXP_TopImageToWaveRef()
 	endif
 End
 
-Function MXP_Wave3DToRGBImage(WAVE wRef)
+Function MXP_GrayToRGBImage(WAVE wRef)
 	ColorTab2Wave Grays
 	WAVE M_Colors
 	Wavestats/Q/M=1 wRef

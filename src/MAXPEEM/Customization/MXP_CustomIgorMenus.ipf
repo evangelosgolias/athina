@@ -73,7 +73,7 @@ Menu "Athina"
 	Submenu "Drift Correction"
 		"Using a feature (TG, 3D)", /Q, MXP_LaunchImageStackAlignmentUsingAFeature()
 		"Using the full image (TG, 3D)", /Q, MXP_LaunchImageStackAlignmentByFullImage()
-		"Linear drift correction using cursors (TG, 3D)",/Q, MXP_LaunchLinearImageStackAlignmentUsingABCursors()
+		"Linear drift correction (TG, 3D)",/Q, MXP_LaunchLinearImageStackAlignmentUsingABCursors()
 
 	End
 	

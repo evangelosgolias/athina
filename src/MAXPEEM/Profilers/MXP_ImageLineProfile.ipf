@@ -406,6 +406,7 @@ Function MXP_LineProfilePlotSaveProfile(STRUCT WMButtonAction &B_Struct): Button
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			do
+				// My version of CreateDataObjectName!
 				string saveWaveNameStr = w3dNameStr + "_prof" + num2str(postfix)
 				if(WaveExists(savedfr:$saveWaveNameStr) == 1)
 					postfix++
