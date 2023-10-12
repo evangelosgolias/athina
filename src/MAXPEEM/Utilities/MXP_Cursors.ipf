@@ -31,7 +31,6 @@
 
 Function MXP_GetDistanceFromCursors(string C1, string C2)
 	/// Returns the distance between C1 and C2 if given.
-
 	return sqrt((hcsr($C1) - hcsr($C2))^2 + (vcsr($C1) - vcsr($C2))^2)
 End
 
@@ -55,7 +54,7 @@ Function MXP_MeasureDistanceUsingFreeCursorsCD()
 		Cursor/I/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $imgNameTopGraphStr 0.75, 0.55
 	endif
 	SetWindow $winNameStr, hook(MXP_MeasureDistanceCsrDCHook) = MXP_MeasureDistanceUsingFreeCursorsCDHook
-	TextBox/W=$winNameStr/C/A=LB/G=(65535,0,0)/E=2/N=DistanceCDInfo "\Z10Z-1/d\ns - scale (img)\nm(M)- mark d(1/d)\nEsc - quit"
+	TextBox/W=$winNameStr/C/A=LB/G=(65535,0,0)/E=2/N=DistanceCDInfo "\Z10Z-1/d\ns - scale (img)\nm(M)- mark d(1/d)\nS - mark (Inv. Sc)\nEsc - quit"
 	SetWindow $winNameStr userdata(MXP_DistanceForScale) = "1"
 	SetWindow $winNameStr userdata(MXP_SetScale) = "1"
 End
@@ -168,7 +167,7 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =top, ycoord = left
 					DrawLine/W=$s.WinName x1, y1, x2, y2
 					SetDrawEnv/W=$s.WinName xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
-					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(distance)
+					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, "D:"+num2str(distance)
 				endif
 			endif
 			if(s.keycode == 77) // Press M to mark 1/d or dy in graphs
@@ -195,9 +194,20 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =top, ycoord = left
 					DrawLine/W=$s.WinName x1, y1, x2, y2
 					SetDrawEnv/W=$s.WinName xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
-					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(1/distance)
+					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, "I:"+num2str(1/distance)
 				endif
 			endif
+			if(s.keycode == 83) // Press S to mark scaled inverse distance
+				if(strlen(topTraceNameStr))
+					// Nothing is done, it might change in the future
+				else
+					SetDrawLayer/W=$s.WinName UserFront
+					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =top, ycoord = left
+					DrawLine/W=$s.WinName x1, y1, x2, y2
+					SetDrawEnv/W=$s.WinName xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
+					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, "IS:" + num2str(sscale * sdist/distance)
+				endif
+			endif			
 			hookResult = 1 // Do not focus on Command window!
 			break
 		case 7:
