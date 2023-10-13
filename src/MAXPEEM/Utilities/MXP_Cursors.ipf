@@ -55,10 +55,14 @@ Function MXP_MeasureDistanceUsingFreeCursorsCD()
 	endif
 	SetWindow $winNameStr, hook(MXP_MeasureDistanceCsrDCHook) = MXP_MeasureDistanceUsingFreeCursorsCDHook
 	TextBox/W=$winNameStr/C/A=LB/G=(65535,0,0)/E=2/N=DistanceCDInfo "\Z10Z-Toggle mode\ns - Scale (img)\nm(M)- Mark d(1/d)\ni - Mark (Inv. Sc)\nEsc - quit"
-	SetWindow $winNameStr userdata(MXP_DistanceForScale) = "1"
-	SetWindow $winNameStr userdata(MXP_SetScale) = "1"
-	SetWindow $winNameStr userdata(MXP_CursorDistanceMode) = "0"
-	SetWindow $winNameStr userdata(MXP_SavedDistanceForScale) = ""
+	string userdataStrQ = GetUserData(winNameStr, "", "MXP_SavedDistanceForScale")
+	print userdataStrQ
+	if(!strlen(userdataStrQ)) // If data were saved previously used them
+		SetWindow $winNameStr userdata(MXP_DistanceForScale) = "1"
+		SetWindow $winNameStr userdata(MXP_SetScale) = "1"
+		SetWindow $winNameStr userdata(MXP_CursorDistanceMode) = "0"
+		SetWindow $winNameStr userdata(MXP_SavedDistanceForScale) = ""
+	endif
 End
 
 Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
@@ -135,8 +139,6 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 				SetWindow $s.WinName, hook(MXP_MeasureDistanceCsrDCHook) = $""
 				Cursor/W=$s.WinName/K C
 				Cursor/W=$s.WinName/K D
-				SetWindow $s.winName userdata(MXP_SetScale) = ""
-				SetWindow $s.winName userdata(MXP_DistanceForScale) = ""
 			endif
 			if(s.keycode == 115) // press s
 				if(imgQ) // scaling only for images
@@ -147,11 +149,11 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 					SetWindow $s.winName userdata(MXP_SetScale) = num2str(vbuffer)
 					SetWindow $s.winName userdata(MXP_DistanceForScale) = num2str(distance)
 					scaleDrawCmd = "DrawLine/W=" + s.WinName + "  " + num2str(x1)+"," + num2str(y1) +"," + num2str(x2) +"," + num2str(y2)
-					SetWindow $s.winName userdata(MXP_SavedDistanceToScale) = scaleDrawCmd
+					SetWindow $s.winName userdata(MXP_SavedDistanceForScale) = scaleDrawCmd
 				endif
 			endif
 			if(s.keycode == 83) // press S
-				scaleDrawCmd = GetUserData(s.winName, "", "MXP_SavedDistanceToScale")
+				scaleDrawCmd = GetUserData(s.winName, "", "MXP_SavedDistanceForScale")
 				if(strlen(scaleDrawCmd)) // If a scale is saved
 					sscanf scaleDrawCmd, ("DrawLine/W=%s %f,%f,%f,%f"), sdamp, x1, y2, x2, y2 // Restored the saved positions
 					SetDrawLayer/W=$s.WinName UserFront
