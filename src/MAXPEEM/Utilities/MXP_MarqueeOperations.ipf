@@ -209,8 +209,11 @@ Function MXP_Partition3DRegion()
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList("", ";"),";")
 	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	DFREF saveDF = GetDataFolderDFR()
-	string stacknameStr = CreateDataObjectName(saveDF, "MXP_Partition3D", 1, 0, 1)
-	MXP_3DWavePartition(waveRef, stacknameStr, V_left, V_right, V_top, V_bottom, evenNum = 1)
+	string stacknameStr = CreateDataObjectName(saveDF, imgNameTopGraphStr + "_PART", 1, 0, 1)
+	MXP_WavePartition(waveRef, stacknameStr, V_left, V_right, V_top, V_bottom, evenNum = 1)
+	WAVE wavePRT = $stacknameStr
+	CopyScales/P waveRef, wavePRT
+	return 0
 End
 
 Function MXP_GetMarqueeWaveStats()

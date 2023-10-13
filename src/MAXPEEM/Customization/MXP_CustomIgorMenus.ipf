@@ -125,7 +125,7 @@ Menu "GraphMarquee"
 	"MXP Normalize to one (1D)", /Q, MXP_NormalizeToOne()
 	"MXP Pull to zero (1D)", /Q, MXP_PullToZero()
 	"MXP Maximum to one (1D)", /Q, MXP_MaximumToOne()
-	"MXP Partition 3D region (3D)", /Q, MXP_Partition3DRegion()
+	"MXP Partition region (2D, 3D)", /Q, MXP_Partition3DRegion()
 End
 
 Menu "DataBrowserObjectsPopup"

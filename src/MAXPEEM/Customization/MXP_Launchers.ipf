@@ -409,10 +409,10 @@ Function MXP_LaunchImageStackAlignmentUsingAFeature()
 		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
 		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
 		// Apply image edge detection to the whole image, it's slower but to works better(?)
-		WAVE partitionWaveT = MXP_WAVE3DWavePartition(w3dref, left, right, top, bottom, evenNum = 1) // Debug
+		WAVE partitionWaveT = MXP_WAVEWavePartition(w3dref, left, right, top, bottom, evenNum = 1) // Debug
 		WAVE partitionWave = MXP_WAVEImageEdgeDetectionToStack(partitionWaveT, applyEdgeDetectionAlgo)
 	else
-		WAVE partitionWave = MXP_WAVE3DWavePartition(w3dref, left, right, top, bottom, evenNum = 1)
+		WAVE partitionWave = MXP_WAVEWavePartition(w3dref, left, right, top, bottom, evenNum = 1)
 
 	endif
 
