@@ -139,14 +139,16 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 				SetWindow $s.winName userdata(MXP_DistanceForScale) = ""
 			endif
 			if(s.keycode == 115) // press s
-				vbuffer = MXP_GenericSingleVarPrompt("Scale distances", " \$WMTEX$ d_{CD} $/WMTEX$ scale")
-				if(!vbuffer)
-					vbuffer = 1
+				if(imgQ) // scaling only for images
+					vbuffer = MXP_GenericSingleVarPrompt("Scale distances", " \$WMTEX$ d_{CD} $/WMTEX$ scale")
+					if(!vbuffer)
+						vbuffer = 1
+					endif
+					SetWindow $s.winName userdata(MXP_SetScale) = num2str(vbuffer)
+					SetWindow $s.winName userdata(MXP_DistanceForScale) = num2str(distance)
+					scaleDrawCmd = "DrawLine/W=" + s.WinName + "  " + num2str(x1)+"," + num2str(y1) +"," + num2str(x2) +"," + num2str(y2)
+					SetWindow $s.winName userdata(MXP_SavedDistanceToScale) = scaleDrawCmd
 				endif
-				SetWindow $s.winName userdata(MXP_SetScale) = num2str(vbuffer)
-				SetWindow $s.winName userdata(MXP_DistanceForScale) = num2str(distance)
-				scaleDrawCmd = "DrawLine/W=" + s.WinName + "  " + num2str(x1)+"," + num2str(y1) +"," + num2str(x2) +"," + num2str(y2)
-				SetWindow $s.winName userdata(MXP_SavedDistanceToScale) = scaleDrawCmd
 			endif
 			if(s.keycode == 83) // press S
 				scaleDrawCmd = GetUserData(s.winName, "", "MXP_SavedDistanceToScale")
