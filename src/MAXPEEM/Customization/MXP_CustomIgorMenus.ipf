@@ -157,8 +157,8 @@ Menu "TracePopup"
 	"MXP Calculate XMC(L)D (3D[2])", /Q, MXP_LaunchCalculateXMCDFromStack()
 	"MXP Measure Distance (TG)", /Q, MXP_MeasureDistanceUsingFreeCursorsCD()
 	Submenu "MXP markups ..."
-	"MXP Draw image markups", /Q, MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
 	"MXP Clear UserFront layer" ,/Q, MXP_ClearROIMarkingsUserFront()
+	"MXP Draw .dat markups", /Q, MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
 	End
 End
 

@@ -54,7 +54,7 @@ Function MXP_MeasureDistanceUsingFreeCursorsCD()
 		Cursor/I/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $imgNameTopGraphStr 0.75, 0.55
 	endif
 	SetWindow $winNameStr, hook(MXP_MeasureDistanceCsrDCHook) = MXP_MeasureDistanceUsingFreeCursorsCDHook
-	TextBox/W=$winNameStr/C/A=LB/G=(65535,0,0)/E=2/N=DistanceCDInfo "\Z10Z-Toggle mode\ns - Scale (img)\nm(M)- Mark d(1/d)\nCTLR+M - Mark (Inv. Sc)\nEsc - quit"
+	TextBox/W=$winNameStr/C/A=LB/G=(65535,0,0)/E=2/N=DistanceCDInfo "\Z10Z-Toggle mode\ns - Scale (img)\nm(M)- Mark d(1/d)\ni - Mark (Inv. Sc)\nEsc - quit"
 	SetWindow $winNameStr userdata(MXP_DistanceForScale) = "1"
 	SetWindow $winNameStr userdata(MXP_SetScale) = "1"
 	SetWindow $winNameStr userdata(MXP_CursorDistanceMode) = "0"
@@ -75,7 +75,7 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	z1 = zcsr(C, s.WinName)
 	z2 = zcsr(D, s.WinName)
 	distance = sqrt((x1-x2)^2 + (y1-y2)^2)
-	string baseTextStr, cmdStr, notXStr, notYStr, notDStr, notscDStr, notZStr, axisX, axisY, saveScale
+	string baseTextStr, cmdStr, notXStr, notYStr, notDStr, notscDStr, notZStr, axisX, axisY, scaleDrawCmd, sdamp
 	if(abs(x1-x2) < 1e-4)
 		notXStr = "%.3e"
 	else
@@ -127,6 +127,7 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	endif
 	
 	switch(s.eventCode)
+	
 		case 11: // Esc
 			if(s.keycode == 27)
 				TextBox/W=$s.WinName/K/N=DistanceCD
@@ -144,14 +145,19 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 				endif
 				SetWindow $s.winName userdata(MXP_SetScale) = num2str(vbuffer)
 				SetWindow $s.winName userdata(MXP_DistanceForScale) = num2str(distance)
-				saveScale = "DrawLine/W=" + s.WinName + "  " + num2str(x1)+"," + num2str(y1) +"," + num2str(x2) +"," + num2str(y2)
-				SetWindow $s.winName userdata(MXP_SavedDistanceToScale) = saveScale
+				scaleDrawCmd = "DrawLine/W=" + s.WinName + "  " + num2str(x1)+"," + num2str(y1) +"," + num2str(x2) +"," + num2str(y2)
+				SetWindow $s.winName userdata(MXP_SavedDistanceToScale) = scaleDrawCmd
 			endif
 			if(s.keycode == 83) // press S
-				savescale = GetUserData(s.winName, "", "MXP_SavedDistanceToScale")
-				SetDrawLayer/W=$s.WinName UserFront
-				SetDrawEnv/W=$s.WinName arrow = 3, xcoord =top, ycoord = left
-				Execute/Q/Z savescale
+				scaleDrawCmd = GetUserData(s.winName, "", "MXP_SavedDistanceToScale")
+				if(strlen(scaleDrawCmd)) // If a scale is saved
+					sscanf scaleDrawCmd, ("DrawLine/W=%s %f,%f,%f,%f"), sdamp, x1, y2, x2, y2 // Restored the saved positions
+					SetDrawLayer/W=$s.WinName UserFront
+					SetDrawEnv/W=$s.WinName textrgb= (0,0,65535), xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
+					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, "Ss: "+num2str(sscale)
+					SetDrawEnv/W=$s.WinName arrow = 3, linefgc= (0,0,65535), xcoord =top, ycoord = left
+					Execute/Q/Z scaleDrawCmd
+				endif
 			endif
 			if(s.keycode == 122) // pressed z
 				SetWindow $s.winName userdata(MXP_CursorDistanceMode) = num2str(!inverseD)
@@ -171,15 +177,15 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 					else
 						axisY = "left"
 					endif
-					SetDrawEnv/W=$s.WinName xcoord =$axisX, ycoord = $axisY
+					SetDrawEnv/W=$s.WinName textrgb=(0,0,65535),xcoord =$axisX, ycoord = $axisY
 					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(abs(x2-x1))
-					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =$axisX, ycoord = $axisY
+					SetDrawEnv/W=$s.WinName linefgc=(0,0,65535), arrow = 3, xcoord =$axisX, ycoord = $axisY
 					DrawLine/W=$s.WinName x1, (y1+y2)/2, x2, (y1+y2)/2
 				else
 					SetDrawLayer/W=$s.WinName UserFront
-					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =top, ycoord = left
+					SetDrawEnv/W=$s.WinName linefgc= (0,0,65535), arrow = 3, xcoord =top, ycoord = left
 					DrawLine/W=$s.WinName x1, y1, x2, y2
-					SetDrawEnv/W=$s.WinName xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
+					SetDrawEnv/W=$s.WinName textrgb= (0,0,65535), xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
 					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, "D:"+num2str(distance)
 				endif
 			endif
@@ -198,26 +204,26 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 					else
 						axisY = "left"
 					endif
-					SetDrawEnv/W=$s.WinName xcoord =$axisX, ycoord = $axisY,  textrot= 90
+					SetDrawEnv/W=$s.WinName textrgb=(0,0,65535), xcoord=$axisX, ycoord = $axisY,  textrot= 90
 					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(abs(y2-y1))
-					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =$axisX, ycoord = $axisY
+					SetDrawEnv/W=$s.WinName linefgc= (0,0,65535), arrow = 3, xcoord =$axisX, ycoord = $axisY
 					DrawLine/W=$s.WinName (x1+x2)/2, y1, (x1+x2)/2, y2
 				else
 					SetDrawLayer/W=$s.WinName UserFront
-					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =top, ycoord = left
+					SetDrawEnv/W=$s.WinName linefgc= (0,0,65535),arrow = 3, xcoord =top, ycoord = left
 					DrawLine/W=$s.WinName x1, y1, x2, y2
-					SetDrawEnv/W=$s.WinName xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
+					SetDrawEnv/W=$s.WinName textrgb=(0,0,65535), xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
 					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, "I:"+num2str(1/distance)
 				endif
 			endif
-			if(s.keycode == 77) // Press CTRL + M to mark scaled inverse distance
+			if(s.keycode == 105) // Press i to mark scaled inverse distance
 				if(!imgQ)
 					// Nothing is done, it might change in the future
 				else
 					SetDrawLayer/W=$s.WinName UserFront
-					SetDrawEnv/W=$s.WinName arrow = 3, xcoord =top, ycoord = left
+					SetDrawEnv/W=$s.WinName linefgc= (0,0,65535), arrow = 3, xcoord =top, ycoord = left
 					DrawLine/W=$s.WinName x1, y1, x2, y2
-					SetDrawEnv/W=$s.WinName xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
+					SetDrawEnv/W=$s.WinName textrgb=(0,0,65535), xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
 					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, "IS:" + num2str(sscale * sdist/distance)
 				endif
 			endif
