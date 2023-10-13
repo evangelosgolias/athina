@@ -830,9 +830,12 @@ Function MXP_LaunchQuickTextAnnotation()
 	Prompt color, "Color", popup, "black;red;green;blue"
 	Prompt fSize, "Font Size", popup, fSizeList
 	DoPrompt "Enter text annotation for the top graph", textStr, color, fSize
+	if(V_flag)
+		return 1
+	endif
 	fSize = str2num(StringFromList(fSize, fSizeList))
 	MXP_TextAnnotationOnTopGraph(textStr, fSize = fSize, color = color)
-	
+	return 0
 End
 
 Function MXP_LaunchMakeWaveFromSavedROI()
