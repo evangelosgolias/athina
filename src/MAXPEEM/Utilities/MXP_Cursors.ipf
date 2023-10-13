@@ -142,8 +142,13 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 			endif
 			if(s.keycode == 115) // press s
 				if(imgQ) // scaling only for images
-					vbuffer = MXP_GenericSingleVarPrompt("Scale distances", " \$WMTEX$ d_{CD} $/WMTEX$ scale")
-					if(!vbuffer)
+					Prompt vbuffer, "Scale distances"
+					DoPrompt " \$WMTEX$ d_{CD} $/WMTEX$ scale", vbuffer
+					if(V_flag) // if you cancel
+						hookResult = 1
+						break
+					endif 
+					if(!vbuffer) // if you set scale to 0
 						vbuffer = 1
 					endif
 					SetWindow $s.winName userdata(MXP_SetScale) = num2str(vbuffer)
