@@ -54,15 +54,17 @@ Function MXP_MeasureDistanceUsingFreeCursorsCD()
 		Cursor/I/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $imgNameTopGraphStr 0.75, 0.55
 	endif
 	SetWindow $winNameStr, hook(MXP_MeasureDistanceCsrDCHook) = MXP_MeasureDistanceUsingFreeCursorsCDHook
-	TextBox/W=$winNameStr/C/A=LB/G=(65535,0,0)/E=2/N=DistanceCDInfo "\Z10Z-1/d\ns - scale (img)\nm(M)- mark d(1/d)\nS - mark (Inv. Sc)\nEsc - quit"
+	TextBox/W=$winNameStr/C/A=LB/G=(65535,0,0)/E=2/N=DistanceCDInfo "\Z10Z-Toggle mode\ns - Scale (img)\nm(M)- Mark d(1/d)\nCTLR+M - Mark (Inv. Sc)\nEsc - quit"
 	SetWindow $winNameStr userdata(MXP_DistanceForScale) = "1"
 	SetWindow $winNameStr userdata(MXP_SetScale) = "1"
+	SetWindow $winNameStr userdata(MXP_CursorDistanceMode) = "0"
+	SetWindow $winNameStr userdata(MXP_SavedDistanceForScale) = ""
 End
 
 Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	/// Hook function for MXP_MeasureDistanceUsingFreeCursorsCD()
 	variable hookResult = 0
-	variable x1, x2, y1, y2, z1, z2, distance, vbuffer
+	variable x1, x2, y1, y2, z1, z2, distance, vbuffer, inverseD, imgQ
 	variable sscale = str2num(GetUserData(s.winName, "", "MXP_SetScale"))
 	variable sdist = str2num(GetUserData(s.winName, "", "MXP_DistanceForScale"))
 	variable factor = sscale / sdist
@@ -73,7 +75,7 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	z1 = zcsr(C, s.WinName)
 	z2 = zcsr(D, s.WinName)
 	distance = sqrt((x1-x2)^2 + (y1-y2)^2)
-	string baseTextStr, cmdStr, notXStr, notYStr, notDStr, notscDStr, notZStr, axisX, axisY
+	string baseTextStr, cmdStr, notXStr, notYStr, notDStr, notscDStr, notZStr, axisX, axisY, saveScale
 	if(abs(x1-x2) < 1e-4)
 		notXStr = "%.3e"
 	else
@@ -86,7 +88,7 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	endif
 	if(abs(z1-z2) < 1e-4)
 		notZStr = "%.3e"
-	else 
+	else
 		notZStr = "%.4f"
 	endif
 	if(distance < 1e-4)
@@ -99,20 +101,33 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	else
 		notscDStr = "%.4f"
 	endif
-	variable imgSwitch = 0
-	string topTraceNameStr = StringFromList(0, TraceNameList(s.WinName,";",1))
-	if(strlen(topTraceNameStr)) // If you have a trace
-		baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
-		notXStr + "\nd\Bv\M\Z12 = "+ notYStr +"\""
-	else
-		baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
-		notXStr + "\nd\Bv\M\Z12 = "+ notYStr + "\nd\B\M\Z12 = " + notDStr + "\nd\Bsc\M\Z12 = " + notscDStr +\
-		"\nΔz\BCD\M\Z12 = " + notZStr + "\""
-		imgSwitch = 1
-	endif
+	//variable imgSwitch = 0
+	//string topTraceNameStr = StringFromList(0, TraceNameList(s.WinName,";",1))
+	inverseD = str2num(GetUserData(s.winName, "", "MXP_CursorDistanceMode")) // 0 - normal, 1 - inverse
+	imgQ = !strlen(StringFromList(0, TraceNameList(s.WinName,";",1))) // 0 - trace, 1 - image
 
+	if(!imgQ) // If you have a trace
+		if(inverseD)
+			baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " + notXStr + "\n1/d\Bv\M\Z12  = "+ notYStr +"\""
+			sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2)
+		else
+			baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
+			notXStr + "\nd\Bv\M\Z12 = "+ notYStr +"\""
+		endif
+	else // if you have an image
+		if(inverseD)
+			baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " +\
+			notXStr + "\n1/d\Bv\M\Z12 = "+ notYStr + "\n1/d\B\M\Z12 = "+ notDStr + "\n1/d\Bsc\M\Z12 = " +\
+			notscDStr +"\nΔz\BCD\M\Z12 = "+ notZStr +"\""
+		else
+			baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
+			notXStr + "\nd\Bv\M\Z12 = "+ notYStr + "\nd\B\M\Z12 = " + notDStr + "\nd\Bsc\M\Z12 = " + notscDStr +\
+			"\nΔz\BCD\M\Z12 = " + notZStr + "\""
+		endif
+	endif
+	
 	switch(s.eventCode)
-		case 11:
+		case 11: // Esc
 			if(s.keycode == 27)
 				TextBox/W=$s.WinName/K/N=DistanceCD
 				TextBox/W=$s.WinName/K/N=DistanceCDInfo
@@ -129,22 +144,20 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 				endif
 				SetWindow $s.winName userdata(MXP_SetScale) = num2str(vbuffer)
 				SetWindow $s.winName userdata(MXP_DistanceForScale) = num2str(distance)
+				saveScale = "DrawLine/W=" + s.WinName + "  " + num2str(x1)+"," + num2str(y1) +"," + num2str(x2) +"," + num2str(y2)
+				SetWindow $s.winName userdata(MXP_SavedDistanceToScale) = saveScale
+			endif
+			if(s.keycode == 83) // press S
+				savescale = GetUserData(s.winName, "", "MXP_SavedDistanceToScale")
+				SetDrawLayer/W=$s.WinName UserFront
+				SetDrawEnv/W=$s.WinName arrow = 3, xcoord =top, ycoord = left
+				Execute/Q/Z savescale
 			endif
 			if(s.keycode == 122) // pressed z
-				if(imgSwitch)
-					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " +\
-					notXStr + "\n1/d\Bv\M\Z12 = "+ notYStr + "\n1/d\B\M\Z12 = "+ notDStr + "\n1/d\Bsc\M\Z12 = " +\
-					notscDStr +"\nΔz\BCD\M\Z12 = "+ notZStr +"\""
-					// Note: here the scaled distance used *factor* as the inverse scale. Useful for LEED, FFT (m^-1)
-					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2), 1/distance, sscale * sdist/distance, (zcsr(D) - zcsr(C))
-				else
-					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " + notXStr + "\n1/d\Bv\M\Z12  = "+ notYStr +"\""
-					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2)
-				endif
-				Execute/Q/Z cmdStr
+				SetWindow $s.winName userdata(MXP_CursorDistanceMode) = num2str(!inverseD)
 			endif
 			if(s.keycode == 109) // Press m to mark
-				if(strlen(topTraceNameStr))
+				if(!imgQ)
 					SetDrawLayer/W=$s.WinName UserFront
 					GetAxis/Q top
 					if(V_flag) // V_flag == 1, top is not active
@@ -171,7 +184,7 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 				endif
 			endif
 			if(s.keycode == 77) // Press M to mark 1/d or dy in graphs
-				if(strlen(topTraceNameStr))
+				if(!imgQ)
 					SetDrawLayer/W=$s.WinName UserFront
 					GetAxis/Q top
 					if(V_flag) // V_flag == 1, top is not active
@@ -197,8 +210,8 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, "I:"+num2str(1/distance)
 				endif
 			endif
-			if(s.keycode == 83) // Press S to mark scaled inverse distance
-				if(strlen(topTraceNameStr))
+			if(s.keycode == 77) // Press CTRL + M to mark scaled inverse distance
+				if(!imgQ)
 					// Nothing is done, it might change in the future
 				else
 					SetDrawLayer/W=$s.WinName UserFront
@@ -207,14 +220,23 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 					SetDrawEnv/W=$s.WinName xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
 					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, "IS:" + num2str(sscale * sdist/distance)
 				endif
-			endif			
+			endif
 			hookResult = 1 // Do not focus on Command window!
 			break
 		case 7:
-			if(imgSwitch)
-				sprintf cmdStr, baseTextStr, abs(x1-x2), abs(y1-y2), distance, factor * distance, (zcsr(D) - zcsr(C))
+			if(imgQ)
+				if(inverseD)
+					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2), 1/distance, sscale * sdist/distance, (zcsr(D) - zcsr(C))
+				else
+					sprintf cmdStr, baseTextStr, abs(x1-x2), abs(y1-y2), distance, factor * distance, (zcsr(D) - zcsr(C))
+				endif
 			else
-				sprintf cmdStr, baseTextStr, abs(x1-x2), abs(y1-y2)
+				if(inverseD)
+					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2)
+				else
+					sprintf cmdStr, baseTextStr, abs(x1-x2), abs(y1-y2)
+				endif
+
 			endif
 			Execute/Q/Z cmdStr
 			hookResult = 1

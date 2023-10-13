@@ -155,6 +155,7 @@ Menu "TracePopup"
 	"MXP Scale Image stack (TG, 3D)", /Q, MXP_SetZScaleOfImageStack()
 	"MXP Select image and copy scales (2D, 3D)", /Q, MXP_ImageSelectToCopyScale()
 	"MXP Calculate XMC(L)D (3D[2])", /Q, MXP_LaunchCalculateXMCDFromStack()
+	"MXP Measure Distance (TG)", /Q, MXP_MeasureDistanceUsingFreeCursorsCD()
 	Submenu "MXP markups ..."
 	"MXP Draw image markups", /Q, MXP_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
 	"MXP Clear UserFront layer" ,/Q, MXP_ClearROIMarkingsUserFront()
@@ -166,6 +167,6 @@ Menu "GraphPopup" // Right click not on a trace or in the margin of an image
 	"MXP Measure Distance (TG)", /Q, MXP_MeasureDistanceUsingFreeCursorsCD()
 End
 
-Menu "AllTracesPopup" // Use SHIFT + right click
-	"MXP Measure Distance (TG)", /Q, MXP_MeasureDistanceUsingFreeCursorsCD()
-End
+//Menu "AllTracesPopup" // Use SHIFT + right click
+//	//
+//End
