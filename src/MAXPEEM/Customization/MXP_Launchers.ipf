@@ -228,7 +228,10 @@ Function MXP_DialogLoadTwoImagesAndRegisterQ()
 	fileFilters += "All Files:.*;"
 	string msgStr = "Select two images for XMC(L)D calculation."
 	Open/D/R/MULT=1/M=msgStr/F=fileFilters numRef
-	if(!strlen(S_filename) || ItemsInList(S_filename, "\r") != 2)
+	if(!strlen(S_filename))//If you cancel, i.e nothing selected.
+		return 1
+	endif
+	if(ItemsInList(S_filename, "\r") != 2)
 		Abort "Select exactly two .dat files"
 	endif
 

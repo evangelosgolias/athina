@@ -513,7 +513,11 @@ Function/S MXP_BackupWaveInWaveDF(WAVE wref)
 	return backupWavePathStr
 End
 
-// Helper functions
+Function MXP_RightDimVal(WAVE w, int dim)
+	// Return the last value of dimension dim
+	return DimOffSet(w, dim) + DimDelta(w, dim) * (DimSize(w, dim) - 1 ) 
+End
+
 Function MXP_NextPowerOfTwo(variable num)
 	 /// Return the first power of two after num.
 	 /// @param num double 

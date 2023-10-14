@@ -142,8 +142,8 @@ Function MXP_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 			endif
 			if(s.keycode == 115) // press s
 				if(imgQ) // scaling only for images
-					Prompt vbuffer, "Scale distances"
-					DoPrompt " \$WMTEX$ d_{CD} $/WMTEX$ scale", vbuffer
+					Prompt vbuffer, "Enter value to scale"
+					DoPrompt "Scale C, D cursor distance", vbuffer
 					if(V_flag) // if you cancel
 						hookResult = 1
 						break
