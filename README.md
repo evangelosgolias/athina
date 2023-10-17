@@ -23,7 +23,7 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
 
 ### Option 2 (Manual)
 
-Copy the **MXP_StartUp.ipf** file to:
+Copy the **AthinaStartUp.ipf** file to:
 
 *Windows*:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
