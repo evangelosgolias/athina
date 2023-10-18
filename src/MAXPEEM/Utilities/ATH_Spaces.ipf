@@ -49,6 +49,7 @@
 // 9. To unpin press Shift + Alt + Click anywhere in the ListBox to unpin the window (becomes free floating).
 // You can also make a normal window free-floating using the same procedure. Alternatively, if you want to 
 // unpin and link it to a space goto 7.
+// 10. Use Ctlr + click to mark/unmark a space with an asterisk
 // ------------------------------------------------------- //
 ///
 /// TL;DR:
@@ -56,6 +57,7 @@
 /// Double click: Rename
 /// Alt + Click (empty space): Pin window
 /// Shift + Alt + Click; unpin
+/// Ctlr + click to mark/unmark a space with an asterisk
 ///
 /// TODO: Move linked Panel/Graphs to the same Space
 /// TODO: Change all the function and use the same algorithm as ATH_ShowWindowsOfSpaceTag
@@ -136,7 +138,12 @@ Function AfterWindowCreatedHook(string windowNameStr, variable winTypevar)
 		NVAR/SDFR=dfr gSelectedSpace
 		windowNameStr = WinName(0, 87, 1) // Window is created, visible only
 		if(DimSize(ATHSpacesTW,0) && cmpstr(windowNameStr,"ATH_SpacesPanel")) // We have to have at least one space
-			SetWindow $windowNameStr userdata(ATH_SpacesTag) = ATHSpacesTW[gSelectedSpace]
+			//Sanitize names
+			if(GrepString(ATHSpacesTW[gSelectedSpace], "^\*"))
+				SetWindow $windowNameStr userdata(ATH_SpacesTag) = SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])
+			else
+				SetWindow $windowNameStr userdata(ATH_SpacesTag) = ATHSpacesTW[gSelectedSpace]
+			endif
 		endif
 	endif
 	return 0 // Ignored
@@ -147,7 +154,7 @@ Function ATH_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	WAVE/T/SDFR=dfr ATHSpacesTW
 	NVAR/SDFR=dfr gSelectedSpace
-	string msg, newSpaceNameStr, oldSpaceNameStr, winNameStr
+	string msg, newSpaceNameStr, oldSpaceNameStr, winNameStr, buffer, prefix
 	variable numSpaces = DimSize(ATHSpacesTW, 0)
 	variable hookresult = 0
 	switch(LB_Struct.eventCode)
@@ -187,16 +194,25 @@ Function ATH_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 				hookresult = 1
 				break
 			endif			
-			msg = "Rename Space \"" + ATHSpacesTW[gSelectedSpace] + "\""
-			oldSpaceNameStr = ATHSpacesTW[gSelectedSpace]
-			newSpaceNameStr = TrimString(ATH_GenericSingleStrPrompt("New name", msg))
-			if(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr))) // if the name is not unique or empty string
-				do
-					newSpaceNameStr = TrimString(ATH_GenericSingleStrPrompt("Space name already exists or you entered empty string.", "Enter a *unique* name for the new Space"))
-				while(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)))
+			msg = "Rename Space \"" + SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace]) + "\""
+			oldSpaceNameStr = ATHSpacesTW[gSelectedSpace] // Do not sanitise now
+			if(GrepString(oldSpaceNameStr, "^\*"))
+				prefix = "*"
+			else
+				prefix = ""
 			endif
-			ATHSpacesTW[gSelectedSpace] = newSpaceNameStr
-			ATH_RenameSpaceTagOnWindows(oldSpaceNameStr, newSpaceNameStr)
+			oldSpaceNameStr = SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])
+			newSpaceNameStr = TrimString(ATH_GenericSingleStrPrompt("New name", msg))
+			if(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr))|| GrepString(newSpaceNameStr, "^\*")) // if the name is not unique or empty string
+				do
+					newSpaceNameStr = TrimString(ATH_GenericSingleStrPrompt("Space name already exists or string is empty or starts with *, enter a valid name:", \
+																			"Enter a *unique* name for the new Space"))
+				while(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr))|| GrepString(newSpaceNameStr, "^\*"))
+			endif
+			
+			ATHSpacesTW[gSelectedSpace] = prefix + newSpaceNameStr
+			
+			ATH_RenameSpaceTagOnWindows(oldSpaceNameStr, newSpaceNameStr) // newSpaceNameStr has no * prefix!
 			hookresult = 1
 			break
 		case 4: // Cell selection (mouse or arrow keys)
@@ -204,7 +220,17 @@ Function ATH_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 			if(gSelectedSpace > numSpaces - 1)
 				gSelectedSpace = numSpaces - 1
 			endif
-			ATH_ShowWindowsOfSpaceTag(ATHSpacesTW[gSelectedSpace], 1)			
+			if(LB_Struct.eventMod == 9) // If CTRL+click or CMD+click (Mac) is pressed in a row
+				if(GrepString(ATHSpacesTW[gSelectedSpace], "^\*"))
+					buffer = ATHSpacesTW[gSelectedSpace] 
+					ATHSpacesTW[gSelectedSpace] = buffer[1, inf]
+				else
+					buffer = "*" + ATHSpacesTW[gSelectedSpace]
+					ATHSpacesTW[gSelectedSpace] = buffer
+				endif
+			else
+				ATH_ShowWindowsOfSpaceTag(SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace]), 1)	
+			endif
 			DoWindow/F $LB_Struct.win // Bring panel to the FG
 			hookresult = 1
 			break
@@ -217,7 +243,7 @@ Function ATH_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 			endif
 			winNameStr = WinName(1, 87, 0) // Top Window: Graph, Table, Layout, Notebook or Panel
 			gSelectedSpace = LB_Struct.row
-			SetWindow $winNameStr userdata(ATH_SpacesTag) = ATHSpacesTW[gSelectedSpace] // Assign tag to window
+			SetWindow $winNameStr userdata(ATH_SpacesTag) = SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace]) // Assign tag to window			
 			hookresult = 1
 			break
 	endswitch
@@ -233,20 +259,18 @@ Function ATH_ListBoxSpacesNewSpaceButton(STRUCT WMButtonAction &B_Struct): Butto
 	NVAR/SDFR=dfr gSelectedSpace
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			string newSpaceNameStr = TrimString(ATH_GenericSingleStrPrompt("Create a new Space", "Enter the name of the new Space"))
-			if(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr))) // if the name is not unique or empty string
+			string newSpaceNameStr = TrimString(ATH_GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter the name of the new Space"))
+			if(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)) || GrepString(newSpaceNameStr, "^\*")) // if the name is not unique or empty string
 				do
-					newSpaceNameStr = TrimString(ATH_GenericSingleStrPrompt("Space name already exists or you entered empty string.", "Enter a *unique* name for the new Space"))
-				while(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)))
+					newSpaceNameStr = TrimString(ATH_GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter a *different* name for the new Space"))
+				while(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)) || GrepString(newSpaceNameStr, "^\*"))
 			endif
-			
-			
 			if (!numEntries) // If you have deleted all spaces
 				index = 0
 			else 
 				index = gSelectedSpace + 1
 			endif
-			InsertPoints index,1, ATHSpacesTW
+			InsertPoints index, 1, ATHSpacesTW
 			ATHSpacesTW[index] = newSpaceNameStr
 			// Set the space you created as active
 			ListBox listOfspaces, selRow = index
@@ -269,10 +293,10 @@ Function ATH_ListBoxSpacesDeleteSpaceButton(STRUCT WMButtonAction &B_Struct): Bu
 				if(gSelectedSpace > numSpaces - 1)
 					gSelectedSpace = numSpaces - 1
 				endif	
-				msg = "Do you want to delete \"" + ATHSpacesTW[gSelectedSpace] + "\""
+				msg = "Do you want to delete \"" + SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace]) + "\""
 				DoAlert/T="You are about to delete a Space", 1, msg
 				if(V_flag == 1)
-					ATH_ClearWindowsFromSpaceTag(ATHSpacesTW[gSelectedSpace]) // has to come first!
+					ATH_ClearWindowsFromSpaceTag(SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])) // has to come first!
 					DeletePoints gSelectedSpace, 1, ATHSpacesTW
 					gSelectedSpace = gSelectedSpace == 0 ? 0: (gSelectedSpace - 1)
 					ListBox listOfspaces, selRow = gSelectedSpace
@@ -381,9 +405,17 @@ static Function UniqueSpaceNameQ(WAVE/T textW, string spaceNameStr)
 	variable numEntries = DimSize(textW, 0), i
 	
 	for(i = 0; i < numEntries; i++)
-		if(!cmpstr(textW[i], spaceNameStr))
+		if(!cmpstr(SanitiseATHSpaceName(textW[i]), spaceNameStr))
 			return 0
 		endif
 	endfor
 	return 1
+End
+
+static Function/S SanitiseATHSpaceName(string spaceNameStr)
+	if(GrepString(spaceNameStr, "^\*"))
+		return spaceNameStr[1,inf]
+	else
+		return spaceNameStr
+	endif
 End
