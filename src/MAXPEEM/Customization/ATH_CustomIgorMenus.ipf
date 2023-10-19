@@ -71,8 +71,8 @@ Menu "Athina"
 	End
 	
 	Submenu "Drift Correction"
-		"Using a feature (TG, 3D)", /Q, ATH_LaunchImageStackAlignmentUsingAFeature()
-		"Using the full image (TG, 3D)", /Q, ATH_LaunchImageStackAlignmentByFullImage()
+		"Using a feature (TG, 3D)", /Q, ATH_LaunchImageStackAlignmentPartition()
+		"Using the full image (TG, 3D)", /Q, ATH_LaunchImageStackAlignmentFullImage()
 		"Linear drift correction (TG, 3D)",/Q, ATH_LaunchLinearImageStackAlignmentUsingABCursors()
 
 	End

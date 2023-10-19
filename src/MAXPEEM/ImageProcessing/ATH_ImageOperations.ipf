@@ -332,10 +332,10 @@ Function ATH_ImageEdgeDetectionToStack(WAVE w3dref, string method, [variable ove
 	WAVE M_Stack
 	string stacknameStr = CreateDataObjectName(saveDF, NameofWave(w3dref) + "_ed", 1, 0, 1)
 	if(overwrite)
+		Duplicate/O M_stack, w3dref
+	else
 		MoveWave M_stack, saveDF:$stacknameStr
 		CopyScales/I w3dref, saveDF:$stacknameStr
-	else
-		Duplicate/O M_stack, w3dref
 	endif
 	SetDataFolder saveDF
 	return 0
@@ -430,7 +430,12 @@ Function ATH_RestoreTopImageFromBackup([string wname])
 	WAVE/SDFR=wdfr/Z wRefbck = $backupWaveNameStr
 	if(WaveExists(wRefbck))
 		Duplicate/O wRefbck, wRef
-		KillWaves wRefbck
+		CheckDisplayed/A wRefbck
+		if(V_Flag) // if wave is displayed
+			print "Cannot kill " + backupWaveNameStr + ". CheckDisplayed == 1. "
+		else
+			KillWaves wRefbck
+		endif
 	else
 		return -1
 	endif
@@ -731,6 +736,56 @@ Function ATH_PixelateImageStack(WAVE wRef, variable nx, variable ny, variable nz
 	string noteStr = "Pixelated " + NameofWave(wRef) + "{" + num2str(nx) + ", " + num2str(ny) + ", " + num2str(nz) + "}"
 	CopyScales/I wRef, $wnameStr
 	Note/K $wnameStr, noteStr
+	return 0
+End
+
+Function ATH_MatrixFilter3D(WAVE wRef, string method, variable size, variable passes)
+	/// Applies the MatrixFilter/N=size/P=passes method wRef
+	/// to each layer of wRef
+	string allmethods = "gauss;avg;median:max;min"
+	variable ifunc = WhichListItem(method, allmethods)
+	if(ifunc == -1 || WaveDims(wRef) != 3)
+		return -1
+	endif
+	variable nlayers = DimSize(wRef, 2), i
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	string buffer = "getStacklayer_", waveNameStr
+	for(i = 0; i < nlayers; i++)
+		waveNameStr = buffer + num2str(i)
+		MatrixOP $waveNameStr = layer(wRef, i)
+		MatrixFilter/N=(size)/P=(passes) $method $waveNameStr
+	endfor
+	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
+	WAVE M_Stack
+	// Restore scale here
+	CopyScales wRef, M_Stack
+	Duplicate/O M_Stack, saveDF:$NameofWave(wRef)		
+	SetDataFolder saveDF
+	return 0
+End
+
+Function ATH_ImageWindow3D(WAVE wRef, string method)
+	string allmethods = "Hanning;Hamming;Bartlett;Blackman"
+	variable ifunc = WhichListItem(method, allmethods)
+	if(ifunc == -1 || WaveDims(wRef) != 3)
+		return -1
+	endif
+	variable nlayers = DimSize(wRef, 2), i
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	string buffer = "getStacklayer_", waveNameStr
+	for(i = 0; i < nlayers; i++)
+		waveNameStr = buffer + num2str(i)
+		MatrixOP $waveNameStr = layer(wRef, i)
+		ImageWindow/O $method $waveNameStr
+	endfor
+	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
+	WAVE M_Stack
+	// Restore scale here
+	CopyScales wRef, M_Stack
+	Duplicate/O M_Stack, saveDF:$NameofWave(wRef)		
+	SetDataFolder saveDF
 	return 0
 End
 

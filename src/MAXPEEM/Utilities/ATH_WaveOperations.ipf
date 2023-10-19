@@ -500,6 +500,85 @@ Function ATH_MatchWaveTypes(WAVE wRef, WAVE wDest)
 	return 0
 End
 
+Function ATH_SetSameWaveTypes(WAVE wRef, WAVE wDest)
+	// Change WaveType of wDest to the one of wRef
+	variable wTypeRef = WaveType(wRef)
+	switch(wTypeRef)
+		case 2: // 32-bit float
+			Redimension/S wDest
+			break
+		case 4: // 64-bit float
+			Redimension/D wDest
+			break
+		case 8: // 8-bit integer
+			Redimension/B wDest
+			break
+		case 16: // 16-bit integer
+			Redimension/W wDest
+			break
+		case 32: // 32-bit integer
+			Redimension/I wDest
+			break
+		case 72: // 8-bit unsigned integer
+			Redimension/B/U wDest
+			break
+		case 80: // 16-bit unsigned integer
+			Redimension/W/U wDest
+			break
+		case 96: // 32-bit unsigned integer
+			Redimension/I/U wDest
+			break
+		case 128: // 64-bit integer
+			Redimension/L wDest
+			break
+		case 196: // 64-bit unsigned integer
+			Redimension/L/U wDest
+			break
+	endswitch
+	return 0
+End
+
+Function ATH_SetWaveType(WAVE wRef, int wType)
+	// Change to WaveType
+	switch(wType)
+		case 2: // 32-bit float
+			Redimension/S wRef
+			break
+		case 4: // 64-bit float
+			Redimension/D wRef
+			break
+		case 8: // 8-bit integer
+			Redimension/B wRef
+			break
+		case 16: // 16-bit integer
+			Redimension/W wRef
+			break
+		case 32: // 32-bit integer
+			Redimension/I wRef
+			break
+		case 72: // 8-bit unsigned integer
+			Redimension/B/U wRef
+			break
+		case 80: // 16-bit unsigned integer
+			Redimension/W/U wRef
+			break
+		case 96: // 32-bit unsigned integer
+			Redimension/I/U wRef
+			break
+		case 128: // 64-bit integer
+			Redimension/L wRef
+			break
+		case 196: // 64-bit unsigned integer
+			Redimension/L/U wRef
+			break
+		default:
+			print "Invalid WaveType " + num2str(wType)
+			return -1
+			break
+	endswitch
+	return 0
+End
+
 Function/S ATH_BackupWaveInWaveDF(WAVE wref)
 	// Backup a wave in the same DF. If a wave with wavename_undo exists, nothing is done
 	// If a backup wave is created a message is printed in the command window.

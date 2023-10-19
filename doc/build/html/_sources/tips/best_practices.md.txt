@@ -23,11 +23,11 @@ When you delete a folder, you delete also the containing waves without warning. 
 :name: DataBrowserFolders
 ```
 
-## Use _Spaces_
+## Spaces
 
 *Spaces* organises windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate desktops (spaces). It is recommended to launch *Spaces* from the get-go to avoid screen overloading. Without spaces, and especially when you create windows for display-only data and you do not close them, your desktop will soon turn into a scramble of loose images/plots.
 
-To launch _Spaces_ select **Athina>Utilities>Spaces** and a panel titled ATH Spaces (winName: ATH_SpacesPanel). 
+To launch *Spaces* select **Athina>Utilities>Spaces** and a panel titled ATH Spaces (winName: ATH_SpacesPanel). 
 
 When a Space is click-selected, only windows with the same space tag are shown (space name is the space tag).
 
@@ -41,13 +41,14 @@ Guide to Spaces:
 * Press Shift + Click on a row of the ListBox to move the top window to the selected space
 * Press Alt + Click anywhere in the ListBox of the panel (rows or empty space below) to pin the top window to all spaces (visible everywhere)
 * To unpin press Shift + Alt + Click anywhere in the ListBox to unpin the window (becomes free floating). You can also make a normal window free-floating using the same procedure. Alternatively, if you want to  unpin and link it to a space do Shift + Click on a row of the ListBox.
-
+* Press CTRL + click (CMD on Mac) to mark a Space with an asterisk
 ```{tip} TL;DR
 
 -  Use Shift + Click a row/*Space* to assign the top window.
 -  Double click: Rename *Space*
 -  Alt + Click (not a named row): Pin top window (appears in all *Spaces*)
 -  Shift + Alt + Click: unpin top window
+-  CTRL + click to mark a Space with an asterisk
 ```
 
 Build time: {sub-ref}`today`

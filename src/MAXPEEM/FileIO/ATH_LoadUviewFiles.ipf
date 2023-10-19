@@ -1239,8 +1239,8 @@ Function ATH_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 	variable i, fovScale
 	
 	if(stack3d) // Make a folder to import files for the stack
-		NewDataFolder MPX_tmpStorageStackFolder
-		SetDataFolder MPX_tmpStorageStackFolder
+		NewDataFolder ATH_tmpStorageStackFolder
+		SetDataFolder ATH_tmpStorageStackFolder
 	endif
 	// Now get all the files
 	for(i = 0; i < filesnr; i += 1)
@@ -1276,7 +1276,7 @@ Function ATH_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 		Note/K M_Stack, note3d
 		MoveWave M_Stack ::$wname3d
 		SetDataFolder ::
-		KillDataFolder/Z MPX_tmpStorageStackFolder
+		KillDataFolder/Z ATH_tmpStorageStackFolder
 	endif
 	if(autoscale && stack3d)
 		SetScale/I x, 0, getScaleXY, $wname3d
@@ -1325,8 +1325,8 @@ Function/WAVE ATH_WAVELoadDATFilesFromFolder(string folder, string pattern, [int
 	variable i, fovScale
 	
 	if(stack3d) // Make a folder to import files for the stack
-		NewDataFolder MPX_tmpStorageStackFolder
-		SetDataFolder MPX_tmpStorageStackFolder
+		NewDataFolder ATH_tmpStorageStackFolder
+		SetDataFolder ATH_tmpStorageStackFolder
 	endif
 	// Now get all the files
 	for(i = 0; i < filesnr; i += 1)
@@ -1360,7 +1360,7 @@ Function/WAVE ATH_WAVELoadDATFilesFromFolder(string folder, string pattern, [int
 		Note/K M_Stack, note3d
 		MoveWave M_Stack ::$wname3dStr
 		SetDataFolder ::
-		KillDataFolder/Z MPX_tmpStorageStackFolder
+		KillDataFolder/Z ATH_tmpStorageStackFolder
 	endif
 	// It is assumed that all the imported waves have the same dimensions, use it to scale the 3d wave	
 	if(autoscale && stack3d)

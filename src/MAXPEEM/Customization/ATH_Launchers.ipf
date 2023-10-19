@@ -319,52 +319,75 @@ Function ATH_LaunchCalculationXMCD3D()
 	return 0
 End
 
-Function ATH_LaunchImageStackAlignmentByFullImage()
+Function ATH_LaunchImageStackAlignmentFullImage()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // ATH_ImageStackAlignmentByPartitionRegistration needs a wave reference
 	variable convMode = 1
 	variable printMode = 2
 	variable layerN = 0
-	variable edgeDetection = 2
-	variable edgeAlgo = 1	
+	variable edgeAlgo = 0	
 	variable histEq = 2	
-	variable windowing = 2
+	variable windowing = 0
 	variable algo = 1
+	variable normalise = 2
+	variable cutoff = 0
 	string msg = "Align " + imgNameTopGraphStr + " using the full image."
 	Prompt algo, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
 	Prompt layerN, "Reference layer"
-	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!
-	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"		
+	Prompt normalise, "Normalise range [0, 1]?", popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt edgeAlgo, "Edge detection method", popup, "None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"
 	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
 	Prompt convMode, "Convergence (Registration only)", popup, "Gravity (fast); Marquardt (slow)"
-	Prompt windowing, "Hanning windowing (Correlation only)", popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt windowing, "Windowing", popup, "None;Hanning;Hamming;Bartlett;Blackman"
+	Prompt cutoff, "Cutoff drift (pixels) "	
 	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt msg, algo, layerN, edgeDetection, edgeAlgo, histEq, convMode, windowing, printMode
+	DoPrompt msg, algo, layerN, normalise, edgeAlgo, histEq, convMode, windowing, cutoff, printMode
+	
 	if(V_flag) // User cancelled
 		return -1
 	endif
 	
 	string backupWavePathStr = ATH_BackupWaveInWaveDF(w3dref)
+	int switchWaveCopy = 0
+	if(normalise == 1)
+		ATH_ScalePlanesBetweenZeroAndOne(w3dRef)
+		switchWaveCopy = 1
+	endif
 
-	if(edgeDetection == 1 && histEq == 1)	
-		print "You applied edge detection and histrogram equalisation on the same stack! I hope you know what you are doing"
-	endif
-	
-	if(edgeDetection == 1)
-		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
-		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
-		ATH_ImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo, overwrite = 1)
-	endif
-	
 	if(histEq == 1)
 		ImageHistModification/O/I w3dref
+		switchWaveCopy = 1
 	endif	
-
+	
+	if(windowing > 1)
+		string windowingMethods = "None;Hanning;Hamming;Bartlett;Blackman" // Prompt first item returns 1!
+		string applywindowingMethods = StringFromList(windowing, windowingMethods)
+		ATH_ImageWindow3D(w3dRef, applywindowingMethods)
+		switchWaveCopy = 1
+	endif
+	if(edgeAlgo > 1)
+		string edgeDetectionAlgorithms = "None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
+		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
+		ATH_ImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo, overwrite = 1)
+		switchWaveCopy = 1	
+	endif
 	if(algo == 1)
-		ATH_ImageStackAlignmentByRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1)
-	else
-		ATH_ImageStackAlignmentByCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, windowing = windowing - 2)
+		if(switchWaveCopy)
+			ATH_ImageStackAlignmentByRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1,\
+			selfDrift = 0, cutoff = cutoff)
+		else
+			ATH_ImageStackAlignmentByRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1)
+		endif
+	elseif(algo == 2)
+		if(switchWaveCopy)
+			ATH_ImageStackAlignmentByCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, \
+			selfDrift = 0, cutoff = cutoff)
+		else
+			ATH_ImageStackAlignmentByCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, cutoff = cutoff)
+		endif
+	else 
+		Abort "Please check ATH_LaunchImageStackAlignmentFullImage(), method error."
 	endif
 	//Restore the note
 	string copyNoteStr = note($backupWavePathStr)
@@ -372,7 +395,7 @@ Function ATH_LaunchImageStackAlignmentByFullImage()
 End
 
 
-Function ATH_LaunchImageStackAlignmentUsingAFeature()
+Function ATH_LaunchImageStackAlignmentPartition()
 	///
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -380,67 +403,82 @@ Function ATH_LaunchImageStackAlignmentUsingAFeature()
 	variable method = 1
 	variable printMode = 2
 	variable layerN = 0
-	variable edgeDetection = 2
 	variable histEq = 2
 	variable edgeAlgo = 1
-	variable gaussianFilter = 2
+	variable filter = 1
+	variable filterN = 3	
 	variable nrTimes = 1
+	variable normalise = 2
+	variable cutoff = 0
 	string msg = "Align " + imgNameTopGraphStr + " using part of the image."
+	
 	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
 	Prompt layerN, "Reference layer"
-	Prompt gaussianFilter, "Apply Guassian filter", popup, "Yes;No"
-	Prompt nrTimes, "Apply Guassian filter N = 1...5"
-	Prompt edgeDetection, "Apply edge detection?", popup, "Yes;No" // Yes = 1, No = 2!
-	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!
-	Prompt edgeAlgo, "Edge detection method", popup, "shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"
+	Prompt filter, "Apply filter", popup, "None;gauss;avg;median;max;min" // gauss = 2
+	Prompt filterN, "Filter N = 3 ... 15 (odd N is better)"	
+	Prompt nrTimes, "Apply filter 1...5 times"	
+	Prompt normalise, "Normalise range [0, 1]?", popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
+	Prompt edgeAlgo, "Edge detection method", popup, "None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"
+	Prompt cutoff, "Cutoff drift (pixels) "
 	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt msg, method, layerN, gaussianFilter, nrTimes, histEq, edgeDetection, edgeAlgo, printMode
+	
+	DoPrompt msg, method, layerN, filter, filterN, nrTimes, normalise, histEq, edgeAlgo, cutoff, printMode
 	if(V_flag) // User cancelled
 		return -1
 	endif
-
+	
 	string backupWavePathStr = ATH_BackupWaveInWaveDF(w3dref)
 
 	variable left, right, top, bottom
 
-	if(edgeDetection == 1 && histEq == 1)
-		print "You applied edge detection and histrogram equalisation on the same stack! I hope you know what you are doing"
-	endif
 	STRUCT sUserMarqueePositions s
 	[left, right, top, bottom] = ATH_UserGetMarqueePositions(s)
-	if(edgeDetection == 1)
-		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
-		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
-		// Apply image edge detection to the whole image, it's slower but to works better(?)
-		WAVE partitionWaveT = ATH_WAVEWavePartition(w3dref, left, right, top, bottom, evenNum = 1) // Debug
-		WAVE partitionWave = ATH_WAVEImageEdgeDetectionToStack(partitionWaveT, applyEdgeDetectionAlgo)
-	else
-		WAVE partitionWave = ATH_WAVEWavePartition(w3dref, left, right, top, bottom, evenNum = 1)
+	DFREF currDFR = GetDataFolderDFR()
+	string partitionWaveStr =  CreatedataObjectName(currDFR, "ATH_DRFCorr_partition", 1, 0, 0)
+	ATH_WavePartition(w3dref, partitionWaveStr, left, right, top, bottom, evenNum = 1)
+	WAVE partitionWave = $partitionWaveStr
 
-	endif
-
-	if(gaussianFilter == 1)
+	if(filter > 1)
 		if(nrTimes > 5)
 			nrTimes = 5
 		elseif(nrTimes < 1)
 			nrTimes = 1
 		endif
-		ImageFilter/O/P=(nrTimes) gauss3d partitionWave // Apply a 3x3x3 gaussian filter
+		if(filterN < 3)
+			filterN = 3
+		elseif(filterN > 15)
+			filterN = 15
+		endif
+		string filterStr = StringFromList(filter, "None;gauss;avg;median;max;min")
+		ATH_MatrixFilter3D(partitionWave, filterStr, filterN, nrTimes)
 	endif
-	
+
 	if(histEq == 1)
 		ImageHistModification/O/I partitionWave
 	endif
+	
+	if(normalise == 1)
+		ATH_ScalePlanesBetweenZeroAndOne(partitionWave)
+	endif
 
+	// Edge detection is applied last
+	if(edgeAlgo > 1)
+		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
+		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
+		ATH_ImageEdgeDetectionToStack(partitionWave, applyEdgeDetectionAlgo, overwrite = 1)
+	endif
+	
 	if(method == 1)
-		ATH_ImageStackAlignmentByPartitionRegistration(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2)
+		ATH_ImageStackAlignmentByPartitionRegistration(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2, cutoff = cutoff)
 	elseif(method == 2)
-		ATH_ImageStackAlignmentByPartitionCorrelation(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2)
+		ATH_ImageStackAlignmentByPartitionCorrelation(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2, cutoff = cutoff)
 	else
 		Abort "Please check ATH_LaunchImageStackAlignmentUsingAFeature(), method error."
 	endif
 	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
 	string copyNoteStr = note($backupWavePathStr)
+	KillWaves partitionWave
 	Note/K w3dref,copyNoteStr
 End
 
