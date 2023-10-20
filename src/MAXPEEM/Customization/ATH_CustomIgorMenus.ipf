@@ -154,6 +154,8 @@ Menu "TracePopup"
 	"ATH Save current view (TG, 2D, 3D)", /Q, ATH_GetScaledZoominImageWindow()
 	"ATH Scale Image stack (TG, 3D)", /Q, ATH_SetZScaleOfImageStack()
 	"ATH Select image and copy scales (2D, 3D)", /Q, ATH_ImageSelectToCopyScale()
+	"ATH Backup Image (2D, 3D)", /Q, ATH_BackupTopImage()	
+	"ATH Restore image (2D, 3D)", /Q, ATH_RestoreTopImageFromBackup()
 	"ATH Calculate XMC(L)D (3D[2])", /Q, ATH_LaunchCalculateXMCDFromStack()
 	"ATH Measure Distance (TG)", /Q, ATH_MeasureDistanceUsingFreeCursorsCD()
 	Submenu "ATH markups ..."

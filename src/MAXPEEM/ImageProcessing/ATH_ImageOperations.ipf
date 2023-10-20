@@ -383,27 +383,30 @@ Function ATH_ImageRotateAndScale(WAVE wRef, variable angle)
 	CopyScales/P wRef, wRefRot // /P needed here to prevent on image distances.	
 End
 
-Function ATH_ImageBackupRotateAndScale(Wave wRef, variable angle)
-	/// Backup and rotate image
+Function ATH_ImageBackupRotateAndScale(WAVE wRef, variable angle)
+	/// Backup and rotate image. Create backup in the sourcewave folder.
 	/// Math: If the side of the image is a, then the rotated image
 	/// will have side a_rot = a * (cos(angle) + sin(angle))
 	/// @param wRef: 2d or 3d wave	
 	/// @param angle: clockwise rotation in degrees
 	variable angleRad = angle * pi / 180
 	string backupWaveNameStr = NameOfWave(wRef) + "_undo"
-	Duplicate/O wRef, $backupWaveNameStr
+	DFREF wDFR = GetWavesDataFolderDFR(wRef)
+	Duplicate/O wRef, wDFR:$backupWaveNameStr
 	ImageRotate/O/E=0/A=(angle) wRef
-	WAVE wRefbck = $backupWaveNameStr
+	WAVE wRefbck = wDFR:$backupWaveNameStr
 	string noteStr ="Image rotated by " + num2str(angle) + " deg"
 	Note/K wRef, noteStr
 	CopyScales/P wRef, wRefbck // /P needed here to prevent on image distances.	
 End
 
 Function ATH_BackupTopImage()
-	/// Backup wave in the top window
+	/// Backup wave in the top window, the backup is created in the 
+	/// sourcewave datafolder (to be able to restore)
 	
 	WAVE wRef = ATH_TopImageToWaveRef()
-	Duplicate/O wRef, $(NameOfWave(wRef) + "_undo")	
+	DFREF wDFR = GetWavesDataFolderDFR(wRef)
+	Duplicate/O wRef, wDFR:$(NameOfWave(wRef) + "_undo")	
 	return 0
 End
 

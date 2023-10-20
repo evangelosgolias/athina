@@ -326,8 +326,6 @@ Function ATH_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 			endif
 			break
 	    case 7: // cursor moved
-	    	// Change 22.08.2023: I have to include xOff, yOff for waves with x(y)Off ≠ 0. ImageLineProfile and DrawLine
-	    	// do not function properly without offsets.
 			if(!cmpstr(s.cursorName, "E") || !cmpstr(s.cursorName, "F")) // It should work only with E, F you might have other cursors on the image
 				SetDrawLayer ProgFront
 			    DrawAction delete
@@ -335,11 +333,19 @@ Function ATH_CursorHookFunctionLineProfile(STRUCT WMWinHookStruct &s)
 	   			if(!cmpstr(s.cursorName, "E")) // if you move E
 	   				xc = hcsr(F)
 					yc = vcsr(F)
+					C1x = xc
+					C1y = yc
+					C2x = hcsr(E)
+					C2y = vcsr(E)
 					DrawLine xOff + s.pointNumber * dx, yOff + s.ypointNumber * dy, xc, yc
 	   				Make/O/FREE/N=2 xTrace={xOff + s.pointNumber * dx, xc}, yTrace = {yOff + s.ypointNumber * dy, yc}
 	   			elseif(!cmpstr(s.cursorName, "F")) // if you move F
 	   				xc = hcsr(E)
 					yc = vcsr(E)
+					C1x = hcsr(F)
+					C1y = vcsr(F)					
+					C2x = xc
+					C2y = yc
 					DrawLine xc, yc, xoff + s.pointNumber * dx, yOff + s.ypointNumber * dy
 	   				Make/O/FREE/N=2 xTrace={xc, xOff + s.pointNumber * dx}, yTrace = {yc, yOff + s.ypointNumber * dy}
 	   			endif
