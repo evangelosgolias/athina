@@ -309,7 +309,6 @@ Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 			// TODO: IP bug, program crashes
 			// Remove the first glayer layers
 			ImageTransform/P=(gLayer)/NP=(nlayers-gLayer) removeZplane w3dRef
-			print gLayer, (nlayers-gLayer)
 			WAVE M_ReducedWave	
 			ImageTransform/O/P=0/NP=(gLayer) removeZplane w3dRef	
 			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D w3dRef

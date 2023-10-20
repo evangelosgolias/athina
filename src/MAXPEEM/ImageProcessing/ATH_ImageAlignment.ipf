@@ -127,9 +127,9 @@ Function ATH_ImageStackAlignmentByRegistration(WAVE w3d, [variable layerN,
 				MatrixOP/O $("getStacklayer_" + num2str(i)) = layer(wRefCopy, i)
 			else
 				MatrixOP/O targetLayer = layer(wRefCopy, i)
-				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer
-				WAVE M_Affine
-				Rename M_Affine, $("getStacklayer_" + num2str(i))
+				ImageInterpolate/FUNC=bilinear/TRNS={scaleShift, dx, 1, dy, 1} Resample targetLayer
+				WAVE M_InterpolatedImage
+				Rename M_InterpolatedImage, $("getStacklayer_" + num2str(i))
 			endif
 		endfor
 		ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
@@ -329,7 +329,7 @@ Function ATH_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 			MatrixOP/O $("getStacklayer_" + num2str(i)) = layer(w3d, i) // Scaled in pixels!
 		else
 			MatrixOP/O getLayer = layer(w3d, i) // Scaled in pixels!
-			ImageInterpolate/APRM={1,0,dx[i],0,1,dy[i],1,0}/DEST=$("getStacklayer_" + num2str(i)) Affine2D getLayer
+			ImageInterpolate/FUNC=bilinear/TRNS={scaleShift, dx[i], 1, dy[i], 1}/DEST=$("getStacklayer_" + num2str(i)) Resample getLayer
 		endif
 		if(printMode)
 			if(dx[i] == 0 && dy[i] == 0)
@@ -565,10 +565,7 @@ Function ATH_LinearDriftCorrectionUsingABCursors(WAVE w3d, WAVE wx, WAVE wy)
 		dx = wx[i]
 		dy = wy[i]
 		MatrixOP/O/FREE targetLayer = layer(w3d, i)
-		CopyScales w3d, targetLayer
-		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer	// New reference layer, M_Affine
-		WAVE M_Affine
-		Rename M_Affine, $("getStacklayer_" + num2str(i)) 
+		ImageInterpolate/FUNC=bilinear/TRNS={scaleShift, dx, 1, dy, 1}/DEST=$("getStacklayer_" + num2str(i)) Resample targetLayer
 	endfor
 
 	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
@@ -579,249 +576,3 @@ Function ATH_LinearDriftCorrectionUsingABCursors(WAVE w3d, WAVE wx, WAVE wy)
 	SetDataFolder currDF
 	return 0
 End
-
-//// Not in use since 02.10.2023
-//Function ATH_CascadeImageStackAlignmentByCorrelation(WAVE w3d, [int printMode])
-//	/// Align a 3d wave using Correlation of the full image	
-//	/// We align sequentially with reference layer the previous layer of the stack. 
-//	/// Only x, y translations are allowed.
-//	/// @param w3d WAVE 3d we want to register for aligment
-//	
-//	printMode = ParamIsDefault(printMode) ? 0: printMode
-//	
-//	if(!(WaveType(w3d) & 0x02))
-//		Redimension/S w3d
-//	endif
-//
-//	variable nlayers = DimSize(w3d, 2)
-//	variable  i, x0, y0, x1, y1, dx, dy
-//	
-//	if(printMode)
-//		string driftLog = "Called ATH_CascadeImageStackAlignmentByCorrelation\n"
-//		driftLog +=  "---- Drift correction (relative to previous layer)----\n"
-//		driftLog +=  "layer  dx  dy\n"
-//	endif
-//	
-//	DFREF saveDF = GetDataFolderDFR()
-//	DFREF saveWaveDF = GetWavesDataFolderDFR(w3d) // Location of w3d			
-//	SetDataFolder NewFreeDataFolder() // Change folder
-//	
-//	MatrixOP/O getStacklayer_0 = layer(w3d, 0) // ImageTransform doesn't work with /FREE
-//	Duplicate/FREE/O getStacklayer_0, M_Affine
-//	for(i = 0; i < nlayers - 1; i++)
-//		MatrixOP/O/FREE autocorrelationW = correlate(M_Affine, M_Affine, 0)
-//		WaveStats/M=1/Q autocorrelationW
-//		x0 = V_maxRowLoc
-//		y0 = V_maxColLoc
-//		MatrixOP/FREE/O targetLayer = layer(w3d, i + 1)
-//		MatrixOP/O/FREE correlationW = correlate(M_Affine, targetLayer, 0)
-//		WaveStats/M=1/Q correlationW
-//		x1 = V_maxRowLoc
-//		y1 = V_maxColLoc
-//		dx = x0 - x1
-//		dy = y0 - y1
-//		if(printMode)
-//			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n"
-//		endif
-//		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer	// New reference layer, M_Affine
-//		MatrixOP/O/FREE w3dLayer = layer(w3d, i + 1)
-//		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i + 1)) Affine2D w3dLayer	
-//		endfor
-//	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
-//	WAVE M_Stack
-//	// Restore scale here
-//	CopyScales w3d, M_Stack
-//	Duplicate/O M_Stack, saveWaveDF:$NameofWave(w3d)	
-//	if(printMode)
-//		string notebookName = NameOfWave(w3d)
-//		KillWindow/Z notebookName
-//		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
-//		Notebook notebookName, text = driftLog
-//	endif
-//	SetDataFolder saveDF
-//	return 0
-//End
-//
-//// Not in use since 02.10.2023
-//Function ATH_CascadeImageStackAlignmentByRegistration(WAVE w3d, [int convMode, int printMode])
-//	/// Align a 3d wave using ImageRegistration using the full image
-//	/// We align sequentially with reference layer the previous layer of the stack. 
-//	/// Only x, y translations are allowed.
-//	/// @param w3d WAVE 3d we want to register for aligment
-//	
-//	printMode = ParamIsDefault(printMode) ? 0: printMode
-//	convMode = ParamIsDefault(convMode) ? 0: convMode // convMode = 0, 1 
-//	
-//	if(!(WaveType(w3d) & 0x02))
-//		Redimension/S w3d
-//	endif
-//
-//	variable rows = DimSize(w3d, 0)
-//	variable cols = DimSize(w3d, 1)
-//	variable layers = DimSize(w3d, 2)
-//	
-//	if(printMode)
-//		string driftLog = "Called ATH_CascadeImageStackAlignmentByRegistration\n"
-//		driftLog +=  "---- Drift correction (relative to previous layer)----\n"
-//		driftLog +=  "layer  dx  dy\n"
-//	endif
-//	
-//	DFREF saveDF = GetDataFolderDFR()
-//	DFREF saveWaveDF = GetWavesDataFolderDFR(w3d) // Location of w3d	
-//	SetDataFolder NewFreeDataFolder()
-//	variable i, dx, dy
-//	// Get the first layer out
-//	MatrixOP/O getStacklayer_0 = layer(w3d, 0) 
-//	Duplicate/FREE getStacklayer_0, M_Affine
-//	for(i = 0; i < layers - 1; i++) // (layers - 1)
-//		MatrixOP/FREE/O targetLayer = layer(w3d, i + 1) 
-//		ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0/CONV=(convMode) refwave = M_Affine, testwave = targetLayer // Correct!!!!:Error here. M_Affine differs by one!
-//		WAVE W_RegParams
-//		dx = W_RegParams[0]; dy = W_RegParams[1]
-//		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer // Will overwrite M_Affine
-//		MatrixOP/O/FREE w3dLayer = layer(w3d, i + 1)
-//		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i + 1)) Affine2D w3dLayer
-//		if(printMode)
-//			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n" // Layer 0 is not shifted
-//		endif
-//	endfor
-//	ImageTransform/NP=(layers) stackImages $"getStacklayer_0"
-//	WAVE M_Stack
-//	// Restore scale here
-//	CopyScales w3d, M_Stack
-//	Duplicate/O M_Stack, saveWaveDF:$NameofWave(w3d)	
-//	if(printMode)
-//		string notebookName = NameOfWave(w3d)
-//		KillWindow/Z notebookName
-//		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
-//		Notebook notebookName, text = driftLog
-//	endif
-//	SetDataFolder saveDF
-//	return 0
-//End
-
-//Function ATH_CascadeImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partitionW3d, [variable printMode]) // Used in menu
-//	/// Align a 3d wave using ImageRegistration using a partition of the target 3d wave.
-//	/// We align sequentially with reference layer the previous layer of the stack. 
-//	/// Only x, y translations are allowed.
-//	/// @param w3d WAVE 3d we want to register for aligment
-//	/// @param partitionW3d WAVE partition of w3d 
-//	/// Note: When illumination conditions change considerably, (XAS along an edge)
-//	/// it is better to use a mask to isolate a characteristic feature. 
-//	printMode = ParamIsDefault(printMode) ? 0: printMode
-//	if(!(WaveType(w3d) & 0x02))
-//		Redimension/S w3d
-//	endif
-//	if(!(WaveType(partitionW3d) & 0x02))
-//		Redimension/S partitionW3d
-//	endif
-//	
-//	variable rows = DimSize(w3d, 0)
-//	variable cols = DimSize(w3d, 1)
-//	variable layers = DimSize(w3d, 2)
-//	
-//	if(printMode)
-//		string driftLog = "Called ATH_CascadeImageStackAlignmentByPartitionRegistration\n"
-//		driftLog +=  "---- Drift correction (relative to previous layer)----\n"
-//		driftLog +=  "layer  dx  dy\n"
-//	endif
-//	
-//	DFREF saveDF = GetDataFolderDFR()
-//	DFREF saveWaveDF = GetWavesDataFolderDFR(w3d) // Location of w3d	
-//	SetDataFolder NewFreeDataFolder()
-//	variable i, dx, dy
-//	// Get the first layer out
-//	MatrixOP/O getStacklayer_0 = layer(w3d, 0) 
-//	MatrixOP/O M_Affine = layer(partitionW3d, i) // Get the first layer from partitionW3d, name is M_Affine (ImageInterpolate default  output for Affine2D)
-//	
-//	for(i = 0; i < layers - 1; i++) // (layers - 1)
-//		MatrixOP/O/FREE targetLayer = layer(partitionW3d, i + 1)
-//		ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = M_Affine, testwave = targetLayer
-//		WAVE W_RegParams	
-//		dx = W_RegParams[0]; dy = W_RegParams[1]		
-//		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer // Will overwrite M_Affine
-//		MatrixOP/O/FREE w3dLayer = layer(w3d, i + 1)
-//		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i + 1)) Affine2D w3dLayer
-//		if(printMode)
-//			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n" // Layer 1 is not shi
-//		endif
-//	endfor
-//	ImageTransform/NP=(layers) stackImages $"getStacklayer_0"
-//	WAVE M_Stack
-//	// Restore scale here
-//	CopyScales w3d, M_Stack
-//	Duplicate/O M_Stack, saveWaveDF:$NameofWave(w3d)	
-//	//MoveWave M_Stack, saveDF:$NameofWave(w3d) // Move, do not duplicate
-//	if(printMode)
-//		string notebookName = NameOfWave(w3d)
-//		KillWindow/Z notebookName
-//		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
-//		Notebook notebookName, text = driftLog
-//	endif
-//	SetDataFolder saveDF
-//	return 0
-//End
-
-//Function ATH_CascadeImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [int printMode])
-//	/// Align a 3d wave using ImageRegistration using a partition of the target 3d wave.
-//	/// We align sequentially with reference layer the previous layer of the stack. 
-//	/// Only x, y translations are allowed.
-//	/// @param w3d WAVE 3d we want to register for aligment
-//	/// @param partitionW3d WAVE partition of w3d
-//	/// Note: When illumination conditions change considerably, (XAS along an edge)
-//	/// it is better to use a mask to isolate a characteristic feature. 
-//	
-//	printMode = ParamIsDefault(printMode) ? 0: printMode
-//	
-//	if(!(WaveType(w3d) & 0x02))
-//		Redimension/S w3d
-//	endif
-//	if(!(WaveType(partitionW3d) & 0x02))
-//		Redimension/S partitionW3d
-//	endif
-//	variable nlayers = DimSize(w3d, 2)
-//	variable  i, x0, y0, x1, y1, dx, dy
-//	// Calculate drifts
-//	if(printMode)
-//		string driftLog = "Called ATH_CascadeImageStackAlignmentByPartitionCorrelation\n"
-//		driftLog +=  "---- Drift correction (relative to previous layer)----\n"
-//		driftLog +=  "layer  dx  dy\n"
-//	endif
-//	DFREF saveDF = GetDataFolderDFR()
-//	DFREF saveWaveDF = GetWavesDataFolderDFR(w3d) // Location of w3d					
-//	SetDataFolder NewFreeDataFolder() // Change folder
-//	MatrixOP/O getStacklayer_0 = layer(w3d, 0) // "getStacklayer_0" - ImageTransform doesn't work with /FREE
-//	MatrixOP/O M_Affine = layer(partitionW3d, 0)
-//	for(i = 0; i < nlayers - 1; i++)
-//		MatrixOP/O/FREE targetLayer = layer(partitionW3d, i + 1)
-//		MatrixOP/O/FREE autocorrelationW = correlate(M_Affine, M_Affine, 0)
-//		WaveStats/M=1/Q autocorrelationW
-//		x0 = V_maxRowLoc
-//		y0 = V_maxColLoc
-//		MatrixOP/O/FREE correlationW = correlate(M_Affine, targetLayer, 0)
-//		WaveStats/M=1/Q correlationW
-//		x1 = V_maxRowLoc
-//		y1 = V_maxColLoc
-//		dx = x0 - x1
-//		dy = y0 - y1
-//		if(printMode)
-//			driftLog +=  num2str(i + 1) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n"
-//		endif
-//		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D targetLayer	// New reference layer, M_Affine
-//		MatrixOP/O/FREE w3dLayer = layer(w3d, i + 1)
-//		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i + 1)) Affine2D w3dLayer	
-//		endfor
-//	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
-//	WAVE M_Stack
-//	// Restore scale here
-//	CopyScales w3d, M_Stack
-//	Duplicate/O M_Stack, saveWaveDF:$NameofWave(w3d)	
-//	if(printMode)
-//		string notebookName = NameOfWave(w3d)
-//		KillWindow/Z notebookName
-//		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
-//		Notebook notebookName, text = driftLog
-//	endif
-//	SetDataFolder saveDF
-//	return 0
-//End
