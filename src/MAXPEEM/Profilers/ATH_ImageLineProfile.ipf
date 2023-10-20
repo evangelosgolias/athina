@@ -440,7 +440,6 @@ Function ATH_LineProfilePlotSaveProfile(STRUCT WMButtonAction &B_Struct): Button
 				DoWindow/F $WindowNameStr
 				ATH_DrawLineUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
 			endif
-			break // Stop if you go through the else branch
 			sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left;" + \
 			"DrawCmd:DrawLine %f, %f, %f, %f;ProfileCmd:Make/O/N=2 xTrace={%f, %f}, yTrace = {%f, %f}\nImageLineProfile/P=(%d) srcWave=%s," +\
 			"xWave=xTrace, yWave=yTrace, width = %f\nDisplay/K=1 W_ImageLineProfile vs W_LineProfileDisplacement" + \

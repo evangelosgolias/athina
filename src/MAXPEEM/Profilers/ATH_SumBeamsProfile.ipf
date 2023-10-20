@@ -569,7 +569,6 @@ Function ATH_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonC
 					ATH_SumBeamsDrawOvalImageROI(gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
 				endif
 			endif
-			break // Stop if you go through the else branch
 			if(gATH_Rect)
 				sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
 				"DrawCmd:DrawRect %f, %f, %f, %f", w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
