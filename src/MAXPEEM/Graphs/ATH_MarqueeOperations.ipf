@@ -256,6 +256,7 @@ Function ATH_SaveROICoordinatesToDatabase([variable rect])
 	variable/G dfr:gATH_Sright = V_right
 	variable/G dfr:gATH_Stop = V_top
 	variable/G dfr:gATH_Sbottom = V_bottom
+	variable/G dfr:gATH_SrectQ = rect
 	SetDrawLayer UserFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, dash= 2, xcoord = top, ycoord = left
 	if(rect)

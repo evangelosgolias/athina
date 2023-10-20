@@ -229,7 +229,7 @@ Function ATH_InitialiseImagePlaneProfileZFolder()
 	
 	// Switches and indicators
 	variable/G dfr:gATH_PlotSwitch = 1
-	variable/G dfr:gATH_MarkLinesSwitch = 0
+	variable/G dfr:gATH_MarkLinesSwitch = 1
 	variable/G dfr:gATH_OverrideNx = 0
 	variable/G dfr:gATH_OverrideNy = 0
 	// Profile width
@@ -525,7 +525,7 @@ Function ATH_ImagePlaneProfileZButtonSaveProfile(STRUCT WMButtonAction &B_Struct
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 	SVAR/Z w3dNameStr = dfr:gATH_ImageNameStr
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
-	Wave/SDFR=dfr M_ExtractedSurface  
+	Wave/SDFR=dfr M_ExtractedSurface
 	NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch
 	NVAR/Z MarkLinesSwitch = dfr:gATH_MarkLinesSwitch
 	NVAR/Z C1x = dfr:gATH_C1x
@@ -543,34 +543,29 @@ Function ATH_ImagePlaneProfileZButtonSaveProfile(STRUCT WMButtonAction &B_Struct
 	string saveImageStr
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			do
-				string saveWaveNameStr = w3dNameStr + num2str(postfix)
-				if(WaveExists(savedfr:$saveWaveNameStr) == 1)
-					postfix++
-				else
-					Duplicate dfr:M_ExtractedSurface, savedfr:$saveWaveNameStr
-					if(PlotSwitch)
-						saveImageStr = targetGraphWin + "_s" + num2str(postfix)
-						NewImage/G=1/K=1/N=$saveImageStr savedfr:$saveWaveNameStr
-						ModifyGraph/W=$saveImageStr width = 330, height = 470
-						colorcnt += 1
-					endif
-					
-					if(MarkLinesSwitch)
-						if(!PlotSwitch)
-							[red, green, blue] = ATH_GetColor(colorcnt)
-							colorcnt += 1
-						endif
-						DoWindow/F $WindowNameStr
-						ATH_DrawLineUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
-					endif
-				break // Stop if you go through the else branch
-				endif	
-			while(1)
-		sprintf recreateCmdStr, "Cmd:ImageTransform/X={%d, %d, %d, %d, 0, %d, %d, 0, %d, "+\
-		"%d, %d} extractSurface %s\nSource: %s",  Nx, Ny, C1x, C1y, C2x, C2y, C2x, C2y, nLayers, w3dNameStr, ImagePathname
-		Note savedfr:$saveWaveNameStr, recreateCmdStr
-		break
+			string saveWaveBaseNameStr = w3dNameStr + "_PPZ"
+			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 1)
+			Duplicate dfr:M_ExtractedSurface, savedfr:$saveWaveNameStr
+			if(PlotSwitch)
+				saveImageStr = targetGraphWin + "_s" + num2str(postfix)
+				NewImage/G=1/K=1/N=$saveImageStr savedfr:$saveWaveNameStr
+				ModifyGraph/W=$saveImageStr width = 330, height = 470
+				colorcnt += 1
+			endif
+
+			if(MarkLinesSwitch)
+				if(!PlotSwitch)
+					[red, green, blue] = ATH_GetColor(colorcnt)
+					colorcnt += 1
+				endif
+				DoWindow/F $WindowNameStr
+				ATH_DrawLineUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
+			endif
+			break // Stop if you go through the else branch
+			sprintf recreateCmdStr, "Cmd:ImageTransform/X={%d, %d, %d, %d, 0, %d, %d, 0, %d, "+\
+			"%d, %d} extractSurface %s\nSource: %s",  Nx, Ny, C1x, C1y, C2x, C2y, C2x, C2y, nLayers, w3dNameStr, ImagePathname
+			Note savedfr:$saveWaveNameStr, recreateCmdStr
+			break
 	endswitch
 	return 0
 End

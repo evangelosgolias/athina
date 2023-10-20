@@ -30,17 +30,6 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-/// 25032023
-/// Added to all Launchers: SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr
-/// We have to unlink the profile plot window in case the profiler and source wave are killed. That 
-/// way another launch that could associate the same Window names is not anymore possible.
-/// We will use the metadata to change Window's name after the soruce/profiler are killed
-/// 
-/// 29032023
-/// We changed the save directory to the current working directory
-/// DFREF savedfr = GetDataFolderDFR() //ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:SavedLineProfiles")
-
-
 Function ATH_MainMenuLaunchSumBeamsProfile()
 
 	string winNameStr = WinName(0, 1, 1)
@@ -80,7 +69,7 @@ Function ATH_MainMenuLaunchSumBeamsProfile()
 	return 0
 End
 
-Function ATH_TraceMenuLaunchOvalSumBeamsProfile() // Launch directly from trace meny
+Function ATH_GraphMarqueeLaunchOvalSumBeamsProfile() // Launch directly from trace meny
 	
 	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
 	string winNameStr = WinName(0, 1, 1)
@@ -123,12 +112,11 @@ Function ATH_TraceMenuLaunchOvalSumBeamsProfile() // Launch directly from trace 
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	DrawOval gATH_left, gATH_top, gATH_right, gATH_bottom
-	ImageGenerateROIMask $wnamestr
 	Cursor/I/C=(65535,0,0)/S=2/N=1/A=0 J $wnamestr 0.5 * (gATH_left + gATH_right), 0.5 * (gATH_top + gATH_bottom)
 	return 0
 End
 
-Function ATH_TraceMenuLaunchRectangleSumBeamsProfile() // Launch directly from trace meny
+Function ATH_GraphMarqueeLaunchRectangleSumBeamsProfile() // Launch directly from trace meny
 	
 	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
 	string winNameStr = WinName(0, 1, 1)
@@ -171,7 +159,6 @@ Function ATH_TraceMenuLaunchRectangleSumBeamsProfile() // Launch directly from t
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	DrawRect gATH_left, gATH_top, gATH_right, gATH_bottom
-	ImageGenerateROIMask $wnamestr
 	Cursor/I/C=(65535,0,0)/S=2/N=1/A=0 J $wnamestr 0.5 * (gATH_left + gATH_right), 0.5 * (gATH_top + gATH_bottom)
 	return 0
 End
@@ -202,6 +189,69 @@ Function ATH_BrowserMenuLaunchSumBeamsProfile() // Browser menu launcher, active
 	else
 		Abort "Z profile opearation needs only one 3d wave."
 	endif
+	return 0
+End
+
+Function ATH_TracePopupLaunchSavedROISumBeamsProfile() // Launch directly from trace meny
+	
+	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
+	string winNameStr = WinName(0, 1, 1)
+	WAVE w3dref = ImageNameToWaveRef("", wnamestr) // full path of wave
+
+	if(WaveDims(w3dref) == 3) // if it is a 3d wave
+		// When plotting waves from calculations we might have NaNs or Infs.
+		// Remove them before starting and replace them with zeros
+		Wavestats/M=1/Q w3dref
+		if(V_numNaNs || V_numInfs)
+			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
+			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
+		endif
+		ATH_InitialiseZProfileFolder()
+		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
+		ATH_InitialiseZProfileGraph(dfr)
+		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_CursorHookFunctionBeamProfile // Set the hook
+		SetWindow $winNameStr userdata(ATH_LinkedSumBeamsZPlotStr) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
+		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = "root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
+		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
+	else
+		Abort "z-profile needs a 3d wave"
+	endif	
+	DoWindow/F $winNameStr // You need to have your imange stack as a top window
+	
+	NVAR/SDFR=dfr gATH_left
+	NVAR/SDFR=dfr gATH_right
+	NVAR/SDFR=dfr gATH_top
+	NVAR/SDFR=dfr gATH_bottom
+	
+	DFREF dfrROI = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedROI")	
+	NVAR/SDFR=dfrROI gATH_Sleft
+	NVAR/SDFR=dfrROI gATH_Sright
+	NVAR/SDFR=dfrROI gATH_Stop
+	NVAR/SDFR=dfrROI gATH_Sbottom
+	NVAR/SDFR=dfrROI gATH_SrectQ
+	
+	NVAR/SDFR=dfr gATH_aXlen
+	NVAR/SDFR=dfr gATH_aYlen
+	gATH_aXlen = abs(gATH_Sleft-gATH_Sright)
+	gATH_aYlen = abs(gATH_Stop-gATH_Sbottom)		
+	NVAR/SDFR=dfr gATH_Rect
+	gATH_Rect = gATH_SrectQ
+	
+	gATH_left = gATH_Sleft
+	gATH_right = gATH_Sright
+	gATH_top = gATH_Stop
+	gATH_bottom = gATH_Sbottom
+	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
+	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+	DrawRect gATH_left, gATH_top, gATH_right, gATH_bottom
+	
+	if(gATH_Rect)
+		DrawRect gATH_left, gATH_top, gATH_right, gATH_bottom
+	else
+		DrawOval gATH_left, gATH_top, gATH_right, gATH_bottom
+	endif
+	
+	Cursor/I/C=(65535,0,0)/S=2/N=1/A=0 J $wnamestr 0.5 * (gATH_left + gATH_right), 0.5 * (gATH_top + gATH_bottom)
 	return 0
 End
 
@@ -272,103 +322,6 @@ Function ATH_InitialiseZProfileFolder()
 	return 0
 End	
 
-//Entry point
-Function ATH_DrawOvalROIAndWaitHookToAct() // Function used by the hook
-	/// Here we use ProgFront to get a mask from ImageGenerateROIMask
-	
-	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
-	string winNameStr = WinName(0, 1, 1)
-	DoWindow/F $winNameStr // You need to have your imange stack as a top window
-	GetMarquee/K left, top
-	string dfrStr = GetUserData(winNameStr, "", "ATH_SumBeamsDFRefEF")
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(dfrStr)
-	NVAR/SDFR=dfr gATH_left
-	NVAR/SDFR=dfr gATH_right
-	NVAR/SDFR=dfr gATH_top
-	NVAR/SDFR=dfr gATH_bottom
-	gATH_left = V_left
-	gATH_right = V_right
-	gATH_top = V_top
-	gATH_bottom = V_bottom
-	NVAR/SDFR=dfr gATH_aXlen
-	NVAR/SDFR=dfr gATH_aYlen
-	gATH_aXlen = abs(V_left-V_right)
-	gATH_aYlen = abs(V_top-V_bottom)		
-	NVAR/SDFR=dfr gATH_Rect
-	gATH_Rect = 0
-	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
-	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	DrawOval gATH_left, gATH_top, gATH_right, gATH_bottom
-	ImageGenerateROIMask $wnamestr
-	Cursor/I/C=(65535,0,0)/S=2/N=1/A=0 J $wnamestr 0.5 * (gATH_left + gATH_right), 0.5 * (gATH_top + gATH_bottom)
-	return 0
-End
-
-//Entry point
-Function ATH_DrawRectROIAndWaitHookToAct() // Function used by the hook
-	/// Here we use ProgFront to get a mask from ImageGenerateROIMask
-	
-	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
-	string winNameStr = WinName(0, 1, 1)
-	DoWindow/F $winNameStr // You need to have your imange stack as a top window
-	GetMarquee/K left, top
-	string dfrStr = GetUserData(winNameStr, "", "ATH_SumBeamsDFRefEF")
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(dfrStr)
-	NVAR/SDFR=dfr gATH_left
-	NVAR/SDFR=dfr gATH_right
-	NVAR/SDFR=dfr gATH_top
-	NVAR/SDFR=dfr gATH_bottom
-	gATH_left = V_left
-	gATH_right = V_right
-	gATH_top = V_top
-	gATH_bottom = V_bottom
-	NVAR/SDFR=dfr gATH_aXlen
-	NVAR/SDFR=dfr gATH_aYlen
-	gATH_aXlen = abs(V_left-V_right)
-	gATH_aYlen = abs(V_top-V_bottom)	
-	NVAR/SDFR=dfr gATH_Rect
-	gATH_Rect = 1
-	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
-	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	DrawRect gATH_left, gATH_top, gATH_right, gATH_bottom
-	ImageGenerateROIMask $wnamestr
-	Cursor/I/C=(65535,0,0)/S=2/N=1/A=0 J $wnamestr 0.5 * (gATH_left + gATH_right), 0.5 * (gATH_top + gATH_bottom)
-	return 0
-End
-
-Function ATH_UseSavedROIAndWaitHookToAct()
-	
-	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
-	string winNameStr = WinName(0, 1, 1)
-	DoWindow/F $winNameStr // You need to have your imange stack as a top window
-	string dfrStr = GetUserData(winNameStr, "", "ATH_SumBeamsDFRefEF")
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(dfrStr)
-	NVAR/SDFR=dfr gATH_left
-	NVAR/SDFR=dfr gATH_right
-	NVAR/SDFR=dfr gATH_top
-	NVAR/SDFR=dfr gATH_bottom
-	// Read the data from the
-	DFREF dfrROI = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedROI")
-	NVAR/Z/SDFR=dfrROI gATH_Sleft
-	if(!NVAR_Exists(gATH_Sleft))
-		Abort "No Saved ROI found!"
-	endif
-	NVAR/SDFR=dfrROI gATH_Sleft
-	NVAR/SDFR=dfrROI gATH_Sright
-	NVAR/SDFR=dfrROI gATH_Stop
-	NVAR/SDFR=dfrROI gATH_Sbottom
-	gATH_left = gATH_Sleft
-	gATH_right = gATH_Sright
-	gATH_top = gATH_Stop
-	gATH_bottom = gATH_Sbottom
-	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
-	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	DrawRect gATH_left, gATH_top, gATH_right, gATH_bottom
-	ImageGenerateROIMask $wnamestr
-	Cursor/I/C=(65535,0,0)/S=2/N=1/A=0 J $wnamestr 0.5 * (gATH_left + gATH_right), 0.5 * (gATH_top + gATH_bottom)
-	return 0
-	
-End
 Function ATH_SumBeamsDrawOvalImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
 	// Use ATH_SumBeamsDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
 	SetDrawLayer UserFront 
@@ -413,8 +366,9 @@ Function ATH_InitialiseZProfileGraph(DFREF dfr)
 		Label bottom "\\u#2 Energy (eV)"
 		ControlBar 40
 		Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=ATH_SaveSumBeamsProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
-		CheckBox ShowProfile, pos={130.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_SumBeamsProfilePlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
-		CheckBox ShowSelectedAread, pos={250.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
+		Button SetScaleZaxis, pos={125.00,10.00}, size={90.00,20.00}, proc=ATH_SetScaleSumBeamsProfileButton, title="Set scale", help={"Set abscissas range"}, valueColor=(1,12815,52428)
+		CheckBox ShowProfile, pos={230.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_SumBeamsProfilePlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
+		CheckBox ShowSelectedAread, pos={340,12.00}, side=1, size={70.00,16.00}, proc=ATH_SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
 
 		SetWindow $profilePlotStr userdata(ATH_rootdfrSumBeamsStr) = rootFolderStr // pass the dfr to the button controls
 		SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + gATH_WindowNameStr
@@ -459,10 +413,6 @@ Function ATH_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 	SetDrawLayer/W=$WindowNameStr ProgFront // We need it for ImageGenerateROIMask
 	variable rs, re, cs, ce // MatrixOP
 	switch(s.eventCode)
-		case 0: //activate window rescales the profile to the layer scale of the 3d wave
-			SetScale/P x, DimOffset(w3d,2), DimDelta(w3d,2), profile // TODO: Change this, I do not like it.
-			hookresult = 1
-			break
 		case 2: // Kill the window
 			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedSumBeamsZPlotStr"))
 			if(WinType(GetUserData(s.winName, "", "ATH_targetGraphWin")) == 1)
@@ -513,7 +463,7 @@ Function ATH_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 				re = (gATH_right > xLast) ? gATH_Nx :  ScaleToIndex(w3d, gATH_right, 0)
 				cs = (gATH_bottom < yOff)  ? 0  :  ScaleToIndex(w3d, gATH_bottom, 1)
 				ce = (gATH_top > yLast)   ? gATH_Ny :  ScaleToIndex(w3d, gATH_top, 1)
-				MatrixOP/O/NTHR=0 profile = sum(subrange(w3d, rs, re, cs, ce))
+				MatrixOP/S/O/NTHR=0 profile = sum(subrange(w3d, rs, re, cs, ce))
 				Redimension/E=1/N=(nLayers) profile
 				//	Debug:
 				//		    		print "Left:", gATH_left, ",Right:",gATH_right, ",Top:", gATH_top, ",Bottom:", gATH_bottom
@@ -577,7 +527,7 @@ Function ATH_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonC
 	NVAR/Z DoPlotSwitch = dfr:gATH_DoPlotSwitch
 	NVAR/Z MarkAreasSwitch = dfr:gATH_MarkAreasSwitch
 	NVAR/Z colorcnt = dfr:gATH_colorcnt
-	
+
 	NVAR/SDFR=dfr gATH_left
 	NVAR/SDFR=dfr gATH_right
 	NVAR/SDFR=dfr gATH_top
@@ -585,63 +535,80 @@ Function ATH_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonC
 	NVAR/SDFR=dfr gATH_Rect
 	string recreateDrawStr
 	DFREF savedfr = GetDataFolderDFR() // ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:SavedZProfiles")
-	
-	variable postfix = 0
 	variable red, green, blue
 	switch(B_Struct.eventCode)	// numeric switch
-		case 2:	// "mouse up after mouse down"
-			do
-				string saveWaveNameStr = w3dNameStr + "_prof" + num2str(postfix) // deal here with liberal name
-				//WAVE/Z waveRefToSave = $saveWaveNameStr // Some operation like Duplicate need a wref insted of a $("literalNameStr")
-				if(WaveExists(savedfr:$saveWaveNameStr) == 1)
-					postfix++
+		case 2:	// "mouse up after mouse down" // FIX THIS
+			string saveWaveBaseNameStr = w3dNameStr + "_Zprof"
+			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 1)
+			Duplicate dfr:$LineProfileWaveStr, savedfr:$saveWaveNameStr // here waveRef is needed instead of $saveWaveNameStr
+			if(DoPlotSwitch)
+				if(WinType(targetGraphWin) == 1)
+					AppendToGraph/W=$targetGraphWin savedfr:$saveWaveNameStr
+					[red, green, blue] = ATH_GetColor(colorcnt)
+					Modifygraph/W=$targetGraphWin rgb($PossiblyQuoteName(saveWaveNameStr)) = (red, green, blue)
+					colorcnt += 1 // i++ does not work with globals?
 				else
-					Duplicate dfr:$LineProfileWaveStr, savedfr:$saveWaveNameStr // here waveRef is needed instead of $saveWaveNameStr
-					if(DoPlotSwitch)
-						if(WinType(targetGraphWin) == 1)
-							AppendToGraph/W=$targetGraphWin savedfr:$saveWaveNameStr
-							[red, green, blue] = ATH_GetColor(colorcnt)
-							Modifygraph/W=$targetGraphWin rgb($PossiblyQuoteName(saveWaveNameStr)) = (red, green, blue)
-							colorcnt += 1 // i++ does not work with globals?
-						else
-							Display/N=$targetGraphWin savedfr:$saveWaveNameStr // Do not kill the graph windows, user might want to save the profiles
-							[red, green, blue] = ATH_GetColor(colorcnt)
-							Modifygraph/W=$targetGraphWin rgb($PossiblyQuoteName(saveWaveNameStr)) = (red, green, blue)
-							AutopositionWindow/M=1/R=$B_Struct.win $targetGraphWin
-							DoWindow/F $targetGraphWin
-							colorcnt += 1
-						endif
-					endif
-					
-					if(MarkAreasSwitch)
-						if(!DoPlotSwitch)
-							[red, green, blue] = ATH_GetColor(colorcnt)
-							colorcnt += 1
-						endif
-						DoWindow/F $WindowNameStr
-						if(gATH_Rect)
-							ATH_SumBeamsDrawRectImageROI(gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
-						else
-							ATH_SumBeamsDrawOvalImageROI(gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
-						endif
-					endif
-				break // Stop if you go through the else branch
+					Display/N=$targetGraphWin savedfr:$saveWaveNameStr // Do not kill the graph windows, user might want to save the profiles
+					[red, green, blue] = ATH_GetColor(colorcnt)
+					Modifygraph/W=$targetGraphWin rgb($PossiblyQuoteName(saveWaveNameStr)) = (red, green, blue)
+					AutopositionWindow/M=1/R=$B_Struct.win $targetGraphWin
+					DoWindow/F $targetGraphWin
+					colorcnt += 1
 				endif
-			while(1)
-			if(gATH_Rect)
-				sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
-								 "DrawCmd:DrawRect %f, %f, %f, %f", w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
-			else
-				sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
-								 "DrawCmd:DrawOval %f, %f, %f, %f", w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
 			endif
 
-		Note savedfr:$saveWaveNameStr, recreateDrawStr
-		break
+			if(MarkAreasSwitch)
+				if(!DoPlotSwitch)
+					[red, green, blue] = ATH_GetColor(colorcnt)
+					colorcnt += 1
+				endif
+				DoWindow/F $WindowNameStr
+				if(gATH_Rect)
+					ATH_SumBeamsDrawRectImageROI(gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+				else
+					ATH_SumBeamsDrawOvalImageROI(gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+				endif
+			endif
+			break // Stop if you go through the else branch
+			if(gATH_Rect)
+				sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
+				"DrawCmd:DrawRect %f, %f, %f, %f", w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
+			else
+				sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
+				"DrawCmd:DrawOval %f, %f, %f, %f", w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
+			endif
+
+			Note savedfr:$saveWaveNameStr, recreateDrawStr
+			break
 	endswitch
 	return 0
 End
 
+Function ATH_SetScaleSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrSumBeamsStr"))
+	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
+	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
+	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			string rangeZStr, sval1, separator, sval2
+			Prompt rangeZStr, "Set scale are \"x0-xn\" or \"x0,dx\""
+			DoPrompt "Set x-axis range (z scale of wave does not change)", rangeZStr
+			if(!V_flag && strlen(rangeZStr))
+				SplitString/E="\s*([-]?[0-9]*[.]?[0-9]+)\s*(-|,)\s*([-]?[0-9]*[.]?[0-9]+)\s*" rangeZStr, sval1, separator, sval2
+				if(!cmpstr(separator, "-"))
+					SetScale/I x, str2num(sval1), str2num(sval2), profile
+				elseif(!cmpstr(separator, ","))
+					print sval1, separator, sval2
+					SetScale/P x, str2num(sval1), str2num(sval2), profile
+				else
+					print "Invalid range input"
+				endif
+			endif
+			break
+	endswitch
+	return 0
+End
 
 Function ATH_SumBeamsProfilePlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 

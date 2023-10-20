@@ -406,53 +406,47 @@ Function ATH_LineProfilePlotSaveProfile(STRUCT WMButtonAction &B_Struct): Button
 	NVAR/Z colorcnt = dfr:gATH_colorcnt
 	string recreateDrawStr
 	DFREF savedfr = GetDataFolderDFR() //ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:SavedLineProfiles")
-	
+
 	variable postfix = 0
 	variable red, green, blue
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			do
-				// My version of CreateDataObjectName!
-				string saveWaveNameStr = w3dNameStr + "_prof" + num2str(postfix)
-				if(WaveExists(savedfr:$saveWaveNameStr) == 1)
-					postfix++
+			string saveWaveBaseNameStr = w3dNameStr + "_Lprof"
+			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 1)
+			Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
+			variable xRange = W_LineProfileDisplacement[DimSize(W_LineProfileDisplacement,0)-1] - W_LineProfileDisplacement[0]
+			SetScale/I x, 0, xRange, savedfr:$saveWaveNameStr
+			if(PlotSwitch)
+				if(WinType(targetGraphWin) == 1)
+					AppendToGraph/W=$targetGraphWin savedfr:$saveWaveNameStr
+					[red, green, blue] = ATH_GetColor(colorcnt)
+					Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
+					colorcnt += 1 // i++ does not work with globals?
 				else
-					Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
-					variable xRange = W_LineProfileDisplacement[DimSize(W_LineProfileDisplacement,0)-1] - W_LineProfileDisplacement[0]
-					SetScale/I x, 0, xRange, savedfr:$saveWaveNameStr
-					if(PlotSwitch)
-						if(WinType(targetGraphWin) == 1)
-							AppendToGraph/W=$targetGraphWin savedfr:$saveWaveNameStr
-							[red, green, blue] = ATH_GetColor(colorcnt)
-							Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
-							colorcnt += 1 // i++ does not work with globals?
-						else
-							Display/N=$targetGraphWin savedfr:$saveWaveNameStr // Do not kill the graph windows, user might want to save the profiles
-							[red, green, blue] = ATH_GetColor(colorcnt)
-							Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
-							AutopositionWindow/R=$B_Struct.win $targetGraphWin
-							DoWindow/F $targetGraphWin
-							colorcnt += 1
-						endif
-					endif
-					
-					if(MarkLinesSwitch)
-						if(!PlotSwitch)
-							[red, green, blue] = ATH_GetColor(colorcnt)
-							colorcnt += 1
-						endif
-						DoWindow/F $WindowNameStr
-						ATH_DrawLineUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
-					endif
-				break // Stop if you go through the else branch
-				endif	
-			while(1)
-		sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left;" + \
-								 "DrawCmd:DrawLine %f, %f, %f, %f;ProfileCmd:Make/O/N=2 xTrace={%f, %f}, yTrace = {%f, %f}\nImageLineProfile/P=(%d) srcWave=%s," +\
-								 "xWave=xTrace, yWave=yTrace, width = %f\nDisplay/K=1 W_ImageLineProfile vs W_LineProfileDisplacement" + \
-								 "", ImagePathname, red, green, blue, C1x, C1y, C2x, C2y, C1x, C2x, C1y, C2y, selectedLayer, ImagePathname, profileWidth
-		Note savedfr:$saveWaveNameStr, recreateDrawStr
-		break
+					Display/N=$targetGraphWin savedfr:$saveWaveNameStr // Do not kill the graph windows, user might want to save the profiles
+					[red, green, blue] = ATH_GetColor(colorcnt)
+					Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
+					AutopositionWindow/R=$B_Struct.win $targetGraphWin
+					DoWindow/F $targetGraphWin
+					colorcnt += 1
+				endif
+			endif
+
+			if(MarkLinesSwitch)
+				if(!PlotSwitch)
+					[red, green, blue] = ATH_GetColor(colorcnt)
+					colorcnt += 1
+				endif
+				DoWindow/F $WindowNameStr
+				ATH_DrawLineUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
+			endif
+			break // Stop if you go through the else branch
+			sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left;" + \
+			"DrawCmd:DrawLine %f, %f, %f, %f;ProfileCmd:Make/O/N=2 xTrace={%f, %f}, yTrace = {%f, %f}\nImageLineProfile/P=(%d) srcWave=%s," +\
+			"xWave=xTrace, yWave=yTrace, width = %f\nDisplay/K=1 W_ImageLineProfile vs W_LineProfileDisplacement" + \
+			"", ImagePathname, red, green, blue, C1x, C1y, C2x, C2y, C1x, C2x, C1y, C2y, selectedLayer, ImagePathname, profileWidth
+			Note savedfr:$saveWaveNameStr, recreateDrawStr
+			break
 	endswitch
 	return 0
 End
