@@ -412,7 +412,7 @@ Function ATH_LineProfilePlotSaveProfile(STRUCT WMButtonAction &B_Struct): Button
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			string saveWaveBaseNameStr = w3dNameStr + "_Lprof"
-			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 1)
+			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 5)
 			Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
 			variable xRange = W_LineProfileDisplacement[DimSize(W_LineProfileDisplacement,0)-1] - W_LineProfileDisplacement[0]
 			SetScale/I x, 0, xRange, savedfr:$saveWaveNameStr

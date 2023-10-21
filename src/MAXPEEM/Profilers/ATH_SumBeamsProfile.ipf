@@ -1,5 +1,4 @@
-﻿
-#pragma TextEncoding = "UTF-8"
+﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals    = 3		
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
@@ -539,7 +538,7 @@ Function ATH_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonC
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down" // FIX THIS
 			string saveWaveBaseNameStr = w3dNameStr + "_Zprof"
-			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 1)
+			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 5)
 			Duplicate dfr:$LineProfileWaveStr, savedfr:$saveWaveNameStr // here waveRef is needed instead of $saveWaveNameStr
 			if(DoPlotSwitch)
 				if(WinType(targetGraphWin) == 1)

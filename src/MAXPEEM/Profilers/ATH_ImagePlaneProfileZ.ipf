@@ -544,7 +544,7 @@ Function ATH_ImagePlaneProfileZButtonSaveProfile(STRUCT WMButtonAction &B_Struct
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			string saveWaveBaseNameStr = w3dNameStr + "_PPZ"
-			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 1)
+			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 5)
 			Duplicate dfr:M_ExtractedSurface, savedfr:$saveWaveNameStr
 			if(PlotSwitch)
 				saveImageStr = targetGraphWin + "_s" + num2str(postfix)
