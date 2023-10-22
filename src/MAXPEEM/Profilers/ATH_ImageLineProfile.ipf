@@ -642,4 +642,3 @@ Function ATH_LineProfilePlotSetVariableWidth(STRUCT WMSetVariableAction& sv) : S
 	return 0
 End
 
-

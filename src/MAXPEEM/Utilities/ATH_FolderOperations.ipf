@@ -68,23 +68,28 @@ Function ATH_ZapAllDataFoldersInPath(string path)
 	SetDataFolder saveDF 
 End
 
-Function/DF ATH_CreateDataFolderGetDFREF(string fullpath) // Cornerstone function
-	/// Create a data folder using fullpath and return a DF reference. 
-	/// If parent directories do not exist they will be created.
-	
+Function/DF ATH_CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cornerstone function
+	/// Create a data folder using fullpath and return a DF reference.
+	/// If parent directories do not exist they are created.
+	/// SetDF set the cwd to fullpath if set.
+
+	setDF = ParamIsDefault(setDF) ? 0 : setDF
 	// First take care of liberal names in path string. eg root:A folder will become root:'A folder'.
 	variable steps = ItemsInlist(ParseFilePath(2, fullpath, ":", 0, 0), ":"), i // ParseFilePath adds missing : at the end.
 	string correctFullPath = ""
 	for(i = 0; i < steps ; i++) // i = 0 & steps return NULL string
 		correctFullPath += PossiblyQuoteName(ParseFilePath(0, fullpath, ":", 0, i)) + ":"
 	endfor
-	
-	// If the directory exists, avoid all the trouble	
+
+	// If the directory exists
 	if(DataFolderExists(ParseFilePath(2, correctFullPath, ":", 0, 0))) // ":" at the end needed to function properly
 		DFREF dfr = $correctFullPath
+		if (setDF)
+			SetDataFolder dfr
+		endif
 		return dfr
-	endif 
-	
+	endif
+
 	/// Create a list of missing paths, parents first.
 	string fldrs = "", fldrstr
 	for(i = 1; i < steps ; i++) // i = 0 & steps return NULL string
@@ -99,8 +104,11 @@ Function/DF ATH_CreateDataFolderGetDFREF(string fullpath) // Cornerstone functio
 			NewDataFolder/O $RemoveEnding(fldrstr) // Here the last ":" pops an error
 		endif
 	endfor
-	
+
 	DFREF dfr = $correctFullPath
+	if (setDF)
+		SetDataFolder dfr
+	endif
 	return dfr
 End
 
