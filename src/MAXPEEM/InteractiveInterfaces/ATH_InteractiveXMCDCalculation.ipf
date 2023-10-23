@@ -170,21 +170,21 @@ Function ATH_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 		case 11:					// Keyboard event
 			switch (s.keycode)
 				case 28: //left arrow
-					ImageInterpolate/FUNC=bilinear/TRNS={scaleShift, -gATH_driftStep, 1, 0, 1}/DEST=dfr:M_InterpolatedImage Resample wImg2
-					WAVE/SDFR=dfr M_InterpolatedImage
-					Duplicate/O M_InterpolatedImage, wImg2
+					ImageInterpolate/APRM={1,0,-gATH_driftStep,0,1,0,1,0}/DEST=dfr:M_Affine Affine2D wImg2
+					WAVE/SDFR=dfr M_Affine
+					Duplicate/O M_Affine, wImg2
 					hookResult = 1
 					break
 				case 29: //right arrow
-					ImageInterpolate/FUNC=bilinear/TRNS={scaleShift, gATH_driftStep, 1, 0, 1}/DEST=dfr:M_InterpolatedImage Resample wImg2
-					WAVE/SDFR=dfr M_InterpolatedImage
-					Duplicate/O M_InterpolatedImage, wImg2
+					ImageInterpolate/APRM={1,0,gATH_driftStep,0,1,0,1,0}/DEST=dfr:M_Affine Affine2D wImg2
+					WAVE/SDFR=dfr M_Affine
+					Duplicate/O M_Affine, wImg2
 					hookResult = 1
 					break
 				case 30: // up arrow
-					ImageInterpolate/FUNC=bilinear/TRNS={scaleShift, 0, 1, -gATH_driftStep, 1}/DEST=dfr:M_InterpolatedImage Resample wImg2
-					WAVE/SDFR=dfr M_InterpolatedImage
-					Duplicate/O M_InterpolatedImage, wImg2
+					ImageInterpolate/APRM={1,0,0,0,1,-gATH_driftStep,1,0}/DEST=dfr:M_Affine Affine2D wImg2
+					WAVE/SDFR=dfr M_Affine
+					Duplicate/O M_Affine, wImg2
 					hookResult = 1
 					break
 				case 31: // down arrow

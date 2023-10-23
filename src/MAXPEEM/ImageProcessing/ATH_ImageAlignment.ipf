@@ -127,9 +127,7 @@ Function ATH_ImageStackAlignmentByRegistration(WAVE w3d, [variable layerN,
 				MatrixOP/O $("getStacklayer_" + num2str(i)) = layer(wRefCopy, i)
 			else
 				MatrixOP/O targetLayer = layer(wRefCopy, i)
-				ImageInterpolate/FUNC=bilinear/TRNS={scaleShift, dx, 1, dy, 1} Resample targetLayer
-				WAVE M_InterpolatedImage
-				Rename M_InterpolatedImage, $("getStacklayer_" + num2str(i))
+				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i)) Affine2D targetLayer
 			endif
 		endfor
 		ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
@@ -329,7 +327,7 @@ Function ATH_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 			MatrixOP/O $("getStacklayer_" + num2str(i)) = layer(w3d, i) // Scaled in pixels!
 		else
 			MatrixOP/O getLayer = layer(w3d, i) // Scaled in pixels!
-			ImageInterpolate/FUNC=bilinear/TRNS={scaleShift, dx[i], 1, dy[i], 1}/DEST=$("getStacklayer_" + num2str(i)) Resample getLayer
+				ImageInterpolate/APRM={1,0,dx[i],0,1,dy[i],1,0}/DEST=$("getStacklayer_" + num2str(i)) Affine2D getLayer
 		endif
 		if(printMode)
 			if(dx[i] == 0 && dy[i] == 0)
@@ -565,7 +563,7 @@ Function ATH_LinearDriftCorrectionUsingABCursors(WAVE w3d, WAVE wx, WAVE wy)
 		dx = wx[i]
 		dy = wy[i]
 		MatrixOP/O/FREE targetLayer = layer(w3d, i)
-		ImageInterpolate/FUNC=bilinear/TRNS={scaleShift, dx, 1, dy, 1}/DEST=$("getStacklayer_" + num2str(i)) Resample targetLayer
+		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i)) Affine2D targetLayer
 	endfor
 
 	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
