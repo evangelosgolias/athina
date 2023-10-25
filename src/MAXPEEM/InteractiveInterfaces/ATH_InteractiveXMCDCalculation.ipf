@@ -231,7 +231,7 @@ Function ATH_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 				 note2WaveStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " \
 				+ wName1Str + "\nimg2: " + wName2Str
 			endif
-			saveWaveNameStr = CreatedataObjectName(currDF, "iXMCD", 1, 0, 0)			
+			saveWaveNameStr = CreatedataObjectName(currDF, "iXMCD", 1, 0, 1)			
 			Duplicate wXMCD, $saveWaveNameStr
 			Note/K $saveWaveNameStr, note2WaveStr
 			//Copy the interpolated wave
