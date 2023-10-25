@@ -597,7 +597,6 @@ Function ATH_SetScaleSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): But
 				if(!cmpstr(separator, "-"))
 					SetScale/I x, str2num(sval1), str2num(sval2), profile
 				elseif(!cmpstr(separator, ","))
-					print sval1, separator, sval2
 					SetScale/P x, str2num(sval1), str2num(sval2), profile
 				else
 					print "Invalid range input"

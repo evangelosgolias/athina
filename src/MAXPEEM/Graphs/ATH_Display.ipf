@@ -36,6 +36,8 @@ static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
 Function ATH_DisplayImage(WAVE wRef)
 	// Display an image or stack
 	NewImage/G=1/K=1 wRef
+	string windowNameStr = GetWavesDataFolder(wRef, 2)[5, inf] // Discrard root:
+	DoWindow/T kwTopWin, windowNameStr
 	// Copy from ATH_AutoRangeTopImagePerPlaneAndVisibleArea()
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
 	string colorScaleStr
