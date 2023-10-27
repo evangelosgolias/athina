@@ -64,7 +64,7 @@ Function ATH_GenericSingleVarPrompt(string strPrompt, string msgDialog)
 	Prompt returnVar, strPrompt
 	DoPrompt msgDialog, returnVar
 	if(V_flag)
-		return 1
+		return -1
 	endif
 	return returnVar
 End

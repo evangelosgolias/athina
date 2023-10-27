@@ -718,7 +718,20 @@ End
 
 Function ATH_LaunchImageRemoveBackground()
 	WAVE wRef = ATH_TopImageToWaveRef()
-	ATH_ImageRemoveBackground(wRef)
+	variable order = 1
+	Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
+	DoPrompt "Background subtraction ", order
+	order = trunc(order)
+	if(V_flag || order < 1 || order > 12)
+		return -1
+	endif
+	
+	if(ATH_IsWM3DAxisActiveQ("")) // Do we have active axis in top window?
+		variable layerN = ATH_GetCurrentPlaneWM3DAxis("")
+		ATH_ImageRemoveBackground(wRef, order = order, layerN = layerN)
+	else
+		ATH_ImageRemoveBackground(wRef, order = order)
+	endif
 End
 
 Function ATH_LaunchRotate3DWaveAxes()
@@ -769,7 +782,7 @@ Function ATH_LaunchImageRotateAndScaleFromMetadata()
 	
 	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	variable angle = NumberByKey("FOVRot(deg)", note(wRef), ":", "\n")
-	ATH_ImageBackupRotateAndScale(wRef, angle)
+	ATH_ImageBackupRotateAndScale(wRef, -angle)
 End
 
 

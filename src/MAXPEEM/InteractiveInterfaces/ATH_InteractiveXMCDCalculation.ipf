@@ -235,7 +235,7 @@ Function ATH_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 			Duplicate wXMCD, $saveWaveNameStr
 			Note/K $saveWaveNameStr, note2WaveStr
 			//Copy the interpolated wave
-			backupWaveNameStr = NameofWave($wName2Str) + "_iDrift_undo"
+			backupWaveNameStr = NameofWave($wName2Str) + "_undo"
 //			if(WaveExists($basenameStr))
 //				backupWaveNameStr = CreatedataObjectName(currDF, basenameStr, 1, 0, 1)
 //			else

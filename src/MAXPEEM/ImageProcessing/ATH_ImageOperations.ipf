@@ -643,7 +643,38 @@ Function ATH_RGBToGrayImage(WAVE wRef)
 	return 0
 End
 
-Function ATH_ImageRemoveBackground(WAVE wRef, [variable order])
+Function ATH_ImageRemoveBackground(WAVE wRef, [variable order, WAVE wMask, variable layerN])
+	// Remove background of an image (default 1st order)
+	// Use order = n, n > 1 for higher order polynomial
+	// Use overwite = 1 to overwite the original wave
+	order = ParamIsDefault(order) ? 1: order
+	layerN = ParamIsDefault(layerN) ? 0: layerN
+	variable nrows, ncols
+	nrows = DimSize(wRef,0)
+	ncols = DimSize(wRef,1)
+	
+	if(ParamIsDefault(wMask)) // Reserved for arbitrary masks
+		Make/O/FREE/N=(nrows,ncols)/B/U maskWFree = 1
+	endif
+	
+	if(WaveType(wRef) & 0x02) // We need a 32-bit float for better results
+		Redimension/S wRef
+	endif
+	if(WaveDims(wRef) == 3)
+		// Code to replace plane in 3d wave
+		MatrixOP/FREE getLayer = layer(wRef, layerN)
+		ImageRemoveBackground/O/R=maskWFree/P=(order) getLayer
+		ImageTransform/O/P=(layerN) removeZplane wRef
+		ImageTransform/O/INSW=getLayer/P=(layerN) insertZplane wRef
+	elseif(WaveDims(wRef) == 2)
+		ImageRemoveBackground/O/R=maskWFree/P=(order) wRef
+		return 0
+	else
+		return 1
+	endif
+End
+
+Function ATH_ImageRemoveBackgroundOriginal(WAVE wRef, [variable order])
 	// Remove background of an image (default 1st order)
 	// Use order = n, n > 1 for higher order polynomial
 	// Use overwite = 1 to overwite the original wave
@@ -652,7 +683,10 @@ Function ATH_ImageRemoveBackground(WAVE wRef, [variable order])
 	nrows = DimSize(wRef,0)
 	ncols = DimSize(wRef,1)
 	Make/O/FREE/N=(nrows,ncols)/B/U maskWFree = 1
-	ImageRemoveBackground/O/R=maskWFree/P=(order) wRef
+	if(WaveType(wRef) & 0x02) // We need a 32-bit float for better results
+		Redimension/S wRef
+	endif
+	ImageRemoveBackground/R=maskWFree/P=(order) wRef
 	return 0
 End
 
