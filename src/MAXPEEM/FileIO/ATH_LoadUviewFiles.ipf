@@ -228,6 +228,8 @@ Function/WAVE ATH_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
+	string mdatastr = ""
+	
 	if(!skipmetadata)
 		timestamp = ATHImageHeader.imagetime.LONG[0]+2^32 * ATHImageHeader.imagetime.LONG[1]
 		timestamp *= 1e-7 // t_i converted from 100ns to s
@@ -235,7 +237,7 @@ Function/WAVE ATH_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 		// If UView can fill the metadata in ATHFileHeader.size then ATHImageHeader.LEEMdataVersion==0, no need to allocate more space. 
 		// NB: Added on 23.05.2023.
 		variable metadataStart = ATHImageHeader.LEEMdataVersion <= 2 ? ATHFileHeader.size: (ATHFileHeader.size + ImageHeaderSize)
-		string mdatastr = filepathStr + "\n"		
+		mdatastr = filepathStr + "\n"		
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
 		if(binX != 1 || binY != 1)
 			mdatastr += "Binning: (" + num2str(binX) + ", " + num2str(binY) + ")\n"
@@ -360,6 +362,8 @@ Function ATH_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
+	string mdatastr = ""
+	
 	if(!skipmetadata)
 		timestamp = ATHImageHeader.imagetime.LONG[0]+2^32 * ATHImageHeader.imagetime.LONG[1]
 		timestamp *= 1e-7 // t_i converted from 100ns to s
@@ -367,7 +371,7 @@ Function ATH_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 		// If UView can fill the metadata in ATHFileHeader.size then ATHImageHeader.LEEMdataVersion==0, no need to allocate more space. 
 		// NB: Added on 23.05.2023.
 		variable metadataStart = ATHImageHeader.LEEMdataVersion <= 2 ? ATHFileHeader.size: (ATHFileHeader.size + ImageHeaderSize)
-		string mdatastr = filepathStr + "\n"		
+		mdatastr = filepathStr + "\n"		
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
 		if(binX != 1 || binY != 1)
 			mdatastr += "Binning: (" + num2str(binX) + ", " + num2str(binY) + ")\n"
@@ -643,7 +647,6 @@ Function/S ATH_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 			endif
 		elseif(buffer == 105)
 			FReadLine/T=(num2char(0)) numRef, strbuffer // drop title
-			print strbuffer
 		elseif(buffer == 106) // C1G1 - MCH
 			FReadLine/T=(num2char(0)) numRef, strbuffer 
 			ATHMetaDataStr += "MCH" // MAXPEEM naming conversion
