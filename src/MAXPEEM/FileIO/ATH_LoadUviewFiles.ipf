@@ -243,23 +243,21 @@ Function/WAVE ATH_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 			mdatastr += "Binning: (" + num2str(binX) + ", " + num2str(binY) + ")\n"
 		endif			
 		mdatastr += ATH_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
-	endif
-	
-	// Add image markups if any
-	if(ATHImageHeader.attachedMarkupSize)
-		mdatastr += ATH_StrGetImageMarkups(filepathStr)
+		if(ATHImageHeader.attachedMarkupSize)// Add image markups if any
+			mdatastr += ATH_StrGetImageMarkups(filepathStr)
+		endif
+		if(autoScale)
+			variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
+			imgScaleVar = (numtype(imgScaleVar) == 2)? 0: imgScaleVar // NB: Added on 23.05.2023
+			SetScale/I x, 0, imgScaleVar, datWave
+			SetScale/I y, 0, imgScaleVar, datWave
+		endif			
 	endif
 	
 	if(strlen(mdatastr)) // Added to allow ATH_LoadDATFilesFromFolder function to skip Note/K without error
 		Note/K datWave, mdatastr
 	endif
 	
-	if(autoScale && !skipmetadata)
-		variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
-		imgScaleVar = (numtype(imgScaleVar) == 2)? 0: imgScaleVar // NB Added 23.05.2023
-		SetScale/I x, 0, imgScaleVar, datWave
-		SetScale/I y, 0, imgScaleVar, datWave
-	endif
 	return datWave
 End
 
@@ -375,24 +373,23 @@ Function ATH_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 		mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
 		if(binX != 1 || binY != 1)
 			mdatastr += "Binning: (" + num2str(binX) + ", " + num2str(binY) + ")\n"
-		endif			
+		endif	
 		mdatastr += ATH_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
+		if(ATHImageHeader.attachedMarkupSize)// Add image markups if any
+			mdatastr += ATH_StrGetImageMarkups(filepathStr)
+		endif
+		if(autoScale)
+			variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
+			imgScaleVar = (numtype(imgScaleVar) == 2)? 0: imgScaleVar // NB: Added on 23.05.2023
+			SetScale/I x, 0, imgScaleVar, datWave
+			SetScale/I y, 0, imgScaleVar, datWave
+		endif	
 	endif
-	
-	// Add image markups if any
-	if(ATHImageHeader.attachedMarkupSize)
-		mdatastr += ATH_StrGetImageMarkups(filepathStr)
-	endif
+
 	if(strlen(mdatastr)) // Added to allow ATH_LoadDATFilesFromFolder function to skip Note/K without error
 		Note/K datWave, mdatastr
 	endif
 	
-	if(autoScale && !skipmetadata)
-		variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
-		imgScaleVar = (numtype(imgScaleVar) == 2)? 0: imgScaleVar // NB: Added on 23.05.2023
-		SetScale/I x, 0, imgScaleVar, datWave
-		SetScale/I y, 0, imgScaleVar, datWave
-	endif
 	return 0
 End
 
@@ -511,6 +508,9 @@ Function ATH_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 				SetScale/I x, 0, fovScale, datWave
 				SetScale/I y, 0, fovScale, datWave
 			endif
+			if(ATHImageHeader.attachedMarkupSize)// Add image markups if any
+				mdatastr += ATH_StrGetImageMarkups(filepathStr)
+			endif	
 		endif
 		// when you stack, skip metadata but scale the x, y dimensions of the 3d wave. 
 		// if(stack3d) branch at the end.
@@ -521,10 +521,7 @@ Function ATH_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 			fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
 			readMetadataOnce = 0
 		endif
-		// Add image markups if any
-		if(ATHImageHeader.attachedMarkupSize)
-			mdatastr += ATH_StrGetImageMarkups(filepathStr)
-		endif
+
 		if(strlen(mdatastr)) // Added to allow ATH_LoadDATFilesFromFolder function to skip Note/K without error
 			Note/K datWave, mdatastr
 		endif
