@@ -507,7 +507,7 @@ End
 Function ATH_ExtractLayerRangeToStack(WAVE w3d, variable NP0, variable NP1)
 	/// Average image range NP0-NP1, including endpoints
 	variable  nlayers = DimSize(w3d, 2), i
-	if(NP1 > nlayers - 1 || NP1 < NP0)
+	if(NP1 > nlayers - 1 || NP1 < NP0 || WaveDims(w3d) != 3)
 		Abort "Dimension mismatch."
 	endif
 	variable imax = NP1 - NP0 + 1// include endpoints
@@ -519,7 +519,10 @@ Function ATH_ExtractLayerRangeToStack(WAVE w3d, variable NP0, variable NP1)
 	ImageTransform/NP=(imax) stackImages $"getLayer_0"
 	WAVE M_Stack
 	CopyScales w3d, M_Stack
-	Duplicate/O M_Stack, saveDF:$(NameOfWave(w3d) + "_stkL_" + num2str(NP0) + "_" + num2str(NP1))
+	SetScale/P z, 0, 1, M_Stack
+	string basenameStr = NameOfWave(w3d) + "_stkL_" + num2str(NP0) + "_" + num2str(NP1)
+	string saveStackNameStr = CreatedataObjectName(saveDF,basenameStr , 1, 0, 1)
+	Duplicate/O M_Stack, saveDF:$saveStackNameStr
 	SetDataFolder saveDF
 	return 0
 End

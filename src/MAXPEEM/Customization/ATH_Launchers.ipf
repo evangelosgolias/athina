@@ -896,3 +896,29 @@ Function ATH_LaunchMakeWaveFromSavedROI()
 	WAVE wref = ATH_TopImageToWaveRef()
 	ATH_MakeWaveFromROI(wRef)
 End
+
+Function ATH_LaunchXMCDCombinations()
+	
+	string msg = "Select one 3D wave for XMC(L)D combinations calculation." 
+	string selectedWavesInBrowserStr = ATH_SelectWavesInModalDataBrowser(msg)
+	
+	// S_fileName is a carriage-return-separated list of full paths to one or more files.
+	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
+	string selectedWavesStr = StringFromList(0, selectedWavesInBrowserStr)
+	WAVE w3d = $selectedWavesStr
+	variable nlayers = DimSize(w3d, 2)	
+	if(nrSelectedWaves != 1 || WaveDims(w3d) != 3)
+		Abort "You must select only one 3D wave (image stack)"
+	endif
+	if(nlayers > 20)
+		string alertStr = "Operation will create a 3D wave with " + num2str((nlayers-1)*nlayers/2)\
+						+ "layers. \nDo you want to continue?"
+		DoAlert/T="Memory demanding operation ahead ...", 1, alertStr
+		if(V_flag == 1)
+			ATH_XMCDCombinations(w3d)
+		endif
+	else 
+		ATH_XMCDCombinations(w3d)
+	endif
+	return 0
+End

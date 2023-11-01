@@ -50,7 +50,7 @@ Function ATH_CalculateXMCD(WAVE w1, WAVE w2, string wxmcdStr)
 		Redimension/S w1, w2
 	endif
 	Duplicate/O w1, $wxmcdStr
-	Wave wref = $wxmcdStr
+	WAVE wref = $wxmcdStr
 	wref = (w1 - w2)/(w1 + w2)
 End
 
@@ -116,5 +116,38 @@ Function ATH_CalculateXMCD3D(WAVE w3d1, WAVE w3d2)
 	string noteStr = "XMC(L)D = (w1 - w2)/(w1 + w2)\nw1: " + NameOfWave(w3d1) + "\nw2: " + NameOfWave(w3d2)
 	CopyScales w3d1, $saveWaveName
 	Note $saveWaveName, noteStr
+	return 0
+End
+
+Function ATH_XMCDCombinations(WAVE w3d)
+	/// Calculate XMC(L)D = (w3d1 - w3d2)/(w3d1 + w3d2)
+	/// for all different layer combinations of w3d,
+	if(WaveDims(w3d) != 3)
+		return -1
+	endif
+	variable nlayers = DimSize(w3d, 2), i, j, cnt = 0
+	variable nL = nlayers*(nlayers-1)/2 // all combinations
+	string buffer = "" 
+	string noteStr = "Source: " + GetWavesDataFolder(w3d, 2) + "\n"
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	for(i = 0; i < nlayers; i++)
+		MatrixOP/FREE iLayer = layer(w3d, i)
+		for(j = 0; j < i; j++)
+			MatrixOP/FREE jLayer = layer(w3d, j)
+			buffer = "ATHWaveToStack_idx_" + num2str(cnt)
+			ATH_CalculateXMCD(iLayer, jLayer, buffer)
+			noteStr += num2str(cnt) + ": (" + num2str(IndexToScale(w3d, i, 2)) \
+					+", "+ num2str(IndexToScale(w3d, j, 2))+")\n"
+			cnt += 1
+		endfor	
+	endfor
+	ImageTransform/NP=(nL) stackImages $"ATHWaveToStack_idx_0"
+	WAVE M_Stack
+	CopyScales w3d, M_Stack
+	Note M_stack, noteStr
+	string saveStackNameStr = CreatedataObjectName(saveDF, "XMCD_Comb", 1, 0, 1)
+	MoveWave M_stack, saveDF:$saveStackNameStr
+	SetDataFolder saveDF
 	return 0
 End

@@ -186,8 +186,7 @@ Function ATH_AverageStackToImage(WAVE w3d, [string avgImageName])
 	KillWaves/Z M_SumPlanes
 	string nameofWaveStr = NameOfWave(w3d)
 	string w3dNoteStr = nameofWaveStr + " average (" + num2str(nlayers) + ")\n"
-	w3dNoteStr += "Copy of " + nameofWaveStr + " note:\n"
-	w3dNoteStr += note(w3d)
+	CopyScales w3d, $avgImageName 
 	Note/K $avgImageName w3dNoteStr
 	return 0
 End

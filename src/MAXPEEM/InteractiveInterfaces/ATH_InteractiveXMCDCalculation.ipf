@@ -188,7 +188,7 @@ Function ATH_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 					hookResult = 1
 					break
 				case 31: // down arrow
-						ImageInterpolate/APRM={1,0,0,0,1,gATH_driftStep,1,0}/DEST=dfr:M_Affine Affine2D wImg2
+					ImageInterpolate/APRM={1,0,0,0,1,gATH_driftStep,1,0}/DEST=dfr:M_Affine Affine2D wImg2
 					WAVE/SDFR=dfr M_Affine
 					Duplicate/O M_Affine, wImg2
 					hookResult = 1

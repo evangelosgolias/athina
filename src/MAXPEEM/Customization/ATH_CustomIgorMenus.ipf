@@ -87,6 +87,7 @@ Menu "Athina"
 		"XMC(L)D (Import two .dat files) ...", /Q, ATH_DialogLoadTwoImagesAndRegisterQ()
 		"XMC(L)D (3D[2]) ... ", /Q, ATH_LaunchCalculationXMCD3d()
 		"XMC(L)D (2D[2]) ...", /Q, ATH_LaunchRegisterQCalculateXRayDichroism()
+		"XMC(L)D combinations (3D[1])", /Q, ATH_LaunchXMCDCombinations()
 	End	
 		
 	Submenu "XPS"
