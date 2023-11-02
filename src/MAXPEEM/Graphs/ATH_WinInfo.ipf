@@ -78,6 +78,8 @@ Function ATH_IsWM3DAxisActiveQ(string windowNameStr)
 	return V_flag
 End
 
+// Dev -- need testing
+
 Function/S ATH_WindowNameOfDisplayedImageWaveRef(WAVE wRef)
 	// Returns a semicolon separated string of the name 
 	// of the graphsnames wRef is displayed. Return "" if

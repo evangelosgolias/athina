@@ -1195,7 +1195,7 @@ Function ATH_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 	/// @param wname3d string optional name of the 3d wave, othewise defaults to ATH_w3d
 
 	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
-	wname3d = SelectString(ParamIsDefault(wname3d) ? 0: 1,"stack3d", wname3d)
+	wname3d = SelectString(ParamIsDefault(wname3d) ? 0: 1,"", wname3d) // Empty case will be handled below
 	
 	string message = "Select a folder."
 	string fileFilters = "DAT Files (*.dat):.dat;"
@@ -1208,6 +1208,16 @@ Function ATH_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 	PathInfo/S ATH_DATFilesPathTMP
 	folder = ParseFilePath(2, S_Path, ":", 0, 0)
 	
+	DFREF cwDFR = GetDataFolderDFR()
+	string basenameStr
+	if(!strlen(wname3d))
+		basenameStr = ParseFilePath(0, S_Path, ":", 1, 0) // Use it to name the wave if wname3d = "
+		wname3d = CreatedataObjectName(cwDFR, basenameStr, 1, 0, 1)
+	else
+		basenameStr = wname3d
+		wname3d = CreatedataObjectName(cwDFR, basenameStr, 1, 0, 1)
+	endif
+	
 	// Get all the .dat files. Use "????" for all files in IndexedFile third argument.
 	// Filter the matches with pattern at the second stage.
 	string allFiles = ListMatch(SortList(IndexedFile(ATH_DATFilesPathTMP, -1, ".dat"),";", 16), pattern)
@@ -1217,22 +1227,6 @@ Function ATH_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 	// If no files are selected (e.g match pattern return "") warn user
 	if (!filesnr)
 		Abort "No files match pattern: " + pattern
-	endif
-	variable cnt = 0
-	string odlwname = wname3d
-	// TODO: Use CreateDataObjectName(dfr, nameInStr, objectType, suffixNum, options)
-	// Handle the case where the 3d wave exists and find an appropriate name
-	if(stack3d && exists(wname3d) == 1)
-		do
-			printf "Wave %s exists in %s renaming to %s\n", wname3d, GetDataFolder(1), (wname3d + num2str(cnt))
-			wname3d = odlwname + num2str(cnt)
-			cnt++
-		while(exists(wname3d) == 1)
-		// if name in use by a global wave/variable 
-		if(!exists(wname3d) == 0) // 0 - Name not in use, or does not conflict with a wave, numeric variable or string variable in the specified data folder.
-			print "ATH: Renamed your wave to \"" + (wname3d + "_rn") + "\" to avoid conflicts"
-			wname3d += "_rn"
-		endif
 	endif
 	
 	string filenameBuffer, datafile2read, filenameStr
