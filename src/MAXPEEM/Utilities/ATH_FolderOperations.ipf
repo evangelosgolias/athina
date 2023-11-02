@@ -247,13 +247,11 @@ Function ATH_FindBigWaves(variable minSizeInMB[,DFREF df,variable depth,variable
         noShow = 1
     endif   
     if(depth==0)
-        NewDataFolder /O root:Packages:ATH_DataFolder
-        NewDataFolder /O root:Packages:ATH_DataFolder:FindBigWaves
-        DFREF packageDF = root:Packages:ATH_DataFolder:FindBigWaves
+        DFREF packageDF = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:FindBigWaves")
         Make/O/T/N=0 packageDF:waveNamesW
         Make/O/N=0   packageDF:waveSizesW
     else
-        dfref packageDF=root:Packages:ATH_DataFolder:FindBigWaves
+        DFREF packageDF = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:FindBigWaves")
     endif
     variable i
     wave /T/sdfr=packageDF waveNamesW

@@ -936,25 +936,25 @@ Function ATH_LaunchDeleteBigWaves()
 		return 1
 	endif
 	ATH_FindBigWaves(minFileSizeMB)
-	DFREF dfr = root:Packages:ATH_DataFolder:FindBigWaves
+	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:FindBigWaves")
 	WAVE/SDFR=dfr/T waveNamesW
 	WAVE/SDFR=dfr waveSizesW 
 	ATH_TWaveRemoveEntriesFromPatters(waveNamesW, "root:Packages:*", otherW = waveSizesW) // Do not operate on root:Packages !
 	variable totalSizeMB = sum(waveSizesW)
 	variable nwaves = DimSize(waveNamesW, 0)
 	string editWindowName = UniqueName("BigWaves", 7, 0)
-	Edit/K=1/N=$editWindowName waveNamesW, waveSizesW as "Big Waves"
+	Edit/K=2/N=$editWindowName waveNamesW, waveSizesW as "Big Waves" // Prevent window from being killed here!
 	STRUCT sUserMarqueePositions s
 	variable cancel = ATH_WaitForUserActions(s, vWinType = 2)
 	if(cancel)
 		KillWindow/Z $editWindowName
-		KillDataFolder dfr
+		KillDataFolder dfr // FIX: Fix problem.Cannot kill folder, seem
 		return 1
 	else
 		ATH_DeleteWavesInTextWave(waveNamesW)
 		KillWindow/Z $editWindowName
 		print "Deleted " + num2str(nwaves) + " waves. Total space freed: " + num2str(totalSizeMB) + " MBs"
-		KillDataFolder dfr		
+		KillDataFolder/Z dfr // prevents error in case you have open one of the waves 
 		return 0
 	endif
 End
@@ -967,19 +967,19 @@ Function ATH_LaunchDeleteBigWavesDisplayed()
 		return 1
 	endif
 	ATH_FindBigWaves(minFileSizeMB)
-	DFREF dfr = root:Packages:ATH_DataFolder:FindBigWaves
+	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:FindBigWaves")
 	WAVE/SDFR=dfr/T waveNamesW
 	WAVE/SDFR=dfr waveSizesW 
 	ATH_TWaveRemoveEntriesFromPatters(waveNamesW, "root:Packages:*", otherW = waveSizesW) // Do not operate on root:Packages !
 	variable totalSizeMB = sum(waveSizesW)
 	variable nwaves = DimSize(waveNamesW, 0)
 	string editWindowName = UniqueName("BigWaves", 7, 0)
-	Edit/K=1/N=$editWindowName waveNamesW, waveSizesW as "Big Waves"
+	Edit/K=2/N=$editWindowName waveNamesW, waveSizesW as "Big Waves"
 	STRUCT sUserMarqueePositions s
 	variable cancel = ATH_WaitForUserActions(s, vWinType = 2)
 	if(cancel)
 		KillWindow/Z $editWindowName
-		KillDataFolder dfr
+		KillDataFolder/Z dfr
 		return 1
 	else	
 		ATH_DeleteWavesInTextWave(waveNamesW)
