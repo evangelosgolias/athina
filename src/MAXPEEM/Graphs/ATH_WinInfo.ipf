@@ -78,3 +78,35 @@ Function ATH_IsWM3DAxisActiveQ(string windowNameStr)
 	return V_flag
 End
 
+Function/S ATH_WindowNameOfDisplayedImageWaveRef(WAVE wRef)
+	// Returns a semicolon separated string of the name 
+	// of the graphsnames wRef is displayed. Return "" if
+	// wRef is not displayed. Graphs are search by default
+	// Check WinList documentation for more details.
+	
+	string displayedStr = "", windowNameStr, imgNameTopGraphStr
+	string windowsListStr = WinList("*", ";","WIN:1")   
+	string waveNameStr = NameOfWave(wRef)
+
+	variable numWindows = ItemsInList(windowsListStr), i
+	for(i = 0; i < numWindows; i++)
+		windowNameStr = StringFromList(i, windowsListStr)
+		imgNameTopGraphStr = StringFromList(0, ImageNameList(windowNameStr, ";"),";") // Consider top image
+        if (strlen(imgNameTopGraphStr))
+	        WAVE/Z wRefLoop = $imgNameTopGraphStr
+	        if(WaveRefsEqual(wRef, wRefLoop))
+	        	displayedStr += windowNameStr + ";"
+	        endif 
+        endif	
+	endfor
+	return displayedStr
+End
+
+Function ATH_KillWindowsInListString(string windowsListStr)
+	// Kill all windows in winListstr (;)
+	variable numWindows = ItemsInList(windowsListStr), i
+	for(i = 0; i < numWindows; i++)
+		KillWindow/Z $StringFromList(i, windowsListStr)
+	endfor
+	return 0
+End

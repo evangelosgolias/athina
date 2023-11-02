@@ -910,15 +910,82 @@ Function ATH_LaunchXMCDCombinations()
 	if(nrSelectedWaves != 1 || WaveDims(w3d) != 3)
 		Abort "You must select only one 3D wave (image stack)"
 	endif
-	if(nlayers > 20)
+	if(nlayers > 30)
+		string abortmsg = "This operation will need a large amount of memory and long calculation" \
+						 + " time,  I will not continue.\nIf you want to perform the operation " \
+						 + " check the function ATH_XMCDCombinations."
+		DoAlert 0, abortmsg
+	elseif(nlayers > 20)
 		string alertStr = "Operation will create a 3D wave with " + num2str((nlayers-1)*nlayers/2)\
 						+ "layers. \nDo you want to continue?"
 		DoAlert/T="Memory demanding operation ahead ...", 1, alertStr
 		if(V_flag == 1)
 			ATH_XMCDCombinations(w3d)
-		endif
+		endif	
 	else 
 		ATH_XMCDCombinations(w3d)
 	endif
 	return 0
+End
+
+Function ATH_LaunchDeleteBigWaves()
+	variable minFileSizeMB = 100 // Threshhold in MB
+	Prompt minFileSizeMB, "Enter threshold value in MegaBytes (MB)"
+	DoPrompt "Delete big files", minFileSizeMB
+	if(minFileSizeMB <= 0)
+		return 1
+	endif
+	ATH_FindBigWaves(minFileSizeMB)
+	DFREF dfr = root:Packages:ATH_DataFolder:FindBigWaves
+	WAVE/SDFR=dfr/T waveNamesW
+	WAVE/SDFR=dfr waveSizesW 
+	ATH_TWaveRemoveEntriesFromPatters(waveNamesW, "root:Packages:*", otherW = waveSizesW) // Do not operate on root:Packages !
+	variable totalSizeMB = sum(waveSizesW)
+	variable nwaves = DimSize(waveNamesW, 0)
+	string editWindowName = UniqueName("BigWaves", 7, 0)
+	Edit/K=1/N=$editWindowName waveNamesW, waveSizesW as "Big Waves"
+	STRUCT sUserMarqueePositions s
+	variable cancel = ATH_WaitForUserActions(s, vWinType = 2)
+	if(cancel)
+		KillWindow/Z $editWindowName
+		KillDataFolder dfr
+		return 1
+	else
+		ATH_DeleteWavesInTextWave(waveNamesW)
+		KillWindow/Z $editWindowName
+		print "Deleted " + num2str(nwaves) + " waves. Total space freed: " + num2str(totalSizeMB) + " MBs"
+		KillDataFolder dfr		
+		return 0
+	endif
+End
+
+Function ATH_LaunchDeleteBigWavesDisplayed()
+	variable minFileSizeMB = 100 // Threshhold in MB
+	Prompt minFileSizeMB, "Enter threshold value in MegaBytes (MB)"
+	DoPrompt "Delete big files", minFileSizeMB
+	if(minFileSizeMB <= 0)
+		return 1
+	endif
+	ATH_FindBigWaves(minFileSizeMB)
+	DFREF dfr = root:Packages:ATH_DataFolder:FindBigWaves
+	WAVE/SDFR=dfr/T waveNamesW
+	WAVE/SDFR=dfr waveSizesW 
+	ATH_TWaveRemoveEntriesFromPatters(waveNamesW, "root:Packages:*", otherW = waveSizesW) // Do not operate on root:Packages !
+	variable totalSizeMB = sum(waveSizesW)
+	variable nwaves = DimSize(waveNamesW, 0)
+	string editWindowName = UniqueName("BigWaves", 7, 0)
+	Edit/K=1/N=$editWindowName waveNamesW, waveSizesW as "Big Waves"
+	STRUCT sUserMarqueePositions s
+	variable cancel = ATH_WaitForUserActions(s, vWinType = 2)
+	if(cancel)
+		KillWindow/Z $editWindowName
+		KillDataFolder dfr
+		return 1
+	else	
+		ATH_DeleteWavesInTextWave(waveNamesW)
+		KillWindow/Z $editWindowName
+		print "Deleted " + num2str(nwaves) + " waves. Total space freed: " + num2str(totalSizeMB) + " MBs"
+		KillDataFolder dfr		
+		return 0
+	endif
 End

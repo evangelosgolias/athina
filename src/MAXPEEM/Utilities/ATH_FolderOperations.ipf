@@ -237,35 +237,34 @@ End
 
 // ----------------------------------------
 
-Function ATH_FindBigWaves(minSizeInMB[,df,depth,noShow])
-	/// Copy of https://www.wavemetrics.com/code-snippet/find-big-waves
-    Variable minSizeInMB // Minimum size in MB, e.g. 100 
-    variable depth // Used by the function recursion.  Ignore.  
-    variable noShow // Don't show the table at the end.  
-    dfref df // A folder to use as the top level of the search.  Default is root:  
+Function ATH_FindBigWaves(variable minSizeInMB[,DFREF df,variable depth,variable noShow])
+	/// See https://www.wavemetrics.com/code-snippet/find-big-waves
  
-    if(paramisdefault(df))
-        dfref df=root:
+    if(ParamIsDefault(df))
+        DFREF df=root:
     endif
+     if(ParamIsDefault(noShow))
+        noShow = 1
+    endif   
     if(depth==0)
-        NewDataFolder /O root:Packages
-        NewDataFolder /O root:Packages:ATH_FindBigWaves
-        dfref packageDF=root:Packages:ATH_FindBigWaves
-        Make /o/T/n=0 packageDF:names
-        Make /o/n=0 packageDF:sizes
+        NewDataFolder /O root:Packages:ATH_DataFolder
+        NewDataFolder /O root:Packages:ATH_DataFolder:FindBigWaves
+        DFREF packageDF = root:Packages:ATH_DataFolder:FindBigWaves
+        Make/O/T/N=0 packageDF:waveNamesW
+        Make/O/N=0   packageDF:waveSizesW
     else
-        dfref packageDF=root:Packages:ATH_FindBigWaves
+        dfref packageDF=root:Packages:ATH_DataFolder:FindBigWaves
     endif
     variable i
-    wave /T/sdfr=packageDF names
-    wave /sdfr=packageDF sizes
-    variable points=numpnts(names)
+    wave /T/sdfr=packageDF waveNamesW
+    wave /sdfr=packageDF waveSizesW
+    variable points=numpnts(waveNamesW)
     for(i=0;i<CountObjectsDFR(df,1);i+=1)
         wave w=df:$getindexedobjnamedfr(df,1,i)
         variable size = ATH_sizeOfWave(w)
         if(size > minSizeInMB)
-            names[points]={GetWavesDataFolder(w,2)}
-            sizes[points]={size}
+            waveNamesW[points]={GetWavesDataFolder(w,2)}
+            waveSizesW[points]={size}
             points+=1
         endif
     endfor
@@ -281,12 +280,12 @@ Function ATH_FindBigWaves(minSizeInMB[,df,depth,noShow])
         i+=1
     While(1)
     if(depth==0)
-        sort /R sizes,sizes,names
+        sort /R waveSizesW, waveSizesW, waveNamesW
         if(!noShow)
-            if(wintype("BigWaves"))
+            if(WinType("BigWaves"))
                 dowindow /f BigWaves
             else
-                edit /K=1 /N=BigWaves names,sizes as "Big Waves"
+                edit /K=1 /N=BigWaves waveNamesW, waveSizesW as "Big Waves"
             endif
         endif
     endif

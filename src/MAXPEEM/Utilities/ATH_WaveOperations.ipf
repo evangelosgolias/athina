@@ -643,3 +643,48 @@ Function ATH_IsFloat64Q(WAVE wRef)
 	// Returns true of wRef is 64 bit float wave
 	return WaveType(wRef) & 0x04 
 End
+
+Function ATH_TWaveRemoveEntriesFromPatters(WAVE/T textW, string patternStr, [WAVE otherW])
+	// Remove entries from textW that start with pathbase
+	// Optionally we can remove the same entries from another wave otherW
+	// We use this in ATH_LaunchDeleteBigWaves
+	variable otherWQ = ParamIsDefault(otherW) ? 0 : 1
+	variable numpts = DimSize(textW, 0), i
+	for(i = numpts - 1; i > 0; i--)
+		if(Stringmatch(textW[i], patternStr))
+			DeletePoints i, 1, textW
+			if(otherWQ)
+				DeletePoints i, 1, otherW
+			endif
+		endif
+	endfor
+	return 0
+End
+
+Function ATH_DeleteWavesInTextWave(WAVE/T textW)
+	// Delete big waves listed in textW
+	variable nw = DimSize(textW, 0), i
+	for(i = 0; i < nw; i++)			
+		KillWaves/Z $textW[i]
+	endfor
+	return 0
+End
+
+// Dev -- need testing
+Function ATH_TWaveRemoveEntriesFromStringList(WAVE/T textW, string stringListStr, [WAVE otherW])
+	// Remove entries from textW in stringListStr
+	// Optionally we can remove the same entries from another wave otherW
+	// We use this in ATH_LaunchDeleteBigWavesDisplayed
+	
+	variable otherWQ = ParamIsDefault(otherW) ? 0 : 1
+	variable numpts = DimSize(textW, 0), i
+	for(i = numpts - 1; i > 0; i--)
+		if(1)
+			DeletePoints i, 1, textW
+			if(otherWQ)
+				DeletePoints i, 1, otherW
+			endif
+		endif
+	endfor
+	return 0
+End

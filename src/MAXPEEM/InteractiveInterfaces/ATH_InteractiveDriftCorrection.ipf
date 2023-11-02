@@ -86,15 +86,15 @@ Function ATH_CreateInteractiveDriftCorrectionPanel()
 	//SetDrawEnv/W=iDriftCorrection dash= 3,fillpat= 0
 	Button SetAnchorCursor,pos={23.00,50.00},size={120.00,20.00}
 	Button SetAnchorCursor,title="(Re)Set anchor (I)",fSize=12
-	Button SetAnchorCursor,fColor=(65535,0,0), proc=ATH_SetAnchorCursorButton
+	Button SetAnchorCursor,fColor=(65535,0,0), proc=ATH_DriftSetAnchorCursorButton
 	Button DriftImage,pos={32.00,90.00},size={100.00,20.00},title="Drift Image"
 	Button DriftImage,fSize=12,fColor=(0,65535,0),proc=ATH_DriftImageButton
 	Button CascadeDrift,pos={32.00,130.00},size={100.00,20.00},fColor=(65535,49157,16385)
-	Button CascadeDrift,title="Cascade drift",fSize=12,proc=CascadeDrift3DWaveButton
+	Button CascadeDrift,title="Cascade drift",fSize=12,proc=ATH_CascadeDrift3DWaveButton
 	Button SelectedLayersDrift,pos={32.00,170.00},size={100.00,20.00},fColor=(52428,52425,1)
-	Button SelectedLayersDrift,title="Drift N layers",fSize=12,proc=DriftSelectedLayers3DWaveButton
+	Button SelectedLayersDrift,title="Drift N layers",fSize=12,proc=ATH_DriftSelectedLayers3DWaveButton
 	Button Restore3dwave,pos={32.00,210.00},size={100.00,20.00},fColor=(32768,54615,65535)
-	Button Restore3dwave,title="Restore stack",fSize=12,proc=Restore3DWaveButton	
+	Button Restore3dwave,title="Restore stack",fSize=12,proc=ATH_DriftRestore3DWaveButton	
 	//Tranfer info re dfr to controls
 	SetWindow $winNameStr#iDriftCorrection userdata(ATH_iImgAlignFolder) = "root:Packages:ATH_DataFolder:InteractiveDriftCorrection:" + winNameStr
 	SetWindow $winNameStr#iDriftCorrection hook(MyHook) = ATH_iDriftCorrectionPanelHookFunction
@@ -145,7 +145,7 @@ Function ATH_iDriftCorrectionPanelHookFunction(STRUCT WMWinHookStruct &s) // Cle
 	return hookresult
 End
 
-Function ATH_SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function ATH_DriftSetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
@@ -208,7 +208,7 @@ Function ATH_DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	return hookresult
 End
 
-Function Restore3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function ATH_DriftRestore3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	//Complete
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
@@ -224,7 +224,7 @@ Function Restore3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 
-Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function ATH_DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
@@ -280,7 +280,7 @@ Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct): Butto
 	return hookresult
 End
 
-Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+Function ATH_CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr

@@ -135,3 +135,73 @@ Function ATH_CountSelectedWavesInDataBrowser([variable waveDimemsions])
 	while (strlen(GetBrowserSelection(i)))
 	return cnt
 End
+
+// ----------
+// The following three function let you wait until you complete an operation on a window
+// For sUserMarqueePositions check ATH_MarqueeOperations.ipf
+//
+// Code does not work, check similar function in ATH_MarqueeOperations.ipf
+
+Function ATH_WaitForUserActions(STRUCT sUserMarqueePositions &s, [variable vWinType])
+	// vWinType = 1 (default) graphs
+	// vWinType = 2 Tables
+	// vWinType = 4 Layout
+	// vWinType = 16 Notebooks
+	// vWinType = 16 Panels	
+	vWinType = ParamIsDefault(vWinType) ? 1 : vWinType
+	string winNameStr = WinName(0, vWinType, 1)	
+	DoWindow/F $winNameStr			// Bring graph to front
+//	if (V_Flag == 0)					// Verify that graph exists
+//		Abort "WM_UserSetMarquee: No image in top window."
+//	endif
+	string structStr
+	string panelNameStr = UniqueName("PauseforDecision", 9, 0)
+	NewPanel/N=$panelNameStr/K=2/W=(139,341,382,450) as "Athina"
+	AutoPositionWindow/E/M=1/R=$winNameStr			// Put panel near the graph
+	
+	StructPut /S s, structStr
+	DrawText 15,20,"Continue or cancel ?"
+	Button buttonContinue, win=$panelNameStr, pos={80,50},size={92,20}, title="Continue", proc=ATH_WaitForUserActions_ContButtonProc 
+	Button buttonCancel, win=$panelNameStr, pos={80,80},size={92,20}, title="Cancel", proc=ATH_WaitForUserActions_CancelBProc
+	SetWindow $winNameStr userdata(sATH_Coords)=structStr 
+	SetWindow $winNameStr userdata(sATH_panelNameStr)= panelNameStr
+	SetWindow $panelNameStr userdata(sATH_winNameStr) = winNameStr 
+	SetWindow $panelNameStr userdata(sATH_panelNameStr) = panelNameStr
+	PauseForUser $panelNameStr, $winNameStr
+	StructGet/S s, GetUserData(winNameStr, "", "sATH_Coords")
+	
+	if(s.canceled)
+		return 1
+	endif
+	return 0
+End
+
+Function ATH_WaitForUserActions_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
+	STRUCT sUserMarqueePositions s
+	string winNameStr = GetUserData(B_Struct.win, "", "sATH_winNameStr")
+	StructGet/S s, GetUserData(winNameStr, "", "sATH_Coords")	
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			s.canceled = 0
+			KillWindow/Z $GetUserData(B_Struct.win, "", "sATH_panelNameStr")
+			break
+	endswitch
+	return 0
+End
+
+Function ATH_WaitForUserActions_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
+	STRUCT sUserMarqueePositions s
+	string winNameStr = GetUserData(B_Struct.win, "", "sATH_winNameStr")
+	StructGet/S s, GetUserData(winNameStr, "", "sATH_Coords")
+	string structStr	
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			s.canceled = 1
+			StructPut/S s, structStr
+			SetWindow $winNameStr userdata(sATH_Coords) = structStr	
+			KillWindow/Z $GetUserData(B_Struct.win, "", "sATH_panelNameStr")			
+			break
+	endswitch
+	return 0
+End
+// End of wait to complete operations

@@ -223,16 +223,7 @@ Function ATH_GetMarqueeWaveStats()
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList("", ";"),";")
 	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	if(WaveDims(waveRef) == 2 || WaveDims(waveRef) == 3)
-		variable x0 = ceil(DimOffset(waveRef, 0))
-		variable dx = ceil(DimDelta(waveRef, 0))
-		variable y0 = ceil(DimOffset(waveRef, 1))
-		variable dy = ceil(DimDelta(waveRef, 1))
-		variable startP, endP, startQ, endQ
-		startP = (V_left - x0)/dx
-		endP = (V_right - x0)/dx
-		startQ = (V_top - y0)/dy
-		endQ = (V_bottom - y0)/dy
-		WaveStats/RMD=[startP, endP][startQ, endQ][]/M=1 waveRef
+		WaveStats/RMD=(V_left, V_right)(V_top, V_bottom)[]/M=1 waveRef
 	endif
 End
 

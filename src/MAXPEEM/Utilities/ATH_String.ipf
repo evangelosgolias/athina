@@ -45,3 +45,30 @@ Function ATH_GetPhotonEnergyFromFilename(string nameStr)
 	endif
 	return 0
 End
+
+// Dev -- need testing
+Function/S ATH_UniquifyStringList(string stringListStr, [string sep])	
+	// Remove duplicates from a sting list
+	if(ParamIsDefault(sep))
+		sep = ";"
+	else
+		sep = sep
+	endif
+	WAVE/T textW = ATH_WAVEStringListToTextWave(stringListStr, sep = sep)
+	//FindDuplicates
+End
+
+Function/WAVE ATH_WAVEStringListToTextWave(string stringListStr, [string sep])
+
+	if(ParamIsDefault(sep))
+		sep = ";"
+	else
+		sep = sep
+	endif
+	variable numElem = ItemsInList(stringListStr, sep)
+	if(!numElem)
+		return $""
+	else
+		return ListToTextWave(stringListStr, sep)		
+	endif
+End
