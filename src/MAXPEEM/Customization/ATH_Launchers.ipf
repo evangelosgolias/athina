@@ -40,7 +40,7 @@ End
 Function ATH_LaunchMake3DWaveDataBrowserSelection([variable displayStack])
 	displayStack = ParamIsDefault(displayStack) ? 0: displayStack // Give any non-zero to display the stack
 	string wname3dStr
-	wname3dStr = ATH_Make3DWaveDataBrowserSelection("ATH_stack", gotoFilesDFR = 0) // 0 - stack in cwd 1 - stack in files DFR
+	wname3dStr = ATH_Make3DWaveDataBrowserSelection("ATH_stack", makeInSourceDFR = 1) // 0 - stack in cwd 1 - stack in files DFR
 	// Do you want to display the stack?
 	if(displayStack && strlen(wname3dStr)) // wname3dStr = "" when you select no or one wave
 		ATH_DisplayImage($wname3dStr)
@@ -211,14 +211,16 @@ Function ATH_LaunchCalculateXMCDFromStack()
 	endif
 	MatrixOP/O/FREE w1free = layer(w3dref, 0)
 	MatrixOP/O/FREE w2free = layer(w3dref, 1)
-	string xmcdWaveStr = NameofWave(w3dref) + "_xmcd"
-	ATH_CalculateXMCD(w1free, w2free, xmcdWaveStr)
-	// if you use /P, the dimension scaling is copied in slope/intercept format 
-	// so that if srcWaveName  and the other waves have differing dimension size 
-	// (number of points if the wave is a 1D wave), then their dimension values 
-	// will still match for the points they have in common
-	CopyScales w3dref, $xmcdWaveStr 
-	ATH_DisplayImage($xmcdWaveStr)
+	string basename = NameofWave(w3dref) + "_xmcd"
+	DFREF currDFR = GetWavesDataFolderDFR(w3dref)
+	string sourceDFRStr = GetWavesDataFolder(w3dref, 1)
+	string xmcdWaveStr = CreatedataObjectName(currDFR, basename, 1, 0, 1)
+	string destWaveNameStr = sourceDFRStr + xmcdWaveStr
+	ATH_CalculateXMCD(w1free, w2free, destWaveNameStr) // NewXMCD in the source DFR!
+	string noteStr = "Source: " + sourceDFRStr + NameofWave(w3dref)
+	Note/K $destWaveNameStr, noteStr
+	CopyScales w3dref, $destWaveNameStr 
+	ATH_DisplayImage($destWaveNameStr)
 End
 
 Function ATH_DialogLoadTwoImagesAndRegisterQ()
@@ -770,6 +772,10 @@ Function ATH_LaunchImageRotateAndScale()
 End
 
 Function ATH_LaunchImageRotateAndScaleFromMetadata()
+	/// This operation transform the image as seen in the microscope
+	/// when the angular compensation is on for different FoVs. The combination
+	/// of ImageRotation and ImageTransform flipRows wRef restores the image 
+	/// as seen in the live-image.
 	/// Rotated/scaled wave in created in the working dfr.
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -782,6 +788,7 @@ Function ATH_LaunchImageRotateAndScaleFromMetadata()
 	
 	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	variable angle = NumberByKey("FOVRot(deg)", note(wRef), ":", "\n")
+	ImageTransform flipRows wRef // flip the y-axis
 	ATH_ImageBackupRotateAndScale(wRef, angle)
 End
 

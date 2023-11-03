@@ -63,7 +63,7 @@ Function ATH_Make3DWaveUsingPattern(string wname3dStr, string pattern)
 	return 0
 End
 
-Function/S ATH_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoFilesDFR])
+Function/S ATH_Make3DWaveDataBrowserSelection(string wname3dStr, [variable makeInSourceDFR])
 
 	// Make a 3d wave using waves selected
 	// in the browser window. No check for selection
@@ -72,7 +72,7 @@ Function/S ATH_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoF
 	// Returns a string with the name of the created wave, as wname3dStr
 	// might be already taken
 	
-	gotoFilesDFR = ParamIsDefault(gotoFilesDFR) ? 0: gotoFilesDFR
+	makeInSourceDFR = ParamIsDefault(makeInSourceDFR) ? 0: makeInSourceDFR
 	string listOfSelectedWaves = ""
 	
 	// Test not needed here -- Called from ATH_LaunchMake3DWaveDataBrowserSelection()
@@ -107,16 +107,17 @@ Function/S ATH_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoF
 	variable nx = DimSize(wref,0)
 	variable ny = DimSize(wref,1)
 	
-	DFREF currDFR = GetDataFolderDFR()
-	if(gotoFilesDFR)
-		SetDataFolder GetWavesDataFolderDFR(wref)
-		currDFR = GetDataFolderDFR()
-	endif
 	
-	if(exists(wname3dStr) == 1)
-		// We need a unique wave name
-		wname3dStr = CreatedataObjectName(currDFR, "ATH_stack", 1, 0, 0)
+	if(makeInSourceDFR)
+		DFREF saveDF = GetDataFolderDFR()
+		SetDataFolder GetWavesDataFolderDFR(wref)
+		DFREF currDFR = GetDataFolderDFR()
+	else
+		DFREF currDFR = GetDataFolderDFR()	
 	endif
+	// Here get the path wheret the wave will be created
+	string folder = GetDataFolder(1)
+	wname3dStr = CreatedataObjectName(currDFR, "ATH_stack", 1, 0, 0)
 	
 	WAVE/WAVE waveListFree = ATH_StringWaveListToWaveRef(listOfSelectedWaves, isFree = 1)
 	if(ATH_AllImagesEqualDimensionsQ(waveListFree))
@@ -134,8 +135,10 @@ Function/S ATH_Make3DWaveDataBrowserSelection(string wname3dStr, [variable gotoF
 	// Add a note about the stacked waves
 	Note/K $wname3dStr, ReplaceString(";", listOfSelectedWaves, "\n")
 	// Go back to the cwd
-	SetDataFolder currDFR
-	return wname3dStr
+	if(makeInSourceDFR)
+		SetDataFolder saveDF
+	endif
+	return (folder + wname3dStr)
 End
 
 Function/WAVE ATH_StringWaveListToWaveRef(string wavelistStr, [int isFree])
