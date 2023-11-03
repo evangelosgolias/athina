@@ -782,7 +782,7 @@ Function ATH_LaunchImageRotateAndScaleFromMetadata()
 	
 	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	variable angle = NumberByKey("FOVRot(deg)", note(wRef), ":", "\n")
-	ATH_ImageBackupRotateAndScale(wRef, -angle)
+	ATH_ImageBackupRotateAndScale(wRef, angle)
 End
 
 

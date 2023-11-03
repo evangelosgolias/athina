@@ -123,7 +123,8 @@ static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string p
 End
 
 
-Function/WAVE ATH_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int autoScale, int binX, int binY])
+Function/WAVE ATH_WAVELoadSingleDATFile(string filepathStr, string waveNameStr 
+			  [,int skipmetadata, int autoScale, int readMarkups,int binX, int binY])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
@@ -137,6 +138,7 @@ Function/WAVE ATH_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
 	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
+	readMarkups = ParamIsDefault(readMarkups) ? 0: readMarkups
 	binX = ParamIsDefault(binX) ? 1: binX
 	binY = ParamIsDefault(binY) ? 1: binY
 	
@@ -225,9 +227,9 @@ Function/WAVE ATH_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 		ImageInterpolate/PXSZ={binX, binY}/DEST=$waveNameStr Pixelate datWaveFree		
 		WAVE datWave = $waveNameStr
 	endif
-	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
+//	ImageTransform flipRows datWave // flip the y-axis
 	string mdatastr = ""
 	
 	if(!skipmetadata)
@@ -243,7 +245,7 @@ Function/WAVE ATH_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 			mdatastr += "Binning: (" + num2str(binX) + ", " + num2str(binY) + ")\n"
 		endif			
 		mdatastr += ATH_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
-		if(ATHImageHeader.attachedMarkupSize)// Add image markups if any
+		if(readMarkups && ATHImageHeader.attachedMarkupSize)// Add image markups if any
 			mdatastr += ATH_StrGetImageMarkups(filepathStr)
 		endif
 		if(autoScale)
@@ -261,7 +263,8 @@ Function/WAVE ATH_WAVELoadSingleDATFile(string filepathStr, string waveNameStr, 
 	return datWave
 End
 
-Function ATH_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int autoScale, int binX, int binY])
+Function ATH_LoadSingleDATFile(string filepathStr, string waveNameStr
+         [,int skipmetadata, int autoScale, int readMarkups, int binX, int binY])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string pathname. 
 	/// If "" a dialog opens to select the file.
@@ -274,6 +277,7 @@ Function ATH_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
 	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
+	readMarkups = ParamIsDefault(readMarkups) ? 0: readMarkups	
 	binX = ParamIsDefault(binX) ? 1: binX
 	binY = ParamIsDefault(binY) ? 1: binY
 		
@@ -357,9 +361,10 @@ Function ATH_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 		ImageInterpolate/PXSZ={binX, binY}/DEST=$waveNameStr Pixelate datWaveFree		
 		WAVE datWave = $waveNameStr
 	endif
-	ImageTransform flipRows datWave // flip the y-axis
+
 	Close numRef
-	
+	//ImageTransform flipRows datWave // flip the y-axis
+		
 	string mdatastr = ""
 	
 	if(!skipmetadata)
@@ -375,7 +380,7 @@ Function ATH_LoadSingleDATFile(string filepathStr, string waveNameStr, [int skip
 			mdatastr += "Binning: (" + num2str(binX) + ", " + num2str(binY) + ")\n"
 		endif	
 		mdatastr += ATH_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
-		if(ATHImageHeader.attachedMarkupSize)// Add image markups if any
+		if(readMarkups && ATHImageHeader.attachedMarkupSize)// Add image markups if any
 			mdatastr += ATH_StrGetImageMarkups(filepathStr)
 		endif
 		if(autoScale)
@@ -674,7 +679,7 @@ Function/S ATH_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 			//ATHMetaDataStr += num2str(buffer) + "\n"
 		elseif(buffer == 110)
 			FReadLine /T=(num2char(0))/ENCG={3,3,1} numRef, strbuffer // TODO: Fix the trailing tab and zeros!
-			sscanf strbuffer, "%dµm", buffer
+			sscanf strbuffer, "%eµm", buffer
 			ATHMetaDataStr += "FOV(µm):" + num2str(buffer) + "\n"
 			FBinRead/F=4 numRef, buffer // drop FOV calculation factor
 		elseif(buffer == 111) //drop
@@ -1233,8 +1238,8 @@ Function ATH_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 	variable i, fovScale
 	
 	if(stack3d) // Make a folder to import files for the stack
-		NewDataFolder ATH_tmpStorageStackFolder
-		SetDataFolder ATH_tmpStorageStackFolder
+		DFREF saveDF = GetDataFolderDFR()
+		SetDataFolder NewFreeDataFolder()
 	endif
 	// Now get all the files
 	for(i = 0; i < filesnr; i += 1)
@@ -1268,15 +1273,17 @@ Function ATH_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 		string note3d
 		sprintf note3d, "Timestamp: %s\nFolder: %s\nFiles: %s\n",(date() + " " + time()), folder, allFiles
 		Note/K M_Stack, note3d
-		MoveWave M_Stack ::$wname3d
-		SetDataFolder ::
+		MoveWave M_Stack saveDF:$wname3d
+		SetDataFolder saveDF
 		KillDataFolder/Z ATH_tmpStorageStackFolder
+	else
+		KillPath/Z ATH_DATFilesPathTMP
 	endif
 	if(autoscale && stack3d)
 		SetScale/I x, 0, getScaleXY, $wname3d
 		SetScale/I y, 0, getScaleXY, $wname3d
 	endif
-	KillPath/Z ATH_DATFilesPathTMP
+	
 	return 0
 End
 
@@ -1408,7 +1415,7 @@ Function ATH_LoadMultiplyDATFiles([string filenames, int skipmetadata, int autos
 	return 0
 End
 
-Function/WAVE ATH_WAVELoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int skipmetadata])
+Function/WAVE ATH_WAVELoadSingleCorruptedDATFile(string filepathStr, string waveNameStr)
 	///< Function to load a single Elmitec binary .dat file by skipping reading the metadata.
 	/// We assume here that the image starts at sizeOfFile - kpixelsTVIPS^2 * 16
 	/// @param filepathStr string filename (including) pathname. 
@@ -1418,8 +1425,6 @@ Function/WAVE ATH_WAVELoadSingleCorruptedDATFile(string filepathStr, string wave
 	/// @param skipmetadata int optional and if set to a non-zero value it skips metadata.
 	/// @return wave reference
 	
-	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
-
 	variable numRef
 	string separatorchar = ":"
 	string fileFilters = "dat File (*.dat):.dat;"
@@ -1476,7 +1481,7 @@ Function/WAVE ATH_WAVELoadSingleCorruptedDATFile(string filepathStr, string wave
 	return datwave
 End
 
-Function ATH_LoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int skipmetadata, int waveDataType])
+Function ATH_LoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int waveDataType])
 	///< Function to load a single Elmitec binary .dat file by skipping reading the metadata.
 	/// We assume here that the image starts at sizeOfFile - kpixelsTVIPS^2 * 16
 	/// @param filepathStr string filename (including) pathname. 
@@ -1488,7 +1493,6 @@ Function ATH_LoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, 
 	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
 	/// @return wave reference
 	
-	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
 	waveDataType = ParamIsDefault(waveDataType) ? 0: waveDataType
 
 	variable numRef
