@@ -588,10 +588,91 @@ Function/S ATH_BackupWaveInWaveDF(WAVE wref)
 	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref) + "_undo")
 
 	if(!WaveExists($backupWavePathStr))
-		Duplicate/O wref, $backupWavePathStr
+		Duplicate wref, $backupWavePathStr
 		print "Backup wave: ", backupWavePathStr
 	endif
 	return backupWavePathStr
+End
+
+Function/S ATH_BackupWaveInWaveDFQ(WAVE wref)
+	// Backup a wave in the same DF. If a wave with wavename_undo exists
+	// the user is prompted to proceed and overwrite the destination wave or not.
+	// If a backup wave is created a message is printed in the command window.
+	// The function returns a string of backupWavePathStr
+	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref) + "_undo")
+
+	if(WaveExists($backupWavePathStr))
+		DoAlert/T="Overwite backup wave?", 1, ("Do you want to overwite " + backupWavePathStr + "?")
+		if(V_flag == 1)
+			Duplicate/O wref, $backupWavePathStr
+			print "Backup/O wave: ", backupWavePathStr
+		endif
+	else
+		Duplicate wref, $backupWavePathStr
+		print "Backup wave: ", backupWavePathStr
+	endif
+	return backupWavePathStr // return the backup wavename in either case.
+End
+
+Function/S ATH_BackupWave3DLayerInWaveDF(WAVE wref, variable layerN)
+	// Backup a layer from a 3d wave in the same DF as wavename_p2_undo if /P=2 is used
+	// If a wave with wavename_pN_undo exists, nothing is done
+	// If a backup wave is created a message is printed in the command window.
+	// The function returns a string of backupWavePathStr
+	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref)\
+						       + "_p" + num2str(layerN) + "_undo")
+	if(!WaveExists($backupWavePathStr))
+		MatrixOP $backupWavePathStr = layer(wRef, layerN)
+		print "Backup of layer ", num2str(layerN), " ", backupWavePathStr
+	endif
+	return backupWavePathStr
+End
+
+Function/S ATH_BackupWave3DLayerInWaveDFQ(WAVE wref, variable layerN)
+	// Backup a layer from a 3d wave in the same DF as wavename_p2_undo if /P=2 
+	// is used. If a wave with wavename_pN_undo exists the user is prompted
+	// to proceed and overwrite the destination wave or not.
+	// If a backup wave is created a message is printed in the command window.
+	// The function returns a string of backupWavePathStr
+	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref)\
+						       + "_p" + num2str(layerN) + "_undo")
+	if(WaveExists($backupWavePathStr))
+		DoAlert/T="Overwite backup wave?", 1, ("Do you want to overwite " + backupWavePathStr + "?")
+		if(V_flag == 1)
+			MatrixOP/O $backupWavePathStr = layer(wRef, layerN)
+			print "Backup/O of layer ", num2str(layerN), " ", backupWavePathStr
+		endif
+	else
+		MatrixOP $backupWavePathStr = layer(wRef, layerN)
+		print "BackupRestore of layer ", num2str(layerN), " ", backupWavePathStr
+	endif
+	return backupWavePathStr // return the backup wavename in either case.
+		
+End
+
+Function ATH_RestoreWaveFromBackup(WAVE wRef)
+	// Restore image from wRef_undo if it exists. wRef and WRef_undo 
+	// should be in the same DF.
+	string waveNameStr = NameOfWave(wref)
+	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(waveNameStr + "_undo")
+	if(WaveExists($backupWavePathStr))
+		Duplicate $backupWavePathStr, wRef
+		print waveNameStr, " restored from backup"
+	endif
+	return 0
+End
+
+Function ATH_RestoreWave3DLayerFromBackup(WAVE wref, variable layerN)
+	// Restore image from wRef_pN_undo if it exists. wRef and wRef_pN_undo 
+	// should be in the same DF.
+	string waveNameStr = NameOfWave(wref)
+	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(wavenameStr\
+						       + "_p" + num2str(layerN) + "_undo")
+	if(WaveExists($backupWavePathStr))
+		ImageTransform/P=(layerN)/D=$backupWavePathStr setplane wRef
+		print "Backup of layer ", num2str(layerN), " ", backupWavePathStr
+	endif
+	return 0
 End
 
 Function ATH_RightDimVal(WAVE w, int dim)

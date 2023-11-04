@@ -727,7 +727,7 @@ Function ATH_LaunchImageRemoveBackground()
 	if(V_flag || order < 1 || order > 12)
 		return -1
 	endif
-	
+	ATH_BackupWaveInWaveDFQ(wRef)
 	if(ATH_IsWM3DAxisActiveQ("")) // Do we have active axis in top window?
 		variable layerN = ATH_GetCurrentPlaneWM3DAxis("")
 		ATH_ImageRemoveBackground(wRef, order = order, layerN = layerN)
@@ -936,6 +936,14 @@ Function ATH_LaunchXMCDCombinations()
 End
 
 Function ATH_LaunchDeleteBigWaves()
+	/// Delete filter larger than minFileSizeMB.
+	/// The textWave that pops to check the waves can be edited
+	/// to remove the waves you want to keep (an invalid path
+	/// will also lead to the same result as the function 
+	/// ATH_DeleteWavesInTextWave that clears big waves will
+	/// not give any error (/Z). Only the total freed space will
+	/// be reported incorreclty.
+
 	variable minFileSizeMB = 100 // Threshhold in MB
 	Prompt minFileSizeMB, "Enter threshold value in MegaBytes (MB)"
 	DoPrompt "Delete big files", minFileSizeMB
@@ -953,14 +961,25 @@ Function ATH_LaunchDeleteBigWaves()
 	Edit/K=2/N=$editWindowName waveNamesW, waveSizesW as "Big Waves" // Prevent window from being killed here!
 	STRUCT sUserMarqueePositions s
 	variable cancel = ATH_WaitForUserActions(s, vWinType = 2)
+	
+	// Here clear the empty entries
+	variable i
+	for(i = nwaves - 1; i > 0; i--) // we have to do it backwards!
+		if(!strlen(waveNamesW[i]))
+			DeletePoints i, 1, waveNamesW
+			DeletePoints i, 1, waveSizesW
+		endif
+	endfor
+	
 	if(cancel)
 		KillWindow/Z $editWindowName
-		KillDataFolder dfr // FIX: Fix problem.Cannot kill folder, seem
+		KillDataFolder/Z dfr
 		return 1
 	else
 		ATH_DeleteWavesInTextWave(waveNamesW)
 		KillWindow/Z $editWindowName
-		print "Deleted " + num2str(nwaves) + " waves. Total space freed: " + num2str(totalSizeMB) + " MBs"
+		// Here DimSize(waveNamesW, 0) as nwaves might have changed
+		print "Deleted " + num2str(DimSize(waveNamesW, 0)) + " waves. Total space freed: " + num2str(totalSizeMB) + " MBs"
 		KillDataFolder/Z dfr // prevents error in case you have open one of the waves 
 		return 0
 	endif

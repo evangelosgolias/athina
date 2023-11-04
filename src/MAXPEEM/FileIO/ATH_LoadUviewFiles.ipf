@@ -681,7 +681,8 @@ Function/S ATH_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 			FReadLine /T=(num2char(0))/ENCG={3,3,1} numRef, strbuffer // TODO: Fix the trailing tab and zeros!
 			sscanf strbuffer, "%eµm", buffer
 			ATHMetaDataStr += "FOV(µm):" + num2str(buffer) + "\n"
-			FBinRead/F=4 numRef, buffer // drop FOV calculation factor
+			FBinRead/F=4 numRef, buffer //FOV calculation factor
+			//ATHMetaDataStr += "FOV calc. fact.:" + num2str(buffer) + "\n"
 		elseif(buffer == 111) //drop
 			FBinRead/F=4 numRef, buffer // phi
 			FBinRead/F=4 numRef, buffer // theta
@@ -858,7 +859,8 @@ Function/S ATH_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataSt
 			FReadLine /T=(num2char(0))/ENCG={3,3,1} numRef, strbuffer // TODO: Fix the trailing tab and zeros!
 			sscanf strbuffer, "%dµm", buffer
 			ATHMetaDataStr += "FOV(µm):" + num2str(buffer) + "\n"
-			FBinRead/F=4 numRef, buffer // drop FOV calculation factor
+			FBinRead/F=4 numRef, buffer //FOV calculation factor
+			ATHMetaDataStr += "FOV calc. fact.:" + num2str(buffer) + "\n"
 		elseif(buffer == 111) //drop
 			FBinRead/F=4 numRef, buffer // phi
 			FBinRead/F=4 numRef, buffer // theta
