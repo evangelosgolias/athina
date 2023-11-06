@@ -1289,89 +1289,87 @@ Function ATH_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 	return 0
 End
 
-//TODO: Clean the code also! Use it to auto-load a folder
-Function/WAVE ATH_WAVELoadDATFilesFromFolder(string folder, string pattern, [int stack3d, string wname3dStr, int autoscale])
+Function/WAVE ATH_WAVELoadDATFilesFromFolder(string folder, string pattern, [string wname3dStr, int autoscale])
 	// We use ImageTransform stackImages X to create the 3d wave. Compared to 3d wave assignement it is faster by nearly 3x.
 
 	/// Import .dat files that match a pattern from a folder. Waves are named after their filename.
 	/// @param folder string folder of the .dat files
 	/// @param pattern string pattern to filter .dat files, use "*" for all .dat files- empty string gives an error
-	/// @param stack3d int optional stack imported .dat files to the 3d wave, kill the imported waves
 	/// @param autoScale int optional scales the imported waves if not 0
 	/// @param wname3dStr string optional name of the 3d wave, othewise defaults to ATH_w3d
-	
-	/// Modified on 14.05.2023 to use with ATH_LoadNewestFolderInPathTree. Clean the code **TODO**
-	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
-	wname3dStr = SelectString(ParamIsDefault(wname3dStr) ? 0: 1,"stack3d", wname3dStr)
-	
+
+	wname3dStr = SelectString(ParamIsDefault(wname3dStr) ? 0: 1,"", wname3dStr)
+
 	folder = ParseFilePath(2, folder, ":", 0, 0) // We need the last ":"  in path!!!
-	
+
 	NewPath/Q/O ATH_DATFilesPathTMP, folder
-	
+
 	// Get all the .dat files. Use "????" for all files in IndexedFile third argument.
 	// Filter the matches with pattern at the second stage.
 	string allFiles = ListMatch(SortList(IndexedFile(ATH_DATFilesPathTMP, -1, ".dat"),";", 16), pattern)
-		
-	variable filesnr = ItemsInList(allFiles)
+
+	variable filesnr = ItemsInList(allFiles), i
 
 	// If no files are selected (e.g match pattern return "") warn user
 	if (!filesnr)
 		Abort "No files match pattern: " + pattern
 	endif
 
-	if(stack3d)
-		DFREF currDF = GetDataFolderDFR()
-		wname3dStr = CreateDataObjectName(currDF, wname3dStr, 1, 0, 5)
+	string filenameBuffer, datafile2read, filenameStr, basenameStr
+	
+	if(!strlen(wname3dStr))
+		basenameStr = ParseFilePath(0, folder, ":", 1, 0) // Use it to name the wave if wname3d = "
+		wname3dStr = CreatedataObjectName(cwDFR, basenameStr, 1, 0, 1)
+	else
+		basenameStr = wname3dStr
+		wname3dStr = CreatedataObjectName(cwDFR, basenameStr, 1, 0, 1)
+	endif
+		
+	DFREF saveDF = GetDataFolderDFR()
+
+	
+	if(filesnr == 1)
+		filenameBuffer = StringFromList(0, allFiles)
+		datafile2read = folder + filenameBuffer
+		wname3dStr = CreateDataObjectName(currDF, filenameBuffer, 1, 0, 1)
+		WAVE wRef = ATH_WAVELoadSingleDATFile(datafile2read, wname3dStr)
+		return wRef
 	endif
 	
-	string filenameBuffer, datafile2read, filenameStr
-	variable i, fovScale
-	
-	if(stack3d) // Make a folder to import files for the stack
-		NewDataFolder ATH_tmpStorageStackFolder
-		SetDataFolder ATH_tmpStorageStackFolder
+	if(filesnr > 1)
+		SetDataFolder NewFreeDataFolder()
+		filenameBuffer = StringFromList(0, allFiles)
+		datafile2read = folder + filenameBuffer
+		WAVE wname = ATH_WAVELoadSingleDATFile(datafile2read, ("ATHWaveToStack_idx_" + num2str(0)), skipmetadata = 0)
+		variable getScaleXY = NumberByKey("FOV(µm)", note(wname), ":", "\n")	
+		wname3dStr = CreateDataObjectName(saveDF, wname3dStr, 1, 0, 1)
 	endif
+	
 	// Now get all the files
-	for(i = 0; i < filesnr; i += 1)
+	for(i = 1; i < filesnr; i += 1)
 		filenameBuffer = StringFromList(i, allFiles)
 		datafile2read = folder + filenameBuffer
-		if(stack3d) // Skip the metadata if you load to a 3dwave
-			// Here we assume all the waves have the same x, y scaling 
-			if(i == 0) // We get the wave scaling for rows and columnns using the first wave, assumed DimSize(w, 0) == DimSize(w, 1)
-					WAVE wname = ATH_WAVELoadSingleDATFile(datafile2read, ("ATHWaveToStack_idx_" + num2str(i)), skipmetadata = 0) 
-					variable getScaleXY = NumberByKey("FOV(µm)", note(wname), ":", "\n")
-				else
-					WAVE wname = ATH_WAVELoadSingleDATFile(datafile2read, ("ATHWaveToStack_idx_" + num2str(i)), skipmetadata = 1)
-			endif
-		else
-			filenameStr = ParseFilePath(3, datafile2read, ":", 0, 0)
-			WAVE wname = ATH_WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 0)
-			fovScale = NumberByKey("FOV(µm)", note(wname), ":", "\n")
-			if(autoscale)
-				SetScale/I x, 0, fovScale, $filenameStr
-				SetScale/I y, 0, fovScale, $filenameStr 
-			endif
-		endif		
+		WAVE wname = ATH_WAVELoadSingleDATFile(datafile2read, ("ATHWaveToStack_idx_" + num2str(i)), skipmetadata = 1)
+		filenameStr = ParseFilePath(3, datafile2read, ":", 0, 0)
+		WAVE wname = ATH_WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 0)
 	endfor
-	
-	if(stack3d)
-		ImageTransform/NP=(filesnr) stackImages $"ATHWaveToStack_idx_0"
-		WAVE M_Stack
-		//Add a note to the 3dwave about which files have been loaded
-		string note3d
-		sprintf note3d, "Timestamp: %s\nFolder: %s\nFiles: %s\n",(date() + " " + time()), folder, allFiles
-		Note/K M_Stack, note3d
-		MoveWave M_Stack ::$wname3dStr
-		SetDataFolder ::
-		KillDataFolder/Z ATH_tmpStorageStackFolder
-	endif
-	// It is assumed that all the imported waves have the same dimensions, use it to scale the 3d wave	
-	if(autoscale && stack3d)
-		SetScale/I x, 0, getScaleXY, $wname3dStr
-		SetScale/I y, 0, getScaleXY, $wname3dStr
+
+	ImageTransform/NP=(filesnr) stackImages $"ATHWaveToStack_idx_0"
+	WAVE M_Stack
+	//Add a note to the 3dwave about which files have been loaded
+	string note3d
+	sprintf note3d, "Timestamp: %s\nFolder: %s\nFiles: %s\n",(date() + " " + time()), folder, allFiles
+	Note/K M_Stack, note3d
+	MoveWave M_Stack saveDF:$wname3dStr
+
+	// It is assumed that all the imported waves have the same dimensions, use it to scale the 3d wave
+	if(autoscale)
+		SetScale/I x, 0, getScaleXY, saveDF:$wname3dStr
+		SetScale/I y, 0, getScaleXY, saveDF:$wname3dStr
 	endif
 	KillPath/Z ATH_DATFilesPathTMP
-	WAVE wRef = $wname3dStr
+	WAVE wRef = saveDF:$wname3dStr
+	SetDataFolder saveDF
 	return wRef
 End
 
