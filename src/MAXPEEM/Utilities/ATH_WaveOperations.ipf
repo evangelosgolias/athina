@@ -63,16 +63,19 @@ Function ATH_Make3DWaveUsingPattern(string wname3dStr, string pattern)
 	return 0
 End
 
-Function/S ATH_Make3DWaveDataBrowserSelection(string wname3dStr, [variable makeInSourceDFR])
+Function/S ATH_Make3DWaveDataBrowserSelection(string wname3dStr, [variable makeInSourceDFR, variable autoPath])
 
 	// Make a 3d wave using waves selected
 	// in the browser window. No check for selection
-	// type, so if you select a folder or variable
-	// you will get an error.
+	// type, so if you select a folder or variable you will get an error.
 	// Returns a string with the name of the created wave, as wname3dStr
 	// might be already taken
+	// makeInSourceDFR: Created stack in the cwd or in the sourceDir?
+	// autoPath: The program sets makeInSourceDFR. If all waves in the same
+	// folder the makeInSourceDFR = 1, otherwise makeInSourceDFR = 0
 	
 	makeInSourceDFR = ParamIsDefault(makeInSourceDFR) ? 0: makeInSourceDFR
+	autoPath = ParamIsDefault(autoPath) ? 0: autoPath
 	string listOfSelectedWaves = ""
 	
 	// Test not needed here -- Called from ATH_LaunchMake3DWaveDataBrowserSelection()
@@ -106,8 +109,12 @@ Function/S ATH_Make3DWaveDataBrowserSelection(string wname3dStr, [variable makeI
 	
 	variable nx = DimSize(wref,0)
 	variable ny = DimSize(wref,1)
-	
-	
+	// List of all waves
+	WAVE/WAVE waveListFree = ATH_StringWaveListToWaveRef(listOfSelectedWaves, isFree = 1)	
+	// Checks if all waves are in the same folder
+	if(autoPath)
+		makeInSourceDFR = ATH_AllWavesSamePathQ(waveListFree)
+	endif
 	if(makeInSourceDFR)
 		DFREF saveDF = GetDataFolderDFR()
 		SetDataFolder GetWavesDataFolderDFR(wref)
@@ -119,7 +126,6 @@ Function/S ATH_Make3DWaveDataBrowserSelection(string wname3dStr, [variable makeI
 	string folder = GetDataFolder(1)
 	wname3dStr = CreatedataObjectName(currDFR, "ATH_stack", 1, 0, 0)
 	
-	WAVE/WAVE waveListFree = ATH_StringWaveListToWaveRef(listOfSelectedWaves, isFree = 1)
 	if(ATH_AllImagesEqualDimensionsQ(waveListFree))
 		Concatenate/NP=2 {waveListFree}, $wname3dStr
 	else
@@ -162,6 +168,22 @@ Function/WAVE ATH_StringWaveListToWaveRef(string wavelistStr, [int isFree])
 	return wRefw
 End
 
+Function ATH_AllWavesSamePathQ(WAVE/WAVE wWAVEList)
+	// Function checks whether all have are in the same data folder
+	// 0 - no, 1 - yes.  
+	variable nrwaves = DimSize(wWAVEList, 0), i
+	if(nrwaves < 2)
+		return -1
+	endif
+	DFREF dfr0 = GetWavesDataFolderDFR(wWAVEList[0]), dfr1
+	for(i = 1; i < nrwaves; i++)
+		dfr1 = GetWavesDataFolderDFR(wWAVEList[i])
+		if(!DataFolderRefsEqual(dfr0 , dfr1))
+			return 0
+		endif
+	endfor
+	return 1
+End
 Function ATH_MakeSquare3DWave(WAVE w3d, [variable size])
 	/// Creates a 3d waves with the same rows, cols by interpolation of w3d.
 	/// The wave scaling using the interval /I.
