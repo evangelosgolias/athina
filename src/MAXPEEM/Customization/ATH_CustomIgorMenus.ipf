@@ -133,8 +133,8 @@ End
 Menu "DataBrowserObjectsPopup"
 	"ATH Newimage", /Q, ATH_LaunchNewImageFromBrowserSelection()
 	"ATH Average stack", /Q, ATH_LaunchAverageStackToImageFromBrowserMenu()
-	"ATH Make stack", /Q, ATH_LaunchMake3DWaveDataBrowserSelection(autoPath = 1)
-	"ATH Make stack and display", /Q, ATH_LaunchMake3DWaveDataBrowserSelection(displayStack = 1, autoPath = 1)
+	"ATH Make stack", /Q, ATH_LaunchMake3DWaveDataBrowserSelection()
+	"ATH Make stack and display", /Q, ATH_LaunchMake3DWaveDataBrowserSelection(displayStack = 1)
 	"ATH Restore image from backup", /Q, ATH_LaunchImageBackupFromBrowserSelection()
 	Submenu "ATH Profiles"
 		"ATH Z profile", /Q, ATH_BrowserMenuLaunchSumBeamsProfile()
