@@ -348,4 +348,47 @@ Function ATH_UserGetCursorsPositions_CancelBProc(STRUCT WMButtonAction &B_Struct
 	endswitch
 	return 0
 End
-// End of marquee coordinates
+// End of Cursor positions with PauseforUser
+
+Function ATH_CursorsToAngle(string Cursor1, string Cursor2 [, variable deg])
+	// Returns the angle in rad or degrees of the line passing through Cursor1, Cursor2
+	// Angle range [-π/2, π/2]. NOTE: Y- axis is reversed in images
+	// We want compatibility with ImageRotate where positive angle rotate clock-wise
+	//
+	// Usage example:
+	// Use the function do set a line with cursors and get the image rotated such as
+	// the direction of the line is paralled to the top axis.
+	//
+	// ImageRotate/A=(ATH_CursorsToAngle(E, F, deg=1)) waveRef
+
+	deg = ParamIsDefault(deg) ? 0 : 1
+	variable XExists = strlen(CsrInfo($Cursor1))
+	variable YExists = strlen(CsrInfo($Cursor2))
+	if(!XExists)
+		print "Cursor ", Cursor1, " not in graph"
+		return -1
+	endif
+	if(!YExists)
+		print "Cursor ", Cursor2, " not in graph"
+		return -1
+	endif
+	variable x1 = hcsr($Cursor1)
+	variable y1 = vcsr($Cursor1)
+	variable x2 = hcsr($Cursor2)
+	variable y2 = vcsr($Cursor2)
+
+	variable angle, dx, dy
+	if(y1 == y2)
+		return 0
+	elseif(x1 == x2)
+		if(deg)
+			return 90
+		else
+			return pi
+		endif
+	endif
+	dy = y2 - y1
+	dx = x2 - x1
+	angle = (deg == 0) ? atan(dy/dx) : atan(dy/dx)*180/pi
+	return angle
+End
