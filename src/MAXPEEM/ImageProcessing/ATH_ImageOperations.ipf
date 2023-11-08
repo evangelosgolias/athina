@@ -752,11 +752,15 @@ Function ATH_PixelateImage(WAVE wRef, variable nx, variable ny, [variable i16])
 	if(WaveType(wRef) & 0x10 && ParamIsDefault(i16)) // If WaveType is 16-bit integer and not i16
 		Redimension/S wRef // 32-bit float
 	endif 
+	
+	DFREF saveDF = GetWavesDataFolderDFR(wRef)
+
 	string wnameStr = NameofWave(wRef) + "_" + num2str(nx) + "x" + num2str(ny) + "_px"
-	ImageInterpolate/PXSZ={nx, ny}/DEST=$wnameStr Pixelate wRef
-	string noteStr = "Pixelated " + NameofWave(wRef) + "{" + num2str(nx) + ", " + num2str(ny) + "}"
-	CopyScales/I wRef, $wnameStr
-	Note/K $wnameStr, noteStr
+	ImageInterpolate/PXSZ={nx, ny}/DEST=saveDF:$wnameStr Pixelate wRef
+	string noteStr = "Source:" + GetWavesDataFolder(wRef, 2) + " . Dimensions:("+ num2str(DimSize(wRef,0))+ ", " + num2str(DimSize(wRef,1)) + ")" + \
+	".Pixelated factors:[" + num2str(nx) + ", " + num2str(ny) + "]"
+	CopyScales/I wRef, saveDF:$wnameStr
+	Note/K saveDF:$wnameStr, noteStr
 	return 0
 End
 
@@ -770,12 +774,14 @@ Function ATH_PixelateImageStack(WAVE wRef, variable nx, variable ny, variable nz
 	
 	if(WaveType(wRef) & 0x10 && ParamIsDefault(i16)) // If WaveType is 16-bit integer and not i16
 		Redimension/S wRef // 32-bit float
-	endif 
-	string wnameStr = NameofWave(wRef) + "_" + num2str(nx) + "x" + num2str(ny) + "_px"
-	ImageInterpolate/PXSZ={nx, ny, nz}/DEST=$wnameStr Pixelate wRef
-	string noteStr = "Pixelated " + NameofWave(wRef) + "{" + num2str(nx) + ", " + num2str(ny) + ", " + num2str(nz) + "}"
-	CopyScales/I wRef, $wnameStr
-	Note/K $wnameStr, noteStr
+	endif
+	DFREF saveDF = GetWavesDataFolderDFR(wRef) 
+	string wnameStr = NameofWave(wRef) + "_" + num2str(nx) + "x" + num2str(ny) + "_px" + num2str(nz) + "_pz"
+	ImageInterpolate/PXSZ={nx, ny, nz}/DEST=saveDF:$wnameStr Pixelate wRef
+	string noteStr = "Source:" + GetWavesDataFolder(wRef, 2) + ".Dimensions:("+ num2str(DimSize(wRef,0))+ ", " + num2str(DimSize(wRef,1)) + ")" + \
+	", " + num2str(DimSize(wRef,2)) +".Pixelated factors:[" + num2str(nx) + ", " + num2str(ny) + ", " + num2str(nz) + "]"
+	CopyScales/I wRef, saveDF:$wnameStr
+	Note/K saveDF:$wnameStr, noteStr
 	return 0
 End
 

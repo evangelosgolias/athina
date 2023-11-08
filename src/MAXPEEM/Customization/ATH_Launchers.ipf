@@ -1015,3 +1015,50 @@ Function ATH_LaunchDeleteBigWavesDisplayed()
 		return 0
 	endif
 End
+
+Function ATH_LaunchPixelateSingleImageOrStack()
+	WAVE wRef = ATH_TopImageToWaveRef() 
+	variable nx = 1, ny = 1, nz = 1
+	if(WaveDims(wRef) == 3)
+		Prompt nx, "Pixelate X:"
+		Prompt ny, "Pixelate Y:"	
+		Prompt nz, "Pixelate Z:"
+		DoPrompt "Pixelate image stack", nx, ny, nz
+		if(V_flag)
+			return -1
+		endif
+		
+		if(!ATH_IntegerQ(nx))
+			nx = trunc(nx)
+			print "Truncate nx: ", num2str(nx)
+		endif
+		if(!ATH_IntegerQ(ny))
+			ny = trunc(ny)
+			print "Truncate nx: ", num2str(ny)			
+		endif
+		if(!ATH_IntegerQ(nx))
+			nz = trunc(nz)
+			print "Truncate nx: ", num2str(nz)			
+		endif		
+		ATH_PixelateImageStack(wRef, nx, ny, nz)
+	elseif(WaveDims(wRef) == 2)
+		Prompt nx, "Pixelate X:"
+		Prompt ny, "Pixelate Y:"
+		DoPrompt "Pixelate image", nx, ny
+		if(V_flag)
+			return -1
+		endif
+		if(!ATH_IntegerQ(nx))
+			nx = trunc(nx)
+			print "Truncate nx: ", num2str(nx)
+		endif
+		if(!ATH_IntegerQ(ny))
+			ny = trunc(ny)
+			print "Truncate nx: ", num2str(ny)			
+		endif		
+		ATH_PixelateImage(wRef, nx, ny)
+	else
+		Abort "Operation needs an image or an image stack"
+	endif
+	return 0
+End

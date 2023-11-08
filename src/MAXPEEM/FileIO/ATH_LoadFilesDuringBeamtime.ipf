@@ -120,7 +120,7 @@ Function ATH_LoadNewestFolderInPathTreeAndDisplay()
 	string latestfolder = ""
 	variable latestctime = 0
 	string folderPathStr = ATH_GetNewestCreatedFolderInPathTree("pATH_LoadFilesBeamtimeIgorPath", latestfolder, latestctime)
-	WAVE wRef = ATH_WAVELoadDATFilesFromFolder(folderPathStr, "*", autoscale = 1, wname3dStr = "")
+	WAVE wRef = ATH_WAVELoadDATFilesFromFolder(folderPathStr, "*", autoscale = 1)
 	ATH_DisplayImage(wRef)
 	print "Folder loaded: ", folderPathStr	
 	return 0

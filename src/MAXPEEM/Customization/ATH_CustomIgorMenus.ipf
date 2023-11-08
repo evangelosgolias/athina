@@ -52,6 +52,7 @@ Menu "Athina"
 		"Remove layers from stack (TG, 3D)", /Q, ATH_LaunchRemoveImagesFromImageStack()
 		"Sum image stack(TG, 3D)", /Q, ATH_LaunchSumImagePlanes()				
 		"New image (stack) from saved ROI (TG, 2D, 3D)", /Q, ATH_LaunchMakeWaveFromSavedROI()
+		"Pixelate image (TG, 2D, 3D)", /Q, ATH_LaunchPixelateSingleImageOrStack()
 		"FFT (TG, 2D)", /Q, ATH_LaunchImageFFTTransform()
 		"Rotate image (TG, 2D, 3D) ", /Q, ATH_LaunchImageRotateAndScale()
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, ATH_LaunchImageRotateAndScaleFromMetadata()
@@ -87,7 +88,7 @@ Menu "Athina"
 		"XMC(L)D (Import two .dat files) ...", /Q, ATH_DialogLoadTwoImagesAndRegisterQ()
 		"XMC(L)D (3D[2]) ... ", /Q, ATH_LaunchCalculationXMCD3d()
 		"XMC(L)D (2D[2]) ...", /Q, ATH_LaunchRegisterQCalculateXRayDichroism()
-		"XMC(L)D combinations (3D[1])", /Q, ATH_LaunchXMCDCombinations()
+		"XMC(L)D combinations (3D[1]) ...", /Q, ATH_LaunchXMCDCombinations()
 	End	
 		
 	Submenu "XPS"
