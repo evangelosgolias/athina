@@ -1034,11 +1034,11 @@ Function ATH_LaunchPixelateSingleImageOrStack()
 		endif
 		if(!ATH_IntegerQ(ny))
 			ny = trunc(ny)
-			print "Truncate nx: ", num2str(ny)			
+			print "Truncate ny: ", num2str(ny)			
 		endif
-		if(!ATH_IntegerQ(nx))
+		if(!ATH_IntegerQ(nz))
 			nz = trunc(nz)
-			print "Truncate nx: ", num2str(nz)			
+			print "Truncate nz: ", num2str(nz)			
 		endif		
 		ATH_PixelateImageStack(wRef, nx, ny, nz)
 	elseif(WaveDims(wRef) == 2)
@@ -1054,7 +1054,7 @@ Function ATH_LaunchPixelateSingleImageOrStack()
 		endif
 		if(!ATH_IntegerQ(ny))
 			ny = trunc(ny)
-			print "Truncate nx: ", num2str(ny)			
+			print "Truncate ny: ", num2str(ny)			
 		endif		
 		ATH_PixelateImage(wRef, nx, ny)
 	else
