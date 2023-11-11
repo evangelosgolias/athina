@@ -30,7 +30,6 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-
 Function ATH_LaunchInteractiveImageDriftCorrectionFromMenu()
 	/// Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
@@ -63,10 +62,9 @@ Function ATH_LaunchInteractiveImageDriftCorrectionFromMenu()
 	if(!cmpstr(wave1NameStr, wave2NameStr))
 		print "Ok, you are subtracting a wave from itself! I hope you know what you are doing."
 	endif
-	
 	// Create variables for the Panel. NB; Data Folders for panels can be overwritten
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveXMCD:") 
-	string folderNameStr = CreateDataObjectName(dfr, "iXMCD",11, 0, 0)
+	string folderNameStr = CreateDataObjectName(dfr, "iXMCD_DF",11, 0, 0)
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveXMCD:" + folderNameStr)
 	
 	if(WaveType($wave1NameStr) & 0x10) // If WORD (int16)
@@ -84,18 +82,14 @@ Function ATH_LaunchInteractiveImageDriftCorrectionFromMenu()
 	WAVE wImg2 = dfr:wImg2	
 	WAVE wXMCD = dfr:wXMCD
 	WAVE wSum = dfr:wSum
-	// Add wave origin information
-	Note/K dfr:wXMCD, "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " \
-	+ NameOfWave(wImg1) + "\nimg2: " + NameOfWave(wImg2)
 	// Set global variables
 	variable/G dfr:gATH_driftStep = 1
 	variable/G dfr:gATH_dx = 0	
 	variable/G dfr:gATH_dy = 0
-	variable/G dfr:calculationMethod = 0 // 0=sub/add, 1=div
 	string/G dfr:wName1Str = wave1NameStr
 	string/G dfr:wName2Str = wave2NameStr
-	SetFormula wXMCD, "(wImg1 - wImg2)/(wImg1 + wImg2)"
-	SetFormula wSum, "wImg1 + wImg2"	
+	wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
+	wSum = wImg1 + wImg2
 	ATH_CreateInteractiveXMCDCalculationPanel(wXMCD, wSum)
 End
 
@@ -118,8 +112,6 @@ Function ATH_CreateInteractiveXMCDCalculationPanel(WAVE wXMCD, WAVE wSum)
 	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20.00,10.00},size={90.00,20.00},proc=ATH_SaveXMCDImageButton
 	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save XMCD", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
 
-	CheckBox CalcWithDivision,pos={310, 10.00},size={100,20.00},title="Use img1/img2 ",fSize=14,value=0,side=1,proc=ATH_XMCDCalcWithDivision
-
 	// Set the path to all windows
 	string dfrStr = GetWavesDataFolder(wXMCD, 1)
 	SetWindow $winiXMCDNameStr userdata(ATH_iXMCDPath) = dfrStr
@@ -139,30 +131,19 @@ Function ATH_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	WAVE/SDFR=dfr wImg2_undo	
 	WAVE/SDFR=dfr wXMCD
 	WAVE/SDFR=dfr wSum
+	SVAR/SDFR=dfr wName2Str
+
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
 	string dfrStr = GetUserData(s.winName, "", "ATH_iXMCDPath"), cmdStr
 	switch(s.eventCode)
-		case 0: // activate
-			SetFormula wXMCD, "(wImg1 - wImg2)/(wImg1 + wImg2)"
-			SetFormula wSum, "wImg1 + wImg2"
-			hookresult = 1
-			break
-		case 1: // deactivate
-			SetFormula wXMCD, ""
-			SetFormula wSum, ""
-			hookresult = 1
-			break
 	// Window is about to be killed case 17. 
 	// Needed if you want more than one hook functions to be able to cleanup/close 
 	// windows linked a parent window.
 		case 2: 
-			SetFormula wXMCD, ""
-			SetFormula wSum, ""
 			string sumWinStr = GetUserData(s.winName, "", "ATH_iSumWin")
-			if (WinType(sumWinStr) == 1)
-				string killwincmd = "KillWindow "+sumWinStr
-				Execute/P/Q killWinCmd
-			endif
+			string killwincmd = "KillWindow/Z "+sumWinStr // keep Z in case you've killed the iSum
+			Execute/P/Q killWinCmd
+			WaveClear wImg1, wImg2, wXMCD, wSum, wImg2_undo
 			string killDFCmd = "KillDataFolder "+ GetDataFolder(1, dfr)
 			Execute/P/Q killDFCmd
 			hookresult = 1
@@ -178,23 +159,23 @@ Function ATH_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 				case 29: //right arrow
 					ImageInterpolate/APRM={1,0,gATH_driftStep,0,1,0,1,0}/DEST=dfr:M_Affine Affine2D wImg2
 					WAVE/SDFR=dfr M_Affine
-					Duplicate/O M_Affine, wImg2
+					Duplicate/O M_Affine, wImg2				
 					hookResult = 1
 					break
 				case 30: // up arrow
 					ImageInterpolate/APRM={1,0,0,0,1,-gATH_driftStep,1,0}/DEST=dfr:M_Affine Affine2D wImg2
 					WAVE/SDFR=dfr M_Affine
-					Duplicate/O M_Affine, wImg2
+					Duplicate/O M_Affine, wImg2			
 					hookResult = 1
 					break
 				case 31: // down arrow
 					ImageInterpolate/APRM={1,0,0,0,1,gATH_driftStep,1,0}/DEST=dfr:M_Affine Affine2D wImg2
 					WAVE/SDFR=dfr M_Affine
-					Duplicate/O M_Affine, wImg2
+					Duplicate/O M_Affine, wImg2				
 					hookResult = 1
 					break
 				case 82: // R to restore.
-					Duplicate/O wImg2_undo, wImg2
+					Duplicate/O wImg2_undo, wImg2				
 					hookResult = 1
 					break
 				default:
@@ -202,6 +183,8 @@ Function ATH_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 					hookResult = 1
 					break
 			endswitch
+			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
+			wSum = wImg1 + wImg2
 			CopyScales/I wimg1, wimg2 // Copy back the scale, M_Affine is pixel-scaled
 			break
 	endswitch
@@ -212,39 +195,29 @@ End
 Function ATH_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
-	DFREF currDF = GetDataFolderDFR()
 	WAVE/SDFR=dfr wImg1
 	WAVE/SDFR=dfr wImg2
 	WAVE/SDFR=dfr wXMCD
-	NVAR/SDFR=dfr calculationMethod
+	WAVE/SDFR=dfr wimg2_undo
 	SVAR/SDFR=dfr wName1Str
-	SVAR/SDFR=dfr wName2Str	
-	string saveWaveNameStr, backupWaveNameStr, note2WaveStr, basenameStr
+	SVAR/SDFR=dfr wName2Str
 
 	variable postfix = 0
-	switch(B_Struct.eventCode)	// numeric switch	
-		case 2:	// "mouse up after mouse down"	
-			if(calculationMethod)
-				note2WaveStr = "XMC(L)D = img1/img2\n" + "img1: " \
-				+ wName1Str + "\nimg2: " + wName2Str
-			else
-				 note2WaveStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " \
-				+ wName1Str + "\nimg2: " + wName2Str
-			endif
-			saveWaveNameStr = CreatedataObjectName(currDF, "iXMCD", 1, 0, 1)			
-			Duplicate wXMCD, $saveWaveNameStr
-			Note/K $saveWaveNameStr, note2WaveStr
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			string note2WaveStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " \
+			+ wName1Str + "\nimg2: " + wName2Str
+			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)		
+			string savexmcdWaveStr = CreatedataObjectName(sourceDF, "iXMCD", 1, 0, 1)
+			Duplicate wXMCD, sourceDF:$savexmcdWaveStr
+			Note sourceDF:$savexmcdWaveStr, note2WaveStr
 			//Copy the interpolated wave
-			backupWaveNameStr = NameofWave($wName2Str) + "_undo"
-//			if(WaveExists($basenameStr))
-//				backupWaveNameStr = CreatedataObjectName(currDF, basenameStr, 1, 0, 1)
-//			else
-//				backupWaveNameStr = basenameStr
-//			endif
-			Duplicate/O $wName2Str, $backupWaveNameStr
-			Note $backupWaveNameStr, ("Backup of " + wName2Str)
-			//CopyScales/I wimg2, $backupWaveNameStr
-			Duplicate/O wimg2, $wName2Str
+			string wname2BaseStr = NameOfWave($wName2Str) + "_noDrift"
+			string saveWave2NameStr = CreatedataObjectName(sourceDF, wname2BaseStr, 1, 0, 1)
+			Duplicate/O wimg2_undo, sourceDF:$saveWave2NameStr // Restore original image when done.			
+			note2WaveStr = "Backup before iDrift of: " + wName2Str
+			Note sourceDF:$saveWave2NameStr, note2WaveStr
+			Duplicate/O wimg2, $wName2Str // wName2Str is a full path
 			break
 	endswitch
 	return 0
@@ -267,30 +240,3 @@ Function ATH_SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableContr
 	return 0
 End
 
-Function ATH_XMCDCalcWithDivision(STRUCT WMCheckboxAction& cb) : CheckBoxControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_iXMCDPath"))
-	WAVE/SDFR=dfr wImg1
-	WAVE/SDFR=dfr wImg2
-	WAVE/SDFR=dfr wXMCD	
-	WAVE/SDFR=dfr wSum
-	NVAR/SDFR=dfr calculationMethod
-	string sumWinNameStr = GetUserData(cb.win.win, "", "ATH_iSumWin")
-	string xmcdWinNameStr = GetUserData(cb.win.win, "", "ATH_iXMCDWin")
-	switch(cb.checked)
-		case 1:
-			calculationMethod = 1
-			SetFormula wXMCD, "wImg1/wImg2"
-			SetFormula wSum, "wImg1 - wImg2"
-			DoWindow/T $sumWinNameStr, "iDifference"
-			DoWindow/T $xmcdWinNameStr, "iRatio"
-			break
-		case 0:
-			calculationMethod = 0
-			SetFormula wXMCD, "(wImg1 - wImg2)/(wImg1 + wImg2)"
-			SetFormula wSum, "wImg1 + wImg2"
-			DoWindow/T $sumWinNameStr, "iSum"
-			DoWindow/T $xmcdWinNameStr, "iXMC(L)D"
-			break
-	endswitch
-	return 0
-End
