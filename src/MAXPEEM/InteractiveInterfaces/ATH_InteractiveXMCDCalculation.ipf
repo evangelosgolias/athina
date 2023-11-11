@@ -139,7 +139,11 @@ Function ATH_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	// Window is about to be killed case 17. 
 	// Needed if you want more than one hook functions to be able to cleanup/close 
 	// windows linked a parent window.
-		case 2: 
+		case 2:
+			Duplicate/O wimg2, $wName2Str // wName2Str is a full path
+			string note2ImgStr = "\nTotal drift dx:" + num2str(gATH_dx) \
+			+ " dy:" + num2str(gATH_dy) + " of " + wName2Str
+			Note wimg2, note2ImgStr
 			string sumWinStr = GetUserData(s.winName, "", "ATH_iSumWin")
 			string killwincmd = "KillWindow/Z "+sumWinStr // keep Z in case you've killed the iSum
 			Execute/P/Q killWinCmd
@@ -151,25 +155,29 @@ Function ATH_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 		case 11:					// Keyboard event
 			switch (s.keycode)
 				case 28: //left arrow
-					ImageInterpolate/APRM={1,0,-gATH_driftStep,0,1,0,1,0}/DEST=dfr:M_Affine Affine2D wImg2
+					gATH_dx -= gATH_driftStep
+					ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wImg2_undo
 					WAVE/SDFR=dfr M_Affine
 					Duplicate/O M_Affine, wImg2
 					hookResult = 1
 					break
 				case 29: //right arrow
-					ImageInterpolate/APRM={1,0,gATH_driftStep,0,1,0,1,0}/DEST=dfr:M_Affine Affine2D wImg2
+					gATH_dx += gATH_driftStep
+					ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wImg2_undo
 					WAVE/SDFR=dfr M_Affine
 					Duplicate/O M_Affine, wImg2				
 					hookResult = 1
 					break
 				case 30: // up arrow
-					ImageInterpolate/APRM={1,0,0,0,1,-gATH_driftStep,1,0}/DEST=dfr:M_Affine Affine2D wImg2
+					gATH_dy -= gATH_driftStep
+					ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wImg2_undo
 					WAVE/SDFR=dfr M_Affine
 					Duplicate/O M_Affine, wImg2			
 					hookResult = 1
 					break
 				case 31: // down arrow
-					ImageInterpolate/APRM={1,0,0,0,1,gATH_driftStep,1,0}/DEST=dfr:M_Affine Affine2D wImg2
+					gATH_dy += gATH_driftStep
+					ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wImg2_undo
 					WAVE/SDFR=dfr M_Affine
 					Duplicate/O M_Affine, wImg2				
 					hookResult = 1
@@ -201,12 +209,15 @@ Function ATH_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	WAVE/SDFR=dfr wimg2_undo
 	SVAR/SDFR=dfr wName1Str
 	SVAR/SDFR=dfr wName2Str
-
+	NVAR/SDFR=dfr gATH_dx
+	NVAR/SDFR=dfr gATH_dy
+	
 	variable postfix = 0
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			string note2WaveStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " \
-			+ wName1Str + "\nimg2: " + wName2Str
+			+ wName1Str + "\nimg2: " + wName2Str + "\nTotal drift dx:" + num2str(gATH_dx) \
+			+ " dy:" + num2str(gATH_dy)
 			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)		
 			string savexmcdWaveStr = CreatedataObjectName(sourceDF, "iXMCD", 1, 0, 1)
 			Duplicate wXMCD, sourceDF:$savexmcdWaveStr
@@ -219,7 +230,6 @@ Function ATH_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 				note2WaveStr = "Backup before iDrift of: " + wName2Str
 				Note sourceDF:$backupWaveNameStr, note2WaveStr
 			endif
-			Duplicate/O wimg2, $wName2Str // wName2Str is a full path
 			break
 	endswitch
 	return 0
