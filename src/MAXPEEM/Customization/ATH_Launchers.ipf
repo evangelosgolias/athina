@@ -140,6 +140,7 @@ Function ATH_LaunchRegisterQCalculateXRayDichroism()
 				"Do you want a another chance with the browser selection?"
 		if(V_flag == 1)
 			ATH_LaunchRegisterQCalculateXRayDichroism()
+			retun 0
 		elseif(V_flag == 2)
 			Abort
 		else
@@ -295,6 +296,7 @@ Function ATH_LaunchCalculationXMCD3D()
 				"Do you want a another chance with the browser selection?"
 		if(V_flag == 1)
 			ATH_LaunchCalculationXMCD3d()
+			return 0
 		elseif(V_flag == 2)
 			Abort
 		else
@@ -922,10 +924,10 @@ Function ATH_LaunchXMCDCombinations()
 						 + " time,  I will not continue.\nIf you want to perform the operation " \
 						 + " check the function ATH_XMCDCombinations."
 		DoAlert 0, abortmsg
-	elseif(nlayers > 20)
+	elseif(nlayers > 10)
 		string alertStr = "Operation will create a 3D wave with " + num2str((nlayers-1)*nlayers/2)\
 						+ "layers. \nDo you want to continue?"
-		DoAlert/T="Memory demanding operation ahead ...", 1, alertStr
+		DoAlert/T="Too many layers will be created ...", 1, alertStr
 		if(V_flag == 1)
 			ATH_XMCDCombinations(w3d)
 		endif	

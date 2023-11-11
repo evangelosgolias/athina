@@ -47,7 +47,8 @@ Function ATH_LaunchInteractiveImageDriftCorrectionFromMenu()
 				  "Do you want a another chance with the browser selection?"
 		if(V_flag == 1)
 			ATH_LaunchInteractiveImageDriftCorrectionFromMenu()
-		elseif(V_flag == 2)
+			return 0 
+		elseif(V_flag > 1)
 			Abort
 		endif
 	endif
