@@ -212,11 +212,13 @@ Function ATH_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 			Duplicate wXMCD, sourceDF:$savexmcdWaveStr
 			Note sourceDF:$savexmcdWaveStr, note2WaveStr
 			//Copy the interpolated wave
-			string wname2BaseStr = NameOfWave($wName2Str) + "_noDrift"
-			string saveWave2NameStr = CreatedataObjectName(sourceDF, wname2BaseStr, 1, 0, 1)
-			Duplicate/O wimg2_undo, sourceDF:$saveWave2NameStr // Restore original image when done.			
-			note2WaveStr = "Backup before iDrift of: " + wName2Str
-			Note sourceDF:$saveWave2NameStr, note2WaveStr
+			string backupWaveNameStr = NameOfWave($wName2Str) + "_noDrift"
+			//string saveWave2NameStr = CreatedataObjectName(sourceDF, wname2BaseStr, 1, 0, 1)
+			if(!WaveExists(sourceDF:$backupWaveNameStr))
+				Duplicate/O wimg2_undo, sourceDF:$backupWaveNameStr // Restore original image when done.
+				note2WaveStr = "Backup before iDrift of: " + wName2Str
+				Note sourceDF:$backupWaveNameStr, note2WaveStr
+			endif
 			Duplicate/O wimg2, $wName2Str // wName2Str is a full path
 			break
 	endswitch

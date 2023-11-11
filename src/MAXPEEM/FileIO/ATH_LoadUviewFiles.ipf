@@ -1483,7 +1483,7 @@ End
 
 Function ATH_LoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int waveDataType])
 	///< Function to load a single Elmitec binary .dat file by skipping reading the metadata.
-	/// We assume here that the image starts at sizeOfFile - kpixelsTVIPS^2 * 16
+	/// We assume here that the image starts at sizeOfFile - kpixelsTVIPS^2 * 2
 	/// @param filepathStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
 	/// @param waveNameStr name of the imported wave. 
