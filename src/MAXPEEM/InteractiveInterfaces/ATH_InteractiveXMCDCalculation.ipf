@@ -1,7 +1,6 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion= 9
-#pragma ModuleName = InteractiveDriftCorrection
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
 // ------------------------------------------------------- //
@@ -30,7 +29,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-Function ATH_LaunchInteractiveImageDriftCorrectionFromMenu()
+Function ATH_LaunchInteractiveXMCDCalculationFromMenu()
 	/// Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
 	
@@ -46,7 +45,7 @@ Function ATH_LaunchInteractiveImageDriftCorrectionFromMenu()
 				  "select two images, i.e two 2d waves, non-RGB. \n" + \
 				  "Do you want a another chance with the browser selection?"
 		if(V_flag == 1)
-			ATH_LaunchInteractiveImageDriftCorrectionFromMenu()
+			ATH_LaunchInteractiveXMCDCalculationFromMenu()
 			return 0 
 		elseif(V_flag > 1)
 			Abort
