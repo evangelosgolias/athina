@@ -140,7 +140,7 @@ Function ATH_LaunchRegisterQCalculateXRayDichroism()
 				"Do you want a another chance with the browser selection?"
 		if(V_flag == 1)
 			ATH_LaunchRegisterQCalculateXRayDichroism()
-			retun 0
+			return 0
 		elseif(V_flag == 2)
 			Abort
 		else
