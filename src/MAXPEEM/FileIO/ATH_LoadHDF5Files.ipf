@@ -250,6 +250,7 @@ Function ATH_LoadMultiplyDiamondNXSDataSets()
 		HDF5LoadGroup/R/T/Z :, fileid_, "entry"
 		HDF5CloseFile fileid_
 		foldername = ParseFilePath(3, selFilePath,":", 0, 0) //StringFromList(i, selFilePath, ".")
+		foldername = CreateDataObjectName(saveDF, foldername, 11, 0, 1)
 		NewDataFolder saveDF:$foldername
 		DFREF destDF = saveDF:$foldername
 		WAVE wRef = :entry:medipix:data
