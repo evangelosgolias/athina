@@ -5,8 +5,3 @@ local_dev/
 
 doc/build
 .venv
-
-# ignores all .md files
-*.md
-# but does not ignore the README.md file
-!README.md
