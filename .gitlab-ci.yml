@@ -1,0 +1,16 @@
+---
+pages:
+  tags:
+    - docker
+  stage: deploy
+  image: python:3.11
+  before_script:
+    - python -m venv .venv
+    - source .venv/bin/activate
+    - python -m pip install myst-parser Sphinx sphinx-rtd-theme
+  script:
+    - sphinx-build -M html doc/source doc/build
+    - mv doc/build/html public
+  artifacts:
+    paths:
+      - public
