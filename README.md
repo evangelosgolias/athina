@@ -48,5 +48,8 @@ _CAUTION: When you update you should delete the _MAXPEEM_ contents folder before
 ## Guide
 
 Quick tip: Lots of functionalities reside on the contexual menus. Right click on an image, trace or item in the data browser and see your options. Import and alignemt is launched only from the program menu, entry **Athina**.
-Detailed guide, howtos, etc coming soon ...
+Detailed guide, howtos, under construction:
+http://evangelosgolias.gitlab-pages.maxiv.lu.se/athina/
+
+
 
