@@ -1,7 +1,7 @@
 ---
 pages:
   tags:
-    - docker
+    - kubernetes
   stage: deploy
   image: python:3.11
   before_script:
