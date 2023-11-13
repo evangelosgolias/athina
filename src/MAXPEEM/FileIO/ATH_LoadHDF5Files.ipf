@@ -136,16 +136,14 @@ Function ATH_GetHDF5NumGroupsFID(Variable fileid)
 	return  ItemsInList(S_HDF5ListGroup)
 End
 
-// Extra
-/// Imprort Diamond data
+/// Extra Imprort Diamond data
 
 Function ATH_LoadDiamondDataSets()
-	// String should be in the form "2-5,7,9-12,50"
-	//DFREF saveDF = GetDataFolderDFR()
-	//NewDataFolder/S NewFreeDataFolder()
+	/// Load data acquired at i06 beamline at Diamond
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
 	variable fileid_
 	string fileFilters = "HDF files (*.hdf):.hdf;"
-	fileFilters += "NEXUS files (*.nxs):.nxs;"
 	fileFilters += "All Files:.*;"
 	Open /D/R/F=fileFilters fileid_
 	string filepathname = S_fileName
@@ -158,13 +156,22 @@ Function ATH_LoadDiamondDataSets()
 	// Here S_filename should hold the filename
 	string filename = StringFromList(0, S_filename, ".")
 	// Make a folder to load all measurements
-	NewDataFolder ::filename
-	DFREF = destDF = ::filename
+	NewDataFolder saveDF:$filename
+	DFREF destDF = saveDF:$filename
 	// We loaded the thingy, now let's extract data to a proper 3D wave
 	WAVE wRef = :entry:data:data // here 
 	
-	variable npts = DimSize(wRef, 0), i // How many measurements
-	for(i = 0; i < npts; i++)
+    variable rows = DimSize(wRef, 0)
+    variable layers = DimSize(wRef, 2)
+    variable chunks = DimSize(wRef, 3)
+    variable type = WaveType(wRef)	
+    variable i
+    string wnameStr
+    ImageTransform/TM4D=4821 transpose4D wRef
+    WAVE M_4DTranspose
+	for(i = 0; i < rows; i++)
+		wnameStr = filename + "_" + num2str(i)
+		MatrixOP destDF:$wnameStr = chunk(M_4DTranspose, i)
 	endfor
-	//SetDataFolder saveDF
+	SetDataFolder saveDF
 End
