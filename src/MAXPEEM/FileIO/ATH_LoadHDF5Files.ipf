@@ -136,9 +136,9 @@ Function ATH_GetHDF5NumGroupsFID(Variable fileid)
 	return  ItemsInList(S_HDF5ListGroup)
 End
 
-/// Extra Imprort Diamond data
+///Functions to import datasets acquired at the I06 beamline at Diamond (UK)
 
-Function ATH_LoadDiamondDataSets()
+Function ATH_LoadDiamondHDFDataSet()
 	/// Load data acquired at i06 beamline at Diamond
 	DFREF saveDF = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
@@ -172,6 +172,106 @@ Function ATH_LoadDiamondDataSets()
 	for(i = 0; i < rows; i++)
 		wnameStr = filename + "_" + num2str(i)
 		MatrixOP destDF:$wnameStr = chunk(M_4DTranspose, i)
+	endfor
+	SetDataFolder saveDF
+End
+
+Function ATH_LoadDiamondNXSDataSet()
+	/// Load data acquired at i06 beamline at Diamond
+	/// along with basic metadada, STV and FoV. Imported 
+	/// waves are scaled using FoV
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	variable fileid_
+	string fileFilters = "NXS files (*.nxs):.nxs;"
+	fileFilters += "All Files:.*;"
+	Open /D/R/F=fileFilters fileid_
+	string filepathname = S_fileName
+	if(!strlen(filepathname))
+		Abort 
+	endif
+	HDF5OpenFile/R fileid_ as filepathname
+	HDF5LoadGroup/R/T/Z :, fileid_, "entry"	
+	HDF5CloseFile fileid_
+	// Here S_filename should hold the filename
+	string filename = StringFromList(0, S_filename, ".")
+	// Make a folder to load all measurements
+	NewDataFolder saveDF:$filename
+	DFREF destDF = saveDF:$filename
+	// We loaded the thingy, now let's extract data to a proper 3D wave
+	WAVE wRef = :entry:medipix:data // here 
+	
+    variable rows = DimSize(wRef, 0)
+    variable layers = DimSize(wRef, 2)
+    variable chunks = DimSize(wRef, 3)
+    variable i
+    string wnameStr
+    // Get FoV and STV
+    variable fov, stv 
+    ImageTransform/TM4D=8421 transpose4D wRef
+    WAVE M_4DTranspose
+	WAVE wFoV = :entry:instrument:leem:fov_a    
+	WAVE wSTV = :entry:instrument:leem:stv	
+	for(i = 0; i < rows; i++)
+		wnameStr = filename + "_" + num2str(i)
+		fov = wFoV[0]
+		stv = wSTV[0]
+		//stv = num2str(:entry:instrument:leem:stv[0])
+		MatrixOP destDF:$wnameStr = chunk(M_4DTranspose, i)
+		WAVE w = destDF:$wnameStr 
+		SetScale/I x, 0, fov, w
+		SetScale/I y, 0, fov, w
+		Note w, ("STV(V):"+num2str(stv))
+	endfor
+	SetDataFolder saveDF
+End
+
+// Select many files to load at once
+Function ATH_LoadMultiplyDiamondNXSDataSets()
+	/// Load data acquired at i06 beamline at Diamond
+	/// along with basic metadada, STV and FoV. Imported
+	/// waves are scaled using FoV
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	variable fileid_
+	string fileFilters = "NXS files (*.nxs):.nxs;"
+	fileFilters += "All Files:.*;"
+	Open/D/R/MULT=1/F=fileFilters fileid_
+	string filepaths = S_fileName
+	if(!strlen(filepaths))
+		Abort
+	endif
+	string filename, foldername, selFilePath, wnameStr
+	variable numFiles = ItemsInList(filepaths, "\r"), i, j, rows
+
+	for(i = 0; i < numFiles; i++)
+		selFilePath = StringFromList(i, filepaths, "\r")
+		HDF5OpenFile/R fileid_ as selFilePath
+		HDF5LoadGroup/R/T/Z :, fileid_, "entry"
+		HDF5CloseFile fileid_
+		foldername = ParseFilePath(3, selFilePath,":", 0, 0) //StringFromList(i, selFilePath, ".")
+		NewDataFolder saveDF:$foldername
+		DFREF destDF = saveDF:$foldername
+		WAVE wRef = :entry:medipix:data
+		rows = DimSize(wRef, 0)
+		variable fov, stv
+		ImageTransform/TM4D=8421 transpose4D wRef
+		WAVE M_4DTranspose
+		WAVE wFoV = :entry:instrument:leem:fov_a
+		WAVE wSTV = :entry:instrument:leem:stv
+		for(j = 0; j < rows; j++)
+			wnameStr = foldername + "_" + num2str(j)
+			fov = wFoV[0]
+			stv = wSTV[0]
+			//stv = num2str(:entry:instrument:leem:stv[0])
+			MatrixOP destDF:$wnameStr = chunk(M_4DTranspose, j)
+			WAVE w = destDF:$wnameStr
+			SetScale/I x, 0, fov, w
+			SetScale/I y, 0, fov, w
+			Note w, ("STV(V):"+num2str(stv))
+		endfor
+		// Rename the folder here to avoid overwriting 
+		RenameDataFolder :entry, $("dump" + num2str(i))
 	endfor
 	SetDataFolder saveDF
 End
