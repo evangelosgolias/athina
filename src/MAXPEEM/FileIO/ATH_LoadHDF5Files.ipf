@@ -263,7 +263,6 @@ Function ATH_LoadMultiplyDiamondNXSDataSets()
 			wnameStr = foldername + "_" + num2str(j)
 			fov = wFoV[0]
 			stv = wSTV[0]
-			//stv = num2str(:entry:instrument:leem:stv[0])
 			MatrixOP destDF:$wnameStr = chunk(M_4DTranspose, j)
 			WAVE w = destDF:$wnameStr
 			SetScale/I x, 0, fov, w
