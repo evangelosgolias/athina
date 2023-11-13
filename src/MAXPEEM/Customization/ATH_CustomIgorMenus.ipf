@@ -41,7 +41,6 @@ Menu "Athina"
 		".dav file...", /Q, ATH_LoadSingleDAVFile("", "", autoscale = 1)
 		".dat file (img only)...", /Q, ATH_LoadSingleCorruptedDATFile("", "")
 		".h5 file ...", /Q, ATH_LauncherLoadHDF5GroupsFromFile()
-		"NXS files ... ",/Q, ATH_LoadMultiplyDiamondNXSDataSets()
 	End
 
 	End
