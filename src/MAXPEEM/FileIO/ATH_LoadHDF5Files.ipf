@@ -39,7 +39,6 @@ Function ATH_ListHDF5Groups()
 		Abort 
 	endif
 	HDF5OpenFile/R fileid_ as filepathname
-	print filepathname
 	ATH_ListHDF5GroupsFID(fileid_)
 End
 
@@ -135,4 +134,37 @@ Function ATH_GetHDF5NumGroupsFID(Variable fileid)
 	//Returns the number is entries in file
 	HDF5ListGroup /TYPE=1 fileid, "."
 	return  ItemsInList(S_HDF5ListGroup)
+End
+
+// Extra
+/// Imprort Diamond data
+
+Function ATH_LoadDiamondDataSets()
+	// String should be in the form "2-5,7,9-12,50"
+	//DFREF saveDF = GetDataFolderDFR()
+	//NewDataFolder/S NewFreeDataFolder()
+	variable fileid_
+	string fileFilters = "HDF files (*.hdf):.hdf;"
+	fileFilters += "NEXUS files (*.nxs):.nxs;"
+	fileFilters += "All Files:.*;"
+	Open /D/R/F=fileFilters fileid_
+	string filepathname = S_fileName
+	if(!strlen(filepathname))
+		Abort 
+	endif
+	HDF5OpenFile/R fileid_ as filepathname
+	HDF5LoadGroup/R/T/Z :, fileid_, "entry"	
+	HDF5CloseFile fileid_
+	// Here S_filename should hold the filename
+	string filename = StringFromList(0, S_filename, ".")
+	// Make a folder to load all measurements
+	NewDataFolder ::filename
+	DFREF = destDF = ::filename
+	// We loaded the thingy, now let's extract data to a proper 3D wave
+	WAVE wRef = :entry:data:data // here 
+	
+	variable npts = DimSize(wRef, 0), i // How many measurements
+	for(i = 0; i < npts; i++)
+	endfor
+	//SetDataFolder saveDF
 End

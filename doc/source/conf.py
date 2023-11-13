@@ -29,8 +29,7 @@ author = "Evangelos Golias"
 # ones.
 extensions = [
     "sphinx_rtd_theme",
-    "myst_parser",
-    'sphinx.ext.graphviz']
+    "myst_parser"]
 
 
 # Add any paths that contain templates here, relative to this directory.

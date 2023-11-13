@@ -42,6 +42,8 @@ Function ATH_AthinaLauncher()
 		Execute/P "INSERTINCLUDE \"ATH_WinInfo\""
 		Execute/P "INSERTINCLUDE \"ATH_XPSSpectraBackgroundRemoval\""
 		Execute/P "INSERTINCLUDE \"ATH_XrayPhotoelectronSpectroscopy\""
+		Execute/P "INSERTINCLUDE \"ATH_Numbers\""
+		Execute/P "INSERTINCLUDE \"ATH_Algorithms\""				
 		Execute/P "COMPILEPROCEDURES "
 	else
 		Execute/P "DELETEINCLUDE \"ATH_Colors\""
@@ -79,6 +81,8 @@ Function ATH_AthinaLauncher()
 		Execute/P "DELETEINCLUDE \"ATH_WinInfo\""
 		Execute/P "DELETEINCLUDE \"ATH_XPSSpectraBackgroundRemoval\""
 		Execute/P "DELETEINCLUDE \"ATH_XrayPhotoelectronSpectroscopy\""
+		Execute/P "DELETEINCLUDE \"ATH_Numbers\""
+		Execute/P "DELETEINCLUDE \"ATH_Algorithms\""
 		Execute/P "COMPILEPROCEDURES "
 	endif
 	return 0

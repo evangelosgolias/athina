@@ -3,6 +3,8 @@
 #exclude local_dev folder
 local_dev/
 
+doc/build
+
 # ignores all .md files
 *.md
 # but does not ignore the README.md file
