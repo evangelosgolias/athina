@@ -42,8 +42,6 @@ Menu "Athina"
 		".dat file (img only)...", /Q, ATH_LoadSingleCorruptedDATFile("", "")
 		".h5 file ...", /Q, ATH_LauncherLoadHDF5GroupsFromFile()
 	End
-
-	End
 	
 	Submenu "Image Operations"
 		"Average layers (range) (TG, 3D)", /Q, ATH_LaunchAverageLayersRange()
