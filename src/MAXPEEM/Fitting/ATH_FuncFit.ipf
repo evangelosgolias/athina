@@ -1,5 +1,6 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
+#pragma ModuleName = ATH_FuncFit
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
 // ------------------------------------------------------- //
@@ -30,7 +31,7 @@
 
 static constant k_B = 8.617333262e-5 // Boltzmann constant in eV/K
 
-Function FermiEdge(WAVE w, variable E) : FitFunc
+static Function FermiEdge(WAVE w, variable x) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ f(E) = y0 + 1 / (exp((E - Ef)/kT) + 1)
 	//CurveFitDialog/ 
@@ -41,10 +42,10 @@ Function FermiEdge(WAVE w, variable E) : FitFunc
 	//CurveFitDialog/ w[1] = Ef
 	//CurveFitDialog/ w[2] = kT
 
-	return w[0] + 1 / (exp((E-w[1])/w[2])+1)
+	return w[0] + 1 / (exp((x-w[1])/w[2])+1)
 End
 
-Function FermiEdgeTimesLine(WAVE w, variable E) : FitFunc
+static Function FermiEdgeTimesLine(WAVE w, variable x) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ f(E) = y0 + (a * E + b) / (exp((E - Ef)/kT) + 1)
 	//CurveFitDialog/ 
@@ -57,10 +58,28 @@ Function FermiEdgeTimesLine(WAVE w, variable E) : FitFunc
 	//CurveFitDialog/ w[3] = b
 	//CurveFitDialog/ w[4] = a
 	
-	return w[0] + (w[4]*E+w[3]) / (exp((E-w[1])/w[2])+1)
+	return w[0] + (w[4]*x+w[3]) / (exp((x-w[1])/w[2])+1)
 End
 
-Function FermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+static Function XASStepBackground(WAVE w, variable E) : FitFunc
+	//CurveFitDialog/ Equation:
+	//CurveFitDialog/ I(E) = w[0] + w[1]/3 * (1 + 2/pi * atan((E-w[2])/w[3]) + w[1]/6 * (1 + 2/pi * atan((E-w[4])/w[5])
+	//CurveFitDialog/ 	
+	//CurveFitDialog/ Independent Variables 1
+	//CurveFitDialog/ E	
+	//CurveFitDialog/ Coefficients 6
+	//CurveFitDialog/ w[0] = baseline
+	//CurveFitDialog/ w[1] = h
+	//CurveFitDialog/ w[2] = E_L3
+	//CurveFitDialog/ w[3] = width_L3
+	//CurveFitDialog/ w[4] = E_L2
+	//CurveFitDialog/ w[5] = width_L2
+		
+	return w[0] + w[1]/3 * (1 + 2/pi * atan((E-w[2])/w[3])) + w[1]/6 * (1 + 2/pi * atan((E-w[4])/w[5]))
+End
+
+// All-at-once
+static Function FermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	/// FitFunc shared by Emile Rienks (BESSY-II, 1^3)
 	//
 	// pw[0] = offset
@@ -92,26 +111,23 @@ Function FermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc
    Convolve/A gwave, myw
 	// Add the vertical offset AFTER the convolution to avoid end effects
 	yw = myw[p+60]
-	
-   yw += pw[0] + pw[1]*x
+	yw += pw[0] + pw[1]*x
 End
 
-Function XASStepBackground(WAVE w, variable E) : FitFunc
+// All-at-once
+static Function XMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
-	//CurveFitDialog/ I(E) = w[0] + w[1]/3 * (1 + 2/pi * atan((E-w[2])/w[3]) + w[1]/6 * (1 + 2/pi * atan((E-w[4])/w[5])
+	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(x + yw[2])^2
 	//CurveFitDialog/ 	
 	//CurveFitDialog/ Independent Variables 1
 	//CurveFitDialog/ E	
 	//CurveFitDialog/ Coefficients 6
 	//CurveFitDialog/ w[0] = baseline
-	//CurveFitDialog/ w[1] = h
-	//CurveFitDialog/ w[2] = E_L3
-	//CurveFitDialog/ w[3] = width_L3
-	//CurveFitDialog/ w[4] = E_L2
-	//CurveFitDialog/ w[5] = width_L2
-		
-	return w[0] + w[1]/3 * (1 + 2/pi * atan((E-w[2])/w[3])) + w[1]/6 * (1 + 2/pi * atan((E-w[4])/w[5]))
+	//CurveFitDialog/ w[1] = Amplitute
+	//CurveFitDialog/ w[2] = phase
+	yw = pw[0] + pw[1] * sin(xw + pw[2])^2
 End
+
 
 // Does not function well, fix it
 //Function FermiEdgeTimesLinearDOSGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc	
@@ -147,4 +163,3 @@ End
 //	DeletePoints 0, numpnts(W_res), xw, yw
 //	DeletePoints numpnts(yw)-numpnts(W_res), numpnts(W_res), xw, yw
 //End
-

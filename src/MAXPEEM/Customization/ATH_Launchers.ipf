@@ -326,6 +326,9 @@ End
 Function ATH_LaunchImageStackAlignmentFullImage()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	if(!strlen(imgNameTopGraphStr))
+		return -1
+	endif	
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // ATH_ImageStackAlignmentByPartitionRegistration needs a wave reference
 	variable convMode = 1
 	variable printMode = 2
@@ -403,6 +406,9 @@ Function ATH_LaunchImageStackAlignmentPartition()
 	///
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	if(!strlen(imgNameTopGraphStr))
+		return -1
+	endif
 	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // ATH_ImageStackAlignmentByPartitionRegistration needs a wave reference
 	variable method = 1
 	variable printMode = 2
@@ -490,6 +496,9 @@ Function ATH_LaunchLinearImageStackAlignmentUsingABCursors()
 	// Use AB to linearly correct an image stack drift
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	if(!strlen(imgNameTopGraphStr))
+		return -1
+	endif	
 	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // ATH_ImageStackAlignmentByPartitionRegistration needs a wave reference
 	variable nlayers = DimSize(w3dref, 2)
 	
@@ -658,6 +667,9 @@ End
 Function ATH_LaunchRemoveImagesFromImageStack()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	if(!strlen(imgNameTopGraphStr))
+		return -1
+	endif	
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	variable startLayer, nrLayers
 	if(WaveDims(w3dref) == 3 && DataFolderExists("root:Packages:WM3DImageSlider:" + winNameStr))
@@ -677,6 +689,9 @@ End
 Function ATH_LaunchStackImagesToImageStack()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	if(!strlen(imgNameTopGraphStr))
+		return -1
+	endif	
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 
 	string selectImagesStr = ATH_SelectWavesInModalDataBrowser("Select image(s) (2d, 3d waves) to append to image(stack)"), imageStr
@@ -694,6 +709,9 @@ End
 Function ATH_LaunchInsertImageToStack()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	if(!strlen(imgNameTopGraphStr))
+		return -1
+	endif	
 	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	variable layerN
 	if(WaveDims(w3dref) == 3 && DataFolderExists("root:Packages:WM3DImageSlider:" + winNameStr))
@@ -781,6 +799,9 @@ Function ATH_LaunchImageRotateAndScaleFromMetadata()
 	/// Rotated/scaled wave in created in the working dfr.
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	if(!strlen(imgNameTopGraphStr))
+		return -1
+	endif	
 	Wave wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	
 	if(!strlen(imgNameTopGraphStr))
@@ -902,7 +923,7 @@ Function ATH_LaunchQuickTextAnnotation()
 End
 
 Function ATH_LaunchMakeWaveFromSavedROI()
-	WAVE wref = ATH_TopImageToWaveRef()
+	WAVE/Z wref = ATH_TopImageToWaveRef()
 	ATH_MakeWaveFromROI(wRef)
 End
 

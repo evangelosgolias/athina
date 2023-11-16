@@ -151,3 +151,68 @@ Function ATH_XMCDCombinations(WAVE w3d)
 	SetDataFolder saveDF
 	return 0
 End
+
+//@
+//	Function to calculate an XMLD map. The function ATH_FuncFit#XMLDIntensity is fitted to 
+//  all beams of a 3D wave containing data from XMLD images obtained with different inclination
+//  angles (direction of the E-field of x-rays). Model assumets that XMLD singal follows the 
+//  relationship I = A + B * sin(x + φ)^2, where A, B and φ are the fitting parameters.
+//
+//	## Parameters
+//	wRef : WAVE
+//		A 3D wave that contains the data of all inclination angles in ascending order.
+//		The codes assumes that all angles from -90 to 90 are included. Note that -90 and 90
+//		refer to the same angle.
+//
+//		!!! Here the angle 90 should be the last layer of the stack. For example if you have
+//			taken the full map (-80, 90) with angular step of 10° then your first stack is for
+//		-80 degrees angle and the last at 90 (18 layers in total)
+//
+//	angleStep : variable
+// 		Angular step along the z-direction in **degrees**.
+//
+//	## Returns
+//	variable
+//		A unique 2D wave NameOfWave(wRef) + "_XMLDMap" is created ( +num2str(N)) if not unique)
+//		0 - map calculations completed
+//		1 - input wave was not a 3D wave
+//@
+Function ATH_CalculateXMLDMap(WAVE wRef, variable angleStep)
+
+	variable angleStepRad = angleStep * pi/180
+	variable rows = DimSize(wRef, 0)
+	variable cols = DimSize(wRef, 1)
+	variable layers = DimSize(wRef, 2)
+	if(!layers)
+		return 1
+	endif
+	variable i, j
+	string mapBaseNameStr = NameofWave(wRef) + "_XMLDMap"
+	string mapNameStr = CreateDataObjectName(dfr, mapBaseNameStr, 1, 0 ,1)
+	Make/N=(rows, cols) $mapNameStr
+	WAVE wxmld = $mapNameStr
+	
+	// Get the fitting stuff ready
+	Make/FREE/D/N=3 ATH_Coef
+	Make/FREE/T/N=2 ATH_Constraints
+	ATH_Constraints[0] = {"K2 > -pi/2","K2 < pi/2"} // angular constrain
+	Make/FREE/N=(layers) freeData
+	SetScale/P x, (-pi/2 + angleStepRad), angleStepRad, freeData
+	variable meanV, minV, maxV // use these to make a reasonable initial conditions guess
+	
+	for(i = 0; i < rows; i++)
+		for(j = 0; j < cols; j++)
+			// /S keeps scaling. 
+			// NOTE: If you add /FREE here the scaling will be lost!!!
+			MatrixOP/O/S freeData = beam(wRef, i, j)
+			meanV = mean(freeData)
+			[minV, maxV] = WaveMinAndMax(freeData)
+			ATH_Coef[0] = meanV
+			ATH_Coef[1] = (maxV - minV)/2
+			ATH_Coef[2] = freeData[9] > meanV ? pi/4 : -pi/4
+			FuncFit/Q ATH_FuncFit#XMLDIntensity ATH_Coef freeData /D /C=ATH_Constraints// /X=xScaledWave
+			wxmld[i][j] = ATH_Coef[2]*180/pi
+		endfor
+	endfor
+	KillWaves/Z W_sigma, fit__free_ // Cleanup the garbage
+End
