@@ -598,12 +598,52 @@ Function ATH_HistogramShiftToGaussianCenter(WAVE w2d, [variable overwrite])
 	if(overwrite)
 		w2d -= x0
 	else
-		string baseWaveNameStr = NameofWave(w2d) + "_gc"
+		string baseWaveNameStr = NameofWave(w2d) + "_GaussCen"
 		string saveWaveNameStr = CreatedataObjectName(currDF, baseWaveNameStr, 1, 0, 0)	
 		Duplicate w2d, currDF:$saveWaveNameStr
 		WAVE wref = currDF:$saveWaveNameStr
 		wref -= x0
 		CopyScales w2d, wref
+	endif
+	SetDataFolder currDF
+	return 0
+End
+
+Function ATH_HistogramShiftToGaussianCenterStack(WAVE w3d, [variable overwrite])
+	/// Move the histogram center to the center of the fitted gaussian
+	/// Useful for symmetrising XMCD/XMLD images
+	
+	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
+	DFREF currDF = GetDataFolderDFR()
+	variable nrows = DimSize(w3d, 0)
+	variable ncols = DimSize(w3d, 1)
+	variable nlayers = DimSize(w3d, 2), i, x0
+	SetDataFolder NewFreeDataFolder()
+	
+	Make/N=(nrows, ncols)/B/U ATH_ROIMask = 0
+	for(i = 0; i < nlayers; i++)
+		MatrixOP $("layerToStack_" + num2str(i)) = layer(w3d, i)
+		WAVE wRef = $("layerToStack_" + num2str(i))
+		ImageHistogram/R=ATH_ROIMask wRef
+		WAVE W_ImageHist
+		CurveFit/Q gauss W_ImageHist /D
+		WAVE W_coef
+		x0 = W_coef[2] // Gaussian center
+		wRef -= x0
+	endfor
+	// Stack all planes
+	ImageTransform/NP=(nlayers) stackImages $"layerToStack_0"
+	WAVE M_Stack
+	CopyScales w3d, M_Stack
+	// Add note to stack
+	string noteStr = "Gaussian centered histogram per layer of " + GetWavesDataFolder(w3d, 2)
+	Note M_Stack , noteStr
+	if(overwrite)
+		Duplicate/O M_Stack, w3d
+	else
+		string baseWaveNameStr = NameofWave(w3d) + "_GaussCen"
+		string saveWaveNameStr = CreatedataObjectName(currDF, baseWaveNameStr, 1, 0, 1)	
+		Duplicate M_Stack, currDF:$saveWaveNameStr
 	endif
 	SetDataFolder currDF
 	return 0

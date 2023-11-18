@@ -902,7 +902,15 @@ End
 
 Function ATH_LaunchHistogramShiftToGaussianCenter()
 	WAVE/Z wRef = ATH_TopImageToWaveRef()
-	ATH_HistogramShiftToGaussianCenter(wRef, overwrite=1)
+	if(!WaveExists(wRef))
+		Abort "Wave Reference is NULL"
+	endif
+	ATH_BackupWaveInWaveDF(wRef) // backup the wave, we will overwrite
+	if(WaveDims(wRef) == 3)	
+		ATH_HistogramShiftToGaussianCenterStack(wRef, overwrite=1)
+	else
+		ATH_HistogramShiftToGaussianCenter(wRef, overwrite=1)
+	endif	
 End
 
 Function ATH_LaunchQuickTextAnnotation()

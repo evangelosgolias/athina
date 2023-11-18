@@ -392,3 +392,62 @@ Function ATH_CursorsToAngle(string Cursor1, string Cursor2 [, variable deg])
 	angle = (deg == 0) ? atan(dy/dx) : atan(dy/dx)*180/pi
 	return angle
 End
+
+/// Generic interaction using a cursor and a CallbackFunction
+
+Function ATH_InteractiveCursorAction(WAVE wRef)
+	/// Interactive operation using a callback functio
+	/// ATH_CursorCallBack()
+	
+	// Check if the wave is displayed
+	CheckDisplayed/A wRef
+	if(!V_flag)
+		ATH_DisplayImage(wRef)
+	endif
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	// Use cursor C
+	variable nrows = DimSize(wRef, 0)
+	variable ncols = DimSize(wRef, 1)	
+	Cursor/I/C=(65535,0,0)/S=1/P/N=1 C $imgNameTopGraphStr nrows/2, ncols/2
+	// Make folder in database
+	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr) // Root folder here
+	// Store globals
+	string/G dfr:gATH_wRefDataFolder = GetWavesDataFolder(wRef, 2)
+	// Hook and metadata
+	SetWindow $winNameStr, hook(MyiCursorActionHook) = ATH_CursorHookFunctioniCursorUsingCallback // Set the hook
+	SetWindow $winNameStr, userData(ATH_iCursorDFR) = "root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr
+	return 0
+End
+
+Function ATH_CursorHookFunctioniCursorUsingCallback(STRUCT WMWinHookStruct &s)
+    variable hookResult = 0
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
+	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
+	SVAR/SDFR=dfr gATH_wRefDataFolder
+	WAVE wRef = $gATH_wRefDataFolder
+		switch(s.eventCode)
+	    case 7: // cursor moved
+			if(!cmpstr(s.cursorName, "C")) // It should work only with E, F you might have other cursors on the image
+				ATH_CursorCallBack(wRef, s.pointNumber, s.ypointNumber) // Function using row, column
+			endif
+	   			hookResult = 1
+	   			break
+			hookresult = 0
+			break
+		case 11: // Keyboard event
+			if(s.keycode == 27) //  Esc
+				SetWindow $s.WinName, hook(MyiCursorActionHook) = $""
+				Cursor/K/W=$s.WinName C
+				KillDataFolder/Z dfr
+			endif			
+    endswitch
+    return hookResult       // 0 if nothing done, else 1
+End
+
+Function ATH_CursorCallBack(WAVE wRef, variable p0, variable q0)
+	MatrixOP/O root:getBeam = beam(wRef, p0, q0)
+	return 0
+End
+
+/// End of generic interaction using a cursor and a CallbackFunction

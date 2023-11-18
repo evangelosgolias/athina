@@ -189,17 +189,19 @@ Function ATH_CalculateXMLDMap(WAVE wRef, variable angleStep)
 	variable i, j
 	string mapBaseNameStr = NameofWave(wRef) + "_XMLDMap"
 	string mapNameStr = CreateDataObjectName(dfr, mapBaseNameStr, 1, 0 ,1)
-	Make/N=(rows, cols) $mapNameStr
+	Make/N=(rows, cols) $mapNameStr, $(mapNameStr+"_offset"), $(mapNameStr+"_factor")
 	WAVE wxmld = $mapNameStr
-	
+	WAVE woff = $(mapNameStr+"_offset")
+	WAVE wfact = $(mapNameStr+"_factor")
 	// Get the fitting stuff ready
 	Make/FREE/D/N=3 ATH_Coef
-	Make/FREE/T/N=2 ATH_Constraints
-	ATH_Constraints[0] = {"K2 > -pi/2","K2 < pi/2"} // angular constrain
+	Make/FREE/T/N=3 ATH_Constraints
+	ATH_Constraints[0] = {"K1 > 1e-3", "K2 > -pi/2", "K2 <= pi/2"} // angular constrain and Julian's comment re K1.
 	Make/FREE/N=(layers) freeData
 	SetScale/P x, (-pi/2 + angleStepRad), angleStepRad, freeData
+	Make/FREE/N=(layers) xScaleW = pnt2x(freeData, p)
 	variable meanV, minV, maxV // use these to make a reasonable initial conditions guess
-	
+
 	for(i = 0; i < rows; i++)
 		for(j = 0; j < cols; j++)
 			// /S keeps scaling. 
@@ -209,9 +211,11 @@ Function ATH_CalculateXMLDMap(WAVE wRef, variable angleStep)
 			[minV, maxV] = WaveMinAndMax(freeData)
 			ATH_Coef[0] = meanV
 			ATH_Coef[1] = (maxV - minV)/2
-			ATH_Coef[2] = freeData[9] > meanV ? pi/4 : -pi/4
-			FuncFit/Q ATH_FuncFit#XMLDIntensity ATH_Coef freeData /D /C=ATH_Constraints// /X=xScaledWave
+			ATH_Coef[2] = freeData[9] > meanV ? -pi/4 : pi/4
+			FuncFit/Q ATH_FuncFit#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints /X=xScaleW
 			wxmld[i][j] = ATH_Coef[2]*180/pi
+			woff[i][j] = ATH_Coef[0]
+			wfact[i][j] = ATH_Coef[1]
 		endfor
 	endfor
 	KillWaves/Z W_sigma, fit__free_ // Cleanup the garbage
