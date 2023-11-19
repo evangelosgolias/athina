@@ -2,6 +2,7 @@
 #pragma rtGlobals    = 3		
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
+#pragma ModuleName = ATH_SumBeamsProfile
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -29,7 +30,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-Function ATH_MainMenuLaunchSumBeamsProfile()
+static Function MainMenuLaunchSumBeamsProfile()
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -55,10 +56,10 @@ Function ATH_MainMenuLaunchSumBeamsProfile()
 	endif
 	if(WaveDims(w3dref) == 3) // if it is a 3d wave
 		//ATH_DisplayImage(w3dRef)
-		ATH_InitialiseZProfileFolder()
+		InitialiseZProfileFolder()
 		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
-		ATH_InitialiseZProfileGraph(dfr)
-		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_CursorHookFunctionBeamProfile // Set the hook
+		InitialiseZProfileGraph(dfr)
+		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#BeamProfileCursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedSumBeamsZPlotStr) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = "root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
@@ -68,7 +69,7 @@ Function ATH_MainMenuLaunchSumBeamsProfile()
 	return 0
 End
 
-Function ATH_GraphMarqueeLaunchOvalSumBeamsProfile() // Launch directly from trace meny
+static Function GraphMarqueeLaunchOvalSumBeamsProfile() // Launch directly from trace meny
 	
 	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
 	string winNameStr = WinName(0, 1, 1)
@@ -82,10 +83,10 @@ Function ATH_GraphMarqueeLaunchOvalSumBeamsProfile() // Launch directly from tra
 			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
 			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
 		endif
-		ATH_InitialiseZProfileFolder()
+		InitialiseZProfileFolder()
 		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
-		ATH_InitialiseZProfileGraph(dfr)
-		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_CursorHookFunctionBeamProfile // Set the hook
+		InitialiseZProfileGraph(dfr)
+		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#BeamProfileCursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedSumBeamsZPlotStr) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = "root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
@@ -115,7 +116,7 @@ Function ATH_GraphMarqueeLaunchOvalSumBeamsProfile() // Launch directly from tra
 	return 0
 End
 
-Function ATH_GraphMarqueeLaunchRectangleSumBeamsProfile() // Launch directly from trace meny
+static Function GraphMarqueeLaunchRectangleSumBeamsProfile() // Launch directly from trace meny
 	
 	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
 	string winNameStr = WinName(0, 1, 1)
@@ -129,10 +130,10 @@ Function ATH_GraphMarqueeLaunchRectangleSumBeamsProfile() // Launch directly fro
 			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
 			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
 		endif
-		ATH_InitialiseZProfileFolder()
+		InitialiseZProfileFolder()
 		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
-		ATH_InitialiseZProfileGraph(dfr)
-		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_CursorHookFunctionBeamProfile // Set the hook
+		InitialiseZProfileGraph(dfr)
+		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#BeamProfileCursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedSumBeamsZPlotStr) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = "root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
@@ -162,7 +163,7 @@ Function ATH_GraphMarqueeLaunchRectangleSumBeamsProfile() // Launch directly fro
 	return 0
 End
 
-Function ATH_BrowserMenuLaunchSumBeamsProfile() // Browser menu launcher, active
+static Function BrowserMenuLaunchSumBeamsProfile() // Browser menu launcher, active
 
 	// Check if you have selected a single 3D wave
 	if(ATH_CountSelectedWavesInDataBrowser(waveDimemsions = 3) == 1\
@@ -178,10 +179,10 @@ Function ATH_BrowserMenuLaunchSumBeamsProfile() // Browser menu launcher, active
 		endif
 		ATH_DisplayImage(w3dRef)
 		string winNameStr = WinName(0, 1, 1)
-		ATH_InitialiseZProfileFolder()
+		InitialiseZProfileFolder()
 		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
-		ATH_InitialiseZProfileGraph(dfr)
-		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_CursorHookFunctionBeamProfile // Set the hook
+		InitialiseZProfileGraph(dfr)
+		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#BeamProfileCursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedSumBeamsZPlotStr) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = "root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
@@ -191,7 +192,7 @@ Function ATH_BrowserMenuLaunchSumBeamsProfile() // Browser menu launcher, active
 	return 0
 End
 
-Function ATH_TracePopupLaunchSavedROISumBeamsProfile() // Launch directly from trace meny
+static Function TracePopupLaunchSavedROISumBeamsProfile() // Launch directly from trace meny
 	
 	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
 	string winNameStr = WinName(0, 1, 1)
@@ -205,10 +206,10 @@ Function ATH_TracePopupLaunchSavedROISumBeamsProfile() // Launch directly from t
 			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
 			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
 		endif
-		ATH_InitialiseZProfileFolder()
+		InitialiseZProfileFolder()
 		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
-		ATH_InitialiseZProfileGraph(dfr)
-		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_CursorHookFunctionBeamProfile // Set the hook
+		InitialiseZProfileGraph(dfr)
+		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#BeamProfileCursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedSumBeamsZPlotStr) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = "root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
@@ -254,7 +255,7 @@ Function ATH_TracePopupLaunchSavedROISumBeamsProfile() // Launch directly from t
 	return 0
 End
 
-Function ATH_InitialiseZProfileFolder()
+static Function InitialiseZProfileFolder()
 	/// All initialisation happens here. Folders, waves and local/global variables
 	/// needed are created here. Use the 3D wave in top window.
 
@@ -285,8 +286,10 @@ Function ATH_InitialiseZProfileFolder()
 	variable nlayers = DimSize(w3dref, 2)
 	variable dz = DimDelta(w3dref, 2)
     variable z0 = DimOffset(w3dref, 2)
-    
-    
+	// Exprimental    
+    // What if you launch a second profiler for the same wave (imageNameTopGraphStr)?
+//    DFREF rootDF = $("root:Packages:ATH_DataFolder:ZBeamProfiles:")
+//    string UniqueimgNameTopGraphStr = CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1)
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + imgNameTopGraphStr) // Root folder here
 	string zprofilestr = "wZLineProfileWave"
 	Make/O/N=(nlayers) dfr:$zprofilestr /Wave = profile // Store the line profile 
@@ -321,7 +324,7 @@ Function ATH_InitialiseZProfileFolder()
 	return 0
 End	
 
-Function ATH_SumBeamsDrawOvalImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
+static Function SumBeamsDrawOvalImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
 	// Use ATH_SumBeamsDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
 	SetDrawLayer UserFront 
 	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
@@ -330,7 +333,7 @@ Function ATH_SumBeamsDrawOvalImageROI(variable left, variable top, variable righ
 	return 0
 End
 
-Function ATH_SumBeamsDrawRectImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
+static Function SumBeamsDrawRectImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
 	// Use ATH_SumBeamsDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
 	SetDrawLayer UserFront 
 	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
@@ -339,14 +342,14 @@ Function ATH_SumBeamsDrawRectImageROI(variable left, variable top, variable righ
 	return 0
 End
 
-Function ATH_ClearROIMarkingsUserFront()
+static Function ClearROIMarkingsUserFront()
 	SetDrawLayer UserFront
 	DrawAction delete
 	SetDrawLayer ProgFront
 	return 0
 End
 
-Function ATH_InitialiseZProfileGraph(DFREF dfr)
+static Function InitialiseZProfileGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
 	string rootFolderStr = GetDataFolder(1, dfr)
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(rootFolderStr)
@@ -364,22 +367,22 @@ Function ATH_InitialiseZProfileGraph(DFREF dfr)
 		Label left "\\u#2 Intensity (arb. u.)";DelayUpdate
 		Label bottom "\\u#2 Energy (eV)"
 		ControlBar 40
-		Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=ATH_SaveSumBeamsProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
-		Button SetScaleZaxis, pos={125.00,10.00}, size={90.00,20.00}, proc=ATH_SetScaleSumBeamsProfileButton, title="Set scale", help={"Set abscissas range"}, valueColor=(1,12815,52428)
-		CheckBox ShowProfile, pos={230.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_SumBeamsProfilePlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
-		CheckBox ShowSelectedAread, pos={340,12.00}, side=1, size={70.00,16.00}, proc=ATH_SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
+		Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=ATH_SumBeamsProfile#SaveSumBeamsProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
+		Button SetScaleZaxis, pos={125.00,10.00}, size={90.00,20.00}, proc=ATH_SumBeamsProfile#SetScaleSumBeamsProfileButton, title="Set scale", help={"Set abscissas range"}, valueColor=(1,12815,52428)
+		CheckBox ShowProfile, pos={230.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_SumBeamsProfile#SumBeamsProfilePlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
+		CheckBox ShowSelectedAread, pos={340,12.00}, side=1, size={70.00,16.00}, proc=ATH_SumBeamsProfile#SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
 
 		SetWindow $profilePlotStr userdata(ATH_rootdfrSumBeamsStr) = rootFolderStr // pass the dfr to the button controls
 		SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + gATH_WindowNameStr
 		SetWindow $profilePlotStr userdata(ATH_parentGraphWin) = gATH_WindowNameStr
-		SetWindow $profilePlotStr, hook(MySumBeamsProfileHook) = ATH_SumBeamsGraphHookFunction // Set the hook
+		SetWindow $profilePlotStr, hook(MySumBeamsProfileHook) = ATH_SumBeamsProfile#GraphHookFunction // Set the hook
 	else
 		DoWindow/F $profilePlotStr // if it is bring it to the FG
 	endif
 	return 0
 End
 
-Function ATH_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
+static Function BeamProfileCursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	variable hookResult = 0, i
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
@@ -494,7 +497,7 @@ Function ATH_CursorHookFunctionBeamProfile(STRUCT WMWinHookStruct &s)
 	return hookResult       // If non-zero, we handled event and Igor will ignore it.
 End
 
-Function ATH_SumBeamsGraphHookFunction(STRUCT WMWinHookStruct &s)
+static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentGraphWin = GetUserData(s.winName, "", "ATH_parentGraphWin")
 	switch(s.eventCode)
 		case 2: // Kill the window
@@ -514,7 +517,7 @@ Function ATH_SumBeamsGraphHookFunction(STRUCT WMWinHookStruct &s)
 	endswitch
 End
 
-Function ATH_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrSumBeamsStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
@@ -563,9 +566,9 @@ Function ATH_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonC
 				endif
 				DoWindow/F $WindowNameStr
 				if(gATH_Rect)
-					ATH_SumBeamsDrawRectImageROI(gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+					SumBeamsDrawRectImageROI(gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
 				else
-					ATH_SumBeamsDrawOvalImageROI(gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+					SumBeamsDrawOvalImageROI(gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
 				endif
 			endif
 			if(gATH_Rect)
@@ -582,7 +585,7 @@ Function ATH_SaveSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonC
 	return 0
 End
 
-Function ATH_SetScaleSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function SetScaleSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrSumBeamsStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
 	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
@@ -607,7 +610,7 @@ Function ATH_SetScaleSumBeamsProfileButton(STRUCT WMButtonAction &B_Struct): But
 	return 0
 End
 
-Function ATH_SumBeamsProfilePlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function SumBeamsProfilePlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrSumBeamsStr"))
 	NVAR/Z DoPlotSwitch = dfr:gATH_DoPlotSwitch

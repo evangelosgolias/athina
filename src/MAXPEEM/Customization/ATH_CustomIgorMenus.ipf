@@ -80,7 +80,7 @@ Menu "Athina"
 	
 	Submenu "Profiles "
 		"Line profile (TG, 2D, 3D)", /Q, ATH_ImageLineProfile#MainMenuLaunchLineProfile()
-		"Z profile (TG, 3D)", /Q, ATH_MainMenuLaunchSumBeamsProfile()
+		"Z profile (TG, 3D)", /Q, ATH_SumBeamsProfile#MainMenuLaunchSumBeamsProfile()
 		"Plane profile (TG, 3D)",/Q, ATH_MainMenuLaunchImagePlaneProfileZ()
 	End
 
@@ -115,12 +115,12 @@ End
 // -------------------------------------------------------
 
 Menu "GraphMarquee"
-	"ATH Image range 96% of ROI (2D, 3D)", /Q, ATH_SetImageRangeTo94Percent()
+	"ATH Image range 94% of ROI (2D, 3D)", /Q, ATH_SetImageRangeTo94Percent()
 	"ATH Print ROI stats (2D, 3D)", /Q, ATH_GetMarqueeWaveStats()
 	"ATH Save Rect ROI (2D, 3D)", /Q, ATH_SaveROICoordinatesToDatabase(rect = 1)		
 	"ATH Save Oval ROI (2D, 3D)", /Q, ATH_SaveROICoordinatesToDatabase()
-	"ATH Z-profiler: Set rectangular ROI  (3D)", /Q, ATH_GraphMarqueeLaunchRectangleSumBeamsProfile()	
-	"ATH Z-profiler: Set oval ROI  (3D)", /Q, ATH_GraphMarqueeLaunchOvalSumBeamsProfile()
+	"ATH Z-profiler: Set rectangular ROI  (3D)", /Q, ATH_SumBeamsProfile#GraphMarqueeLaunchRectangleSumBeamsProfile()	
+	"ATH Z-profiler: Set oval ROI  (3D)", /Q, ATH_SumBeamsProfile#GraphMarqueeLaunchOvalSumBeamsProfile()
 	//"ATH Marquee to mask (2D, 3D)", /Q, ATH_MarqueeToMask()
 	"ATH Backup traces (1D)", /Q, ATH_BackupTraces()
 	"ATH Restore traces (1D)", /Q, ATH_RestoreTraces()
@@ -138,7 +138,7 @@ Menu "DataBrowserObjectsPopup"
 	"ATH Make stack and display", /Q, ATH_LaunchMake3DWaveDataBrowserSelection(displayStack = 1)
 	"ATH Restore image from backup", /Q, ATH_LaunchImageBackupFromBrowserSelection()
 	Submenu "ATH Profiles"
-		"ATH Z profile", /Q, ATH_BrowserMenuLaunchSumBeamsProfile()
+		"ATH Z profile", /Q, ATH_SumBeamsProfile#BrowserMenuLaunchSumBeamsProfile()
 		"ATH Line profile", /Q, ATH_ImageLineProfile#BrowserMenuLaunchLineProfile()
 		"ATH Plane profile", /Q, ATH_BrowserMenuLaunchImagePlaneProfileZ()
 	End	
@@ -152,7 +152,7 @@ End
 Menu "TracePopup"
 	"ATH Autoscale Image (2D, 3D)", /Q, ATH_AutoRangeTopImage()
 	"ATH Dynamic Autoscale Image Plane (3D)", /Q, ATH_AutoRangeTopImagePerPlaneAndVisibleArea()
-	"ATH Z-profiler: Use saved ROI  (3D)", /Q, ATH_TracePopupLaunchSavedROISumBeamsProfile()		
+	"ATH Z-profiler: Use saved ROI  (3D)", /Q, ATH_SumBeamsProfile#TracePopupLaunchSavedROISumBeamsProfile()		
 	"ATH Save layer (TG, 3D)", /Q, ATH_GetLayerFromImageStack()
 	"ATH Save current view (TG, 2D, 3D)", /Q, ATH_GetScaledZoominImageWindow()
 	"ATH Scale Image stack (TG, 3D)", /Q, ATH_SetZScaleOfImageStack()
