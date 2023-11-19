@@ -169,7 +169,7 @@ End
 
 Menu "GraphPopup" // Right click not on a trace or in the margin of an image
 	"ATH Text Annotation (TG)", /Q, ATH_LaunchQuickTextAnnotation()
-	"ATH Measure Distance (TG)", /Q, ATH_MeasureDistanceUsingFreeCursorsCD()
+	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
 End
 
 //Menu "AllTracesPopup" // Use SHIFT + right click

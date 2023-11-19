@@ -1,7 +1,7 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
-
+#pragma ModuleName = ATH_Cursors
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -29,17 +29,17 @@
 // ------------------------------------------------------- //
 
 
-Function ATH_GetDistanceFromCursors(string C1, string C2)
+static Function GetDistanceFromCursors(string C1, string C2)
 	/// Returns the distance between C1 and C2 if given.
 	return sqrt((hcsr($C1) - hcsr($C2))^2 + (vcsr($C1) - vcsr($C2))^2)
 End
 
-Function ATH_GetDistanceFromABCursors()
+static Function GetDistanceFromABCursors()
 	/// Returns the distance between cursors A & B.
 	return sqrt((hcsr(A) - hcsr(B))^2 + (vcsr(A) - vcsr(B))^2)
 End
 
-Function ATH_MeasureDistanceUsingFreeCursorsCD()
+static Function MeasureDistanceUsingFreeCursorsCD()
 	/// Use Cursors C, D (Free) to measure distances in a graph
 	/// Uses ATH_MeasureDistanceUsingFreeCursorsCDHook. 
 	string winNameStr = WinName(0, 1, 1) //Top graph
@@ -53,7 +53,7 @@ Function ATH_MeasureDistanceUsingFreeCursorsCD()
 		Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0)/N=1/P C $imgNameTopGraphStr 0.25, 0.45
 		Cursor/I/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $imgNameTopGraphStr 0.75, 0.55
 	endif
-	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrDCHook) = ATH_MeasureDistanceUsingFreeCursorsCDHook
+	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrDCHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsCDHook
 	TextBox/W=$winNameStr/C/A=LB/G=(65535,0,0)/E=2/N=DistanceCDInfo "\Z10Z-Toggle mode\ns - Scale (img)\nm(M)- Mark d(1/d)\ni - Mark (Inv. Sc)\nEsc - quit"
 	string userdataStrQ = GetUserData(winNameStr, "", "ATH_SavedDistanceForScale")
 	print userdataStrQ
@@ -65,7 +65,7 @@ Function ATH_MeasureDistanceUsingFreeCursorsCD()
 	endif
 End
 
-Function ATH_MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
+static Function MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	/// Hook function for ATH_MeasureDistanceUsingFreeCursorsCD()
 	variable hookResult = 0
 	variable x1, x2, y1, y2, z1, z2, distance, vbuffer, inverseD, imgQ
@@ -270,7 +270,7 @@ Structure sUserCursorPositions
 EndStructure
 
 // The following three function let you set two cursors (AB) on an image stack
-Function [variable xstart, variable ystart , variable xend, variable yend] ATH_UserGetABCursorPositions(STRUCT sUserCursorPositions &s)
+static Function [variable xstart, variable ystart , variable xend, variable yend] UserGetABCursorPositions(STRUCT sUserCursorPositions &s)
 	//
 	string winNameStr = WinName(0, 1, 1)	
 	DoWindow/F $winNameStr			// Bring graph to front
@@ -285,8 +285,8 @@ Function [variable xstart, variable ystart , variable xend, variable yend] ATH_U
 	StructPut /S s, structStr
 	DrawText 15,20,"Set cursors A, B and press continue..."
 	DrawText 15,35,"Can also use a marquee to zoom-in"
-	Button buttonContinue, win=$panelNameStr, pos={80,50},size={92,20}, title="Continue", proc=ATH_UserGetCursorsPositions_ContButtonProc 
-	Button buttonCancel, win=$panelNameStr, pos={80,80},size={92,20}, title="Cancel", proc=ATH_UserGetCursorsPositions_CancelBProc
+	Button buttonContinue, win=$panelNameStr, pos={80,50},size={92,20}, title="Continue", proc=ATH_Cursors#UserGetCursorsPositions_ContButtonProc 
+	Button buttonCancel, win=$panelNameStr, pos={80,80},size={92,20}, title="Cancel", proc=ATH_Cursors#UserGetCursorsPositions_CancelBProc
 	SetWindow $winNameStr userdata(sATH_ABCoords)=structStr 
 	SetWindow $winNameStr userdata(sATH_ABpanelNameStr)= panelNameStr
 	SetWindow $panelNameStr userdata(sATH_ABwinNameStr) = winNameStr 
@@ -306,7 +306,7 @@ Function [variable xstart, variable ystart , variable xend, variable yend] ATH_U
 	return [xstart, ystart , xend, yend]
 End
 
-Function ATH_UserGetCursorsPositions_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function UserGetCursorsPositions_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
 	STRUCT sUserCursorPositions s
 	string winNameStr = GetUserData(B_Struct.win, "", "sATH_ABwinNameStr")
 	StructGet/S s, GetUserData(winNameStr, "", "sATH_ABCoords")
@@ -329,7 +329,7 @@ Function ATH_UserGetCursorsPositions_ContButtonProc(STRUCT WMButtonAction &B_Str
 	return 0
 End
 
-Function ATH_UserGetCursorsPositions_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
+static Function UserGetCursorsPositions_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
 	STRUCT sUserCursorPositions s
 	string winNameStr = GetUserData(B_Struct.win, "", "sATH_ABwinNameStr")
 	StructGet/S s, GetUserData(winNameStr, "", "sATH_ABCoords")
@@ -350,7 +350,7 @@ Function ATH_UserGetCursorsPositions_CancelBProc(STRUCT WMButtonAction &B_Struct
 End
 // End of Cursor positions with PauseforUser
 
-Function ATH_CursorsToAngle(string Cursor1, string Cursor2 [, variable deg])
+static Function CursorsToAngle(string Cursor1, string Cursor2 [, variable deg])
 	// Returns the angle in rad or degrees of the line passing through Cursor1, Cursor2
 	// Angle range [-π/2, π/2]. NOTE: Y- axis is reversed in images
 	// We want compatibility with ImageRotate where positive angle rotate clock-wise
@@ -395,7 +395,7 @@ End
 
 /// Generic interaction using a cursor and a CallbackFunction
 
-Function ATH_InteractiveCursorAction(WAVE wRef)
+static Function InteractiveCursorAction(WAVE wRef)
 	/// Interactive operation using a callback functio
 	/// ATH_CursorCallBack()
 	
@@ -415,12 +415,12 @@ Function ATH_InteractiveCursorAction(WAVE wRef)
 	// Store globals
 	string/G dfr:gATH_wRefDataFolder = GetWavesDataFolder(wRef, 2)
 	// Hook and metadata
-	SetWindow $winNameStr, hook(MyiCursorActionHook) = ATH_CursorHookFunctioniCursorUsingCallback // Set the hook
+	SetWindow $winNameStr, hook(MyiCursorActionHook) = ATH_Cursors#iCursorUsingCallbackHookFunction // Set the hook
 	SetWindow $winNameStr, userData(ATH_iCursorDFR) = "root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr
 	return 0
 End
 
-Function ATH_CursorHookFunctioniCursorUsingCallback(STRUCT WMWinHookStruct &s)
+static Function iCursorUsingCallbackHookFunction(STRUCT WMWinHookStruct &s)
     variable hookResult = 0
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
@@ -429,7 +429,7 @@ Function ATH_CursorHookFunctioniCursorUsingCallback(STRUCT WMWinHookStruct &s)
 		switch(s.eventCode)
 	    case 7: // cursor moved
 			if(!cmpstr(s.cursorName, "C")) // It should work only with E, F you might have other cursors on the image
-				ATH_CursorCallBack(wRef, s.pointNumber, s.ypointNumber) // Function using row, column
+				CursorCallBack(wRef, s.pointNumber, s.ypointNumber) // Function using row, column
 			endif
 	   			hookResult = 1
 	   			break
@@ -445,8 +445,22 @@ Function ATH_CursorHookFunctioniCursorUsingCallback(STRUCT WMWinHookStruct &s)
     return hookResult       // 0 if nothing done, else 1
 End
 
-Function ATH_CursorCallBack(WAVE wRef, variable p0, variable q0)
+static Function CursorCallBack(WAVE wRef, variable p0, variable q0)
 	MatrixOP/O root:getBeam = beam(wRef, p0, q0)
+//	WAVE wOff = root:XMLD:XMLDStack_4x4x1_XMLDMap0_offset
+//	WAVE wfact = root:XMLD:XMLDStack_4x4x1_XMLDMap0_factor
+//	WAVE wphase = root:XMLD:XMLDStack_4x4x1_XMLDMap0	
+//	Make/O root:sinPlotW /WAVE=wsin
+//	SetScale/I x, (-pi/2 + pi/18), pi/2, wsin, root:getBeam
+//	variable xOff = wOff[p0][q0]
+//	variable xFact = wfact[p0][q0]
+//	variable phase = wphase[p0][q0]
+//	wsin = xOff + xFact * sin(x + phase)^2
+//	RemoveFromGraph/W=Graph0/ALL
+//	AppendToGraph/W=Graph0 root:getBeam;ModifyGraph/W=Graph0 mode(getBeam)=3,marker(getBeam)=19,msize(getBeam)=4
+//	AppendToGraph/W=Graph0 wsin; ModifyGraph/W=Graph0 lsize(sinPlotW)=2,rgb(sinPlotW)=(1,16019,65535)
+	RemoveFromGraph/W=Graph0/ALL
+	AppendToGraph/W=Graph0 root:getBeam
 	return 0
 End
 

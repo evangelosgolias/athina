@@ -173,7 +173,7 @@ End
 //
 //	## Returns
 //	variable
-//		A unique 2D wave NameOfWave(wRef) + "_XMLDMap" is created ( +num2str(N)) if not unique)
+//		A unique 2D wave NameOfWave(wRef) + "_XMLDMap" is created (+num2str(N)))
 //		0 - map calculations completed
 //		1 - input wave was not a 3D wave
 //@
@@ -196,7 +196,7 @@ Function ATH_CalculateXMLDMap(WAVE wRef, variable angleStep)
 	// Get the fitting stuff ready
 	Make/FREE/D/N=3 ATH_Coef
 	Make/FREE/T/N=3 ATH_Constraints
-	ATH_Constraints[0] = {"K1 > 1e-3", "K2 > -pi/2", "K2 <= pi/2"} // angular constrain and Julian's comment re K1.
+	ATH_Constraints[0] = {"K2 > -pi/2", "K2 <= pi/2"} // angular constrain and Julian's comment re K1.
 	Make/FREE/N=(layers) freeData
 	SetScale/P x, (-pi/2 + angleStepRad), angleStepRad, freeData
 	Make/FREE/N=(layers) xScaleW = pnt2x(freeData, p)

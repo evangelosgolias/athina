@@ -514,7 +514,7 @@ Function ATH_LaunchLinearImageStackAlignmentUsingABCursors()
 	
 	variable x0, y0, x1, y1
 	STRUCT sUserCursorPositions s
-	[x0, y0, x1, y1] = ATH_UserGetABCursorPositions(s)
+	[x0, y0, x1, y1] = ATH_Cursors#UserGetABCursorPositions(s)
 	[slope, shift] = ATH_LineEquationFromTwoPoints(x0, y0, x1, y1)
 	
 	

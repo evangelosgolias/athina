@@ -54,7 +54,7 @@ Function ATH_DrawCircleUsingAntinodalCursors(string C1, string C2, [string layer
 	xc = (left + right)/2
 	yc = (top + bottom)/2
 	
-	radius = ATH_GetDistanceFromCursors(C1, C2)/2
+	radius = ATH_Cursors#GetDistanceFromCursors(C1, C2)/2
 	
 	//change now left, right, top, bottom
 	
@@ -82,7 +82,7 @@ Function ATH_DrawCircleUsingCenterAndPointCursors(string C1, string C2, [string 
 	xc = left
 	yc = top
 	
-	radius = ATH_GetDistanceFromCursors(C1, C2)
+	radius = ATH_Cursors#GetDistanceFromCursors(C1, C2)
 		
 	left   = xc - radius
 	right  = xc + radius
