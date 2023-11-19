@@ -79,8 +79,8 @@ Menu "Athina"
 	End
 	
 	Submenu "Profiles "
-		"Line profile (TG, 2D, 3D)", /Q, ATH_ImageLineProfile#MainMenuLaunchLineProfile()
-		"Z profile (TG, 3D)", /Q, ATH_SumBeamsProfile#MainMenuLaunchSumBeamsProfile()
+		"Line profile (TG, 2D, 3D)", /Q, ATH_ImageLineProfile#MainMenuLaunch()
+		"Z profile (TG, 3D)", /Q, ATH_SumBeamsProfile#MainMenuLaunch()
 		"Plane profile (TG, 3D)",/Q, ATH_MainMenuLaunchImagePlaneProfileZ()
 	End
 
@@ -119,8 +119,8 @@ Menu "GraphMarquee"
 	"ATH Print ROI stats (2D, 3D)", /Q, ATH_GetMarqueeWaveStats()
 	"ATH Save Rect ROI (2D, 3D)", /Q, ATH_SaveROICoordinatesToDatabase(rect = 1)		
 	"ATH Save Oval ROI (2D, 3D)", /Q, ATH_SaveROICoordinatesToDatabase()
-	"ATH Z-profiler: Set rectangular ROI  (3D)", /Q, ATH_SumBeamsProfile#GraphMarqueeLaunchRectangleSumBeamsProfile()	
-	"ATH Z-profiler: Set oval ROI  (3D)", /Q, ATH_SumBeamsProfile#GraphMarqueeLaunchOvalSumBeamsProfile()
+	"ATH Z-profiler: Set rectangular ROI  (3D)", /Q, ATH_SumBeamsProfile#GraphMarqueeLaunchRectangle()	
+	"ATH Z-profiler: Set oval ROI  (3D)", /Q, ATH_SumBeamsProfile#GraphMarqueeLaunchOval()
 	//"ATH Marquee to mask (2D, 3D)", /Q, ATH_MarqueeToMask()
 	"ATH Backup traces (1D)", /Q, ATH_BackupTraces()
 	"ATH Restore traces (1D)", /Q, ATH_RestoreTraces()
@@ -138,8 +138,8 @@ Menu "DataBrowserObjectsPopup"
 	"ATH Make stack and display", /Q, ATH_LaunchMake3DWaveDataBrowserSelection(displayStack = 1)
 	"ATH Restore image from backup", /Q, ATH_LaunchImageBackupFromBrowserSelection()
 	Submenu "ATH Profiles"
-		"ATH Z profile", /Q, ATH_SumBeamsProfile#BrowserMenuLaunchSumBeamsProfile()
-		"ATH Line profile", /Q, ATH_ImageLineProfile#BrowserMenuLaunchLineProfile()
+		"ATH Z profile", /Q, ATH_SumBeamsProfile#BrowserMenuLaunch()
+		"ATH Line profile", /Q, ATH_ImageLineProfile#BrowserMenuLaunch()
 		"ATH Plane profile", /Q, ATH_BrowserMenuLaunchImagePlaneProfileZ()
 	End	
 	Submenu "ATH Normalise"
@@ -152,7 +152,7 @@ End
 Menu "TracePopup"
 	"ATH Autoscale Image (2D, 3D)", /Q, ATH_AutoRangeTopImage()
 	"ATH Dynamic Autoscale Image Plane (3D)", /Q, ATH_AutoRangeTopImagePerPlaneAndVisibleArea()
-	"ATH Z-profiler: Use saved ROI  (3D)", /Q, ATH_SumBeamsProfile#TracePopupLaunchSavedROISumBeamsProfile()		
+	"ATH Z-profiler: Use saved ROI  (3D)", /Q, ATH_SumBeamsProfile#TracePopupLaunchSavedROI()		
 	"ATH Save layer (TG, 3D)", /Q, ATH_GetLayerFromImageStack()
 	"ATH Save current view (TG, 2D, 3D)", /Q, ATH_GetScaledZoominImageWindow()
 	"ATH Scale Image stack (TG, 3D)", /Q, ATH_SetZScaleOfImageStack()
@@ -162,7 +162,7 @@ Menu "TracePopup"
 	"ATH Calculate XMC(L)D (3D[2])", /Q, ATH_LaunchCalculateXMCDFromStack()
 	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
 	Submenu "ATH markups ..."
-	"ATH Clear UserFront layer" ,/Q, ATH_ClearROIMarkingsUserFront()
+	"ATH Clear UserFront layer" ,/Q, ATH_SumBeamsProfile#ClearROIMarkingsUserFront()
 	"ATH Draw .dat markups", /Q, ATH_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
 	End
 End

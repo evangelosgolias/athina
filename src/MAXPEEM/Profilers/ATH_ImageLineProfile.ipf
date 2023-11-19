@@ -42,7 +42,7 @@
 /// DFREF savedfr = GetDataFolderDFR() //ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:SavedLineProfiles")
 
 
-static Function MainMenuLaunchLineProfile()
+static Function MainMenuLaunch()
 	
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -56,20 +56,20 @@ static Function MainMenuLaunchLineProfile()
 		DoWindow/F $LinkedPlotStr
 		return 0
 	endif
-	InitialiseLineProfileFolder(winNameStr)
+	InitialiseFolder(winNameStr)
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
-	InitialiseLineProfileGraph(dfr)
-	SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_ImageLineProfile#LineProfileCursorsHookFunction // Set the hook
+	InitialiseGraph(dfr)
+	SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_ImageLineProfile#CursorsHookFunction // Set the hook
 	SetWindow $winNameStr userdata(ATH_LinkedProfileWindowControl) = "ATH_LineProfileControlPlot_" + winNameStr // Name of the plot we will make, used to communicate the
-	SetWindow $winNameStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
+	SetWindow $winNameStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialiseFolder
 	return 0
 End
 
-static Function TraceMenuLaunchLineProfile() // Not in use
+static Function TraceMenuLaunch() // Not in use
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -78,17 +78,17 @@ static Function TraceMenuLaunchLineProfile() // Not in use
 	if(WaveDims(imgWaveRef) == 2 || WaveDims(imgWaveRef) == 3) // if it is not a 1d wave
 		KillWindow $winNameStr
 		ATH_DisplayImage(imgWaveRef)
-		InitialiseLineProfileFolder(winNameStr)
+		InitialiseFolder(winNameStr)
 		DoWindow/F $winNameStr // bring it to FG to set the cursors
 		variable nrows = DimSize(imgWaveRef,0)
 		variable ncols = DimSize(imgWaveRef,1)
 		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
-		InitialiseLineProfileGraph(dfr)
-		SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_ImageLineProfile#LineProfileCursorsHookFunction // Set the hook
+		InitialiseGraph(dfr)
+		SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_ImageLineProfile#CursorsHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedProfileWindowControl) = "ATH_LineProfileControlPlot_" + winNameStr // Name of the plot we will make, used to communicate the
-		SetWindow $winNameStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder	
+		SetWindow $winNameStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialiseFolder	
 		// name to the windows hook to kill the plot after completion
 	else
 		Abort "Line profile needs an image or image stack."
@@ -96,7 +96,7 @@ static Function TraceMenuLaunchLineProfile() // Not in use
 	return 0
 End
 
-static Function BrowserMenuLaunchLineProfile() // Not in use 
+static Function BrowserMenuLaunch() // Not in use 
 
 	if(ATH_CountSelectedWavesInDataBrowser() == 1) // If we selected a single wave
 		string selectedImageStr = GetBrowserSelection(0)
@@ -105,17 +105,17 @@ static Function BrowserMenuLaunchLineProfile() // Not in use
 			ATH_DisplayImage(imgWaveRef)
 			string winNameStr = WinName(0, 1, 1) // update it just in case
 			string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-			InitialiseLineProfileFolder(winNameStr)
+			InitialiseFolder(winNameStr)
 			DoWindow/F $winNameStr // bring it to FG to set the cursors
 			variable nrows = DimSize(imgWaveRef,0)
 			variable ncols = DimSize(imgWaveRef,1)
 			Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 			Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 			DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
-			InitialiseLineProfileGraph(dfr)
-			SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_ImageLineProfile#LineProfileCursorsHookFunction // Set the hook
+			InitialiseGraph(dfr)
+			SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_ImageLineProfile#CursorsHookFunction // Set the hook
 			SetWindow $winNameStr userdata(ATH_LinkedProfileWindowControl) = "ATH_LineProfileControlPlot_" + winNameStr // Name of the plot we will make, used to communicate the
-			SetWindow $winNameStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder		
+			SetWindow $winNameStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialiseFolder		
 		// name to the windows hook to kill the plot after completion
 		else
 			Abort "Line profile needs an image or an image stack."
@@ -126,7 +126,7 @@ static Function BrowserMenuLaunchLineProfile() // Not in use
 	return 0
 End
 
-static Function InitialiseLineProfileFolder(string winNameStr)
+static Function InitialiseFolder(string winNameStr)
 	/// All initialisation happens here. Folders, waves and local/global variables
 	/// needed are created here. Use the 3D wave in top window.
 
@@ -194,18 +194,18 @@ static Function InitialiseLineProfileFolder(string winNameStr)
 	return 0
 End
 
-static Function InitialiseLineProfileGraph(DFREF dfr)
+static Function InitialiseGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
 	string plotNameStr = "ATH_LineProf_" + GetDataFolder(0, dfr)
 	if (WinType(plotNameStr) == 0) // line profile window is not displayed
-		CreateLineProfilePlot(dfr)
+		CreatePlot(dfr)
 	else
 		DoWindow/F $plotNameStr // if it is bring it to the FG
 	endif
 	return 0
 End
 
-static Function CreateLineProfilePlot(DFREF dfr)
+static Function CreatePlot(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(rootFolderStr)
 	SVAR/SDFR=dfr gATH_WindowNameStr
@@ -223,17 +223,17 @@ static Function CreateLineProfilePlot(DFREF dfr)
 	SetWindow $profilePlotStr userdata(ATH_LineProfRootDF) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + gATH_WindowNameStr 
 	SetWindow $profilePlotStr userdata(ATH_sourceImageWindow) = gATH_WindowNameStr 
-	SetWindow $profilePlotStr, hook(MyLineProfileGraphHook) = ATH_ImageLineProfile#LineProfileGraphHookFunction // Set the hook
+	SetWindow $profilePlotStr, hook(MyLineProfileGraphHook) = ATH_ImageLineProfile#GraphHookFunction // Set the hook
 	
 	ControlBar 70	
-	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=ATH_ImageLineProfile#LineProfilePlotSaveProfile
-	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=ATH_ImageLineProfile#LineProfilePlotSaveDefaultSettings
-	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_ImageLineProfile#LineProfilePlotRestoreDefaultSettings
-	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",fcolor=(65535,32768,32768),help={"Show width of integrated area while button is pressed"},proc=ATH_ImageLineProfile#LineProfilePlotShowProfileWidth
-	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_ImageLineProfile#LineProfilePlotCheckboxPlotProfile
-	CheckBox MarkLines,pos={127.00,40.00},size={86.00,17.00},title="Mark lines ",fSize=14,value=0,side=1,proc=ATH_ImageLineProfile#LineProfilePlotCheckboxMarkLines
-	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,value=1,proc=ATH_ImageLineProfile#LineProfilePlotProfileLayer3D
-	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1},proc=ATH_ImageLineProfile#LineProfilePlotSetVariableWidth
+	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=ATH_ImageLineProfile#PlotSaveProfile
+	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=ATH_ImageLineProfile#SaveDefaultSettings
+	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_ImageLineProfile#RestoreDefaultSettings
+	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",fcolor=(65535,32768,32768),help={"Show width of integrated area while button is pressed"},proc=ATH_ImageLineProfile#ShowProfileWidth
+	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_ImageLineProfile#CheckboxPlotProfile
+	CheckBox MarkLines,pos={127.00,40.00},size={86.00,17.00},title="Mark lines ",fSize=14,value=0,side=1,proc=ATH_ImageLineProfile#CheckboxMarkLines
+	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,value=1,proc=ATH_ImageLineProfile#ProfileLayer3D
+	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1},proc=ATH_ImageLineProfile#SetVariableWidth
 	return 0
 End
 
@@ -251,7 +251,7 @@ static Function DrawLineUserFront(variable x0, variable y0, variable x1, variabl
 	return 0
 End
 
-static Function LineProfileCursorsHookFunction(STRUCT WMWinHookStruct &s)
+static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	/// The line profile is drawn from E to F
     variable hookResult = 0
@@ -361,7 +361,7 @@ static Function LineProfileCursorsHookFunction(STRUCT WMWinHookStruct &s)
     return hookResult       // 0 if nothing done, else 1
 End
 
-static Function LineProfileGraphHookFunction(STRUCT WMWinHookStruct &s)
+static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentImageWinStr = GetUserData(s.winName, "", "ATH_sourceImageWindow")
 	switch(s.eventCode)
 		case 2: // Kill the window
@@ -387,7 +387,7 @@ static Function LineProfileGraphHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 
-static Function LineProfilePlotSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function PlotSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_ShowSavedGraphsWindow")
@@ -451,7 +451,7 @@ static Function LineProfilePlotSaveProfile(STRUCT WMButtonAction &B_Struct): But
 	return 0
 End
 
-static Function LineProfilePlotSaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
 	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings") // Settings here
 	NVAR/Z C1x = dfr:gATH_C1x
@@ -479,7 +479,7 @@ static Function LineProfilePlotSaveDefaultSettings(STRUCT WMButtonAction &B_Stru
 	endswitch
 End
 
-static Function LineProfilePlotRestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
 	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings") // Settings here
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
@@ -507,7 +507,7 @@ static Function LineProfilePlotRestoreDefaultSettings(STRUCT WMButtonAction &B_S
 	endswitch
 End
 
-static Function LineProfilePlotShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	/// We have to find the vertices of the polygon representing
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
 	SVAR/Z WindowNameStr= dfr:gATH_WindowNameStr
@@ -566,7 +566,7 @@ static Function LineProfilePlotShowProfileWidth(STRUCT WMButtonAction &B_Struct)
 	endswitch
 End
 
-static Function LineProfilePlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
 	NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch
@@ -581,7 +581,7 @@ static Function LineProfilePlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) 
 	return 0
 End
 
-static Function LineProfilePlotProfileLayer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function ProfileLayer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
 	NVAR/Z updateSelectedLayer = dfr:gATH_updateSelectedLayer
@@ -605,7 +605,7 @@ static Function LineProfilePlotProfileLayer3D(STRUCT WMCheckboxAction& cb) : Che
 	return 0
 End
 
-static Function LineProfilePlotCheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function CheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
 	NVAR/Z MarkLinesSwitch = dfr:gATH_MarkLinesSwitch
@@ -620,7 +620,7 @@ static Function LineProfilePlotCheckboxMarkLines(STRUCT WMCheckboxAction& cb) : 
 	return 0
 End
 
-static Function LineProfilePlotSetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
+static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_LineProfRootDF"))
