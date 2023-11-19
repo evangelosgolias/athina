@@ -559,7 +559,7 @@ Function ATH_ImagePlaneProfileZButtonSaveProfile(STRUCT WMButtonAction &B_Struct
 					colorcnt += 1
 				endif
 				DoWindow/F $WindowNameStr
-				ATH_DrawLineUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
+				ATH_ImageLineProfile#DrawLineUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
 			endif
 			sprintf recreateCmdStr, "Cmd:ImageTransform/X={%d, %d, %d, %d, 0, %d, %d, 0, %d, "+\
 			"%d, %d} extractSurface %s\nSource: %s",  Nx, Ny, C1x, C1y, C2x, C2y, C2x, C2y, nLayers, w3dNameStr, ImagePathname

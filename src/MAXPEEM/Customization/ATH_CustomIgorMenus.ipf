@@ -79,7 +79,7 @@ Menu "Athina"
 	End
 	
 	Submenu "Profiles "
-		"Line profile (TG, 2D, 3D)", /Q, ATH_MainMenuLaunchLineProfile()
+		"Line profile (TG, 2D, 3D)", /Q, ATH_ImageLineProfile#MainMenuLaunchLineProfile()
 		"Z profile (TG, 3D)", /Q, ATH_MainMenuLaunchSumBeamsProfile()
 		"Plane profile (TG, 3D)",/Q, ATH_MainMenuLaunchImagePlaneProfileZ()
 	End
@@ -139,7 +139,7 @@ Menu "DataBrowserObjectsPopup"
 	"ATH Restore image from backup", /Q, ATH_LaunchImageBackupFromBrowserSelection()
 	Submenu "ATH Profiles"
 		"ATH Z profile", /Q, ATH_BrowserMenuLaunchSumBeamsProfile()
-		"ATH Line profile", /Q, ATH_BrowserMenuLaunchLineProfile()
+		"ATH Line profile", /Q, ATH_ImageLineProfile#BrowserMenuLaunchLineProfile()
 		"ATH Plane profile", /Q, ATH_BrowserMenuLaunchImagePlaneProfileZ()
 	End	
 	Submenu "ATH Normalise"
@@ -160,7 +160,7 @@ Menu "TracePopup"
 	"ATH Backup Image (2D, 3D)", /Q, ATH_BackupTopImage()	
 	"ATH Restore image (2D, 3D)", /Q, ATH_RestoreTopImageFromBackup()
 	"ATH Calculate XMC(L)D (3D[2])", /Q, ATH_LaunchCalculateXMCDFromStack()
-	"ATH Measure Distance (TG)", /Q, ATH_MeasureDistanceUsingFreeCursorsCD()
+	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
 	Submenu "ATH markups ..."
 	"ATH Clear UserFront layer" ,/Q, ATH_ClearROIMarkingsUserFront()
 	"ATH Draw .dat markups", /Q, ATH_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
