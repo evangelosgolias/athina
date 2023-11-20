@@ -89,7 +89,7 @@ Function ATH_ImageSelectToCopyScale() // Uses top graph
 	CopyScales/I sourceWaveRef, wRef
 End
 
-Function ATH_NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
+Function/S ATH_NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
 	// If you have 16-bit waves then Redimension/S to SP
 	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
 		Redimension/S w3dRef
@@ -97,12 +97,15 @@ Function ATH_NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
 	if(WaveType(w2dRef) == 80 || WaveType(w2dRef) == 16)
 		Redimension/S w2dRef
 	endif
-	string normWaveStr = NameOfWave(w3dRef) + "_norm"
+	DFREF currDF = GetDataFolderDFR()	
+	string normWaveBaseNameStr = NameOfWave(w3dRef) + "_norm"
+	string normWaveStr = CreateDataObjectName(currDF, normWaveBaseNameStr, 1, 0, 1)	
 	MatrixOP/O $normWaveStr = w3dRef / w2dRef
 	CopyScales w3dRef, $normWaveStr
+	return normWaveStr
 End
 
-Function ATH_NormaliseImageStackWithImageStack(WAVE w3dRef1, WAVE w3dRef2)
+Function/S ATH_NormaliseImageStackWithImageStack(WAVE w3dRef1, WAVE w3dRef2)
 	// If you have 16-bit waves then Redimension/S to SP
 	if(WaveType(w3dRef1) == 80 || WaveType(w3dRef1) == 16)
 		Redimension/S w3dRef1
@@ -110,12 +113,15 @@ Function ATH_NormaliseImageStackWithImageStack(WAVE w3dRef1, WAVE w3dRef2)
 	if(WaveType(w3dRef2) == 80 || WaveType(w3dRef2) == 16)
 		Redimension/S w3dRef2
 	endif
-	string normWaveStr = NameOfWave(w3dRef1) + "_norm"
+	DFREF currDF = GetDataFolderDFR()	
+	string normWaveBaseNameStr =  NameOfWave(w3dRef1) + "_norm"
+	string normWaveStr = CreateDataObjectName(currDF, normWaveBaseNameStr, 1, 0, 1)	
 	MatrixOP/O $normWaveStr = w3dRef1 / w3dRef2
 	CopyScales w3dRef1, $normWaveStr
+	return normWaveStr
 End
 
-Function ATH_NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
+Function/S ATH_NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
 	// Normalise a 3d wave (stack) with a line profile (1d wave) along the layer (z) direction
 	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
 		Redimension/S w3dRef
@@ -124,7 +130,10 @@ Function ATH_NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
 		Redimension/S profWaveRef
 	endif
 		
-	string normWaveStr = NameOfWave(w3dRef) + "_norm"
+	DFREF currDF = GetDataFolderDFR()	
+	string normWaveBaseNameStr = NameOfWave(w3dRef) + "_norm"
+	string normWaveStr = CreateDataObjectName(currDF, normWaveBaseNameStr, 1, 0, 1)	
+		
 	variable nlayers = DimSize(w3dRef, 2) 
 	variable npnts = DimSize(profWaveRef, 0)
 	
@@ -140,11 +149,11 @@ Function ATH_NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
 		endif
 	else 
 		Duplicate/O/FREE profWaveRef, profWaveRefFREE
-		Redimension/N=(1, 1, nlayers) profWaveRefFREE
+		Redimension/N=(1, 1, nlayers) profWaveRefFREE		
 		MatrixOP/O $normWaveStr = w3dRef * rec(profWaveRefFREE)
 	endif
 	CopyScales w3dRef, $normWaveStr
-	return 0
+	return normWaveStr
 End
 
 Function ATH_GetScaledZoominImageWindow()

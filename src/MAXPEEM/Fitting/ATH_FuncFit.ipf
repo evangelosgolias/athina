@@ -1,6 +1,7 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma ModuleName = ATH_FuncFit
+#pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 
 // ------------------------------------------------------- //
@@ -125,7 +126,7 @@ static Function XMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ w[0] = baseline
 	//CurveFitDialog/ w[1] = Amplitute
 	//CurveFitDialog/ w[2] = phase
-	yw = pw[0] + pw[1] * sin(xw + pw[2])^2
+	yw = pw[0] + pw[1] * sin(xw - pw[2])^2
 End
 
 static Function XMLDIntensityWtGradient(WAVE pw, WAVE yw, WAVE xw) : FitFunc

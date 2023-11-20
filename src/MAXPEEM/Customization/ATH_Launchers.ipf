@@ -590,7 +590,9 @@ Function ATH_LaunchNormalisationImageStackWithImage()
 					 "Aborting operation.", NameOfWave(w3dRef), NameOfWave(imageWaveRef)
 		Abort msg
 	endif
-	ATH_NormaliseImageStackWithImage(w3dRef, imageWaveRef)
+	string waveNormStr = ATH_NormaliseImageStackWithImage(w3dRef, imageWaveRef)
+	string noteStr = "Normalised with " + GetWavesDataFolder(imageWaveRef, 2)
+	Note $waveNormStr, noteStr
 End
 
 Function ATH_LaunchNormalisationImageStackWithProfile()
@@ -614,7 +616,9 @@ Function ATH_LaunchNormalisationImageStackWithProfile()
 			return -1
 		endif
 	endif
-	ATH_NormaliseImageStackWithProfile(w3dRef, profWaveRef)
+	string waveNormStr = ATH_NormaliseImageStackWithProfile(w3dRef, profWaveRef)
+	string noteStr = "Normalised with " + GetWavesDataFolder(profWaveRef, 2)
+	Note $waveNormStr, noteStr	
 End
 
 Function ATH_LaunchNormalisationImageStackWithImageStack()
@@ -642,7 +646,9 @@ Function ATH_LaunchNormalisationImageStackWithImageStack()
 					   " NB: zero-based layer indexing."
 	string inputStr = ATH_GenericSingleStrPrompt(promptStr, "How many layers would you like to use for Normalisation?")
 	string rangeStr = ATH_ExpandRangeStr(inputStr)
-	string normWaveStr = wave3d1Str + "_norm"
+	string normWaveBaseNameStr = wave3d1Str + "_norm"
+	DFREF currDF = GetDataFolderDFR()
+	string normWaveStr = CreateDataObjectName(currDF, normWaveBaseNameStr, 1, 0, 1)
 	variable nLayer, minLayer, maxLayer, totLayers
 	if(!strlen(inputStr) || (ItemsInList(rangeStr) == 1 && !cmpstr(StringFromList(0, rangeStr), "0")))
 		nLayer = str2num(StringFromList(0, rangeStr))
@@ -650,7 +656,7 @@ Function ATH_LaunchNormalisationImageStackWithImageStack()
 		normWaveStr = wave3d1Str + "_norm"
 		MatrixOP/O $normWaveStr = w3d1Ref/normLayerFree
 	elseif(ItemsInList(rangeStr) == 1 && !cmpstr(StringFromList(0, rangeStr), "-1"))
-		MatrixOP/O $normWaveStr = w3d1Ref/w3d2Ref
+		normWaveStr = ATH_NormaliseImageStackWithImageStack(w3d1Ref, w3d2Ref)
 	else
 		totLayers = ItemsInList(rangeStr)
 		minLayer = str2num(StringFromList(0,rangeStr))
@@ -661,7 +667,8 @@ Function ATH_LaunchNormalisationImageStackWithImageStack()
 		MatrixOP/O/FREE normLayerFree = sumBeams(getWaveLayersFree)/(maxLayer - minlayer + 1) 
 		MatrixOP/O $normWaveStr = w3d1Ref / normLayerFree
 	endif
-	
+	string noteStr = "Normalised with " + GetWavesDataFolder(w3d2Ref, 2)
+	Note $normWaveStr, noteStr	
 End
 
 Function ATH_LaunchRemoveImagesFromImageStack()

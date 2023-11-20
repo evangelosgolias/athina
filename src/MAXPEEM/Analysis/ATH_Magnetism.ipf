@@ -196,7 +196,7 @@ Function ATH_CalculateXMLDMap(WAVE wRef, variable angleStep)
 	// Get the fitting stuff ready
 	Make/FREE/D/N=3 ATH_Coef
 	Make/FREE/T/N=3 ATH_Constraints
-	ATH_Constraints[0] = {"K2 > -pi/2", "K2 <= pi/2"} // angular constrain and Julian's comment re K1.
+	ATH_Constraints = {"K1 > 1.0e-3", "K2 > -pi/2", "K2 <= pi/2"} // angular constrain and Julian's comment re K1.
 	Make/FREE/N=(layers) freeData
 	SetScale/P x, (-pi/2 + angleStepRad), angleStepRad, freeData
 	Make/FREE/N=(layers) xScaleW = pnt2x(freeData, p)

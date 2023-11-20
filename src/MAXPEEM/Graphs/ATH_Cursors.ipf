@@ -1,5 +1,6 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
+#pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_Cursors
 // ------------------------------------------------------- //
@@ -261,7 +262,7 @@ static Function MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 End
 
 Structure sUserCursorPositions
-	// Used in ATH_UserGetMarqueePositions
+	// Used in UserGetMarqueePositions
 	variable xstart
 	variable ystart
 	variable xend
@@ -447,20 +448,20 @@ End
 
 static Function CursorCallBack(WAVE wRef, variable p0, variable q0)
 	MatrixOP/O root:getBeam = beam(wRef, p0, q0)
-//	WAVE wOff = root:XMLD:XMLDStack_4x4x1_XMLDMap0_offset
-//	WAVE wfact = root:XMLD:XMLDStack_4x4x1_XMLDMap0_factor
-//	WAVE wphase = root:XMLD:XMLDStack_4x4x1_XMLDMap0	
-//	Make/O root:sinPlotW /WAVE=wsin
-//	SetScale/I x, (-pi/2 + pi/18), pi/2, wsin, root:getBeam
-//	variable xOff = wOff[p0][q0]
-//	variable xFact = wfact[p0][q0]
-//	variable phase = wphase[p0][q0]
-//	wsin = xOff + xFact * sin(x + phase)^2
-//	RemoveFromGraph/W=Graph0/ALL
-//	AppendToGraph/W=Graph0 root:getBeam;ModifyGraph/W=Graph0 mode(getBeam)=3,marker(getBeam)=19,msize(getBeam)=4
-//	AppendToGraph/W=Graph0 wsin; ModifyGraph/W=Graph0 lsize(sinPlotW)=2,rgb(sinPlotW)=(1,16019,65535)
+	WAVE wOff = root:XMLD:XMLDStack_4x4x1_XMLDMap0_offset
+	WAVE wfact = root:XMLD:XMLDStack_4x4x1_XMLDMap0_factor
+	WAVE wphase = root:XMLD:XMLDStack_4x4x1_XMLDMap0	
+	Make/O root:sinPlotW /WAVE=wsin
+	SetScale/I x, (-pi/2 + pi/18), pi/2, wsin, root:getBeam
+	variable xOff = wOff[p0][q0]
+	variable xFact = wfact[p0][q0]
+	variable phase = wphase[p0][q0]
+	wsin = xOff + xFact * sin(x + phase)^2
 	RemoveFromGraph/W=Graph0/ALL
-	AppendToGraph/W=Graph0 root:getBeam
+	AppendToGraph/W=Graph0 root:getBeam;ModifyGraph/W=Graph0 mode(getBeam)=3,marker(getBeam)=19,msize(getBeam)=4
+	AppendToGraph/W=Graph0 wsin; ModifyGraph/W=Graph0 lsize(sinPlotW)=2,rgb(sinPlotW)=(1,16019,65535)
+//	RemoveFromGraph/W=Graph0/ALL
+//	AppendToGraph/W=Graph0 root:getBeam
 	return 0
 End
 
