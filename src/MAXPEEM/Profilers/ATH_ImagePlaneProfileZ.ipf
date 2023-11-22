@@ -1,7 +1,8 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals    = 3		
-#pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
+#pragma IgorVersion  = 9
+#pragma ModuleName = ATH_ImagePlaneProfileZ
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -45,7 +46,7 @@
 
 /// If you want everything to work as expected you need dz > 0, otherwise the profile plot will be flipped.
 
-Function ATH_MainMenuLaunchImagePlaneProfileZ()
+static Function MenuLaunch()
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -64,14 +65,14 @@ Function ATH_MainMenuLaunchImagePlaneProfileZ()
 	
 	// User selected a wave, check if it's 3d
 	if(WaveDims(w3dRef) == 3) // if it is a 3d wave
-		ATH_InitialiseImagePlaneProfileZFolder()
+		InitialiseFolder()
 		variable nrows = DimSize(w3dRef,0)
 		variable ncols = DimSize(w3dRef,1)
 		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + NameOfWave(w3dRef)) // Change root folder if you want
-		ATH_InitialiseImagePlaneProfileZGraph(dfr)
-		SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = ATH_CursorHookFunctionImagePlaneProfileZ // Set the hook
+		InitialiseGraph(dfr)
+		SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = ATH_ImagePlaneProfileZ#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedImagePlaneProfileZPlotStr) = "ATH_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
 		// name to the windows hook to kill the plot after completion
 	else
@@ -80,7 +81,7 @@ Function ATH_MainMenuLaunchImagePlaneProfileZ()
 	return 0
 End
 
-Function ATH_TraceMenuLaunchImagePlaneProfileZ()
+static Function TraceMenuLaunch()
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -90,15 +91,15 @@ Function ATH_TraceMenuLaunchImagePlaneProfileZ()
 		KillWindow $winNameStr
 		ATH_DisplayImage(imgWaveRef)
 		winNameStr = WinName(0, 1, 1) // update it just in case
-		ATH_InitialiseImagePlaneProfileZFolder()
+		InitialiseFolder()
 		DoWindow/F $winNameStr // bring it to FG to set the cursors
 		variable nrows = DimSize(imgWaveRef,0)
 		variable ncols = DimSize(imgWaveRef,1)
 		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + NameOfWave(imgWaveRef)) // Change root folder if you want
-		ATH_InitialiseImagePlaneProfileZGraph(dfr)
-		SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = ATH_CursorHookFunctionImagePlaneProfileZ // Set the hook
+		InitialiseGraph(dfr)
+		SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = ATH_ImagePlaneProfileZ#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedImagePlaneProfileZPlotStr) = "ATH_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
 		// name to the windows hook to kill the plot after completion
 	else
@@ -107,7 +108,7 @@ Function ATH_TraceMenuLaunchImagePlaneProfileZ()
 	return 0
 End
 
-Function ATH_BrowserMenuLaunchImagePlaneProfileZ()
+static Function BrowserLaunch()
 
 	if(ATH_CountSelectedWavesInDataBrowser() == 1) // If we selected a single wave
 		string selectedImageStr = GetBrowserSelection(0)
@@ -116,15 +117,15 @@ Function ATH_BrowserMenuLaunchImagePlaneProfileZ()
 			ATH_DisplayImage(imgWaveRef)
 			string winNameStr = WinName(0, 1, 1) // update it just in case
 			string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-			ATH_InitialiseImagePlaneProfileZFolder()
+			InitialiseFolder()
 			DoWindow/F $winNameStr // bring it to FG to set the cursors
 			variable nrows = DimSize(imgWaveRef,0)
 			variable ncols = DimSize(imgWaveRef,1)
 			Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 			Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 			DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + NameOfWave(imgWaveRef)) // Change root folder if you want
-			ATH_InitialiseImagePlaneProfileZGraph(dfr)
-			SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = ATH_CursorHookFunctionImagePlaneProfileZ // Set the hook
+			InitialiseGraph(dfr)
+			SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = ATH_ImagePlaneProfileZ#CursorHookFunction // Set the hook
 			SetWindow $winNameStr userdata(ATH_LinkedImagePlaneProfileZPlotStr) = "ATH_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
 		// name to the windows hook to kill the plot after completion
 		else
@@ -136,7 +137,7 @@ Function ATH_BrowserMenuLaunchImagePlaneProfileZ()
 	return 0
 End
 
-Function ATH_InitialiseImagePlaneProfileZFolder()
+static Function InitialiseFolder()
 	/// All initialisation happens here. Folders, waves and local/global variables
 	/// needed are created here. Use the 3D wave in top window.
 
@@ -239,18 +240,18 @@ Function ATH_InitialiseImagePlaneProfileZFolder()
 	return 0
 End
 
-Function ATH_InitialiseImagePlaneProfileZGraph(DFREF dfr)
+static Function InitialiseGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
 	string plotNameStr = "ATH_ImagePlaneZProf_" + GetDataFolder(0, dfr)
 	if (WinType(plotNameStr) == 0) // line profile window is not displayed
-		ATH_CreateImagePlaneProfileZ(dfr)
+		CreatePanel(dfr)
 	else
 		DoWindow/F $plotNameStr // if it is bring it to the FG
 	endif
 	return 0
 End
 
-Function ATH_CreateImagePlaneProfileZ(DFREF dfr)
+static Function CreatePanel(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(rootFolderStr)
 	SVAR/SDFR=dfr gATH_WindowNameStr
@@ -286,25 +287,23 @@ Function ATH_CreateImagePlaneProfileZ(DFREF dfr)
 	SetWindow $profilePlotStr userdata(ATH_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_ImagePlaneProfileZ_" + gATH_WindowNameStr 
 	SetWindow $profilePlotStr userdata(ATH_parentGraphWin) = gATH_WindowNameStr 	
-	SetWindow $profilePlotStr, hook(MyImagePlaneProfileZHook) = ATH_ImagePlaneProfileZGraphHookFunction // Set the hook
+	SetWindow $profilePlotStr, hook(MyImagePlaneProfileZHook) = ATH_ImagePlaneProfileZ#GraphHookFunction// Set the hook
 
-	SetVariable setNx,pos={10,5},size={85,20.00},title="N\\Bx", fSize=14,fColor=(65535,0,0),value=Nx,limits={1,inf,1},proc=ATH_ImagePlaneProfileZSetVariableNx
-	SetVariable setNy,pos={97,5},size={70,20.00},title="N\\By", fSize=14,fColor=(65535,0,0),value=Ny,limits={1,inf,1},proc=ATH_ImagePlaneProfileZSetVariableNy
-	SetVariable profileWidth,pos={135,30.00},size={105,30.00},title="Width (px)", fSize=12,fColor=(65535,0,0),value=profileWidth,limits={1,51,1},proc=ATH_ImagePlaneProfileZSetVariableProfileWidth
+	SetVariable setNx,pos={10,5},size={85,20.00},title="N\\Bx", fSize=14,fColor=(65535,0,0),value=Nx,limits={1,inf,1},proc=ATH_ImagePlaneProfileZ#SetVariableNx
+	SetVariable setNy,pos={97,5},size={70,20.00},title="N\\By", fSize=14,fColor=(65535,0,0),value=Ny,limits={1,inf,1},proc=ATH_ImagePlaneProfileZ#SetVariableNy
+	SetVariable profileWidth,pos={135,30.00},size={105,30.00},title="Width (px)", fSize=12,fColor=(65535,0,0),value=profileWidth,limits={1,51,1},proc=ATH_ImagePlaneProfileZ#SetVariableProfileWidth
 
 	Button SetScaleButton,pos={180,6},size={70.00,20.00},title="Set Scale",valueColor=(1,12815,52428),help={"Scale X, Y coordinates. "+\
-	"Place markers and press button. Then set X and Y scales as intervals (Xmin, Xmax)"},proc=ATH_ImagePlaneProfileZButtonSetScale
-	Button SaveProfileButton,pos={260.00,6},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed image profile"},proc=ATH_ImagePlaneProfileZButtonSaveProfile
-	CheckBox DisplayProfiles,pos={250,30.0},size={98.00,17.00},title="Display profiles",fSize=12,value=PlotSwitch,side=1,proc=ATH_ImagePlaneProfileZCheckboxPlotProfile
-	CheckBox OverrideNx,pos={8,30.00},size={86.00,17.00},title="Override N\\Bx",fSize=12,fColor=(65535,0,0),value=OverrideNx,side=1,proc=ATH_ImagePlaneProfileZOverrideNx
-	CheckBox OverrideNy,pos={100,30.00},size={86.00,17.00},title="N\\By",fSize=12,fColor=(65535,0,0),value=OverrideNy,side=1,proc=ATH_ImagePlaneProfileZOverrideNy
+	"Place markers and press button. Then set X and Y scales as intervals (Xmin, Xmax)"},proc=ATH_ImagePlaneProfileZ#SetScaleButton
+	Button SaveProfileButton,pos={260.00,6},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed image profile"},proc=ATH_ImagePlaneProfileZ#SaveProfileButton
+	CheckBox DisplayProfiles,pos={250,30.0},size={98.00,17.00},title="Display profiles",fSize=12,value=PlotSwitch,side=1,proc=ATH_ImagePlaneProfileZ#CheckboxPlotProfile
+	CheckBox OverrideNx,pos={8,30.00},size={86.00,17.00},title="Override N\\Bx",fSize=12,fColor=(65535,0,0),value=OverrideNx,side=1,proc=ATH_ImagePlaneProfileZ#OverrideNx
+	CheckBox OverrideNy,pos={100,30.00},size={86.00,17.00},title="N\\By",fSize=12,fColor=(65535,0,0),value=OverrideNy,side=1,proc=ATH_ImagePlaneProfileZ#OverrideNy
 	
 	return 0
 End
 
-// ATH_ClearLineMarkings & ATH_DrawLineUserFront called from ATH_ImageLineProfile.ipf
-
-Function ATH_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
+static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	/// The line profile is drawn from G to H
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
@@ -488,7 +487,7 @@ Function ATH_CursorHookFunctionImagePlaneProfileZ(STRUCT WMWinHookStruct &s)
     return hookResult       // 0 if nothing done, else 1
 End
 
-Function ATH_ImagePlaneProfileZGraphHookFunction(STRUCT WMWinHookStruct &s)
+static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentGraphWin = GetUserData(s.winName, "", "ATH_parentGraphWin")
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
 	switch(s.eventCode)
@@ -518,7 +517,7 @@ Function ATH_ImagePlaneProfileZGraphHookFunction(STRUCT WMWinHookStruct &s)
 	endswitch
 End
 
-Function ATH_ImagePlaneProfileZButtonSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl // Change using UniqueName for displaying
+static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl // Change using UniqueName for displaying
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
@@ -569,7 +568,7 @@ Function ATH_ImagePlaneProfileZButtonSaveProfile(STRUCT WMButtonAction &B_Struct
 	return 0
 End
 
-Function ATH_ImagePlaneProfileZButtonSetScale(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
@@ -601,7 +600,7 @@ Function ATH_ImagePlaneProfileZButtonSetScale(STRUCT WMButtonAction &B_Struct): 
 	endswitch
 	return 0
 End
-Function ATH_ImagePlaneProfileZCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch
@@ -617,7 +616,7 @@ Function ATH_ImagePlaneProfileZCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) 
 End
 
 
-Function ATH_ImagePlaneProfileZCheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function CheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z MarkLinesSwitch = dfr:gATH_MarkLinesSwitch
@@ -632,7 +631,7 @@ Function ATH_ImagePlaneProfileZCheckboxMarkLines(STRUCT WMCheckboxAction& cb) : 
 	return 0
 End
 
-Function ATH_ImagePlaneProfileZOverrideNx(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function OverrideNx(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z OverrideNx = dfr:gATH_OverrideNx
@@ -647,7 +646,7 @@ Function ATH_ImagePlaneProfileZOverrideNx(STRUCT WMCheckboxAction& cb) : CheckBo
 	return 0
 End
 
-Function ATH_ImagePlaneProfileZOverrideNy(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function OverrideNy(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z OverrideNy = dfr:gATH_OverrideNy
@@ -662,7 +661,7 @@ Function ATH_ImagePlaneProfileZOverrideNy(STRUCT WMCheckboxAction& cb) : CheckBo
 	return 0
 End
 
-Function ATH_ImagePlaneProfileZSetVariableNx(STRUCT WMSetVariableAction& sv) : SetVariableControl
+static Function SetVariableNx(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
@@ -699,7 +698,7 @@ Function ATH_ImagePlaneProfileZSetVariableNx(STRUCT WMSetVariableAction& sv) : S
 	return 0
 End
 
-Function ATH_ImagePlaneProfileZSetVariableNy(STRUCT WMSetVariableAction& sv) : SetVariableControl
+static Function SetVariableNy(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
@@ -736,7 +735,7 @@ Function ATH_ImagePlaneProfileZSetVariableNy(STRUCT WMSetVariableAction& sv) : S
 	return 0
 End
 
-Function ATH_ImagePlaneProfileZSetVariableProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
+static Function SetVariableProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))

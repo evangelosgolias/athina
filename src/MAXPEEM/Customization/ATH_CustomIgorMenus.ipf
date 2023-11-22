@@ -81,7 +81,7 @@ Menu "Athina"
 	Submenu "Profiles "
 		"Line profile (TG, 2D, 3D)", /Q, ATH_ImageLineProfile#MainMenuLaunch()
 		"Z profile (TG, 3D)", /Q, ATH_SumBeamsProfile#MainMenuLaunch()
-		"Plane profile (TG, 3D)",/Q, ATH_MainMenuLaunchImagePlaneProfileZ()
+		"Plane profile (TG, 3D)",/Q, ATH_ImagePlaneProfileZ#MenuLaunch()
 	End
 
 	Submenu "XMC(L)D calculation"
@@ -140,7 +140,7 @@ Menu "DataBrowserObjectsPopup"
 	Submenu "ATH Profiles"
 		"ATH Z profile", /Q, ATH_SumBeamsProfile#BrowserMenuLaunch()
 		"ATH Line profile", /Q, ATH_ImageLineProfile#BrowserMenuLaunch()
-		"ATH Plane profile", /Q, ATH_BrowserMenuLaunchImagePlaneProfileZ()
+		"ATH Plane profile", /Q, ATH_ImagePlaneProfileZ#BrowserLaunch()
 	End	
 	Submenu "ATH Normalise"
 		"ATH Stack with image", /Q, ATH_LaunchNormalisationImageStackWithImage()

@@ -14,7 +14,7 @@ Function AfterWindowCreatedHook(string windowNameStr, variable winTypevar)
 		if(DimSize(ATHSpacesTW,0) && cmpstr(windowNameStr,"ATH_SpacesPanel")) // We have to have at least one space
 			//Sanitize names
 			if(GrepString(ATHSpacesTW[gSelectedSpace], "^\*"))
-				SetWindow $windowNameStr userdata(ATH_SpacesTag) = SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])
+				SetWindow $windowNameStr userdata(ATH_SpacesTag) = ATH_Spaces#SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])
 			else
 				SetWindow $windowNameStr userdata(ATH_SpacesTag) = ATHSpacesTW[gSelectedSpace]
 			endif
