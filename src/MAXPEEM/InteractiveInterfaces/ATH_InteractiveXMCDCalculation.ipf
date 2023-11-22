@@ -2,6 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion= 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma ModuleName = ATH_iXMCD
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -29,7 +30,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-Function ATH_LaunchInteractiveXMCDCalculationFromMenu()
+static Function MenuLaunch()
 	/// Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
 	
@@ -45,7 +46,7 @@ Function ATH_LaunchInteractiveXMCDCalculationFromMenu()
 				  "select two images, i.e two 2d waves, non-RGB. \n" + \
 				  "Do you want a another chance with the browser selection?"
 		if(V_flag == 1)
-			ATH_LaunchInteractiveXMCDCalculationFromMenu()
+			MenuLaunch()
 			return 0 
 		elseif(V_flag > 1)
 			Abort
@@ -90,10 +91,10 @@ Function ATH_LaunchInteractiveXMCDCalculationFromMenu()
 	string/G dfr:wName2Str = wave2NameStr
 	wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 	wSum = wImg1 + wImg2
-	ATH_CreateInteractiveXMCDCalculationPanel(wXMCD, wSum)
+	CreateiXMCDPanel(wXMCD, wSum)
 End
 
-Function ATH_CreateInteractiveXMCDCalculationPanel(WAVE wXMCD, WAVE wSum)
+static Function CreateiXMCDPanel(WAVE wXMCD, WAVE wSum)
 	DFREF dfr = GetWavesDataFolderDFR(wXMCD) // Recover the dfr	
 	NVAR/SDFR=dfr gATH_driftStep
 
@@ -107,9 +108,9 @@ Function ATH_CreateInteractiveXMCDCalculationPanel(WAVE wXMCD, WAVE wSum)
 	
 	SetVariable setDriftStep,win=$winiXMCDNameStr,pos={130,10},size={160,20.00},title="Drift step (px)"
 	SetVariable setDriftStep,win=$winiXMCDNameStr,value=gATH_driftStep,help={"Set drift value for img2"}
-	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,10,1},live=1,proc=ATH_SetDriftStepVar	
+	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,10,1},live=1,proc=ATH_iXMCD#SetDriftStepVar	
 
-	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20.00,10.00},size={90.00,20.00},proc=ATH_SaveXMCDImageButton
+	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20.00,10.00},size={90.00,20.00},proc=ATH_iXMCD#SaveXMCDImageButton
 	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save XMCD", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
 
 	// Set the path to all windows
@@ -117,11 +118,11 @@ Function ATH_CreateInteractiveXMCDCalculationPanel(WAVE wXMCD, WAVE wSum)
 	SetWindow $winiXMCDNameStr userdata(ATH_iXMCDPath) = dfrStr
 	SetWindow $winiXMCDNameStr userdata(ATH_iXMCDWin) = winiXMCDNameStr
 	SetWindow $winiXMCDNameStr userdata(ATH_iSumWin) = winiSumNameStr
-	SetWindow $winiXMCDNameStr, hook(MyiXMCDWinHook) = ATH_InteractiveXMCDWindowHook // Set the hook
+	SetWindow $winiXMCDNameStr, hook(MyiXMCDWinHook) = ATH_iXMCD#iXMCDWindowHook // Set the hook
 	return 0
 End
 
-Function ATH_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
+static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iXMCDPath"))
 	NVAR/SDFR=dfr gATH_driftStep
 	NVAR/SDFR=dfr gATH_dx
@@ -201,7 +202,7 @@ Function ATH_InteractiveXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	return hookResult	// If non-zero, we handled event and Igor will ignore it.
 End
 
-Function ATH_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
 	WAVE/SDFR=dfr wImg1
@@ -236,7 +237,7 @@ Function ATH_SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	return 0
 End
 
-Function ATH_SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
+static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
 	string dfrStr = GetUserData(sva.win, "", "ATH_iXMCDPath")
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(dfrStr)
 	NVAR/SDFR=dfr gATH_driftStep	
