@@ -1,7 +1,8 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
-
+#pragma IgorVersion = 9
+#pragma ModuleName = ATH_iImageRotation
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -30,7 +31,7 @@
 
 /// Interactive drift correction of a 3D wave
 
-Function ATH_CreateInteractiveImageRotationPanel()
+static Function CreatePanel()
 	
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -72,22 +73,22 @@ Function ATH_CreateInteractiveImageRotationPanel()
 	SetDrawEnv/W=iImageRotation fsize= 13,fstyle= 1,textrgb= (1,12815,52428)
 	DrawText/W=iImageRotation 90, 20,"Image rotation (deg)"
 	Slider RotAngleSlider vert=0,limits={-180,180,0},pos={15,25},size={270,50},ticks=50, fSize=12
-	Slider RotAngleSlider variable=dfr:gATH_Angle,proc=ATH_InteractiveImageRotationSliderProc
-	SetVariable RotAngle title="Set angle",fSize=14,size={120,20}, pos={90,70}, value = dfr:gATH_Angle, proc=ATH_InteractiveImageRotationSetAngle
-	Button SaveImg title="Save copy",size={80,20},pos={20,100},proc=ATH_InteractiveImageRotationSaveCopyButton
-	Button OverwiteImg title="Overwite ",size={70,20}, pos={110,100},proc=ATH_InteractiveImageRotationOverwriteImgButton
-	Button RestoreImageRot title="Restore",size={80,20},pos={190,100},fColor=(3,52428,1),proc=ATH_InteractiveImageRotationRestoreImageRotButton
+	Slider RotAngleSlider variable=dfr:gATH_Angle,proc=ATH_iImageRotation#SliderProc
+	SetVariable RotAngle title="Set angle",fSize=14,size={120,20}, pos={90,70}, value = dfr:gATH_Angle, proc=ATH_iImageRotation#SetAngle
+	Button SaveImg title="Save copy",size={80,20},pos={20,100},proc=ATH_iImageRotation#SaveCopyButton
+	Button OverwiteImg title="Overwite ",size={70,20}, pos={110,100},proc=ATH_iImageRotation#OverwriteImgButton
+	Button RestoreImageRot title="Restore",size={80,20},pos={190,100},fColor=(3,52428,1),proc=ATH_iImageRotation#RestoreImageRotButton
 
-	SetWindow $winNameStr#iImageRotation hook(MyImageRotationPanelHook) = ATH_iImageRotationPanelHookFunction
+	SetWindow $winNameStr#iImageRotation hook(MyImageRotationPanelHook) = ATH_iImageRotation#PanelHookFunction
 	SetWindow $winNameStr#iImageRotation userdata(ATH_iRotateFolder) = "root:Packages:ATH_DataFolder:InteractiveImageRotation:" + winNameStr
 	SetWindow $winNameStr#iImageRotation userdata(ATH_iImageRotateParentWindow) = winNameStr
 	
-	SetWindow $winNameStr hook(MyImageRotationParentGraphHook) = ATH_ImageRotationParentGraphHookFunction
+	SetWindow $winNameStr hook(MyImageRotationParentGraphHook) = ATH_iImageRotation#GraphHookFunction
 	SetWindow $winNameStr userdata(ATH_iRotateFolder) = "root:Packages:ATH_DataFolder:InteractiveImageRotation:" + winNameStr
 	return 0
 End
 
-Function ATH_ImageRotationParentGraphHookFunction(STRUCT WMWinHookStruct &s)
+static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
@@ -106,7 +107,7 @@ Function ATH_ImageRotationParentGraphHookFunction(STRUCT WMWinHookStruct &s)
 	return hookresult
 End
 
-Function ATH_iImageRotationPanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
+static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iRotateFolder"))
@@ -128,7 +129,7 @@ Function ATH_iImageRotationPanelHookFunction(STRUCT WMWinHookStruct &s) // Clean
 	return hookresult
 End
 
-Function ATH_InteractiveImageRotationSliderProc(STRUCT WMSliderAction &sa) : SliderControl
+static Function SliderProc(STRUCT WMSliderAction &sa) : SliderControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sa.win, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr
@@ -143,7 +144,7 @@ Function ATH_InteractiveImageRotationSliderProc(STRUCT WMSliderAction &sa) : Sli
 		default:
 			if( sa.eventCode & 1 ) // value set
 				gATH_Angle = sa.curval
-				sImageRestoreAndRotate(wRefbck, wRef, gATH_Angle)
+				ImageRestoreAndRotate(wRefbck, wRef, gATH_Angle)
 			endif
 			break
 	endswitch
@@ -151,7 +152,7 @@ Function ATH_InteractiveImageRotationSliderProc(STRUCT WMSliderAction &sa) : Sli
 	return 0
 End
 
-Function ATH_InteractiveImageRotationSetAngle(STRUCT WMSetVariableAction &sva) : SetVariableControl
+static Function SetAngle(STRUCT WMSetVariableAction &sva) : SetVariableControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr
@@ -163,7 +164,7 @@ Function ATH_InteractiveImageRotationSetAngle(STRUCT WMSetVariableAction &sva) :
 		case 2: // Enter key
 		case 3: // Live update
 			gATH_Angle = sva.dval
-			sImageRestoreAndRotate(wRefbck, wRef, gATH_Angle)
+			ImageRestoreAndRotate(wRefbck, wRef, gATH_Angle)
 			break
 		case -1: // control being killed
 			break
@@ -172,7 +173,7 @@ Function ATH_InteractiveImageRotationSetAngle(STRUCT WMSetVariableAction &sva) :
 	return 0
 End
 
-Function ATH_InteractiveImageRotationSaveCopyButton(STRUCT WMButtonAction &ba) : ButtonControl
+static Function SaveCopyButton(STRUCT WMButtonAction &ba) : ButtonControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(ba.win, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr
@@ -194,7 +195,7 @@ Function ATH_InteractiveImageRotationSaveCopyButton(STRUCT WMButtonAction &ba) :
 	return 0
 End
 
-Function ATH_InteractiveImageRotationOverwriteImgButton(STRUCT WMButtonAction &ba) : ButtonControl
+static Function OverwriteImgButton(STRUCT WMButtonAction &ba) : ButtonControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(ba.win, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr
@@ -220,7 +221,7 @@ Function ATH_InteractiveImageRotationOverwriteImgButton(STRUCT WMButtonAction &b
 	return 0
 End
 
-Function ATH_InteractiveImageRotationRestoreImageRotButton(STRUCT WMButtonAction &ba) : ButtonControl
+static Function RestoreImageRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(ba.win, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr
@@ -240,7 +241,7 @@ Function ATH_InteractiveImageRotationRestoreImageRotButton(STRUCT WMButtonAction
 End
 
 
-static Function sImageRestoreAndRotate(WAVE source, WAVE dest, variable angle)
+static Function ImageRestoreAndRotate(WAVE source, WAVE dest, variable angle)
 	/// Rotate dest, restore source
 	Duplicate/O source, dest
 	ImageRotate/Q/O/A=(angle)/E=0 dest
