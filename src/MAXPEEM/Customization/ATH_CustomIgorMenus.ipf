@@ -97,7 +97,7 @@ Menu "Athina"
 	End	
 	
 	Submenu "Utilities"
-		"Spaces",/Q, ATH_MainMenuLaunchSpaces()
+		"Spaces",/Q, ATH_Spaces#MenuLauch()
 		"Free space",/Q, ATH_LaunchDeleteBigWaves()
 		"List HDF5 (.h5) entries...", /Q, ATH_ListHDF5Groups()		
 		"Photoionisation CrossSection",/Q, PhotoionisationCrossSection#PhotoionisationCrossSection()
@@ -159,12 +159,9 @@ Menu "TracePopup"
 	"ATH Select image and copy scales (2D, 3D)", /Q, ATH_ImageSelectToCopyScale()
 	"ATH Backup Image (2D, 3D)", /Q, ATH_BackupTopImage()	
 	"ATH Restore image (2D, 3D)", /Q, ATH_RestoreTopImageFromBackup()
+	"ATH Clear UserFront layer" ,/Q, ATH_SumBeamsProfile#ClearROIMarkingsUserFront()	
 	"ATH Calculate XMC(L)D (3D[2])", /Q, ATH_LaunchCalculateXMCDFromStack()
 	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
-	Submenu "ATH markups ..."
-	"ATH Clear UserFront layer" ,/Q, ATH_SumBeamsProfile#ClearROIMarkingsUserFront()
-	"ATH Draw .dat markups", /Q, ATH_AppendMarkupsToTopImage() // NB: Add conditions to work only with images
-	End
 End
 
 Menu "GraphPopup" // Right click not on a trace or in the margin of an image

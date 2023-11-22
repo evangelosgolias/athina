@@ -1,7 +1,8 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
-
+#pragma IgorVersion = 9
+#pragma ModuleName = ATH_Spaces
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -62,7 +63,7 @@
 /// TODO: Move linked Panel/Graphs to the same Space
 /// TODO: Change all the function and use the same algorithm as ATH_ShowWindowsOfSpaceTag
 
-Function ATH_MainMenuLaunchSpaces()
+static Function MenuLauch()
 	
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	WAVE/Z/T/SDFR=dfr ATHSpacesTW
@@ -80,12 +81,12 @@ Function ATH_MainMenuLaunchSpaces()
 	if(WinType("ATH_SpacesPanel")) // Will return 7 for a panel, 0 if it's not there 
 		DoWindow/F ATH_SpacesPanel
 	else
-		ATH_MakeSpacesPanel()
+		MakePanel()
 	endif
 	return 0
 End
 
-Function ATH_MakeSpacesPanel()
+static Function MakePanel()
 	// Scale with IgorOptions here
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	
@@ -119,37 +120,17 @@ Function ATH_MakeSpacesPanel()
 	NewPanel /N=ATH_SpacesPanel/W=(panelLeft, panelTop, panelRight, panelBottom) as "ATH Spaces"
 	SetDrawLayer UserBack
 	Button NewSpace,pos={10,8.00},size={listwidth * 0.25,20.00},help={"Create new space"}
-	Button NewSpace,fColor=(3,52428,1),proc=ATH_ListBoxSpacesNewSpaceButton
+	Button NewSpace,fColor=(3,52428,1),proc=ATH_Spaces#NewSpaceButton
 	Button DeleteSpace,pos={10 + listwidth * 0.075 + listwidth * 0.25,8.00},size={listwidth * 0.25,20.00},title="Delete"
-	Button DeleteSpace,help={"Delete existing space"},fColor=(65535,16385,16385),proc=ATH_ListBoxSpacesDeleteSpaceButton
+	Button DeleteSpace,help={"Delete existing space"},fColor=(65535,16385,16385),proc=ATH_Spaces#DeleteSpaceButton
 	Button ShowAll,pos={10 + listwidth * 0.075 * 2 + listwidth * 0.25 * 2,8.00},size={listwidth * 0.25,20.00},title="All"
-	Button ShowAll,help={"Show all windows"},fColor=(32768,40777,65535),proc=ATH_ListBoxSpacesShowAllButton
-	ListBox listOfspaces,pos={1.00,37.00},size={listwidth,listlength},proc=ATH_ListBoxSpacesHookFunction
+	Button ShowAll,help={"Show all windows"},fColor=(32768,40777,65535),proc=ATH_Spaces#ShowAllButton
+	ListBox listOfspaces,pos={1.00,37.00},size={listwidth,listlength},proc=ATH_Spaces#ListBoxFunction
 	ListBox listOfspaces,fSize=14,frame=2,listWave=dfr:ATHSpacesTW,mode=2,selRow=gSelectedSpace
 	return 0
 End
 
-// AfterWindowCreatedHook
-Function AfterWindowCreatedHook(string windowNameStr, variable winTypevar)
-	// Every window created is assigned to the active Space IF the panel is there
-	if(WinType("ATH_SpacesPanel"))
-		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
-		WAVE/Z/T/SDFR=dfr ATHSpacesTW
-		NVAR/SDFR=dfr gSelectedSpace
-		windowNameStr = WinName(0, 87, 1) // Window is created, visible only
-		if(DimSize(ATHSpacesTW,0) && cmpstr(windowNameStr,"ATH_SpacesPanel")) // We have to have at least one space
-			//Sanitize names
-			if(GrepString(ATHSpacesTW[gSelectedSpace], "^\*"))
-				SetWindow $windowNameStr userdata(ATH_SpacesTag) = SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])
-			else
-				SetWindow $windowNameStr userdata(ATH_SpacesTag) = ATHSpacesTW[gSelectedSpace]
-			endif
-		endif
-	endif
-	return 0 // Ignored
-End
-
-Function ATH_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
+static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	WAVE/T/SDFR=dfr ATHSpacesTW
@@ -212,7 +193,7 @@ Function ATH_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 			
 			ATHSpacesTW[gSelectedSpace] = prefix + newSpaceNameStr
 			
-			ATH_RenameSpaceTagOnWindows(oldSpaceNameStr, newSpaceNameStr) // newSpaceNameStr has no * prefix!
+			RenameSpaceTagOnWindows(oldSpaceNameStr, newSpaceNameStr) // newSpaceNameStr has no * prefix!
 			hookresult = 1
 			break
 		case 4: // Cell selection (mouse or arrow keys)
@@ -229,7 +210,7 @@ Function ATH_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 					ATHSpacesTW[gSelectedSpace] = buffer
 				endif
 			else
-				ATH_ShowWindowsOfSpaceTag(SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace]), 1)	
+				ShowWindowsOfSpaceTag(SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace]), 1)	
 			endif
 			DoWindow/F $LB_Struct.win // Bring panel to the FG
 			hookresult = 1
@@ -250,7 +231,7 @@ Function ATH_ListBoxSpacesHookFunction(STRUCT WMListboxAction &LB_Struct)
 	return hookresult
 End
 
-Function ATH_ListBoxSpacesNewSpaceButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function NewSpaceButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	WAVE/T/SDFR=dfr ATHSpacesTW
@@ -275,12 +256,12 @@ Function ATH_ListBoxSpacesNewSpaceButton(STRUCT WMButtonAction &B_Struct): Butto
 			// Set the space you created as active
 			ListBox listOfspaces, selRow = index
 			gSelectedSpace = index
-			ATH_ShowWindowsOfSpaceTag(newSpaceNameStr, 1) // Show windows of the new Space - No windows to show!
+			ShowWindowsOfSpaceTag(newSpaceNameStr, 1) // Show windows of the new Space - No windows to show!
 			break
 	endswitch
 End
 
-Function ATH_ListBoxSpacesDeleteSpaceButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function DeleteSpaceButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	WAVE/T/SDFR=dfr ATHSpacesTW
@@ -296,7 +277,7 @@ Function ATH_ListBoxSpacesDeleteSpaceButton(STRUCT WMButtonAction &B_Struct): Bu
 				msg = "Do you want to delete \"" + SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace]) + "\""
 				DoAlert/T="You are about to delete a Space", 1, msg
 				if(V_flag == 1)
-					ATH_ClearWindowsFromSpaceTag(SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])) // has to come first!
+					ClearWindowsFromSpaceTag(SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])) // has to come first!
 					DeletePoints gSelectedSpace, 1, ATHSpacesTW
 					gSelectedSpace = gSelectedSpace == 0 ? 0: (gSelectedSpace - 1)
 					ListBox listOfspaces, selRow = gSelectedSpace
@@ -306,7 +287,7 @@ Function ATH_ListBoxSpacesDeleteSpaceButton(STRUCT WMButtonAction &B_Struct): Bu
 	endswitch
 End
 
-Function ATH_ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
+static Function ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
 	// showSwitch = 0 (hide window) 
 	// showSwitch = 1 (show window)
 	string winNameStr, getSpacetagStr
@@ -328,7 +309,7 @@ Function ATH_ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
 End
 
 
-Function ATH_RenameSpaceTagOnWindows(string oldspaceTagStr, string newspaceTagStr)
+static Function RenameSpaceTagOnWindows(string oldspaceTagStr, string newspaceTagStr)
 
 	string winNameStr = "", getSpacetagStr
 	variable i = 0 
@@ -343,7 +324,7 @@ Function ATH_RenameSpaceTagOnWindows(string oldspaceTagStr, string newspaceTagSt
 	return 0
 End
 
-Function ATH_ClearWindowsFromSpaceTag(string spaceTagStr)
+static Function ClearWindowsFromSpaceTag(string spaceTagStr)
 
 	string winNameStr = "", getSpacetagStr
 	variable i = 0 
@@ -362,7 +343,7 @@ Function ATH_ClearWindowsFromSpaceTag(string spaceTagStr)
 	return 0
 End
 
-Function ATH_ListBoxSpacesShowAllButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function ShowAllButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	NVAR/SDFR=dfr gShowAllWindowsSwitch
 	variable showSwitch
@@ -371,16 +352,16 @@ Function ATH_ListBoxSpacesShowAllButton(STRUCT WMButtonAction &B_Struct): Button
 			showSwitch = 1 - gShowAllWindowsSwitch
 			if(showSwitch)
 				gShowAllWindowsSwitch = 1
-				ATH_ShowAllWindows(0)
+				ShowAllWindows(0)
 			else
 				gShowAllWindowsSwitch = 0
-				ATH_ShowAllWindows(1)
+				ShowAllWindows(1)
 			endif
 			break
 	endswitch
 End
 
-Function ATH_ShowAllWindows(variable showSwitch)
+static Function ShowAllWindows(variable showSwitch)
 	// showSwitch = 0 (hide window) 
 	// showSwitch = 1 (show window)
 	string winNameStr
