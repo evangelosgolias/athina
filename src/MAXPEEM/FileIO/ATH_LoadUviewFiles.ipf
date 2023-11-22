@@ -1,8 +1,8 @@
 ﻿#pragma rtGlobals    = 3
 #pragma TextEncoding = "UTF-8"
 #pragma IgorVersion  = 9
-//#pragma rtFunctionErrors=1 // DEGUB. Remove on release
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and later
+#pragma ModuleName  = ATH_LoadUview
 
 // ------------------------------------------------------- //
 // Functions to import binary .dat & .dav files created by 
@@ -85,45 +85,7 @@ EndStructure
 
 static constant kpixelsTVIPS = 1024 // Change here if needed. Used for corrupted files only.
 
-static Function BeforeFileOpenHook(variable refNum, string fileNameStr, string pathNameStr, string fileTypeStr, string fileCreatorStr, variable fileKind)
-
-    PathInfo $pathNameStr
-    string fileToOpen = S_path + fileNameStr
-    if(StringMatch(fileNameStr, "*.dat") && fileKind == 7) // Igor treats .dat files is a General text (fileKind == 7)
-        try	
-        	// ATH_WAVELoadSingleDATFile(fileToOpen, "", autoscale = 1)
-        	WAVE wIn = ATH_WAVELoadSingleDATFile(fileToOpen, "", autoscale = 1)
-        	AbortOnRTE
-        catch
-        	// Added on the 17.03.2023 to deal with a corrupted file. 
-        	print "!",fileNameStr, "metadataReadError"
-        	variable err = GetRTError(1) // Clears the error
-        	WAVE wIn = ATH_WAVELoadSingleCorruptedDATFile(fileToOpen, "")
-        	//Abort // Removed to stop the "Encoding window" from popping all the time.
-        endtry
-        ATH_DisplayImage(wIn)
-        return 1
-    endif
-    if(StringMatch(fileNameStr, "*.dav") && fileKind == 0) // fileKind == 0, unknown
-    	DoAlert/T="Dropped a .dav file in Igror" 1, "Do you want to load the .dav file in a stack?"
-        try
-        if(V_flag == 1)
-        	ATH_LoadSingleDAVFile(fileToOpen, "", skipmetadata = 1, autoscale = 1, stack3d = 1)
-        else
-        	ATH_LoadSingleDAVFile(fileToOpen, "", autoscale = 1)
-        endif
-        	AbortOnRTE
-        catch
-        	print "Are you sure you are not trying to load a text file with .dav extention?"
-        	Abort
-        endtry
-        return 1
-    endif
-    return 0
-End
-
-
-Function/WAVE ATH_WAVELoadSingleDATFile(string filepathStr, string waveNameStr 
+static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameStr 
 			  [,int skipmetadata, int autoScale, int readMarkups,int binX, int binY])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string filename (including) pathname. 
@@ -244,9 +206,9 @@ Function/WAVE ATH_WAVELoadSingleDATFile(string filepathStr, string waveNameStr
 		if(binX != 1 || binY != 1)
 			mdatastr += "Binning: (" + num2str(binX) + ", " + num2str(binY) + ")\n"
 		endif			
-		mdatastr += ATH_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
+		mdatastr += StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
 		if(readMarkups && ATHImageHeader.attachedMarkupSize)// Add image markups if any
-			mdatastr += ATH_StrGetImageMarkups(filepathStr)
+			mdatastr += StrGetImageMarkups(filepathStr)
 		endif
 		if(autoScale)
 			variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
@@ -263,7 +225,7 @@ Function/WAVE ATH_WAVELoadSingleDATFile(string filepathStr, string waveNameStr
 	return datWave
 End
 
-Function ATH_LoadSingleDATFile(string filepathStr, string waveNameStr
+static Function LoadSingleDATFile(string filepathStr, string waveNameStr
          [,int skipmetadata, int autoScale, int readMarkups, int binX, int binY])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string pathname. 
@@ -379,9 +341,9 @@ Function ATH_LoadSingleDATFile(string filepathStr, string waveNameStr
 		if(binX != 1 || binY != 1)
 			mdatastr += "Binning: (" + num2str(binX) + ", " + num2str(binY) + ")\n"
 		endif	
-		mdatastr += ATH_StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
+		mdatastr += StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
 		if(readMarkups && ATHImageHeader.attachedMarkupSize)// Add image markups if any
-			mdatastr += ATH_StrGetImageMarkups(filepathStr)
+			mdatastr += StrGetImageMarkups(filepathStr)
 		endif
 		if(autoScale)
 			variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
@@ -398,7 +360,7 @@ Function ATH_LoadSingleDATFile(string filepathStr, string waveNameStr
 	return 0
 End
 
-Function ATH_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skipmetadata, int autoScale, int stack3d])
+static Function LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skipmetadata, int autoScale, int stack3d])
 	///< Function to load a single Elmitec binary .dav file. dav files comprise of many dat entries in sequence.
 	/// @param filepathStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
@@ -507,14 +469,14 @@ Function ATH_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 			MetadataStart = ATHFileHeader.size + ImageHeaderSize + cnt * byteoffset
 			mdatastr += filepathStr + "\n"
 			mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
-			mdatastr += ATH_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
+			mdatastr += StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
 			if(autoscale)
 				fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
 				SetScale/I x, 0, fovScale, datWave
 				SetScale/I y, 0, fovScale, datWave
 			endif
 			if(ATHImageHeader.attachedMarkupSize)// Add image markups if any
-				mdatastr += ATH_StrGetImageMarkups(filepathStr)
+				mdatastr += StrGetImageMarkups(filepathStr)
 			endif	
 		endif
 		// when you stack, skip metadata but scale the x, y dimensions of the 3d wave. 
@@ -522,7 +484,7 @@ Function ATH_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 		// Right before the start of the do...while loop readMetadataOnce = 1
 		if(skipmetadata && autoScale && readMetadataOnce) 
 			MetadataStart = ATHFileHeader.size + ImageHeaderSize + cnt * byteoffset
-			mdatastr += ATH_StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
+			mdatastr += StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
 			fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
 			readMetadataOnce = 0
 		endif
@@ -556,7 +518,7 @@ Function ATH_LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skip
 	return 0
 End
 
-Function/S ATH_StrGetBasicMetadataInfoFromDAT(string datafile, variable MetadataStartPos, 
+static Function/S StrGetBasicMetadataInfoFromDAT(string datafile, variable MetadataStartPos, 
 		   variable MetadataEndPos, variable LEEMDataVersion)
 	// Read important metadata from a .dat file. Most metadata are stored in the form
 	// tag (units): values, so it's easy to parse using the StringByKey function.
@@ -708,7 +670,7 @@ Function/S ATH_StrGetBasicMetadataInfoFromDAT(string datafile, variable Metadata
 	return ATHMetaDataStr // ConvertTextEncoding(ATHMetaDataStr, 1, 1, 3, 2)
 End
 
-Function/S ATH_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataStartPos, 
+static Function/S StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataStartPos, 
            variable MetadataEndPos, variable LEEMDataVersion)
 	// Read all metadata from a .dat file. Most metadata are stored in the form
 	// tag (units): values, so it's easy to parse using the StringByKey function.
@@ -886,7 +848,7 @@ Function/S ATH_StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataSt
 	return ATHMetaDataStr
 End
 
-Function/S ATH_StrGetImageMarkups(string filename)
+static Function/S StrGetImageMarkups(string filename)
 	/// Read markups from a dat file. Then generate a list containing the markups parameters (positions, \
 	///  \size, color,line thickness, text), based partially on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
 	
@@ -962,7 +924,7 @@ Function/S ATH_StrGetImageMarkups(string filename)
 End
 
 // Developement
-Function/S ATH_StrGetImageMarkups_DEV(string filename) // TODO: Work on the function.
+static Function/S StrGetImageMarkups_DEV(string filename) // TODO: Work on the function.
 	/// Read markups from a dat file. Then generate a list containing the markups parameters (positions, \
 	///  \size, color,line thickness, text), based partially on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
 	
@@ -1070,7 +1032,7 @@ Function/S ATH_StrGetImageMarkups_DEV(string filename) // TODO: Work on the func
 	return markupsList
 End
 
-Function ATH_AppendMarkupsToTopImage_DEV() // TODO: DEV here
+static Function AppendMarkupsToTopImage_DEV() // TODO: DEV here
 	/// Draw the markups on an image display (drawn on the UserFront layer)
 	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
 	/// markups are drawn on the top graph
@@ -1136,7 +1098,7 @@ Function ATH_AppendMarkupsToTopImage_DEV() // TODO: DEV here
 End
 
 // ** TODO **: Do we need to flip the image ?
-Function ATH_AppendMarkupsToTopImage() // original function
+static Function AppendMarkupsToTopImage() // original function
 	/// Draw the markups on an image display (drawn on the UserFront layer)
 	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
 	/// markups are drawn on the top graph
@@ -1191,7 +1153,7 @@ Function ATH_AppendMarkupsToTopImage() // original function
 	return 0
 End
 
-Function ATH_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d, string wname3d, int autoscale])
+static Function LoadDATFilesFromFolder(string folder, string pattern, [int stack3d, string wname3d, int autoscale])
 	// We use ImageTransform stackImages X to create the 3d wave. Compared to 3d wave assignement it is faster by nearly 3x.
 
 	/// Import .dat files that match a pattern from a folder. Waves are named after their filename.
@@ -1250,15 +1212,15 @@ Function ATH_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 		if(stack3d) // Skip the metadata if you load to a 3dwave
 			// Here we assume all the waves have the same x, y scaling 
 			if(i == 0) // We get the wave scaling for rows and columnns using the first wave, assumed DimSize(w, 0) == DimSize(w, 1)
-					WAVE wname = ATH_WAVELoadSingleDATFile(datafile2read, ("ATHWaveToStack_idx_" + num2str(i)), skipmetadata = 0) 
+					WAVE wname = WAVELoadSingleDATFile(datafile2read, ("ATHWaveToStack_idx_" + num2str(i)), skipmetadata = 0) 
 					variable getScaleXY = NumberByKey("FOV(µm)", note(wname), ":", "\n")
 					getScaleXY = (numtype(getScaleXY) == 2)? 0: getScaleXY // NB: Added on 23.05.2023
 				else
-					WAVE wname = ATH_WAVELoadSingleDATFile(datafile2read, ("ATHWaveToStack_idx_" + num2str(i)), skipmetadata = 1)
+					WAVE wname = WAVELoadSingleDATFile(datafile2read, ("ATHWaveToStack_idx_" + num2str(i)), skipmetadata = 1)
 			endif
 		else
 			filenameStr = ParseFilePath(3, datafile2read, ":", 0, 0)
-			WAVE wname = ATH_WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 0)
+			WAVE wname = WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 0)
 			fovScale = NumberByKey("FOV(µm)", note(wname), ":", "\n")
 			if(autoscale)
 				fovScale = (numtype(fovScale) == 2)? 0: fovScale // NB: Added on 23.05.2023
@@ -1289,7 +1251,7 @@ Function ATH_LoadDATFilesFromFolder(string folder, string pattern, [int stack3d,
 	return 0
 End
 
-Function/WAVE ATH_WAVELoadDATFilesFromFolder(string folder, string pattern, [string wname3dStr, int autoscale])
+static Function/WAVE WAVELoadDATFilesFromFolder(string folder, string pattern, [string wname3dStr, int autoscale])
 	// We use ImageTransform stackImages X to create the 3d wave. Compared to 3d wave assignement it is faster by nearly 3x.
 
 	/// Import .dat files that match a pattern from a folder. Waves are named after their filename.
@@ -1332,7 +1294,7 @@ Function/WAVE ATH_WAVELoadDATFilesFromFolder(string folder, string pattern, [str
 		filenameBuffer = StringFromList(0, allFiles)
 		datafile2read = folder + filenameBuffer
 		wname3dStr = CreateDataObjectName(currDF, filenameBuffer, 1, 0, 1)
-		WAVE wRef = ATH_WAVELoadSingleDATFile(datafile2read, wname3dStr)
+		WAVE wRef = WAVELoadSingleDATFile(datafile2read, wname3dStr)
 		return wRef
 	endif
 	
@@ -1340,7 +1302,7 @@ Function/WAVE ATH_WAVELoadDATFilesFromFolder(string folder, string pattern, [str
 		SetDataFolder NewFreeDataFolder()
 		filenameBuffer = StringFromList(0, allFiles)
 		datafile2read = folder + filenameBuffer
-		WAVE wname = ATH_WAVELoadSingleDATFile(datafile2read, ("ATHWaveToStack_idx_" + num2str(0)), skipmetadata = 0)
+		WAVE wname = WAVELoadSingleDATFile(datafile2read, ("ATHWaveToStack_idx_" + num2str(0)), skipmetadata = 0)
 		variable getScaleXY = NumberByKey("FOV(µm)", note(wname), ":", "\n")	
 		wname3dStr = CreateDataObjectName(saveDF, wname3dStr, 1, 0, 1)
 	endif
@@ -1349,9 +1311,9 @@ Function/WAVE ATH_WAVELoadDATFilesFromFolder(string folder, string pattern, [str
 	for(i = 1; i < filesnr; i += 1)
 		filenameBuffer = StringFromList(i, allFiles)
 		datafile2read = folder + filenameBuffer
-		WAVE wname = ATH_WAVELoadSingleDATFile(datafile2read, ("ATHWaveToStack_idx_" + num2str(i)), skipmetadata = 1)
+		WAVE wname = WAVELoadSingleDATFile(datafile2read, ("ATHWaveToStack_idx_" + num2str(i)), skipmetadata = 1)
 		filenameStr = ParseFilePath(3, datafile2read, ":", 0, 0)
-		WAVE wname = ATH_WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 0)
+		WAVE wname = WAVELoadSingleDATFile(datafile2read, filenameStr, skipmetadata = 0)
 	endfor
 
 	ImageTransform/NP=(filesnr) stackImages $"ATHWaveToStack_idx_0"
@@ -1373,7 +1335,7 @@ Function/WAVE ATH_WAVELoadDATFilesFromFolder(string folder, string pattern, [str
 	return wRef
 End
 
-Function ATH_LoadMultiplyDATFiles([string filenames, int skipmetadata, int autoscale])
+static Function LoadMultiplyDATFiles([string filenames, int skipmetadata, int autoscale])
 	/// Load multiply selected .dat files
 	/// @param filenames string optional string separated by ";". If you provide filenames and the
 	/// number of selected files  match the number of names in string then use them to name waves.
@@ -1407,15 +1369,15 @@ Function ATH_LoadMultiplyDATFiles([string filenames, int skipmetadata, int autos
 	variable i = 0
 	for(i = 0; i < nrloadFiles; i += 1)
 		if (nrloadFiles == nrFilenames)
-			ATH_LoadSingleDATFile(StringFromList(i,loadFiles, "\r"), StringFromList(i, filenames), skipmetadata = skipmetadata, autoscale = autoscale)
+			LoadSingleDATFile(StringFromList(i,loadFiles, "\r"), StringFromList(i, filenames), skipmetadata = skipmetadata, autoscale = autoscale)
 		else
-			ATH_LoadSingleDATFile(StringFromList(i,loadFiles, "\r"), "", skipmetadata = skipmetadata, autoscale = autoscale)
+			LoadSingleDATFile(StringFromList(i,loadFiles, "\r"), "", skipmetadata = skipmetadata, autoscale = autoscale)
 		endif
 	endfor
 	return 0
 End
 
-Function/WAVE ATH_WAVELoadSingleCorruptedDATFile(string filepathStr, string waveNameStr)
+static Function/WAVE WAVELoadSingleCorruptedDATFile(string filepathStr, string waveNameStr)
 	///< Function to load a single Elmitec binary .dat file by skipping reading the metadata.
 	/// We assume here that the image starts at sizeOfFile - kpixelsTVIPS^2 * 16
 	/// @param filepathStr string filename (including) pathname. 
@@ -1463,7 +1425,7 @@ Function/WAVE ATH_WAVELoadSingleCorruptedDATFile(string filepathStr, string wave
 		message = "Select .dat file. \nWave names are filenames /O.\n "
 		Open/F=fileFilters/R numRef as filepathStr
 	else
-		Abort "Path for datafile not specified (check ATH_WAVELoadSingleDATFile)!"
+		Abort "Path for datafile not specified (check ATH_LoadUview#WAVELoadSingleDATFile)!"
 	endif
 		
 	FStatus numRef
@@ -1481,7 +1443,7 @@ Function/WAVE ATH_WAVELoadSingleCorruptedDATFile(string filepathStr, string wave
 	return datwave
 End
 
-Function ATH_LoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int waveDataType])
+static Function LoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int waveDataType])
 	///< Function to load a single Elmitec binary .dat file by skipping reading the metadata.
 	/// We assume here that the image starts at sizeOfFile - kpixelsTVIPS^2 * 2
 	/// @param filepathStr string filename (including) pathname. 
@@ -1533,7 +1495,7 @@ Function ATH_LoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, 
 		message = "Select .dat file. \nWave names are filenames /O.\n "
 		Open/F=fileFilters/R numRef as filepathStr
 	else
-		Abort "Path for datafile not specified (check ATH_WAVELoadSingleDATFile)!"
+		Abort "Path for datafile not specified (check ATH_LoadUview#WAVELoadSingleDATFile)!"
 	endif
 		
 	FStatus numRef

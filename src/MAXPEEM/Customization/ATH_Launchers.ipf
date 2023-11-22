@@ -53,11 +53,11 @@ End
 Function ATH_LauncherLoadDATFilesFromFolder()
 	string wNameStr = ATH_GenericSingleStrPrompt("Stack name, empty string to auto-name", "Before the selection dialog opens...")
 	if(strlen(wNameStr))
-		ATH_LoadDATFilesFromFolder("", "*", stack3d = 1, wname3d = wNameStr, autoscale = 1)
+		ATH_LoadUview#LoadDATFilesFromFolder("", "*", stack3d = 1, wname3d = wNameStr, autoscale = 1)
 	else
 		// default name, if wname3d is given, even if empty string, the ParamIsDefault will give 1.
 		// wname3d = SelectString(ParamIsDefault(wname3d) ? 0: 1,"stack3d", wname3d)
-		ATH_LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 
+		ATH_LoadUview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 
 	endif
 End
 
@@ -238,8 +238,8 @@ Function ATH_DialogLoadTwoImagesAndRegisterQ()
 		Abort "Select exactly two .dat files"
 	endif
 
-	WAVE wimg1 = ATH_WAVELoadSingleDATFile(StringFromList(0,S_filename, "\r"), "",  autoscale = 1)
-	WAVE wimg2 = ATH_WAVELoadSingleDATFile(StringFromList(1,S_filename, "\r"), "",  autoscale = 1)
+	WAVE wimg1 = ATH_LoadUview#WAVELoadSingleDATFile(StringFromList(0,S_filename, "\r"), "",  autoscale = 1)
+	WAVE wimg2 = ATH_LoadUview#WAVELoadSingleDATFile(StringFromList(1,S_filename, "\r"), "",  autoscale = 1)
 	
 	if(WaveType(wimg1) & 0x10) // If WORD (int16)
 		Redimension/S wimg1

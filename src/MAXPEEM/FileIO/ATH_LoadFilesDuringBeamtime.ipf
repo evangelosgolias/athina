@@ -36,7 +36,7 @@ Function ATH_LoadNewestFileInPathTreeAndDisplay(string extension)
 	string filepathStr = ATH_GetNewestCreatedFileInPathTree("pATH_LoadFilesBeamtimeIgorPath", extension, latestfile, latestctime, 1, 0)
 	//variable microSeconds = StopMSTimer(timerRefNum)
 	//print "Time elapsed: ", microSeconds/1e6, " sec"
-	WAVE wRef = ATH_WAVELoadSingleDATFile(filepathStr, "")
+	WAVE wRef = ATH_LoadUview#WAVELoadSingleDATFile(filepathStr, "")
 	ATH_DisplayImage(wRef)
 	print "File loaded: ", filepathStr
 	return 0
@@ -120,7 +120,7 @@ Function ATH_LoadNewestFolderInPathTreeAndDisplay()
 	string latestfolder = ""
 	variable latestctime = 0
 	string folderPathStr = ATH_GetNewestCreatedFolderInPathTree("pATH_LoadFilesBeamtimeIgorPath", latestfolder, latestctime)
-	WAVE wRef = ATH_WAVELoadDATFilesFromFolder(folderPathStr, "*", autoscale = 1)
+	WAVE wRef = ATH_LoadUview#WAVELoadDATFilesFromFolder(folderPathStr, "*", autoscale = 1)
 	ATH_DisplayImage(wRef)
 	print "Folder loaded: ", folderPathStr	
 	return 0
@@ -184,7 +184,7 @@ Function ATH_LoadNewestFileInPathTreeAndDisplayPython(string ext)
 	#ifdef MACINTOSH
 		filepathStr = ParseFilePath(10, filepathStr, "*", 0, 0)
 	#endif	
-	WAVE wRef = ATH_WAVELoadSingleDATFile(filepathStr, "")
+	WAVE wRef = ATH_LoadUview#WAVELoadSingleDATFile(filepathStr, "")
 	ATH_DisplayImage(wRef)
 	print "File loaded: ", filepathStr
 	return 0
@@ -241,8 +241,8 @@ Function ATH_LoadNewestTwoFilesInPathTreeAndDisplayPython(string ext)
 	#endif
 	DFREF saveDF = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
-	WAVE w1Ref = ATH_WAVELoadSingleDATFile(filepath1Str, "pyWave0", autoscale = 1)
-	WAVE w2Ref = ATH_WAVELoadSingleDATFile(filepath2Str, "pyWave1", autoscale = 1)
+	WAVE w1Ref = ATH_LoadUview#WAVELoadSingleDATFile(filepath1Str, "pyWave0", autoscale = 1)
+	WAVE w2Ref = ATH_LoadUview#WAVELoadSingleDATFile(filepath2Str, "pyWave1", autoscale = 1)
 	Imagetransform stackImages $"pyWave0"
 	WAVE M_Stack
 	string w3dStr = CreateDataObjectName(saveDF, "autoLoadL2F", 1, 0, 5)

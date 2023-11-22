@@ -33,13 +33,13 @@
 Menu "Athina"
 
 	Submenu "Import"
-		".dat file...", /Q, ATH_LoadSingleDATFile("", "", autoscale = 1)
-		".dat files...", /Q, ATH_LoadMultiplyDATFiles(autoscale = 1)
-		".dat files in folder...", /Q, ATH_LoadDATFilesFromFolder("", "*", autoscale = 1)
+		".dat file...", /Q, ATH_LoadUview#LoadSingleDATFile("", "", autoscale = 1)
+		".dat files...", /Q, ATH_LoadUview#LoadMultiplyDATFiles(autoscale = 1)
+		".dat files in folder...", /Q, ATH_LoadUview#LoadDATFilesFromFolder("", "*", autoscale = 1)
 		".dat files in folder to stack ...", /Q, ATH_LauncherLoadDATFilesFromFolder()
-		".dav file in stack...", /Q, ATH_LoadSingleDAVFile("", "", stack3d = 1, skipmetadata = 1, autoscale = 1)
-		".dav file...", /Q, ATH_LoadSingleDAVFile("", "", autoscale = 1)
-		".dat file (img only)...", /Q, ATH_LoadSingleCorruptedDATFile("", "")
+		".dav file in stack...", /Q, ATH_LoadUview#LoadSingleDAVFile("", "", stack3d = 1, skipmetadata = 1, autoscale = 1)
+		".dav file...", /Q, ATH_LoadUview#LoadSingleDAVFile("", "", autoscale = 1)
+		".dat file (img only)...", /Q, ATH_LoadUview#LoadSingleCorruptedDATFile("", "")
 		".h5 file ...", /Q, ATH_LauncherLoadHDF5GroupsFromFile()
 	End
 	
