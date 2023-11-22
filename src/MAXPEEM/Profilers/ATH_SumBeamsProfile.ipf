@@ -198,6 +198,18 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace meny
 	string winNameStr = WinName(0, 1, 1)
 	WAVE w3dref = ImageNameToWaveRef("", wnamestr) // full path of wave
 
+	DFREF dfrROI = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedROI")	
+
+	NVAR/Z/SDFR=dfrROI gATH_Sleft	
+	if(!NVAR_Exists(gATH_Sleft))
+		print "Cannot find a saved ROI"
+		return -1
+	endif
+	NVAR/SDFR=dfrROI gATH_Sright
+	NVAR/SDFR=dfrROI gATH_Stop
+	NVAR/SDFR=dfrROI gATH_Sbottom
+	NVAR/SDFR=dfrROI gATH_SrectQ
+	
 	if(WaveDims(w3dref) == 3) // if it is a 3d wave
 		// When plotting waves from calculations we might have NaNs or Infs.
 		// Remove them before starting and replace them with zeros
@@ -217,18 +229,13 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace meny
 		Abort "z-profile needs a 3d wave"
 	endif	
 	DoWindow/F $winNameStr // You need to have your imange stack as a top window
-	
-	NVAR/SDFR=dfr gATH_left
+		
+	NVAR/SDFR=dfr gATH_left	
 	NVAR/SDFR=dfr gATH_right
 	NVAR/SDFR=dfr gATH_top
 	NVAR/SDFR=dfr gATH_bottom
 	
-	DFREF dfrROI = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedROI")	
-	NVAR/SDFR=dfrROI gATH_Sleft
-	NVAR/SDFR=dfrROI gATH_Sright
-	NVAR/SDFR=dfrROI gATH_Stop
-	NVAR/SDFR=dfrROI gATH_Sbottom
-	NVAR/SDFR=dfrROI gATH_SrectQ
+
 	
 	NVAR/SDFR=dfr gATH_aXlen
 	NVAR/SDFR=dfr gATH_aYlen
