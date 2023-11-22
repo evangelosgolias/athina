@@ -1,6 +1,8 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma IgorVersion = 9
+#pragma ModuleName = ATH_iBackgroundRemoval
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -28,7 +30,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-Function ATH_CreateInteractiveBackgroundRemovalPanel()
+static Function CreatelPanel()
 	
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -79,11 +81,11 @@ Function ATH_CreateInteractiveBackgroundRemovalPanel()
 	DrawText 10,120,"You can set a marquee or \r  use the whole image for \r    background removal\r"
 	//SetDrawEnv/W=iDriftCorrection dash= 3,fillpat= 0
 	Button iRBRemoveBackgroundButton,pos={32.00,120},size={100.00,20.00},fColor=(65535,65533,32768)
-	Button iRBRemoveBackgroundButton,title="Remove bckd",fSize=12,proc=iRBRemoveBackgroundButtonProc	
+	Button iRBRemoveBackgroundButton,title="Remove bckd",fSize=12,proc=ATH_iBackgroundRemoval#RemoveBackgroundButton	
 	Button iRBSetMarqueeAreaButton,pos={32.00,155},size={100.00,20.00},title="Set marqueee"
-	Button iRBSetMarqueeAreaButton,fSize=12,fColor=(40969,65535,16385),proc=ATH_iRBSetMarqueeAreaButtonProc
+	Button iRBSetMarqueeAreaButton,fSize=12,fColor=(40969,65535,16385)//,proc=ATH_iRBSetMarqueeAreaButtonProc
 	Button iRBRestoreImageButton,pos={32.00,190.00},size={100.00,20.00},fColor=(32768,54615,65535)
-	Button iRBRestoreImageButton,title="Restore image",fSize=12,proc=ATH_iRBRestoreImageButtonProc
+	Button iRBRestoreImageButton,title="Restore image",fSize=12//,proc=ATH_iRBRestoreImageButtonProc
 	SetDrawEnv/W=iBackgroundRemoval fsize= 13,fstyle= 1,textrgb= (1,12815,52428)
 //	DrawText 28,243,"Polynomial order\r"
 	NVAR PolyOrder = dfr:gATH_PolyOrder
@@ -93,10 +95,10 @@ Function ATH_CreateInteractiveBackgroundRemovalPanel()
 	SetWindow $winNameStr#iBackgroundRemoval hook(iRBMyHook) = ATH_iBackgroundRemovalPanelHookFunction
 	// Set hook to the graph, killing the graph kills the iBackgroundRemoval linked folder
 	SetWindow $winNameStr userdata(ATH_iImageBackgroundRemovalFolder) = "root:Packages:ATH_DataFolder:BackgroundRemoval:" + winNameStr
-	SetWindow $winNameStr, hook(iRBMyHook) = ATH_iBackgroundRemovalGraphHookFunction // Set the hook
+	SetWindow $winNameStr, hook(iRBMyHook) = ATH_iBackgroundRemoval#GraphHookFunction // Set the hook
 End
 
-Function ATH_iBackgroundRemovalGraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
+static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImageBackgroundRemovalFolder"))
 	SVAR/Z/SDFR=dfr gATH_imgNameTopWindowStr
@@ -119,7 +121,7 @@ Function ATH_iBackgroundRemovalGraphHookFunction(STRUCT WMWinHookStruct &s) // C
 	return hookresult
 End
 
-Function ATH_iBackgroundRemovalPanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
+static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImageBackgroundRemovalFolder"))
@@ -138,7 +140,7 @@ Function ATH_iBackgroundRemovalPanelHookFunction(STRUCT WMWinHookStruct &s) // C
 	return hookresult
 End
 
-Function ATH_iRBOverwriteAndClose(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function OverwriteAndCloseButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
@@ -155,7 +157,7 @@ Function ATH_iRBOverwriteAndClose(STRUCT WMButtonAction &B_Struct): ButtonContro
 	return hookresult
 End
 
-Function iRBRemoveBackgroundButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function RemoveBackgroundButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
