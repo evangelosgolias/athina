@@ -65,15 +65,15 @@ static Function MenuLaunch()
 	
 	// User selected a wave, check if it's 3d
 	if(WaveDims(w3dRef) == 3) // if it is a 3d wave
-		InitialiseFolder()
+		DFREF dfr = InitialiseFolder()
 		variable nrows = DimSize(w3dRef,0)
 		variable ncols = DimSize(w3dRef,1)
 		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + NameOfWave(w3dRef)) // Change root folder if you want
 		InitialiseGraph(dfr)
 		SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = ATH_ImagePlaneProfileZ#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedImagePlaneProfileZPlotStr) = "ATH_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
+		SetWindow $winNameStr userdata(ATH_rootdfrStr) = GetDataFolder(1, dfr)
 		// name to the windows hook to kill the plot after completion
 	else
 		Abort "Plane profile operation needs a stack."
@@ -81,63 +81,7 @@ static Function MenuLaunch()
 	return 0
 End
 
-static Function TraceMenuLaunch()
-
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-
-	if(WaveDims(imgWaveRef) == 3) // if it is not a 1d wave
-		KillWindow $winNameStr
-		ATH_DisplayImage(imgWaveRef)
-		winNameStr = WinName(0, 1, 1) // update it just in case
-		InitialiseFolder()
-		DoWindow/F $winNameStr // bring it to FG to set the cursors
-		variable nrows = DimSize(imgWaveRef,0)
-		variable ncols = DimSize(imgWaveRef,1)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + NameOfWave(imgWaveRef)) // Change root folder if you want
-		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = ATH_ImagePlaneProfileZ#CursorHookFunction // Set the hook
-		SetWindow $winNameStr userdata(ATH_LinkedImagePlaneProfileZPlotStr) = "ATH_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
-		// name to the windows hook to kill the plot after completion
-	else
-		Abort "Plane profile operation needs a stack."
-	endif
-	return 0
-End
-
-static Function BrowserLaunch()
-
-	if(ATH_CountSelectedWavesInDataBrowser() == 1) // If we selected a single wave
-		string selectedImageStr = GetBrowserSelection(0)
-		WAVE imgWaveRef = $selectedImageStr
-		if(WaveDims(imgWaveRef) == 3)
-			ATH_DisplayImage(imgWaveRef)
-			string winNameStr = WinName(0, 1, 1) // update it just in case
-			string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-			InitialiseFolder()
-			DoWindow/F $winNameStr // bring it to FG to set the cursors
-			variable nrows = DimSize(imgWaveRef,0)
-			variable ncols = DimSize(imgWaveRef,1)
-			Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
-			Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-			DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + NameOfWave(imgWaveRef)) // Change root folder if you want
-			InitialiseGraph(dfr)
-			SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = ATH_ImagePlaneProfileZ#CursorHookFunction // Set the hook
-			SetWindow $winNameStr userdata(ATH_LinkedImagePlaneProfileZPlotStr) = "ATH_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
-		// name to the windows hook to kill the plot after completion
-		else
-			Abort "Plane profile operation needs a stack."
-		endif
-	else
-		Abort "Please select only one wave."
-	endif
-	return 0
-End
-
-static Function InitialiseFolder()
+static Function/DF InitialiseFolder()
 	/// All initialisation happens here. Folders, waves and local/global variables
 	/// needed are created here. Use the 3D wave in top window.
 
@@ -165,8 +109,9 @@ static Function InitialiseFolder()
 	if(WaveDims(imgWaveRef) == 3)
 		WMAppend3DImageSlider() // Everything ok now, add a slider to the 3d wave
 	endif
-    
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + imgNameTopGraphStr) // Root folder here
+    DFREF rootDF = $("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:")
+    string UniqueimgNameTopGraphStr = CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1)
+	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + UniqueimgNameTopGraphStr) // Root folder here
 
 	variable nrows = DimSize(imgWaveRef, 0)
 	variable ncols = DimSize(imgWaveRef, 1)
@@ -237,7 +182,7 @@ static Function InitialiseFolder()
 	variable/G dfr:gATH_profileWidth = 1
 	// Misc
 	variable/G dfr:gATH_colorcnt = 0
-	return 0
+	return dfr
 End
 
 static Function InitialiseGraph(DFREF dfr)
@@ -306,9 +251,8 @@ End
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	/// The line profile is drawn from G to H
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
+	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
 	WAVE/Z w3dRef = $ImagePathname
 	NVAR/Z nlayers = dfr:gATH_nLayers 

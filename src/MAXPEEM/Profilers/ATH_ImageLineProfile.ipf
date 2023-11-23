@@ -199,7 +199,6 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	/// The line profile is drawn from E to F
     variable hookResult = 0
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
 	DFREF currdfr = GetDataFolderDFR()
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_LineProfRootDF"))
 	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings") // Settings here
@@ -234,8 +233,8 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 				SetDrawLayer ProgFront
 			    DrawAction delete
 	   			SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-				Cursor/I/C=(65535,0,0,30000)/S=1/N=1 E $imgNameTopGraphStr C1x0, C1y0
-				Cursor/I/C=(65535,0,0,30000)/S=1/N=1 F $imgNameTopGraphStr C2x0, C2y0
+				Cursor/I/C=(65535,0,0,30000)/S=1/N=1 E $ImageNameStr C1x0, C1y0
+				Cursor/I/C=(65535,0,0,30000)/S=1/N=1 F $ImageNameStr C2x0, C2y0
 				DrawLine C1x0, C1y0, C2x0, C2y0
 				Make/O/FREE/N=2 xTrace={C1x0, C2x0}, yTrace = {C1y0, C2y0}
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
