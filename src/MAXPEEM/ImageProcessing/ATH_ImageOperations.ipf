@@ -413,7 +413,11 @@ Function ATH_BackupTopImage()
 	/// Backup wave in the top window, the backup is created in the 
 	/// sourcewave datafolder (to be able to restore)
 	
-	WAVE wRef = ATH_TopImageToWaveRef()
+	WAVE/Z wRef = ATH_TopImageToWaveRef()
+	if(!WaveExists(wRef))
+		print "Operation needs an image or image stack"
+		return -1
+	endif
 	DFREF wDFR = GetWavesDataFolderDFR(wRef)
 	Duplicate/O wRef, wDFR:$(NameOfWave(wRef) + "_undo")	
 	return 0

@@ -360,164 +360,6 @@ static Function LoadSingleDATFile(string filepathStr, string waveNameStr
 	return 0
 End
 
-static Function LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skipmetadata, int autoScale, int stack3d])
-	///< Function to load a single Elmitec binary .dav file. dav files comprise of many dat entries in sequence.
-	/// @param filepathStr string filename (including) pathname. 
-	/// If "" a dialog opens to select the file.
-	/// @param waveNameStr name of the imported wave. 
-	/// If "" the wave name is the filename without the path and extention.
-	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
-	/// @param waveDataType is optional and sets the Wavetype of the loaded wave to single 
-	/// @param autoScale int optional scales the imported waves if not 0
-	/// @param stack3d int optional Stack images in a 3d wave
-	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
-	
-	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
-	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
-	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
-
-	variable numRef
-	string separatorchar = ":"
-	string fileFilters = "dav File (*.dav):.dav;"
-	fileFilters += "All Files:.*;"
-	string message
-	string mdatastr
-    if (!strlen(filepathStr) && !strlen(waveNameStr)) 
-		message = "Select .dav file. \nFilename will be wave's name. (overwrite)\n "
-   		Open/F=fileFilters/M=message/D/R numref
-   		filepathStr = S_filename
-   		
-   		if(!strlen(filepathStr)) // user cancel?
-   			Abort
-   		endif
-
-   		Open/F=fileFilters/R numRef as filepathStr
-		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
-		
-	elseif (strlen(filepathStr) && !strlen(waveNameStr))
-		message = "Select .dav file. \nWave names are filenames /O.\n "
-		Open/F=fileFilters/R numRef as filepathStr
-		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
-		
-	elseif (!strlen(filepathStr) && strlen(waveNameStr))
-		message = "Select .dav file. \n Destination wave will be overwritten\n "
-   		Open/F=fileFilters/M=message/D/R numref
-   		filepathStr = S_filename
-   		
-   		if(!strlen(filepathStr)) // user cancel?
-   			Abort
-   		endif
-   		
-		message = "Select .dav file. \nWave names are filenames /O.\n "
-		Open/F=fileFilters/R numRef as filepathStr
-	else
-		Abort "Path for datafile not specified (check ATH_ImportImageFromSingleDatFile)!"
-	endif
-	
-	STRUCT UKFileHeader ATHFileHeader
-	STRUCT UKImageHeader ATHImageHeader
-	
-	FSetPos numRef, 0
-	FStatus numRef
-	variable totalBytesInDAVFile = V_logEOF
-	FBinRead numRef, ATHFileHeader //Read fileheader - only once and always 104 bytes for .dav
-	
-	variable ImageHeaderSize, timestamp
-	
-	variable cnt = 0 
-	variable singlePassSwitch = 1 
-	variable MetadataStart
-	variable fovScale
-	variable readMetadataOnce = 0 // When you skip metadata but you need to scale the 3d wave
-	if(stack3d)
-		readMetadataOnce = 1
-	endif
-	
-	variable LEEMdataVersion = ATHImageHeader.LEEMdataVersion <= 2 ? 0: ATHImageHeader.LEEMdataVersion //NB here! Added 23.05.2023
-	
-	variable byteoffset = (ImageHeaderSize + LEEMdataVersion + 2 * ATHFileHeader.ImageWidth * ATHFileHeader.ImageHeight)
-	// while loop
-	do
-		mdatastr = "" // Reset metadata string
-		FSetPos numRef, ATHFileHeader.size + cnt *  byteoffset  //NB here! Added 23.05.2023
-		FBinRead numRef, ATHImageHeader
-	
-		if(ATHImageHeader.attachedMarkupSize == 0)
-			//no markups
-			ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
-		else
-			//Markup blocks multiple of 128 bytes after image header
-			ImageHeaderSize = 288 + 128 * ((trunc(ATHImageHeader.attachedMarkupSize/128))+1)
-		endif
-	
-		//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
-		if(stack3d)
-			Make/W/U/O/FREE/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) datWave
-		else
-			Make/W/U/O/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) $(waveNameStr + "_" + num2str(cnt)) /WAVE=datWave
-		endif
-		variable ImageDataStart = ATHFileHeader.size + ImageHeaderSize + ATHImageHeader.LEEMdataVersion 
-		ImageDataStart +=  cnt * byteoffset
-		FSetPos numRef, ImageDataStart
-		FBinRead/F=2 numRef, datWave
-		//ImageTransform flipCols datWave // flip the y-axis
-		
-		if(!skipmetadata)
-			timestamp = ATHImageHeader.imagetime.LONG[0]+2^32 * ATHImageHeader.imagetime.LONG[1]
-			timestamp *= 1e-7 // t_i converted from 100ns to s
-			timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
-			MetadataStart = ATHFileHeader.size + ImageHeaderSize + cnt * byteoffset
-			mdatastr += filepathStr + "\n"
-			mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
-			mdatastr += StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
-			if(autoscale)
-				fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
-				SetScale/I x, 0, fovScale, datWave
-				SetScale/I y, 0, fovScale, datWave
-			endif
-			if(ATHImageHeader.attachedMarkupSize)// Add image markups if any
-				mdatastr += StrGetImageMarkups(filepathStr)
-			endif	
-		endif
-		// when you stack, skip metadata but scale the x, y dimensions of the 3d wave. 
-		// if(stack3d) branch at the end.
-		// Right before the start of the do...while loop readMetadataOnce = 1
-		if(skipmetadata && autoScale && readMetadataOnce) 
-			MetadataStart = ATHFileHeader.size + ImageHeaderSize + cnt * byteoffset
-			mdatastr += StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
-			fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
-			readMetadataOnce = 0
-		endif
-
-		if(strlen(mdatastr)) // Added to allow ATH_LoadDATFilesFromFolder function to skip Note/K without error
-			Note/K datWave, mdatastr
-		endif
-
-		if(stack3d) //TODO: Use ImageTransform here to make import faster
-			if(stack3d && singlePassSwitch) // We want stacking and yet the 3d wave is not created
-				variable nlayers = (totalBytesInDAVFile - 104)/byteoffset
-				Make/W/U/O/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight, nlayers) $(waveNameStr) /WAVE = stack3DWave
-				singlePassSwitch = 0
-			endif
-			stack3DWave[][][cnt] = datWave[p][q]
-		endif
-		WAVEClear datWave
-		cnt += 1
-		FGetPos numRef
-		if(totalBytesInDAVFile == V_filePos)
-			break
-		endif
-	while(1)
-	
-	if(autoscale && stack3d) // Scale the 3d wave if you opt to
-		SetScale/I x, 0, fovScale, stack3DWave
-		SetScale/I y, 0, fovScale, stack3DWave
-	endif
-	// end of while loop
-	Close numRef // Close the file
-	return 0
-End
-
 static Function/S StrGetBasicMetadataInfoFromDAT(string datafile, variable MetadataStartPos, 
 		   variable MetadataEndPos, variable LEEMDataVersion)
 	// Read important metadata from a .dat file. Most metadata are stored in the form
@@ -1097,61 +939,6 @@ static Function AppendMarkupsToTopImage_DEV() // TODO: DEV here
 	return 0
 End
 
-// ** TODO **: Do we need to flip the image ?
-static Function AppendMarkupsToTopImage() // original function
-	/// Draw the markups on an image display (drawn on the UserFront layer)
-	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
-	/// markups are drawn on the top graph
-	string imgNamestr = StringFromList(0,ImageNameList("",";"))
-	wave w = ImageNameToWaveRef("", imgNamestr)
-	string graphName = WinName(0, 1)
-	// Newlines and line feeds create problems with StringByKey, replace with ;
-	string markupsList = StringByKey("Markups", note(w), ":", "\n")//ReplaceString("\n",note(w), ";"))
-	print markupsList
-	variable markup_x
-	variable markup_y
-	variable markup_radius
-	variable markup_color_R
-	variable markup_color_G
-	variable markup_color_B
-	variable markup_type
-	variable markup_lsize
-	string markup_text
-	string markup
-		
-
-//	string xAxis = ""	
-//	// Check whether the image is created from 'NewImage' or 'Display' commands (i.e. whether the top or bottom axis is used)
-//	if (WhichListItem("bottom",AxisList(GraphName),";") != -1)
-//		xAxis = "bottom"
-//	else		
-//		xAxis = "top"
-//	endif
-
-	SetDrawLayer /W=$graphName userFront
-	variable factorX = DimDelta(w, 0) // Take into account wave scaling, edited EG 02.11.22
-	variable factorY = DimDelta(w, 1)
-	variable i = 0
-	for(i = 0; i < ItemsInList(markupsList, "~"); i++)
-		markup = StringFromList(i, markupsList, "~")
-		markup_x = str2num(StringFromList(0, markup, ","))
-		markup_y = str2num(StringFromList(1, markup, ","))
-		markup_radius = str2num(StringFromList(2, markup, ","))
-		markup_color_R = str2num(StringFromList(3, markup, ","))
-		markup_color_G = str2num(StringFromList(4, markup, ","))
-		markup_color_B = str2num(StringFromList(5, markup, ","))
-		markup_lsize = str2num(StringFromList(7, markup, ","))
-		markup_text = StringFromList(8, markup, ",")
-		markup_x *= factorX
-		markup_y *= factorY
-		markup_radius *= factorX // assumed stuff here
-		SetDrawEnv/W=$graphName fillpat = 0,linefgc = (markup_color_R, markup_color_G, markup_color_B), linethick = markup_lsize, ycoord = left, xcoord = top //$xaxis
-		DrawOval/W=$graphName markup_x - markup_radius, markup_y - markup_radius, markup_x + markup_radius, markup_y + markup_radius
-		SetDrawEnv/W=$graphName fsize = 16, textRGB = (markup_color_R, markup_color_G, markup_color_B), textxjust = 1, textyjust = 1, ycoord = left, xcoord = top
-		DrawText/W=$graphName markup_x, markup_y, markup_text
-	endfor
-	return 0
-End
 
 static Function LoadDATFilesFromFolder(string folder, string pattern, [int stack3d, string wname3d, int autoscale])
 	// We use ImageTransform stackImages X to create the 3d wave. Compared to 3d wave assignement it is faster by nearly 3x.
@@ -1335,21 +1122,19 @@ static Function/WAVE WAVELoadDATFilesFromFolder(string folder, string pattern, [
 	return wRef
 End
 
-static Function LoadMultiplyDATFiles([string filenames, int skipmetadata, int autoscale])
+static Function LoadMultiplyDATFiles([int skipmetadata, int autoscale, int stack3d])
 	/// Load multiply selected .dat files
-	/// @param filenames string optional string separated by ";". If you provide filenames and the
-	/// number of selected files  match the number of names in string then use them to name waves.
 	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
 	/// @param autoScale int optional scales the imported waves if not 0
 	/// Note: the selected wave are sort alphanumerically so the first on the list takes the 
 	/// first name in filenames etc.
 	
-	filenames = SelectString(ParamIsDefault(filenames) ? 0: 1,"", filenames)
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata	
 	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
+	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
 
-	variable numRef
-    string loadFiles, filepathStr
+	variable numRef, i
+    string loadFiles, filepathStr, basenameStr, fileStr0
 
 	string message = "Select .dat files. \n"
 	message += "Import overwrites waves with the same name."
@@ -1357,23 +1142,40 @@ static Function LoadMultiplyDATFiles([string filenames, int skipmetadata, int au
 	fileFilters += "All Files:.*;"
    	Open/F=fileFilters/MULT=1/M=message/D/R numref
    	filepathStr = S_filename
-   	
+	
    	if(!strlen(filepathStr)) // user cancel?
    		Abort
-   	endif
-   				
+   	endif	   	
 	loadFiles = SortList(S_fileName, "\r", 16) 
 	variable nrloadFiles = ItemsInList(loadFiles, "\r")
-	variable nrFilenames = ItemsInList(filenames)
-	
-	variable i = 0
-	for(i = 0; i < nrloadFiles; i += 1)
-		if (nrloadFiles == nrFilenames)
-			LoadSingleDATFile(StringFromList(i,loadFiles, "\r"), StringFromList(i, filenames), skipmetadata = skipmetadata, autoscale = autoscale)
-		else
+	if(!nrloadFiles)
+		return 1
+	endif
+
+	if(stack3d)
+		DFREF saveDF = GetDataFolderDFR()
+		SetDataFolder NewFreeDataFolder()
+		//Get the first wave to have the scale
+		fileStr0 = StringFromList(0,loadFiles, "\r")
+		WAVE wRef0 = WAVELoadSingleDATFile(fileStr0, "", skipmetadata = skipmetadata, autoscale = autoscale)
+		basenameStr = ParseFilePath(0, fileStr0, ":", 1, 1) + "_S" // "_S" for selected files insted of the whole folder
+		Rename wRef0, $"ImageToStack_0"
+		for(i = 1; i < nrloadFiles; i++)
+			WAVE wRef = WAVELoadSingleDATFile(StringFromList(i,loadFiles, "\r"), "", skipmetadata = skipmetadata, autoscale = 0)
+			Rename wRef, $("ImageToStack_"+num2str(i))
+		endfor
+		ImageTransform/NP=(nrloadFiles) stackImages $"ImageToStack_0"
+		WAVE M_Stack
+		CopyScales wRef0, M_Stack
+		string newWaveNameStr = CreateDataObjectName(saveDF, basenameStr, 1, 0, 1)
+		Note M_Stack, ("Files loaded to " + newWaveNameStr + ":\n" + loadFiles)
+		MoveWave M_Stack, saveDF:$newWaveNameStr
+		SetDataFolder saveDF
+	else
+		for(i = 0; i < nrloadFiles; i++)
 			LoadSingleDATFile(StringFromList(i,loadFiles, "\r"), "", skipmetadata = skipmetadata, autoscale = autoscale)
-		endif
-	endfor
+		endfor
+	endif
 	return 0
 End
 
@@ -1521,3 +1323,218 @@ static Function LoadSingleCorruptedDATFile(string filepathStr, string waveNameSt
 	
 	return 0
 End
+
+//
+//static Function LoadSingleDAVFile(string filepathStr, string waveNameStr, [int skipmetadata, int autoScale, int stack3d])
+//	///< Function to load a single Elmitec binary .dav file. dav files comprise of many dat entries in sequence.
+//	/// @param filepathStr string filename (including) pathname. 
+//	/// If "" a dialog opens to select the file.
+//	/// @param waveNameStr name of the imported wave. 
+//	/// If "" the wave name is the filename without the path and extention.
+//	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
+//	/// @param waveDataType is optional and sets the Wavetype of the loaded wave to single 
+//	/// @param autoScale int optional scales the imported waves if not 0
+//	/// @param stack3d int optional Stack images in a 3d wave
+//	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
+//	
+//	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
+//	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
+//	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
+//
+//	variable numRef
+//	string separatorchar = ":"
+//	string fileFilters = "dav File (*.dav):.dav;"
+//	fileFilters += "All Files:.*;"
+//	string message
+//	string mdatastr
+//    if (!strlen(filepathStr) && !strlen(waveNameStr)) 
+//		message = "Select .dav file. \nFilename will be wave's name. (overwrite)\n "
+//   		Open/F=fileFilters/M=message/D/R numref
+//   		filepathStr = S_filename
+//   		
+//   		if(!strlen(filepathStr)) // user cancel?
+//   			Abort
+//   		endif
+//
+//   		Open/F=fileFilters/R numRef as filepathStr
+//		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
+//		
+//	elseif (strlen(filepathStr) && !strlen(waveNameStr))
+//		message = "Select .dav file. \nWave names are filenames /O.\n "
+//		Open/F=fileFilters/R numRef as filepathStr
+//		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
+//		
+//	elseif (!strlen(filepathStr) && strlen(waveNameStr))
+//		message = "Select .dav file. \n Destination wave will be overwritten\n "
+//   		Open/F=fileFilters/M=message/D/R numref
+//   		filepathStr = S_filename
+//   		
+//   		if(!strlen(filepathStr)) // user cancel?
+//   			Abort
+//   		endif
+//   		
+//		message = "Select .dav file. \nWave names are filenames /O.\n "
+//		Open/F=fileFilters/R numRef as filepathStr
+//	else
+//		Abort "Path for datafile not specified (check ATH_ImportImageFromSingleDatFile)!"
+//	endif
+//	
+//	STRUCT UKFileHeader ATHFileHeader
+//	STRUCT UKImageHeader ATHImageHeader
+//	
+//	FSetPos numRef, 0
+//	FStatus numRef
+//	variable totalBytesInDAVFile = V_logEOF
+//	FBinRead numRef, ATHFileHeader //Read fileheader - only once and always 104 bytes for .dav
+//	
+//	variable ImageHeaderSize, timestamp
+//	
+//	variable cnt = 0 
+//	variable singlePassSwitch = 1 
+//	variable MetadataStart
+//	variable fovScale
+//	variable readMetadataOnce = 0 // When you skip metadata but you need to scale the 3d wave
+//	if(stack3d)
+//		readMetadataOnce = 1
+//	endif
+//	
+//	variable LEEMdataVersion = ATHImageHeader.LEEMdataVersion <= 2 ? 0: ATHImageHeader.LEEMdataVersion //NB here! Added 23.05.2023
+//	
+//	variable byteoffset = (ImageHeaderSize + LEEMdataVersion + 2 * ATHFileHeader.ImageWidth * ATHFileHeader.ImageHeight)
+//	// while loop
+//	do
+//		mdatastr = "" // Reset metadata string
+//		FSetPos numRef, ATHFileHeader.size + cnt *  byteoffset  //NB here! Added 23.05.2023
+//		FBinRead numRef, ATHImageHeader
+//	
+//		if(ATHImageHeader.attachedMarkupSize == 0)
+//			//no markups
+//			ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
+//		else
+//			//Markup blocks multiple of 128 bytes after image header
+//			ImageHeaderSize = 288 + 128 * ((trunc(ATHImageHeader.attachedMarkupSize/128))+1)
+//		endif
+//	
+//		//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
+//		if(stack3d)
+//			Make/W/U/O/FREE/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) datWave
+//		else
+//			Make/W/U/O/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) $(waveNameStr + "_" + num2str(cnt)) /WAVE=datWave
+//		endif
+//		variable ImageDataStart = ATHFileHeader.size + ImageHeaderSize + ATHImageHeader.LEEMdataVersion 
+//		ImageDataStart +=  cnt * byteoffset
+//		FSetPos numRef, ImageDataStart
+//		FBinRead/F=2 numRef, datWave
+//		//ImageTransform flipCols datWave // flip the y-axis
+//		
+//		if(!skipmetadata)
+//			timestamp = ATHImageHeader.imagetime.LONG[0]+2^32 * ATHImageHeader.imagetime.LONG[1]
+//			timestamp *= 1e-7 // t_i converted from 100ns to s
+//			timestamp -= 9561628800 // t_i converted from Windows Filetime format (01/01/1601) to Mac Epoch format (01/01/1970)
+//			MetadataStart = ATHFileHeader.size + ImageHeaderSize + cnt * byteoffset
+//			mdatastr += filepathStr + "\n"
+//			mdatastr += "Timestamp: " + Secs2Date(timestamp, -2) + " " + Secs2Time(timestamp, 3) + "\n"
+//			mdatastr += StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
+//			if(autoscale)
+//				fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
+//				SetScale/I x, 0, fovScale, datWave
+//				SetScale/I y, 0, fovScale, datWave
+//			endif
+//			if(ATHImageHeader.attachedMarkupSize)// Add image markups if any
+//				mdatastr += StrGetImageMarkups(filepathStr)
+//			endif	
+//		endif
+//		// when you stack, skip metadata but scale the x, y dimensions of the 3d wave. 
+//		// if(stack3d) branch at the end.
+//		// Right before the start of the do...while loop readMetadataOnce = 1
+//		if(skipmetadata && autoScale && readMetadataOnce) 
+//			MetadataStart = ATHFileHeader.size + ImageHeaderSize + cnt * byteoffset
+//			mdatastr += StrGetBasicMetadataInfoFromDAT(filepathStr, MetadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
+//			fovScale = NumberByKey("FOV(µm)", mdatastr,":", "\n")
+//			readMetadataOnce = 0
+//		endif
+//
+//		if(strlen(mdatastr)) // Added to allow ATH_LoadDATFilesFromFolder function to skip Note/K without error
+//			Note/K datWave, mdatastr
+//		endif
+//
+//		if(stack3d) //TODO: Use ImageTransform here to make import faster
+//			if(stack3d && singlePassSwitch) // We want stacking and yet the 3d wave is not created
+//				variable nlayers = (totalBytesInDAVFile - 104)/byteoffset
+//				Make/W/U/O/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight, nlayers) $(waveNameStr) /WAVE = stack3DWave
+//				singlePassSwitch = 0
+//			endif
+//			stack3DWave[][][cnt] = datWave[p][q]
+//		endif
+//		WAVEClear datWave
+//		cnt += 1
+//		FGetPos numRef
+//		if(totalBytesInDAVFile == V_filePos)
+//			break
+//		endif
+//	while(1)
+//	
+//	if(autoscale && stack3d) // Scale the 3d wave if you opt to
+//		SetScale/I x, 0, fovScale, stack3DWave
+//		SetScale/I y, 0, fovScale, stack3DWave
+//	endif
+//	// end of while loop
+//	Close numRef // Close the file
+//	return 0
+//End
+
+//// ** TODO **: Do we need to flip the image ?
+//static Function AppendMarkupsToTopImage() // original function
+//	/// Draw the markups on an image display (drawn on the UserFront layer)
+//	/// function based on https://github.com/euaruksakul/SLRILEEMPEEMAnalysis
+//	/// markups are drawn on the top graph
+//	string imgNamestr = StringFromList(0,ImageNameList("",";"))
+//	wave w = ImageNameToWaveRef("", imgNamestr)
+//	string graphName = WinName(0, 1)
+//	// Newlines and line feeds create problems with StringByKey, replace with ;
+//	string markupsList = StringByKey("Markups", note(w), ":", "\n")//ReplaceString("\n",note(w), ";"))
+//	print markupsList
+//	variable markup_x
+//	variable markup_y
+//	variable markup_radius
+//	variable markup_color_R
+//	variable markup_color_G
+//	variable markup_color_B
+//	variable markup_type
+//	variable markup_lsize
+//	string markup_text
+//	string markup
+//		
+//
+////	string xAxis = ""	
+////	// Check whether the image is created from 'NewImage' or 'Display' commands (i.e. whether the top or bottom axis is used)
+////	if (WhichListItem("bottom",AxisList(GraphName),";") != -1)
+////		xAxis = "bottom"
+////	else		
+////		xAxis = "top"
+////	endif
+//
+//	SetDrawLayer /W=$graphName userFront
+//	variable factorX = DimDelta(w, 0) // Take into account wave scaling, edited EG 02.11.22
+//	variable factorY = DimDelta(w, 1)
+//	variable i = 0
+//	for(i = 0; i < ItemsInList(markupsList, "~"); i++)
+//		markup = StringFromList(i, markupsList, "~")
+//		markup_x = str2num(StringFromList(0, markup, ","))
+//		markup_y = str2num(StringFromList(1, markup, ","))
+//		markup_radius = str2num(StringFromList(2, markup, ","))
+//		markup_color_R = str2num(StringFromList(3, markup, ","))
+//		markup_color_G = str2num(StringFromList(4, markup, ","))
+//		markup_color_B = str2num(StringFromList(5, markup, ","))
+//		markup_lsize = str2num(StringFromList(7, markup, ","))
+//		markup_text = StringFromList(8, markup, ",")
+//		markup_x *= factorX
+//		markup_y *= factorY
+//		markup_radius *= factorX // assumed stuff here
+//		SetDrawEnv/W=$graphName fillpat = 0,linefgc = (markup_color_R, markup_color_G, markup_color_B), linethick = markup_lsize, ycoord = left, xcoord = top //$xaxis
+//		DrawOval/W=$graphName markup_x - markup_radius, markup_y - markup_radius, markup_x + markup_radius, markup_y + markup_radius
+//		SetDrawEnv/W=$graphName fsize = 16, textRGB = (markup_color_R, markup_color_G, markup_color_B), textxjust = 1, textyjust = 1, ycoord = left, xcoord = top
+//		DrawText/W=$graphName markup_x, markup_y, markup_text
+//	endfor
+//	return 0
+//End

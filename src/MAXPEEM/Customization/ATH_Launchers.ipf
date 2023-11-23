@@ -50,17 +50,6 @@ Function ATH_LaunchMake3DWaveDataBrowserSelection([variable displayStack])
 	return 0
 End
 
-Function ATH_LauncherLoadDATFilesFromFolder()
-	string wNameStr = ATH_GenericSingleStrPrompt("Stack name, empty string to auto-name", "Before the selection dialog opens...")
-	if(strlen(wNameStr))
-		ATH_LoadUview#LoadDATFilesFromFolder("", "*", stack3d = 1, wname3d = wNameStr, autoscale = 1)
-	else
-		// default name, if wname3d is given, even if empty string, the ParamIsDefault will give 1.
-		// wname3d = SelectString(ParamIsDefault(wname3d) ? 0: 1,"stack3d", wname3d)
-		ATH_LoadUview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 
-	endif
-End
-
 Function ATH_LauncherLoadHDF5GroupsFromFile()
 	string selectedGroups = ATH_GenericSingleStrPrompt("Use single ScanID and/or ranges, e.g.  \"2-5,7,9-12,50\".  Leave string empty to load all entries.", "Before the .h5 selection dialog opens...")
 	if(strlen(selectedGroups))
@@ -1100,3 +1089,15 @@ Function ATH_LaunchPixelateSingleImageOrStack()
 	endif
 	return 0
 End
+
+
+//Function ATH_LauncherLoadDATFilesFromFolder() // Deactivated 23.11.2023
+//	string wNameStr = ATH_GenericSingleStrPrompt("Stack name, empty string to auto-name", "Before the selection dialog opens...")
+//	if(strlen(wNameStr))
+//		ATH_LoadUview#LoadDATFilesFromFolder("", "*", stack3d = 1, wname3d = wNameStr, autoscale = 1)
+//	else
+//		// default name, if wname3d is given, even if empty string, the ParamIsDefault will give 1.
+//		// wname3d = SelectString(ParamIsDefault(wname3d) ? 0: 1,"stack3d", wname3d)
+//		ATH_LoadUview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 
+//	endif
+//End

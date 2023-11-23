@@ -23,21 +23,21 @@ Function BeforeFileOpenHook(variable refNum, string fileNameStr, string pathName
         ATH_DisplayImage(wIn)
         return 1
     endif
-    if(StringMatch(fileNameStr, "*.dav") && fileKind == 0) // fileKind == 0, unknown
-    	DoAlert/T="Dropped a .dav file in Igror" 1, "Do you want to load the .dav file in a stack?"
-        try
-        if(V_flag == 1)
-        	ATH_LoadUview#LoadSingleDAVFile(fileToOpen, "", skipmetadata = 1, autoscale = 1, stack3d = 1)
-        else
-        	ATH_LoadUview#LoadSingleDAVFile(fileToOpen, "", autoscale = 1)
-        endif
-        	AbortOnRTE
-        catch
-        	print "Are you sure you are not trying to load a text file with .dav extention?"
-        	Abort
-        endtry
-        return 1
-    endif
+//    if(StringMatch(fileNameStr, "*.dav") && fileKind == 0) // fileKind == 0, unknown
+//    	DoAlert/T="Dropped a .dav file in Igror" 1, "Do you want to load the .dav file in a stack?"
+//        try
+//        if(V_flag == 1)
+//        	ATH_LoadUview#LoadSingleDAVFile(fileToOpen, "", skipmetadata = 1, autoscale = 1, stack3d = 1)
+//        else
+//        	ATH_LoadUview#LoadSingleDAVFile(fileToOpen, "", autoscale = 1)
+//        endif
+//        	AbortOnRTE
+//        catch
+//        	print "Are you sure you are not trying to load a text file with .dav extention?"
+//        	Abort
+//        endtry
+//        return 1
+//    endif
     return 0
 End
 
