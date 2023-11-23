@@ -56,77 +56,20 @@ static Function MainMenuLaunch()
 		DoWindow/F $LinkedPlotStr
 		return 0
 	endif
-	InitialiseFolder(winNameStr)
+	DFREF dfr = InitialiseFolder(winNameStr)
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 	InitialiseGraph(dfr)
 	SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_ImageLineProfile#CursorsHookFunction // Set the hook
 	SetWindow $winNameStr userdata(ATH_LinkedProfileWindowControl) = "ATH_LineProfileControlPlot_" + winNameStr // Name of the plot we will make, used to communicate the
 	SetWindow $winNameStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialiseFolder
+	SetWindow $winNameStr userdata(ATH_LineProfRootDF) = GetDataFolder(1, dfr)
 	return 0
 End
 
-static Function TraceMenuLaunch() // Not in use
-
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	Wave imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-
-	if(WaveDims(imgWaveRef) == 2 || WaveDims(imgWaveRef) == 3) // if it is not a 1d wave
-		KillWindow $winNameStr
-		ATH_DisplayImage(imgWaveRef)
-		InitialiseFolder(winNameStr)
-		DoWindow/F $winNameStr // bring it to FG to set the cursors
-		variable nrows = DimSize(imgWaveRef,0)
-		variable ncols = DimSize(imgWaveRef,1)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
-		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
-		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_ImageLineProfile#CursorsHookFunction // Set the hook
-		SetWindow $winNameStr userdata(ATH_LinkedProfileWindowControl) = "ATH_LineProfileControlPlot_" + winNameStr // Name of the plot we will make, used to communicate the
-		SetWindow $winNameStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialiseFolder	
-		// name to the windows hook to kill the plot after completion
-	else
-		Abort "Line profile needs an image or image stack."
-	endif
-	return 0
-End
-
-static Function BrowserMenuLaunch() // Not in use 
-
-	if(ATH_CountSelectedWavesInDataBrowser() == 1) // If we selected a single wave
-		string selectedImageStr = GetBrowserSelection(0)
-		WAVE imgWaveRef = $selectedImageStr
-		if(WaveDims(imgWaveRef) == 2 || WaveDims(imgWaveRef) == 3)
-			ATH_DisplayImage(imgWaveRef)
-			string winNameStr = WinName(0, 1, 1) // update it just in case
-			string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-			InitialiseFolder(winNameStr)
-			DoWindow/F $winNameStr // bring it to FG to set the cursors
-			variable nrows = DimSize(imgWaveRef,0)
-			variable ncols = DimSize(imgWaveRef,1)
-			Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-			Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
-			DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:" + NameOfWave(imgWaveRef)) // Change root folder if you want
-			InitialiseGraph(dfr)
-			SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_ImageLineProfile#CursorsHookFunction // Set the hook
-			SetWindow $winNameStr userdata(ATH_LinkedProfileWindowControl) = "ATH_LineProfileControlPlot_" + winNameStr // Name of the plot we will make, used to communicate the
-			SetWindow $winNameStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialiseFolder		
-		// name to the windows hook to kill the plot after completion
-		else
-			Abort "Line profile needs an image or an image stack."
-		endif
-	else
-		Abort "Please select only one wave."
-	endif
-	return 0
-End
-
-static Function InitialiseFolder(string winNameStr)
+static Function/DF InitialiseFolder(string winNameStr)
 	/// All initialisation happens here. Folders, waves and local/global variables
 	/// needed are created here. Use the 3D wave in top window.
 
@@ -153,8 +96,9 @@ static Function InitialiseFolder(string winNameStr)
 	if(WaveDims(imgWaveRef) == 3)
 		WMAppend3DImageSlider() // Everything ok now, add a slider to the 3d wave
 	endif
-    
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:" + imgNameTopGraphStr) // Root folder here
+	DFREF rootDF = $("root:Packages:ATH_DataFolder:LineProfiles:")
+    string UniqueimgNameTopGraphStr = CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1)
+	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:" + UniqueimgNameTopGraphStr) // Root folder here
 	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings:") // Settings here
 
 	variable nrows = DimSize(imgWaveRef,0)
@@ -191,7 +135,7 @@ static Function InitialiseFolder(string winNameStr)
 		variable/G dfr0:gATH_C2y0 = round(1.1 * ncols/2)
 		variable/G dfr0:gATH_profileWidth0 = 0
 	endif
-	return 0
+	return dfr
 End
 
 static Function InitialiseGraph(DFREF dfr)
@@ -257,7 +201,7 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
     variable hookResult = 0
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
+	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_LineProfRootDF"))
 	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings") // Settings here
 	SetdataFolder dfr
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr

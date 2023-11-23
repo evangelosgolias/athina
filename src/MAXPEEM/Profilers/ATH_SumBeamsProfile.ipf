@@ -30,57 +30,6 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-//static Function MainMenuLaunch(), not active
-//
-//	string winNameStr = WinName(0, 1, 1)
-//	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-//	
-//	if(!strlen(imgNameTopGraphStr))
-//		print "No image in top graph."
-//		return -1
-//	endif
-//	
-//	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-//	if(WaveDims(w3dref) != 3) // if it is a 3d wave
-//		Abort "z-profile needs a 3d wave."
-//	endif	
-//	string LinkedPlotStr = GetUserData(winNameStr, "", "ATH_LinkedSumBeamsZPlotStr")
-//	if(strlen(LinkedPlotStr))
-//		DoWindow/F LinkedPlotStr
-//		return 0
-//	endif
-//	// When plotting waves from calculations we might have NaNs or Infs.
-//	// Remove them before starting and replace them with zeros
-//	Wavestats/M=1/Q w3dref
-//	if(V_numNaNs || V_numInfs)
-//		printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
-//		w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
-//	endif
-//
-//	return 0
-//End
-
-//static Function BrowserMenuLaunch() // Browser menu launcher, not active
-//
-//	// Check if you have selected a single 3D wave
-//	if(ATH_CountSelectedWavesInDataBrowser(waveDimemsions = 3) == 1\
-//	 && ATH_CountSelectedWavesInDataBrowser() == 1) // If we selected a single 3D wave		
-//	 	string selected3DWaveStr = GetBrowserSelection(0)
-//		WAVE w3dRef = $selected3DWaveStr
-//		// When plotting waves from calculations we might have NaNs or Infs.
-//		// Remove them before starting and replace them with zeros	
-//		Wavestats/M=1/Q w3dref
-//		if(V_numNaNs || V_numInfs)
-//			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
-//			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
-//		endif
-//		ATH_DisplayImage(w3dRef)
-//	else
-//		Abort "z-profile needs a 3d wave."
-//	endif
-//	return 0
-//End
-
 static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 	
 	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.

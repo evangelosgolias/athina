@@ -78,7 +78,7 @@ Menu "Athina"
 	Submenu "Profiles "
 		"Line profile (TG, 2D, 3D)", /Q, ATH_ImageLineProfile#MainMenuLaunch()
 		"Plane profile (TG, 3D)",/Q, ATH_ImagePlaneProfileZ#MenuLaunch()	
-		"(Z profile (TG, 3D) [Use Marquee]", /Q, DoAlert 0, "Use Marquee for Z-profile!"
+		"(Z profile -> Use Marquee on TG (3D)"//, /Q, DoAlert 0, "Use Marquee for Z-profile!"
 	End
 
 	Submenu "XMC(L)D calculation"
