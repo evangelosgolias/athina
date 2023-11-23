@@ -30,22 +30,6 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-/// Line profile is plotted from cursor G to H.
-/// Program based on ATH_ImageLineProfile.
-/// N.B: *Works with default wave scaling.*
-///
-// TODO: Add averaging over a px width when you change Nx, Ny
-// without the need to move the cursors
-// Improvement(?): Make it work with scaled 3D wave. You need to check 
-// ImageLineProfile.ipf and change here accordingly.
-/// 
-/// 29032023
-/// We changed the save directory to the current working directory
-/// DFREF savedfr = GetDataFolderDFR() //ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:SavedLineProfiles")
-
-
-/// If you want everything to work as expected you need dz > 0, otherwise the profile plot will be flipped.
-
 static Function MenuLaunch()
 
 	string winNameStr = WinName(0, 1, 1)
@@ -57,7 +41,7 @@ static Function MenuLaunch()
 	endif
 	
 	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	string LinkedPlotStr = GetUserData(winNameStr, "", "ATH_LinkedImagePlaneProfileZPlotStr")
+	string LinkedPlotStr = GetUserData(winNameStr, "", "ATH_LinkedWinImagePPZ")
 	if(strlen(LinkedPlotStr))
 		DoWindow/F LinkedPlotStr
 		return 0
@@ -72,7 +56,7 @@ static Function MenuLaunch()
 		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 		InitialiseGraph(dfr)
 		SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = ATH_ImagePlaneProfileZ#CursorHookFunction // Set the hook
-		SetWindow $winNameStr userdata(ATH_LinkedImagePlaneProfileZPlotStr) = "ATH_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
+		SetWindow $winNameStr userdata(ATH_LinkedWinImagePPZ) = "ATH_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
 		SetWindow $winNameStr userdata(ATH_rootdfrStr) = GetDataFolder(1, dfr)
 		// name to the windows hook to kill the plot after completion
 	else
@@ -231,7 +215,7 @@ static Function CreatePanel(DFREF dfr)
 		
 	SetWindow $profilePlotStr userdata(ATH_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_ImagePlaneProfileZ_" + gATH_WindowNameStr 
-	SetWindow $profilePlotStr userdata(ATH_parentGraphWin) = gATH_WindowNameStr 	
+	SetWindow $profilePlotStr userdata(ATH_LinkedWinImageSource) = gATH_WindowNameStr 	
 	SetWindow $profilePlotStr, hook(MyImagePlaneProfileZHook) = ATH_ImagePlaneProfileZ#GraphHookFunction// Set the hook
 
 	SetVariable setNx,pos={10,5},size={85,20.00},title="N\\Bx", fSize=14,fColor=(65535,0,0),value=Nx,limits={1,inf,1},proc=ATH_ImagePlaneProfileZ#SetVariableNx
@@ -288,7 +272,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			SetScale/P y, gATH_y0, gATH_dy, w3dRef
 			SetScale/P z, gATH_z0, gATH_dz, w3dRef
 			// Kill window and folder
-			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedImagePlaneProfileZPlotStr"))
+			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedWinImagePPZ"))
 			KillDataFolder/Z dfr
 			hookresult = 1
 			break
@@ -432,7 +416,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
-	string parentGraphWin = GetUserData(s.winName, "", "ATH_parentGraphWin")
+	string parentGraphWin = GetUserData(s.winName, "", "ATH_LinkedWinImageSource")
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
 	switch(s.eventCode)
 		case 2: // Kill the window
@@ -441,7 +425,7 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			SetWindow $parentGraphWin, hook(MyImagePlaneProfileZHook) = $""
 			// We need to reset the link between parentGraphwin (winNameStr) and ATH_LinkedLineProfilePlotStr
 			// see ATH_MainMenuLaunchLineProfile() when we test if with strlen(LinkedPlotStr)
-			SetWindow $parentGraphWin userdata(ATH_LinkedImagePlaneProfileZPlotStr) = ""
+			SetWindow $parentGraphWin userdata(ATH_LinkedWinImagePPZ) = ""
 			Cursor/W=$parentGraphWin/K G
 			Cursor/W=$parentGraphWin/K H			
 			SetDrawLayer/W=$parentGraphWin ProgFront

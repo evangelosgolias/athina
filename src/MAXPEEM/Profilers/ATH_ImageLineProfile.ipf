@@ -30,18 +30,6 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-/// Line profile is plotted from cursor E to F.
-/// 25032023
-/// Added to all Launchers: SetWindow $winNameStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + gATH_WindowNameStr 
-/// We have to unlink the profile plot window in case the profiler and source wave are killed. That 
-/// way another launch that could associate the same Window names is not anymore possible.
-/// We will use the metadata to change Window's name after the soruce/profiler are killed
-/// 
-/// 29032023
-/// We changed the save directory to the current working directory
-/// DFREF savedfr = GetDataFolderDFR() //ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:SavedLineProfiles")
-
-
 static Function MainMenuLaunch()
 	
 	string winNameStr = WinName(0, 1, 1)
@@ -51,7 +39,7 @@ static Function MainMenuLaunch()
 		return -1
 	endif
 	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	string LinkedPlotStr = GetUserData(winNameStr, "", "ATH_LinkedProfileWindowControl")
+	string LinkedPlotStr = GetUserData(winNameStr, "", "ATH_LinkedWinImageLPP")
 	if(strlen(LinkedPlotStr))
 		DoWindow/F $LinkedPlotStr
 		return 0
@@ -63,8 +51,8 @@ static Function MainMenuLaunch()
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 	InitialiseGraph(dfr)
 	SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_ImageLineProfile#CursorsHookFunction // Set the hook
-	SetWindow $winNameStr userdata(ATH_LinkedProfileWindowControl) = "ATH_LineProfileControlPlot_" + winNameStr // Name of the plot we will make, used to communicate the
-	SetWindow $winNameStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialiseFolder
+	SetWindow $winNameStr userdata(ATH_LinkedWinImageLPP) = "ATH_LineProfilePlot_" + winNameStr // Name of the plot we will make, used to communicate the
+	SetWindow $winNameStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + winNameStr //  Same as gATH_WindowNameStr, see InitialiseFolder
 	SetWindow $winNameStr userdata(ATH_LineProfRootDF) = GetDataFolder(1, dfr)
 	return 0
 End
@@ -154,7 +142,7 @@ static Function CreatePlot(DFREF dfr)
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(rootFolderStr)
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	NVAR profileWidth = dfr:gATH_profileWidth
-	string profilePlotStr = "ATH_LineProfileControlPlot_" + gATH_WindowNameStr
+	string profilePlotStr = "ATH_LineProfilePlot_" + gATH_WindowNameStr
 	Make/O/N=0  dfr:W_LineProfileDisplacement, dfr:W_ImageLineProfile // Make a dummy wave to display 
 	variable pix = 72/ScreenResolution
 	Display/W=(0*pix,0*pix,500*pix,300*pix)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile vs dfr:W_LineProfileDisplacement as "Line profile " + gATH_WindowNameStr
@@ -166,7 +154,7 @@ static Function CreatePlot(DFREF dfr)
 	
 	SetWindow $profilePlotStr userdata(ATH_LineProfRootDF) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + gATH_WindowNameStr 
-	SetWindow $profilePlotStr userdata(ATH_sourceImageWindow) = gATH_WindowNameStr 
+	SetWindow $profilePlotStr userdata(ATH_LinkedWinImageSource) = gATH_WindowNameStr 
 	SetWindow $profilePlotStr, hook(MyLineProfileGraphHook) = ATH_ImageLineProfile#GraphHookFunction // Set the hook
 	
 	ControlBar 70	
@@ -242,8 +230,8 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 			endif
 			break
 		// To revise. Case 17 is not recommended to use for killing windows. See JW's email.
-		case 17: // case 2: ATH_LinkedProfileWindowControl in not killed when another hook kills s.winName
-			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedProfileWindowControl"))			
+		case 17: // case 2: ATH_LinkedWinImageLPP in not killed when another hook kills s.winName
+			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedWinImageLPP"))			
 			if(WinType(GetUserData(s.winName, "", "ATH_ShowSavedGraphsWindow")) == 1)
 				DoWindow/C/W=$(GetUserData(s.winName, "", "ATH_ShowSavedGraphsWindow")) $UniqueName("LineProf_unlnk_",6,0) // Change name of profile graph
 			endif
@@ -305,7 +293,7 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
-	string parentImageWinStr = GetUserData(s.winName, "", "ATH_sourceImageWindow")
+	string parentImageWinStr = GetUserData(s.winName, "", "ATH_LinkedWinImageSource")
 	switch(s.eventCode)
 		case 2: // Kill the window
 			// parentImageWinStr -- winNameStr
@@ -314,9 +302,9 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			//if(WinType(GetUserData(parentImageWinStr, "", "ATH_ShowSavedGraphsWindow")) == 1)
 			if(V_flag)
 				SetWindow $parentImageWinStr, hook(MyLineProfileHook) = $""
-				// We need to reset the link between parentImageWinStr (winNameStr) and ATH_LinkedProfileWindowControl
+				// We need to reset the link between parentImageWinStr (winNameStr) and ATH_LinkedWinImageLPP
 				// see ATH_MainMenuLaunchLineProfile() when we test if with strlen(LinkedPlotStr)	
-				SetWindow $parentImageWinStr userdata(ATH_LinkedProfileWindowControl) = ""
+				SetWindow $parentImageWinStr userdata(ATH_LinkedWinImageLPP) = ""
 				if(WinType(GetUserData(s.winName, "", "ATH_ShowSavedGraphsWindow")) == 1)
 					DoWindow/C/W=$(GetUserData(s.winName, "", "ATH_ShowSavedGraphsWindow")) $UniqueName("LineProf_unlnk_",6,0) // Change name of profile graph
 				endif
