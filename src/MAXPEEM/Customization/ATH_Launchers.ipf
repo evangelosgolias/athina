@@ -630,33 +630,38 @@ Function ATH_LaunchNormalisationImageStackWithImageStack()
 		Abort msg
 	endif
 	// Select how many layers would you like to use for normalisation
-	string promptStr = "0 : Use first layer (default if nothing set)\nn1-n2 : Use  n1, ..., n2 layers (average), \n-1 : Layer by layer in 3d waves (in case of layer number"+\
-					   " operation will continue based on defaults of Igor pro)\n" +\
-					   " NB: zero-based layer indexing."
+	string promptStr = "N : Use Nth layer (NB: zero-based layer indexing)\n"+\
+					   "N1-N2 : Use average of N1, ..., N2 layers, \n"+\
+	 				   "Leave empty: Layer by layer in 3d waves\n"
 	string inputStr = ATH_GenericSingleStrPrompt(promptStr, "How many layers would you like to use for Normalisation?")
 	string rangeStr = ATH_ExpandRangeStr(inputStr)
-	string normWaveBaseNameStr = wave3d1Str + "_norm"
+	string normWaveBaseNameStr = wave3d1Str + "_norm", normWaveStr
 	DFREF currDF = GetDataFolderDFR()
-	string normWaveStr = CreateDataObjectName(currDF, normWaveBaseNameStr, 1, 0, 1)
 	variable nLayer, minLayer, maxLayer, totLayers
-	if(!strlen(inputStr) || (ItemsInList(rangeStr) == 1 && !cmpstr(StringFromList(0, rangeStr), "0")))
+	string noteStr = "Normalised with " + GetWavesDataFolder(w3d2Ref, 2)	
+	if(ItemsInList(rangeStr) == 1)
 		nLayer = str2num(StringFromList(0, rangeStr))
+		noteStr += " using layer " + num2str(nLayer)
 		MatrixOP/O/FREE normLayerFree= layer(w3d2Ref, 0)
-		normWaveStr = wave3d1Str + "_norm"
-		MatrixOP/O $normWaveStr = w3d1Ref/normLayerFree
-	elseif(ItemsInList(rangeStr) == 1 && !cmpstr(StringFromList(0, rangeStr), "-1"))
+		// Handle here unique output name
+		normWaveStr = CreateDataObjectName(currDF, normWaveBaseNameStr, 1, 0, 1)		
+		MatrixOP $normWaveStr = w3d1Ref/normLayerFree
+	elseif(!strlen(inputStr)) // Empty string do layer by layer normalisation
 		normWaveStr = ATH_NormaliseImageStackWithImageStack(w3d1Ref, w3d2Ref)
-	else
+		noteStr += " on a layer-by-layer basis"
+	else // If you give a range n1 - n2
 		totLayers = ItemsInList(rangeStr)
 		minLayer = str2num(StringFromList(0,rangeStr))
 		maxLayer = str2num(StringFromList(totLayers-1,rangeStr))
 		if(minLayer < 0 || maxLayer > totLayers - 1)
+			return -1
 		endif
+		noteStr += " using layers " + num2str(minLayer)	+ "-" + 	num2str(maxLayer) + " average"
 		MatrixOP/O/FREE getWaveLayersFree = w3d2Ref[][][minLayer, maxLayer]
-		MatrixOP/O/FREE normLayerFree = sumBeams(getWaveLayersFree)/(maxLayer - minlayer + 1) 
-		MatrixOP/O $normWaveStr = w3d1Ref / normLayerFree
+		MatrixOP/O/FREE normLayerFree = sumBeams(getWaveLayersFree)/(maxLayer - minlayer + 1)
+		normWaveStr = CreateDataObjectName(currDF, normWaveBaseNameStr, 1, 0, 1)				
+		MatrixOP $normWaveStr = w3d1Ref / normLayerFree
 	endif
-	string noteStr = "Normalised with " + GetWavesDataFolder(w3d2Ref, 2)
 	Note $normWaveStr, noteStr	
 End
 
