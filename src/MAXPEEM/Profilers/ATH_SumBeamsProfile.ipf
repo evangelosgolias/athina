@@ -30,44 +30,56 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static Function MainMenuLaunch()
+//static Function MainMenuLaunch(), not active
+//
+//	string winNameStr = WinName(0, 1, 1)
+//	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+//	
+//	if(!strlen(imgNameTopGraphStr))
+//		print "No image in top graph."
+//		return -1
+//	endif
+//	
+//	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+//	if(WaveDims(w3dref) != 3) // if it is a 3d wave
+//		Abort "z-profile needs a 3d wave."
+//	endif	
+//	string LinkedPlotStr = GetUserData(winNameStr, "", "ATH_LinkedSumBeamsZPlotStr")
+//	if(strlen(LinkedPlotStr))
+//		DoWindow/F LinkedPlotStr
+//		return 0
+//	endif
+//	// When plotting waves from calculations we might have NaNs or Infs.
+//	// Remove them before starting and replace them with zeros
+//	Wavestats/M=1/Q w3dref
+//	if(V_numNaNs || V_numInfs)
+//		printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
+//		w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
+//	endif
+//
+//	return 0
+//End
 
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	
-	if(!strlen(imgNameTopGraphStr))
-		print "No image in top graph."
-		return -1
-	endif
-	
-	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	string LinkedPlotStr = GetUserData(winNameStr, "", "ATH_LinkedSumBeamsZPlotStr")
-	if(strlen(LinkedPlotStr))
-		DoWindow/F LinkedPlotStr
-		return 0
-	endif
-
-	// When plotting waves from calculations we might have NaNs or Infs.
-	// Remove them before starting and replace them with zeros
-	Wavestats/M=1/Q w3dref
-	if(V_numNaNs || V_numInfs)
-		printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
-		w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
-	endif
-	if(WaveDims(w3dref) == 3) // if it is a 3d wave
-		//ATH_DisplayImage(w3dRef)
-		InitialiseFolder()
-		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
-		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#CursorHookFunction // Set the hook
-		SetWindow $winNameStr userdata(ATH_LinkedSumBeamsZPlotStr) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = "root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
-		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
-	else
-		Abort "z-profile needs a 3d wave."
-	endif
-	return 0
-End
+//static Function BrowserMenuLaunch() // Browser menu launcher, not active
+//
+//	// Check if you have selected a single 3D wave
+//	if(ATH_CountSelectedWavesInDataBrowser(waveDimemsions = 3) == 1\
+//	 && ATH_CountSelectedWavesInDataBrowser() == 1) // If we selected a single 3D wave		
+//	 	string selected3DWaveStr = GetBrowserSelection(0)
+//		WAVE w3dRef = $selected3DWaveStr
+//		// When plotting waves from calculations we might have NaNs or Infs.
+//		// Remove them before starting and replace them with zeros	
+//		Wavestats/M=1/Q w3dref
+//		if(V_numNaNs || V_numInfs)
+//			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
+//			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
+//		endif
+//		ATH_DisplayImage(w3dRef)
+//	else
+//		Abort "z-profile needs a 3d wave."
+//	endif
+//	return 0
+//End
 
 static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 	
@@ -83,12 +95,11 @@ static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
 			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
 		endif
-		InitialiseFolder()
-		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
+		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedSumBeamsZPlotStr) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = "root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
+		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = GetDataFolder(1, dfr)//"root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
 	else
 		Abort "z-profile needs a 3d wave"
@@ -130,13 +141,12 @@ static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
 			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
 		endif
-		InitialiseFolder()
-		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
+		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedSumBeamsZPlotStr) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = "root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
-		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
+		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = GetDataFolder(1, dfr)
+		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see InitialiseFolder
 	else
 		Abort "z-profile needs a 3d wave"
 	endif	
@@ -163,36 +173,7 @@ static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 	return 0
 End
 
-static Function BrowserMenuLaunch() // Browser menu launcher, active
-
-	// Check if you have selected a single 3D wave
-	if(ATH_CountSelectedWavesInDataBrowser(waveDimemsions = 3) == 1\
-	 && ATH_CountSelectedWavesInDataBrowser() == 1) // If we selected a single 3D wave		
-	 	string selected3DWaveStr = GetBrowserSelection(0)
-		WAVE w3dRef = $selected3DWaveStr
-		// When plotting waves from calculations we might have NaNs or Infs.
-		// Remove them before starting and replace them with zeros
-		Wavestats/M=1/Q w3dref
-		if(V_numNaNs || V_numInfs)
-			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
-			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
-		endif
-		ATH_DisplayImage(w3dRef)
-		string winNameStr = WinName(0, 1, 1)
-		InitialiseFolder()
-		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
-		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#CursorHookFunction // Set the hook
-		SetWindow $winNameStr userdata(ATH_LinkedSumBeamsZPlotStr) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = "root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
-		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
-	else
-		Abort "Z profile opearation needs only one 3d wave."
-	endif
-	return 0
-End
-
-static Function TracePopupLaunchSavedROI() // Launch directly from trace meny
+static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 	
 	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
 	string winNameStr = WinName(0, 1, 1)
@@ -209,6 +190,12 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace meny
 	NVAR/SDFR=dfrROI gATH_Stop
 	NVAR/SDFR=dfrROI gATH_Sbottom
 	NVAR/SDFR=dfrROI gATH_SrectQ
+	// Maybe you have launch it already ...
+	string LinkedPlotStr = GetUserData(winNameStr, "", "ATH_LinkedSumBeamsZPlotStr")
+	if(strlen(LinkedPlotStr))
+		DoWindow/F LinkedPlotStr
+		return 0
+	endif
 	
 	if(WaveDims(w3dref) == 3) // if it is a 3d wave
 		// When plotting waves from calculations we might have NaNs or Infs.
@@ -218,13 +205,12 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace meny
 			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
 			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
 		endif
-		InitialiseFolder()
-		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + NameOfWave(w3dref)) // Change root folder if you want
+		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedSumBeamsZPlotStr) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = "root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
-		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
+		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = GetDataFolder(1, dfr)
+		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see InitialiseFolder
 	else
 		Abort "z-profile needs a 3d wave"
 	endif	
@@ -234,16 +220,12 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace meny
 	NVAR/SDFR=dfr gATH_right
 	NVAR/SDFR=dfr gATH_top
 	NVAR/SDFR=dfr gATH_bottom
-	
-
-	
 	NVAR/SDFR=dfr gATH_aXlen
 	NVAR/SDFR=dfr gATH_aYlen
 	gATH_aXlen = abs(gATH_Sleft-gATH_Sright)
 	gATH_aYlen = abs(gATH_Stop-gATH_Sbottom)		
 	NVAR/SDFR=dfr gATH_Rect
 	gATH_Rect = gATH_SrectQ
-	
 	gATH_left = gATH_Sleft
 	gATH_right = gATH_Sright
 	gATH_top = gATH_Stop
@@ -262,7 +244,7 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace meny
 	return 0
 End
 
-static Function InitialiseFolder()
+static Function/DF InitialiseFolder()
 	/// All initialisation happens here. Folders, waves and local/global variables
 	/// needed are created here. Use the 3D wave in top window.
 
@@ -293,15 +275,12 @@ static Function InitialiseFolder()
 	variable nlayers = DimSize(w3dref, 2)
 	variable dz = DimDelta(w3dref, 2)
     variable z0 = DimOffset(w3dref, 2)
-	// Exprimental    
-    // What if you launch a second profiler for the same wave (imageNameTopGraphStr)?
-//    DFREF rootDF = $("root:Packages:ATH_DataFolder:ZBeamProfiles:")
-//    string UniqueimgNameTopGraphStr = CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + imgNameTopGraphStr) // Root folder here
+    DFREF rootDF = $("root:Packages:ATH_DataFolder:ZBeamProfiles:")
+    string UniqueimgNameTopGraphStr = CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1)
+	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + UniqueimgNameTopGraphStr) // Root folder here
 	string zprofilestr = "wZLineProfileWave"
 	Make/O/N=(nlayers) dfr:$zprofilestr /Wave = profile // Store the line profile 
 	SetScale/P x, z0, dz, profile
-	
 	string/G dfr:gATH_imgNameTopWindowStr = imgNameTopGraphStr
 	string/G dfr:gATH_WindowNameStr = winNameStr
 	string/G dfr:gATH_LineProfileWaveStr = zprofilestr // image profile wave
@@ -328,7 +307,7 @@ static Function InitialiseFolder()
 	variable/G dfr:gATH_MarkAreasSwitch = 1
 	variable/G dfr:gATH_colorcnt = 0
 	variable/G dfr:gATH_mouseTrackV
-	return 0
+	return dfr
 End	
 
 static Function DrawOvalImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
@@ -392,8 +371,7 @@ End
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	variable hookResult = 0, i
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
+	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_SumBeamsDFRefEF"))
 	NVAR/SDFR=dfr gATH_left
 	NVAR/SDFR=dfr gATH_right
 	NVAR/SDFR=dfr gATH_top

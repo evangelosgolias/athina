@@ -77,8 +77,8 @@ Menu "Athina"
 	
 	Submenu "Profiles "
 		"Line profile (TG, 2D, 3D)", /Q, ATH_ImageLineProfile#MainMenuLaunch()
-		"Z profile (TG, 3D)", /Q, ATH_SumBeamsProfile#MainMenuLaunch()
-		"Plane profile (TG, 3D)",/Q, ATH_ImagePlaneProfileZ#MenuLaunch()
+		"Plane profile (TG, 3D)",/Q, ATH_ImagePlaneProfileZ#MenuLaunch()	
+		"(Z profile (TG, 3D) [Use Marquee]", /Q, DoAlert 0, "Use Marquee for Z-profile!"
 	End
 
 	Submenu "XMC(L)D calculation"
@@ -118,7 +118,6 @@ Menu "GraphMarquee"
 	"ATH Save Oval ROI (2D, 3D)", /Q, ATH_SaveROICoordinatesToDatabase()
 	"ATH Z-profiler: Set rectangular ROI  (3D)", /Q, ATH_SumBeamsProfile#GraphMarqueeLaunchRectangle()	
 	"ATH Z-profiler: Set oval ROI  (3D)", /Q, ATH_SumBeamsProfile#GraphMarqueeLaunchOval()
-	//"ATH Marquee to mask (2D, 3D)", /Q, ATH_MarqueeToMask()
 	"ATH Backup traces (1D)", /Q, ATH_BackupTraces()
 	"ATH Restore traces (1D)", /Q, ATH_RestoreTraces()
 	"ATH Normalise to profile (1D)", /Q, ATH_NormaliseTracesWithProfile()
@@ -134,11 +133,6 @@ Menu "DataBrowserObjectsPopup"
 	"ATH Make stack", /Q, ATH_LaunchMake3DWaveDataBrowserSelection()
 	"ATH Make stack and display", /Q, ATH_LaunchMake3DWaveDataBrowserSelection(displayStack = 1)
 	"ATH Restore image from backup", /Q, ATH_LaunchImageBackupFromBrowserSelection()
-	Submenu "ATH Profiles"
-		"ATH Z profile", /Q, ATH_SumBeamsProfile#BrowserMenuLaunch()
-		"ATH Line profile", /Q, ATH_ImageLineProfile#BrowserMenuLaunch()
-		"ATH Plane profile", /Q, ATH_ImagePlaneProfileZ#BrowserLaunch()
-	End	
 	Submenu "ATH Normalise"
 		"ATH Stack with image", /Q, ATH_LaunchNormalisationImageStackWithImage()
 		"ATH Stack with profile", /Q, ATH_LaunchNormalisationImageStackWithProfile()
