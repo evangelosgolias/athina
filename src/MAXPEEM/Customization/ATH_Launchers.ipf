@@ -979,7 +979,7 @@ Function ATH_LaunchDeleteBigWaves()
 	variable minFileSizeMB = 100 // Threshhold in MB
 	Prompt minFileSizeMB, "Enter threshold value in MegaBytes (MB)"
 	DoPrompt "Delete big files", minFileSizeMB
-	if(minFileSizeMB <= 0)
+	if(minFileSizeMB <= 0 || V_flag)
 		return 1
 	endif
 	ATH_FindBigWaves(minFileSizeMB)

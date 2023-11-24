@@ -189,7 +189,7 @@ Static Function PTInitPanel()
 		//Load the Ph. Cross-section dataset
 		string datasetPathStr = ParseFilePath(1,FunctionPath("PhotoionisationCrossSection#PhotoionisationCrossSection"),":",1,1) + "Datasets:PhotoionisationCrossSections:"
 		NewPath/Q/O ATH_sourceData_TMP, datasetPathStr
-		LoadWave/H/P=ATH_sourceData_TMP "ATH_PhCrossSectionTable.ibw"
+		LoadWave/Q/H/P=ATH_sourceData_TMP "ATH_PhCrossSectionTable.ibw"
 		KillPath/Z ATH_sourceData_TMP
 		newpanel = 1
 	endif
@@ -629,7 +629,7 @@ static Function PlotPhCrossSectionOfElement(string elementStr)
 	endfor	
 	
 	ModifyGraph/W=$graphName grid(left)=1,log(left)=1,tick=2,mirror=1,fSize=12,lsize=2,gridRGB(left)=(43690,43690,43690)
-	SetAxis/W=$graphName bottom *,500 // CHANGE: Energy range to your taste.
+	SetAxis/W=$graphName bottom *,1500 // CHANGE: Energy range to your taste.
 	Label/W=$graphName left "\\Z14 Cross section (Mbarn)"
 	Label/W=$graphName bottom "\\Z14 Photon energy (eV)"
 	// Change colors for traces
