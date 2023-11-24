@@ -35,8 +35,8 @@ Menu "Athina"
 	Submenu "Import"
 		".dat files...", /Q, ATH_LoadUview#LoadMultiplyDATFiles(autoscale = 1)
 		".dat files and stack ...", /Q, ATH_LoadUview#LoadMultiplyDATFiles(stack3d = 1, autoscale = 1)		
-		"All .dat files in folder...", /Q, ATH_LoadUview#LoadDATFilesFromFolder("", "*", autoscale = 1)		
-		"All .dat files in folder and stack ...", /Q, ATH_LoadUview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 
+		".dat files in folder...", /Q, ATH_LoadUview#LoadDATFilesFromFolder("", "*", autoscale = 1)		
+		".dat files in folder and stack ...", /Q, ATH_LoadUview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 
 		".h5 file ...", /Q, ATH_LauncherLoadHDF5GroupsFromFile()
 	End
 	

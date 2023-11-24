@@ -135,10 +135,9 @@ static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	WAVE/T/SDFR=dfr ATHSpacesTW
 	NVAR/SDFR=dfr gSelectedSpace
-	string msg, newSpaceNameStr, oldSpaceNameStr, winNameStr, buffer, prefix
+	string msg, newSpaceNameStr, oldSpaceNameStr, winNameStr, buffer, prefix, listLinkedPP
 	variable numSpaces = DimSize(ATHSpacesTW, 0)
 	variable hookresult = 0, i
-	string listLinkedPP = "ImageSource;ImageSBP;ImageLPP;ImagePPZ" // List of known linked profile extensions (SumBeamsProfile, LineProfile, PlaneProfileZ)
 	switch(LB_Struct.eventCode)
 		// INFO: When you click outside of entry cells in the ListBox you get maxListEntries as row selection!
 		case -1: // Control being killed
@@ -227,6 +226,8 @@ static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 			gSelectedSpace = LB_Struct.row
 			SetWindow $winNameStr userdata(ATH_SpacesTag) = SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace]) // Assign tag to window
 			// Do we have a linked panel?
+			// List of known linked profile extensions (SumBeamsProfile, LineProfile, PlaneProfileZ)	
+			listLinkedPP = "ImageSource;ImageSBP;ImageLPP;ImagePPZ" 
 			for(i = 0; i < 4; i++) // Manually add here maxVal as ItemsInList(listLinkedPP)
 				buffer = GetUserData(winNameStr, "", "ATH_LinkedWin" + StringFromList(i, listLinkedPP))
 				if(strlen(buffer))

@@ -72,7 +72,7 @@ EndStructure
 //************************************************************
 // Periodic Table
 // this is the starting point for creating the periodic table panel
-Function PhotoionisationCrossSection() : Panel
+static Function PhotoionisationCrossSection() : Panel
 
 	if (!DataFolderExists("root:Packages:ATH_DataFolder:PhotoionisationCrossSection"))
 		// new folder and display panel
@@ -187,7 +187,7 @@ Static Function PTInitPanel()
 		col[][2]=unmarkB
 		
 		//Load the Ph. Cross-section dataset
-		string datasetPathStr = ParseFilePath(1,FunctionPath("PhotoionisationCrossSection#PhotoionisationCrossSection"),":",1,1) + "Datasets:"
+		string datasetPathStr = ParseFilePath(1,FunctionPath("PhotoionisationCrossSection#PhotoionisationCrossSection"),":",1,1) + "Datasets:PhotoionisationCrossSections:"
 		NewPath/Q/O ATH_sourceData_TMP, datasetPathStr
 		LoadWave/H/P=ATH_sourceData_TMP "ATH_PhCrossSectionTable.ibw"
 		KillPath/Z ATH_sourceData_TMP
@@ -410,7 +410,7 @@ static Function PTResizePanel(pa) : PopupMenuControl
 End
 
 //************************************************************
-Function GetAtNr(Estr)
+static Function GetAtNr(Estr)
 	string Estr
 	wave AtNr= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:AtNr
 	wave/T ElementSym= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:ElementSym
@@ -585,7 +585,7 @@ end
 
 // DimLabels for the dataset
 
-Function/S GetSelectedElementsStr()
+static Function/S GetSelectedElementsStr()
 	// Return a string list with the elements currently selected, e.g "Si;Co;Ir;"
 	wave ElemSelect= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:ElemSelect
 	wave/T ElementSym= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:ElementSym
@@ -602,14 +602,14 @@ Function/S GetSelectedElementsStr()
 	return selectedElementsStr
 End
 
-Function/S GetColumnOrderFromSelectedElement(string elementStr)
+static Function/S GetColumnOrderFromSelectedElement(string elementStr)
 	SVAR ATH_OrbitalOrder = root:Packages:ATH_DataFolder:PhotoionisationCrossSection:gATH_OrbitalOrder
 	string RegExpBaseStr = "[1-9]{1}[s,p,d,f]{1}" // Use "Symbol" + RegExpBaseStr
 	string matchedFilesStr = SortList(GrepList(ATH_OrbitalOrder, elementStr + RegExpBaseStr), ";", 16)
 	return matchedFilesStr
 End
 
-Function PlotPhCrossSectionOfElement(string elementStr)
+static Function PlotPhCrossSectionOfElement(string elementStr)
 	string allDimLabels = GetColumnOrderFromSelectedElement(elementStr)
 	wave PhCSWave= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:ATH_PhCrossSectionTable
 	string graphName = "ATH_" + elementStr + "_PhCs" // Names for DoWindow/F
@@ -651,7 +651,7 @@ Function PlotPhCrossSectionOfElement(string elementStr)
 	Legend/C/N=text0/J/F=0/S=3/A=RB ("\Z12" +legendStr)
 End
 
-Function [variable red, variable green, variable blue] SetTraceColor(variable colorIndex)
+static Function [variable red, variable green, variable blue] SetTraceColor(variable colorIndex)
 	/// Give a RGB triplet for 16 distinct colors.
 	/// https://www.wavemetrics.com/forum/general/different-colors-different-waves
 	/// Use as Modifygraph/W=WinName rgb(wavename) = (red, green, blue)
