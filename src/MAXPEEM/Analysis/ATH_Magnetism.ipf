@@ -2,7 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
-
+#pragma ModuleName = ATH_Magnetism
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -29,7 +29,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-Function/WAVE ATH_WAVECalculateXMCD(WAVE w1, WAVE w2)
+Function/WAVE WAVECalculateXMCD(WAVE w1, WAVE w2)
 	/// Calculate XMCD/XMLD of two images
 	if(!(WaveType(w1) & 0x02 && WaveType(w2) & 0x02)) // if your wave are not 32-bit integers /SP
 		Redimension/S w1, w2
@@ -39,7 +39,7 @@ Function/WAVE ATH_WAVECalculateXMCD(WAVE w1, WAVE w2)
 	return wxmcd
 End
 
-Function ATH_CalculateXMCD(WAVE w1, WAVE w2, string wxmcdStr)
+Function CalculateXMCD(WAVE w1, WAVE w2, string wxmcdStr)
 	/// Calculate XMCD/XMLD of two images and save it to 
 	/// @param w1 WAVE Wave 1
 	/// @param w2 WAVE Wave 2
@@ -54,7 +54,7 @@ Function ATH_CalculateXMCD(WAVE w1, WAVE w2, string wxmcdStr)
 	wref = (w1 - w2)/(w1 + w2)
 End
 
-Function ATH_CalculateXMCDToWave(WAVE w1, WAVE w2, WAVE wXMCD)
+Function CalculateXMCDToWave(WAVE w1, WAVE w2, WAVE wXMCD)
 	/// Calculate XMCD/XMLD of two images and save it to 
 	/// @param w1 WAVE Wave 1
 	/// @param w2 WAVE Wave 2
@@ -67,7 +67,7 @@ Function ATH_CalculateXMCDToWave(WAVE w1, WAVE w2, WAVE wXMCD)
 	wXMCD = (w1 - w2)/(w1 + w2)
 End
 
-Function ATH_CalculateXMCDFromStackToWave(WAVE w3d, WAVE wXMCD)
+Function CalculateXMCDFromStackToWave(WAVE w3d, WAVE wXMCD)
 	/// Calculate XMCD/XMLD of two images and save it to 
 	/// @param w13d WAVE Wave with 2 layers.
 	/// @param wXMCD WAVE Calculated XMCD/XMLD wave 
@@ -82,7 +82,7 @@ Function ATH_CalculateXMCDFromStackToWave(WAVE w3d, WAVE wXMCD)
 	MatrixOP/O wXMCD = (layer(w3d,0) - layer(w3d,1))/(layer(w3d,0) + layer(w3d,1))
 End
 
-Function ATH_CalculateWaveSumFromStackToWave(WAVE w3d, WAVE wSum)
+Function CalculateWaveSumFromStackToWave(WAVE w3d, WAVE wSum)
 	
 	if(DimSize(w3d, 2) != 2)
 		return -1
@@ -94,7 +94,7 @@ Function ATH_CalculateWaveSumFromStackToWave(WAVE w3d, WAVE wSum)
 	MatrixOP/O wSum = (layer(w3d,0) + layer(w3d,1))/2
 End
 
-Function ATH_CalculateXMCD3D(WAVE w3d1, WAVE w3d2)
+Function CalculateXMCD3D(WAVE w3d1, WAVE w3d2)
 	// Calculate XMC(L)D for 3D waves over layers.
 	// XMC(L)D = (w3d1 - w3d2)/(w3d1 + w3d2)
 	if(WaveDims(w3d1) != 3 || WaveDims(w3d2) != 3 || (DimSize(w3d1, 2) != DimSize(w3d2, 2)))
@@ -119,7 +119,7 @@ Function ATH_CalculateXMCD3D(WAVE w3d1, WAVE w3d2)
 	return 0
 End
 
-Function ATH_XMCDCombinations(WAVE w3d)
+Function XMCDCombinations(WAVE w3d)
 	/// Calculate XMC(L)D = (w3d1 - w3d2)/(w3d1 + w3d2)
 	/// for all different layer combinations of w3d,
 	if(WaveDims(w3d) != 3)
@@ -136,7 +136,7 @@ Function ATH_XMCDCombinations(WAVE w3d)
 		for(j = 0; j < i; j++)
 			MatrixOP/FREE jLayer = layer(w3d, j)
 			buffer = "ATHWaveToStack_idx_" + num2str(cnt)
-			ATH_CalculateXMCD(iLayer, jLayer, buffer)
+			CalculateXMCD(iLayer, jLayer, buffer)
 			noteStr += num2str(cnt) + ": (" + num2str(IndexToScale(w3d, i, 2)) \
 					+", "+ num2str(IndexToScale(w3d, j, 2))+")\n"
 			cnt += 1
@@ -177,7 +177,7 @@ End
 //		0 - map calculations completed
 //		1 - input wave was not a 3D wave
 //@
-Function ATH_CalculateXMLDMap(WAVE wRef, variable angleStep)
+Function CalculateXMLDMap(WAVE wRef, variable angleStep)
 
 	variable angleStepRad = angleStep * pi/180
 	variable rows = DimSize(wRef, 0)

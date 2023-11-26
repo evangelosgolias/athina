@@ -184,7 +184,7 @@ Function ATH_LaunchRegisterQCalculateXRayDichroism()
 	if(!strlen(saveWaveName))
 		saveWaveName = "ATHxmcd"
 	endif
-	ATH_CalculateXMCD(wimg1, wimg2copy, saveWaveName)
+	ATH_Magnetism#CalculateXMCD(wimg1, wimg2copy, saveWaveName)
 	// if you use /P, the dimension scaling is copied in slope/intercept format 
 	// so that if srcWaveName  and the other waves have differing dimension size 
 	// (number of points if the wave is a 1D wave), then their dimension values 
@@ -206,7 +206,7 @@ Function ATH_LaunchCalculateXMCDFromStack()
 	string sourceDFRStr = GetWavesDataFolder(w3dref, 1)
 	string xmcdWaveStr = CreatedataObjectName(currDFR, basename, 1, 0, 1)
 	string destWaveNameStr = sourceDFRStr + xmcdWaveStr
-	ATH_CalculateXMCD(w1free, w2free, destWaveNameStr) // NewXMCD in the source DFR!
+	ATH_Magnetism#CalculateXMCD(w1free, w2free, destWaveNameStr) // NewXMCD in the source DFR!
 	string noteStr = "Source: " + sourceDFRStr + NameofWave(w3dref)
 	Note/K $destWaveNameStr, noteStr
 	CopyScales w3dref, $destWaveNameStr 
@@ -308,7 +308,7 @@ Function ATH_LaunchCalculationXMCD3D()
 	endif
 	WAVE w3d1 = $wave1Str
 	WAVE w3d2 = $wave2Str
-	ATH_CalculateXMCD3D(w3d1, w3d2)
+	ATH_Magnetism#CalculateXMCD3D(w3d1, w3d2)
 	return 0
 End
 
@@ -959,10 +959,10 @@ Function ATH_LaunchXMCDCombinations()
 						+ "layers. \nDo you want to continue?"
 		DoAlert/T="Too many layers will be created ...", 1, alertStr
 		if(V_flag == 1)
-			ATH_XMCDCombinations(w3d)
+			ATH_Magnetism#XMCDCombinations(w3d)
 		endif	
 	else 
-		ATH_XMCDCombinations(w3d)
+		ATH_Magnetism#XMCDCombinations(w3d)
 	endif
 	return 0
 End
