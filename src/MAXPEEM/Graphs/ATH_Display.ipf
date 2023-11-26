@@ -131,13 +131,13 @@ static Function Append3DImageSlider()
 	Variable left = V_left*scale
 	Variable right = limit(V_right*scale, left+kImageSliderLMargin+50,inf)		// ST: 210601 - make sure the controls get not too small
 	
-	Slider WM3DAxis,pos={left+10,gOriginalHeight+10},size={right-left-kImageSliderLMargin,16},proc=ATH_3DImageSliderProc		// ST: 210601 - shift slider slightly down
+	Slider WM3DAxis,pos={left+10,gOriginalHeight+10},size={right-left-kImageSliderLMargin,16},proc=ATH_Display#W3DImageSliderProc		// ST: 210601 - shift slider slightly down
 	// uncomment the following line if you want do disable live updates when the slider moves.
 	// Slider WM3DAxis live=0	
 	Slider WM3DAxis,limits={0,gRightLim,1},value= 0,vert= 0,ticks=0,side=0,variable=gLayer	
 	
 	SetVariable WM3DVal,pos={right-kImageSliderLMargin+15,gOriginalHeight+6},size={60,18}	// ST: 210601 - control slightly higher to line up with the slider
-	SetVariable WM3DVal,limits={0,gRightLim,1},title=" ",proc=WM3DImageSliderSetVarProc		// ST: 210601 - apply same limits as slider
+	SetVariable WM3DVal,limits={0,gRightLim,1},title=" ",proc=ATH_Display#WM3DImageSliderSetVarProc		// ST: 210601 - apply same limits as slider
 	SetVariable WM3DVal,value=gLayer
 
 	Variable zScale = DimOffset(w,2) + gLayer * DimDelta(w,2)
@@ -145,14 +145,14 @@ static Function Append3DImageSlider()
 	ModifyControlList "WM3DVal;WM3DAxis;" help={helpStr}
 
 	Button WM3DDoneBtn,pos={right-kImageSliderLMargin+85,gOriginalHeight+6},size={50,18}	// ST: 210601 - button to remove the slider again
-	Button WM3DDoneBtn,title="Done",proc=WM3DImageSliderDoneBtnProc
+	Button WM3DDoneBtn,title="Done",proc=ATH_Display#WM3DImageSliderDoneBtnProc
 
 	ModifyImage $imageName plane=0
 	// 
 	WaveStats/Q w
 	ModifyImage $imageName ctab= {V_min,V_max,,0}	// missing ctName to leave it unchanged.
 	
-	SetWindow $grfName hook(WM3Dresize)=ATH_3DImageSliderWinHook
+	SetWindow $grfName hook(WM3Dresize)=ATH_Display#W3DImageSliderWinHook
 	
 	SetDataFolder dfSav
 End

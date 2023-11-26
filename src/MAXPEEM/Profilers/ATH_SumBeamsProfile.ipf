@@ -48,7 +48,7 @@ static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 		InitialiseGraph(dfr)
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageSBP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = GetDataFolder(1, dfr)//"root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
+		SetWindow $winNameStr userdata(ATH_SumBeamsDFR) = GetDataFolder(1, dfr)//"root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
 	else
 		Abort "z-profile needs a 3d wave"
@@ -94,7 +94,7 @@ static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 		InitialiseGraph(dfr)
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageSBP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = GetDataFolder(1, dfr)
+		SetWindow $winNameStr userdata(ATH_SumBeamsDFR) = GetDataFolder(1, dfr)
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see InitialiseFolder
 	else
 		Abort "z-profile needs a 3d wave"
@@ -127,9 +127,8 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
 	string winNameStr = WinName(0, 1, 1)
 	WAVE w3dref = ImageNameToWaveRef("", wnamestr) // full path of wave
-
+	
 	DFREF dfrROI = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedROI")	
-
 	NVAR/Z/SDFR=dfrROI gATH_Sleft	
 	if(!NVAR_Exists(gATH_Sleft))
 		print "Cannot find a saved ROI"
@@ -139,13 +138,7 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 	NVAR/SDFR=dfrROI gATH_Stop
 	NVAR/SDFR=dfrROI gATH_Sbottom
 	NVAR/SDFR=dfrROI gATH_SrectQ
-	// Maybe you have launch it already ...
-	string LinkedPlotStr = GetUserData(winNameStr, "", "ATH_LinkedWinImageSBP")
-	if(strlen(LinkedPlotStr))
-		DoWindow/F LinkedPlotStr
-		return 0
-	endif
-	
+		
 	if(WaveDims(w3dref) == 3) // if it is a 3d wave
 		// When plotting waves from calculations we might have NaNs or Infs.
 		// Remove them before starting and replace them with zeros
@@ -153,18 +146,18 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 		if(V_numNaNs || V_numInfs)
 			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
 			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
-		endif
+		endif	
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageSBP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(ATH_SumBeamsDFRefEF) = GetDataFolder(1, dfr)
+		SetWindow $winNameStr userdata(ATH_SumBeamsDFR) = GetDataFolder(1, dfr)
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see InitialiseFolder
 	else
 		Abort "z-profile needs a 3d wave"
 	endif	
 	DoWindow/F $winNameStr // You need to have your imange stack as a top window
-		
+			
 	NVAR/SDFR=dfr gATH_left	
 	NVAR/SDFR=dfr gATH_right
 	NVAR/SDFR=dfr gATH_top
@@ -225,8 +218,9 @@ static Function/DF InitialiseFolder()
 	variable dz = DimDelta(w3dref, 2)
     variable z0 = DimOffset(w3dref, 2)
     DFREF rootDF = $("root:Packages:ATH_DataFolder:ZBeamProfiles:")
-    string UniqueimgNameTopGraphStr = CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1)
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + UniqueimgNameTopGraphStr) // Root folder here
+    //string UniqueFolderNameStr = CreateDataObjectName(rootDF, winNameStr, 11, 0, 1)
+    // winNameStr is unique
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + winNameStr) // Root folder here
 	string zprofilestr = "wZLineProfileWave"
 	Make/O/N=(nlayers) dfr:$zprofilestr /Wave = profile // Store the line profile 
 	SetScale/P x, z0, dz, profile
@@ -290,13 +284,14 @@ static Function InitialiseGraph(DFREF dfr)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(rootFolderStr)
 	SVAR/SDFR=dfr gATH_LineProfileWaveStr
 	SVAR/SDFR=dfr gATH_WindowNameStr
+	SVAR/SDFR=dfr gATH_imgNameTopWindowStr
 	WAVE profile = dfr:$gATH_LineProfileWaveStr
 
-	string profilePlotStr = "ATH_ZProfPlot_" +gATH_WindowNameStr//+ GetDataFolder(0, dfr)
+	string profilePlotStr = "ATH_ZProfPlot_" + gATH_WindowNameStr
 
 	if (WinType(profilePlotStr) == 0) // line profile window is not displayed
 		variable pix = 72/ScreenResolution
-		Display/W=(0*pix,0*pix,500*pix,300*pix)/K=1/N=$profilePlotStr profile as "Z profile " + gATH_WindowNameStr
+		Display/W=(0*pix,0*pix,500*pix,300*pix)/K=1/N=$profilePlotStr profile as "Z profile " + gATH_imgNameTopWindowStr
 		AutoPositionWindow/E/M=0/R=$gATH_WindowNameStr
 		ModifyGraph rgb=(1,12815,52428), tick(left)=2, fSize=12, lsize=1.5
 		Label left "\\u#2 Intensity (arb. u.)";DelayUpdate
@@ -320,7 +315,7 @@ End
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	variable hookResult = 0, i
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_SumBeamsDFRefEF"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_SumBeamsDFR"))
 	NVAR/SDFR=dfr gATH_left
 	NVAR/SDFR=dfr gATH_right
 	NVAR/SDFR=dfr gATH_top
@@ -521,7 +516,6 @@ End
 
 static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrSumBeamsStr"))
-	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
 	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
 	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
 	switch(B_Struct.eventCode)	// numeric switch

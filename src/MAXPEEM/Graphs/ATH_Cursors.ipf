@@ -448,9 +448,9 @@ End
 
 static Function CursorCallBack(WAVE wRef, variable p0, variable q0)
 	MatrixOP/O root:getBeam = beam(wRef, p0, q0)
-	WAVE wOff = root:XMLD:XMLDStack_4x4x1_XMLDMap0_offset
-	WAVE wfact = root:XMLD:XMLDStack_4x4x1_XMLDMap0_factor
-	WAVE wphase = root:XMLD:XMLDStack_4x4x1_XMLDMap0	
+	WAVE wOff = root:XMLD:XMLDStack_4x4x1_XMLDMap_offset
+	WAVE wfact = root:XMLD:XMLDStack_4x4x1_XMLDMap_factor
+	WAVE wphase = root:XMLD:XMLDStack_4x4x1_XMLDMap	
 	Make/O root:sinPlotW /WAVE=wsin
 	SetScale/I x, (-pi/2 + pi/18), pi/2, wsin, root:getBeam
 	variable xOff = wOff[p0][q0]
