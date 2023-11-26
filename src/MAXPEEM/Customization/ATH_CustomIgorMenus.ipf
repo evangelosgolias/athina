@@ -37,29 +37,29 @@ Menu "Athina"
 		".dat files and stack ...", /Q, ATH_LoadUview#LoadMultiplyDATFiles(stack3d = 1, autoscale = 1)		
 		".dat files in folder...", /Q, ATH_LoadUview#LoadDATFilesFromFolder("", "*", autoscale = 1)		
 		".dat files in folder and stack ...", /Q, ATH_LoadUview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 
-		".h5 file ...", /Q, ATH_LauncherLoadHDF5GroupsFromFile()
+		".h5 file ...", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
 	End
 	
 	Submenu "Image Operations"
-		"Average layers (range) (TG, 3D)", /Q, ATH_LaunchAverageLayersRange()
-		"Average image stack(TG, 3D)", /Q, ATH_LaunchAverageImagePlanes()
-		"Append image(s) to stack (TG, 3D)", /Q, ATH_LaunchStackImagesToImageStack()
-		"Insert image at slider position  (TG, 3D)", /Q, ATH_LaunchInsertImageToStack()
-		"Extract layers to stack (TG, 3D)", /Q, ATH_LaunchExtractLayerRangeToStack()
-		"Remove layers from stack (TG, 3D)", /Q, ATH_LaunchRemoveImagesFromImageStack()
-		"Sum image stack(TG, 3D)", /Q, ATH_LaunchSumImagePlanes()				
-		"New image (stack) from saved ROI (TG, 2D, 3D)", /Q, ATH_LaunchMakeWaveFromSavedROI()
-		"Pixelate image (TG, 2D, 3D)", /Q, ATH_LaunchPixelateSingleImageOrStack()
-		"FFT (TG, 2D)", /Q, ATH_LaunchImageFFTTransform()
-		"Rotate image (TG, 2D, 3D) ", /Q, ATH_LaunchImageRotateAndScale()
-		"Rotate image from metadata (TG, 2D, 3D)", /Q, ATH_LaunchImageRotateAndScaleFromMetadata()
-		"Remove background (TG, 2D, 3D)", /Q, ATH_LaunchImageRemoveBackground()	
+		"Average layers (range) (TG, 3D)", /Q, ATH_Launch#AverageLayersRange()
+		"Average image stack(TG, 3D)", /Q, ATH_Launch#AverageImagePlanes()
+		"Append image(s) to stack (TG, 3D)", /Q, ATH_Launch#StackImagesToImageStack()
+		"Insert image at slider position  (TG, 3D)", /Q, ATH_Launch#InsertImageToStack()
+		"Extract layers to stack (TG, 3D)", /Q, ATH_Launch#ExtractLayerRangeToStack()
+		"Remove layers from stack (TG, 3D)", /Q, ATH_Launch#RemoveImagesFromImageStack()
+		"Sum image stack(TG, 3D)", /Q, ATH_Launch#SumImagePlanes()				
+		"New image (stack) from saved ROI (TG, 2D, 3D)", /Q, ATH_Launch#MakeWaveFromSavedROI()
+		"Pixelate image (TG, 2D, 3D)", /Q, ATH_Launch#PixelateSingleImageOrStack()
+		"FFT (TG, 2D)", /Q, ATH_Launch#ImageFFTTransform()
+		"Rotate image (TG, 2D, 3D) ", /Q, ATH_Launch#ImageRotateAndScale()
+		"Rotate image from metadata (TG, 2D, 3D)", /Q, ATH_Launch#ImageRotateAndScaleFromMetadata()
+		"Remove background (TG, 2D, 3D)", /Q, ATH_Launch#ImgRemoveBackground()	
 		"Duplicate image and data (TG, 2D, 3D)", /Q, ATH_DuplicateWaveAndDisplayOfTopImage()
 		"Backup Image (TG)", /Q, ATH_BackupTopImage()	
 		"Restore image from backup (TG)", /Q, ATH_RestoreTopImageFromBackup()
-		"Normalize to [0, 1] (TG)", /Q, ATH_LaunchScalePlanesBetweenZeroAndOne()
-		"Center image histogram (TG)", /Q, ATH_LaunchHistogramShiftToGaussianCenter()
-		"Rotate 3d wave axes (TG, 3D)", /Q, ATH_LaunchRotate3DWaveAxes()
+		"Normalize to [0, 1] (TG)", /Q, ATH_Launch#ScalePlanesBetweenZeroAndOne()
+		"Center image histogram (TG)", /Q, ATH_Launch#HistogramShiftToGaussianCenter()
+		"Rotate 3d wave axes (TG, 3D)", /Q, ATH_Launch#Rotate3DWaveAxes()
 	End
 	
 	Submenu "Interactive Operations"
@@ -69,9 +69,9 @@ Menu "Athina"
 	End
 	
 	Submenu "Drift Correction"
-		"Using a feature (TG, 3D)", /Q, ATH_LaunchImageStackAlignmentPartition()
-		"Using the full image (TG, 3D)", /Q, ATH_LaunchImageStackAlignmentFullImage()
-		"Linear drift correction (TG, 3D)",/Q, ATH_LaunchLinearImageStackAlignmentUsingABCursors()
+		"Using a feature (TG, 3D)", /Q, ATH_Launch#ImageStackAlignmentPartition()
+		"Using the full image (TG, 3D)", /Q, ATH_Launch#ImageStackAlignmentFullImage()
+		"Linear drift correction (TG, 3D)",/Q, ATH_Launch#LinearImageStackAlignmentUsingABCursors()
 
 	End
 	
@@ -82,10 +82,10 @@ Menu "Athina"
 	End
 
 	Submenu "XMC(L)D calculation"
-		"XMC(L)D (Import two .dat files) ...", /Q, ATH_DialogLoadTwoImagesAndRegisterQ()
-		"XMC(L)D (3D[2]) ... ", /Q, ATH_LaunchCalculationXMCD3d()
-		"XMC(L)D (2D[2]) ...", /Q, ATH_LaunchRegisterQCalculateXRayDichroism()
-		"XMC(L)D combinations (3D[1]) ...", /Q, ATH_LaunchXMCDCombinations()
+		"XMC(L)D (Import two .dat files) ...", /Q, ATH_Launch#DialogLoadTwoImagesAndRegisterQ()
+		"XMC(L)D (3D[2]) ... ", /Q, ATH_Launch#CalculationXMCD3d()
+		"XMC(L)D (2D[2]) ...", /Q, ATH_Launch#RegisterQCalculateXRayDichroism()
+		"XMC(L)D combinations (3D[1]) ...", /Q, ATH_Launch#XMCDCombinations()
 	End	
 		
 	Submenu "XPS"
@@ -95,8 +95,8 @@ Menu "Athina"
 	
 	Submenu "Utilities"
 		"Spaces",/Q, ATH_Spaces#MenuLauch()
-		"Free space",/Q, ATH_LaunchDeleteBigWaves()
-		"List HDF5 (.h5) entries...", /Q, ATH_ListHDF5Groups()		
+		"Free space",/Q, ATH_Launch#DeleteBigWaves()
+		"List HDF5 (.h5) entries...", /Q, ATH_HDF5#ListHDF5Groups()		
 		"Photoionisation CrossSection",/Q, PhotoionisationCrossSection#PhotoionisationCrossSection()
 	End
 	Submenu "Beamtime"
@@ -128,15 +128,15 @@ Menu "GraphMarquee"
 End
 
 Menu "DataBrowserObjectsPopup"
-	"ATH Newimage", /Q, ATH_LaunchNewImageFromBrowserSelection()
-	"ATH Average stack", /Q, ATH_LaunchAverageStackToImageFromBrowserMenu()
-	"ATH Make stack", /Q, ATH_LaunchMake3DWaveDataBrowserSelection()
-	"ATH Make stack and display", /Q, ATH_LaunchMake3DWaveDataBrowserSelection(displayStack = 1)
-	"ATH Restore image from backup", /Q, ATH_LaunchImageBackupFromBrowserSelection()
+	"ATH Newimage", /Q, ATH_Launch#NewImageFromBrowserSelection()
+	"ATH Average stack", /Q, ATH_Launch#AverageStackToImageFromBrowserMenu()
+	"ATH Make stack", /Q, ATH_Launch#Make3DWaveDataBrowserSelection()
+	"ATH Make stack and display", /Q, ATH_Launch#Make3DWaveDataBrowserSelection(displayStack = 1)
+	"ATH Restore image from backup", /Q, ATH_Launch#ImageBackupFromBrowserSelection()
 	Submenu "ATH Normalise"
-		"ATH Stack with image", /Q, ATH_LaunchNormalisationImageStackWithImage()
-		"ATH Stack with profile", /Q, ATH_LaunchNormalisationImageStackWithProfile()
-		"ATH Stack with stack", /Q, ATH_LaunchNormalisationImageStackWithImageStack()
+		"ATH Stack with image", /Q, ATH_Launch#NormalisationImageStackWithImage()
+		"ATH Stack with profile", /Q, ATH_Launch#NormalisationImageStackWithProfile()
+		"ATH Stack with stack", /Q, ATH_Launch#NormalisationImageStackWithImageStack()
 	End
 End
 
@@ -151,12 +151,12 @@ Menu "TracePopup"
 	"ATH Backup Image (2D, 3D)", /Q, ATH_BackupTopImage()	
 	"ATH Restore image (2D, 3D)", /Q, ATH_RestoreTopImageFromBackup()
 	"ATH Clear UserFront layer" ,/Q, ATH_SumBeamsProfile#ClearROIMarkingsUserFront()	
-	"ATH Calculate XMC(L)D (3D[2])", /Q, ATH_LaunchCalculateXMCDFromStack()
+	"ATH Calculate XMC(L)D (3D[2])", /Q, ATH_Launch#CalculateXMCDFromStack()
 	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
 End
 
 Menu "GraphPopup" // Right click not on a trace or in the margin of an image
-	"ATH Text Annotation (TG)", /Q, ATH_LaunchQuickTextAnnotation()
+	"ATH Text Annotation (TG)", /Q, ATH_Launch#QuickTextAnnotation()
 	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
 End
 

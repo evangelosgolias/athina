@@ -1,9 +1,10 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma IgorVersion = 9
+#pragma ModuleName = ATH_Transform
 
-
-Function ATH_2DFFT(WAVE wRef)
+static Function FFT2D(WAVE wRef)
 	/// FFT of a 2D wave
 	
 	Duplicate/FREE wref, wRefFree

@@ -2,7 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion  = 9
-
+#pragma ModuleName = ATH_HDF5
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -31,7 +31,7 @@
 
 // Read metadata of the beamline settings
 
-Function ATH_ListHDF5Groups()
+static Function ListHDF5Groups()
 	variable fileid_
 	Open /D/R/T="HDF5" fileid_
 	string filepathname = S_fileName
@@ -39,26 +39,26 @@ Function ATH_ListHDF5Groups()
 		Abort 
 	endif
 	HDF5OpenFile/R fileid_ as filepathname
-	ATH_ListHDF5GroupsFID(fileid_)
+	ListHDF5GroupsFID(fileid_)
 End
 
-Function/S ATH_GetHDF5Groups()
+static Function/S GetHDF5Groups()
 	Variable fileid_
-	String filepathname = ATH_GetHDF5SingleFilePath()
+	String filepathname = GetHDF5SingleFilePath()
 	HDF5OpenFile/R fileid_ as filepathname
-	return ATH_GetHDF5GroupsFID(fileid_)
+	return GetHDF5GroupsFID(fileid_)
 End
 
-Function ATH_LoadHDF5File()
+static Function LoadHDF5File()
 	Variable fileid_
-	String filepathname = ATH_GetHDF5SingleFilePath()
+	String filepathname = GetHDF5SingleFilePath()
 	HDF5OpenFile/R fileid_ as filepathname
 	HDF5LoadGroup/R :, fileid_, "." // load all
 	print "HDF5 file ~", filepathname, "~ loaded."
 	HDF5CloseFile fileid_
 End
 
-Function ATH_LoadHDF5SpecificGroups(string groups)
+static Function LoadHDF5SpecificGroups(string groups)
 	// String should be in the form "2-5,7,9-12,50"
 	groups = ATH_ExpandRangeStr(groups)
 	variable fileid_
@@ -81,7 +81,7 @@ Function ATH_LoadHDF5SpecificGroups(string groups)
 	HDF5CloseFile fileid_
 End
 
-Function ATH_LoadHDF5SpecificGroupsFromPath(String groups, String filename_fullpathstr)
+static Function LoadHDF5SpecificGroupsFromPath(String groups, String filename_fullpathstr)
 	// String should be in the form "2-5,7,9-12,50"
 	
 	// Load files faster from a specific file, you need to specify the full path to the datafile.
@@ -105,7 +105,7 @@ Function ATH_LoadHDF5SpecificGroupsFromPath(String groups, String filename_fullp
 End
 
 /// Building blocks ///
-Function/S ATH_GetHDF5SingleFilePath()
+static Function/S GetHDF5SingleFilePath()
 	// Return a list of the full path of one selected HDF5 file
 	Variable dummyid
 	Open /D/R/T="HDF5" dummyid
@@ -113,24 +113,24 @@ Function/S ATH_GetHDF5SingleFilePath()
 End
 
 
-Function ATH_ListHDF5GroupsFID(Variable fileid)
+static Function ListHDF5GroupsFID(Variable fileid)
 	//Lists all entries in file
 	HDF5ListGroup /TYPE=3 fileid, "."
 	print SortList(S_HDF5ListGroup,";",16)
 End
 
-Function/S ATH_GetHDF5GroupsFID(Variable fileid)
+static Function/S GetHDF5GroupsFID(Variable fileid)
 	//Return a list of all entries in file
 	HDF5ListGroup /TYPE=1 fileid, "."
 	return SortList(S_HDF5ListGroup,";",16)
 End
 
-Function ATH_LoadHDF5GroupFID(Variable fileid, String group)
+static Function LoadHDF5GroupFID(Variable fileid, String group)
 	HDF5LoadGroup/R :, fileid, group
 End
 
 
-Function ATH_GetHDF5NumGroupsFID(Variable fileid)
+static Function GetHDF5NumGroupsFID(Variable fileid)
 	//Returns the number is entries in file
 	HDF5ListGroup /TYPE=1 fileid, "."
 	return  ItemsInList(S_HDF5ListGroup)
@@ -138,7 +138,7 @@ End
 
 ///Functions to import datasets acquired at the I06 beamline at Diamond (UK)
 
-Function ATH_LoadDiamondHDFDataSet()
+static Function LoadDiamondHDFDataSet()
 	/// Load data acquired at i06 beamline at Diamond
 	DFREF saveDF = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
@@ -176,7 +176,7 @@ Function ATH_LoadDiamondHDFDataSet()
 	SetDataFolder saveDF
 End
 
-Function ATH_LoadDiamondNXSDataSet()
+static Function LoadDiamondNXSDataSet()
 	/// Load data acquired at i06 beamline at Diamond
 	/// along with basic metadada, STV and FoV. Imported 
 	/// waves are scaled using FoV
@@ -227,7 +227,7 @@ Function ATH_LoadDiamondNXSDataSet()
 End
 
 // Select many files to load at once
-Function ATH_LoadMultiplyDiamondNXSDataSets()
+static Function LoadMultiplyDiamondNXSDataSets()
 	/// Load data acquired at i06 beamline at Diamond
 	/// along with basic metadada, STV and FoV. Imported
 	/// waves are scaled using FoV
