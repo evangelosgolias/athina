@@ -1,7 +1,8 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
-
+#pragma IgorVersion = 9
+#pragma ModuleName = ATH_iFastDriftCorrection
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -37,7 +38,7 @@
 // variable xpos =  AxisValFromPixel("", "Bottom", s.mouseLoc.h)
 // variable ypos = AxisValFromPixel("", "Left", s.mouseLoc.v)
 
-Function ATH_CreateInteractiveFastDriftCorrectionPanel()
+static Function MakePanel()
 	
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -99,13 +100,13 @@ Function ATH_CreateInteractiveFastDriftCorrectionPanel()
 	Button RestoreImgStack,pos={32.00,145.00},size={100.00,20.00},title="Restore stack",fSize=12,fColor=(0,0,0)//,proc=ATH_FastDriftRestore3DWaveButton	
 	//Tranfer info re dfr to controls
 	SetWindow $winNameStr#iFastDriftCorrection userdata(ATH_iImgFastAlignFolder) = "root:Packages:ATH_DataFolder:InteractiveFastDriftCorrection:" + winNameStr
-	SetWindow $winNameStr#iFastDriftCorrection hook(MyFastDriftCorrPanelHook) = ATH_iFastDriftCorrectionPanelHookFunction
+	SetWindow $winNameStr#iFastDriftCorrection hook(MyFastDriftCorrPanelHook) = ATH_iFastDriftCorrection#PanelHookFunction
 	// Set hook to the graph, killing the graph kills the iDriftCorrection linked folder
 	SetWindow $winNameStr userdata(ATH_iImgFastAlignFolder) = "root:Packages:ATH_DataFolder:InteractiveFastDriftCorrection:" + winNameStr
-	SetWindow $winNameStr, hook(MyFastDriftCorrGraphHook) = ATH_iFastDriftCorrectionGraphHookFunction // Set the hook
+	SetWindow $winNameStr, hook(MyFastDriftCorrGraphHook) = ATH_iFastDriftCorrection#GraphHookFunction // Set the hook
 End
 
-Function ATH_iFastDriftCorrectionGraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
+static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgFastAlignFolder"))
@@ -123,7 +124,7 @@ Function ATH_iFastDriftCorrectionGraphHookFunction(STRUCT WMWinHookStruct &s) //
 	return hookresult
 End
 
-Function ATH_iFastDriftCorrectionPanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
+static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgFastAlignFolder"))
@@ -147,7 +148,7 @@ Function ATH_iFastDriftCorrectionPanelHookFunction(STRUCT WMWinHookStruct &s) //
 	return hookresult
 End
 
-Function ATH_FastDriftSetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgFastAlignFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
@@ -175,7 +176,7 @@ Function ATH_FastDriftSetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): Bu
 	return hookresult
 End
 
-Function ATH_FastDriftImageStackButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function DriftImageStackButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgFastAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
@@ -210,7 +211,7 @@ Function ATH_FastDriftImageStackButton(STRUCT WMButtonAction &B_Struct): ButtonC
 	return hookresult
 End
 
-Function ATH_FastDriftRestore3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function Restore3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	//Complete
 	variable hookresult = 0
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgFastAlignFolder"))
