@@ -1,6 +1,36 @@
-﻿// --------------------------- Helper functions ------------------------------------//
+﻿#pragma TextEncoding = "UTF-8"
+#pragma rtGlobals=3				// Use modern global access method and strict wave access
+#pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma IgorVersion = 9
+#pragma ModuleName = ATH_DP
+// ------------------------------------------------------- //
+// Copyright (c) 2022 Evangelos Golias.
+// Contact: evangelos.golias@gmail.com
+//	
+//	Permission is hereby granted, free of charge, to any person
+//	obtaining a copy of this software and associated documentation
+//	files (the "Software"), to deal in the Software without
+//	restriction, including without limitation the rights to use,
+//	copy, modify, merge, publish, distribute, sublicense, and/or sell
+//	copies of the Software, and to permit persons to whom the
+//	Software is furnished to do so, subject to the following
+//	conditions:
+//	
+//	The above copyright notice and this permission notice shall be
+//	included in all copies or substantial portions of the Software.
+//	
+//	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+//	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+//	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+//	NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+//	HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+//	WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+//	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+//	OTHER DEALINGS IN THE SOFTWARE.
+// ------------------------------------------------------- //
+// --------------------------- Helper functions ------------------------------------//
 // Dialogs
-Function/S ATH_GenericSinglePopupStrPrompt(string strPrompt, string popupStrSelection, string msgDialog)
+static Function/S GenericSinglePopupStrPrompt(string strPrompt, string popupStrSelection, string msgDialog)
 	string returnStrVar 
 	Prompt returnStrVar, strPrompt, popup, popupStrSelection
 	DoPrompt msgDialog, returnStrVar
@@ -10,7 +40,7 @@ Function/S ATH_GenericSinglePopupStrPrompt(string strPrompt, string popupStrSele
 	return returnStrVar
 End
 
-Function/S ATH_GenericSingleStrPrompt(string strPrompt, string msgDialog)
+static Function/S GenericSingleStrPrompt(string strPrompt, string msgDialog)
 	string returnStrVar 
 	Prompt returnStrVar, strPrompt
 	DoPrompt msgDialog, returnStrVar
@@ -20,7 +50,7 @@ Function/S ATH_GenericSingleStrPrompt(string strPrompt, string msgDialog)
 	return returnStrVar
 End
 
-Function [string returnStrVar1, string returnStrVar2] ATH_GenericSingleStrPromptAndPopup(string strPrompt1,string strPrompt2, string popupStrSelection1, string msgDialog)
+static Function [string returnStrVar1, string returnStrVar2] GenericSingleStrPromptAndPopup(string strPrompt1,string strPrompt2, string popupStrSelection1, string msgDialog)
 	string strVar1, strVar2
 	Prompt strVar1, strPrompt1, popup, popupStrSelection1
 	Prompt strVar2, strPrompt2
@@ -33,7 +63,7 @@ Function [string returnStrVar1, string returnStrVar2] ATH_GenericSingleStrPrompt
 	return [returnStrVar1, returnStrVar2] 
 End
 
-Function [string returnStrVar1, string returnStrVar2] ATH_GenericDoubleStrPromptPopup(string strPrompt1, string strPrompt2, string popupStrSelection1, string popupStrSelection2, string msgDialog)
+static Function [string returnStrVar1, string returnStrVar2] GenericDoubleStrPromptPopup(string strPrompt1, string strPrompt2, string popupStrSelection1, string popupStrSelection2, string msgDialog)
 	string strVar1, strVar2
 	Prompt strVar1, strPrompt1, popup, popupStrSelection1
 	Prompt strVar2, strPrompt2, popup, popupStrSelection2
@@ -46,7 +76,7 @@ Function [string returnStrVar1, string returnStrVar2] ATH_GenericDoubleStrPrompt
 	return [returnStrVar1, returnStrVar2] 
 End
 
-Function [string returnStrVar1, string returnStrVar2] ATH_GenericDoubleStrPrompt(string strPrompt1, string strPrompt2, string msgDialog)
+static Function [string returnStrVar1, string returnStrVar2] GenericDoubleStrPrompt(string strPrompt1, string strPrompt2, string msgDialog)
 	string strVar1, strVar2
 	Prompt strVar1, strPrompt1
 	Prompt strVar2, strPrompt2
@@ -59,7 +89,7 @@ Function [string returnStrVar1, string returnStrVar2] ATH_GenericDoubleStrPrompt
 	return [returnStrVar1, returnStrVar2] 
 End
 
-Function ATH_GenericSingleVarPrompt(string strPrompt, string msgDialog)
+static Function GenericSingleVarPrompt(string strPrompt, string msgDialog)
 	variable returnVar 
 	Prompt returnVar, strPrompt
 	DoPrompt msgDialog, returnVar
@@ -71,7 +101,7 @@ End
 
 // Browser selection
 
-Function/S ATH_SelectWavesInModalDataBrowser(string msg)
+static Function/S SelectWavesInModalDataBrowser(string msg)
 	/// Launch modal browser to select waves
 	
 	// Create the modal data browser but do not display it
@@ -94,7 +124,7 @@ End
 
 /// Helper function
 
-Function ATH_CountSelectedObjectsInDataBrowser()
+static Function CountSelectedObjectsInDataBrowser()
 	/// return how many objects of any kind you have 
 	/// selected in the data browser 
 	string selectedItemStr
@@ -110,7 +140,7 @@ Function ATH_CountSelectedObjectsInDataBrowser()
 	return cnt
 End
 
-Function ATH_CountSelectedWavesInDataBrowser([variable waveDimemsions])
+static Function CountSelectedWavesInDataBrowser([variable waveDimemsions])
 	/// return how many waves are selected in the data browser
 	/// Function returns selected waves of dimensionality waveDimemsions
 	/// if the optional argument is set.
@@ -138,11 +168,11 @@ End
 
 // ----------
 // The following three function let you wait until you complete an operation on a window
-// For sUserMarqueePositions check ATH_MarqueeOperations.ipf
+// For sUserMarqueePositions check MarqueeOperations.ipf
 //
-// Code does not work, check similar function in ATH_MarqueeOperations.ipf
+// Code does not work, check similar function in MarqueeOperations.ipf
 
-Function ATH_WaitForUserActions(STRUCT sUserMarqueePositions &s, [variable vWinType])
+static Function WaitForUserActions(STRUCT sUserMarqueePositions &s, [variable vWinType])
 	// vWinType = 1 (default) graphs
 	// vWinType = 2 Tables
 	// vWinType = 4 Layout
@@ -161,14 +191,14 @@ Function ATH_WaitForUserActions(STRUCT sUserMarqueePositions &s, [variable vWinT
 	
 	StructPut /S s, structStr
 	DrawText 15,20,"Continue or cancel ?"
-	Button buttonContinue, win=$panelNameStr, pos={80,50},size={92,20}, title="Continue", proc=ATH_WaitForUserActions_ContButtonProc 
-	Button buttonCancel, win=$panelNameStr, pos={80,80},size={92,20}, title="Cancel", proc=ATH_WaitForUserActions_CancelBProc
-	SetWindow $winNameStr userdata(sATH_Coords)=structStr 
-	SetWindow $winNameStr userdata(sATH_panelNameStr)= panelNameStr
-	SetWindow $panelNameStr userdata(sATH_winNameStr) = winNameStr 
-	SetWindow $panelNameStr userdata(sATH_panelNameStr) = panelNameStr
+	Button buttonContinue, win=$panelNameStr, pos={80,50},size={92,20}, title="Continue", proc=ATH_DP#WaitForUserActions_ContButtonProc 
+	Button buttonCancel, win=$panelNameStr, pos={80,80},size={92,20}, title="Cancel", proc=ATH_DP#WaitForUserActions_CancelBProc
+	SetWindow $winNameStr userdata(sCoords)=structStr 
+	SetWindow $winNameStr userdata(spanelNameStr)= panelNameStr
+	SetWindow $panelNameStr userdata(swinNameStr) = winNameStr 
+	SetWindow $panelNameStr userdata(spanelNameStr) = panelNameStr
 	PauseForUser $panelNameStr, $winNameStr
-	StructGet/S s, GetUserData(winNameStr, "", "sATH_Coords")
+	StructGet/S s, GetUserData(winNameStr, "", "sCoords")
 	
 	if(s.canceled)
 		return 1
@@ -176,30 +206,30 @@ Function ATH_WaitForUserActions(STRUCT sUserMarqueePositions &s, [variable vWinT
 	return 0
 End
 
-Function ATH_WaitForUserActions_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function WaitForUserActions_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
 	STRUCT sUserMarqueePositions s
-	string winNameStr = GetUserData(B_Struct.win, "", "sATH_winNameStr")
-	StructGet/S s, GetUserData(winNameStr, "", "sATH_Coords")	
+	string winNameStr = GetUserData(B_Struct.win, "", "swinNameStr")
+	StructGet/S s, GetUserData(winNameStr, "", "sCoords")	
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			s.canceled = 0
-			KillWindow/Z $GetUserData(B_Struct.win, "", "sATH_panelNameStr")
+			KillWindow/Z $GetUserData(B_Struct.win, "", "spanelNameStr")
 			break
 	endswitch
 	return 0
 End
 
-Function ATH_WaitForUserActions_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
+static Function WaitForUserActions_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
 	STRUCT sUserMarqueePositions s
-	string winNameStr = GetUserData(B_Struct.win, "", "sATH_winNameStr")
-	StructGet/S s, GetUserData(winNameStr, "", "sATH_Coords")
+	string winNameStr = GetUserData(B_Struct.win, "", "swinNameStr")
+	StructGet/S s, GetUserData(winNameStr, "", "sCoords")
 	string structStr	
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			s.canceled = 1
 			StructPut/S s, structStr
-			SetWindow $winNameStr userdata(sATH_Coords) = structStr	
-			KillWindow/Z $GetUserData(B_Struct.win, "", "sATH_panelNameStr")			
+			SetWindow $winNameStr userdata(sCoords) = structStr	
+			KillWindow/Z $GetUserData(B_Struct.win, "", "spanelNameStr")			
 			break
 	endswitch
 	return 0

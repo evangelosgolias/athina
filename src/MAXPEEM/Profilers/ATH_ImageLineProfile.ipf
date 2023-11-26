@@ -86,8 +86,8 @@ static Function/DF InitialiseFolder(string winNameStr)
 	endif
 	DFREF rootDF = $("root:Packages:ATH_DataFolder:LineProfiles:")
     string UniqueimgNameTopGraphStr = CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:" + UniqueimgNameTopGraphStr) // Root folder here
-	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings:") // Settings here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:" + UniqueimgNameTopGraphStr) // Root folder here
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings:") // Settings here
 
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
@@ -139,7 +139,7 @@ End
 
 static Function CreatePlot(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(rootFolderStr)
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(rootFolderStr)
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	NVAR profileWidth = dfr:gATH_profileWidth
 	string profilePlotStr = "ATH_LineProfilePlot_" + gATH_WindowNameStr
@@ -188,8 +188,8 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	/// The line profile is drawn from E to F
     variable hookResult = 0
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_LineProfRootDF"))
-	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings") // Settings here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_LineProfRootDF"))
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings") // Settings here
 	SetdataFolder dfr
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
@@ -320,7 +320,7 @@ End
 
 static Function PlotSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_ShowSavedGraphsWindow")
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 	SVAR/Z w3dNameStr = dfr:gATH_ImageNameStr
@@ -337,7 +337,7 @@ static Function PlotSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/Z C2y = dfr:gATH_C2y
 	NVAR/Z colorcnt = dfr:gATH_colorcnt
 	string recreateDrawStr
-	DFREF savedfr = GetDataFolderDFR() //ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:SavedLineProfiles")
+	DFREF savedfr = GetDataFolderDFR() //ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:SavedLineProfiles")
 
 	variable postfix = 0
 	variable red, green, blue
@@ -351,12 +351,12 @@ static Function PlotSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 			if(PlotSwitch)
 				if(WinType(targetGraphWin) == 1)
 					AppendToGraph/W=$targetGraphWin savedfr:$saveWaveNameStr
-					[red, green, blue] = ATH_GetColor(colorcnt)
+					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 					Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
 					colorcnt += 1 // i++ does not work with globals?
 				else
 					Display/N=$targetGraphWin savedfr:$saveWaveNameStr // Do not kill the graph windows, user might want to save the profiles
-					[red, green, blue] = ATH_GetColor(colorcnt)
+					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 					Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
 					AutopositionWindow/R=$B_Struct.win $targetGraphWin
 					DoWindow/F $targetGraphWin
@@ -366,7 +366,7 @@ static Function PlotSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 			if(MarkLinesSwitch)
 				if(!PlotSwitch)
-					[red, green, blue] = ATH_GetColor(colorcnt)
+					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 					colorcnt += 1
 				endif
 				DoWindow/F $WindowNameStr
@@ -383,8 +383,8 @@ static Function PlotSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
-	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings") // Settings here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings") // Settings here
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
@@ -411,8 +411,8 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 End
 
 static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
-	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings") // Settings here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings") // Settings here
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
@@ -440,7 +440,7 @@ End
 
 static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	/// We have to find the vertices of the polygon representing
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
 	SVAR/Z WindowNameStr= dfr:gATH_WindowNameStr
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
@@ -450,7 +450,7 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/Z dx = dfr:gATH_dx
 	NVAR/Z dy = dfr:gATH_dy // assume here that dx = dy
 	variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys
-	variable slope = ATH_SlopePerpendicularToLineSegment(C1x, C1y,C2x, C2y)
+	variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y,C2x, C2y)
 	if(slope == 0)
 		x1 = C1x
 		x2 = C1x
@@ -470,7 +470,7 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 		x3 = C2x - 0.5 * width * dx
 		x4 = C2x + 0.5 * width * dx
 	else
-		[xs, ys] = ATH_GetVerticesPerpendicularToLine(width * dx/2, slope)
+		[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(width * dx/2, slope)
 		x1 = C1x + xs
 		x2 = C1x - xs
 		x3 = C2x - xs
@@ -499,7 +499,7 @@ End
 
 static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
 	NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch
 	switch(cb.checked)
 		case 1:		// Mouse up
@@ -513,7 +513,7 @@ static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxContr
 End
 
 static Function ProfileLayer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
 	NVAR/Z updateSelectedLayer = dfr:gATH_updateSelectedLayer
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
@@ -538,7 +538,7 @@ End
 
 static Function CheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
 	NVAR/Z MarkLinesSwitch = dfr:gATH_MarkLinesSwitch
 	switch(cb.checked)
 		case 1:
@@ -554,7 +554,7 @@ End
 static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_LineProfRootDF"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_LineProfRootDF"))
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x

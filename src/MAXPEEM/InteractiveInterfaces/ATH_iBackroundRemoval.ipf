@@ -52,7 +52,7 @@ static Function CreatelPanel()
 	endif
 
 	//Duplicate the wave for backup
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:BackgroundRemoval:" + winNameStr) // Root folder here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:BackgroundRemoval:" + winNameStr) // Root folder here
 	string backupNameStr = NameOfWave(wRef) + "_undo"
 	Duplicate/O wRef, dfr:$backupNameStr
 	// Create the global variables for panel
@@ -100,7 +100,7 @@ End
 
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImageBackgroundRemovalFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImageBackgroundRemovalFolder"))
 	SVAR/Z/SDFR=dfr gATH_imgNameTopWindowStr
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 	
@@ -124,7 +124,7 @@ End
 static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImageBackgroundRemovalFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImageBackgroundRemovalFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	SVAR/Z/SDFR=dfr gATH_wRefPathNameStr
 	SVAR/Z/SDFR=dfr gATH_wRefBackupPathNameStr
@@ -142,7 +142,7 @@ End
 
 static Function OverwriteAndCloseButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	SVAR/SDFR=dfr gATH_wRefPathNameStr
 	SVAR/SDFR=dfr gATH_wRefBackupPathNameStr
@@ -159,14 +159,14 @@ End
 
 static Function RemoveBackgroundButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	SVAR/SDFR=dfr gATH_wRefPathNameStr
 	NVAR PolyOrder = dfr:gATH_PolyOrder
 	WAVE wRef = $gATH_wRefPathNameStr
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			ATH_ImageRemoveBackground(wRef, order = PolyOrder)
+			ATH_ImageOP#ImgRemoveBackground(wRef, order = PolyOrder)
 			hookresult =  1
 		break
 	endswitch
@@ -176,7 +176,7 @@ End
 //
 //Function ATH_iRBSetMarqueeAreaButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 //	variable hookresult = 0
-//	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
+//	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
 //	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 //	SVAR/Z/SDFR=dfr gATH_wRefPathNameStr
 //	WAVE/Z wRefRef = $gATH_wRefPathNameStr
@@ -212,7 +212,7 @@ End
 //Function Restore3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 //	//Complete
 //	variable hookresult = 0
-//	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
+//	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
 //	SVAR/SDFR=dfr gATH_wRefBackupPathNameStr
 //	SVAR/SDFR=dfr gATH_wavePathNameStr
 //	switch(B_Struct.eventCode)	// numeric switch
@@ -228,7 +228,7 @@ End
 //Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 //
 //	variable hookresult = 0
-//	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
+//	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
 //	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 //	SVAR/Z/SDFR=dfr gATH_wRefPathNameStr
 //	WAVE/Z wRefRef = $gATH_wRefPathNameStr
@@ -283,7 +283,7 @@ End
 //
 //Function iRBRestoreImage3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 //	variable hookresult = 0
-//	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
+//	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
 //	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 //	SVAR/Z/SDFR=dfr gATH_wRefPathNameStr
 //	WAVE/Z wRefRef = $gATH_wRefPathNameStr

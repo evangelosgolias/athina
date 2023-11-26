@@ -35,7 +35,7 @@ static Function MenuLaunch()
 	/// graph of the XMC(L)D contrast.
 	
 	string msg = "Select two waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
-	string selectedWavesInBrowserStr = ATH_SelectWavesInModalDataBrowser(msg)
+	string selectedWavesInBrowserStr = ATH_DP#SelectWavesInModalDataBrowser(msg)
 	// S_fileName is a carriage-return-separated list of full paths to one or more files.
 	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
 	string selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)
@@ -64,9 +64,9 @@ static Function MenuLaunch()
 		print "Ok, you are subtracting a wave from itself! I hope you know what you are doing."
 	endif
 	// Create variables for the Panel. NB; Data Folders for panels can be overwritten
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveXMCD:") 
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveXMCD:") 
 	string folderNameStr = CreateDataObjectName(dfr, "iXMCD_DF",11, 0, 0)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveXMCD:" + folderNameStr)
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveXMCD:" + folderNameStr)
 	
 	if(WaveType($wave1NameStr) & 0x10) // If WORD (int16)
 		Redimension/S $wave1NameStr
@@ -98,10 +98,10 @@ static Function CreateiXMCDPanel(WAVE wXMCD, WAVE wSum)
 	DFREF dfr = GetWavesDataFolderDFR(wXMCD) // Recover the dfr	
 	NVAR/SDFR=dfr gATH_driftStep
 
-	ATH_DisplayImage(wSum)
+	ATH_Display#NewImg(wSum)
 	string winiSumNameStr = WinName(0,1)
 	DoWindow/T $winiSumNameStr "iSum"	
-	ATH_DisplayImage(wXMCD)
+	ATH_Display#NewImg(wXMCD)
 	string winiXMCDNameStr = WinName(0,1)
 	DoWindow/T $winiXMCDNameStr "iXMC(L)D"		
 	ControlBar/W=$winiXMCDNameStr 40	
@@ -123,7 +123,7 @@ static Function CreateiXMCDPanel(WAVE wXMCD, WAVE wSum)
 End
 
 static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iXMCDPath"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iXMCDPath"))
 	NVAR/SDFR=dfr gATH_driftStep
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
@@ -204,7 +204,7 @@ End
 
 static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
 	WAVE/SDFR=dfr wImg1
 	WAVE/SDFR=dfr wImg2
 	WAVE/SDFR=dfr wXMCD
@@ -239,7 +239,7 @@ End
 
 static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
 	string dfrStr = GetUserData(sva.win, "", "ATH_iXMCDPath")
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(dfrStr)
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
 	NVAR/SDFR=dfr gATH_driftStep	
 	switch (sva.eventCode)
 		case 1: 							// Mouse up

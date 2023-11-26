@@ -1,6 +1,8 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma IgorVersion = 9
+#pragma ModuleName = ATH_Draw
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -29,7 +31,7 @@
 // ------------------------------------------------------- //
 
 
-Function ATH_DrawLineUsingCursors(string C1, string C2, [string layer])
+static Function DrawLineUsingCursors(string C1, string C2, [string layer])
 	// Draw a line using cursor C1 & C2
 	// Draws in Overlay layer if layer optional argument is not given
 	
@@ -41,7 +43,7 @@ Function ATH_DrawLineUsingCursors(string C1, string C2, [string layer])
 	return 0
 End
 
-Function ATH_DrawCircleUsingAntinodalCursors(string C1, string C2, [string layer])
+static Function DrawCircleUsingAntinodalCursors(string C1, string C2, [string layer])
 	// Draw a circle with antinodal points at C1 & C2
 	// Draws in Overlay layer if layer optional argument is not given
 
@@ -69,7 +71,7 @@ Function ATH_DrawCircleUsingAntinodalCursors(string C1, string C2, [string layer
 	return 0
 End
 
-Function ATH_DrawCircleUsingCenterAndPointCursors(string C1, string C2, [string layer])
+static Function DrawCircleUsingCenterAndPointCursors(string C1, string C2, [string layer])
 	// Draw a circle with center at C1 that passed from C2
 	// Draws in Overlay layer if layer optional argument is not given
 

@@ -95,7 +95,7 @@ static Function/DF InitialiseFolder()
 	endif
     DFREF rootDF = $("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:")
     string UniqueimgNameTopGraphStr = CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + UniqueimgNameTopGraphStr) // Root folder here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + UniqueimgNameTopGraphStr) // Root folder here
 
 	variable nrows = DimSize(imgWaveRef, 0)
 	variable ncols = DimSize(imgWaveRef, 1)
@@ -182,7 +182,7 @@ End
 
 static Function CreatePanel(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(rootFolderStr)
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(rootFolderStr)
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	SVAR/SDFR=dfr gATH_ImagePathname
 	NVAR/Z C1x = dfr:gATH_C1x
@@ -236,7 +236,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	/// The line profile is drawn from G to H
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
 	WAVE/Z w3dRef = $ImagePathname
 	NVAR/Z nlayers = dfr:gATH_nLayers 
@@ -294,7 +294,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			if(profileWidth == 1)
 				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 			else
-				slp = ATH_SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
+				slp = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
 				if(slp == 0)
 					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
 						x1 = C1x
@@ -332,8 +332,8 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				// If s is not 0 or inf do the work here	
 				if(slp != 0 && slp != inf)			
 					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-						[x1, y1] = ATH_GetSinglePointWithDistanceFromLine(C1x, C1y, slp, i)
-						[x2, y2] = ATH_GetSinglePointWithDistanceFromLine(C2x, C2y, slp, i)
+						[x1, y1] = ATH_Geometry#GetSinglePointWithDistanceFromLine(C1x, C1y, slp, i)
+						[x2, y2] = ATH_Geometry#GetSinglePointWithDistanceFromLine(C2x, C2y, slp, i)
 						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
 						if(makeWaveSwitch)
 							Duplicate/O M_ExtractedSurface, ATH_WaveSumProfiles
@@ -372,7 +372,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			DrawAction delete
 	   		SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left			
 			DrawLine C1x, C1y, C2x, C2y
-			slp = ATH_SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
+			slp = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
 			if(slp == 0)
 				x1 = C1x
 				x2 = C1x
@@ -393,7 +393,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				x3 = C2x - 0.5 * profileWidth
 				x4 = C2x + 0.5 * profileWidth
 			else
-				[xs, ys] = ATH_GetVerticesPerpendicularToLine(profileWidth * 0.5, slp)
+				[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(profileWidth * 0.5, slp)
 				x1 = C1x + xs
 				x2 = C1x - xs
 				x3 = C2x - xs
@@ -417,7 +417,7 @@ End
 
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentGraphWin = GetUserData(s.winName, "", "ATH_LinkedWinImageSource")
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
 	switch(s.eventCode)
 		case 2: // Kill the window
 			// parentGraphWin -- winNameStr
@@ -447,7 +447,7 @@ End
 
 static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl // Change using UniqueName for displaying
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 	SVAR/Z w3dNameStr = dfr:gATH_ImageNameStr
@@ -464,7 +464,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 	NVAR/Z nLayers =  dfr:gATH_nLayers
 	NVAR/Z colorcnt = dfr:gATH_colorcnt
 	string recreateCmdStr
-	DFREF savedfr = GetDataFolderDFR()//ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:SavedImagePlaneProfileZ")
+	DFREF savedfr = GetDataFolderDFR()//ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:SavedImagePlaneProfileZ")
 	variable red, green, blue
 	variable postfix = 0
 	string saveImageStr
@@ -482,7 +482,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 
 			if(MarkLinesSwitch)
 				if(!PlotSwitch)
-					[red, green, blue] = ATH_GetColor(colorcnt)
+					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 					colorcnt += 1
 				endif
 				DoWindow/F $WindowNameStr
@@ -497,7 +497,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 End
 
 static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
@@ -530,7 +530,7 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch
 	switch(cb.checked)
 		case 1:		// Mouse up
@@ -546,7 +546,7 @@ End
 
 static Function CheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z MarkLinesSwitch = dfr:gATH_MarkLinesSwitch
 	switch(cb.checked)
 		case 1:
@@ -561,7 +561,7 @@ End
 
 static Function OverrideNx(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z OverrideNx = dfr:gATH_OverrideNx
 	switch(cb.checked)
 		case 1:
@@ -576,7 +576,7 @@ End
 
 static Function OverrideNy(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z OverrideNy = dfr:gATH_OverrideNy
 	switch(cb.checked)
 		case 1:
@@ -592,7 +592,7 @@ End
 static Function SetVariableNx(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
@@ -629,7 +629,7 @@ End
 static Function SetVariableNy(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
@@ -666,7 +666,7 @@ End
 static Function SetVariableProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
@@ -693,7 +693,7 @@ static Function SetVariableProfileWidth(STRUCT WMSetVariableAction& sv) : SetVar
 			if(profileWidth == 1)
 				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 			else
-				slp = ATH_SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
+				slp = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
 				if(slp == 0)
 					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
 						x1 = C1x
@@ -730,8 +730,8 @@ static Function SetVariableProfileWidth(STRUCT WMSetVariableAction& sv) : SetVar
 				// If s is not 0 or inf do the work here	
 				if(slp != 0 && slp != inf)			
 					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-						[x1, y1] = ATH_GetSinglePointWithDistanceFromLine(C1x, C1y, slp, i)
-						[x2, y2] = ATH_GetSinglePointWithDistanceFromLine(C2x, C2y, slp, i)
+						[x1, y1] = ATH_Geometry#GetSinglePointWithDistanceFromLine(C1x, C1y, slp, i)
+						[x2, y2] = ATH_Geometry#GetSinglePointWithDistanceFromLine(C2x, C2y, slp, i)
 						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
 						if(makeWaveSwitch)
 							Duplicate/O M_ExtractedSurface, ATH_WaveSumProfiles
@@ -749,7 +749,7 @@ static Function SetVariableProfileWidth(STRUCT WMSetVariableAction& sv) : SetVar
 			DrawAction/W=$WindowsNameStr delete
 	   		SetDrawEnv/W=$WindowsNameStr linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left			
 			DrawLine/W=$WindowsNameStr C1x, C1y, C2x, C2y
-			slp = ATH_SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
+			slp = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
 			if(slp == 0)
 				x1 = C1x
 				x2 = C1x
@@ -770,7 +770,7 @@ static Function SetVariableProfileWidth(STRUCT WMSetVariableAction& sv) : SetVar
 				x3 = C2x - 0.5 * profileWidth
 				x4 = C2x + 0.5 * profileWidth
 			else
-				[xs, ys] = ATH_GetVerticesPerpendicularToLine(profileWidth * 0.5, slp)
+				[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(profileWidth * 0.5, slp)
 				x1 = C1x + xs
 				x2 = C1x - xs
 				x3 = C2x - xs

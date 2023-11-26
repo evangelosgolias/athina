@@ -403,7 +403,7 @@ static Function InteractiveCursorAction(WAVE wRef)
 	// Check if the wave is displayed
 	CheckDisplayed/A wRef
 	if(!V_flag)
-		ATH_DisplayImage(wRef)
+		ATH_Display#NewImg(wRef)
 	endif
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -412,7 +412,7 @@ static Function InteractiveCursorAction(WAVE wRef)
 	variable ncols = DimSize(wRef, 1)	
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 C $imgNameTopGraphStr nrows/2, ncols/2
 	// Make folder in database
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr) // Root folder here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr) // Root folder here
 	// Store globals
 	string/G dfr:gATH_wRefDataFolder = GetWavesDataFolder(wRef, 2)
 	// Hook and metadata
@@ -424,7 +424,7 @@ End
 static Function iCursorUsingCallbackHookFunction(STRUCT WMWinHookStruct &s)
     variable hookResult = 0
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
 	SVAR/SDFR=dfr gATH_wRefDataFolder
 	WAVE wRef = $gATH_wRefDataFolder
 		switch(s.eventCode)

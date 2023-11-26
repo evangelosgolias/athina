@@ -1,7 +1,8 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
-
+#pragma IgorVersion = 9
+#pragma ModuleName = ATH_Beamtime
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -28,21 +29,38 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-Function ATH_LoadNewestFileInPathTreeAndDisplay(string extension)
+static Function/S SetOrResetBeamtimeRootFolder()
+	// Helper function for functions in ATH_LoadFilesDuringBeamtime.ipf.
+	// Set or reset the Igor Path pATH_LoadFilesBeamtimeIgorPath
+	// and return the full path linked with Igor Path
+	PathInfo pATH_LoadFilesBeamtimeIgorPath 
+	if(V_flag) // path exists
+		KillPath/Z pATH_LoadFilesBeamtimeIgorPath 
+	endif
+	
+	GetFileFolderInfo/Z=2/Q/D //Select folder dialog
+	
+	if(!(V_flag == -1))
+		NewPath/Q/O pATH_LoadFilesBeamtimeIgorPath , S_path
+	endif
+	return S_path
+End
+
+static Function LoadNewestFileInPathTreeAndDisplay(string extension)
 	//variable timerRefNum = StartMSTimer
 	/// Load the last file found in the directory tree with root at pathName
 	string latestfile = ""
 	variable latestctime = 0
-	string filepathStr = ATH_GetNewestCreatedFileInPathTree("pATH_LoadFilesBeamtimeIgorPath", extension, latestfile, latestctime, 1, 0)
+	string filepathStr = GetNewestCreatedFileInPathTree("pATH_LoadFilesBeamtimeIgorPath", extension, latestfile, latestctime, 1, 0)
 	//variable microSeconds = StopMSTimer(timerRefNum)
 	//print "Time elapsed: ", microSeconds/1e6, " sec"
 	WAVE wRef = ATH_LoadUview#WAVELoadSingleDATFile(filepathStr, "")
-	ATH_DisplayImage(wRef)
+	ATH_Display#NewImg(wRef)
 	print "File loaded: ", filepathStr
 	return 0
 End
 
-Function/S ATH_GetNewestCreatedFileInPathTree(string pathName, 
+static Function/S GetNewestCreatedFileInPathTree(string pathName, 
 		   string extension, string &latestfile, variable &latestctime, 
 		   variable recurse, variable level)
 	//  ATH_GetNewestCreatedFileInPathTree is a modified WM code of
@@ -62,7 +80,7 @@ Function/S ATH_GetNewestCreatedFileInPathTree(string pathName,
 	string path = S_path	
 	if(!V_flag) // If path not defined
 		print "pATH_LoadFilesBeamtimeIgorPath is not set!"
-		path = ATH_SetOrResetBeamtimeRootFolder()
+		path = SetOrResetBeamtimeRootFolder()
 	endif
 	
 	// Reset or make the string variable
@@ -103,7 +121,7 @@ Function/S ATH_GetNewestCreatedFileInPathTree(string pathName,
 			subFolderPath = path
 			
 			NewPath/Q/O $subFolderPathName, subFolderPath
-			ATH_GetNewestCreatedFileInPathTree(subFolderPathName, extension, latestfile, latestctime, recurse, level+1)
+			GetNewestCreatedFileInPathTree(subFolderPathName, extension, latestfile, latestctime, recurse, level+1)
 			KillPath/Z $subFolderPathName
 			
 			folderIndex += 1
@@ -112,21 +130,21 @@ Function/S ATH_GetNewestCreatedFileInPathTree(string pathName,
 	return latestfile
 End
 
-Function ATH_LoadNewestFolderInPathTreeAndDisplay()
+static Function LoadNewestFolderInPathTreeAndDisplay()
 	/// Load the last file found in the directory tree with root at pathName
 	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
 	/// will pop to set pathName. The path name is saved as pATH_LoadLastFileIgorPath
 
 	string latestfolder = ""
 	variable latestctime = 0
-	string folderPathStr = ATH_GetNewestCreatedFolderInPathTree("pATH_LoadFilesBeamtimeIgorPath", latestfolder, latestctime)
+	string folderPathStr = GetNewestCreatedFolderInPathTree("pATH_LoadFilesBeamtimeIgorPath", latestfolder, latestctime)
 	WAVE wRef = ATH_LoadUview#WAVELoadDATFilesFromFolder(folderPathStr, "*", autoscale = 1)
-	ATH_DisplayImage(wRef)
+	ATH_Display#NewImg(wRef)
 	print "Folder loaded: ", folderPathStr	
 	return 0
 End
 
-Function/S ATH_GetNewestCreatedFolderInPathTree(string pathName, string &latestfolder, variable &latestctime)
+static Function/S GetNewestCreatedFolderInPathTree(string pathName, string &latestfolder, variable &latestctime)
 	//  ATH_GetNewestCreatedFileInPathTree is a modified WM code of
 	//	PrintFoldersAndFiles(pathName, extension, recurse, level)
 	//	It recursively searches for the newest folder in a folder tree.
@@ -138,7 +156,7 @@ Function/S ATH_GetNewestCreatedFolderInPathTree(string pathName, string &latestf
 	string path = S_path	
 	if(!V_flag) // If path not defined
 		print "pATH_LoadFilesBeamtimeIgorPath is not set!"
-		path = ATH_SetOrResetBeamtimeRootFolder()
+		path = SetOrResetBeamtimeRootFolder()
 	endif
 	
 	// Reset or make the string variable
@@ -166,7 +184,7 @@ Function/S ATH_GetNewestCreatedFolderInPathTree(string pathName, string &latestf
 		endif
 		
 		NewPath/Q/O $subFolderPathName, subFolderPath
-		ATH_GetNewestCreatedFolderInPathTree(subFolderPathName, latestfolder, latestctime)
+		GetNewestCreatedFolderInPathTree(subFolderPathName, latestfolder, latestctime)
 		KillPath/Z $subFolderPathName
 
 		folderIndex += 1
@@ -175,22 +193,22 @@ Function/S ATH_GetNewestCreatedFolderInPathTree(string pathName, string &latestf
 End
 
 
-Function ATH_LoadNewestFileInPathTreeAndDisplayPython(string ext)
+static Function LoadNewestFileInPathTreeAndDisplayPython(string ext)
 	/// Load the last file found in the directory tree with root set at pathName
 	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
 	/// will pop to set pathName. The path name is saved as pATH_LoadLastFileIgorPath.
 
-	string filepathStr = ATH_GetLastSavedFileInFolderTreePython("pATH_LoadFilesBeamtimeIgorPath", ext) // Change path!
+	string filepathStr = GetLastSavedFileInFolderTreePython("pATH_LoadFilesBeamtimeIgorPath", ext) // Change path!
 	#ifdef MACINTOSH
 		filepathStr = ParseFilePath(10, filepathStr, "*", 0, 0)
 	#endif	
 	WAVE wRef = ATH_LoadUview#WAVELoadSingleDATFile(filepathStr, "")
-	ATH_DisplayImage(wRef)
+	ATH_Display#NewImg(wRef)
 	print "File loaded: ", filepathStr
 	return 0
 End
 
-Function/S ATH_GetLastSavedFileInFolderTreePython(string pathName, string ext)
+static Function/S GetLastSavedFileInFolderTreePython(string pathName, string ext)
 	// valid shell script
 	// do shell script "python3 -c \"from pathlib import Path;from os.path import getmtime;
 	// print(max(list(Path('/Users/evangelosgolias/Desktop/MAXPEEM March 2023').rglob('*.dat')),key=getmtime))\""
@@ -202,7 +220,7 @@ Function/S ATH_GetLastSavedFileInFolderTreePython(string pathName, string ext)
 	string path = S_path	
 	if(!V_flag) // If path not defined, set it and call the function again
 		print "pATH_LoadFilesBeamtimeIgorPath is not set!"
-		path = ATH_SetOrResetBeamtimeRootFolder()
+		path = SetOrResetBeamtimeRootFolder()
 	endif
 	
 	#ifdef WINDOWS
@@ -227,12 +245,12 @@ Function/S ATH_GetLastSavedFileInFolderTreePython(string pathName, string ext)
 	return S_value
 End
 
-Function ATH_LoadNewestTwoFilesInPathTreeAndDisplayPython(string ext)
+static Function LoadNewestTwoFilesInPathTreeAndDisplayPython(string ext)
 	/// Load the last two saved files in the tree with pathName as root folder
 	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
 	/// will pop do so. The path name is saved as pATH_LoadLastFileIgorPath.
 
-	string filepathsStr = ATH_GetLastTwoSavedFileInFolderTreePython("pATH_LoadFilesBeamtimeIgorPath", ext) // Change path!
+	string filepathsStr = GetLastTwoSavedFileInFolderTreePython("pATH_LoadFilesBeamtimeIgorPath", ext) // Change path!
 	string filepath1Str = StringFromList(0, filepathsStr)
 	string filepath2Str = StringFromList(1, filepathsStr)	
 	#ifdef MACINTOSH
@@ -248,13 +266,13 @@ Function ATH_LoadNewestTwoFilesInPathTreeAndDisplayPython(string ext)
 	string w3dStr = CreateDataObjectName(saveDF, "autoLoadL2F", 1, 0, 5)
 	MoveWave M_stack, saveDF:$w3dStr
 	SetDataFolder saveDF
-	ATH_DisplayImage($w3dStr)
+	ATH_Display#NewImg($w3dStr)
 	Note $w3dStr, ("file1: " + filepath1Str + "\nfile2: " + filepath2Str)
 	print "Files loaded: \n1.", filepath1Str, "\n2.", filepath2Str, "\n", "◊ Stacked in: ", w3dStr
 	return 0
 End
 
-Function/S ATH_GetLastTwoSavedFileInFolderTreePython(string pathName, string ext)
+static Function/S GetLastTwoSavedFileInFolderTreePython(string pathName, string ext)
 //	unixCmdBase = "python3 -c \"from pathlib import Path;from os.path import getmtime;"\
 //			  + "listFiles = sorted(Path('%s').rglob('*%s'), "\
 //			  + "key = getmtime);print(listFiles[-2], end='');print(';');print(listFiles[-1], end='');print(';')\""	
@@ -267,7 +285,7 @@ Function/S ATH_GetLastTwoSavedFileInFolderTreePython(string pathName, string ext
 	string path = S_path	
 	if(!V_flag) // If path not defined, set it and call the function again
 		print "pATH_LoadFilesBeamtimeIgorPath is not set!"
-		path = ATH_SetOrResetBeamtimeRootFolder()
+		path = SetOrResetBeamtimeRootFolder()
 	endif
 	
 	#ifdef WINDOWS

@@ -2,7 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
-
+#pragma ModuleName = ATH_WaveOp
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -33,7 +33,7 @@
 // Utilities
 
 /// Make waves ///
-Function ATH_Make3DWaveUsingPattern(string wname3dStr, string pattern)
+static Function Make3DWaveUsingPattern(string wname3dStr, string pattern)
 	// Make a 3d wave named wname3d using the RegEx pattern
 	// Give "*" to match all waves
 
@@ -63,7 +63,7 @@ Function ATH_Make3DWaveUsingPattern(string wname3dStr, string pattern)
 	return 0
 End
 
-Function/S ATH_Make3DWaveDataBrowserSelection(string wname3dStr, [variable makeInSourceDFR, variable autoPath])
+static Function/S Make3DWaveDataBrowserSelection(string wname3dStr, [variable makeInSourceDFR, variable autoPath])
 
 	// Make a 3d wave using waves selected
 	// in the browser window. No check for selection
@@ -110,10 +110,10 @@ Function/S ATH_Make3DWaveDataBrowserSelection(string wname3dStr, [variable makeI
 	variable nx = DimSize(wref,0)
 	variable ny = DimSize(wref,1)
 	// List of all waves
-	WAVE/WAVE waveListFree = ATH_StringWaveListToWaveRef(listOfSelectedWaves, isFree = 1)	
+	WAVE/WAVE waveListFree = ATH_WaveOp#StringWaveListToWaveRef(listOfSelectedWaves, isFree = 1)	
 	// Checks if all waves are in the same folder
 	if(autoPath)
-		makeInSourceDFR = ATH_AllWavesSamePathQ(waveListFree)
+		makeInSourceDFR = ATH_WaveOp#AllWavesSamePathQ(waveListFree)
 	endif
 	if(makeInSourceDFR)
 		DFREF saveDF = GetDataFolderDFR()
@@ -126,7 +126,7 @@ Function/S ATH_Make3DWaveDataBrowserSelection(string wname3dStr, [variable makeI
 	string folder = GetDataFolder(1)
 	wname3dStr = CreatedataObjectName(currDFR, "ATH_stack", 1, 0, 0)
 	
-	if(ATH_AllImagesEqualDimensionsQ(waveListFree))
+	if(ATH_WaveOp#AllImagesEqualDimensionsQ(waveListFree))
 		Concatenate/NP=2 {waveListFree}, $wname3dStr
 	else
 		print "Dimension mismatch. Aborting stacking ..."
@@ -147,7 +147,7 @@ Function/S ATH_Make3DWaveDataBrowserSelection(string wname3dStr, [variable makeI
 	return (folder + wname3dStr)
 End
 
-Function/WAVE ATH_StringWaveListToWaveRef(string wavelistStr, [int isFree])
+static Function/WAVE StringWaveListToWaveRef(string wavelistStr, [int isFree])
 	// Gets a wavelist and retuns a Wave reference Wave.
 	// Wave is free is isFree is set
 	
@@ -168,7 +168,7 @@ Function/WAVE ATH_StringWaveListToWaveRef(string wavelistStr, [int isFree])
 	return wRefw
 End
 
-Function ATH_AllWavesSamePathQ(WAVE/WAVE wWAVEList)
+static Function AllWavesSamePathQ(WAVE/WAVE wWAVEList)
 	// Function checks whether all have are in the same data folder
 	// 0 - no, 1 - yes.  
 	variable nrwaves = DimSize(wWAVEList, 0), i
@@ -184,7 +184,7 @@ Function ATH_AllWavesSamePathQ(WAVE/WAVE wWAVEList)
 	endfor
 	return 1
 End
-Function ATH_MakeSquare3DWave(WAVE w3d, [variable size])
+static Function MakeSquare3DWave(WAVE w3d, [variable size])
 	/// Creates a 3d waves with the same rows, cols by interpolation of w3d.
 	/// The wave scaling using the interval /I.
 	if(WaveDims(w3d) != 3)
@@ -198,7 +198,7 @@ Function ATH_MakeSquare3DWave(WAVE w3d, [variable size])
 	return 0
 End
 
-Function ATH_AverageStackToImage(WAVE w3d, [string avgImageName])
+static Function AverageStackToImage(WAVE w3d, [string avgImageName])
 	/// Average a 3d wave along z.
 	/// @param w3d WAVE Wave name to average (3d wave)
 	/// @param avgImageName string optional Name of the output wave, default ATH_AvgStack.
@@ -216,7 +216,7 @@ Function ATH_AverageStackToImage(WAVE w3d, [string avgImageName])
 	return 0
 End
 
-Function ATH_WavePartition(WAVE wRef, string partitionNameStr, variable startX, variable endX, variable startY, variable endY, [variable evenNum, variable tetragonal])
+static Function WavePartition(WAVE wRef, string partitionNameStr, variable startX, variable endX, variable startY, variable endY, [variable evenNum, variable tetragonal])
 	/// Partition a 3D to get an orthorhombic 3d wave
 	/// @param startP int
 	/// @param endP int
@@ -287,7 +287,7 @@ Function ATH_WavePartition(WAVE wRef, string partitionNameStr, variable startX, 
 	return 0
 End
 
-Function/WAVE ATH_WAVEWavePartition(WAVE wRef, variable startX, variable endX, variable startY, variable endY, [variable evenNum, variable tetragonal])
+static Function/WAVE WAVEWavePartition(WAVE wRef, variable startX, variable endX, variable startY, variable endY, [variable evenNum, variable tetragonal])
 	/// Partition a 3D to get an orthorhombic 3d wave
 	/// @param startX int
 	/// @param endX int
@@ -359,12 +359,12 @@ Function/WAVE ATH_WAVEWavePartition(WAVE wRef, variable startX, variable endX, v
 	return wFreeRef
 End
 
-Function ATH_ZapNaNAndInfWithValue(WAVE waveRef, variable val)
+static Function ZapNaNAndInfWithValue(WAVE waveRef, variable val)
 	//numtype = 1, 2 for NaN, Inf
 	waveRef= (numtype(waveRef)) ? val : waveRef
 End
 
-Function ATH_NormaliseWaveWithWave(WAVE wRef1, WAVE wRef2)
+static Function NormaliseWaveWithWave(WAVE wRef1, WAVE wRef2)
 	/// Normalise a wave with another
 	// consistency check
 	if(DimSize(wRef1, 0) != DimSize(wRef2, 0))
@@ -375,7 +375,7 @@ Function ATH_NormaliseWaveWithWave(WAVE wRef1, WAVE wRef2)
 	return 0
 End
 
-Function ATH_NormaliseWaveToUnitRange(WAVE waveRef)
+static Function NormaliseWaveToUnitRange(WAVE waveRef)
 	/// Normalise wave in unit range [0, 1]
 	/// Works with waves of any dimensionality.
 	MatrixOP/O/FREE minvalsFreeW = minval(waveRef)
@@ -394,7 +394,7 @@ Function ATH_NormaliseWaveToUnitRange(WAVE waveRef)
 	CopyScales waveRef, $normWaveNameStr
 End
 
-Function [variable x0, variable y0, variable z0, variable dx, variable dy, variable dz] ATH_GetScalesP(WAVE wRef)
+static Function [variable x0, variable y0, variable z0, variable dx, variable dy, variable dz] GetScalesP(WAVE wRef)
 	// Get the scales of waves per point. 
 	x0 = DimOffset(wRef, 0)
 	y0 = DimOffset(wRef, 1)
@@ -405,7 +405,7 @@ Function [variable x0, variable y0, variable z0, variable dx, variable dy, varia
 	return [x0, y0, z0, dx, dy, dz]
 End
 
-Function ATH_SetScalesP(WAVE wRef, variable x0, variable y0, variable z0, variable dx, variable dy, variable dz)
+static Function SetScalesP(WAVE wRef, variable x0, variable y0, variable z0, variable dx, variable dy, variable dz)
 	// Set scale of waves per point
 	// Usage:
 	// 		variable x0, y0, z0, dx, dy, dz
@@ -417,10 +417,10 @@ Function ATH_SetScalesP(WAVE wRef, variable x0, variable y0, variable z0, variab
 	SetScale/P z, z0, dz, wRef
 End
 
-Function ATH_MakeWaveFromROI(WAVE wRef)
+static Function MakeWaveFromROI(WAVE wRef)
 	// Extracts the ROI from wRef using the saved ROI coordinates in the database
 	// Works with 2D and 3D waves
-	DFREF dfrROI = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedROI")
+	DFREF dfrROI = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedROI")
 	NVAR/Z/SDFR=dfrROI gATH_Sleft
 	if(!NVAR_Exists(gATH_Sleft))
 		Abort "No Saved ROI found. Use the Marquee to set the ROI first."
@@ -438,8 +438,8 @@ Function ATH_MakeWaveFromROI(WAVE wRef)
 	DFREF currDF = GetDataFolderDFR()
 	string wnameStr = CreatedataObjectName(currDFR, basewavenameStr, 1, 0, 0)	
 	Duplicate/RMD=[p0, p1][q0, q1] wRef, $wnameStr
-	ATH_SetWaveOffsetZero(wRef, dim = 0)
-	ATH_SetWaveOffsetZero(wRef, dim = 1)	
+	ATH_WaveOp#SetWaveOffsetZero(wRef, dim = 0)
+	ATH_WaveOp#SetWaveOffsetZero(wRef, dim = 1)	
 	string noteStr
 	string waveNameStr = GetWavesDataFolder(wRef, 2)
 	sprintf noteStr, "Image: %s, ROI:[%.4f, %.4f][%.4f, %.4f]", waveNameStr, gATH_Sleft, gATH_SRight, gATH_Stop, gATH_SBottom
@@ -447,7 +447,7 @@ Function ATH_MakeWaveFromROI(WAVE wRef)
 	return 0
 End
 
-Function ATH_SetWaveOffsetZero(WAVE wRef, [int dim])
+static Function SetWaveOffsetZero(WAVE wRef, [int dim])
 	// Zero the offset for dimension dim
 	dim = ParamIsDefault(dim) ? 0: dim
 	variable dx = DimDelta(wRef, dim)
@@ -462,7 +462,7 @@ Function ATH_SetWaveOffsetZero(WAVE wRef, [int dim])
 	return 0
 End
 
-Function ATH_ImageDimensionsEqualQ(WAVE w1, WAVE w2)
+static Function ImageDimensionsEqualQ(WAVE w1, WAVE w2)
 	// Return 1 if images have equal number of rows, cols and 0 otherwise.
 	// Works for 2D and 3D waves.
 	if(WaveDims(w1) > 1 && WaveDims(w1) < 4 && WaveDims(w2) > 1 && WaveDims(w2) < 4)
@@ -470,7 +470,7 @@ Function ATH_ImageDimensionsEqualQ(WAVE w1, WAVE w2)
 	endif
 End
 
-Function ATH_AllImagesEqualDimensionsQ(WAVE/WAVE wRefw)
+static Function AllImagesEqualDimensionsQ(WAVE/WAVE wRefw)
 	// Check whether all images have the same rows, cols
 	variable nwaves = DimSize(wRefw, 0), i
 	if(nwaves < 2)
@@ -479,14 +479,14 @@ Function ATH_AllImagesEqualDimensionsQ(WAVE/WAVE wRefw)
 	WAVE w1 = wRefw[0]
 	for(i = 1; i < nwaves; i++)
 		WAVE w2 = wRefw[i]
-		if(!ATH_ImageDimensionsEqualQ(w1, w2))
+		if(!ATH_WaveOp#ImageDimensionsEqualQ(w1, w2))
 			return 0
 		endif
 	endfor
 	return 1
 End
 
-Function ATH_MatchWaveTypes(WAVE wRef, WAVE wDest)
+static Function MatchWaveTypes(WAVE wRef, WAVE wDest)
 	// Change WaveType of wDest to the one of wRef
 	variable wTypeRef = WaveType(wRef)
 	switch(wTypeRef)
@@ -524,7 +524,7 @@ Function ATH_MatchWaveTypes(WAVE wRef, WAVE wDest)
 	return 0
 End
 
-Function ATH_SetSameWaveTypes(WAVE wRef, WAVE wDest)
+static Function SetSameWaveTypes(WAVE wRef, WAVE wDest)
 	// Change WaveType of wDest to the one of wRef
 	variable wTypeRef = WaveType(wRef)
 	switch(wTypeRef)
@@ -562,7 +562,7 @@ Function ATH_SetSameWaveTypes(WAVE wRef, WAVE wDest)
 	return 0
 End
 
-Function ATH_SetWaveType(WAVE wRef, int wType)
+static Function SetWaveType(WAVE wRef, int wType)
 	// Change to WaveType
 	switch(wType)
 		case 2: // 32-bit float
@@ -603,7 +603,7 @@ Function ATH_SetWaveType(WAVE wRef, int wType)
 	return 0
 End
 
-Function/S ATH_BackupWaveInWaveDF(WAVE wref)
+static Function/S BackupWaveInWaveDF(WAVE wref)
 	// Backup a wave in the same DF. If a wave with wavename_undo exists, nothing is done
 	// If a backup wave is created a message is printed in the command window.
 	// The function returns a string of backupWavePathStr
@@ -616,7 +616,7 @@ Function/S ATH_BackupWaveInWaveDF(WAVE wref)
 	return backupWavePathStr
 End
 
-Function/S ATH_BackupWaveInWaveDFQ(WAVE wref)
+static Function/S BackupWaveInWaveDFQ(WAVE wref)
 	// Backup a wave in the same DF. If a wave with wavename_undo exists
 	// the user is prompted to proceed and overwrite the destination wave or not.
 	// If a backup wave is created a message is printed in the command window.
@@ -636,7 +636,7 @@ Function/S ATH_BackupWaveInWaveDFQ(WAVE wref)
 	return backupWavePathStr // return the backup wavename in either case.
 End
 
-Function/S ATH_BackupWave3DLayerInWaveDF(WAVE wref, variable layerN)
+static Function/S BackupWave3DLayerInWaveDF(WAVE wref, variable layerN)
 	// Backup a layer from a 3d wave in the same DF as wavename_p2_undo if /P=2 is used
 	// If a wave with wavename_pN_undo exists, nothing is done
 	// If a backup wave is created a message is printed in the command window.
@@ -650,7 +650,7 @@ Function/S ATH_BackupWave3DLayerInWaveDF(WAVE wref, variable layerN)
 	return backupWavePathStr
 End
 
-Function/S ATH_BackupWave3DLayerInWaveDFQ(WAVE wref, variable layerN)
+static Function/S BackupWave3DLayerInWaveDFQ(WAVE wref, variable layerN)
 	// Backup a layer from a 3d wave in the same DF as wavename_p2_undo if /P=2 
 	// is used. If a wave with wavename_pN_undo exists the user is prompted
 	// to proceed and overwrite the destination wave or not.
@@ -672,7 +672,7 @@ Function/S ATH_BackupWave3DLayerInWaveDFQ(WAVE wref, variable layerN)
 		
 End
 
-Function ATH_RestoreWaveFromBackup(WAVE wRef)
+static Function RestoreWaveFromBackup(WAVE wRef)
 	// Restore image from wRef_undo if it exists. wRef and WRef_undo 
 	// should be in the same DF.
 	string waveNameStr = NameOfWave(wref)
@@ -684,7 +684,7 @@ Function ATH_RestoreWaveFromBackup(WAVE wRef)
 	return 0
 End
 
-Function ATH_RestoreWave3DLayerFromBackup(WAVE wref, variable layerN)
+static Function RestoreWave3DLayerFromBackup(WAVE wref, variable layerN)
 	// Restore image from wRef_pN_undo if it exists. wRef and wRef_pN_undo 
 	// should be in the same DF.
 	string waveNameStr = NameOfWave(wref)
@@ -697,12 +697,12 @@ Function ATH_RestoreWave3DLayerFromBackup(WAVE wref, variable layerN)
 	return 0
 End
 
-Function ATH_RightDimVal(WAVE w, int dim)
+static Function RightDimVal(WAVE w, int dim)
 	// Return the last value of dimension dim
 	return DimOffSet(w, dim) + DimDelta(w, dim) * (DimSize(w, dim) - 1 ) 
 End
 
-Function ATH_NextPowerOfTwo(variable num)
+static Function NextPowerOfTwo(variable num)
 	 /// Return the first power of two after num.
 	 /// @param num double 
 	variable bufferVar
@@ -713,7 +713,7 @@ Function ATH_NextPowerOfTwo(variable num)
 	return result
 End
 
-Function ATH_SizeOfWave(wv)
+static Function SizeOfWave(wv)
     wave/Z wv
 
     variable i, numEntries
@@ -728,29 +728,29 @@ Function ATH_SizeOfWave(wv)
             if(!WaveExists(elem))
                 continue
             endif
-            total += ATH_SizeOfWave(elem)
+            total += ATH_WaveOp#SizeOfWave(elem)
         endfor
     endif
 
     return total / 1024 / 1024
 End
 
-Function ATH_IsFloatQ(WAVE wRef)
+static Function IsFloatQ(WAVE wRef)
 	// Returns true of wRef is 32 or 64 bit float wave
 	return ((WaveType(wRef) & 0x02) || (WaveType(wRef) & 0x04))
 End
 
-Function ATH_IsFloat32Q(WAVE wRef)
+static Function IsFloat32Q(WAVE wRef)
 	// Returns true of wRef is 32 bit float wave
 	return WaveType(wRef) & 0x02 
 End
 
-Function ATH_IsFloat64Q(WAVE wRef)
+static Function IsFloat64Q(WAVE wRef)
 	// Returns true of wRef is 64 bit float wave
 	return WaveType(wRef) & 0x04 
 End
 
-Function ATH_TWaveRemoveEntriesFromPatters(WAVE/T textW, string patternStr, [WAVE otherW])
+static Function TWaveRemoveEntriesFromPatters(WAVE/T textW, string patternStr, [WAVE otherW])
 	// Remove entries from textW that start with pathbase
 	// Optionally we can remove the same entries from another wave otherW
 	// We use this in ATH_LaunchDeleteBigWaves
@@ -767,7 +767,7 @@ Function ATH_TWaveRemoveEntriesFromPatters(WAVE/T textW, string patternStr, [WAV
 	return 0
 End
 
-Function ATH_DeleteWavesInTextWave(WAVE/T textW)
+static Function DeleteWavesInTextWave(WAVE/T textW)
 	// Delete big waves listed in textW
 	variable nw = DimSize(textW, 0), i
 	for(i = 0; i < nw; i++)			
@@ -777,7 +777,7 @@ Function ATH_DeleteWavesInTextWave(WAVE/T textW)
 End
 
 // Dev -- need testing
-Function ATH_TWaveRemoveEntriesFromStringList(WAVE/T textW, string stringListStr, [WAVE otherW])
+static Function TWaveRemoveEntriesFromStringList(WAVE/T textW, string stringListStr, [WAVE otherW])
 	// Remove entries from textW in stringListStr
 	// Optionally we can remove the same entries from another wave otherW
 	// We use this in ATH_LaunchDeleteBigWavesDisplayed
@@ -793,4 +793,15 @@ Function ATH_TWaveRemoveEntriesFromStringList(WAVE/T textW, string stringListStr
 		endif
 	endfor
 	return 0
+End
+
+//// Numerical helper functions 
+
+static Function IntegerQ(variable num)
+	/// Check in a number is integer
+	if(num == trunc(num))
+		return 1
+	else
+		return 0
+	endif
 End

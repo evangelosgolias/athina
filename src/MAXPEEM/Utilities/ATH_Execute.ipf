@@ -1,7 +1,8 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
-
+#pragma IgorVersion = 9
+#pragma ModuleName = ATH_exe
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -28,7 +29,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-Function/S ATH_ExecuteShellCommand(uCommand, printCommandInHistory, printResultInHistory [, asAdmin])
+static Function/S ExecuteShellCommand(uCommand, printCommandInHistory, printResultInHistory [, asAdmin])
 	// Copy of WM procedure
 	String uCommand					// Unix command to execute
 	Variable printCommandInHistory
@@ -57,11 +58,11 @@ Function/S ATH_ExecuteShellCommand(uCommand, printCommandInHistory, printResultI
 	return S_value
 End
 
-Function ATH_CmdExecutionUsingRange(string cmdStr, string rangeStr)
+static Function CmdExecutionUsingRange(string cmdStr, string rangeStr)
 	/// Execute cmdStr with parameters the numbers in rangeStr
 	/// See ATH_ExpandRangeStr doc string.
 	/// e.g.: ATH_CmdExecutionUsingRange("NewDataFolder 'FLDR#%s'", "2,3,11-14")
-	string numStrList = ATH_ExpandRangeStr(rangeStr)
+	string numStrList = ATH_String#ExpandRangeStr(rangeStr)
 	string execmdStr
 	
 	variable imax = ItemsInList(numStrList), i
@@ -72,7 +73,7 @@ Function ATH_CmdExecutionUsingRange(string cmdStr, string rangeStr)
 	return 0
 End
 
-Function ATH_CmdExecutionInFolderWithPattern(string cmdStr, string pattern)
+static Function CmdExecutionInFolderWithPattern(string cmdStr, string pattern)
 	/// Execute cmdStr for wavelist using pattern
 	/// e.g.: ATH_CmdExecutionInFolderWithPattern("NewDataFolder", "waveP*")
 	

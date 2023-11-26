@@ -1,6 +1,8 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma IgorVersion = 9
+#pragma ModuleName = ATH_ImageOp
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -28,9 +30,9 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-Function ATH_AutoRangeTopImage()
+static Function AutoRangeTopImage()
 	// Autoscale image of the top grap
-	WAVE wRef = ATH_TopImageToWaveRef()
+	WAVE wRef = ATH_ImageOP#TopImageToWaveRef()
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
 	string colorScaleStr
 	variable cmapSwitch
@@ -40,9 +42,9 @@ Function ATH_AutoRangeTopImage()
 	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {wmin,wmax,$colorScaleStr,cmapSwitch} // Autoscale Image
 End
 
-Function ATH_AutoRangeTopImagePerPlaneAndVisibleArea()
+static Function AutoRangeTopImagePerPlaneAndVisibleArea()
 	// Autoscale image of the top grap
-	WAVE wRef = ATH_TopImageToWaveRef()
+	WAVE wRef = ATH_ImageOP#TopImageToWaveRef()
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
 	string colorScaleStr
 	variable cmapSwitch
@@ -51,7 +53,7 @@ Function ATH_AutoRangeTopImagePerPlaneAndVisibleArea()
 	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {*,*,$colorScaleStr,cmapSwitch} // Autoscale Image	
 End
 
-Function ATH_SetZScaleOfImageStack() // Uses top graph
+static Function SetZScaleOfImageStack() // Uses top graph
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
@@ -72,7 +74,7 @@ Function ATH_SetZScaleOfImageStack() // Uses top graph
 		//SetScale/I x, 0, getScaleXY, waveRef
 		//SetScale/I y, 0, getScaleXY, waveRef
 		DoWindow/F $winNameStr
-		setScaleZStr = ATH_GenericSingleStrPrompt(strPrompt, msgDialog)
+		setScaleZStr = ATH_DP#GenericSingleStrPrompt(strPrompt, msgDialog)
 		string dataPathStr = GetWavesDataFolder(waveRef, 2)
 		if(strlen(setScaleZStr))
 		cmdStr = "SetScale/I z " + setScaleZStr + ", " + dataPathStr
@@ -81,15 +83,15 @@ Function ATH_SetZScaleOfImageStack() // Uses top graph
 	endif
 End
 
-Function ATH_ImageSelectToCopyScale() // Uses top graph
-	WAVE wRef =ATH_TopImageToWaveRef()
+static Function ImageSelectToCopyScale() // Uses top graph
+	WAVE wRef =ATH_ImageOP#TopImageToWaveRef()
 	// Select the first wave from browser selection
-	string selectedWavesStr = ATH_SelectWavesInModalDataBrowser("Select an image to set common dimension scaling")
+	string selectedWavesStr = ATH_DP#SelectWavesInModalDataBrowser("Select an image to set common dimension scaling")
 	WAVE sourceWaveRef = $StringFromList(0, selectedWavesStr)
 	CopyScales/I sourceWaveRef, wRef
 End
 
-Function/S ATH_NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
+static Function/S NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
 	// If you have 16-bit waves then Redimension/S to SP
 	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
 		Redimension/S w3dRef
@@ -105,7 +107,7 @@ Function/S ATH_NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
 	return normWaveStr
 End
 
-Function/S ATH_NormaliseImageStackWithImageStack(WAVE w3dRef1, WAVE w3dRef2)
+static Function/S NormaliseImageStackWithImageStack(WAVE w3dRef1, WAVE w3dRef2)
 	// If you have 16-bit waves then Redimension/S to SP
 	if(WaveType(w3dRef1) == 80 || WaveType(w3dRef1) == 16)
 		Redimension/S w3dRef1
@@ -121,7 +123,7 @@ Function/S ATH_NormaliseImageStackWithImageStack(WAVE w3dRef1, WAVE w3dRef2)
 	return normWaveStr
 End
 
-Function/S ATH_NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
+static Function/S NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
 	// Normalise a 3d wave (stack) with a line profile (1d wave) along the layer (z) direction
 	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
 		Redimension/S w3dRef
@@ -156,7 +158,7 @@ Function/S ATH_NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
 	return normWaveStr
 End
 
-Function ATH_GetScaledZoominImageWindow()
+static Function GetScaledZoominImageWindow()
 	// Get a the current window view as a new image with appropriate scaling.
 	// Works for 2D/3D waves
 	// CAUTION: If axes have different configuration the function will not work properly. 
@@ -251,7 +253,7 @@ Function ATH_GetScaledZoominImageWindow()
 	Note wReftmp, msg
 End
 
-Function ATH_GetLayerFromImageStack()
+static Function GetLayerFromImageStack()
 	
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -269,7 +271,7 @@ Function ATH_GetLayerFromImageStack()
 	endif
 End
 
-Function ATH_RemoveImagesFromImageStack(WAVE w3dref, variable startLayer, variable nrLayers)
+static Function RemoveImagesFromImageStack(WAVE w3dref, variable startLayer, variable nrLayers)
 	// Remove nrLayers starting at startLayer from w3dRef
 	variable nL = DimSize(w3dref, 2)
 	if(nl < 2 || startLayer > nL)
@@ -279,30 +281,30 @@ Function ATH_RemoveImagesFromImageStack(WAVE w3dref, variable startLayer, variab
 	return 0
 End
 
-Function ATH_InsertImageToImageStack(WAVE w3dref, WAVE w2dRef, variable layerN)
+static Function InsertImageToImageStack(WAVE w3dref, WAVE w2dRef, variable layerN)
 	// Insert an image at the position layerN of an image stack
 	// Here the z dimension will change, as the DimDelta is used to scale the resulting 
 	// image stack
 	if((DimSize(w3dref, 0) == DimSize(w2dRef, 0)) && DimSize(w3dref, 1) == DimSize(w2dRef, 1))
 		variable x0, y0, z0, dx, dy, dz
-		[x0, y0, z0, dx, dy, dz] = ATH_GetScalesP(w3dRef)
+		[x0, y0, z0, dx, dy, dz] = ATH_WaveOp#GetScalesP(w3dRef)
 		ImageTransform/O/INSW=w2dref/P=(layerN) insertZplane w3dRef
-		ATH_SetScalesP(w3dRef, x0, y0, z0, dx, dy, dz)
+		ATH_WaveOp#SetScalesP(w3dRef, x0, y0, z0, dx, dy, dz)
 	else
 		Abort "Image and stack must have the same lateral dimensions."
 	endif
 End
 
-Function ATH_AppendImagesToImageStack(WAVE wRef, string waveListStr) 
+static Function AppendImagesToImageStack(WAVE wRef, string waveListStr) 
 	//
 	// Append images in waveListStr to wRef
 	//
-	WAVE/WAVE wRefw = ATH_StringWaveListToWaveRef(waveListStr, isFree = 1)
+	WAVE/WAVE wRefw = ATH_WaveOp#StringWaveListToWaveRef(waveListStr, isFree = 1)
 	InsertPoints 0, 1, wRefw
 	Duplicate/FREE wRef, wRefFREE
 	wRefw[0] = wRefFREE
 	string destWave = GetWavesDataFolder(wRef, 2)
-	if(ATH_AllImagesEqualDimensionsQ(wRefw))
+	if(ATH_WaveOp#AllImagesEqualDimensionsQ(wRefw))
 		Concatenate/O/NP=2 {wRefw}, $destWave
 		return 0
 	else
@@ -311,15 +313,15 @@ Function ATH_AppendImagesToImageStack(WAVE wRef, string waveListStr)
 	endif
 End
 
-Function ATH_ConcatenateImages(string destWaveStr, string waveListStr) 
+static Function ConcatenateImages(string destWaveStr, string waveListStr) 
 	//
 	// Concatenate wave to destWaveStr
 	//
-	WAVE/WAVE wRefw = ATH_StringWaveListToWaveRef(waveListStr, isFree = 1)
+	WAVE/WAVE wRefw = ATH_WaveOp#StringWaveListToWaveRef(waveListStr, isFree = 1)
 	Concatenate/O/NP=2 {wRefw}, $destWaveStr
 End
 
-Function ATH_ImageEdgeDetectionToStack(WAVE w3dref, string method, [variable overwrite])
+static Function ImageEdgeDetectionToStack(WAVE w3dref, string method, [variable overwrite])
 	/// Applied the edge detection operation to w3dref
 	/// and outputs a wave with name NameofWave(w3dref) + "_ed"
 	/// You can optionally ovewrite the input wave
@@ -350,7 +352,7 @@ Function ATH_ImageEdgeDetectionToStack(WAVE w3dref, string method, [variable ove
 	return 0
 End
 
-Function/WAVE ATH_WAVEImageEdgeDetectionToStack(WAVE w3dref, string method)
+static Function/WAVE WAVEImageEdgeDetectionToStack(WAVE w3dref, string method)
 	/// Applied the edge detection operation to w3dref
 	/// and returns a wave to NameofWave(w3dref) + "_ed"
 	
@@ -374,7 +376,7 @@ Function/WAVE ATH_WAVEImageEdgeDetectionToStack(WAVE w3dref, string method)
 End
 
 
-Function ATH_ImageRotateAndScale(WAVE wRef, variable angle)
+static Function ImageRotateAndScale(WAVE wRef, variable angle)
 	/// Rotate the wave wRef (2d or 3d) and scale it to 
 	/// conserve on image distances.
 	/// Math: If the side of the image is a, then the rotated image
@@ -392,7 +394,7 @@ Function ATH_ImageRotateAndScale(WAVE wRef, variable angle)
 	CopyScales/P wRef, wRefRot // /P needed here to prevent on image distances.	
 End
 
-Function ATH_ImageBackupRotateAndScale(WAVE wRef, variable angle)
+static Function ImageBackupRotateAndScale(WAVE wRef, variable angle)
 	/// Backup and rotate image. Create backup in the sourcewave folder.
 	/// Math: If the side of the image is a, then the rotated image
 	/// will have side a_rot = a * (cos(angle) + sin(angle))
@@ -409,11 +411,11 @@ Function ATH_ImageBackupRotateAndScale(WAVE wRef, variable angle)
 	CopyScales/P wRef, wRefbck // /P needed here to prevent on image distances.	
 End
 
-Function ATH_BackupTopImage()
+static Function BackupTopImage()
 	/// Backup wave in the top window, the backup is created in the 
 	/// sourcewave datafolder (to be able to restore)
 	
-	WAVE/Z wRef = ATH_TopImageToWaveRef()
+	WAVE/Z wRef = ATH_ImageOP#TopImageToWaveRef()
 	if(!WaveExists(wRef))
 		print "Operation needs an image or image stack"
 		return -1
@@ -423,7 +425,7 @@ Function ATH_BackupTopImage()
 	return 0
 End
 
-Function ATH_RestoreTopImageFromBackup([string wname])
+static Function RestoreTopImageFromBackup([string wname])
 	/// Restore an image from backup. When ParamIsDefault (wavenameStr = "")
 	/// the image on the top window is used, otherwise WAVE $wavenameStr.
 	/// Backup wave's name is *assummed* to be NameOfWave(wRef) + "_undo"
@@ -434,7 +436,7 @@ Function ATH_RestoreTopImageFromBackup([string wname])
 	if(!ParamIsDefault(wname))
 		WAVE wRef = $wname
 	else
-		WAVE wRef = ATH_TopImageToWaveRef()
+		WAVE wRef = ATH_ImageOP#TopImageToWaveRef()
 	endif
 	
 	if(!WaveExists(wRef))
@@ -458,15 +460,15 @@ Function ATH_RestoreTopImageFromBackup([string wname])
 	return 0
 End
 
-Function ATH_ScalePlanesByMinMaxRange(WAVE w3d, [variable f64])
+static Function ScalePlanesByMinMaxRange(WAVE w3d, [variable f64])
 	// f64: Return a float64 wave. 
 	// By default return a float32, unless w3d is float64
 	// 
 	f64 = ParamIsDefault(f64) ? 0: 1 //
 	
-	if((!ATH_IsFloat32Q(w3d) && !ATH_IsFloat64Q(w3d)))
+	if((!ATH_WaveOp#IsFloat32Q(w3d) && !ATH_WaveOp#IsFloat64Q(w3d)))
 		Redimension/S w3d
-	elseif(f64 && !ATH_IsFloat64Q(w3d))
+	elseif(f64 && !ATH_WaveOp#IsFloat64Q(w3d))
 		Redimension/D w3d
 	endif
 	MatrixOP/FREE zRangeFree = 1/(maxVal(w3d) - minVal(w3d))
@@ -476,15 +478,15 @@ Function ATH_ScalePlanesByMinMaxRange(WAVE w3d, [variable f64])
 	KillWaves W_Beam
 End
 
-Function ATH_ScalePlanesByMaxRange(WAVE w3d, [variable f64])
+static Function ScalePlanesByMaxRange(WAVE w3d, [variable f64])
 	// f64: Return a float64 wave. 
 	// By default return a float32, unless w3d is float64
 	// 
 	f64 = ParamIsDefault(f64) ? 0: 1 //
 	
-	if((!ATH_IsFloat32Q(w3d) && !ATH_IsFloat64Q(w3d)))
+	if((!ATH_WaveOp#IsFloat32Q(w3d) && !ATH_WaveOp#IsFloat64Q(w3d)))
 		Redimension/S w3d
-	elseif(f64 && !ATH_IsFloat64Q(w3d))
+	elseif(f64 && !ATH_WaveOp#IsFloat64Q(w3d))
 		Redimension/D w3d
 	endif
 	MatrixOP/FREE zRangeFree = 1/maxVal(w3d)
@@ -494,16 +496,16 @@ Function ATH_ScalePlanesByMaxRange(WAVE w3d, [variable f64])
 	KillWaves W_Beam
 End
 
-Function ATH_ScalePlanesBetweenZeroAndOne(WAVE w3d, [variable f64])
+static Function ScalePlanesBetweenZeroAndOne(WAVE w3d, [variable f64])
 	// Each plane is normalised between [0, 1]
 	// f64: Return a float64 wave. 
 	// By default return a float32, unless w3d is float64
 	// 
 	f64 = ParamIsDefault(f64) ? 0: 1 //
 	
-	if((!ATH_IsFloat32Q(w3d) && !ATH_IsFloat64Q(w3d)))
+	if((!ATH_WaveOp#IsFloat32Q(w3d) && !ATH_WaveOp#IsFloat64Q(w3d)))
 		Redimension/S w3d
-	elseif(f64 && !ATH_IsFloat64Q(w3d))
+	elseif(f64 && !ATH_WaveOp#IsFloat64Q(w3d))
 		Redimension/D w3d
 	endif
 	
@@ -517,7 +519,7 @@ Function ATH_ScalePlanesBetweenZeroAndOne(WAVE w3d, [variable f64])
 	KillWaves W_Beam
 End
 
-Function ATH_ExtractLayerRangeToStack(WAVE w3d, variable NP0, variable NP1)
+static Function ExtractLayerRangeToStack(WAVE w3d, variable NP0, variable NP1)
 	/// Average image range NP0-NP1, including endpoints
 	variable  nlayers = DimSize(w3d, 2), i
 	if(NP1 > nlayers - 1 || NP1 < NP0 || WaveDims(w3d) != 3)
@@ -540,7 +542,7 @@ Function ATH_ExtractLayerRangeToStack(WAVE w3d, variable NP0, variable NP1)
 	return 0
 End
 
-Function/WAVE ATH_WAVEAverageImageRangeToStack(WAVE w3d, variable NP0, variable NPL)
+static Function/WAVE WAVEAverageImageRangeToStack(WAVE w3d, variable NP0, variable NPL)
 	/// Average NPL image planes in stack starting from N0 
 	variable  nlayers = DimSize(w3d, 2), i
 	if(NP0 + NPL > nlayers)
@@ -555,7 +557,7 @@ Function/WAVE ATH_WAVEAverageImageRangeToStack(WAVE w3d, variable NP0, variable 
 	return calcLayer
 End
 
-Function ATH_AverageImageRangeToStackOffset(WAVE w3d, variable NP0, variable NPL)
+static Function AverageImageRangeToStackOffset(WAVE w3d, variable NP0, variable NPL)
 	/// Average NPL image planes in stack starting from N0	
 	variable  nlayers = DimSize(w3d, 2), i
 	if(NP0 + NPL > nlayers)
@@ -571,7 +573,7 @@ Function ATH_AverageImageRangeToStackOffset(WAVE w3d, variable NP0, variable NPL
 	return 0
 End
 
-Function ATH_AverageImageRangeToStack(WAVE w3d, variable NP0, variable NP1)
+static Function AverageImageRangeToStack(WAVE w3d, variable NP0, variable NP1)
 	/// Average image range NP0-NP1, including endpoints
 	variable  nlayers = DimSize(w3d, 2), i
 	if(NP1 > nlayers - 1 || NP1 < NP0)
@@ -591,7 +593,7 @@ Function ATH_AverageImageRangeToStack(WAVE w3d, variable NP0, variable NP1)
 End
 
 
-Function ATH_HistogramShiftToGaussianCenter(WAVE w2d, [variable overwrite])
+static Function HistogramShiftToGaussianCenter(WAVE w2d, [variable overwrite])
 	/// Move the histogram center to the center of the fitted gaussian
 	/// Useful for symmetrising XMCD/XMLD images
 	
@@ -622,7 +624,7 @@ Function ATH_HistogramShiftToGaussianCenter(WAVE w2d, [variable overwrite])
 	return 0
 End
 
-Function ATH_HistogramShiftToGaussianCenterStack(WAVE w3d, [variable overwrite])
+static Function HistogramShiftToGaussianCenterStack(WAVE w3d, [variable overwrite])
 	/// Move the histogram center to the center of the fitted gaussian
 	/// Useful for symmetrising XMCD/XMLD images
 	
@@ -662,7 +664,7 @@ Function ATH_HistogramShiftToGaussianCenterStack(WAVE w3d, [variable overwrite])
 	return 0
 End
 
-Function/WAVE ATH_TopImageToWaveRef()
+static Function/WAVE TopImageToWaveRef()
 	// Return a wave reference from the top graph
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -675,7 +677,7 @@ Function/WAVE ATH_TopImageToWaveRef()
 	endif
 End
 
-Function ATH_GrayToRGBImage(WAVE wRef)
+static Function GrayToRGBImage(WAVE wRef)
 	ColorTab2Wave Grays
 	WAVE M_Colors
 	Wavestats/Q/M=1 wRef
@@ -687,7 +689,7 @@ Function ATH_GrayToRGBImage(WAVE wRef)
 	Rename M_RGBOut, $newnameStr
 End
 
-Function ATH_RGBToGrayImage(WAVE wRef)
+static Function RGBToGrayImage(WAVE wRef)
 	// Convert a 3D RGB image to grayscale (8-bit)
 	if(WaveDims(wRef) != 3)
 		return -1
@@ -699,7 +701,7 @@ Function ATH_RGBToGrayImage(WAVE wRef)
 	return 0
 End
 
-Function ATH_ImageRemoveBackground(WAVE wRef, [variable order, WAVE wMask, variable layerN])
+static Function ImgRemoveBackground(WAVE wRef, [variable order, WAVE wMask, variable layerN])
 	// Remove background of an image (default 1st order)
 	// Use order = n, n > 1 for higher order polynomial
 	// Use overwite = 1 to overwite the original wave
@@ -730,7 +732,7 @@ Function ATH_ImageRemoveBackground(WAVE wRef, [variable order, WAVE wMask, varia
 	endif
 End
 
-Function ATH_ImageRemoveBackgroundOriginal(WAVE wRef, [variable order])
+static Function ImageRemoveBackgroundOriginal(WAVE wRef, [variable order])
 	// Remove background of an image (default 1st order)
 	// Use order = n, n > 1 for higher order polynomial
 	// Use overwite = 1 to overwite the original wave
@@ -746,7 +748,7 @@ Function ATH_ImageRemoveBackgroundOriginal(WAVE wRef, [variable order])
 	return 0
 End
 
-Function ATH_ImageResampling(WAVE wRef,  string func, variable xOffset, variable yOffset,
+static Function ImageResampling(WAVE wRef,  string func, variable xOffset, variable yOffset,
 							 [int newWave, variable xscale, variable yscale])
 	// Calculate image interpolation using scaleShift and one of the following intepolating functions.
 	//
@@ -795,7 +797,7 @@ Function ATH_ImageResampling(WAVE wRef,  string func, variable xOffset, variable
 	return 0
 End
 
-Function ATH_PixelateImage(WAVE wRef, variable nx, variable ny, [variable i16])
+static Function PixelateImage(WAVE wRef, variable nx, variable ny, [variable i16])
 	/// Pixalate a 2D image using a (nx, ny) binning
 	/// Set i16 to preserve a 16-bit integer wave.
 	if(WaveDims(wRef) != 2)
@@ -817,7 +819,7 @@ Function ATH_PixelateImage(WAVE wRef, variable nx, variable ny, [variable i16])
 	return 0
 End
 
-Function ATH_PixelateImageStack(WAVE wRef, variable nx, variable ny, variable nz, [variable i16])
+static Function PixelateImageStack(WAVE wRef, variable nx, variable ny, variable nz, [variable i16])
 	/// Pixalate a 3D image stack using a (nx, ny, nz) binning
 	/// Set i16 to preserve a 16-bit integer wave.
 
@@ -838,7 +840,7 @@ Function ATH_PixelateImageStack(WAVE wRef, variable nx, variable ny, variable nz
 	return 0
 End
 
-Function ATH_MatrixFilter3D(WAVE wRef, string method, variable size, variable passes)
+static Function MatrixFilter3D(WAVE wRef, string method, variable size, variable passes)
 	/// Applies the MatrixFilter/N=size/P=passes method wRef
 	/// to each layer of wRef
 	string allmethods = "gauss;avg;median:max;min"
@@ -864,7 +866,7 @@ Function ATH_MatrixFilter3D(WAVE wRef, string method, variable size, variable pa
 	return 0
 End
 
-Function ATH_ImageWindow3D(WAVE wRef, string method)
+static Function ImageWindow3D(WAVE wRef, string method)
 	string allmethods = "Hanning;Hamming;Bartlett;Blackman"
 	variable ifunc = WhichListItem(method, allmethods)
 	if(ifunc == -1 || WaveDims(wRef) != 3)
@@ -888,7 +890,7 @@ Function ATH_ImageWindow3D(WAVE wRef, string method)
 	return 0
 End
 
-//Function ATH_ResampleImageStackWithXYScales(WAVE w3d, variable Nx, variable Ny)
+//Function ResampleImageStackWithXYScales(WAVE w3d, variable Nx, variable Ny)
 //	/// Resample the w3d with factors Nx, Ny => Nx * x, Ny * y
 //	/// Works with 2D, 3D waves also	
 //	
@@ -911,7 +913,7 @@ End
 //	return 0
 //End
 //
-//Function ATH_PixelateImageStackWithFactor(WAVE w3d, variable Nxy)
+//Function PixelateImageStackWithFactor(WAVE w3d, variable Nxy)
 //	/// Pixelate (bin) the image or image stack with factor Nxy
 //	/// Works with 2D, 3D waves 
 //	
@@ -922,7 +924,7 @@ End
 
 
 //TODO
-//Function ATH_ApplyOperationToFilesInFolderTree(string pathName, 
+//Function ApplyOperationToFilesInFolderTree(string pathName, 
 //		   string extension, variable recurse, variable level)
 //	///
 //	///  

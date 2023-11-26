@@ -405,7 +405,7 @@ Function BackgroundSubtractGUI() //BackgroundSubtractGUI(inwave)
 //	NewDataFolder/O	root:Packages:$(kWorkingDir)
 //	NewDataFolder/O	root:Packages:$(kWorkingDir):$(workF)										// the folder for temporary stuff
 //	DFREF strg = root:Packages:$(kWorkingDir):$(workF)
-	DFREF strg = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:" + kWorkingDir + ":" + workF)
+	DFREF strg = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:" + kWorkingDir + ":" + workF)
 	
 	String/G strg:InwaveLocation = GetWavesDataFolder(inwave,2)									// save wave name and folder for later
 	Duplicate/O inwave strg:Data_Orig, strg:Data_Net, strg:Data_Back, strg:NegResiduals			// make copies of the original wave for all needed stuff and work with these

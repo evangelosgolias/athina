@@ -56,7 +56,7 @@ static Function MainMenu()
 	// Cursors to get the profile
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(1.6 * nrows/2), round(0.4 * ncols/2)
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.4 * nrows/2), round(1.6 * ncols/2)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:" + NameOfWave(imgWaveRef)) // Change root folder if you want
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 	InitialiseGraph(dfr)
 	SetWindow $winNameStr, hook(MyPESExtractorHook) = ATH_iXPSExtraction#CursorHookFunction // Set the hook
 	SetWindow $winNameStr userdata(ATH_LinkedPESExtractorPlotStr) = "ATH_PESProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
@@ -92,8 +92,8 @@ static Function InitialiseFolder(string winNameStr)
 		WMAppend3DImageSlider() // Everything ok now, add a slider to the 3d wave
 	endif
     
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:" + imgNameTopGraphStr) // Root folder here
-	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings:") // Settings here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:" + imgNameTopGraphStr) // Root folder here
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings:") // Settings here
 
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
@@ -114,7 +114,7 @@ static Function InitialiseFolder(string winNameStr)
 	variable/G dfr:gATH_updateSelectedLayer = 0
 	variable/G dfr:gATH_updateCursorsPositions = 0
 	// PES scaling values
-	variable/G dfr:gATH_hv = ATH_GetPhotonEnergyFromFilename(imgNameTopGraphStr)
+	variable/G dfr:gATH_hv = ATH_String#GetPhotonEnergyFromFilename(imgNameTopGraphStr)
 	variable/G dfr:gATH_Wf = 4.27
 	variable/G dfr:gATH_epp = kATHEnergyPerPixel
 	variable/G dfr:gATH_Ax = 0
@@ -165,7 +165,7 @@ End
 
 static Function XPSPlot(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(rootFolderStr)
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(rootFolderStr)
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	NVAR profileWidth = dfr:gATH_profileWidth
 	NVAR hv = dfr:gATH_hv
@@ -223,8 +223,8 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
     variable hookResult = 0
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
-	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings") // Settings here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings") // Settings here
 	SetdataFolder dfr
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
@@ -378,7 +378,7 @@ End
 
 static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 	SVAR/Z w3dNameStr = dfr:gATH_ImageNameStr
@@ -408,7 +408,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/Z Wf = dfr:gATH_Wf
 		
 	string recreateDrawStr
-	DFREF savedfr = GetDataFolderDFR() //ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:SavedPESExtractor")
+	DFREF savedfr = GetDataFolderDFR() //ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:SavedPESExtractor")
 	
 	variable postfix = 0, dAE
 	variable red, green, blue
@@ -429,12 +429,12 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 					if(PlotSwitch)
 						if(WinType(targetGraphWin) == 1)
 							AppendToGraph/W=$targetGraphWin savedfr:$saveWaveNameStr
-							[red, green, blue] = ATH_GetColor(colorcnt)
+							[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 							Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
 							colorcnt += 1 // i++ does not work with globals?
 						else
 							Display/N=$targetGraphWin savedfr:$saveWaveNameStr // Do not kill the graph windows, user might want to save the profiles
-							[red, green, blue] = ATH_GetColor(colorcnt)
+							[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 							Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
 							AutopositionWindow/R=$B_Struct.win $targetGraphWin
 							DoWindow/F $targetGraphWin
@@ -448,7 +448,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 					
 					if(MarkPESsSwitch)
 						if(!PlotSwitch)
-							[red, green, blue] = ATH_GetColor(colorcnt)
+							[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 							colorcnt += 1
 						endif
 						DoWindow/F $WindowNameStr
@@ -467,8 +467,8 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
-	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings") // Settings here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings") // Settings here
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
@@ -518,8 +518,8 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 End
 
 static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
-	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings") // Settings here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings") // Settings here
 	string parentWindow = GetUserData(B_Struct.win, "", "ATH_parentGraphWin")
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
@@ -585,7 +585,7 @@ End
 
 static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	/// We have to find the vertices of the polygon representing
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	SVAR/Z WindowNameStr= dfr:gATH_WindowNameStr
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
@@ -595,7 +595,7 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/Z dx = dfr:gATH_dx
 	NVAR/Z dy = dfr:gATH_dy // assume here that dx = dy
 	variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys
-	variable slope = ATH_SlopePerpendicularToLineSegment(C1x, C1y,C2x, C2y)
+	variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y,C2x, C2y)
 	if(slope == 0)
 		x1 = C1x
 		x2 = C1x
@@ -615,7 +615,7 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 		x3 = C2x - 0.5 * width * dx
 		x4 = C2x + 0.5 * width * dx
 	else
-		[xs, ys] = ATH_GetVerticesPerpendicularToLine(width * dx/2, slope)
+		[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(width * dx/2, slope)
 		x1 = C1x + xs
 		x2 = C1x - xs
 		x3 = C2x - xs
@@ -644,7 +644,7 @@ End
 
 static Function PlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch
 	switch(cb.checked)
 		case 1:		// Mouse up
@@ -658,7 +658,7 @@ static Function PlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 static Function Layer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
 	NVAR/Z updateSelectedLayer = dfr:gATH_updateSelectedLayer
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
@@ -683,7 +683,7 @@ End
 
 static Function MarkPES(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z MarkPESsSwitch = dfr:gATH_MarkPESLineSwitch
 	switch(cb.checked)
 		case 1:
@@ -699,7 +699,7 @@ End
 static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
@@ -732,7 +732,7 @@ End
 
 static Function SetCursorsAB(STRUCT WMButtonAction &B_Struct): ButtonControl)
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	string parentWindow = GetUserData(B_Struct.win, "", "ATH_parentGraphWin")
 	NVAR/Z Ax = dfr:gATH_Ax
 	NVAR/Z Ay = dfr:gATH_Ay	
@@ -783,7 +783,7 @@ End
 
 static Function Sethv(STRUCT WMSetVariableAction& sv) : SetVariableControl	
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
 	NVAR/Z hv = dfr:gATH_hv
 	switch(sv.eventCode)
 		case 6:
@@ -795,7 +795,7 @@ End
 
 static Function SetWf(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
 	NVAR/Z wf = dfr:gATH_Wf
 	switch(sv.eventCode)
 		case 6:
@@ -807,7 +807,7 @@ End
 
 static Function SetEPP(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
 	NVAR/Z epp = dfr:gATH_epp
 	switch(sv.eventCode)
 		case 6:
@@ -819,7 +819,7 @@ End
 
 static Function SetSTV(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
 	NVAR/Z stv = dfr:gATH_STV
 	switch(sv.eventCode)
 		case 6:

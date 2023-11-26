@@ -60,7 +60,7 @@ End
 
 static Function LoadHDF5SpecificGroups(string groups)
 	// String should be in the form "2-5,7,9-12,50"
-	groups = ATH_ExpandRangeStr(groups)
+	groups = ATH_String#ExpandRangeStr(groups)
 	variable fileid_
 	Open /D/R/T="HDF5" fileid_
 	string filepathname = S_fileName
@@ -86,7 +86,7 @@ static Function LoadHDF5SpecificGroupsFromPath(String groups, String filename_fu
 	
 	// Load files faster from a specific file, you need to specify the full path to the datafile.
 
-	groups = ATH_ExpandRangeStr(groups)
+	groups = ATH_String#ExpandRangeStr(groups)
 	Variable fileid_
 			
 	HDF5OpenFile/R fileid_ as filename_fullpathstr

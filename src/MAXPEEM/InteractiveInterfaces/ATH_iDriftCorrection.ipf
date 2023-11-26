@@ -58,7 +58,7 @@ static Function CreatePanel()
 	
 
 	//Duplicate the wave for backup
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveDriftCorrection:" + winNameStr) // Root folder here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveDriftCorrection:" + winNameStr) // Root folder here
 	string backupNameStr = NameOfWave(w3dref) + "_undo"
 	Duplicate/O w3dref, dfr:$backupNameStr
 	SetScale/P x, 0, 1, w3dref
@@ -107,7 +107,7 @@ End
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgAlignFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_w3dPathName
 	SVAR/Z/SDFR=dfr gATH_w3dBackupPathNameStr
     switch(s.eventCode)
@@ -126,7 +126,7 @@ End
 static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when panel is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgAlignFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgAlignFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	SVAR/Z/SDFR=dfr gATH_w3dPathName
 	SVAR/Z/SDFR=dfr gATH_w3dBackupPathNameStr
@@ -148,7 +148,7 @@ End
 
 static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	SVAR/SDFR=dfr gATH_w3dPathname
 	NVAR/SDFR=dfr gATH_AnchorPositionX
@@ -176,7 +176,7 @@ End
 
 static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 	SVAR/Z/SDFR=dfr gATH_w3dPathName
 	WAVE/Z w3dRef = $gATH_w3dPathName
@@ -212,7 +212,7 @@ End
 static Function Restore3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	//Complete
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/SDFR=dfr gATH_w3dBackupPathNameStr
 	SVAR/SDFR=dfr gATH_w3dPathname
 	switch(B_Struct.eventCode)	// numeric switch
@@ -228,7 +228,7 @@ End
 static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 	SVAR/Z/SDFR=dfr gATH_w3dPathName
 	WAVE/Z w3dRef = $gATH_w3dPathName
@@ -251,9 +251,9 @@ static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct)
 			variable i, nLayerL
 			variable nlayers = DimSize(w3dRef, 2)
 			string layersListStr
-			string inputStr = ATH_GenericSingleStrPrompt("Select layers to drift, e.g \"2-5,7,9-12,50\", operation is slow for many layers", "Drift selected layers")
+			string inputStr = ATH_DP#GenericSingleStrPrompt("Select layers to drift, e.g \"2-5,7,9-12,50\", operation is slow for many layers", "Drift selected layers")
 			if(strlen(inputStr))	
-				layersListStr = ATH_ExpandRangeStr(inputStr)
+				layersListStr = ATH_String#ExpandRangeStr(inputStr)
 			else
 				hookresult =  1
 				return 1
@@ -283,7 +283,7 @@ End
 
 static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 	SVAR/Z/SDFR=dfr gATH_w3dPathName
 	WAVE/Z w3dRef = $gATH_w3dPathName

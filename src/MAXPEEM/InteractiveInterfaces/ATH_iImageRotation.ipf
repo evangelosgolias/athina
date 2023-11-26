@@ -55,7 +55,7 @@ static Function CreatePanel()
 	
 
 	//Duplicate the wave for backup
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveImageRotation:" + winNameStr) // Root folder here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveImageRotation:" + winNameStr) // Root folder here
 	string backupNameStr = NameOfWave(wRef) + "_undo"
 	Duplicate/O wRef, dfr:$backupNameStr
 	// Create the global variables for panel
@@ -90,7 +90,7 @@ End
 
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iRotateFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	SVAR/SDFR=dfr gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr
@@ -110,7 +110,7 @@ End
 static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iRotateFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	SVAR/SDFR=dfr gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr
@@ -130,7 +130,7 @@ static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 End
 
 static Function SliderProc(STRUCT WMSliderAction &sa) : SliderControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sa.win, "", "ATH_iRotateFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sa.win, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr
 	NVAR/SDFR=dfr gATH_Angle
@@ -153,7 +153,7 @@ static Function SliderProc(STRUCT WMSliderAction &sa) : SliderControl
 End
 
 static Function SetAngle(STRUCT WMSetVariableAction &sva) : SetVariableControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_iRotateFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr
 	NVAR/SDFR=dfr gATH_Angle
@@ -174,7 +174,7 @@ static Function SetAngle(STRUCT WMSetVariableAction &sva) : SetVariableControl
 End
 
 static Function SaveCopyButton(STRUCT WMButtonAction &ba) : ButtonControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(ba.win, "", "ATH_iRotateFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(ba.win, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr
 	SVAR/SDFR=dfr gATH_wNameStr
@@ -196,7 +196,7 @@ static Function SaveCopyButton(STRUCT WMButtonAction &ba) : ButtonControl
 End
 
 static Function OverwriteImgButton(STRUCT WMButtonAction &ba) : ButtonControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(ba.win, "", "ATH_iRotateFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(ba.win, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr
 	NVAR/SDFR=dfr gATH_Angle
@@ -222,7 +222,7 @@ static Function OverwriteImgButton(STRUCT WMButtonAction &ba) : ButtonControl
 End
 
 static Function RestoreImageRotButton(STRUCT WMButtonAction &ba) : ButtonControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(ba.win, "", "ATH_iRotateFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(ba.win, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr
 	NVAR/SDFR=dfr gATH_Angle

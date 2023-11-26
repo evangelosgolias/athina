@@ -1,10 +1,12 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma IgorVersion = 9
+#pragma ModuleName = ATH_Windows
 
 static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
 
-Function/S ATH_GetListOfNamedWindowHookFunctions([string winNameStr, string hookFuncNameStr])
+static Function/S GetListOfNamedWindowHookFunctions([string winNameStr, string hookFuncNameStr])
 	// Copy from https://www.wavemetrics.com/code-snippet/get-list-named-window-hook-functions
     variable all
     
@@ -38,7 +40,7 @@ Function/S ATH_GetListOfNamedWindowHookFunctions([string winNameStr, string hook
     return hookFuncNameStr 
 End
 
-Function ATH_SetNamedHookFunctionToWindow(string hookFuncNameStr, string hookFuncStr, [string winNameStr])
+static Function SetNamedHookFunctionToWindow(string hookFuncNameStr, string hookFuncStr, [string winNameStr])
 	// Set the the named hook function hookFuncStr as hook(hookFuncNameStr) 
 	// at winNameStr (TG if default)
 	if (ParamIsDefault(winNameStr))
@@ -52,7 +54,7 @@ Function ATH_SetNamedHookFunctionToWindow(string hookFuncNameStr, string hookFun
 	return 0
 End
 
-Function ATH_GetCurrentPlaneWM3DAxis(string windowNameStr)
+static Function GetCurrentPlaneWM3DAxis(string windowNameStr)
 	// Returns the /P=num plane displayed in windowNameStr
 	if(!strlen(windowNameStr))
 		windowNameStr = WinName(0, 1, 1) // top window
@@ -67,7 +69,7 @@ Function ATH_GetCurrentPlaneWM3DAxis(string windowNameStr)
 	endif
 End
 
-Function ATH_IsWM3DAxisActiveQ(string windowNameStr)
+static Function IsWM3DAxisActiveQ(string windowNameStr)
 	/// Check whether WM3DAxis is active
 	// 0 - not active
 	// 1 - active
@@ -80,7 +82,7 @@ End
 
 // Dev -- need testing
 
-Function/S ATH_WindowNameOfDisplayedImageWaveRef(WAVE wRef)
+static Function/S WindowNameOfDisplayedImageWaveRef(WAVE wRef)
 	// Returns a semicolon separated string of the name 
 	// of the graphsnames wRef is displayed. Return "" if
 	// wRef is not displayed. Graphs are search by default
@@ -104,7 +106,7 @@ Function/S ATH_WindowNameOfDisplayedImageWaveRef(WAVE wRef)
 	return displayedStr
 End
 
-Function ATH_KillWindowsInListString(string windowsListStr)
+static Function KillWindowsInListString(string windowsListStr)
 	// Kill all windows in winListstr (;)
 	variable numWindows = ItemsInList(windowsListStr), i
 	for(i = 0; i < numWindows; i++)

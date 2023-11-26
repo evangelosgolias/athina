@@ -2,8 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and later
-
-
+#pragma ModuleName = ATH_DFR
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -30,7 +29,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-Function WM_ZapDataInFolderTree(string path) 
+static Function ZapDataInFolderTree(string path) 
 	/// Kills the contents of a data folder and the contents of its 
 	/// children without killing any data folders and without attempting 
 	/// to kill any waves that may be in use.
@@ -46,13 +45,13 @@ Function WM_ZapDataInFolderTree(string path)
 
 	for(i=0; i<numDataFolders; i+=1)
 		string nextPath = GetIndexedObjName(":", 4, i) 
-		WM_ZapDataInFolderTree(nextPath) 
+		ZapDataInFolderTree(nextPath) 
 	endfor
 
 	SetDataFolder saveDF 
 End
 
-Function ATH_ZapAllDataFoldersInPath(string path) 
+static Function ZapAllDataFoldersInPath(string path) 
 	/// Kills all data folders in path.
 
 	string saveDF = GetDataFolder(1) 
@@ -68,7 +67,7 @@ Function ATH_ZapAllDataFoldersInPath(string path)
 	SetDataFolder saveDF 
 End
 
-Function/DF ATH_CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cornerstone function
+static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cornerstone function
 	/// Create a data folder using fullpath and return a DF reference.
 	/// If parent directories do not exist they are created.
 	/// SetDF set the cwd to fullpath if set.
@@ -112,7 +111,7 @@ Function/DF ATH_CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Corner
 	return dfr
 End
 
-Function WM_PrintFoldersAndFiles(string pathName, string extension, variable recurse, variable level)
+static Function PrintFoldersAndFiles(string pathName, string extension, variable recurse, variable level)
 	/// This is a WM function
 	/// Striwng pathName	Name of symbolic path in which to look for folders and files.
 	/// String extensios File name extension (e.g., ".txt") or "????" for all files.
@@ -166,7 +165,7 @@ Function WM_PrintFoldersAndFiles(string pathName, string extension, variable rec
 			subFolderPath = path
 			
 			NewPath/Q/O $subFolderPathName, subFolderPath
-			WM_PrintFoldersAndFiles(subFolderPathName, extension, recurse, level+1)
+			ATH_DFR#PrintFoldersAndFiles(subFolderPathName, extension, recurse, level+1)
 			KillPath/Z $subFolderPathName
 			
 			folderIndex += 1
@@ -174,7 +173,7 @@ Function WM_PrintFoldersAndFiles(string pathName, string extension, variable rec
 	endif
 End
 
-Function ATH_CleanGlobalWavesVarAndStrInFolder(DFREF dfr)
+static Function CleanGlobalWavesVarAndStrInFolder(DFREF dfr)
 	/// Move from current working directory to dfr
 	/// kill all global variables and strings and 
 	/// return to the working directory
@@ -187,7 +186,7 @@ Function ATH_CleanGlobalWavesVarAndStrInFolder(DFREF dfr)
 	SetDataFolder cwd
 End
 
-Function ATH_DeleteEverythingButSomeFolders(string baseFolderPattern, string keepFolders)
+static Function DeleteEverythingButSomeFolders(string baseFolderPattern, string keepFolders)
 	/// Delete waves and child folders in folders that match baseFolderPattern but keep keepFolders
 	/// @param folderPattern string match folders pattern
 	/// @param keepFolders string keepfolder list separated by ;
@@ -218,26 +217,9 @@ Function ATH_DeleteEverythingButSomeFolders(string baseFolderPattern, string kee
 	SetDataFolder dfr
 End
 
-Function/S ATH_SetOrResetBeamtimeRootFolder()
-	// Helper function for functions in ATH_LoadFilesDuringBeamtime.ipf.
-	// Set or reset the Igor Path pATH_LoadFilesBeamtimeIgorPath
-	// and return the full path linked with Igor Path
-	PathInfo pATH_LoadFilesBeamtimeIgorPath 
-	if(V_flag) // path exists
-		KillPath/Z pATH_LoadFilesBeamtimeIgorPath 
-	endif
-	
-	GetFileFolderInfo/Z=2/Q/D //Select folder dialog
-	
-	if(!(V_flag == -1))
-		NewPath/Q/O pATH_LoadFilesBeamtimeIgorPath , S_path
-	endif
-	return S_path
-End
-
 // ----------------------------------------
 
-Function ATH_FindBigWaves(variable minSizeInMB[,DFREF df,variable depth,variable noShow])
+static Function FindBigWaves(variable minSizeInMB[,DFREF df,variable depth,variable noShow])
 	/// See https://www.wavemetrics.com/code-snippet/find-big-waves
  
     if(ParamIsDefault(df))
@@ -247,11 +229,11 @@ Function ATH_FindBigWaves(variable minSizeInMB[,DFREF df,variable depth,variable
         noShow = 1
     endif   
     if(depth==0)
-        DFREF packageDF = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:FindBigWaves")
+        DFREF packageDF = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:FindBigWaves")
         Make/O/T/N=0 packageDF:waveNamesW
         Make/O/N=0   packageDF:waveSizesW
     else
-        DFREF packageDF = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:FindBigWaves")
+        DFREF packageDF = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:FindBigWaves")
     endif
     variable i
     wave /T/sdfr=packageDF waveNamesW
@@ -259,7 +241,7 @@ Function ATH_FindBigWaves(variable minSizeInMB[,DFREF df,variable depth,variable
     variable points=numpnts(waveNamesW)
     for(i=0;i<CountObjectsDFR(df,1);i+=1)
         wave w=df:$getindexedobjnamedfr(df,1,i)
-        variable size = ATH_sizeOfWave(w)
+        variable size = ATH_WaveOp#sizeOfWave(w)
         if(size > minSizeInMB)
             waveNamesW[points]={GetWavesDataFolder(w,2)}
             waveSizesW[points]={size}
@@ -271,7 +253,7 @@ Function ATH_FindBigWaves(variable minSizeInMB[,DFREF df,variable depth,variable
         string folder=GetIndexedObjNamedfr(df,4,i)
         if(strlen(folder))
             dfref subDF=df:$folder
-            ATH_FindBigWaves(minSizeInMB,df=subDF,depth=depth+1)
+            ATH_DFR#FindBigWaves(minSizeInMB,df=subDF,depth=depth+1)
         else
             break
         endif

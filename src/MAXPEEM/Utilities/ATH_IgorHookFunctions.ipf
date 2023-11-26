@@ -20,7 +20,7 @@ Function BeforeFileOpenHook(variable refNum, string fileNameStr, string pathName
         	WAVE wIn = ATH_LoadUview#WAVELoadSingleCorruptedDATFile(fileToOpen, "")
         	//Abort // Removed to stop the "Encoding window" from popping all the time.
         endtry
-        ATH_DisplayImage(wIn)
+        ATH_Display#NewImg(wIn)
         return 1
     endif
 //    if(StringMatch(fileNameStr, "*.dav") && fileKind == 0) // fileKind == 0, unknown
@@ -45,7 +45,7 @@ End
 Function AfterWindowCreatedHook(string windowNameStr, variable winTypevar)
 	// Every window created is assigned to the active Space if the panel is there
 	if(WinType("ATH_SpacesPanel"))
-		DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 		WAVE/Z/T/SDFR=dfr ATHSpacesTW
 		NVAR/SDFR=dfr gSelectedSpace
 		windowNameStr = WinName(0, 87, 1) // Window is created, visible only

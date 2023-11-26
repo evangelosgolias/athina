@@ -60,7 +60,7 @@ static Function MakePanel()
 	endif	
 
 	//Duplicate the wave for backup
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveFastDriftCorrection:" + winNameStr) // Root folder here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveFastDriftCorrection:" + winNameStr) // Root folder here
 	string backupNameStr = NameOfWave(w3dref) + "_undo"
 	Duplicate/O w3dref, dfr:$backupNameStr
 	SetScale/P x, 0, 1, w3dref
@@ -109,7 +109,7 @@ End
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgFastAlignFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgFastAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_w3dPathName
 	SVAR/Z/SDFR=dfr gATH_w3dBackupPathNameStr
     switch(s.eventCode)
@@ -127,7 +127,7 @@ End
 static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgFastAlignFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgFastAlignFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	SVAR/Z/SDFR=dfr gATH_w3dPathName
 	SVAR/Z/SDFR=dfr gATH_w3dBackupPathNameStr
@@ -150,7 +150,7 @@ End
 
 static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgFastAlignFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgFastAlignFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	SVAR/SDFR=dfr gATH_w3dPathname
 	NVAR/SDFR=dfr gATH_AnchorPositionX
@@ -178,7 +178,7 @@ End
 
 static Function DriftImageStackButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgFastAlignFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgFastAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 	SVAR/Z/SDFR=dfr gATH_w3dPathName
 	WAVE/Z w3dRef = $gATH_w3dPathName
@@ -214,7 +214,7 @@ End
 static Function Restore3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	//Complete
 	variable hookresult = 0
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgFastAlignFolder"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgFastAlignFolder"))
 	SVAR/SDFR=dfr gATH_w3dBackupPathNameStr
 	SVAR/SDFR=dfr gATH_w3dPathname
 	switch(B_Struct.eventCode)	// numeric switch

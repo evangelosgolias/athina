@@ -1,8 +1,10 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma IgorVersion = 9
+#pragma ModuleName = ATH_String
 
-Function/S ATH_ExpandRangeStr(string rangeStr)	
+static Function/S ExpandRangeStr(string rangeStr)	
 	// expand a string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50"
 
 	variable i1, i2, i 
@@ -34,7 +36,7 @@ Function/S ATH_ExpandRangeStr(string rangeStr)
 	return SortList(outStr,";", 34) // remove duplicates and sorts
 End
 
-Function ATH_GetPhotonEnergyFromFilename(string nameStr)
+static Function GetPhotonEnergyFromFilename(string nameStr)
 	// MAXPEEM specific: extract the photon energy from the filename and return it as number
 	// regex compiles the most  common ways of writing the energy in a filename.
 	string regex = "\s+(hv\s*=|hn\s*=|hn|hv)\s*([0-9]*[.]?[0-9]+)(\s*eV|\s*)"
@@ -47,18 +49,18 @@ Function ATH_GetPhotonEnergyFromFilename(string nameStr)
 End
 
 // Dev -- need testing
-Function/S ATH_UniquifyStringList(string stringListStr, [string sep])	
+static Function/S UniquifyStringList(string stringListStr, [string sep])	
 	// Remove duplicates from a sting list
 	if(ParamIsDefault(sep))
 		sep = ";"
 	else
 		sep = sep
 	endif
-	WAVE/T textW = ATH_WAVEStringListToTextWave(stringListStr, sep = sep)
+	WAVE/T textW = WAVEStringListToTextWave(stringListStr, sep = sep)
 	//FindDuplicates
 End
 
-Function/WAVE ATH_WAVEStringListToTextWave(string stringListStr, [string sep])
+static Function/WAVE WAVEStringListToTextWave(string stringListStr, [string sep])
 
 	if(ParamIsDefault(sep))
 		sep = ";"

@@ -2,6 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma ModuleName = ATH_ImageAlign
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -29,7 +30,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-Function/WAVE ATH_WAVEImageAlignmentByRegistration(WAVE w1, WAVE w2)
+static Function/WAVE ATH_WAVEImgRegistration(WAVE w1, WAVE w2)
 	/// Align two images using ImageRegistration operation. 
 	/// Only x, y translations are allowed.
 	/// @param w1 wave reference First wave (reference wave)
@@ -49,7 +50,7 @@ Function/WAVE ATH_WAVEImageAlignmentByRegistration(WAVE w1, WAVE w2)
 	return alignedW
 End
 
-Function ATH_ImageAlignmentByRegistration(WAVE w1, WAVE w2)
+static Function ImgRegistration(WAVE w1, WAVE w2)
 	/// Align two images using ImageRegistration operation. 
 	/// Only x, y translations are allowed.
 	/// @param w1 wave reference First wave (reference wave)
@@ -71,7 +72,7 @@ Function ATH_ImageAlignmentByRegistration(WAVE w1, WAVE w2)
 	return 0
 End
 
-Function ATH_ImageStackAlignmentByRegistration(WAVE w3d, [variable layerN, 
+static Function ImgStackRegistration(WAVE w3d, [variable layerN, 
 		 variable cutoff, int selfDrift, int printMode, int convMode])
 	/// Align a 3d wave using ImageRegistration. By default the function will
 	/// use the 0-th layer as a wave reference, uncless user chooses otherwise 
@@ -144,7 +145,7 @@ Function ATH_ImageStackAlignmentByRegistration(WAVE w3d, [variable layerN,
 	
 	if(printmode)
 		string driftLog = ""
-		driftLog = "Called ATH_ImageStackAlignmentByRegistration\n"
+		driftLog = "Called ImageAlign#ImgStackRegistration\n"
 		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
 		driftLog +=  "---- Drift ----\n"
 		driftLog +=  "layer  dx  dy\n"
@@ -170,7 +171,7 @@ Function ATH_ImageStackAlignmentByRegistration(WAVE w3d, [variable layerN,
 	return 0
 End
 
-Function ATH_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int printMode, variable cutoff, int selfDrift])
+static Function ImgStackCorrelation(WAVE w3d, [variable layerN, int printMode, variable cutoff, int selfDrift])
 	/// Align a 3d wave using (auto)correlation. By default the function will
 	/// use the 0-th layer as a wave reference, uncless user chooses otherwise. 
 	/// Only integer x, y translations are calculated.
@@ -199,7 +200,7 @@ Function ATH_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int pr
 	
 	variable i 
 	if(printMode)
-		string driftLog = "Called ATH_ImageStackAlignmentByCorrelation\n "
+		string driftLog = "Called ATH_Align#ImgStackCorrelation\n "
 		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
 		driftLog +=  "---- Drift ----\n"
 		driftLog +=  "layer  dx  dy\n"
@@ -279,7 +280,7 @@ Function ATH_ImageStackAlignmentByCorrelation(WAVE w3d, [variable layerN, int pr
 	return 0
 End
 
-Function ATH_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partitionW3d, [variable layerN, variable cutoff, variable printMode]) // Used in menu
+static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [variable layerN, variable cutoff, variable printMode]) // Used in menu
 	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave.
 	/// The partition 3d wave calls ATH_ImageStackAlignmentByFullRegistration
 	/// By default the function will  use the 0-th layer as a wave reference, uncless user chooses otherwise.
@@ -300,7 +301,7 @@ Function ATH_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 	endif
 
 	if(printMode)
-		string driftLog = "Called ATH_ImageStackAlignmentByPartitionRegistration\n"
+		string driftLog = "Called ATH_Align#ImgStackPartitionRegistration\n\n"
 		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
 		driftLog +=  "---- Drift ----\n"
 		driftLog +=  "layer  dx  dy\n"
@@ -353,7 +354,7 @@ Function ATH_ImageStackAlignmentByPartitionRegistration(WAVE w3d, WAVE partition
 	return 0
 End
 
-Function ATH_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [variable layerN, variable cutoff, int printMode, int windowing]) // Used in menu
+static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [variable layerN, variable cutoff, int printMode, int windowing]) // Used in menu
 	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave.
 	/// The partition 3d wave calls ATH_ImageStackAlignmentByFullRegistration
 	/// By default the function will  use the 0-th layer as a wave reference, uncless user chooses otherwise.
@@ -404,7 +405,7 @@ Function ATH_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 	endfor
 
 	if(printMode)
-		string driftLog = "Called ATH_ImageStackAlignmentByPartitionCorrelation\n"
+		string driftLog = "Called ATH_ImageAlign#ImgStackPartitionCorrelation\n\n"
 		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
 		driftLog +=  "---- Drift ----\n"
 		driftLog +=  "layer  dx  dy\n"
@@ -451,7 +452,7 @@ Function ATH_ImageStackAlignmentByPartitionCorrelation(WAVE w3d, WAVE partitionW
 End
 
 
-Function/WAVE ATH_WAVEImageAlignmentByCorrelation(WAVE w1, WAVE w2, [variable printMode, int windowing])
+static Function/WAVE WAVEImgStackPartitionCorrelation(WAVE w1, WAVE w2, [variable printMode, int windowing])
 	/// Align two images using Correlation/Autocorrelation operations. 
 	/// @param w1 wave reference First wave (reference wave) for which its autocorrelation 
 	/// is our reference.
@@ -493,7 +494,7 @@ Function/WAVE ATH_WAVEImageAlignmentByCorrelation(WAVE w1, WAVE w2, [variable pr
 	return waveRef
 End
 
-Function ATH_ImageAlignmentByCorrelation(WAVE w1, WAVE w2, string alignedImageStr, [int printMode, int windowing])
+static Function ImgCorrelation(WAVE w1, WAVE w2, string alignedImageStr, [int printMode, int windowing])
 	/// Align two images using Correlation/Autocorrelation operations. 
 	/// @param w1 wave reference First wave (reference wave) for which its autocorrelation 
 	/// is our reference.
@@ -538,7 +539,7 @@ Function ATH_ImageAlignmentByCorrelation(WAVE w1, WAVE w2, string alignedImageSt
 End
 
 
-Function ATH_LinearDriftCorrectionUsingABCursors(WAVE w3d, WAVE wx, WAVE wy)
+static Function LinearDriftABCursors(WAVE w3d, WAVE wx, WAVE wy)
 	/// Linear drift correction w3d using wx and wy displacements
 	
 	if(!(WaveType(w3d) & 0x02))

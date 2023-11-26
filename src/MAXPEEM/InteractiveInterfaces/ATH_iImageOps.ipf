@@ -1,8 +1,8 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
-#pragma IgorVersion= 9
-#pragma ModuleName = ATH_InterativeOperationsTwoImages
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma IgorVersion= 9
+#pragma ModuleName = ATH_iImageOps
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -36,7 +36,7 @@ static Function MenuLaunch()
 	/// graph of the XMC(L)D contrast.
 	
 	string msg = "Select two waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
-	string selectedWavesInBrowserStr = ATH_SelectWavesInModalDataBrowser(msg)
+	string selectedWavesInBrowserStr = ATH_DP#SelectWavesInModalDataBrowser(msg)
 	// S_fileName is a carriage-return-separated list of full paths to one or more files.
 	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
 	string selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)
@@ -65,9 +65,9 @@ static Function MenuLaunch()
 		print "Ok, you are subtracting a wave from itself! I hope you know what you are doing."
 	endif
 	// Create variables for the Panel. NB; Data Folders for panels can be overwritten
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveOperationsTwoImages:") 
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveOperationsTwoImages:") 
 	string folderNameStr = CreateDataObjectName(dfr, "iOpsTwoImgs_DF",11, 0, 0)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveOperationsTwoImages:" + folderNameStr)
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveOperationsTwoImages:" + folderNameStr)
 	
 	if(WaveType($wave1NameStr) & 0x10) // If WORD (int16)
 		Redimension/S $wave1NameStr
@@ -98,7 +98,7 @@ static Function CreateInteractiveOperationsTwoImagesCalculationPanel(WAVE wOpRes
 	DFREF dfr = GetWavesDataFolderDFR(wOpResult) // Recover the dfr	
 	NVAR/SDFR=dfr gATH_driftStep
 
-	ATH_DisplayImage(wOpResult)
+	ATH_Display#NewImg(wOpResult)
 	string winiOpsTwoImgNamestr = WinName(0,1)
 	DoWindow/T $winiOpsTwoImgNamestr "iXMC(L)D"		
 	ControlBar/W=$winiOpsTwoImgNamestr 40	
@@ -119,7 +119,7 @@ static Function CreateInteractiveOperationsTwoImagesCalculationPanel(WAVE wOpRes
 End
 
 static Function InteractiveOperationsWindowsHook(STRUCT WMWinHookStruct &s)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iIntOpsTwoImgPath"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iIntOpsTwoImgPath"))
 	NVAR/SDFR=dfr gATH_driftStep
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
@@ -198,7 +198,7 @@ End
 
 static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iIntOpsTwoImgPath"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iIntOpsTwoImgPath"))
 	WAVE/SDFR=dfr w1
 	WAVE/SDFR=dfr w2
 	WAVE/SDFR=dfr wOpResult
@@ -233,7 +233,7 @@ End
 
 static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
 	string dfrStr = GetUserData(sva.win, "", "ATH_iIntOpsTwoImgPath")
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(dfrStr)
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
 	NVAR/SDFR=dfr gATH_driftStep	
 	switch (sva.eventCode)
 		case 1: 							// Mouse up

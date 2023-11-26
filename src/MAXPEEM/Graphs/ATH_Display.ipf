@@ -1,6 +1,8 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma IgorVersion = 9
+#pragma ModuleName = ATH_Display
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -32,7 +34,7 @@
 
 static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
 
-Function ATH_DisplayImage(WAVE wRef)
+static Function NewImg(WAVE wRef)
 	// Display an image or stack
 	NewImage/G=1/K=1 wRef
 	string windowNameStr = GetWavesDataFolder(wRef, 2)[5, inf] // Discrard root:
@@ -74,12 +76,12 @@ Function ATH_DisplayImage(WAVE wRef)
 	endif
 	
 	if(WaveDims(wRef)==3)
-		ATH_Append3DImageSlider()
+		Append3DImageSlider()
 	endif
 	return 0
 End
 
-Function ATH_Append3DImageSlider()
+static Function Append3DImageSlider()
 	/// Edited version of WMAppend3DImageSlider() to deal with 
 	/// liberal names in 3d waves
 	String grfName= WinName(0, 1)
@@ -155,7 +157,7 @@ Function ATH_Append3DImageSlider()
 	SetDataFolder dfSav
 End
 
-Function ATH_3DImageSliderWinHook(STRUCT WMWinHookStruct &s)// ST: 310601 - graph hook to resize the controls dynamically
+static Function W3DImageSliderWinHook(STRUCT WMWinHookStruct &s)// ST: 310601 - graph hook to resize the controls dynamically
 	if(!DataFolderExists(WMkSliderDataFolderBase + s.winName))
 		KillControl/W=$s.winName WM3DAxis
 		KillControl/W=$s.winName WM3DVal
@@ -163,7 +165,7 @@ Function ATH_3DImageSliderWinHook(STRUCT WMWinHookStruct &s)// ST: 310601 - grap
 		DoWindow/F $s.winName
 		//ControlInfo kwControlBar
 		ControlBar/W=$s.winName 0		// TODO: We set ControlBar to 30, it might be something else already there, try to generalise  
-		ATH_Append3DImageSlider() // Call again to create all folders and 
+		ATH_Display#Append3DImageSlider() // Call again to create all folders and 
 	else
 		DFREF valDF = $(WMkSliderDataFolderBase + s.winName)
 		NVAR gOriginalHeight = valDF:gOriginalHeight
@@ -194,7 +196,7 @@ Function ATH_3DImageSliderWinHook(STRUCT WMWinHookStruct &s)// ST: 310601 - grap
 				variable plane = NumberByKey("plane", rec, "=", ";", 0)
 				if (numtype(plane) == 0 && (gLayer != plane))
 					gLayer = plane
-					ATH_3DImageSliderProc("",0,0)
+					ATH_Display#W3DImageSliderProc("",0,0)
 				endif
 			endif
 		endif
@@ -210,7 +212,7 @@ Function ATH_3DImageSliderWinHook(STRUCT WMWinHookStruct &s)// ST: 310601 - grap
 	return 0
 End
 
-Function ATH_3DImageSliderProc(string name, variable value, variable event)
+static Function W3DImageSliderProc(string name, variable value, variable event)
 	//String name			// name of this slider control
 	//Variable value		// value of slider
 	//Variable event		// bit field: bit 0: value set; 1: mouse down, //   2: mouse up, 3: mouse moved
@@ -253,7 +255,7 @@ Function ATH_3DImageSliderProc(string name, variable value, variable event)
 	return 0				// other return values reserved
 End
 
-Function ATH_SetImageRangeTo94Percent()
+static Function SetImageRangeTo94Percent()
 
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -277,7 +279,7 @@ Function ATH_SetImageRangeTo94Percent()
 	if(!V_flag)
 		return 0
 	endif
-	ATH_CoordinatesToROIMask(V_left, V_top, V_right, V_bottom, interior = 0, exterior = 1) // Needed by ImageHistogram
+	ATH_Marquee#CoordinatesToROIMask(V_left, V_top, V_right, V_bottom, interior = 0, exterior = 1) // Needed by ImageHistogram
 	WAVE M_ROIMask
 
 	if(planeN < 0)
@@ -312,7 +314,7 @@ Function ATH_SetImageRangeTo94Percent()
 	return 0
 End
 
-Function ATH_RestartWM3DImageSlider(string winNameStr)
+static Function RestartWM3DImageSlider(string winNameStr)
 	// Kill and restart WM3DImageSlider and restart in case 
 	// of changed in the source 3d wave.
 	DFREF dfr = $(WMkSliderDataFolderBase + winNameStr)
@@ -324,6 +326,6 @@ Function ATH_RestartWM3DImageSlider(string winNameStr)
 	KillControl/W=$winNameStr WM3DVal
 	KillControl/W=$winNameStr WM3DDoneBtn
 	KillDataFolder/Z dfr
-	ATH_Append3DImageSlider()
+	ATH_Display#Append3DImageSlider()
 	return 0
 End

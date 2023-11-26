@@ -128,7 +128,7 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 	string winNameStr = WinName(0, 1, 1)
 	WAVE w3dref = ImageNameToWaveRef("", wnamestr) // full path of wave
 
-	DFREF dfrROI = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedROI")	
+	DFREF dfrROI = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedROI")	
 
 	NVAR/Z/SDFR=dfrROI gATH_Sleft	
 	if(!NVAR_Exists(gATH_Sleft))
@@ -226,7 +226,7 @@ static Function/DF InitialiseFolder()
     variable z0 = DimOffset(w3dref, 2)
     DFREF rootDF = $("root:Packages:ATH_DataFolder:ZBeamProfiles:")
     string UniqueimgNameTopGraphStr = CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + UniqueimgNameTopGraphStr) // Root folder here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + UniqueimgNameTopGraphStr) // Root folder here
 	string zprofilestr = "wZLineProfileWave"
 	Make/O/N=(nlayers) dfr:$zprofilestr /Wave = profile // Store the line profile 
 	SetScale/P x, z0, dz, profile
@@ -287,7 +287,7 @@ End
 static Function InitialiseGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
 	string rootFolderStr = GetDataFolder(1, dfr)
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(rootFolderStr)
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(rootFolderStr)
 	SVAR/SDFR=dfr gATH_LineProfileWaveStr
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	WAVE profile = dfr:$gATH_LineProfileWaveStr
@@ -320,7 +320,7 @@ End
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	variable hookResult = 0, i
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_SumBeamsDFRefEF"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_SumBeamsDFRefEF"))
 	NVAR/SDFR=dfr gATH_left
 	NVAR/SDFR=dfr gATH_right
 	NVAR/SDFR=dfr gATH_top
@@ -453,7 +453,7 @@ End
 
 static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrSumBeamsStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrSumBeamsStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
 	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
@@ -470,7 +470,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 	NVAR/SDFR=dfr gATH_bottom
 	NVAR/SDFR=dfr gATH_Rect
 	string recreateDrawStr
-	DFREF savedfr = GetDataFolderDFR() // ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:SavedZProfiles")
+	DFREF savedfr = GetDataFolderDFR() // ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:SavedZProfiles")
 	variable red, green, blue
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down" // FIX THIS
@@ -480,12 +480,12 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 			if(DoPlotSwitch)
 				if(WinType(targetGraphWin) == 1)
 					AppendToGraph/W=$targetGraphWin savedfr:$saveWaveNameStr
-					[red, green, blue] = ATH_GetColor(colorcnt)
+					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 					Modifygraph/W=$targetGraphWin rgb($PossiblyQuoteName(saveWaveNameStr)) = (red, green, blue)
 					colorcnt += 1 // i++ does not work with globals?
 				else
 					Display/N=$targetGraphWin savedfr:$saveWaveNameStr // Do not kill the graph windows, user might want to save the profiles
-					[red, green, blue] = ATH_GetColor(colorcnt)
+					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 					Modifygraph/W=$targetGraphWin rgb($PossiblyQuoteName(saveWaveNameStr)) = (red, green, blue)
 					AutopositionWindow/M=1/R=$B_Struct.win $targetGraphWin
 					DoWindow/F $targetGraphWin
@@ -495,7 +495,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 
 			if(MarkAreasSwitch)
 				if(!DoPlotSwitch)
-					[red, green, blue] = ATH_GetColor(colorcnt)
+					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 					colorcnt += 1
 				endif
 				DoWindow/F $WindowNameStr
@@ -520,7 +520,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 End
 
 static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrSumBeamsStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrSumBeamsStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
 	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
 	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
@@ -546,7 +546,7 @@ End
 
 static Function PlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrSumBeamsStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrSumBeamsStr"))
 	NVAR/Z DoPlotSwitch = dfr:gATH_DoPlotSwitch
 	switch(cb.checked)
 		case 1:		// Mouse up

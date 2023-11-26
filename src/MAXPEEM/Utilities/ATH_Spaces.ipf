@@ -65,7 +65,7 @@
 
 static Function MenuLauch()
 	
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	WAVE/Z/T/SDFR=dfr ATHSpacesTW
 	NVAR/Z/SDFR=dfr gSelectedSpace
 	NVAR/Z/SDFR=dfr gShowAllWindowsSwitch
@@ -88,7 +88,7 @@ End
 
 static Function MakePanel()
 	// Scale with IgorOptions here
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	
 	string igorInfoStr = StringByKey( "SCREEN1", IgorInfo(0)) // INFO: Change here if needed
 	igorInfoStr = RemoveListItem(0, igorInfoStr, ",")		
@@ -132,7 +132,7 @@ End
 
 static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	WAVE/T/SDFR=dfr ATHSpacesTW
 	NVAR/SDFR=dfr gSelectedSpace
 	string msg, newSpaceNameStr, oldSpaceNameStr, winNameStr, buffer, prefix, listLinkedPP
@@ -183,10 +183,10 @@ static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 				prefix = ""
 			endif
 			oldSpaceNameStr = SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])
-			newSpaceNameStr = TrimString(ATH_GenericSingleStrPrompt("New name", msg))
+			newSpaceNameStr = TrimString(ATH_DP#GenericSingleStrPrompt("New name", msg))
 			if(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr))|| GrepString(newSpaceNameStr, "^\*")) // if the name is not unique or empty string
 				do
-					newSpaceNameStr = TrimString(ATH_GenericSingleStrPrompt("Space name already exists or string is empty or starts with *, enter a valid name:", \
+					newSpaceNameStr = TrimString(ATH_DP#GenericSingleStrPrompt("Space name already exists or string is empty or starts with *, enter a valid name:", \
 																			"Enter a *unique* name for the new Space"))
 				while(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr))|| GrepString(newSpaceNameStr, "^\*"))
 			endif
@@ -242,17 +242,17 @@ End
 
 static Function NewSpaceButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	WAVE/T/SDFR=dfr ATHSpacesTW
 	variable index
 	variable numEntries = DimSize(ATHSpacesTW, 0)
 	NVAR/SDFR=dfr gSelectedSpace
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			string newSpaceNameStr = TrimString(ATH_GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter the name of the new Space"))
+			string newSpaceNameStr = TrimString(ATH_DP#GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter the name of the new Space"))
 			if(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)) || GrepString(newSpaceNameStr, "^\*")) // if the name is not unique or empty string
 				do
-					newSpaceNameStr = TrimString(ATH_GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter a *different* name for the new Space"))
+					newSpaceNameStr = TrimString(ATH_DP#GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter a *different* name for the new Space"))
 				while(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)) || GrepString(newSpaceNameStr, "^\*"))
 			endif
 			if (!numEntries) // If you have deleted all spaces
@@ -272,7 +272,7 @@ End
 
 static Function DeleteSpaceButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	WAVE/T/SDFR=dfr ATHSpacesTW
 	variable numSpaces = DimSize(ATHSpacesTW, 0)
 	NVAR/SDFR=dfr gSelectedSpace
@@ -353,7 +353,7 @@ static Function ClearWindowsFromSpaceTag(string spaceTagStr)
 End
 
 static Function ShowAllButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	NVAR/SDFR=dfr gShowAllWindowsSwitch
 	variable showSwitch
 	switch(B_Struct.eventCode)	// numeric switch

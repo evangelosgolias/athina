@@ -54,9 +54,9 @@ Menu "Athina"
 		"Rotate image (TG, 2D, 3D) ", /Q, ATH_Launch#ImageRotateAndScale()
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, ATH_Launch#ImageRotateAndScaleFromMetadata()
 		"Remove background (TG, 2D, 3D)", /Q, ATH_Launch#ImgRemoveBackground()	
-		"Duplicate image and data (TG, 2D, 3D)", /Q, ATH_DuplicateWaveAndDisplayOfTopImage()
-		"Backup Image (TG)", /Q, ATH_BackupTopImage()	
-		"Restore image from backup (TG)", /Q, ATH_RestoreTopImageFromBackup()
+		"Duplicate image and data (TG, 2D, 3D)", /Q, ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
+		"Backup Image (TG)", /Q, ATH_ImageOP#BackupTopImage()	
+		"Restore image from backup (TG)", /Q, ATH_ImageOP#RestoreTopImageFromBackup()
 		"Normalize to [0, 1] (TG)", /Q, ATH_Launch#ScalePlanesBetweenZeroAndOne()
 		"Center image histogram (TG)", /Q, ATH_Launch#HistogramShiftToGaussianCenter()
 		"Rotate 3d wave axes (TG, 3D)", /Q, ATH_Launch#Rotate3DWaveAxes()
@@ -89,7 +89,7 @@ Menu "Athina"
 	End	
 		
 	Submenu "XPS"
-		"Extract XPS profile from image (TG, 2D)", /Q, ATH_MainMenuLaunchPESExtractor()
+		"Extract XPS profile from image (TG, 2D)", /Q, ATH_iXPSExtraction#MainMenu()
 		"Subtract background(TG, 1D) ", /Q, BackgroundSubtractGUI()
 	End	
 	
@@ -100,10 +100,10 @@ Menu "Athina"
 		"Photoionisation CrossSection",/Q, PhotoionisationCrossSection#PhotoionisationCrossSection()
 	End
 	Submenu "Beamtime"
-		"Set experiment's root folder",/Q, ATH_SetOrResetBeamtimeRootFolder()
-		"Load newest file",/Q, ATH_LoadNewestFileInPathTreeAndDisplayPython(".dat")
-		"Load newest folder to stack",/Q, ATH_LoadNewestFolderInPathTreeAndDisplay()
-		"Load two newest files to stack",/Q, ATH_LoadNewestTwoFilesInPathTreeAndDisplayPython(".dat")
+		"Set experiment's root folder",/Q, ATH_Beamtime#SetOrResetBeamtimeRootFolder()
+		"Load newest file",/Q, ATH_Beamtime#LoadNewestFileInPathTreeAndDisplayPython(".dat")
+		"Load newest folder to stack",/Q, ATH_Beamtime#LoadNewestFolderInPathTreeAndDisplay()
+		"Load two newest files to stack",/Q, ATH_Beamtime#LoadNewestTwoFilesInPathTreeAndDisplayPython(".dat")
 
 	End
 End
@@ -112,19 +112,19 @@ End
 // -------------------------------------------------------
 
 Menu "GraphMarquee"
-	"ATH Image range 94% of ROI (2D, 3D)", /Q, ATH_SetImageRangeTo94Percent()
-	"ATH Print ROI stats (2D, 3D)", /Q, ATH_GetMarqueeWaveStats()
-	"ATH Save Rect ROI (2D, 3D)", /Q, ATH_SaveROICoordinatesToDatabase(rect = 1)		
-	"ATH Save Oval ROI (2D, 3D)", /Q, ATH_SaveROICoordinatesToDatabase()
+	"ATH Image range 94% of ROI (2D, 3D)", /Q, ATH_Display#SetImageRangeTo94Percent()
+	"ATH Print ROI stats (2D, 3D)", /Q, ATH_Marquee#GetMarqueeWaveStats()
+	"ATH Save Rect ROI (2D, 3D)", /Q, ATH_Marquee#SaveROICoordinatesToDatabase(rect = 1)		
+	"ATH Save Oval ROI (2D, 3D)", /Q, ATH_Marquee#SaveROICoordinatesToDatabase()
 	"ATH Z-profiler: Set rectangular ROI  (3D)", /Q, ATH_SumBeamsProfile#GraphMarqueeLaunchRectangle()	
 	"ATH Z-profiler: Set oval ROI  (3D)", /Q, ATH_SumBeamsProfile#GraphMarqueeLaunchOval()
-	"ATH Backup traces (1D)", /Q, ATH_BackupTraces()
-	"ATH Restore traces (1D)", /Q, ATH_RestoreTraces()
-	"ATH Normalise to profile (1D)", /Q, ATH_NormaliseTracesWithProfile()
-	"ATH Normalize to one (1D)", /Q, ATH_NormalizeToOne()
-	"ATH Pull to zero (1D)", /Q, ATH_PullToZero()
-	"ATH Maximum to one (1D)", /Q, ATH_MaximumToOne()
-	"ATH Partition region (2D, 3D)", /Q, ATH_Partition3DRegion()
+	"ATH Backup traces (1D)", /Q, ATH_Marquee#BackupTraces()
+	"ATH Restore traces (1D)", /Q, ATH_Marquee#RestoreTraces()
+	"ATH Normalise to profile (1D)", /Q, ATH_Marquee#NormaliseTracesWithProfile()
+	"ATH Normalize to one (1D)", /Q, ATH_Marquee#NormalizeToOne()
+	"ATH Pull to zero (1D)", /Q, ATH_Marquee#PullToZero()
+	"ATH Maximum to one (1D)", /Q, ATH_Marquee#MaximumToOne()
+	"ATH Partition region (2D, 3D)", /Q, ATH_Marquee#Partition3DRegion()
 End
 
 Menu "DataBrowserObjectsPopup"
@@ -141,15 +141,15 @@ Menu "DataBrowserObjectsPopup"
 End
 
 Menu "TracePopup"
-	"ATH Autoscale Image (2D, 3D)", /Q, ATH_AutoRangeTopImage()
-	"ATH Dynamic Autoscale Image Plane (3D)", /Q, ATH_AutoRangeTopImagePerPlaneAndVisibleArea()
+	"ATH Autoscale Image (2D, 3D)", /Q, ATH_ImageOP#AutoRangeTopImage()
+	"ATH Dynamic Autoscale Image Plane (3D)", /Q, ATH_ImageOP#AutoRangeTopImagePerPlaneAndVisibleArea()
 	"ATH Z-profiler: Use saved ROI  (3D)", /Q, ATH_SumBeamsProfile#TracePopupLaunchSavedROI()		
-	"ATH Save layer (TG, 3D)", /Q, ATH_GetLayerFromImageStack()
-	"ATH Save current view (TG, 2D, 3D)", /Q, ATH_GetScaledZoominImageWindow()
-	"ATH Scale Image stack (TG, 3D)", /Q, ATH_SetZScaleOfImageStack()
-	"ATH Select image and copy scales (2D, 3D)", /Q, ATH_ImageSelectToCopyScale()
-	"ATH Backup Image (2D, 3D)", /Q, ATH_BackupTopImage()	
-	"ATH Restore image (2D, 3D)", /Q, ATH_RestoreTopImageFromBackup()
+	"ATH Save layer (TG, 3D)", /Q, ATH_ImageOP#GetLayerFromImageStack()
+	"ATH Save current view (TG, 2D, 3D)", /Q, ATH_ImageOP#GetScaledZoominImageWindow()
+	"ATH Scale Image stack (TG, 3D)", /Q, ATH_ImageOP#SetZScaleOfImageStack()
+	"ATH Select image and copy scales (2D, 3D)", /Q, ATH_ImageOP#ImageSelectToCopyScale()
+	"ATH Backup Image (2D, 3D)", /Q, ATH_ImageOP#BackupTopImage()	
+	"ATH Restore image (2D, 3D)", /Q, ATH_ImageOP#RestoreTopImageFromBackup()
 	"ATH Clear UserFront layer" ,/Q, ATH_SumBeamsProfile#ClearROIMarkingsUserFront()	
 	"ATH Calculate XMC(L)D (3D[2])", /Q, ATH_Launch#CalculateXMCDFromStack()
 	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
