@@ -2,6 +2,7 @@
 #pragma rtGlobals    = 3		
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
+#pragma ModuleName = ATH_iXPSExtraction
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -29,10 +30,10 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-constant kATHEnergyPerPixel = 0.00780685 // energy per pixel - default setting 30.04.2023
+static constant kATHEnergyPerPixel = 0.00780685 // energy per pixel - default setting 30.04.2023
 
 
-Function ATH_MainMenuLaunchPESExtractor()
+static Function MainMenu()
 	
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -46,7 +47,7 @@ Function ATH_MainMenuLaunchPESExtractor()
 		DoWindow/F LinkedPlotStr
 		return 0
 	endif
-	ATH_InitialisePESExtractorFolder(winNameStr)
+	InitialiseFolder(winNameStr)
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
 	// Cursors to set the scale
@@ -56,14 +57,14 @@ Function ATH_MainMenuLaunchPESExtractor()
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(1.6 * nrows/2), round(0.4 * ncols/2)
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.4 * nrows/2), round(1.6 * ncols/2)
 	DFREF dfr = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:" + NameOfWave(imgWaveRef)) // Change root folder if you want
-	ATH_InitialisePESExtractorGraph(dfr)
-	SetWindow $winNameStr, hook(MyPESExtractorHook) = ATH_CursorHookFunctionPESExtractor // Set the hook
+	InitialiseGraph(dfr)
+	SetWindow $winNameStr, hook(MyPESExtractorHook) = ATH_iXPSExtraction#CursorHookFunction // Set the hook
 	SetWindow $winNameStr userdata(ATH_LinkedPESExtractorPlotStr) = "ATH_PESProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
 	SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_PESProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialisePESExtractorFolder
 	return 0
 End
 
-Function ATH_InitialisePESExtractorFolder(string winNameStr)
+static Function InitialiseFolder(string winNameStr)
 	/// All initialisation happens here. Folders, waves and local/global variables
 	/// needed are created here. Use the 3D wave in top window.
 
@@ -151,18 +152,18 @@ Function ATH_InitialisePESExtractorFolder(string winNameStr)
 	return 0
 End
 
-Function ATH_InitialisePESExtractorGraph(DFREF dfr)
+static Function InitialiseGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
 	string plotNameStr = "ATH_PESProf_" + GetDataFolder(0, dfr)
 	if (WinType(plotNameStr) == 0) // PES profile window is not displayed
-		ATH_CreatePESExtractorPlot(dfr)
+		XPSPlot(dfr)
 	else
 		DoWindow/F $plotNameStr // if it is bring it to the FG
 	endif
 	return 0
 End
 
-Function ATH_CreatePESExtractorPlot(DFREF dfr)
+static Function XPSPlot(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(rootFolderStr)
 	SVAR/SDFR=dfr gATH_WindowNameStr
@@ -186,37 +187,37 @@ Function ATH_CreatePESExtractorPlot(DFREF dfr)
 	SetWindow $profilePlotStr, hook(MyPESExtractorGraphHook) = ATH_PESExtractorGraphHookFunction // Set the hook
 	
 	ControlBar 100	
-	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save current profile"},proc=ATH_PESExtractorPlotSaveProfile
-	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile width as defaults"},proc=ATH_PESExtractorPlotSaveDefaultSettings
-	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_PESExtractorPlotRestoreDefaultSettings
-	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Shows width of integrated area while button is pressed"},proc=ATH_PESExtractorPlotShowProfileWidth
-	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_PESExtractorPlotCheckboxPlotProfile
-	CheckBox MarkPESs,pos={127.00,40.00},size={86.00,17.00},title="Mark Lines ",fSize=14,value=0,side=1,proc=ATH_PESExtractorPlotCheckboxMarkPES
-	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=ATH_PESExtractorPlotProfileLayer3D
-	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(1,39321,19939),value=profileWidth,limits={0,inf,1},proc=ATH_PESExtractorPlotSetVariableWidth
-	Button SetCursorsAB,valueColor=(1,12815,52428), pos={462,17},size={50,70.00},title="Set\nCsr\nA & B",fcolor=(65535,0,0),help={"Set cursors A (top right), B (lower left) and press button to calibrate the energy scale"},proc=ATH_PESExtractorPlotSSetCursorsAB // Change here	
-	SetVariable setSTV,pos={20,72.00},size={100,20.00},title="STV", fSize=14,fColor=(0,0,65535),value=stv,limits={0,inf,1},proc=ATH_PESExtractorPlotSetSTV // Energy per pixel
-	SetVariable sethv,pos={135,72.00},size={90,20.00},title="hv", fSize=14,fColor=(65535,0,0),value=hv,limits={0,inf,1},proc=ATH_PESExtractorPlotSethv
-	SetVariable setWf,pos={235,72.00},size={90,20.00},title="Wf", fSize=14,fColor=(1,39321,19939),value=Wf,limits={0,inf,0.1},proc=ATH_PESExtractorPlotSetWf
-	SetVariable setEPP,pos={335,72.00},size={118,20.00},title="EPP", fSize=14,fColor=(0,0,65535),value=epp,limits={0,10,0.01},proc=ATH_PESExtractorPlotSetEPP // Energy per pixel
+	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save current profile"},proc=ATH_iXPSExtraction#SaveProfile
+	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile width as defaults"},proc=ATH_iXPSExtraction#SaveDefaultSettings
+	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_iXPSExtraction#RestoreDefaultSettings
+	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Shows width of integrated area while button is pressed"},proc=ATH_iXPSExtraction#ShowProfileWidth
+	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_iXPSExtraction#PlotProfile
+	CheckBox MarkPESs,pos={127.00,40.00},size={86.00,17.00},title="Mark Lines ",fSize=14,value=0,side=1,proc=ATH_iXPSExtraction#MarkPES
+	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=ATH_iXPSExtraction#Layer3D
+	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(1,39321,19939),value=profileWidth,limits={0,inf,1},proc=ATH_iXPSExtraction#SetVariableWidth
+	Button SetCursorsAB,valueColor=(1,12815,52428), pos={462,17},size={50,70.00},title="Set\nCsr\nA & B",fcolor=(65535,0,0),help={"Set cursors A (top right), B (lower left) and press button to calibrate the energy scale"},proc=ATH_iXPSExtraction#SetCursorsAB // Change here	
+	SetVariable setSTV,pos={20,72.00},size={100,20.00},title="STV", fSize=14,fColor=(0,0,65535),value=stv,limits={0,inf,1},proc=ATH_iXPSExtraction#SetSTV // Energy per pixel
+	SetVariable sethv,pos={135,72.00},size={90,20.00},title="hv", fSize=14,fColor=(65535,0,0),value=hv,limits={0,inf,1},proc=ATH_iXPSExtraction#Sethv
+	SetVariable setWf,pos={235,72.00},size={90,20.00},title="Wf", fSize=14,fColor=(1,39321,19939),value=Wf,limits={0,inf,0.1},proc=ATH_iXPSExtraction#SetWf
+	SetVariable setEPP,pos={335,72.00},size={118,20.00},title="EPP", fSize=14,fColor=(0,0,65535),value=epp,limits={0,10,0.01},proc=ATH_iXPSExtraction#SetEPP // Energy per pixel
 	return 0
 End
 
-Function ATH_ClearPESMarkings()
+static Function ClearXPSMarkings()
 	SetDrawLayer UserFront
 	DrawAction delete
 	SetDrawLayer ProgFront
 	return 0
 End
 
-Function ATH_DrawPESUserFront(variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
+static Function DrawXPSUserFront(variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
 	SetDrawLayer UserFront 
 	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left
 	DrawLine x0, y0, x1, y1
 	return 0
 End
 
-Function ATH_CursorHookFunctionPESExtractor(STRUCT WMWinHookStruct &s)
+static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	/// The PES profile is plotted from E to F
     variable hookResult = 0
@@ -349,7 +350,7 @@ Function ATH_CursorHookFunctionPESExtractor(STRUCT WMWinHookStruct &s)
     return hookResult       // 0 if nothing done, else 1
 End
 
-Function ATH_PESExtractorGraphHookFunction(STRUCT WMWinHookStruct &s)
+static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentGraphWin = GetUserData(s.winName, "", "ATH_parentGraphWin")
 	switch(s.eventCode)
 		case 2: // Kill the window
@@ -375,7 +376,7 @@ Function ATH_PESExtractorGraphHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 
-Function ATH_PESExtractorPlotSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
@@ -451,7 +452,7 @@ Function ATH_PESExtractorPlotSaveProfile(STRUCT WMButtonAction &B_Struct): Butto
 							colorcnt += 1
 						endif
 						DoWindow/F $WindowNameStr
-						ATH_DrawPESUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
+						DrawXPSUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
 					endif
 				break // Stop if you go through the else branch
 				endif	
@@ -465,7 +466,7 @@ Function ATH_PESExtractorPlotSaveProfile(STRUCT WMButtonAction &B_Struct): Butto
 	return 0
 End
 
-Function ATH_PESExtractorPlotSaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings") // Settings here
 	NVAR/Z C1x = dfr:gATH_C1x
@@ -516,7 +517,7 @@ Function ATH_PESExtractorPlotSaveDefaultSettings(STRUCT WMButtonAction &B_Struct
 	endswitch
 End
 
-Function ATH_PESExtractorPlotRestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	DFREF dfr0 = ATH_CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings") // Settings here
 	string parentWindow = GetUserData(B_Struct.win, "", "ATH_parentGraphWin")
@@ -582,7 +583,7 @@ Function ATH_PESExtractorPlotRestoreDefaultSettings(STRUCT WMButtonAction &B_Str
 	endswitch
 End
 
-Function ATH_PESExtractorPlotShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	/// We have to find the vertices of the polygon representing
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	SVAR/Z WindowNameStr= dfr:gATH_WindowNameStr
@@ -641,7 +642,7 @@ Function ATH_PESExtractorPlotShowProfileWidth(STRUCT WMButtonAction &B_Struct): 
 	endswitch
 End
 
-Function ATH_PESExtractorPlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function PlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch
@@ -656,7 +657,7 @@ Function ATH_PESExtractorPlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : 
 	return 0
 End
 
-Function ATH_PESExtractorPlotProfileLayer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function Layer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
 	NVAR/Z updateSelectedLayer = dfr:gATH_updateSelectedLayer
@@ -680,7 +681,7 @@ Function ATH_PESExtractorPlotProfileLayer3D(STRUCT WMCheckboxAction& cb) : Check
 	return 0
 End
 
-Function ATH_PESExtractorPlotCheckboxMarkPES(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function MarkPES(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z MarkPESsSwitch = dfr:gATH_MarkPESLineSwitch
@@ -695,7 +696,7 @@ Function ATH_PESExtractorPlotCheckboxMarkPES(STRUCT WMCheckboxAction& cb) : Chec
 	return 0
 End
 
-Function ATH_PESExtractorPlotSetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
+static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
@@ -729,7 +730,7 @@ Function ATH_PESExtractorPlotSetVariableWidth(STRUCT WMSetVariableAction& sv) : 
 End
 
 
-Function ATH_PESExtractorPlotSSetCursorsAB(STRUCT WMButtonAction &B_Struct): ButtonControl)
+static Function SetCursorsAB(STRUCT WMButtonAction &B_Struct): ButtonControl)
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	string parentWindow = GetUserData(B_Struct.win, "", "ATH_parentGraphWin")
@@ -780,7 +781,7 @@ Function ATH_PESExtractorPlotSSetCursorsAB(STRUCT WMButtonAction &B_Struct): But
 	
 End
 
-Function ATH_PESExtractorPlotSethv(STRUCT WMSetVariableAction& sv) : SetVariableControl	
+static Function Sethv(STRUCT WMSetVariableAction& sv) : SetVariableControl	
 
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
 	NVAR/Z hv = dfr:gATH_hv
@@ -792,7 +793,7 @@ Function ATH_PESExtractorPlotSethv(STRUCT WMSetVariableAction& sv) : SetVariable
 	return 0
 End
 
-Function ATH_PESExtractorPlotSetWf(STRUCT WMSetVariableAction& sv) : SetVariableControl
+static Function SetWf(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
 	NVAR/Z wf = dfr:gATH_Wf
@@ -804,7 +805,7 @@ Function ATH_PESExtractorPlotSetWf(STRUCT WMSetVariableAction& sv) : SetVariable
 	return 0
 End
 
-Function ATH_PESExtractorPlotSetEPP(STRUCT WMSetVariableAction& sv) : SetVariableControl
+static Function SetEPP(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
 	NVAR/Z epp = dfr:gATH_epp
@@ -816,7 +817,7 @@ Function ATH_PESExtractorPlotSetEPP(STRUCT WMSetVariableAction& sv) : SetVariabl
 	return 0
 End
 
-Function ATH_PESExtractorPlotSetSTV(STRUCT WMSetVariableAction& sv) : SetVariableControl
+static Function SetSTV(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF dfr = ATH_CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
 	NVAR/Z stv = dfr:gATH_STV
