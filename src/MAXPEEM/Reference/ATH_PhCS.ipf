@@ -187,7 +187,7 @@ Static Function PTInitPanel()
 		col[][2]=unmarkB
 		
 		//Load the Ph. Cross-section dataset
-		string datasetPathStr = ParseFilePath(1,FunctionPath("ATH_PhCS#PhotoionisationCrossSection"),":",1,1) + "Datasets:PhotoionisationCrossSections:"
+		string datasetPathStr = ParseFilePath(1,FunctionPath("ATH_PhCS#PhotoionisationCrossSection"),":",1,1) + "Datasets:PhCS:"
 		NewPath/Q/O ATH_sourceData_TMP, datasetPathStr
 		LoadWave/Q/H/P=ATH_sourceData_TMP "ATH_PhCrossSectionTable.ibw"
 		KillPath/Z ATH_sourceData_TMP
