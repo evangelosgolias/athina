@@ -2,7 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and later
-#pragma ModuleName  = ATH_LoadUview
+#pragma ModuleName  = ATH_Uview
 
 // ------------------------------------------------------- //
 // Functions to import binary .dat & .dav files created by 
@@ -1227,7 +1227,7 @@ static Function/WAVE WAVELoadSingleCorruptedDATFile(string filepathStr, string w
 		message = "Select .dat file. \nWave names are filenames /O.\n "
 		Open/F=fileFilters/R numRef as filepathStr
 	else
-		Abort "Path for datafile not specified (check ATH_LoadUview#WAVELoadSingleDATFile)!"
+		Abort "Path for datafile not specified (check ATH_Uview#WAVELoadSingleDATFile)!"
 	endif
 		
 	FStatus numRef
@@ -1297,7 +1297,7 @@ static Function LoadSingleCorruptedDATFile(string filepathStr, string waveNameSt
 		message = "Select .dat file. \nWave names are filenames /O.\n "
 		Open/F=fileFilters/R numRef as filepathStr
 	else
-		Abort "Path for datafile not specified (check ATH_LoadUview#WAVELoadSingleDATFile)!"
+		Abort "Path for datafile not specified (check ATH_Uview#WAVELoadSingleDATFile)!"
 	endif
 		
 	FStatus numRef

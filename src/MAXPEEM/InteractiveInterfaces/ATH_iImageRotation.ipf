@@ -2,7 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
-#pragma ModuleName = ATH_iImageRotation
+#pragma ModuleName = ATH_iImgRotation
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -73,17 +73,17 @@ static Function CreatePanel()
 	SetDrawEnv/W=iImageRotation fsize= 13,fstyle= 1,textrgb= (1,12815,52428)
 	DrawText/W=iImageRotation 90, 20,"Image rotation (deg)"
 	Slider RotAngleSlider vert=0,limits={-180,180,0},pos={15,25},size={270,50},ticks=50, fSize=12
-	Slider RotAngleSlider variable=dfr:gATH_Angle,proc=ATH_iImageRotation#SliderProc
-	SetVariable RotAngle title="Set angle",fSize=14,size={120,20}, pos={90,70}, value = dfr:gATH_Angle, proc=ATH_iImageRotation#SetAngle
-	Button SaveImg title="Save copy",size={80,20},pos={20,100},proc=ATH_iImageRotation#SaveCopyButton
-	Button OverwiteImg title="Overwite ",size={70,20}, pos={110,100},proc=ATH_iImageRotation#OverwriteImgButton
-	Button RestoreImageRot title="Restore",size={80,20},pos={190,100},fColor=(3,52428,1),proc=ATH_iImageRotation#RestoreImageRotButton
+	Slider RotAngleSlider variable=dfr:gATH_Angle,proc=ATH_iImgRotation#SliderProc
+	SetVariable RotAngle title="Set angle",fSize=14,size={120,20}, pos={90,70}, value = dfr:gATH_Angle, proc=ATH_iImgRotation#SetAngle
+	Button SaveImg title="Save copy",size={80,20},pos={20,100},proc=ATH_iImgRotation#SaveCopyButton
+	Button OverwiteImg title="Overwite ",size={70,20}, pos={110,100},proc=ATH_iImgRotation#OverwriteImgButton
+	Button RestoreImageRot title="Restore",size={80,20},pos={190,100},fColor=(3,52428,1),proc=ATH_iImgRotation#RestoreImageRotButton
 
-	SetWindow $winNameStr#iImageRotation hook(MyImageRotationPanelHook) = ATH_iImageRotation#PanelHookFunction
+	SetWindow $winNameStr#iImageRotation hook(MyImageRotationPanelHook) = ATH_iImgRotation#PanelHookFunction
 	SetWindow $winNameStr#iImageRotation userdata(ATH_iRotateFolder) = "root:Packages:ATH_DataFolder:InteractiveImageRotation:" + winNameStr
 	SetWindow $winNameStr#iImageRotation userdata(ATH_iImageRotateParentWindow) = winNameStr
 	
-	SetWindow $winNameStr hook(MyImageRotationParentGraphHook) = ATH_iImageRotation#GraphHookFunction
+	SetWindow $winNameStr hook(MyImageRotationParentGraphHook) = ATH_iImgRotation#GraphHookFunction
 	SetWindow $winNameStr userdata(ATH_iRotateFolder) = "root:Packages:ATH_DataFolder:InteractiveImageRotation:" + winNameStr
 	return 0
 End

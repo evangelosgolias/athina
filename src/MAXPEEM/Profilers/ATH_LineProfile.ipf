@@ -1,7 +1,7 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals    = 3		
 #pragma IgorVersion  = 9
-#pragma ModuleName = ATH_ImageLineProfile
+#pragma ModuleName = ATH_LineProfile
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 
 // ------------------------------------------------------- //
@@ -30,7 +30,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static Function MainMenuLaunch()
+static Function MainMenu()
 	
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -50,7 +50,7 @@ static Function MainMenuLaunch()
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 	InitialiseGraph(dfr)
-	SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_ImageLineProfile#CursorsHookFunction // Set the hook
+	SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_LineProfile#CursorsHookFunction // Set the hook
 	SetWindow $winNameStr userdata(ATH_LinkedWinImageLPP) = "ATH_LineProfilePlot_" + winNameStr // Name of the plot we will make, used to communicate the
 	SetWindow $winNameStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + winNameStr //  Same as gATH_WindowNameStr, see InitialiseFolder
 	SetWindow $winNameStr userdata(ATH_LineProfRootDF) = GetDataFolder(1, dfr)
@@ -155,17 +155,17 @@ static Function CreatePlot(DFREF dfr)
 	SetWindow $profilePlotStr userdata(ATH_LineProfRootDF) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + gATH_WindowNameStr 
 	SetWindow $profilePlotStr userdata(ATH_LinkedWinImageSource) = gATH_WindowNameStr 
-	SetWindow $profilePlotStr, hook(MyLineProfileGraphHook) = ATH_ImageLineProfile#GraphHookFunction // Set the hook
+	SetWindow $profilePlotStr, hook(MyLineProfileGraphHook) = ATH_LineProfile#GraphHookFunction // Set the hook
 	
 	ControlBar 70	
-	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=ATH_ImageLineProfile#PlotSaveProfile
-	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=ATH_ImageLineProfile#SaveDefaultSettings
-	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_ImageLineProfile#RestoreDefaultSettings
-	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",fcolor=(65535,32768,32768),help={"Show width of integrated area while button is pressed"},proc=ATH_ImageLineProfile#ShowProfileWidth
-	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_ImageLineProfile#CheckboxPlotProfile
-	CheckBox MarkLines,pos={127.00,40.00},size={86.00,17.00},title="Mark lines ",fSize=14,value=0,side=1,proc=ATH_ImageLineProfile#CheckboxMarkLines
-	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,value=1,proc=ATH_ImageLineProfile#ProfileLayer3D
-	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1},proc=ATH_ImageLineProfile#SetVariableWidth
+	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=ATH_LineProfile#PlotSaveProfile
+	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=ATH_LineProfile#SaveDefaultSettings
+	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_LineProfile#RestoreDefaultSettings
+	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",fcolor=(65535,32768,32768),help={"Show width of integrated area while button is pressed"},proc=ATH_LineProfile#ShowProfileWidth
+	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_LineProfile#CheckboxPlotProfile
+	CheckBox MarkLines,pos={127.00,40.00},size={86.00,17.00},title="Mark lines ",fSize=14,value=0,side=1,proc=ATH_LineProfile#CheckboxMarkLines
+	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,value=1,proc=ATH_LineProfile#ProfileLayer3D
+	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1},proc=ATH_LineProfile#SetVariableWidth
 	return 0
 End
 

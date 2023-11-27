@@ -35,7 +35,7 @@ static Function MenuLaunch()
 	/// graph of the XMC(L)D contrast.
 	
 	string msg = "Select two waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
-	string selectedWavesInBrowserStr = ATH_DP#SelectWavesInModalDataBrowser(msg)
+	string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
 	// S_fileName is a carriage-return-separated list of full paths to one or more files.
 	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
 	string selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)

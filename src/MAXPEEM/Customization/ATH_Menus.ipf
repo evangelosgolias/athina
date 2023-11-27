@@ -33,10 +33,10 @@
 Menu "Athina"
 
 	Submenu "Import"
-		".dat files...", /Q, ATH_LoadUview#LoadMultiplyDATFiles(autoscale = 1)
-		".dat files and stack ...", /Q, ATH_LoadUview#LoadMultiplyDATFiles(stack3d = 1, autoscale = 1)		
-		".dat files in folder...", /Q, ATH_LoadUview#LoadDATFilesFromFolder("", "*", autoscale = 1)		
-		".dat files in folder and stack ...", /Q, ATH_LoadUview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 
+		".dat files...", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1)
+		".dat files and stack ...", /Q, ATH_Uview#LoadMultiplyDATFiles(stack3d = 1, autoscale = 1)		
+		".dat files in folder...", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", autoscale = 1)		
+		".dat files in folder and stack ...", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 
 		".h5 file ...", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
 	End
 	
@@ -55,15 +55,15 @@ Menu "Athina"
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, ATH_Launch#ImageRotateAndScaleFromMetadata()
 		"Remove background (TG, 2D, 3D)", /Q, ATH_Launch#ImgRemoveBackground()	
 		"Duplicate image and data (TG, 2D, 3D)", /Q, ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
-		"Backup Image (TG)", /Q, ATH_ImageOP#BackupTopImage()	
-		"Restore image from backup (TG)", /Q, ATH_ImageOP#RestoreTopImageFromBackup()
+		"Backup Image (TG)", /Q, ATH_ImgOp#BackupTopImage()	
+		"Restore image from backup (TG)", /Q, ATH_ImgOp#RestoreTopImageFromBackup()
 		"Normalize to [0, 1] (TG)", /Q, ATH_Launch#ScalePlanesBetweenZeroAndOne()
 		"Center image histogram (TG)", /Q, ATH_Launch#HistogramShiftToGaussianCenter()
 		"Rotate 3d wave axes (TG, 3D)", /Q, ATH_Launch#Rotate3DWaveAxes()
 	End
 	
 	Submenu "Interactive Operations"
-		"Rotate image (TG, 2D, 3D) ", /Q,  ATH_iImageRotation#CreatePanel()
+		"Rotate image (TG, 2D, 3D) ", /Q,  ATH_iImgRotation#CreatePanel()
 		"Drift correction (TG, 2D, 3D) ", /Q, ATH_iDriftCorrection#CreatePanel()
 		"XMC(L)D calculation ...", /Q, ATH_iXMCD#MenuLaunch()
 	End
@@ -76,8 +76,8 @@ Menu "Athina"
 	End
 	
 	Submenu "Profiles "
-		"Line profile (TG, 2D, 3D)", /Q, ATH_ImageLineProfile#MainMenuLaunch()
-		"Plane profile (TG, 3D)",/Q, ATH_ImagePlaneProfileZ#MenuLaunch()	
+		"Line profile (TG, 2D, 3D)", /Q, ATH_LineProfile#MainMenu()
+		"Plane profile (TG, 3D)",/Q, ATH_PlaneZProfile#MenuLaunch()	
 		"(Z profile -> Use Marquee on TG (3D)"//, /Q, DoAlert 0, "Use Marquee for Z-profile!"
 	End
 
@@ -89,7 +89,7 @@ Menu "Athina"
 	End	
 		
 	Submenu "XPS"
-		"Extract XPS profile from image (TG, 2D)", /Q, ATH_iXPSExtraction#MainMenu()
+		"Extract XPS profile from image (TG, 2D)", /Q, ATH_iXPS#MainMenu()
 		"Subtract background(TG, 1D) ", /Q, BackgroundSubtractGUI()
 	End	
 	
@@ -97,7 +97,7 @@ Menu "Athina"
 		"Spaces",/Q, ATH_Spaces#MenuLauch()
 		"Free space",/Q, ATH_Launch#DeleteBigWaves()
 		"List HDF5 (.h5) entries...", /Q, ATH_HDF5#ListHDF5Groups()		
-		"Photoionisation CrossSection",/Q, PhotoionisationCrossSection#PhotoionisationCrossSection()
+		"Photoionisation CrossSection",/Q, ATH_PhCS#PhotoionisationCrossSection()
 	End
 	Submenu "Beamtime"
 		"Set experiment's root folder",/Q, ATH_Beamtime#SetOrResetBeamtimeRootFolder()
@@ -116,8 +116,8 @@ Menu "GraphMarquee"
 	"ATH Print ROI stats (2D, 3D)", /Q, ATH_Marquee#GetMarqueeWaveStats()
 	"ATH Save Rect ROI (2D, 3D)", /Q, ATH_Marquee#SaveROICoordinatesToDatabase(rect = 1)		
 	"ATH Save Oval ROI (2D, 3D)", /Q, ATH_Marquee#SaveROICoordinatesToDatabase()
-	"ATH Z-profiler: Set rectangular ROI  (3D)", /Q, ATH_SumBeamsProfile#GraphMarqueeLaunchRectangle()	
-	"ATH Z-profiler: Set oval ROI  (3D)", /Q, ATH_SumBeamsProfile#GraphMarqueeLaunchOval()
+	"ATH Z-profiler: Set rectangular ROI  (3D)", /Q, ATH_ZProfile#GraphMarqueeLaunchRectangle()	
+	"ATH Z-profiler: Set oval ROI  (3D)", /Q, ATH_ZProfile#GraphMarqueeLaunchOval()
 	"ATH Backup traces (1D)", /Q, ATH_Marquee#BackupTraces()
 	"ATH Restore traces (1D)", /Q, ATH_Marquee#RestoreTraces()
 	"ATH Normalise to profile (1D)", /Q, ATH_Marquee#NormaliseTracesWithProfile()
@@ -141,16 +141,16 @@ Menu "DataBrowserObjectsPopup"
 End
 
 Menu "TracePopup"
-	"ATH Autoscale Image (2D, 3D)", /Q, ATH_ImageOP#AutoRangeTopImage()
-	"ATH Dynamic Autoscale Image Plane (3D)", /Q, ATH_ImageOP#AutoRangeTopImagePerPlaneAndVisibleArea()
-	"ATH Z-profiler: Use saved ROI  (3D)", /Q, ATH_SumBeamsProfile#TracePopupLaunchSavedROI()		
-	"ATH Save layer (TG, 3D)", /Q, ATH_ImageOP#GetLayerFromImageStack()
-	"ATH Save current view (TG, 2D, 3D)", /Q, ATH_ImageOP#GetScaledZoominImageWindow()
-	"ATH Scale Image stack (TG, 3D)", /Q, ATH_ImageOP#SetZScaleOfImageStack()
-	"ATH Select image and copy scales (2D, 3D)", /Q, ATH_ImageOP#ImageSelectToCopyScale()
-	"ATH Backup Image (2D, 3D)", /Q, ATH_ImageOP#BackupTopImage()	
-	"ATH Restore image (2D, 3D)", /Q, ATH_ImageOP#RestoreTopImageFromBackup()
-	"ATH Clear UserFront layer" ,/Q, ATH_SumBeamsProfile#ClearROIMarkingsUserFront()	
+	"ATH Autoscale Image (2D, 3D)", /Q, ATH_ImgOp#AutoRangeTopImage()
+	"ATH Dynamic Autoscale Image Plane (3D)", /Q, ATH_ImgOp#AutoRangeTopImagePerPlaneAndVisibleArea()
+	"ATH Z-profiler: Use saved ROI  (3D)", /Q, ATH_ZProfile#TracePopupLaunchSavedROI()		
+	"ATH Save layer (TG, 3D)", /Q, ATH_ImgOp#GetLayerFromImageStack()
+	"ATH Save current view (TG, 2D, 3D)", /Q, ATH_ImgOp#GetScaledZoominImageWindow()
+	"ATH Scale Image stack (TG, 3D)", /Q, ATH_ImgOp#SetZScaleOfImageStack()
+	"ATH Select image and copy scales (2D, 3D)", /Q, ATH_ImgOp#ImageSelectToCopyScale()
+	"ATH Backup Image (2D, 3D)", /Q, ATH_ImgOp#BackupTopImage()	
+	"ATH Restore image (2D, 3D)", /Q, ATH_ImgOp#RestoreTopImageFromBackup()
+	"ATH Clear UserFront layer" ,/Q, ATH_ZProfile#ClearROIMarkingsUserFront()	
 	"ATH Calculate XMC(L)D (3D[2])", /Q, ATH_Launch#CalculateXMCDFromStack()
 	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
 End

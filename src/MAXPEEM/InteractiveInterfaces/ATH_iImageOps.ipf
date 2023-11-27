@@ -2,7 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion= 9
-#pragma ModuleName = ATH_iImageOps
+#pragma ModuleName = ATH_iImgOps
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -36,7 +36,7 @@ static Function MenuLaunch()
 	/// graph of the XMC(L)D contrast.
 	
 	string msg = "Select two waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
-	string selectedWavesInBrowserStr = ATH_DP#SelectWavesInModalDataBrowser(msg)
+	string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
 	// S_fileName is a carriage-return-separated list of full paths to one or more files.
 	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
 	string selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)

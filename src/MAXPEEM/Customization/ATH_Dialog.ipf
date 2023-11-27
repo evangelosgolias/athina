@@ -2,7 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
-#pragma ModuleName = ATH_DP
+#pragma ModuleName = ATH_Dialog
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -191,8 +191,8 @@ static Function WaitForUserActions(STRUCT sUserMarqueePositions &s, [variable vW
 	
 	StructPut /S s, structStr
 	DrawText 15,20,"Continue or cancel ?"
-	Button buttonContinue, win=$panelNameStr, pos={80,50},size={92,20}, title="Continue", proc=ATH_DP#WaitForUserActions_ContButtonProc 
-	Button buttonCancel, win=$panelNameStr, pos={80,80},size={92,20}, title="Cancel", proc=ATH_DP#WaitForUserActions_CancelBProc
+	Button buttonContinue, win=$panelNameStr, pos={80,50},size={92,20}, title="Continue", proc=ATH_Dialog#WaitForUserActions_ContButtonProc 
+	Button buttonCancel, win=$panelNameStr, pos={80,80},size={92,20}, title="Cancel", proc=ATH_Dialog#WaitForUserActions_CancelBProc
 	SetWindow $winNameStr userdata(sCoords)=structStr 
 	SetWindow $winNameStr userdata(spanelNameStr)= panelNameStr
 	SetWindow $panelNameStr userdata(swinNameStr) = winNameStr 

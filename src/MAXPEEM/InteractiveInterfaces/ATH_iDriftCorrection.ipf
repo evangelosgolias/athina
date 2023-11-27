@@ -251,7 +251,7 @@ static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct)
 			variable i, nLayerL
 			variable nlayers = DimSize(w3dRef, 2)
 			string layersListStr
-			string inputStr = ATH_DP#GenericSingleStrPrompt("Select layers to drift, e.g \"2-5,7,9-12,50\", operation is slow for many layers", "Drift selected layers")
+			string inputStr = ATH_Dialog#GenericSingleStrPrompt("Select layers to drift, e.g \"2-5,7,9-12,50\", operation is slow for many layers", "Drift selected layers")
 			if(strlen(inputStr))	
 				layersListStr = ATH_String#ExpandRangeStr(inputStr)
 			else

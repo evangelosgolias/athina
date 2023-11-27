@@ -183,10 +183,10 @@ static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 				prefix = ""
 			endif
 			oldSpaceNameStr = SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])
-			newSpaceNameStr = TrimString(ATH_DP#GenericSingleStrPrompt("New name", msg))
+			newSpaceNameStr = TrimString(ATH_Dialog#GenericSingleStrPrompt("New name", msg))
 			if(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr))|| GrepString(newSpaceNameStr, "^\*")) // if the name is not unique or empty string
 				do
-					newSpaceNameStr = TrimString(ATH_DP#GenericSingleStrPrompt("Space name already exists or string is empty or starts with *, enter a valid name:", \
+					newSpaceNameStr = TrimString(ATH_Dialog#GenericSingleStrPrompt("Space name already exists or string is empty or starts with *, enter a valid name:", \
 																			"Enter a *unique* name for the new Space"))
 				while(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr))|| GrepString(newSpaceNameStr, "^\*"))
 			endif
@@ -249,10 +249,10 @@ static Function NewSpaceButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/SDFR=dfr gSelectedSpace
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			string newSpaceNameStr = TrimString(ATH_DP#GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter the name of the new Space"))
+			string newSpaceNameStr = TrimString(ATH_Dialog#GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter the name of the new Space"))
 			if(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)) || GrepString(newSpaceNameStr, "^\*")) // if the name is not unique or empty string
 				do
-					newSpaceNameStr = TrimString(ATH_DP#GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter a *different* name for the new Space"))
+					newSpaceNameStr = TrimString(ATH_Dialog#GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter a *different* name for the new Space"))
 				while(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)) || GrepString(newSpaceNameStr, "^\*"))
 			endif
 			if (!numEntries) // If you have deleted all spaces

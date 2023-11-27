@@ -33,7 +33,7 @@
 
 static Function Make3DWaveUsingPattern()
 	string wname3dStr, pattern
-	[wname3dStr, pattern] = ATH_DP#GenericDoubleStrPrompt("Stack name","Match waves (use * wildcard)", "Make a stack from waves using a pattern")
+	[wname3dStr, pattern] = ATH_Dialog#GenericDoubleStrPrompt("Stack name","Match waves (use * wildcard)", "Make a stack from waves using a pattern")
 	
 	ATH_WaveOp#Make3DWaveUsingPattern(wname3dStr, pattern)
 End
@@ -52,7 +52,7 @@ static Function Make3DWaveDataBrowserSelection([variable displayStack])
 End
 
 static Function LoadHDF5GroupsFromFile()
-	string selectedGroups = ATH_DP#GenericSingleStrPrompt("Use single ScanID and/or ranges, e.g.  \"2-5,7,9-12,50\".  Leave string empty to load all entries.", "Before the .h5 selection dialog opens...")
+	string selectedGroups = ATH_Dialog#GenericSingleStrPrompt("Use single ScanID and/or ranges, e.g.  \"2-5,7,9-12,50\".  Leave string empty to load all entries.", "Before the .h5 selection dialog opens...")
 	if(strlen(selectedGroups))
 		ATH_HDF5#LoadHDF5SpecificGroups(selectedGroups)
 	else
@@ -65,7 +65,7 @@ static Function AverageStackToImageFromMenu()
 	string strPrompt1 = "Select stack"
 	string strPrompt2 = "Enter averaged wave nane (leave empty for ATH_AvgStack)"
 	string msgDialog = "Average a stack (3d wave) in working DF"
-	[selectWaveStr, waveNameStr] = ATH_DP#GenericSingleStrPromptAndPopup(strPrompt1, strPrompt2, waveListStr, msgDialog)
+	[selectWaveStr, waveNameStr] = ATH_Dialog#GenericSingleStrPromptAndPopup(strPrompt1, strPrompt2, waveListStr, msgDialog)
 	if(!strlen(waveNameStr))
 		ATH_WaveOp#AverageStackToImage($selectWaveStr)
 	else
@@ -75,14 +75,14 @@ static Function AverageStackToImageFromMenu()
 End
 
 static Function AverageStackToImageFromTraceMenu()
-	WAVE/Z w3dref = ATH_ImageOP#TopImageToWaveRef()
+	WAVE/Z w3dref = ATH_ImgOp#TopImageToWaveRef()
 	if(!DimSize(w3dref, 2))
 		Abort "Operation needs a stack"
 	endif
 	string strPrompt = "Averaged wave nane (leave empty for ATH_AvgStack)"
 	string msgDialog = "Average stack along z"
 	string waveNameStr
-	waveNameStr = ATH_DP#GenericSingleStrPrompt(strPrompt, msgDialog)
+	waveNameStr = ATH_Dialog#GenericSingleStrPrompt(strPrompt, msgDialog)
 	if(!strlen(waveNameStr))
 		ATH_WaveOp#AverageStackToImage(w3dref)
 	else
@@ -93,8 +93,8 @@ End
 
 static Function AverageStackToImageFromBrowserMenu()
 	string bufferStr, wavenameStr
-	if(ATH_DP#CountSelectedWavesInDataBrowser(waveDimemsions = 3) == 1\
-	 && ATH_DP#CountSelectedWavesInDataBrowser() == 1) // If we selected a single 3D wave
+	if(ATH_Dialog#CountSelectedWavesInDataBrowser(waveDimemsions = 3) == 1\
+	 && ATH_Dialog#CountSelectedWavesInDataBrowser() == 1) // If we selected a single 3D wave
 		string selected3DWaveStr = GetBrowserSelection(0)
 		WAVE w3dRef = $selected3DWaveStr	
 	else
@@ -120,7 +120,7 @@ End
 
 static Function RegisterQCalculateXRayDichroism()
 	string msg = "Select two waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
-	string selectedWavesInBrowserStr = ATH_DP#SelectWavesInModalDataBrowser(msg)
+	string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
 	
 	// S_fileName is a carriage-return-separated list of full paths to one or more files.
 	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
@@ -180,7 +180,7 @@ static Function RegisterQCalculateXRayDichroism()
 	
 	Duplicate/FREE wimg2, wimg2copy
 	if(registerImageQ == 1)
-		ATH_ImageAlign#ImgRegistration(wimg1, wimg2copy)
+		ATH_ImgAlign#ImgRegistration(wimg1, wimg2copy)
 	endif
 	if(!strlen(saveWaveName))
 		saveWaveName = "ATHxmcd"
@@ -196,7 +196,7 @@ static Function RegisterQCalculateXRayDichroism()
 End
 
 static Function CalculateXMCDFromStack()
-	WAVE/Z w3dref = ATH_ImageOP#TopImageToWaveRef()
+	WAVE/Z w3dref = ATH_ImgOp#TopImageToWaveRef()
 	if(DimSize(w3dref,2) != 2)
 		Abort "A stack with two layers in needed"
 	endif
@@ -228,8 +228,8 @@ static Function DialogLoadTwoImagesAndRegisterQ()
 		Abort "Select exactly two .dat files"
 	endif
 
-	WAVE wimg1 = ATH_LoadUview#WAVELoadSingleDATFile(StringFromList(0,S_filename, "\r"), "",  autoscale = 1)
-	WAVE wimg2 = ATH_LoadUview#WAVELoadSingleDATFile(StringFromList(1,S_filename, "\r"), "",  autoscale = 1)
+	WAVE wimg1 = ATH_Uview#WAVELoadSingleDATFile(StringFromList(0,S_filename, "\r"), "",  autoscale = 1)
+	WAVE wimg2 = ATH_Uview#WAVELoadSingleDATFile(StringFromList(1,S_filename, "\r"), "",  autoscale = 1)
 	
 	if(WaveType(wimg1) & 0x10) // If WORD (int16)
 		Redimension/S wimg1
@@ -254,7 +254,7 @@ static Function DialogLoadTwoImagesAndRegisterQ()
 	endif
 		
 	if(registerImageQ == 1)
-		ATH_ImageAlign#ImgRegistration(wimg1, wimg2) // NB: wimg2 is overwritten here
+		ATH_ImgAlign#ImgRegistration(wimg1, wimg2) // NB: wimg2 is overwritten here
 	endif
 	
 	if(!strlen(saveWaveName))
@@ -276,7 +276,7 @@ End
 
 static Function CalculationXMCD3D()
 	string msg = "Select two 3d waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
-	string selectedWavesInBrowserStr = ATH_DP#SelectWavesInModalDataBrowser(msg)
+	string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
 	
 	// S_fileName is a carriage-return-separated list of full paths to one or more files.
 	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
@@ -348,7 +348,7 @@ static Function ImageStackAlignmentFullImage()
 	string backupWavePathStr = ATH_WaveOp#BackupWaveInWaveDF(w3dref)
 	int switchWaveCopy = 0
 	if(normalise == 1)
-		ATH_ImageOP#ScalePlanesBetweenZeroAndOne(w3dRef)
+		ATH_ImgOp#ScalePlanesBetweenZeroAndOne(w3dRef)
 		switchWaveCopy = 1
 	endif
 
@@ -360,28 +360,28 @@ static Function ImageStackAlignmentFullImage()
 	if(windowing > 1)
 		string windowingMethods = "None;Hanning;Hamming;Bartlett;Blackman" // Prompt first item returns 1!
 		string applywindowingMethods = StringFromList(windowing, windowingMethods)
-		ATH_ImageOP#ImageWindow3D(w3dRef, applywindowingMethods)
+		ATH_ImgOp#ImageWindow3D(w3dRef, applywindowingMethods)
 		switchWaveCopy = 1
 	endif
 	if(edgeAlgo > 1)
 		string edgeDetectionAlgorithms = "None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
 		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
-		ATH_ImageOP#ImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo, overwrite = 1)
+		ATH_ImgOp#ImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo, overwrite = 1)
 		switchWaveCopy = 1	
 	endif
 	if(algo == 1)
 		if(switchWaveCopy)
-			ATH_ImageAlign#ImgStackRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1,\
+			ATH_ImgAlign#ImgStackRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1,\
 			selfDrift = 0, cutoff = cutoff)
 		else
-			ATH_ImageAlign#ImgStackRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1)
+			ATH_ImgAlign#ImgStackRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1)
 		endif
 	elseif(algo == 2)
 		if(switchWaveCopy)
-			ATH_ImageAlign#ImgStackCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, \
+			ATH_ImgAlign#ImgStackCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, \
 			selfDrift = 0, cutoff = cutoff)
 		else
-			ATH_ImageAlign#ImgStackCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, cutoff = cutoff)
+			ATH_ImgAlign#ImgStackCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, cutoff = cutoff)
 		endif
 	else 
 		Abort "Please check ImageStackAlignmentFullImage(), method error."
@@ -451,7 +451,7 @@ static Function ImageStackAlignmentPartition()
 			filterN = 15
 		endif
 		string filterStr = StringFromList(filter, "None;gauss;avg;median;max;min")
-		ATH_ImageOP#MatrixFilter3D(partitionWave, filterStr, filterN, nrTimes)
+		ATH_ImgOp#MatrixFilter3D(partitionWave, filterStr, filterN, nrTimes)
 	endif
 
 	if(histEq == 1)
@@ -459,20 +459,20 @@ static Function ImageStackAlignmentPartition()
 	endif
 	
 	if(normalise == 1)
-		ATH_ImageOP#ScalePlanesBetweenZeroAndOne(partitionWave)
+		ATH_ImgOp#ScalePlanesBetweenZeroAndOne(partitionWave)
 	endif
 
 	// Edge detection is applied last
 	if(edgeAlgo > 1)
 		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
 		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
-		ATH_ImageOP#ImageEdgeDetectionToStack(partitionWave, applyEdgeDetectionAlgo, overwrite = 1)
+		ATH_ImgOp#ImageEdgeDetectionToStack(partitionWave, applyEdgeDetectionAlgo, overwrite = 1)
 	endif
 	
 	if(method == 1)
-		ATH_ImageAlign#ImgStackPartitionRegistration(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2, cutoff = cutoff)
+		ATH_ImgAlign#ImgStackPartitionRegistration(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2, cutoff = cutoff)
 	elseif(method == 2)
-		ATH_ImageAlign#ImgStackPartitionCorrelation(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2, cutoff = cutoff)
+		ATH_ImgAlign#ImgStackPartitionCorrelation(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2, cutoff = cutoff)
 	else
 		Abort "Please check ImageStackAlignmentUsingAFeature(), method error."
 	endif
@@ -515,7 +515,7 @@ static Function LinearImageStackAlignmentUsingABCursors()
 	// ImageInterpolate needs pixels, multiply by -1 to have the proper behavior in /ARPM={...}
 	variable dx = DimDelta(w3dref, 0) ; variable dy = DimDelta(w3dref, 1)
 	wx /= (-dx) ; wy /= (-dy)
-	ATH_ImageAlign#LinearDriftABCursors(w3dref, wx, wy)
+	ATH_ImgAlign#LinearDriftABCursors(w3dref, wx, wy)
 	return 0
 End
 
@@ -556,7 +556,7 @@ static Function ImageBackupFromBrowserSelection()
 	if(WaveDims($ATHImage) != 3 && WaveDims($ATHImage) != 2)
 		Abort "Operation needs an image or image stack"
 	endif
-	ATH_ImageOP#RestoreTopImageFromBackup(wname = ATHImage)
+	ATH_ImgOp#RestoreTopImageFromBackup(wname = ATHImage)
 	return 0
 End
 
@@ -564,12 +564,12 @@ End
 
 static Function NormalisationImageStackWithImage()
 		
-	if(ATH_DP#CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
+	if(ATH_Dialog#CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
 		Abort "Please select an image stack (3d wave)"
 	endif
 	string wave3dStr = StringFromList(0, GetBrowserSelection(0))
 	WAVE w3dRef = $wave3dStr
-	string imageNameStr = StringFromList(0, ATH_DP#SelectWavesInModalDataBrowser("Select an image (2d wave) for normalisation"))
+	string imageNameStr = StringFromList(0, ATH_Dialog#SelectWavesInModalDataBrowser("Select an image (2d wave) for normalisation"))
 	WAVE imageWaveRef = $imageNameStr
 	// consistency check
 	if((DimSize(w3dRef, 0) != DimSize(imageWaveRef, 0)) || (DimSize(w3dRef, 1) != DimSize(imageWaveRef, 1)) ||\
@@ -580,19 +580,19 @@ static Function NormalisationImageStackWithImage()
 					 "Aborting operation.", NameOfWave(w3dRef), NameOfWave(imageWaveRef)
 		Abort msg
 	endif
-	string waveNormStr = ATH_ImageOP#NormaliseImageStackWithImage(w3dRef, imageWaveRef)
+	string waveNormStr = ATH_ImgOp#NormaliseImageStackWithImage(w3dRef, imageWaveRef)
 	string noteStr = "Normalised with " + GetWavesDataFolder(imageWaveRef, 2)
 	Note $waveNormStr, noteStr
 End
 
 static Function NormalisationImageStackWithProfile()
 	
-	if(ATH_DP#CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
+	if(ATH_Dialog#CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
 		Abort "Please select an image stack (3d wave)"
 	endif
 	string wave3dStr = StringFromList(0, GetBrowserSelection(0))
 	WAVE w3dRef = $wave3dStr
-	string selectProfileStr = StringFromList(0, ATH_DP#SelectWavesInModalDataBrowser("Select a profile (1d wave) for normalisation"))
+	string selectProfileStr = StringFromList(0, ATH_Dialog#SelectWavesInModalDataBrowser("Select a profile (1d wave) for normalisation"))
 	WAVE profWaveRef = $selectProfileStr
 	// consistency check
 	variable nlayers = DimSize(w3dRef, 2) 
@@ -606,19 +606,19 @@ static Function NormalisationImageStackWithProfile()
 			return -1
 		endif
 	endif
-	string waveNormStr = ATH_ImageOP#NormaliseImageStackWithProfile(w3dRef, profWaveRef)
+	string waveNormStr = ATH_ImgOp#NormaliseImageStackWithProfile(w3dRef, profWaveRef)
 	string noteStr = "Normalised with " + GetWavesDataFolder(profWaveRef, 2)
 	Note $waveNormStr, noteStr	
 End
 
 static Function NormalisationImageStackWithImageStack()
 
-	if(ATH_DP#CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
+	if(ATH_Dialog#CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
 		Abort "Please select an image stack (3d wave)"
 	endif
 	string wave3d1Str = StringFromList(0, GetBrowserSelection(0))
 	WAVE w3d1Ref = $wave3d1Str
-	string wave3d2Str = StringFromList(0, ATH_DP#SelectWavesInModalDataBrowser("Select an image stack (3d wave) for normalisation"))
+	string wave3d2Str = StringFromList(0, ATH_Dialog#SelectWavesInModalDataBrowser("Select an image stack (3d wave) for normalisation"))
 	WAVE w3d2Ref = $wave3d2Str
 	if(WaveDims(w3d2Ref) != 3)
 		Abort "You have to select an image stack (3d wave)"
@@ -634,7 +634,7 @@ static Function NormalisationImageStackWithImageStack()
 	string promptStr = "N : Use Nth layer (NB: zero-based layer indexing)\n"+\
 					   "N1-N2 : Use average of N1, ..., N2 layers, \n"+\
 	 				   "Leave empty: Layer by layer in 3d waves\n"
-	string inputStr = ATH_DP#GenericSingleStrPrompt(promptStr, "How many layers would you like to use for Normalisation?")
+	string inputStr = ATH_Dialog#GenericSingleStrPrompt(promptStr, "How many layers would you like to use for Normalisation?")
 	string rangeStr = ATH_String#ExpandRangeStr(inputStr)
 	string normWaveBaseNameStr = wave3d1Str + "_norm", normWaveStr
 	DFREF currDF = GetDataFolderDFR()
@@ -648,7 +648,7 @@ static Function NormalisationImageStackWithImageStack()
 		normWaveStr = CreateDataObjectName(currDF, normWaveBaseNameStr, 1, 0, 1)		
 		MatrixOP $normWaveStr = w3d1Ref/normLayerFree
 	elseif(!strlen(inputStr)) // Empty string do layer by layer normalisation
-		normWaveStr = ATH_ImageOP#NormaliseImageStackWithImageStack(w3d1Ref, w3d2Ref)
+		normWaveStr = ATH_ImgOp#NormaliseImageStackWithImageStack(w3d1Ref, w3d2Ref)
 		noteStr += " on a layer-by-layer basis"
 	else // If you give a range n1 - n2
 		totLayers = ItemsInList(rangeStr)
@@ -680,9 +680,9 @@ static Function RemoveImagesFromImageStack()
 	else
 		return -1
 	endif
-	nrLayers = ATH_DP#GenericSingleVarPrompt("How many layers you want to remove (start from top image)?", "ATH_RemoveImagesFromImageStack")
+	nrLayers = ATH_Dialog#GenericSingleVarPrompt("How many layers you want to remove (start from top image)?", "ATH_RemoveImagesFromImageStack")
 	if(nrLayers)
-		ATH_ImageOP#RemoveImagesFromImageStack(w3dref, startLayer, nrLayers)
+		ATH_ImgOp#RemoveImagesFromImageStack(w3dref, startLayer, nrLayers)
 		ATH_Display#RestartWM3DImageSlider(winNameStr)
 	endif
 	return 0
@@ -696,13 +696,13 @@ static Function StackImagesToImageStack()
 	endif	
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 
-	string selectImagesStr = ATH_DP#SelectWavesInModalDataBrowser("Select image(s) (2d, 3d waves) to append to image(stack)"), imageStr
+	string selectImagesStr = ATH_Dialog#SelectWavesInModalDataBrowser("Select image(s) (2d, 3d waves) to append to image(stack)"), imageStr
 	variable imagesNr = ItemsInList(selectImagesStr), i
 	
 	if(!ItemsInList(selectImagesStr))
 		return 1
 	endif
-	if(!ATH_ImageOP#AppendImagesToImageStack(w3dref, selectImagesStr))
+	if(!ATH_ImgOp#AppendImagesToImageStack(w3dref, selectImagesStr))
 		ATH_Display#RestartWM3DImageSlider(winNameStr)
 	endif	
 	return 0
@@ -722,7 +722,7 @@ static Function InsertImageToStack()
 	else
 		return -1
 	endif
-	string selectImagesStr = ATH_DP#SelectWavesInModalDataBrowser("Select one image to insert to stack."), imageStr
+	string selectImagesStr = ATH_Dialog#SelectWavesInModalDataBrowser("Select one image to insert to stack."), imageStr
 	imageStr = StringFromList(0, selectImagesStr)
 	if(!strlen(imageStr))
 		return 1
@@ -730,10 +730,10 @@ static Function InsertImageToStack()
 	WAVE w2dref = $imageStr
 	variable wType = WaveType(w3dref)
 	if(wType == WaveType(w2dref))
-		ATH_ImageOP#InsertImageToImageStack(w3dref, w2dref, layerN)
+		ATH_ImgOp#InsertImageToImageStack(w3dref, w2dref, layerN)
 	else
 		ATH_WaveOp#MatchWaveTypes(w3dref, w2dref)
-		ATH_ImageOP#InsertImageToImageStack(w3dref, w2dref, layerN)
+		ATH_ImgOp#InsertImageToImageStack(w3dref, w2dref, layerN)
 	endif
 	ATH_Display#RestartWM3DImageSlider(winNameStr)
 	return 0	
@@ -741,7 +741,7 @@ static Function InsertImageToStack()
 End
 
 static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operation
-	WAVE wRef = ATH_ImageOP#TopImageToWaveRef()
+	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
 	variable order = 1
 	Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
 	DoPrompt "Background subtraction ", order
@@ -752,14 +752,14 @@ static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operat
 	ATH_WaveOp#BackupWaveInWaveDFQ(wRef)
 	if(ATH_Windows#IsWM3DAxisActiveQ("")) // Do we have active axis in top window?
 		variable layerN = ATH_Windows#GetCurrentPlaneWM3DAxis("")
-		ATH_ImageOP#ImgRemoveBackground(wRef, order = order, layerN = layerN)
+		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = layerN)
 	else
-		ATH_ImageOP#ImgRemoveBackground(wRef, order = order)
+		ATH_ImgOp#ImgRemoveBackground(wRef, order = order)
 	endif
 End
 
 static Function Rotate3DWaveAxes()
-	WAVE/Z wRef = ATH_ImageOP#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
 	if(WaveDims(wRef) !=3)
 		Abort "Operation needs a 3d wave (image stack)!"
 	endif
@@ -785,10 +785,10 @@ End
 
 static Function ImageRotateAndScale()
 	/// Rotated/scaled wave in created in the working dfr.
-	WAVE/Z wRef = ATH_ImageOP#TopImageToWaveRef()
-	variable angle = ATH_DP#GenericSingleVarPrompt("Angle (deg)", "Image rotate and scale")
+	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
+	variable angle = ATH_Dialog#GenericSingleVarPrompt("Angle (deg)", "Image rotate and scale")
 	if(WaveExists(wRef))
-		ATH_ImageOP#ImageRotateAndScale(wRef, angle)
+		ATH_ImgOp#ImageRotateAndScale(wRef, angle)
 	endif
 	return 0
 End
@@ -814,13 +814,13 @@ static Function ImageRotateAndScaleFromMetadata()
 	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	variable angle = NumberByKey("FOVRot(deg)", note(wRef), ":", "\n")
 	ImageTransform flipRows wRef // flip the y-axis
-	ATH_ImageOP#ImageBackupRotateAndScale(wRef, angle)
+	ATH_ImgOp#ImageBackupRotateAndScale(wRef, angle)
 End
 
 
 static Function ImageFFTTransform()
 	// FFT of the top image
-	WAVE/Z wRef = ATH_ImageOP#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
 	if(WaveExists(wRef))
 		ATH_Transform#FFT2D(wRef)
 		WAVE wREF_FFT = $(NameOfWave(wRef) + "_FFT")
@@ -830,46 +830,46 @@ static Function ImageFFTTransform()
 End
 
 static Function ScalePlanesBetweenZeroAndOne()
-	WAVE wRef = ATH_ImageOP#TopImageToWaveRef() 
+	WAVE wRef = ATH_ImgOp#TopImageToWaveRef() 
 	// If you have 2D do it fast here and return
 	if(WaveDims(wRef) == 2)
 		ImageTransform/O scalePlanes wRef
 		return 0
 	endif
-	ATH_ImageOP#ScalePlanesBetweenZeroAndOne(wRef)
+	ATH_ImgOp#ScalePlanesBetweenZeroAndOne(wRef)
 	print NameOfWave(wRef) + " scaled to [0, 1]"
-	ATH_ImageOP#AutoRangeTopImage() // Autoscale the image
+	ATH_ImgOp#AutoRangeTopImage() // Autoscale the image
 	return 0
 End
 
 static Function AverageLayersRange()
-	WAVE/Z wRef = ATH_ImageOP#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
 	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
 		print "AverageLayersRange() needs an image stack in top graph."
 		return -1
 	endif
-	string rangeStr = ATH_DP#GenericSingleStrPrompt("Enter range as e.g. 3-7 or 7,11. First layer is 0!", "Average image range")
+	string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Enter range as e.g. 3-7 or 7,11. First layer is 0!", "Average image range")
 	string sval1, sval2, separatorStr
 	SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
-	ATH_ImageOP#AverageImageRangeToStack(wRef, str2num(sval1), str2num(sval2))
+	ATH_ImgOp#AverageImageRangeToStack(wRef, str2num(sval1), str2num(sval2))
 End
 
 static Function ExtractLayerRangeToStack()
 
-	WAVE/Z wRef = ATH_ImageOP#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
 	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
 		print "ExtractLayersToStack() needs an image stack in top graph."
 		return -1
 	endif
-	string rangeStr = ATH_DP#GenericSingleStrPrompt("Enter range as e.g. 3-7 or 7,11. First layer is 0!", "Average image range")
+	string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Enter range as e.g. 3-7 or 7,11. First layer is 0!", "Average image range")
 	string sval1, sval2, separatorStr
 	SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
-	ATH_ImageOP#ExtractLayerRangeToStack(wRef, str2num(sval1), str2num(sval2))
+	ATH_ImgOp#ExtractLayerRangeToStack(wRef, str2num(sval1), str2num(sval2))
 End
 
 static Function SumImagePlanes()
 
-	WAVE/Z wRef = ATH_ImageOP#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
 	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
 		print "SumImagePlanes() needs an image stack in top graph."
 		return -1
@@ -887,7 +887,7 @@ End
 
 static Function AverageImagePlanes()
 
-	WAVE/Z wRef = ATH_ImageOP#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
 	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0 || !DimSize(wRef,2) > 2) //  WaveDims(wRef) == 0 when wRef is NULL
 		print "AverageImagePlanes() needs an image stack with at least three layers in the top graph."
 		return -1
@@ -903,15 +903,15 @@ static Function AverageImagePlanes()
 End
 
 static Function HistogramShiftToGaussianCenter()
-	WAVE/Z wRef = ATH_ImageOP#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
 	if(!WaveExists(wRef))
 		Abort "Wave Reference is NULL"
 	endif
 	ATH_WaveOp#BackupWaveInWaveDF(wRef) // backup the wave, we will overwrite
 	if(WaveDims(wRef) == 3)	
-		ATH_ImageOP#HistogramShiftToGaussianCenterStack(wRef, overwrite=1)
+		ATH_ImgOp#HistogramShiftToGaussianCenterStack(wRef, overwrite=1)
 	else
-		ATH_ImageOP#HistogramShiftToGaussianCenter(wRef, overwrite=1)
+		ATH_ImgOp#HistogramShiftToGaussianCenter(wRef, overwrite=1)
 	endif	
 End
 
@@ -933,14 +933,14 @@ static Function QuickTextAnnotation()
 End
 
 static Function MakeWaveFromSavedROI()
-	WAVE/Z wref = ATH_ImageOP#TopImageToWaveRef()
+	WAVE/Z wref = ATH_ImgOp#TopImageToWaveRef()
 	ATH_WaveOp#MakeWaveFromROI(wRef)
 End
 
 static Function XMCDCombinations()
 	
 	string msg = "Select one 3D wave for XMC(L)D combinations calculation." 
-	string selectedWavesInBrowserStr = ATH_DP#SelectWavesInModalDataBrowser(msg)
+	string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
 	
 	// S_fileName is a carriage-return-separated list of full paths to one or more files.
 	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
@@ -993,7 +993,7 @@ static Function DeleteBigWaves()
 	string editWindowName = UniqueName("BigWaves", 7, 0)
 	Edit/K=2/N=$editWindowName waveNamesW, waveSizesW as "Big Waves" // Prevent window from being killed here!
 	STRUCT sUserMarqueePositions s
-	variable cancel = ATH_DP#WaitForUserActions(s, vWinType = 2)
+	variable cancel = ATH_Dialog#WaitForUserActions(s, vWinType = 2)
 	
 	// Here clear the empty entries
 	variable i
@@ -1035,7 +1035,7 @@ static Function DeleteBigWavesDisplayed()
 	string editWindowName = UniqueName("BigWaves", 7, 0)
 	Edit/K=2/N=$editWindowName waveNamesW, waveSizesW as "Big Waves"
 	STRUCT sUserMarqueePositions s
-	variable cancel = ATH_DP#WaitForUserActions(s, vWinType = 2)
+	variable cancel = ATH_Dialog#WaitForUserActions(s, vWinType = 2)
 	if(cancel)
 		KillWindow/Z $editWindowName
 		KillDataFolder/Z dfr
@@ -1050,7 +1050,7 @@ static Function DeleteBigWavesDisplayed()
 End
 
 static Function PixelateSingleImageOrStack()
-	WAVE wRef = ATH_ImageOP#TopImageToWaveRef() 
+	WAVE wRef = ATH_ImgOp#TopImageToWaveRef() 
 	variable nx = 1, ny = 1, nz = 1
 	if(WaveDims(wRef) == 3)
 		Prompt nx, "Pixelate X:"
@@ -1073,7 +1073,7 @@ static Function PixelateSingleImageOrStack()
 			nz = trunc(nz)
 			print "Truncate nz: ", num2str(nz)			
 		endif		
-		ATH_ImageOP#PixelateImageStack(wRef, nx, ny, nz)
+		ATH_ImgOp#PixelateImageStack(wRef, nx, ny, nz)
 	elseif(WaveDims(wRef) == 2)
 		Prompt nx, "Pixelate X:"
 		Prompt ny, "Pixelate Y:"
@@ -1089,7 +1089,7 @@ static Function PixelateSingleImageOrStack()
 			ny = trunc(ny)
 			print "Truncate ny: ", num2str(ny)			
 		endif		
-		ATH_ImageOP#PixelateImage(wRef, nx, ny)
+		ATH_ImgOp#PixelateImage(wRef, nx, ny)
 	else
 		Abort "Operation needs an image or an image stack"
 	endif
@@ -1226,10 +1226,10 @@ End
 //Function LoadDATFilesFromFolder() // Deactivated 23.11.2023
 //	string wNameStr = ATH_GenericSingleStrPrompt("Stack name, empty string to auto-name", "Before the selection dialog opens...")
 //	if(strlen(wNameStr))
-//		ATH_LoadUview#LoadDATFilesFromFolder("", "*", stack3d = 1, wname3d = wNameStr, autoscale = 1)
+//		ATH_Uview#LoadDATFilesFromFolder("", "*", stack3d = 1, wname3d = wNameStr, autoscale = 1)
 //	else
 //		// default name, if wname3d is given, even if empty string, the ParamIsDefault will give 1.
 //		// wname3d = SelectString(ParamIsDefault(wname3d) ? 0: 1,"stack3d", wname3d)
-//		ATH_LoadUview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 
+//		ATH_Uview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 
 //	endif
 //End

@@ -11,13 +11,13 @@ Function BeforeFileOpenHook(variable refNum, string fileNameStr, string pathName
     if(StringMatch(fileNameStr, "*.dat") && fileKind == 7) // Igor treats .dat files is a General text (fileKind == 7)
         try	
         	// ATH_WAVELoadSingleDATFile(fileToOpen, "", autoscale = 1)
-        	WAVE wIn = ATH_LoadUview#WAVELoadSingleDATFile(fileToOpen, "", autoscale = 1)
+        	WAVE wIn = ATH_Uview#WAVELoadSingleDATFile(fileToOpen, "", autoscale = 1)
         	AbortOnRTE
         catch
         	// Added on the 17.03.2023 to deal with a corrupted file. 
         	print "!",fileNameStr, "metadataReadError"
         	variable err = GetRTError(1) // Clears the error
-        	WAVE wIn = ATH_LoadUview#WAVELoadSingleCorruptedDATFile(fileToOpen, "")
+        	WAVE wIn = ATH_Uview#WAVELoadSingleCorruptedDATFile(fileToOpen, "")
         	//Abort // Removed to stop the "Encoding window" from popping all the time.
         endtry
         ATH_Display#NewImg(wIn)
@@ -27,9 +27,9 @@ Function BeforeFileOpenHook(variable refNum, string fileNameStr, string pathName
 //    	DoAlert/T="Dropped a .dav file in Igror" 1, "Do you want to load the .dav file in a stack?"
 //        try
 //        if(V_flag == 1)
-//        	ATH_LoadUview#LoadSingleDAVFile(fileToOpen, "", skipmetadata = 1, autoscale = 1, stack3d = 1)
+//        	ATH_Uview#LoadSingleDAVFile(fileToOpen, "", skipmetadata = 1, autoscale = 1, stack3d = 1)
 //        else
-//        	ATH_LoadUview#LoadSingleDAVFile(fileToOpen, "", autoscale = 1)
+//        	ATH_Uview#LoadSingleDAVFile(fileToOpen, "", autoscale = 1)
 //        endif
 //        	AbortOnRTE
 //        catch

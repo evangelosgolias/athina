@@ -2,8 +2,7 @@
 #pragma rtGlobals    = 3		
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
-#pragma ModuleName = ATH_SumBeamsProfile
-
+#pragma ModuleName = ATH_ZProfile
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -46,7 +45,7 @@ static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 		endif
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#CursorHookFunction // Set the hook
+		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageSBP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_SumBeamsDFR) = GetDataFolder(1, dfr)//"root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
@@ -92,7 +91,7 @@ static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 		endif
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#CursorHookFunction // Set the hook
+		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageSBP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_SumBeamsDFR) = GetDataFolder(1, dfr)
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see InitialiseFolder
@@ -149,7 +148,7 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 		endif	
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_SumBeamsProfile#CursorHookFunction // Set the hook
+		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageSBP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_SumBeamsDFR) = GetDataFolder(1, dfr)
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see InitialiseFolder
@@ -297,15 +296,15 @@ static Function InitialiseGraph(DFREF dfr)
 		Label left "\\u#2 Intensity (arb. u.)";DelayUpdate
 		Label bottom "\\u#2 Energy (eV)"
 		ControlBar 40
-		Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=ATH_SumBeamsProfile#SaveProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
-		Button SetScaleZaxis, pos={125.00,10.00}, size={90.00,20.00}, proc=ATH_SumBeamsProfile#SetScaleButton, title="Set scale", help={"Set abscissas range"}, valueColor=(1,12815,52428)
-		CheckBox ShowProfile, pos={230.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_SumBeamsProfile#PlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
-		CheckBox ShowSelectedAread, pos={340,12.00}, side=1, size={70.00,16.00}, proc=ATH_SumBeamsProfile#SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
+		Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=ATH_ZProfile#SaveProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
+		Button SetScaleZaxis, pos={125.00,10.00}, size={90.00,20.00}, proc=ATH_ZProfile#SetScaleButton, title="Set scale", help={"Set abscissas range"}, valueColor=(1,12815,52428)
+		CheckBox ShowProfile, pos={230.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#PlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
+		CheckBox ShowSelectedAread, pos={340,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
 
 		SetWindow $profilePlotStr userdata(ATH_rootdfrSumBeamsStr) = rootFolderStr // pass the dfr to the button controls
 		SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + gATH_WindowNameStr
 		SetWindow $profilePlotStr userdata(ATH_LinkedWinImageSource) = gATH_WindowNameStr
-		SetWindow $profilePlotStr, hook(MySumBeamsProfileHook) = ATH_SumBeamsProfile#GraphHookFunction // Set the hook
+		SetWindow $profilePlotStr, hook(MySumBeamsProfileHook) = ATH_ZProfile#GraphHookFunction // Set the hook
 	else
 		DoWindow/F $profilePlotStr // if it is bring it to the FG
 	endif

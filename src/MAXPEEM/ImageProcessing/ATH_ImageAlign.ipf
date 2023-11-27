@@ -2,7 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
-#pragma ModuleName = ATH_ImageAlign
+#pragma ModuleName = ATH_ImgAlign
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -405,7 +405,7 @@ static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [varia
 	endfor
 
 	if(printMode)
-		string driftLog = "Called ATH_ImageAlign#ImgStackPartitionCorrelation\n\n"
+		string driftLog = "Called ATH_ImgAlign#ImgStackPartitionCorrelation\n\n"
 		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
 		driftLog +=  "---- Drift ----\n"
 		driftLog +=  "layer  dx  dy\n"

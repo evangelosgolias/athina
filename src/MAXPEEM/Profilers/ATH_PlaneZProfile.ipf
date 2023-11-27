@@ -2,7 +2,7 @@
 #pragma rtGlobals    = 3		
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 #pragma IgorVersion  = 9
-#pragma ModuleName = ATH_ImagePlaneProfileZ
+#pragma ModuleName = ATH_PlaneZProfile
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -55,7 +55,7 @@ static Function MenuLaunch()
 		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 G $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
 		Cursor/I/C=(65535,0,0,65535)/S=1/P/N=1 H $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
 		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = ATH_ImagePlaneProfileZ#CursorHookFunction // Set the hook
+		SetWindow $winNameStr, hook(MyImagePlaneProfileZHook) = ATH_PlaneZProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImagePPZ) = "ATH_ImagePlaneZProf_" + winNameStr // Name of the plot we will make, used to communicate the
 		SetWindow $winNameStr userdata(ATH_rootdfrStr) = GetDataFolder(1, dfr)
 		// name to the windows hook to kill the plot after completion
@@ -216,18 +216,18 @@ static Function CreatePanel(DFREF dfr)
 	SetWindow $profilePlotStr userdata(ATH_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_ImagePlaneProfileZ_" + gATH_WindowNameStr 
 	SetWindow $profilePlotStr userdata(ATH_LinkedWinImageSource) = gATH_WindowNameStr 	
-	SetWindow $profilePlotStr, hook(MyImagePlaneProfileZHook) = ATH_ImagePlaneProfileZ#GraphHookFunction// Set the hook
+	SetWindow $profilePlotStr, hook(MyImagePlaneProfileZHook) = ATH_PlaneZProfile#GraphHookFunction// Set the hook
 
-	SetVariable setNx,pos={10,5},size={85,20.00},title="N\\Bx", fSize=14,fColor=(65535,0,0),value=Nx,limits={1,inf,1},proc=ATH_ImagePlaneProfileZ#SetVariableNx
-	SetVariable setNy,pos={97,5},size={70,20.00},title="N\\By", fSize=14,fColor=(65535,0,0),value=Ny,limits={1,inf,1},proc=ATH_ImagePlaneProfileZ#SetVariableNy
-	SetVariable profileWidth,pos={135,30.00},size={105,30.00},title="Width (px)", fSize=12,fColor=(65535,0,0),value=profileWidth,limits={1,51,1},proc=ATH_ImagePlaneProfileZ#SetVariableProfileWidth
+	SetVariable setNx,pos={10,5},size={85,20.00},title="N\\Bx", fSize=14,fColor=(65535,0,0),value=Nx,limits={1,inf,1},proc=ATH_PlaneZProfile#SetVariableNx
+	SetVariable setNy,pos={97,5},size={70,20.00},title="N\\By", fSize=14,fColor=(65535,0,0),value=Ny,limits={1,inf,1},proc=ATH_PlaneZProfile#SetVariableNy
+	SetVariable profileWidth,pos={135,30.00},size={105,30.00},title="Width (px)", fSize=12,fColor=(65535,0,0),value=profileWidth,limits={1,51,1},proc=ATH_PlaneZProfile#SetVariableProfileWidth
 
 	Button SetScaleButton,pos={180,6},size={70.00,20.00},title="Set Scale",valueColor=(1,12815,52428),help={"Scale X, Y coordinates. "+\
-	"Place markers and press button. Then set X and Y scales as intervals (Xmin, Xmax)"},proc=ATH_ImagePlaneProfileZ#SetScaleButton
-	Button SaveProfileButton,pos={260.00,6},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed image profile"},proc=ATH_ImagePlaneProfileZ#SaveProfileButton
-	CheckBox DisplayProfiles,pos={250,30.0},size={98.00,17.00},title="Display profiles",fSize=12,value=PlotSwitch,side=1,proc=ATH_ImagePlaneProfileZ#CheckboxPlotProfile
-	CheckBox OverrideNx,pos={8,30.00},size={86.00,17.00},title="Override N\\Bx",fSize=12,fColor=(65535,0,0),value=OverrideNx,side=1,proc=ATH_ImagePlaneProfileZ#OverrideNx
-	CheckBox OverrideNy,pos={100,30.00},size={86.00,17.00},title="N\\By",fSize=12,fColor=(65535,0,0),value=OverrideNy,side=1,proc=ATH_ImagePlaneProfileZ#OverrideNy
+	"Place markers and press button. Then set X and Y scales as intervals (Xmin, Xmax)"},proc=ATH_PlaneZProfile#SetScaleButton
+	Button SaveProfileButton,pos={260.00,6},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed image profile"},proc=ATH_PlaneZProfile#SaveProfileButton
+	CheckBox DisplayProfiles,pos={250,30.0},size={98.00,17.00},title="Display profiles",fSize=12,value=PlotSwitch,side=1,proc=ATH_PlaneZProfile#CheckboxPlotProfile
+	CheckBox OverrideNx,pos={8,30.00},size={86.00,17.00},title="Override N\\Bx",fSize=12,fColor=(65535,0,0),value=OverrideNx,side=1,proc=ATH_PlaneZProfile#OverrideNx
+	CheckBox OverrideNy,pos={100,30.00},size={86.00,17.00},title="N\\By",fSize=12,fColor=(65535,0,0),value=OverrideNy,side=1,proc=ATH_PlaneZProfile#OverrideNy
 	
 	return 0
 End

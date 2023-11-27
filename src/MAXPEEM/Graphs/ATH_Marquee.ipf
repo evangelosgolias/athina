@@ -188,7 +188,7 @@ static Function OperationsOnGraphTracesWithMarquee(variable left, variable right
 				break
 			case 5:
 				if(launchBrowserSwitch)
-					string selectedWaveStr = ATH_DP#SelectWavesInModalDataBrowser("Select notmalisation profile")
+					string selectedWaveStr = ATH_Dialog#SelectWavesInModalDataBrowser("Select notmalisation profile")
 					WAVE waveProf = $StringFromList(0, selectedWaveStr)
 					launchBrowserSwitch = 0
 				endif

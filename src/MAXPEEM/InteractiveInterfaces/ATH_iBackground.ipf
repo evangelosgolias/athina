@@ -2,7 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
-#pragma ModuleName = ATH_iBackgroundRemoval
+#pragma ModuleName = ATH_iBackground
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -81,7 +81,7 @@ static Function CreatelPanel()
 	DrawText 10,120,"You can set a marquee or \r  use the whole image for \r    background removal\r"
 	//SetDrawEnv/W=iDriftCorrection dash= 3,fillpat= 0
 	Button iRBRemoveBackgroundButton,pos={32.00,120},size={100.00,20.00},fColor=(65535,65533,32768)
-	Button iRBRemoveBackgroundButton,title="Remove bckd",fSize=12,proc=ATH_iBackgroundRemoval#RemoveBackgroundButton	
+	Button iRBRemoveBackgroundButton,title="Remove bckd",fSize=12,proc=ATH_iBackground#RemoveBackgroundButton	
 	Button iRBSetMarqueeAreaButton,pos={32.00,155},size={100.00,20.00},title="Set marqueee"
 	Button iRBSetMarqueeAreaButton,fSize=12,fColor=(40969,65535,16385)//,proc=ATH_iRBSetMarqueeAreaButtonProc
 	Button iRBRestoreImageButton,pos={32.00,190.00},size={100.00,20.00},fColor=(32768,54615,65535)
@@ -95,7 +95,7 @@ static Function CreatelPanel()
 	SetWindow $winNameStr#iBackgroundRemoval hook(iRBMyHook) = ATH_iBackgroundRemovalPanelHookFunction
 	// Set hook to the graph, killing the graph kills the iBackgroundRemoval linked folder
 	SetWindow $winNameStr userdata(ATH_iImageBackgroundRemovalFolder) = "root:Packages:ATH_DataFolder:BackgroundRemoval:" + winNameStr
-	SetWindow $winNameStr, hook(iRBMyHook) = ATH_iBackgroundRemoval#GraphHookFunction // Set the hook
+	SetWindow $winNameStr, hook(iRBMyHook) = ATH_iBackground#GraphHookFunction // Set the hook
 End
 
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
@@ -166,7 +166,7 @@ static Function RemoveBackgroundButton(STRUCT WMButtonAction &B_Struct): ButtonC
 	WAVE wRef = $gATH_wRefPathNameStr
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			ATH_ImageOP#ImgRemoveBackground(wRef, order = PolyOrder)
+			ATH_ImgOp#ImgRemoveBackground(wRef, order = PolyOrder)
 			hookresult =  1
 		break
 	endswitch

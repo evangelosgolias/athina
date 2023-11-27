@@ -2,7 +2,7 @@
 #pragma rtGlobals    = 3		
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
-#pragma ModuleName = ATH_iXPSExtraction
+#pragma ModuleName = ATH_iXPS
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -42,7 +42,7 @@ static Function MainMenu()
 		return -1
 	endif
 	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	string LinkedPlotStr = GetUserData(winNameStr, "", "ATH_LinkedPESExtractorPlotStr")
+	string LinkedPlotStr = GetUserData(winNameStr, "", "ATH_LinkedXPSExtractorPlotStr")
 	if(strlen(LinkedPlotStr))
 		DoWindow/F LinkedPlotStr
 		return 0
@@ -56,11 +56,11 @@ static Function MainMenu()
 	// Cursors to get the profile
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(1.6 * nrows/2), round(0.4 * ncols/2)
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.4 * nrows/2), round(1.6 * ncols/2)
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:" + NameOfWave(imgWaveRef)) // Change root folder if you want
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 	InitialiseGraph(dfr)
-	SetWindow $winNameStr, hook(MyPESExtractorHook) = ATH_iXPSExtraction#CursorHookFunction // Set the hook
-	SetWindow $winNameStr userdata(ATH_LinkedPESExtractorPlotStr) = "ATH_PESProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
-	SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_PESProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialisePESExtractorFolder
+	SetWindow $winNameStr, hook(MyXPSExtractorHook) = ATH_iXPS#CursorHookFunction // Set the hook
+	SetWindow $winNameStr userdata(ATH_LinkedXPSExtractorPlotStr) = "ATH_XPSProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
+	SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_XPSProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialiseXPSExtractorFolder
 	return 0
 End
 
@@ -73,11 +73,11 @@ static Function InitialiseFolder(string winNameStr)
 
 	string msg // Error reporting
 	if(!strlen(imgNameTopGraphStr)) // we do not have an image in top graph
-		Abort "No image in top graph. Start the PES extractor with an image or image stack in top window."
+		Abort "No image in top graph. Start the XPS extractor with an image or image stack in top window."
 	endif
 	
 	if(WaveDims(imgWaveRef) != 2 && WaveDims(imgWaveRef) != 3)
-		sprintf msg, "PES extractor works with images or image stacks.  Wave %s is in top window", imgNameTopGraphStr
+		sprintf msg, "XPS extractor works with images or image stacks.  Wave %s is in top window", imgNameTopGraphStr
 		Abort msg
 	endif
 	
@@ -92,8 +92,8 @@ static Function InitialiseFolder(string winNameStr)
 		WMAppend3DImageSlider() // Everything ok now, add a slider to the 3d wave
 	endif
     
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:" + imgNameTopGraphStr) // Root folder here
-	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings:") // Settings here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:" + imgNameTopGraphStr) // Root folder here
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:DefaultSettings:") // Settings here
 
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
@@ -113,7 +113,7 @@ static Function InitialiseFolder(string winNameStr)
 	variable/G dfr:gATH_selectedLayer = 0
 	variable/G dfr:gATH_updateSelectedLayer = 0
 	variable/G dfr:gATH_updateCursorsPositions = 0
-	// PES scaling values
+	// XPS scaling values
 	variable/G dfr:gATH_hv = ATH_String#GetPhotonEnergyFromFilename(imgNameTopGraphStr)
 	variable/G dfr:gATH_Wf = 4.27
 	variable/G dfr:gATH_epp = kATHEnergyPerPixel
@@ -128,7 +128,7 @@ static Function InitialiseFolder(string winNameStr)
 	
 	// Switches and indicators
 	variable/G dfr:gATH_PlotSwitch = 1
-	variable/G dfr:gATH_MarkPESLineSwitch = 0
+	variable/G dfr:gATH_MarkXPSLineSwitch = 0
 	variable/G dfr:gATH_SelectLayer = 0
 	variable/G dfr:gATH_colorcnt = 0
 	variable/G dfr:gATH_mouseTrackV
@@ -154,8 +154,8 @@ End
 
 static Function InitialiseGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
-	string plotNameStr = "ATH_PESProf_" + GetDataFolder(0, dfr)
-	if (WinType(plotNameStr) == 0) // PES profile window is not displayed
+	string plotNameStr = "ATH_XPSProf_" + GetDataFolder(0, dfr)
+	if (WinType(plotNameStr) == 0) // XPS profile window is not displayed
 		XPSPlot(dfr)
 	else
 		DoWindow/F $plotNameStr // if it is bring it to the FG
@@ -172,34 +172,34 @@ static Function XPSPlot(DFREF dfr)
 	NVAR Wf = dfr:gATH_Wf
 	NVAR epp = dfr:gATH_epp
 	NVAR stv = dfr:gATH_STV
-	string profilePlotStr = "ATH_PESProfPlot_" + gATH_WindowNameStr
+	string profilePlotStr = "ATH_XPSProfPlot_" + gATH_WindowNameStr
 	Make/O/N=0  dfr:W_ImageLineProfile // Make a dummy wave to display 
 	variable pix = 72/ScreenResolution
-	Display/W=(0*pix,0*pix,520*pix,300*pix)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile as "PES spectrum " + gATH_WindowNameStr
+	Display/W=(0*pix,0*pix,520*pix,300*pix)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile as "XPS spectrum " + gATH_WindowNameStr
 	AutoPositionWindow/E/M=0/R=$gATH_WindowNameStr
 	ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=12, lsize=1.5
 	Label left "Intensity (arb. u.)"
 	Label bottom "\\u#2Kinetic Energy (eV)"
 	
 	SetWindow $profilePlotStr userdata(ATH_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
-	SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_PESProf_" + gATH_WindowNameStr 
+	SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_XPSProf_" + gATH_WindowNameStr 
 	SetWindow $profilePlotStr userdata(ATH_parentGraphWin) = gATH_WindowNameStr 
-	SetWindow $profilePlotStr, hook(MyPESExtractorGraphHook) = ATH_PESExtractorGraphHookFunction // Set the hook
+	SetWindow $profilePlotStr, hook(MyXPSExtractorGraphHook) = ATH_XPSExtractorGraphHookFunction // Set the hook
 	
 	ControlBar 100	
-	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save current profile"},proc=ATH_iXPSExtraction#SaveProfile
-	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile width as defaults"},proc=ATH_iXPSExtraction#SaveDefaultSettings
-	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_iXPSExtraction#RestoreDefaultSettings
-	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Shows width of integrated area while button is pressed"},proc=ATH_iXPSExtraction#ShowProfileWidth
-	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_iXPSExtraction#PlotProfile
-	CheckBox MarkPESs,pos={127.00,40.00},size={86.00,17.00},title="Mark Lines ",fSize=14,value=0,side=1,proc=ATH_iXPSExtraction#MarkPES
-	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=ATH_iXPSExtraction#Layer3D
-	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(1,39321,19939),value=profileWidth,limits={0,inf,1},proc=ATH_iXPSExtraction#SetVariableWidth
-	Button SetCursorsAB,valueColor=(1,12815,52428), pos={462,17},size={50,70.00},title="Set\nCsr\nA & B",fcolor=(65535,0,0),help={"Set cursors A (top right), B (lower left) and press button to calibrate the energy scale"},proc=ATH_iXPSExtraction#SetCursorsAB // Change here	
-	SetVariable setSTV,pos={20,72.00},size={100,20.00},title="STV", fSize=14,fColor=(0,0,65535),value=stv,limits={0,inf,1},proc=ATH_iXPSExtraction#SetSTV // Energy per pixel
-	SetVariable sethv,pos={135,72.00},size={90,20.00},title="hv", fSize=14,fColor=(65535,0,0),value=hv,limits={0,inf,1},proc=ATH_iXPSExtraction#Sethv
-	SetVariable setWf,pos={235,72.00},size={90,20.00},title="Wf", fSize=14,fColor=(1,39321,19939),value=Wf,limits={0,inf,0.1},proc=ATH_iXPSExtraction#SetWf
-	SetVariable setEPP,pos={335,72.00},size={118,20.00},title="EPP", fSize=14,fColor=(0,0,65535),value=epp,limits={0,10,0.01},proc=ATH_iXPSExtraction#SetEPP // Energy per pixel
+	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save current profile"},proc=ATH_iXPS#SaveProfile
+	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile width as defaults"},proc=ATH_iXPS#SaveDefaultSettings
+	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_iXPS#RestoreDefaultSettings
+	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Shows width of integrated area while button is pressed"},proc=ATH_iXPS#ShowProfileWidth
+	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_iXPS#PlotProfile
+	CheckBox MarkXPSs,pos={127.00,40.00},size={86.00,17.00},title="Mark Lines ",fSize=14,value=0,side=1,proc=ATH_iXPS#MarkXPS
+	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=ATH_iXPS#Layer3D
+	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(1,39321,19939),value=profileWidth,limits={0,inf,1},proc=ATH_iXPS#SetVariableWidth
+	Button SetCursorsAB,valueColor=(1,12815,52428), pos={462,17},size={50,70.00},title="Set\nCsr\nA & B",fcolor=(65535,0,0),help={"Set cursors A (top right), B (lower left) and press button to calibrate the energy scale"},proc=ATH_iXPS#SetCursorsAB // Change here	
+	SetVariable setSTV,pos={20,72.00},size={100,20.00},title="STV", fSize=14,fColor=(0,0,65535),value=stv,limits={0,inf,1},proc=ATH_iXPS#SetSTV // Energy per pixel
+	SetVariable sethv,pos={135,72.00},size={90,20.00},title="hv", fSize=14,fColor=(65535,0,0),value=hv,limits={0,inf,1},proc=ATH_iXPS#Sethv
+	SetVariable setWf,pos={235,72.00},size={90,20.00},title="Wf", fSize=14,fColor=(1,39321,19939),value=Wf,limits={0,inf,0.1},proc=ATH_iXPS#SetWf
+	SetVariable setEPP,pos={335,72.00},size={118,20.00},title="EPP", fSize=14,fColor=(0,0,65535),value=epp,limits={0,10,0.01},proc=ATH_iXPS#SetEPP // Energy per pixel
 	return 0
 End
 
@@ -219,12 +219,12 @@ End
 
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
-	/// The PES profile is plotted from E to F
+	/// The XPS profile is plotted from E to F
     variable hookResult = 0
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
-	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings") // Settings here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:DefaultSettings") // Settings here
 	SetdataFolder dfr
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
@@ -280,9 +280,9 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			endif
 			break
 		case 2: // Kill the window
-			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedPESExtractorPlotStr"))
+			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedXPSExtractorPlotStr"))
 			if(WinType(GetUserData(s.winName, "", "ATH_targetGraphWin")) == 1)
-				DoWindow/C/W=$(GetUserData(s.winName, "", "ATH_targetGraphWin")) $UniqueName("PESProf_unlnk_", 6, 0) // Change name of profile graph
+				DoWindow/C/W=$(GetUserData(s.winName, "", "ATH_targetGraphWin")) $UniqueName("XPSProf_unlnk_", 6, 0) // Change name of profile graph
 			endif
 			KillDataFolder/Z dfr
 			hookresult = 1
@@ -355,13 +355,13 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	switch(s.eventCode)
 		case 2: // Kill the window
 			// parentGraphWin -- winNameStr
-			// Kill the MyPESExtractorHook
-			SetWindow $parentGraphWin, hook(MyPESExtractorHook) = $""
-			// We need to reset the link between parentGraphwin (winNameStr) and ATH_LinkedPESExtractorPlotStr
-			// see ATH_MainMenuLaunchPESExtractor() when we test if with strlen(LinkedPlotStr)
-			SetWindow $parentGraphWin userdata(ATH_LinkedPESExtractorPlotStr) = ""
+			// Kill the MyXPSExtractorHook
+			SetWindow $parentGraphWin, hook(MyXPSExtractorHook) = $""
+			// We need to reset the link between parentGraphwin (winNameStr) and ATH_LinkedXPSExtractorPlotStr
+			// see ATH_MainMenuLaunchXPSExtractor() when we test if with strlen(LinkedPlotStr)
+			SetWindow $parentGraphWin userdata(ATH_LinkedXPSExtractorPlotStr) = ""
 			if(WinType(GetUserData(parentGraphWin, "", "ATH_targetGraphWin")) == 1)
-				DoWindow/C/W=$(GetUserData(s.winName, "", "ATH_targetGraphWin")) $UniqueName("PESProf_unlnk_",6,0) // Change name of profile graph
+				DoWindow/C/W=$(GetUserData(s.winName, "", "ATH_targetGraphWin")) $UniqueName("XPSProf_unlnk_",6,0) // Change name of profile graph
 			endif
 			Cursor/W=$parentGraphWin/K A
 			Cursor/W=$parentGraphWin/K B
@@ -385,7 +385,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
 	Wave/SDFR=dfr W_ImageLineProfile
 	NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch
-	NVAR/Z MarkPESsSwitch = dfr:gATH_MarkPESLineSwitch
+	NVAR/Z MarkXPSsSwitch = dfr:gATH_MarkXPSLineSwitch
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
 	NVAR/Z C1x = dfr:gATH_C1x
@@ -408,7 +408,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/Z Wf = dfr:gATH_Wf
 		
 	string recreateDrawStr
-	DFREF savedfr = GetDataFolderDFR() //ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:SavedPESExtractor")
+	DFREF savedfr = GetDataFolderDFR() //ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:SavedXPSExtractor")
 	
 	variable postfix = 0, dAE
 	variable red, green, blue
@@ -446,7 +446,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 						endif
 					endif
 					
-					if(MarkPESsSwitch)
+					if(MarkXPSsSwitch)
 						if(!PlotSwitch)
 							[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 							colorcnt += 1
@@ -468,7 +468,7 @@ End
 
 static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
-	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings") // Settings here
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:DefaultSettings") // Settings here
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
@@ -498,7 +498,7 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 
 	switch(B_Struct.eventCode)	// numeric switch
 			case 2:	// "mouse up after mouse down"
-			string msg = "Overwite the default cursor positions and profile PESwidth?"
+			string msg = "Overwite the default cursor positions and profile XPSwidth?"
 			DoAlert/T="MAXPEEM would like to ask you" 1, msg
 			if(V_flag == 1)
 				C1x0 = C1x
@@ -519,7 +519,7 @@ End
 
 static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
-	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESExtractor:DefaultSettings") // Settings here
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:DefaultSettings") // Settings here
 	string parentWindow = GetUserData(B_Struct.win, "", "ATH_parentGraphWin")
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
@@ -628,7 +628,7 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	switch(B_Struct.eventCode)	// numeric switch
 		case 1:	// "mouse down"
 			SetDrawLayer/W=$WindowNameStr ProgFront
-			SetDrawEnv/W=$WindowNameStr gstart,gname= PESExtractorWidth
+			SetDrawEnv/W=$WindowNameStr gstart,gname= XPSExtractorWidth
 			SetDrawEnv/W=$WindowNameStr linefgc = (65535,16385,16385,32767), fillbgc= (65535,16385,16385,32767), fillpat = -1, linethick = 0, xcoord = top, ycoord = left
 			DrawPoly/W=$WindowNameStr x1, y1, 1, 1, {x1, y1, x2, y2, x3, y3, x4, y4}
 			SetDrawEnv/W=$WindowNameStr gstop
@@ -636,7 +636,7 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 		case 2: // "mouse up"
 		case 3: // "mouse up outside button"
 			SetDrawLayer/W=$WindowNameStr ProgFront
-			DrawAction/W=$WindowNameStr getgroup = PESExtractorWidth
+			DrawAction/W=$WindowNameStr getgroup = XPSExtractorWidth
 			DrawAction/W=$WindowNameStr delete = V_startPos, V_endPos
 			break
 	endswitch
@@ -681,16 +681,16 @@ static Function Layer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	return 0
 End
 
-static Function MarkPES(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function MarkXPS(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
-	NVAR/Z MarkPESsSwitch = dfr:gATH_MarkPESLineSwitch
+	NVAR/Z MarkXPSsSwitch = dfr:gATH_MarkXPSLineSwitch
 	switch(cb.checked)
 		case 1:
-			MarkPESsSwitch = 1
+			MarkXPSsSwitch = 1
 			break
 		case 0:
-			MarkPESsSwitch = 0
+			MarkXPSsSwitch = 0
 			break
 	endswitch
 	return 0

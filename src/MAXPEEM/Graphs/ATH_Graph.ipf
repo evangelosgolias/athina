@@ -11,7 +11,7 @@ static Function DuplicateWaveAndDisplayOfTopImage()
 	/// Duplicate the graph of an image (2d, 3d wave) along with the wave at its
 	/// data folder (not cwd). 
 	string winNameStr = WinName(0, 1)
-	WAVE wRef = ATH_ImageOP#TopImageToWaveRef()
+	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
 	DFREF cdfr = GetDataFolderDFR()
     string duplicateWinNameStr = UniqueName(winNameStr + "_", 6, 1, winNameStr)
     string waveNameStr = CreateDataObjectName(cdfr, NameOfWave(wRef) + "_d", 1, 0, 5)

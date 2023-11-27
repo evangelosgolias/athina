@@ -2,7 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
-#pragma ModuleName = ATH_ImageOp
+#pragma ModuleName = ATH_ImgOp
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -32,7 +32,7 @@
 
 static Function AutoRangeTopImage()
 	// Autoscale image of the top grap
-	WAVE wRef = ATH_ImageOP#TopImageToWaveRef()
+	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
 	string colorScaleStr
 	variable cmapSwitch
@@ -44,7 +44,7 @@ End
 
 static Function AutoRangeTopImagePerPlaneAndVisibleArea()
 	// Autoscale image of the top grap
-	WAVE wRef = ATH_ImageOP#TopImageToWaveRef()
+	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
 	string colorScaleStr
 	variable cmapSwitch
@@ -74,7 +74,7 @@ static Function SetZScaleOfImageStack() // Uses top graph
 		//SetScale/I x, 0, getScaleXY, waveRef
 		//SetScale/I y, 0, getScaleXY, waveRef
 		DoWindow/F $winNameStr
-		setScaleZStr = ATH_DP#GenericSingleStrPrompt(strPrompt, msgDialog)
+		setScaleZStr = ATH_Dialog#GenericSingleStrPrompt(strPrompt, msgDialog)
 		string dataPathStr = GetWavesDataFolder(waveRef, 2)
 		if(strlen(setScaleZStr))
 		cmdStr = "SetScale/I z " + setScaleZStr + ", " + dataPathStr
@@ -84,9 +84,9 @@ static Function SetZScaleOfImageStack() // Uses top graph
 End
 
 static Function ImageSelectToCopyScale() // Uses top graph
-	WAVE wRef =ATH_ImageOP#TopImageToWaveRef()
+	WAVE wRef =ATH_ImgOp#TopImageToWaveRef()
 	// Select the first wave from browser selection
-	string selectedWavesStr = ATH_DP#SelectWavesInModalDataBrowser("Select an image to set common dimension scaling")
+	string selectedWavesStr = ATH_Dialog#SelectWavesInModalDataBrowser("Select an image to set common dimension scaling")
 	WAVE sourceWaveRef = $StringFromList(0, selectedWavesStr)
 	CopyScales/I sourceWaveRef, wRef
 End
@@ -415,7 +415,7 @@ static Function BackupTopImage()
 	/// Backup wave in the top window, the backup is created in the 
 	/// sourcewave datafolder (to be able to restore)
 	
-	WAVE/Z wRef = ATH_ImageOP#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
 	if(!WaveExists(wRef))
 		print "Operation needs an image or image stack"
 		return -1
@@ -436,7 +436,7 @@ static Function RestoreTopImageFromBackup([string wname])
 	if(!ParamIsDefault(wname))
 		WAVE wRef = $wname
 	else
-		WAVE wRef = ATH_ImageOP#TopImageToWaveRef()
+		WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
 	endif
 	
 	if(!WaveExists(wRef))
