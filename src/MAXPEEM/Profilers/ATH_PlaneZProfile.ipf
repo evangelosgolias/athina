@@ -3,6 +3,7 @@
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 #pragma IgorVersion  = 9
 #pragma ModuleName = ATH_PlaneZProfile
+#pragma version = 1.01
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.

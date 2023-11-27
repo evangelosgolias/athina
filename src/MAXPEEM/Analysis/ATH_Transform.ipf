@@ -3,6 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_Transform
+#pragma version = 1.01
 
 static Function FFT2D(WAVE wRef)
 	/// FFT of a 2D wave

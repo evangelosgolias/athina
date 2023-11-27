@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName  = ATH_Uview
-
+#pragma version = 1.01
 // ------------------------------------------------------- //
 // Functions to import binary .dat & .dav files created by 
 // Elmitec's Uview Software at MAXPEEM beamline of MAX IV.
