@@ -129,9 +129,10 @@ End
 
 static Function [variable slope, variable shift] LineEquationFromTwoPoints(variable x0, variable y0, variable x1, variable y1)
 	/// Returns A, B for y = A x + B passing through A(x0, y0), B(x1, y1)
+	/// Note: Result w.r.t a standard cartesian system.
 	slope = (y1 - y0) /(x1 - x0)
 		
-	if (slope == Inf)
+	if (x1 == x0)
 		return [Inf, 0]
 	endif
 	shift = y0 - slope * x0
@@ -139,15 +140,18 @@ static Function [variable slope, variable shift] LineEquationFromTwoPoints(varia
 End
 
 static Function [WAVE wx, WAVE wy] XYWavesOfLineFromTwoPoints(variable x0, variable y0, variable x1, variable y1, variable npts)
-	
+	// Note: Here to have the correct be
 	Make/FREE/N=(npts) wx, wy
 	SetScale/I x, x0, x1, wx
 	SetScale/I x, y0, y1, wy	
 	variable slope, shift
 	[slope, shift] = LineEquationFromTwoPoints(x0, y0, x1, y1)
-	if(slope == Inf)
+	if(x0 == x1)
 		wx = x0
 		wy = x
+	elseif(y0 == y1) // !!!Note: if y0 == y1 SetScale/I x, y0, y1, wy => SetScale/P x, 0, 1, wy
+		wx = x
+		wy = y0
 	else // simple and works with any axes
 		wx = x
 		wy = x
