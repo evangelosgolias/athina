@@ -89,7 +89,7 @@ static Function ImageSelectToCopyScale() // Uses top graph
 	// Select the first wave from browser selection
 	string selectedWavesStr = ATH_Dialog#SelectWavesInModalDataBrowser("Select an image to set common dimension scaling")
 	WAVE sourceWaveRef = $StringFromList(0, selectedWavesStr)
-	CopyScales/I sourceWaveRef, wRef
+	CopyScales/P sourceWaveRef, wRef // 
 End
 
 static Function/S NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)

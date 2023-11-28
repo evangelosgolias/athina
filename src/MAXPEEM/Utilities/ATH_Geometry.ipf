@@ -140,7 +140,7 @@ static Function [variable slope, variable shift] LineEquationFromTwoPoints(varia
 End
 
 static Function [WAVE wx, WAVE wy] XYWavesOfLineFromTwoPoints(variable x0, variable y0, variable x1, variable y1, variable npts)
-	// Note: Here to have the correct be
+	//
 	Make/FREE/N=(npts) wx, wy
 	SetScale/I x, x0, x1, wx
 	SetScale/I x, y0, y1, wy	

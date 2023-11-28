@@ -497,8 +497,8 @@ static Function LinearImageStackAlignmentUsingABCursors()
 		return -1
 	endif
 	
-	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/P A $imgNameTopGraphStr 0.25, 0.5
-	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/P B $imgNameTopGraphStr 0.75, 0.5
+	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P A $imgNameTopGraphStr 0.25, 0.5
+	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P B $imgNameTopGraphStr 0.75, 0.5
 	variable slope, shift
 	
 	string backupWavePathStr = ATH_WaveOp#BackupWaveInWaveDF(w3dref)	
@@ -516,7 +516,11 @@ static Function LinearImageStackAlignmentUsingABCursors()
 	// ImageInterpolate needs pixels, multiply by -1 to have the proper behavior in /ARPM={...}
 	variable dx = DimDelta(w3dref, 0) ; variable dy = DimDelta(w3dref, 1)
 	wx /= (-dx) ; wy /= (-dy)
-	ATH_ImgAlign#LinearDriftABCursors(w3dref, wx, wy)
+	//ATH_ImgAlign#LinearDriftStackABCursors(w3dref, wx, wy)
+	variable timer0 = stopmstimer(-2)
+	ATH_ImgAlign#LinearDriftPlanesABCursors(w3dref, wx, wy, startL = 0, endL = 244)
+	variable timer1 = stopmstimer(-2)	
+	print (timer1-timer0)/1e6
 	return 0
 End
 

@@ -540,7 +540,7 @@ static Function ImgCorrelation(WAVE w1, WAVE w2, string alignedImageStr, [int pr
 End
 
 
-static Function LinearDriftABCursors(WAVE w3d, WAVE wx, WAVE wy)
+static Function LinearDriftStackABCursors(WAVE w3d, WAVE wx, WAVE wy)
 	/// Linear drift correction w3d using wx and wy displacements
 	
 	if(!(WaveType(w3d) & 0x02))
@@ -571,6 +571,69 @@ static Function LinearDriftABCursors(WAVE w3d, WAVE wx, WAVE wy)
 	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
 	WAVE M_Stack
 	// Restore scale here
+	CopyScales w3d, M_Stack
+	Duplicate/O M_Stack, saveDF:$NameofWave(w3d)
+	SetDataFolder currDF
+	return 0
+End
+
+static Function LinearDriftPlanesABCursors(WAVE w3d, WAVE wx, WAVE wy, [variable startL, variable endL])
+	/// Linear drift correction w3d using wx and wy displacements
+	/// WAVE wx - x coordinates
+	/// WAVE wy - y coordinates
+	/// variable startL: start layer
+	/// variable endL: end layer
+	
+	/// Note: wx, wy: in pixels, not scaled coordinates
+	/// We extract and restack all layers. Much faster 
+	/// compare to removelayer and then added again
+	variable nlayers = DimSize(w3d, 2)	
+	startL = ParamIsDefault(startL) ? 0 : startL
+	endL = (ParamIsDefault(endL) || endL >= nlayers)? (nlayers-1) : endL
+	variable numL = endL - startL + 1	
+	if(startL > endL)
+		return -1
+	endif
+	
+	if(!numL)
+		return 1
+	endif
+	// Just call LinearDriftStackABCursors if
+	// start = 0 and endL = DimSize(w3d, 2)	
+	if(startL == 0 && endL == (nlayers-1))
+		LinearDriftStackABCursors(w3d, wx, wy)
+		return 0
+	endif
+
+	if(!(WaveType(w3d) & 0x02))
+		Redimension/S w3d
+	endif
+	
+	variable nx = DimSize(wx, 0)
+	variable ny = DimSize(wy, 0)
+	if(!(nlayers == nx && nx == ny))
+		return -1
+	endif
+	
+	variable dx, dy, i
+	// Drifts for ImageInterpolate should be in pixels.
+	
+	DFREF saveDF = GetWavesDataFolderDFR(w3d)
+	DFREF currDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+
+	for(i = 0; i < nlayers; i++)
+		dx = wx[i]
+		dy = wy[i]
+		if(i >= startL && i <= endL)
+			MatrixOP/O targetLayer = layer(w3d, i)
+			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i)) Affine2D targetLayer
+		else
+			MatrixOP/O $("getStacklayer_" + num2str(i)) = layer(w3d, i)
+		endif
+	endfor
+	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"	
+	WAVE M_Stack
 	CopyScales w3d, M_Stack
 	Duplicate/O M_Stack, saveDF:$NameofWave(w3d)
 	SetDataFolder currDF

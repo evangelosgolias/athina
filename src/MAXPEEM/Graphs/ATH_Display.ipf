@@ -40,14 +40,6 @@ static Function NewImg(WAVE wRef)
 	NewImage/G=1/K=1 wRef
 	string windowNameStr = GetWavesDataFolder(wRef, 2)[5, inf] // Discrard root:
 	DoWindow/T kwTopWin, windowNameStr
-	// Copy from ATH_AutoRangeTopImagePerPlaneAndVisibleArea()
-	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
-	string colorScaleStr
-	variable cmapSwitch
-	sscanf StringByKey("RECREATION",Imageinfo("",NameOfWave(wRef),0)), matchPattern, colorScaleStr, cmapSwitch
-	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3 // Autoscale Image	
-	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {*,*,$colorScaleStr,cmapSwitch} // Autoscale Image	
-	//
 	string igorInfoStr = StringByKey( "SCREEN1", IgorInfo(0)) // INFO: Change here if needed	
 	igorInfoStr = RemoveListItem(0, igorInfoStr, ",")
 	variable screenLeft, screenTop, screenRight, screenBottom
@@ -75,7 +67,16 @@ static Function NewImg(WAVE wRef)
 	else
 		ModifyGraph width = 0, height = 0
 	endif
-	
+
+	// Copy from ATH_AutoRangeTopImagePerPlaneAndVisibleArea()
+	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
+	string colorScaleStr
+	variable cmapSwitch
+	sscanf StringByKey("RECREATION",Imageinfo("",NameOfWave(wRef),0)), matchPattern, colorScaleStr, cmapSwitch
+	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3 // Autoscale Image	
+	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {*,*,$colorScaleStr,cmapSwitch} // Autoscale Image	
+	//
+		
 	if(WaveDims(wRef)==3)
 		Append3DImageSlider()
 	endif
@@ -254,6 +255,22 @@ static Function W3DImageSliderProc(string name, variable value, variable event)
 	endif
 	
 	return 0				// other return values reserved
+End
+
+static Function WM3DImageSliderSetVarProc(sva) : SetVariableControl
+	STRUCT WMSetVariableAction &sva
+
+	switch( sva.eventCode )
+		case 1: // mouse up
+		case 2: // Enter key
+		// comment the following line if you want to disable live updates.
+		case 3: // Live update
+			Variable dval = sva.dval
+			WM3DImageSliderProc("",0,0)
+			break
+	endswitch
+
+	return 0
 End
 
 static Function SetImageRangeTo94Percent()
