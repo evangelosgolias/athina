@@ -147,7 +147,7 @@ static Function Append3DImageSlider()
 	ModifyControlList "WM3DVal;WM3DAxis;" help={helpStr}
 
 	Button WM3DDoneBtn,pos={right-kImageSliderLMargin+85,gOriginalHeight+6},size={50,18}	// ST: 210601 - button to remove the slider again
-	Button WM3DDoneBtn,title="Done",proc=ATH_Display#WM3DImageSliderDoneBtnProc
+	Button WM3DDoneBtn,title="Done",proc=M3DImageSliderDoneBtnProc
 
 	ModifyImage $imageName plane=0
 	// 
@@ -158,6 +158,8 @@ static Function Append3DImageSlider()
 	
 	SetDataFolder dfSav
 End
+
+//*******************************************************************************************************
 
 static Function W3DImageSliderWinHook(STRUCT WMWinHookStruct &s)// ST: 310601 - graph hook to resize the controls dynamically
 	if(!DataFolderExists(WMkSliderDataFolderBase + s.winName))
@@ -272,6 +274,23 @@ static Function WM3DImageSliderSetVarProc(sva) : SetVariableControl
 
 	return 0
 End
+
+static Function WM3DImageSliderDoneBtnProc(bs) : ButtonControl		// ST: 310601 - removes the slider controls
+	STRUCT WMButtonAction &bs
+	if (bs.eventCode == 2)
+		DFREF valDF = $(WMkSliderDataFolderBase + bs.win)
+		NVAR originalHeight = valDF:gOriginalHeight
+		SetWindow $(bs.win) hook(WM3Dresize)=$""
+	
+		ControlBar originalHeight
+		KillControl/W=$bs.win WM3DAxis
+		KillControl/W=$bs.win WM3DVal
+		KillControl/W=$bs.win WM3DDoneBtn
+		KillDataFolder/Z valDF
+	endif
+	return 0
+End
+//*******************************************************************************************************
 
 static Function SetImageRangeTo94Percent()
 

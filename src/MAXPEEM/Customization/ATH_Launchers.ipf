@@ -483,7 +483,7 @@ static Function ImageStackAlignmentPartition()
 	Note/K w3dref,copyNoteStr
 End
 
-static Function LinearImageStackAlignmentUsingABCursors()
+static Function LinearDriftCorrestionStackABCursors()
 	// Use AB to linearly correct an image stack drift
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -516,11 +516,55 @@ static Function LinearImageStackAlignmentUsingABCursors()
 	// ImageInterpolate needs pixels, multiply by -1 to have the proper behavior in /ARPM={...}
 	variable dx = DimDelta(w3dref, 0) ; variable dy = DimDelta(w3dref, 1)
 	wx /= (-dx) ; wy /= (-dy)
-	//ATH_ImgAlign#LinearDriftStackABCursors(w3dref, wx, wy)
-	variable timer0 = stopmstimer(-2)
-	ATH_ImgAlign#LinearDriftPlanesABCursors(w3dref, wx, wy, startL = 0, endL = 244)
-	variable timer1 = stopmstimer(-2)	
-	print (timer1-timer0)/1e6
+	ATH_ImgAlign#LinearDriftStackABCursors(w3dref, wx, wy)
+	return 0
+End
+
+static Function LinearDriftCorrestionPlanesABCursors()
+	// Use AB to linearly correct planes in an image stack
+	// Set the slider to the starting layer before launching 
+	// the operation. Set cursors and the last layer using the
+	// slide.
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	if(!strlen(imgNameTopGraphStr))
+		return -1
+	endif	
+	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // ATH_ImageStackAlignmentByPartitionRegistration needs a wave reference
+	
+	if(DimSize(w3dref, 2) < 3)
+		return -1
+	endif
+	string backupWavePathStr = ATH_WaveOp#BackupWaveInWaveDF(w3dref)
+	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P A $imgNameTopGraphStr 0.25, 0.5
+	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P B $imgNameTopGraphStr 0.75, 0.5
+	variable slope, shift, x0, y0, x1, y1, startL, endL, nlayers
+
+	if(!ATH_Windows#IsWM3DAxisActiveQ(winNameStr))
+		ATH_Display#Append3DImageSlider()
+	endif
+	DFREF sliderDFR = $("root:Packages:WM3DImageSlider:" + winNameStr)
+	NVAR/SDFR=sliderDFR gLayer
+	startL = gLayer
+
+	STRUCT sUserCursorPositions s
+	[x0, y0, x1, y1] = ATH_Cursors#UserGetABCursorPositions(s)
+	[slope, shift] = ATH_Geometry#LineEquationFromTwoPoints(x0, y0, x1, y1)
+	endL = gLayer
+	nlayers = endL - startL + 1
+
+	// Deal with ill cases, or fix it to work in reverse 
+	if(nlayers <= 0)
+		return -1
+	endif
+	//WAVE/Z wx, wy // x, y drifts for each layer
+	[WAVE wx, WAVE wy] = ATH_Geometry#XYWavesOfLineFromTwoPoints(x0, y0, x1, y1, nlayers)
+	wx -= x0 // Relative xshift
+	wy -= y0 // Relative yshift
+	// ImageInterpolate needs pixels, multiply by -1 to have the proper behavior in /ARPM={...}
+	variable dx = DimDelta(w3dref, 0) ; variable dy = DimDelta(w3dref, 1)
+	wx /= (-dx) ; wy /= (-dy)
+	ATH_ImgAlign#LinearDriftPlanesABCursors(w3dref, wx, wy, startL = startL, endL = endL)
 	return 0
 End
 
