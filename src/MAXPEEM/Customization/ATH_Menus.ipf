@@ -63,9 +63,9 @@ Menu "Athina"
 	End
 	
 	Submenu "Interactive Operations"
-		"Rotate image (TG, 2D, 3D) ", /Q,  ATH_iImgRotation#CreatePanel()
 		"Drift correction (TG, 2D, 3D) ", /Q, ATH_iDriftCorrection#CreatePanel()
 		"XMC(L)D calculation ...", /Q, ATH_iXMCD#MenuLaunch()
+		"Image rotation (TG, 2D, 3D) ", /Q,  ATH_iImgRotation#CreatePanel()		
 	End
 	
 	Submenu "Drift Correction"

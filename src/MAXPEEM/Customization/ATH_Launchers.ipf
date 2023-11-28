@@ -849,7 +849,7 @@ static Function AverageLayersRange()
 		print "AverageLayersRange() needs an image stack in top graph."
 		return -1
 	endif
-	string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Enter range as e.g. 3-7 or 7,11. First layer is 0!", "Average image range")
+	string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Enter a range as 3-7 or 3,7. Zero-based indexing.", "Average image range")
 	string sval1, sval2, separatorStr
 	SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
 	ATH_ImgOp#AverageImageRangeToStack(wRef, str2num(sval1), str2num(sval2))
@@ -862,7 +862,7 @@ static Function ExtractLayerRangeToStack()
 		print "ExtractLayersToStack() needs an image stack in top graph."
 		return -1
 	endif
-	string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Enter range as e.g. 3-7 or 7,11. First layer is 0!", "Average image range")
+	string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Enter a range as 3-7 or 3,7. Zero-based indexing.", "Extract image range from stack")
 	string sval1, sval2, separatorStr
 	SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
 	ATH_ImgOp#ExtractLayerRangeToStack(wRef, str2num(sval1), str2num(sval2))

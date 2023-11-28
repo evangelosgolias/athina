@@ -53,9 +53,17 @@ static Function CreatePanel()
 	if(WaveDims(w3dref) != 3)
 		Abort "Operation needs an image stack (3d wave)"
 	endif
-	//Set cursor
-	variable midOfImageX = 0.5 * DimSize(w3dref,0) * DimDelta(w3dref,0)
-	variable midOfImageY = 0.5 * DimSize(w3dref,1) * DimDelta(w3dref,1)
+	
+	string cmdStr, axisStr, dumpStr, val1Str, val2Str
+	string axisTopRangeStr = StringByKey("SETAXISCMD", AxisInfo("", "top"))
+	SplitString/E="\s*([A-Z,a-z,^a-zA-Z0-9]*)\s*([A-Z,a-z]*)\s*([-]?[0-9]*[.]?[0-9]+)\s*(,)\s*([-]?[0-9]*[.]?[0-9]+)\s*"\
+	 axisTopRangeStr, cmdStr, axisStr, val1Str, dumpStr, val2Str
+	variable midOfImageX = 0.5 * (str2num(val1Str) + str2num(val2Str))
+	string axisLeftRangeStr = StringByKey("SETAXISCMD", AxisInfo("", "left"))
+	SplitString/E="\s*([A-Z,a-z,^a-zA-Z0-9]*)\s*([A-Z,a-z]*)\s*([-]?[0-9]*[.]?[0-9]+)\s*(,)\s*([-]?[0-9]*[.]?[0-9]+)\s*"\
+	 axisLeftRangeStr, cmdStr, axisStr, val1Str, dumpStr, val2Str	
+	variable midOfImageY = 0.5 * (str2num(val1Str) + str2num(val2Str))
+
 	Cursor/W=$winNameStr/I/F/L=0/H=1/C=(1,65535,33232)/S=2 I $imgNameTopGraphStr midOfImageX, midOfImageY
 	
 
