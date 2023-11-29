@@ -73,13 +73,10 @@ static Function NewImg(WAVE wRef)
 	string colorScaleStr
 	variable cmapSwitch
 	sscanf StringByKey("RECREATION",Imageinfo("",NameOfWave(wRef),0)), matchPattern, colorScaleStr, cmapSwitch
-	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3 // Autoscale Image	
-	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {*,*,$colorScaleStr,cmapSwitch} // Autoscale Image	
-	//
-		
 	if(WaveDims(wRef)==3)
 		Append3DImageSlider()
 	endif
+	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3, ctab= {*,*,$colorScaleStr,cmapSwitch} // Autoscale per plane / visible area Image		
 	return 0
 End
 
@@ -91,8 +88,7 @@ static Function Append3DImageSlider()
 	if( V_Flag==0 )
 		return 0			// no top graph, exit
 	endif
-
-
+	
 	String iName= WMTopImageGraph()		// find one top image in the top graph window
 	if( strlen(iName) == 0 )
 		DoAlert 0,"No image plot found"
@@ -127,7 +123,7 @@ static Function Append3DImageSlider()
 	ControlInfo kwControlBar
 	Variable/G gOriginalHeight= V_Height			// we append below original controls (if any)
 	ControlBar gOriginalHeight+30
-
+	
 	GetWindow kwTopWin,gsize
 	Variable scale = ScreenResolution / 72										// ST: 210601 - properly scale position for windows
 	Variable left = V_left*scale
@@ -147,7 +143,7 @@ static Function Append3DImageSlider()
 	ModifyControlList "WM3DVal;WM3DAxis;" help={helpStr}
 
 	Button WM3DDoneBtn,pos={right-kImageSliderLMargin+85,gOriginalHeight+6},size={50,18}	// ST: 210601 - button to remove the slider again
-	Button WM3DDoneBtn,title="Done",proc=M3DImageSliderDoneBtnProc
+	Button WM3DDoneBtn,title="Done",proc=WM3DImageSliderDoneBtnProc
 
 	ModifyImage $imageName plane=0
 	// 
