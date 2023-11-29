@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_iDriftCorrection
-#pragma version = 1.01
+#pragma version = 2.0
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -114,10 +114,10 @@ static Function CreatePanel()
 	//All buttons, except restore3dwave and LDC, are disabled until the anchor is set
 	Button DriftImage,pos={32.00,125.00},size={100.00,20.00},title="Drift Image",disable=2
 	Button DriftImage,fSize=12,fColor=(0,65535,0),proc=ATH_iDriftCorrection#DriftImageButton
-	Button CascadeDrift,pos={32.00,160.00},size={100.00,20.00},fColor=(65535,49157,16385),disable=2
+	Button SelectedLayersDrift,pos={32.00,160.00},size={100.00,20.00},fColor=(52428,52425,1),disable=2
+	Button SelectedLayersDrift,title="Drift N images",fSize=12,proc=ATH_iDriftCorrection#DriftSelectedLayers3DWaveButton	
+	Button CascadeDrift,pos={32.00,195.00},size={100.00,20.00},fColor=(65535,49157,16385),disable=2
 	Button CascadeDrift,title="Cascade drift",fSize=12,proc=ATH_iDriftCorrection#CascadeDrift3DWaveButton
-	Button SelectedLayersDrift,pos={32.00,195.00},size={100.00,20.00},fColor=(52428,52425,1),disable=2
-	Button SelectedLayersDrift,title="Drift N images",fSize=12,proc=ATH_iDriftCorrection#DriftSelectedLayers3DWaveButton
 	// Draw the region for linear Drift correction
 	SetDrawEnv dash= 3,fillpat= 0;DrawRect 18,225,144,310
 	SetDrawEnv fsize= 10
@@ -271,6 +271,7 @@ End
 
 static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
+	DFREF currDF = GetDataFolderDFR()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 	SVAR/Z/SDFR=dfr gATH_w3dPathName
@@ -285,21 +286,19 @@ static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			SetDataFolder dfr
 			gATH_CursorPositionX = hcsr(I, gATH_WindowNameStr)
 			gATH_CursorPositionY = vcsr(I, gATH_WindowNameStr)
-			ImageTransform/P=(gLayer) getPlane w3dRef // get the image
-			WAVE M_ImagePlane
 			variable dx = (gATH_AnchorPositionX - gATH_CursorPositionX)/gATH_dx
 			variable dy = (gATH_AnchorPositionY - gATH_CursorPositionY)/gATH_dy
 			MatrixOP/O/FREE layerFREE = layer(w3dRef, gLayer)
 			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D layerFREE // Will overwrite M_Affine
 			WAVE M_Affine
-			ImageTransform/O/P=(gLayer) removeZplane w3dRef
-			ImageTransform/O/P=(gLayer)/INSW=M_Affine insertZplane w3dRef
-			KillWaves/Z M_Affine, M_ImagePlane
+			w3dRef[][][gLayer] = M_Affine[p][q]
 			hookresult =  1
 			break
 	endswitch
+	SetDataFolder currDF
 	return hookresult
 End
 
@@ -371,6 +370,7 @@ End
 
 static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
+	DFREF currDF = GetDataFolderDFR()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 	NVAR/Z/SDFR=dfr gATH_LDCstartL
@@ -387,6 +387,7 @@ static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	nlayers = gATH_LDCendL - gATH_LDCstartL + 1
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			SetDataFolder dfr
 			if(!numtype(gATH_LDCstartX) || !numtype(gATH_LDCendX))
 				break
 			endif
@@ -402,6 +403,7 @@ static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 			endif
 			break
 	endswitch
+	SetDataFolder currDF
 	return hookresult
 End
 
@@ -437,6 +439,7 @@ End
 static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	variable hookresult = 0
+	DFREF currDF = GetDataFolderDFR()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 	SVAR/Z/SDFR=dfr gATH_w3dPathName
@@ -451,46 +454,36 @@ static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct)
 
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			SetDataFolder dfr
 			gATH_CursorPositionX = hcsr(I, gATH_WindowNameStr)
 			gATH_CursorPositionY = vcsr(I, gATH_WindowNameStr)
-
 			variable dx = (gATH_AnchorPositionX - gATH_CursorPositionX)/gATH_dx
 			variable dy = (gATH_AnchorPositionY - gATH_CursorPositionY)/gATH_dy
-			variable i, nLayerL
-			variable nlayers = DimSize(w3dRef, 2)
-			string layersListStr
-			string inputStr = ATH_Dialog#GenericSingleStrPrompt("Select layers to drift, e.g \"2-5,7,9-12,50\", operation is slow for many layers", "Drift selected layers")
-			if(strlen(inputStr))
-				layersListStr = ATH_String#ExpandRangeStr(inputStr)
-			else
-				hookresult =  1
-				return 1
+			variable lastlayerN = DimSize(w3dRef, 2) - 1
+			string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Set a range of layers to drift (e.g 4-12)", "Drift N layers")
+			string sval1, sval2, separatorStr
+			SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
+			variable val1 = str2num(sval1), val2 = str2num(sval2)
+			if(val1 < 0 || val1 > val2 || val2 > lastlayerN)
+				print "Skipped"
+				return -1
 			endif
-			variable imax = ItemsInList(layersListStr)
-			print "Drift operation started (it might take some time)"
-			for(i = 0; i < imax; i++)
-				nLayerL = str2num(StringFromList(i, layersListStr))
-				if(nLayerL > nlayers)
-					print "Layer number out of range: ", num2str(nLayerL)
-					Abort
-				endif
-				ImageTransform/P=(nLayerL) getPlane w3dRef // get the image
-				WAVE M_ImagePlane
-				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D M_ImagePlane // Will overwrite M_Affine
-				WAVE M_Affine
-				ImageTransform/O/P=(nLayerL) removeZplane w3dRef
-				ImageTransform/O/P=(nLayerL)/INSW=M_Affine insertZplane w3dRef
-			endfor
-			KillWaves/Z M_Affine, M_ImagePlane
-			print "Operation completed. Drifted layers " + inputStr
+			Duplicate/FREE/RMD=[][][0, val1-1] w3dRef, waveFree0
+			Duplicate/FREE/RMD=[][][val1, val2] w3dRef, waveFreeToAffine
+			Duplicate/FREE/RMD=[][][val2+1, lastlayerN] w3dRef, waveFree1
+			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D waveFreeToAffine
+			WAVE M_Affine
+			Concatenate/O/KILL/NP=2 {waveFree0, M_Affine, waveFree1}, $gATH_w3dPathName
 			hookresult =  1
 			break
 	endswitch
+	SetDataFolder currDF
 	return hookresult
 End
 
 static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
+	DFREF currDF = GetDataFolderDFR()	
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 	SVAR/Z/SDFR=dfr gATH_w3dPathName
@@ -505,6 +498,7 @@ static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): Butto
 
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			SetDataFolder dfr
 			if(gATH_AnchorPositionX < 0 || gATH_AnchorPositionY < 0)
 				print "You have first to set a reference position (anchor)"
 			endif
@@ -526,6 +520,7 @@ static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): Butto
 			hookresult =  1
 			break
 	endswitch
+	SetDataFolder currDF
 	return hookresult
 End
 
