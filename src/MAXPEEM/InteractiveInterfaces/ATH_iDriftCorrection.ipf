@@ -95,8 +95,12 @@ static Function CreatePanel()
 	variable/G dfr:gATH_dy = DimDelta(w3dref, 1)	
 	variable/G dfr:gATH_CursorPositionY	
 	variable/G dfr:gATH_FastMode = 0
-	variable/G dfr:gATH_LDCstartL // Linear drift correction start layer
-	variable/G dfr:gATH_LDendL // Linear drift correction end layer
+	variable/G dfr:gATH_LDCstartL = 0 // Linear drift correction start layer
+	variable/G dfr:gATH_LDCendL = 0 // Linear drift correction end layer
+	variable/G dfr:gATH_LDCstartX = 0
+	variable/G dfr:gATH_LDCstartY = 0		
+	variable/G dfr:gATH_LDCendX = 0
+	variable/G dfr:gATH_LDCendY = 0		
 	NewPanel/K=1/EXT=0/N=iDriftCorrection/W=(0,0,165,350)/HOST=$winNameStr
 	//ShowInfo/CP=0/W=$winNameStr
 	SetDrawLayer UserBack
@@ -106,17 +110,27 @@ static Function CreatePanel()
 	SetDrawEnv textrgb= (2,39321,1)
 	DrawText 8,34,"Layers drift towards anchor"
 	//SetDrawEnv/W=iDriftCorrection dash= 3,fillpat= 0
-	Checkbox FastMode,pos={18.00,50.00},title="Click & drift mode",fSize=14,value=0,proc=ATH_iDriftCorrection#FastModeCheckbox
-	Button SetAnchorCursor,pos={23.00,80.00},size={120.00,20.00},title="(Re)Set anchor",fSize=12
-	Button SetAnchorCursor,fColor=(65535,0,0), proc=ATH_iDriftCorrection#SetAnchorCursorButton
+	Checkbox FastMode,pos={12.00,50.00},title="SHIFT+Click & drift",fSize=11,font="Menlo"
+	Checkbox FastMode,value=0,proc=ATH_iDriftCorrection#FastModeCheckbox
+	Button SetAnchorCursor,pos={23.00,80.00},size={120.00,20.00},title="(Re)Set anchor",fSize=12,fColor=(39321,39321,39321)
+	Button SetAnchorCursor,valueColor=(65535,0,0), proc=ATH_iDriftCorrection#SetAnchorCursorButton
 	Button DriftImage,pos={32.00,120.00},size={100.00,20.00},title="Drift Image"
 	Button DriftImage,fSize=12,fColor=(0,65535,0),proc=ATH_iDriftCorrection#DriftImageButton
 	Button CascadeDrift,pos={32.00,160.00},size={100.00,20.00},fColor=(65535,49157,16385)
 	Button CascadeDrift,title="Cascade drift",fSize=12,proc=ATH_iDriftCorrection#CascadeDrift3DWaveButton
 	Button SelectedLayersDrift,pos={32.00,200.00},size={100.00,20.00},fColor=(52428,52425,1)
 	Button SelectedLayersDrift,title="Drift N images",fSize=12,proc=ATH_iDriftCorrection#DriftSelectedLayers3DWaveButton
-	Button Restore3dwave,pos={32.00,240.00},size={100.00,20.00},fColor=(32768,54615,65535)
-	Button Restore3dwave,title="Restore stack",fSize=12,proc=ATH_iDriftCorrection#Restore3DWaveButton	
+	Button Restore3dwave,pos={32.00,323.00},size={100.00,20.00},fColor=(32768,54615,65535)
+	Button Restore3dwave,title="Restore stack",fSize=12,proc=ATH_iDriftCorrection#Restore3DWaveButton
+	// Draw the region for linear Drift correction
+	SetDrawEnv dash= 3,fillpat= 0;DrawRect 19,233,144,314
+	SetDrawEnv fsize= 10
+	DrawText 30,250,"\\F'Menlo'Linear Drift Corr"
+	Button FirstL title="Start",pos={26,290},size={50,20},proc=ATH_iDriftCorrection#SetStartLayerButton
+	Button LastL title="End",pos={85,290},size={50,20},proc=ATH_iDriftCorrection#SetEndLayerButton
+	Button LinearDC title="Drift",font="Menlo",fSize=12,fColor=(51664,44236,58982),proc=ATH_iDriftCorrection#LinearDCButton
+	Button LinearDC pos={45,255},size={65,24}, help={"Linear Drift correct between start and end layers"}
+	
 	//Tranfer info re dfr to controls
 	SetWindow $winNameStr#iDriftCorrection userdata(ATH_iImgAlignFolder) = "root:Packages:ATH_DataFolder:InteractiveDriftCorrection:" + winNameStr
 	SetWindow $winNameStr#iDriftCorrection hook(iDriftPanelHook) = ATH_iDriftCorrection#PanelHookFunction
@@ -290,6 +304,81 @@ static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	return hookresult
 End
 
+static Function SetStartLayerButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+	variable hookresult = 0
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+	SVAR/Z/SDFR=dfr gATH_WindowNameStr	
+	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer
+	NVAR/Z/SDFR=dfr gATH_LDCstartL
+	NVAR/Z/SDFR=dfr gATH_LDCstartX
+	NVAR/Z/SDFR=dfr	gATH_LDCstartY
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			gATH_LDCstartL = gLayer
+			gATH_LDCstartX = hcsr(I, gATH_WindowNameStr)
+			gATH_LDCstartY = vcsr(I, gATH_WindowNameStr)	
+			Button FirstL win=$B_Struct.win, title=("L: " + num2str(gATH_LDCstartL))
+			ControlUpdate/W=$B_Struct.win FirstL					
+			hookresult =  1
+		break
+	endswitch
+	return hookresult
+End
+
+static Function SetEndLayerButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+	variable hookresult = 0
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+	SVAR/Z/SDFR=dfr gATH_WindowNameStr	
+	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer
+	NVAR/Z/SDFR=dfr gATH_LDCendL
+	NVAR/Z/SDFR=dfr gATH_LDCendX
+	NVAR/Z/SDFR=dfr	gATH_LDCendY	
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			gATH_LDCendL = gLayer
+			gATH_LDCendX = hcsr(I, gATH_WindowNameStr)
+			gATH_LDCendY = vcsr(I, gATH_WindowNameStr)
+			Button LastL,win=$B_Struct.win, title=("L: " + num2str(gATH_LDCendL))
+			ControlUpdate/W=$B_Struct.win LastL			
+			hookresult =  1
+		break
+	endswitch
+	return hookresult
+End
+
+static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+	variable hookresult = 0
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+	SVAR/Z/SDFR=dfr gATH_WindowNameStr
+	NVAR/Z/SDFR=dfr gATH_LDCstartL
+	NVAR/Z/SDFR=dfr gATH_LDCendL
+	SVAR/Z/SDFR=dfr gATH_w3dPathName
+	WAVE/Z w3dRef = $gATH_w3dPathName
+	NVAR/Z/SDFR=dfr gATH_LDCstartX
+	NVAR/Z/SDFR=dfr	gATH_LDCstartY
+	NVAR/Z/SDFR=dfr gATH_LDCendX
+	NVAR/Z/SDFR=dfr	gATH_LDCendY
+	NVAR/SDFR=dfr gATH_dx
+	NVAR/SDFR=dfr gATH_dy	
+	variable x0, y0, x1, y1, slope, shift, nlayers
+	nlayers = gATH_LDCendL - gATH_LDCstartL + 1
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			if(nlayers > 0)
+				[WAVE wx, WAVE wy] = ATH_Geometry#XYWavesOfLineFromTwoPoints(gATH_LDCstartX, gATH_LDCstartY,\
+				gATH_LDCendX, gATH_LDCendY, nlayers)
+				// Relative s, y shifts for Drift Correction
+				wx -= gATH_LDCstartX ; wy -= gATH_LDCstartY
+				// ImageInterpolate needs pixels, multiply by -1 to have the proper behavior in /ARPM={...}
+				wx /= (-gATH_dx) ; wy /= (-gATH_dy)				
+				ATH_ImgAlign#LinearDriftPlanesABCursors(w3dref, wx, wy, startL = gATH_LDCstartL, endL = gATH_LDCendL)
+				hookresult =  1
+			endif
+			break
+	endswitch
+	return hookresult
+End
+
 static Function Restore3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	//Complete
 	variable hookresult = 0
@@ -409,13 +498,24 @@ static Function FastModeCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 	SVAR/Z/SDFR=dfr gATH_imgNameTopWindowStr
 	NVAR/SDFR=dfr gATH_AnchorPositionX
+	NVAR/SDFR=dfr gATH_AnchorPositionY
+	NVAR/SDFR=dfr gATH_dx
+	NVAR/SDFR=dfr gATH_dy	
 	NVAR/SDFR=dfr gATH_FastMode
 	switch(cb.checked)
-		case 1:
+		case 1:	// When we are in the fast mode, anchor will be a red do 
 			gATH_FastMode = 1
+			Cursor/W=$gATH_WindowNameStr/K I
+			DrawAction/L=Overlay/W=$gATH_WindowNameStr delete
+			SetDrawLayer/W=$gATH_WindowNameStr Overlay
+			DrawAction/W=$gATH_WindowNameStr delete
+			SetDrawEnv/W=$gATH_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,0,0), fillbgc= (65535,0,0),fillfgc= (65535,0,0), fillpat= 1
+			DrawOval (gATH_AnchorPositionX - gATH_dx/2),  (gATH_AnchorPositionY - gATH_dy/2), (gATH_AnchorPositionX + gATH_dx/2), (gATH_AnchorPositionY + gATH_dy/2)
+			SetDrawLayer/W=$gATH_WindowNameStr UserFront					
 			break
 		case 0:
 			gATH_FastMode = 0
+			DrawAction/L=Overlay/W=$gATH_WindowNameStr delete
 			// Copy code here
 			string cmdStr, axisStr, dumpStr, val1Str, val2Str
 			string axisTopRangeStr = StringByKey("SETAXISCMD", AxisInfo("", "top"))

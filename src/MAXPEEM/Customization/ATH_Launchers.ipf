@@ -549,7 +549,6 @@ static Function LinearDriftCorrestionPlanesABCursors()
 
 	STRUCT sUserCursorPositions s
 	[x0, y0, x1, y1] = ATH_Cursors#UserGetABCursorPositions(s)
-	[slope, shift] = ATH_Geometry#LineEquationFromTwoPoints(x0, y0, x1, y1)
 	endL = gLayer
 	nlayers = endL - startL + 1
 
