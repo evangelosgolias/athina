@@ -31,44 +31,46 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-// Execute does not work, try to use FUNCREF
-static Function MenuLaunch()
+static Function MainMenu()
 	/// static Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
 	
-	string msg = "Select two waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
+	string msg = "Select two 2D waves to calculate f(w1, w2). Use Ctrl (Windows) or Cmd (Mac)."
 	string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
 	// S_fileName is a carriage-return-separated list of full paths to one or more files.
 	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
 	string selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)
 	string wave1NameStr = StringFromList(0, selectedWavesStr)
 	string wave2NameStr = StringFromList(1, selectedWavesStr)
-	if(nrSelectedWaves != 2 || WaveDims($wave1NameStr) != 2 || WaveDims($wave2NameStr) != 2)
-		DoAlert/T="MAXPEEM would like you to know that you have to ..." 1, "Please " +\
-				  "select two images, i.e two 2d waves, non-RGB. \n" + \
+	WAVE w1 = $wave1NameStr
+	WAVE w2 = $wave2NameStr	
+	if(nrSelectedWaves != 2 || !ATH_WaveOp#AllWaveDimensionsEqualQ(w1, w2) \
+	   || WaveDims(w1) != 2 || WaveDims(w2) != 2)
+		DoAlert/T="Please select only two 2d waves with equal dimensions sizes." 1,  ""+\
 				  "Do you want a another chance with the browser selection?"
 		if(V_flag == 1)
-			MenuLaunch()
+			MainMenu()
 			return 0 
 		elseif(V_flag > 1)
 			Abort
 		endif
 	endif
 	
-	Prompt wave1NameStr, "img1", popup, selectedWavesStr
-	Prompt wave2NameStr, "img2", popup, selectedWavesStr
-	DoPrompt "XMC(L)D = (img1 - img2)/(img1 + img2)", wave1NameStr, wave2NameStr
+	Prompt wave1NameStr, "w1", popup, selectedWavesStr
+	Prompt wave2NameStr, "w2", popup, selectedWavesStr
+	DoPrompt "f(w1, w2)", wave1NameStr, wave2NameStr
 	if(V_flag) // User cancelled
 		return -1
 	endif
 	
 	if(!cmpstr(wave1NameStr, wave2NameStr))
-		print "Ok, you are subtracting a wave from itself! I hope you know what you are doing."
+		print "Ok, you are operating on the same wave! I hope you know what you are doing."
 	endif
 	// Create variables for the Panel. NB; Data Folders for panels can be overwritten
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveOperationsTwoImages:") 
-	string folderNameStr = CreateDataObjectName(dfr, "iOpsTwoImgs_DF",11, 0, 0)
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveOperationsTwoImages:" + folderNameStr)
+	// Better DFREF dfr = InitialisePanel()
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iImgOps:") 
+	string folderNameStr = CreateDataObjectName(dfr, "iOP_DF",11, 0, 1)
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iImgOps:" + folderNameStr)
 	
 	if(WaveType($wave1NameStr) & 0x10) // If WORD (int16)
 		Redimension/S $wave1NameStr
@@ -90,37 +92,36 @@ static Function MenuLaunch()
 	variable/G dfr:gATH_dy = 0
 	string/G dfr:wName1Str = wave1NameStr
 	string/G dfr:wName2Str = wave2NameStr
-	string/G dfr:wOpResultStr = "root:Packages:ATH_DataFolder:InteractiveOperationsTwoImages:" + folderNameStr + "wOpResult"	
-	wOpResult = (w1 - w2)/(w1 + w2)
-	CreateInteractiveOperationsTwoImagesCalculationPanel(wOpResult)
+	string/G dfr:wOpResultStr = "root:Packages:ATH_DataFolder:iOpsImgs:" + folderNameStr + ":" + "wOpResult"
+	wOpResult = w1 - w2 // Result calculated whan launched
+	CreateiOpsImgsCalculationPanel(wOpResult)
 End
 
-static Function CreateInteractiveOperationsTwoImagesCalculationPanel(WAVE wOpResult)
+static Function CreateiOpsImgsCalculationPanel(WAVE wOpResult)
 	DFREF dfr = GetWavesDataFolderDFR(wOpResult) // Recover the dfr	
 	NVAR/SDFR=dfr gATH_driftStep
-
 	ATH_Display#NewImg(wOpResult)
-	string winiOpsTwoImgNamestr = WinName(0,1)
-	DoWindow/T $winiOpsTwoImgNamestr "iXMC(L)D"		
-	ControlBar/W=$winiOpsTwoImgNamestr 40	
-	
-	SetVariable setDriftStep,win=$winiOpsTwoImgNamestr,pos={130,10},size={160,20.00},title="Drift step (px)"
-	SetVariable setDriftStep,win=$winiOpsTwoImgNamestr,value=gATH_driftStep,help={"Set drift value for img2"}
-	SetVariable setDriftStep,win=$winiOpsTwoImgNamestr,fSize=14,limits={0,10,1},live=1,proc=ATH_InterativeOperationsTwoImages#SetDriftStepVar	
-
-	Button SaveOpResult,win=$winiOpsTwoImgNamestr,pos={20.00,10.00},size={90.00,20.00},proc=ATH_InterativeOperationsTwoImages#SaveOpResultButton
-	Button SaveOpResult,win=$winiOpsTwoImgNamestr,title="Save XMCD", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
-
-	// Set the path to all windows
+	string winNameStr = WinName(0,1)
+	DoWindow/T $winNameStr "iOperation"
+	ControlBar/W=$winNameStr 40	
+	string OpStr = "w1 - w2"
+	Button SaveOpResult,win=$winNameStr,pos={20.00,10.00},size={90.00,20.00},proc=ATH_iImgOps#SaveOpResultButton
+	Button SaveOpResult,win=$winNameStr,title="Save Result", help={"Save result in CWD"}, valueColor=(1,12815,52428)	
+	SetVariable setDriftStep,win=$winNameStr,pos={130,10},size={120,20.00},title="Pixel step"
+	SetVariable setDriftStep,win=$winNameStr,value=gATH_driftStep,help={"Set drift value for w2"}
+	SetVariable setDriftStep,win=$winNameStr,fSize=14,limits={0,10,1},live=1,proc=ATH_iImgOps#SetDriftStepVar		
+	SetVariable SetOpFormula,win=$winNameStr,fSize=14,pos={260,10},size={160,20.00},title="f(w1, w2)",value=_STR:OpStr
+	SetVariable SetOpFormula,proc=ATH_iImgOps#SetOpFormula	
 	string dfrStr = GetWavesDataFolder(wOpResult, 1)
-	SetWindow $winiOpsTwoImgNamestr userdata(ATH_iIntOpsTwoImgPath) = dfrStr
-	SetWindow $winiOpsTwoImgNamestr userdata(ATH_iIntOpsTwoImgWin) = winiOpsTwoImgNamestr
-	SetWindow $winiOpsTwoImgNamestr, hook(MyiXMCDWinHook) = ATH_InterativeOperationsTwoImages#InteractiveOperationsWindowsHook // Set the hook
+	SetWindow $winNameStr userdata(ATH_iImgOpsDFPath) = dfrStr
+	SetWindow $winNameStr userdata(ATH_iImgOpsWin) = winNameStr
+	SetWindow $winNameStr, hook(MyiXMCDWinHook) = ATH_iImgOps#WindowHook // Set the hook
 	return 0
 End
 
-static Function InteractiveOperationsWindowsHook(STRUCT WMWinHookStruct &s)
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iIntOpsTwoImgPath"))
+static Function WindowHook(STRUCT WMWinHookStruct &s)
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgOpsDFPath"))
+	DFREF saveDFR = GetDataFolderDFR()
 	NVAR/SDFR=dfr gATH_driftStep
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
@@ -131,9 +132,9 @@ static Function InteractiveOperationsWindowsHook(STRUCT WMWinHookStruct &s)
 	SVAR/SDFR=dfr wName2Str
 	SVAR/SDFR=dfr wName1Str
 	SVAR/SDFR=dfr wOpResultStr
-
+	
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
-	string dfrStr = GetUserData(s.winName, "", "ATH_iIntOpsTwoImgPath"), cmdStr
+	string dfrStr = GetUserData(s.winName, "", "ATH_iImgOpsDFPath"), cmdStr
 	switch(s.eventCode)
 	// Window is about to be killed case 17. 
 	// Needed if you want more than one hook functions to be able to cleanup/close 
@@ -151,6 +152,7 @@ static Function InteractiveOperationsWindowsHook(STRUCT WMWinHookStruct &s)
 			hookresult = 1
 			break
 		case 11:					// Keyboard event
+			SetDataFolder dfr
 			switch (s.keycode)
 				case 28: //left arrow
 					gATH_dx -= gATH_driftStep
@@ -189,17 +191,19 @@ static Function InteractiveOperationsWindowsHook(STRUCT WMWinHookStruct &s)
 					hookResult = 1
 					break
 			endswitch
-			Execute/Q/Z "$wOpResultStr = $wName1Str - $wName2Str" // Does not work!
+			ControlInfo/W=$s.winName SetOpFormula
+			Execute/Q/Z ("MatrixOP/O wOpResult = " + S_value)
 			CopyScales/I w1, w2 // Copy back the scale, M_Affine is pixel-scaled
+			hookResult = 1
 			break
 	endswitch
-	//SetDataFolder saveDFR
+	SetDataFolder saveDFR
 	return hookResult	// If non-zero, we handled event and Igor will ignore it.
 End
 
 static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iIntOpsTwoImgPath"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgOpsDFPath"))
 	WAVE/SDFR=dfr w1
 	WAVE/SDFR=dfr w2
 	WAVE/SDFR=dfr wOpResult
@@ -212,19 +216,19 @@ static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonContr
 	variable postfix = 0
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			string note2WaveStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " \
+			ControlInfo/W=$B_Struct.win SetOpFormula
+			string note2WaveStr = "Operation: " + S_value + "\nimg1: " \
 			+ wName1Str + "\nimg2: " + wName2Str + "\nTotal drift dx:" + num2str(gATH_dx) \
 			+ " dy:" + num2str(gATH_dy)
 			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)		
-			string savexmcdWaveStr = CreatedataObjectName(sourceDF, "iXMCD", 1, 0, 1)
-			Duplicate wOpResult, sourceDF:$savexmcdWaveStr
-			Note sourceDF:$savexmcdWaveStr, note2WaveStr
+			string saveOpResWaveStr = CreatedataObjectName(sourceDF, "iOp", 1, 0, 1)
+			Duplicate wOpResult, sourceDF:$saveOpResWaveStr
+			Note sourceDF:$saveOpResWaveStr, note2WaveStr
 			//Copy the interpolated wave
-			string backupWaveNameStr = NameOfWave($wName2Str) + "_noDrift"
-			//string saveWave2NameStr = CreatedataObjectName(sourceDF, wname2BaseStr, 1, 0, 1)
+			string backupWaveNameStr = NameOfWave($wName2Str) + "_undo"
 			if(!WaveExists(sourceDF:$backupWaveNameStr))
 				Duplicate/O w2_undo, sourceDF:$backupWaveNameStr // Restore original image when done.
-				note2WaveStr = "Backup before iDrift of: " + wName2Str
+				note2WaveStr = "Backup before iImgOps of: " + wName2Str
 				Note sourceDF:$backupWaveNameStr, note2WaveStr
 			endif
 			break
@@ -233,7 +237,7 @@ static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonContr
 End
 
 static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
-	string dfrStr = GetUserData(sva.win, "", "ATH_iIntOpsTwoImgPath")
+	string dfrStr = GetUserData(sva.win, "", "ATH_iImgOpsDFPath")
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
 	NVAR/SDFR=dfr gATH_driftStep	
 	switch (sva.eventCode)
@@ -249,3 +253,21 @@ static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableCo
 	return 0
 End
 
+static Function SetOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableControl
+
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_iImgOpsDFPath"))
+	DFREF saveDFR = GetDataFolderDFR()	
+	string gval
+	switch (sva.eventCode)
+		case 1:
+		case 2:
+		case 3: 							// Live update
+			SetDataFolder dfr
+			Execute/Q/Z ("MatrixOP/O wOpResult = " + sva.sval)
+			break
+		case -1: 							// Control being killed
+			break
+	endswitch
+	SetDataFolder saveDFR
+	return 0
+End

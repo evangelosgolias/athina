@@ -226,11 +226,11 @@ static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 			Duplicate wXMCD, sourceDF:$savexmcdWaveStr
 			Note sourceDF:$savexmcdWaveStr, note2WaveStr
 			//Copy the interpolated wave
-			string backupWaveNameStr = NameOfWave($wName2Str) + "_noDrift"
+			string backupWaveNameStr = NameOfWave($wName2Str) + "_undo"
 			//string saveWave2NameStr = CreatedataObjectName(sourceDF, wname2BaseStr, 1, 0, 1)
 			if(!WaveExists(sourceDF:$backupWaveNameStr))
 				Duplicate/O wimg2_undo, sourceDF:$backupWaveNameStr // Restore original image when done.
-				note2WaveStr = "Backup before iDrift correction of: " + wName2Str
+				note2WaveStr = "Backup before iXMCD correction of: " + wName2Str
 				Note sourceDF:$backupWaveNameStr, note2WaveStr
 			endif
 			break

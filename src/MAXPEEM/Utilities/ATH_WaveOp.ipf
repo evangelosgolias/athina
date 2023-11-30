@@ -487,6 +487,13 @@ static Function AllImagesEqualDimensionsQ(WAVE/WAVE wRefw)
 	return 1
 End
 
+static Function AllWaveDimensionsEqualQ(WAVE w1, WAVE w2)
+	// Return 1 if waves have the same num of elements in all dims
+	// Works for any wave
+	return ((DimSize(w1, 0) == DimSize(w2, 0)) && (DimSize(w1, 1) == DimSize(w2, 1)\
+	&& DimSize(w1, 2) == DimSize(w2, 2)) && (DimSize(w1, 3) == DimSize(w2, 3)) ? 1 : 0)
+End
+
 static Function MatchWaveTypes(WAVE wRef, WAVE wDest)
 	// Change WaveType of wDest to the one of wRef
 	variable wTypeRef = WaveType(wRef)
