@@ -388,7 +388,7 @@ static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			SetDataFolder dfr
-			if(!numtype(gATH_LDCstartX) || !numtype(gATH_LDCendX))
+			if(numtype(gATH_LDCstartX) || numtype(gATH_LDCendX))
 				break
 			endif
 			if(nlayers > 0)

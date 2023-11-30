@@ -595,7 +595,7 @@ static Function LinearDriftPlanesABCursors(WAVE w3d, WAVE wx, WAVE wy, [variable
 		return -1
 	endif
 
-	if(!(WaveType(w3d) & 0x02))
+	if(!(WaveType(w3d) & 0x02 || WaveType(w3d) & 0x04))
 		Redimension/S w3d
 	endif
 	
