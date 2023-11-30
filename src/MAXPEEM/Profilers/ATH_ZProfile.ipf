@@ -47,7 +47,7 @@ static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
-		SetWindow $winNameStr userdata(ATH_LinkedWinImageSBP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
+		SetWindow $winNameStr userdata(ATH_LinkedWinImageZPP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_SumBeamsDFR) = GetDataFolder(1, dfr)//"root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
 	else
@@ -93,7 +93,7 @@ static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
-		SetWindow $winNameStr userdata(ATH_LinkedWinImageSBP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
+		SetWindow $winNameStr userdata(ATH_LinkedWinImageZPP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_SumBeamsDFR) = GetDataFolder(1, dfr)
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see InitialiseFolder
 	else
@@ -150,7 +150,7 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
 		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
-		SetWindow $winNameStr userdata(ATH_LinkedWinImageSBP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
+		SetWindow $winNameStr userdata(ATH_LinkedWinImageZPP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_SumBeamsDFR) = GetDataFolder(1, dfr)
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see InitialiseFolder
 	else
@@ -345,7 +345,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	variable rs, re, cs, ce // MatrixOP
 	switch(s.eventCode)
 		case 2: // Kill the window
-			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedWinImageSBP"))
+			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedWinImageZPP"))
 			if(WinType(GetUserData(s.winName, "", "ATH_targetGraphWin")) == 1)
 				DoWindow/C/W=$(GetUserData(s.winName, "", "ATH_targetGraphWin")) $UniqueName("BeamProfile_unlnk_",6,0) // Change name of profile graph
 			endif
@@ -409,7 +409,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			hookresult = 0
 			break
 		case 8: // We have a Window modification event
-			string plotNameStr = GetUserData(s.winName, "", "ATH_LinkedWinImageSBP")
+			string plotNameStr = GetUserData(s.winName, "", "ATH_LinkedWinImageZPP")
 			if(mouseTrackV < 0 && strlen(WinList(plotNameStr,";",""))) // mouse outside image stack area and profile plot exists
 				NVAR/Z glayer = root:Packages:WM3DImageSlider:$(WindowNameStr):gLayer
 				variable linePos = DimOffset(profile, 0) + glayer * DimDelta(profile, 0)
@@ -435,7 +435,7 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			SetWindow $parentGraphWin, hook(MySumBeamsZHook) = $""
 			// We need to reset the link between parentGraphwin (winNameStr) and ATH_LinkedLineProfilePlotStr
 			// see ATH_MainMenuLaunchLineProfile() when we test if with strlen(LinkedPlotStr)
-			SetWindow $parentGraphWin userdata(ATH_LinkedWinImageSBP) = ""
+			SetWindow $parentGraphWin userdata(ATH_LinkedWinImageZPP) = ""
 			if(WinType(GetUserData(parentGraphWin, "", "ATH_targetGraphWin")) == 1)
 				DoWindow/C/W=$(GetUserData(s.winName, "", "ATH_targetGraphWin")) $UniqueName("BeamProfile_unlnk_",6,0) // Change name of profile graph
 			endif

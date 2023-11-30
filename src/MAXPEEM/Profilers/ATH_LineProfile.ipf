@@ -85,9 +85,7 @@ static Function/DF InitialiseFolder(string winNameStr)
 	if(WaveDims(imgWaveRef) == 3)
 		WMAppend3DImageSlider() // Everything ok now, add a slider to the 3d wave
 	endif
-	DFREF rootDF = $("root:Packages:ATH_DataFolder:LineProfiles:")
-    string UniqueimgNameTopGraphStr = CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1)
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:" + UniqueimgNameTopGraphStr) // Root folder here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:" + winNameStr) // Root folder here
 	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings:") // Settings here
 
 	variable nrows = DimSize(imgWaveRef,0)

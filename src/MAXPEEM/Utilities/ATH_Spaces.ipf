@@ -62,8 +62,6 @@
 /// Shift + Alt + Click; unpin
 /// Ctlr + click to mark/unmark a space with an asterisk
 ///
-/// TODO: Move linked Panel/Graphs to the same Space
-/// TODO: Change all the function and use the same algorithm as ATH_ShowWindowsOfSpaceTag
 
 static Function MenuLauch()
 	
@@ -229,8 +227,8 @@ static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 			SetWindow $winNameStr userdata(ATH_SpacesTag) = SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace]) // Assign tag to window
 			// Do we have a linked panel?
 			// List of known linked profile extensions (SumBeamsProfile, LineProfile, PlaneProfileZ)	
-			listLinkedPP = "ImageSource;ImageSBP;ImageLPP;ImagePPZ" 
-			for(i = 0; i < 4; i++) // Manually add here maxVal as ItemsInList(listLinkedPP)
+			listLinkedPP = "ImageSource;ImageZPP;ImageLPP;ImagePPZ;iXPSPP" 
+			for(i = 0; i < 5; i++) // Manually add here maxVal as ItemsInList(listLinkedPP)
 				buffer = GetUserData(winNameStr, "", "ATH_LinkedWin" + StringFromList(i, listLinkedPP))
 				if(strlen(buffer))
 					SetWindow $buffer userdata(ATH_SpacesTag) = SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace]) // Assign tag to window

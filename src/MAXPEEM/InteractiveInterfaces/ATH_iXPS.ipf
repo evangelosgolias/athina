@@ -31,6 +31,10 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+
+/// Note that the program needs E to be at the lower part of the KE of the dispersion.
+/// Line profile is extracted from E -> F cursor.
+
 static constant kATHEnergyPerPixel = 0.00780685 // energy per pixel - default setting 30.04.2023
 
 
@@ -43,12 +47,12 @@ static Function MainMenu()
 		return -1
 	endif
 	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	string LinkedPlotStr = GetUserData(winNameStr, "", "ATH_LinkedXPSExtractorPlotStr")
+	string LinkedPlotStr = GetUserData(winNameStr, "", "ATH_LinkedWiniXPSPP")
 	if(strlen(LinkedPlotStr))
 		DoWindow/F LinkedPlotStr
 		return 0
 	endif
-	InitialiseFolder(winNameStr)
+	DFREF dfr = InitialiseFolder(winNameStr)
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
 	// Cursors to set the scale
@@ -57,15 +61,15 @@ static Function MainMenu()
 	// Cursors to get the profile
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(1.6 * nrows/2), round(0.4 * ncols/2)
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.4 * nrows/2), round(1.6 * ncols/2)
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:" + NameOfWave(imgWaveRef)) // Change root folder if you want
 	InitialiseGraph(dfr)
-	SetWindow $winNameStr, hook(MyXPSExtractorHook) = ATH_iXPS#CursorHookFunction // Set the hook
-	SetWindow $winNameStr userdata(ATH_LinkedXPSExtractorPlotStr) = "ATH_XPSProfPlot_" + winNameStr // Name of the plot we will make, used to communicate the
-	SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_XPSProf_" + winNameStr //  Same as gATH_WindowNameStr, see ATH_InitialiseXPSExtractorFolder
+	SetWindow $winNameStr, hook(MyiXPSHook) = ATH_iXPS#CursorHookFunction // Set the hook
+	SetWindow $winNameStr userdata(ATH_LinkedWiniXPSPP) = "ATH_XPSProfPlot_" + winNameStr
+	SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_XPSProf_" + winNameStr 
+	SetWindow $winNameStr userdata(ATH_iXPSRootDF) = GetDataFolder(1, dfr)	
 	return 0
 End
 
-static Function InitialiseFolder(string winNameStr)
+static Function/DF InitialiseFolder(string winNameStr)
 	/// All initialisation happens here. Folders, waves and local/global variables
 	/// needed are created here. Use the 3D wave in top window.
 
@@ -93,8 +97,8 @@ static Function InitialiseFolder(string winNameStr)
 		WMAppend3DImageSlider() // Everything ok now, add a slider to the 3d wave
 	endif
     
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:" + imgNameTopGraphStr) // Root folder here
-	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:DefaultSettings:") // Settings here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iXPS:" + winNameStr) // Root folder here
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iXPS:DefaultSettings:") // Settings here
 
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
@@ -150,7 +154,7 @@ static Function InitialiseFolder(string winNameStr)
 		variable/G dfr0:gATH_epp0
 		variable/G dfr0:gATH_Wf0	
 	endif
-	return 0
+	return dfr
 End
 
 static Function InitialiseGraph(DFREF dfr)
@@ -166,7 +170,6 @@ End
 
 static Function XPSPlot(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(rootFolderStr)
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	NVAR profileWidth = dfr:gATH_profileWidth
 	NVAR hv = dfr:gATH_hv
@@ -185,7 +188,7 @@ static Function XPSPlot(DFREF dfr)
 	SetWindow $profilePlotStr userdata(ATH_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_XPSProf_" + gATH_WindowNameStr 
 	SetWindow $profilePlotStr userdata(ATH_parentGraphWin) = gATH_WindowNameStr 
-	SetWindow $profilePlotStr, hook(MyXPSExtractorGraphHook) = ATH_XPSExtractorGraphHookFunction // Set the hook
+	SetWindow $profilePlotStr, hook(MyiXPSGraphHook) = ATH_iXPS#GraphHookFunction // Set the hook
 	
 	ControlBar 100	
 	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save current profile"},proc=ATH_iXPS#SaveProfile
@@ -224,8 +227,8 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
     variable hookResult = 0
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
-	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:DefaultSettings") // Settings here
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iXPSRootDF"))
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iXPS:DefaultSettings") // Settings here
 	SetdataFolder dfr
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
@@ -281,7 +284,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			endif
 			break
 		case 2: // Kill the window
-			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedXPSExtractorPlotStr"))
+			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedWiniXPSPP"))
 			if(WinType(GetUserData(s.winName, "", "ATH_targetGraphWin")) == 1)
 				DoWindow/C/W=$(GetUserData(s.winName, "", "ATH_targetGraphWin")) $UniqueName("XPSProf_unlnk_", 6, 0) // Change name of profile graph
 			endif
@@ -296,11 +299,12 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
        		C1y = vcsr(E)
        		C2x = hcsr(F)
        		C2y = vcsr(F)
-       		// E is the low KE part (higher BE)
-       		// N.B Line profile is taken from E to F
+       		/// Note: E is ag the low KE part (higher BE)
+       		/// N.B Line profile is taken from E to F
        		dAE = sqrt((C1x - Ax)^2 + (C1y - Ay)^2)
        		dEF = sqrt((C2x - C1x)^2 + (C2y - C1y)^2)
-       		Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the top right energy (lowest KE)
+       		// offset in eV from the top right energy (lowest KE)
+       		Eoffset = stv - (linepx/2 - dAE) * epp
        		//SetScale/I x, Eoffset, (Eoffset + dEF*epp), W_ImageLineProfile
        		SetScale/P x, Eoffset, epp, W_ImageLineProfile
        		//WaveFromKE2BE(W_ImageLineProfile, hv, Wf)
@@ -355,12 +359,9 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentGraphWin = GetUserData(s.winName, "", "ATH_parentGraphWin")
 	switch(s.eventCode)
 		case 2: // Kill the window
-			// parentGraphWin -- winNameStr
-			// Kill the MyXPSExtractorHook
-			SetWindow $parentGraphWin, hook(MyXPSExtractorHook) = $""
-			// We need to reset the link between parentGraphwin (winNameStr) and ATH_LinkedXPSExtractorPlotStr
-			// see ATH_MainMenuLaunchXPSExtractor() when we test if with strlen(LinkedPlotStr)
-			SetWindow $parentGraphWin userdata(ATH_LinkedXPSExtractorPlotStr) = ""
+
+			SetWindow $parentGraphWin, hook(MyiXPSHook) = $""
+			SetWindow $parentGraphWin userdata(ATH_LinkedWiniXPSPP) = ""
 			if(WinType(GetUserData(parentGraphWin, "", "ATH_targetGraphWin")) == 1)
 				DoWindow/C/W=$(GetUserData(s.winName, "", "ATH_targetGraphWin")) $UniqueName("XPSProf_unlnk_",6,0) // Change name of profile graph
 			endif
@@ -409,7 +410,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/Z Wf = dfr:gATH_Wf
 		
 	string recreateDrawStr
-	DFREF savedfr = GetDataFolderDFR() //ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:SavedXPSExtractor")
+	DFREF savedfr = GetDataFolderDFR()
 	
 	variable postfix = 0, dAE
 	variable red, green, blue
@@ -469,7 +470,7 @@ End
 
 static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
-	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:DefaultSettings") // Settings here
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iXPS:DefaultSettings") // Settings here
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
@@ -520,7 +521,7 @@ End
 
 static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
-	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:XPSExtractor:DefaultSettings") // Settings here
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iXPS:DefaultSettings") // Settings here
 	string parentWindow = GetUserData(B_Struct.win, "", "ATH_parentGraphWin")
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
@@ -629,7 +630,7 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	switch(B_Struct.eventCode)	// numeric switch
 		case 1:	// "mouse down"
 			SetDrawLayer/W=$WindowNameStr ProgFront
-			SetDrawEnv/W=$WindowNameStr gstart,gname= XPSExtractorWidth
+			SetDrawEnv/W=$WindowNameStr gstart,gname= iXPSWidth
 			SetDrawEnv/W=$WindowNameStr linefgc = (65535,16385,16385,32767), fillbgc= (65535,16385,16385,32767), fillpat = -1, linethick = 0, xcoord = top, ycoord = left
 			DrawPoly/W=$WindowNameStr x1, y1, 1, 1, {x1, y1, x2, y2, x3, y3, x4, y4}
 			SetDrawEnv/W=$WindowNameStr gstop
@@ -637,7 +638,7 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 		case 2: // "mouse up"
 		case 3: // "mouse up outside button"
 			SetDrawLayer/W=$WindowNameStr ProgFront
-			DrawAction/W=$WindowNameStr getgroup = XPSExtractorWidth
+			DrawAction/W=$WindowNameStr getgroup = iXPSWidth
 			DrawAction/W=$WindowNameStr delete = V_startPos, V_endPos
 			break
 	endswitch
