@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 #pragma ModuleName = ATH_ZProfile
-#pragma version = 1.01
+#pragma version = 1.5
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -46,7 +46,7 @@ static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 		endif
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MyZProfileZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
+		SetWindow $winNameStr, hook(MyZprofileHook) = ATH_ZProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageZPP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_ZProfileDFR) = GetDataFolder(1, dfr)//"root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
@@ -92,7 +92,7 @@ static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 		endif
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MyZProfileZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
+		SetWindow $winNameStr, hook(MyZprofileHook) = ATH_ZProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageZPP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_ZProfileDFR) = GetDataFolder(1, dfr)
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see InitialiseFolder
@@ -149,7 +149,7 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 		endif	
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MyZProfileZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
+		SetWindow $winNameStr, hook(MyZprofileHook) = ATH_ZProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageZPP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_ZProfileDFR) = GetDataFolder(1, dfr)
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see InitialiseFolder
@@ -227,9 +227,11 @@ static Function/DF InitialiseFolder()
 	string/G dfr:gATH_imgNameTopWindowStr = imgNameTopGraphStr
 	string/G dfr:gATH_WindowNameStr = winNameStr
 	string/G dfr:gATH_LineProfileWaveStr = zprofilestr // image profile wave
+	string/G dfr:gATH_LineProfileTwinWaveStr = zprofilestr + "_Twin"// image profile wave	
 	string/G dfr:gATH_w3dPathname = GetWavesDataFolder(w3dref, 2)
 	string/G dfr:gATH_w3dPath = GetWavesDataFolder(w3dref, 1)
 	string/G dfr:gATH_w3dNameStr = NameOfWave(w3dref)
+	string/G dfr:gATH_TwinWavePath = ""
 	variable/G dfr:gATH_dx = DimDelta(w3dref, 0)
 	variable/G dfr:gATH_dy = DimDelta(w3dref, 1)
 	variable/G dfr:gATH_Nx = DimSize(w3dref, 0) - 1 // Last element's index X
@@ -248,6 +250,7 @@ static Function/DF InitialiseFolder()
 	variable/G dfr:nLayers = nlayers
 	variable/G dfr:gATH_DoPlotSwitch = 1
 	variable/G dfr:gATH_MarkAreasSwitch = 1
+	variable/G dfr:gATH_TwinPlotSwitch = 0	
 	variable/G dfr:gATH_colorcnt = 0
 	variable/G dfr:gATH_mouseTrackV
 	return dfr
@@ -285,10 +288,9 @@ static Function InitialiseGraph(DFREF dfr)
 	SVAR/SDFR=dfr gATH_LineProfileWaveStr
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	SVAR/SDFR=dfr gATH_imgNameTopWindowStr
+	SVAR/Z/SDFR=dfr gATH_TwinWavePath
 	WAVE profile = dfr:$gATH_LineProfileWaveStr
-
 	string profilePlotStr = "ATH_ZProfPlot_" + gATH_WindowNameStr
-
 	if (WinType(profilePlotStr) == 0) // line profile window is not displayed
 		variable pix = 72/ScreenResolution
 		Display/W=(0*pix,0*pix,500*pix,300*pix)/K=1/N=$profilePlotStr profile as "Z profile " + gATH_imgNameTopWindowStr
@@ -297,15 +299,21 @@ static Function InitialiseGraph(DFREF dfr)
 		Label left "\\u#2 Intensity (arb. u.)";DelayUpdate
 		Label bottom "\\u#2 Energy (eV)"
 		ControlBar 40
-		Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=ATH_ZProfile#SaveProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
-		Button SetScaleZaxis, pos={125.00,10.00}, size={90.00,20.00}, proc=ATH_ZProfile#SetScaleButton, title="Set scale", help={"Set abscissas range"}, valueColor=(1,12815,52428)
-		CheckBox ShowProfile, pos={230.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
-		CheckBox ShowSelectedAread, pos={340,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
-
+		ModifyGraph/Z cbRGB=(57346,65535,49151)
+		Button SaveProfileButton, pos={15.00,10.00},size={80.00,20.00}, proc=ATH_ZProfile#SaveProfileButton, title="Save prof.", help={"Save current profile"}, valueColor=(1,12815,52428)
+		Button SetScaleZaxis, pos={105.00,10.00}, size={80.00,20.00}, proc=ATH_ZProfile#SetScaleButton, title="Set scale", help={"Set abscissas range"}, valueColor=(1,12815,52428)
+		CheckBox PlotProfile, pos={195.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckboxPlotProfile,title="Plot prof.", fSize=14, value= 1
+		CheckBox MarkAreas, pos={280,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckboxMarkAreas,title="Mark areas", fSize=14, value= 1
+		CheckBox TwinWavePlot, pos={400,2.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckBoxTwinPlot,title="Twin plot", fSize=12, value= 0
+		
 		SetWindow $profilePlotStr userdata(ATH_rootdfrZProfileStr) = rootFolderStr // pass the dfr to the button controls
 		SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + gATH_WindowNameStr
 		SetWindow $profilePlotStr userdata(ATH_LinkedWinImageSource) = gATH_WindowNameStr
-		SetWindow $profilePlotStr, hook(MyZProfileHook) = ATH_ZProfile#GraphHookFunction // Set the hook
+		SetWindow $profilePlotStr, hook(MyZProfileProfileHook) = ATH_ZProfile#GraphHookFunction // Set the hook
+		// Note: PopupMenu should follow SetWindow commands as the function BuildTwinWaveList() needs to get the
+		// userdata(ATH_rootdfrZProfileStr) to initialise the menu 
+		SetVariable SetTwinWavePath,win=$profilePlotStr,fSize=12,pos={370,20},size={120,20.00},title="TW"
+		SetVariable SetTwinWavePath,value=gATH_TwinWavePath,proc=ATH_ZProfile#SetTwinWavePath
 	else
 		DoWindow/F $profilePlotStr // if it is bring it to the FG
 	endif
@@ -333,16 +341,22 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/SDFR=dfr gATH_Rect
 	NVAR/SDFR=dfr gATH_aXlen
 	NVAR/SDFR=dfr gATH_aYlen
+	NVAR/SDFR=dfr gATH_TwinPlotSwitch
 	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
 	SVAR/Z w3dNameStr = dfr:gATH_w3dNameStr
 	SVAR/Z w3dPath = dfr:gATH_w3dPath
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
+	SVAR/Z/SDFR=dfr gATH_TwinWavePath
+	WAVE/Z twinWRef = $gATH_TwinWavePath // twin wave
 	DFREF wrk3dwave = $w3dPath
 	Wave/SDFR=wrk3dwave w3d = $w3dNameStr
 	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
+	SVAR/Z/SDFR=dfr gATH_LineProfileTwinWaveStr		
+	Wave/Z/SDFR=dfr profileTwin = $gATH_LineProfileTwinWaveStr	
 	string w3dNameStrQ = PossiblyQuoteName(w3dNameStr) // Dealing with name1#name2 waves names
 	SetDrawLayer/W=$WindowNameStr ProgFront // We need it for ImageGenerateROIMask
 	variable rs, re, cs, ce // MatrixOP
+	variable nlayersTW = DimSize(twinWRef, 2)
 	switch(s.eventCode)
 		case 2: // Kill the window
 			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedWinImageZPP"))
@@ -403,6 +417,12 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				//    			print "leftP:",(gATH_left/dx),",rightP:",(gATH_right/dx),"topQ:",(gATH_top/dy),",bottomQ:",(gATH_bottom/dy)
 				//		    		print "------"
 				//		    		print rs,re,cs,ce
+				// ---
+				// twin graph
+				if(gATH_TwinPlotSwitch)
+					MatrixOP/S/O/NTHR=0 profileTwin = sum(subrange(twinWRef, rs, re, cs, ce))
+					Redimension/E=1/N=(nlayersTW) profileTwin
+				endif
 				hookresult = 1
 				break
 			endif
@@ -432,7 +452,7 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 		case 2: // Kill the window
 			// parentGraphWin -- winNameStr
 			// Kill the MyLineProfileHook
-			SetWindow $parentGraphWin, hook(MyZProfileZHook) = $""
+			SetWindow $parentGraphWin, hook(MyZprofileHook) = $""
 			// We need to reset the link between parentGraphwin (winNameStr) and ATH_LinkedLineProfilePlotStr
 			// see ATH_MainMenuLaunchLineProfile() when we test if with strlen(LinkedPlotStr)
 			SetWindow $parentGraphWin userdata(ATH_LinkedWinImageZPP) = ""
@@ -458,7 +478,6 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 	NVAR/Z DoPlotSwitch = dfr:gATH_DoPlotSwitch
 	NVAR/Z MarkAreasSwitch = dfr:gATH_MarkAreasSwitch
 	NVAR/Z colorcnt = dfr:gATH_colorcnt
-
 	NVAR/SDFR=dfr gATH_left
 	NVAR/SDFR=dfr gATH_right
 	NVAR/SDFR=dfr gATH_top
@@ -487,7 +506,6 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 					colorcnt += 1
 				endif
 			endif
-
 			if(MarkAreasSwitch)
 				if(!DoPlotSwitch)
 					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
@@ -507,7 +525,6 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 				sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
 				"DrawCmd:DrawOval %f, %f, %f, %f", w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
 			endif
-
 			Note savedfr:$saveWaveNameStr, recreateDrawStr
 			break
 	endswitch
@@ -563,6 +580,78 @@ static Function CheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 			break
 		case 0:
 			MarkAreasSwitch = 0
+			break
+	endswitch
+	return 0
+End
+
+static Function CheckBoxTwinPlot(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrZProfileStr"))
+	NVAR/Z TwinPlotSwitch = dfr:gATH_TwinPlotSwitch
+	SVAR/Z/SDFR=dfr gATH_TwinWavePath
+	WAVE/Z twinWRef = $gATH_TwinWavePath // twin wave
+	SVAR/Z/SDFR=dfr gATH_LineProfileTwinWaveStr
+	SVAR/Z/SDFR=dfr gATH_TwinWavePath
+	switch(cb.checked)
+		case 1:		// Mouse up
+			// Create the twinwave plot
+			if(!cmpstr(gATH_TwinWavePath,"Wave Error!"))
+				break
+			endif
+			WAVE/Z profileTwin = dfr:$gATH_LineProfileTwinWaveStr
+			if(WaveExists(twinWRef))
+				if(WaveExists(profileTwin))
+					CheckDisplayed/W=$cb.win $gATH_LineProfileTwinWaveStr	
+					if(!V_flag)
+						AppendToGraph/W=$cb.win/T/R profileTwin
+						ModifyGraph/W=$cb.win tick(right)=2, tick(top)=2, fSize=12, lsize=2
+						Label/W=$cb.win right "\\u#2"		
+					endif
+				else
+					Make/O/N=(DimSize(twinWRef,2)) dfr:$gATH_LineProfileTwinWaveStr	 /Wave = profileTwin // Store the line profile
+					AppendToGraph/W=$cb.win/T/R profileTwin
+					ModifyGraph/W=$cb.win tick(right)=2, tick(top)=2, fSize=12, lsize=2
+					Label/W=$cb.win right "\\u#2"				
+				endif
+			else
+				gATH_TwinWavePath = "Wave Error!"
+				ControlUpdate/W=$cb.win SetTwinWavePath
+			endif
+			TwinPlotSwitch = 1
+			break
+		case 0:
+			RemoveFromGraph/Z/W=$cb.win $gATH_LineProfileTwinWaveStr
+			WAVE/Z profileTwin = dfr:$gATH_LineProfileTwinWaveStr
+			KillWaves/Z profileTwin
+			TwinPlotSwitch = 0
+			break
+	endswitch
+	return 0
+End
+
+
+static Function SetTwinWavePath(STRUCT WMSetVariableAction &sva) : SetVariableControl
+
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_rootdfrZProfileStr"))
+	SVAR/Z/SDFR=dfr gATH_TwinWavePath
+	NVAR/Z/SDFR=dfr gATH_Nx
+	NVAR/Z/SDFR=dfr gATH_Ny // gATH_Nx, gATH_Ny are the last dim indices, so npts = lastidx + 1
+	variable nx = gATH_Nx + 1; 
+	variable ny = gATH_Ny + 1
+	switch (sva.eventCode)
+		case 1:
+		case 2:
+		case 3: 							// Live update
+			WAVE wRef = $sva.sval
+			if(WaveExists(wRef) && (DimSize(wRef,0)==nx && DimSize(wRef,1)==ny) && WaveDims(wRef)==3)
+				gATH_TwinWavePath = sva.sval
+			else		
+				gATH_TwinWavePath = "Wave Error!"
+				ControlUpdate/W=$sva.win SetTwinWavePath
+			endif
+			break
+		case -1: 							// Control being killed
 			break
 	endswitch
 	return 0
