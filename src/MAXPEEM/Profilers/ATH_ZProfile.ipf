@@ -46,9 +46,9 @@ static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 		endif
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
+		SetWindow $winNameStr, hook(MyZProfileZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageZPP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(ATH_SumBeamsDFR) = GetDataFolder(1, dfr)//"root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
+		SetWindow $winNameStr userdata(ATH_ZProfileDFR) = GetDataFolder(1, dfr)//"root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
 	else
 		Abort "z-profile needs a 3d wave"
@@ -92,9 +92,9 @@ static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 		endif
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
+		SetWindow $winNameStr, hook(MyZProfileZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageZPP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(ATH_SumBeamsDFR) = GetDataFolder(1, dfr)
+		SetWindow $winNameStr userdata(ATH_ZProfileDFR) = GetDataFolder(1, dfr)
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see InitialiseFolder
 	else
 		Abort "z-profile needs a 3d wave"
@@ -149,9 +149,9 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 		endif	
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MySumBeamsZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
+		SetWindow $winNameStr, hook(MyZProfileZHook) = ATH_ZProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageZPP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
-		SetWindow $winNameStr userdata(ATH_SumBeamsDFR) = GetDataFolder(1, dfr)
+		SetWindow $winNameStr userdata(ATH_ZProfileDFR) = GetDataFolder(1, dfr)
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see InitialiseFolder
 	else
 		Abort "z-profile needs a 3d wave"
@@ -254,7 +254,7 @@ static Function/DF InitialiseFolder()
 End	
 
 static Function DrawOvalImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
-	// Use ATH_SumBeamsDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
+	// Use ATH_ZProfileDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
 	SetDrawLayer UserFront 
 	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
 	DrawOval left, top, right, bottom
@@ -263,7 +263,7 @@ static Function DrawOvalImageROI(variable left, variable top, variable right, va
 End
 
 static Function DrawRectImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
-	// Use ATH_SumBeamsDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
+	// Use ATH_ZProfileDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
 	SetDrawLayer UserFront 
 	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
 	DrawRect left, top, right, bottom
@@ -293,19 +293,19 @@ static Function InitialiseGraph(DFREF dfr)
 		variable pix = 72/ScreenResolution
 		Display/W=(0*pix,0*pix,500*pix,300*pix)/K=1/N=$profilePlotStr profile as "Z profile " + gATH_imgNameTopWindowStr
 		AutoPositionWindow/E/M=0/R=$gATH_WindowNameStr
-		ModifyGraph rgb=(1,12815,52428), tick(left)=2, fSize=12, lsize=1.5
+		ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=12, lsize=2
 		Label left "\\u#2 Intensity (arb. u.)";DelayUpdate
 		Label bottom "\\u#2 Energy (eV)"
 		ControlBar 40
 		Button SaveProfileButton, pos={20.00,10.00}, size={90.00,20.00}, proc=ATH_ZProfile#SaveProfileButton, title="Save Profile", help={"Save current profile"}, valueColor=(1,12815,52428)
 		Button SetScaleZaxis, pos={125.00,10.00}, size={90.00,20.00}, proc=ATH_ZProfile#SetScaleButton, title="Set scale", help={"Set abscissas range"}, valueColor=(1,12815,52428)
-		CheckBox ShowProfile, pos={230.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#PlotCheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
-		CheckBox ShowSelectedAread, pos={340,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#SumBeamsProfilePlotCheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
+		CheckBox ShowProfile, pos={230.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckboxPlotProfile,title="Plot profiles ", fSize=14, value= 1
+		CheckBox ShowSelectedAread, pos={340,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckboxMarkAreas,title="Mark areas ", fSize=14, value= 1
 
-		SetWindow $profilePlotStr userdata(ATH_rootdfrSumBeamsStr) = rootFolderStr // pass the dfr to the button controls
+		SetWindow $profilePlotStr userdata(ATH_rootdfrZProfileStr) = rootFolderStr // pass the dfr to the button controls
 		SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + gATH_WindowNameStr
 		SetWindow $profilePlotStr userdata(ATH_LinkedWinImageSource) = gATH_WindowNameStr
-		SetWindow $profilePlotStr, hook(MySumBeamsProfileHook) = ATH_ZProfile#GraphHookFunction // Set the hook
+		SetWindow $profilePlotStr, hook(MyZProfileHook) = ATH_ZProfile#GraphHookFunction // Set the hook
 	else
 		DoWindow/F $profilePlotStr // if it is bring it to the FG
 	endif
@@ -315,7 +315,7 @@ End
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	variable hookResult = 0, i
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_SumBeamsDFR"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_ZProfileDFR"))
 	NVAR/SDFR=dfr gATH_left
 	NVAR/SDFR=dfr gATH_right
 	NVAR/SDFR=dfr gATH_top
@@ -374,7 +374,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			break
 		case 7: // cursor moved
 			if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor
-				DrawAction/W=$WindowNameStr delete // TODO: Here add the env commands of ATH_SumBeamsDrawImageROICursor before switch and here only the draw command
+				DrawAction/W=$WindowNameStr delete // TODO: Here add the env commands of ATH_ZProfileDrawImageROICursor before switch and here only the draw command
 				SetDrawEnv/W=$WindowNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 				if(gATH_Rect)
 					DrawRect/W=$WindowNameStr xOff - gATH_aXlen * 0.5 + s.pointNumber * dx, yOff + gATH_aYlen * 0.5 + s.yPointNumber * dy, \
@@ -432,7 +432,7 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 		case 2: // Kill the window
 			// parentGraphWin -- winNameStr
 			// Kill the MyLineProfileHook
-			SetWindow $parentGraphWin, hook(MySumBeamsZHook) = $""
+			SetWindow $parentGraphWin, hook(MyZProfileZHook) = $""
 			// We need to reset the link between parentGraphwin (winNameStr) and ATH_LinkedLineProfilePlotStr
 			// see ATH_MainMenuLaunchLineProfile() when we test if with strlen(LinkedPlotStr)
 			SetWindow $parentGraphWin userdata(ATH_LinkedWinImageZPP) = ""
@@ -448,7 +448,7 @@ End
 
 static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrSumBeamsStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
 	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
@@ -515,7 +515,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 End
 
 static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrSumBeamsStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr"))
 	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
 	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
 	switch(B_Struct.eventCode)	// numeric switch
@@ -538,9 +538,9 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	return 0
 End
 
-static Function PlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrSumBeamsStr"))
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrZProfileStr"))
 	NVAR/Z DoPlotSwitch = dfr:gATH_DoPlotSwitch
 	switch(cb.checked)
 		case 1:		// Mouse up
@@ -548,6 +548,21 @@ static Function PlotCheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxC
 			break
 		case 0:
 			DoPlotSwitch = 0
+			break
+	endswitch
+	return 0
+End
+
+static Function CheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrZProfileStr"))
+	NVAR/Z MarkAreasSwitch = dfr:gATH_MarkAreasSwitch
+	switch(cb.checked)
+		case 1:		// Mouse up
+			MarkAreasSwitch = 1
+			break
+		case 0:
+			MarkAreasSwitch = 0
 			break
 	endswitch
 	return 0

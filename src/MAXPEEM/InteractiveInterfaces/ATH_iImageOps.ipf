@@ -257,7 +257,6 @@ static Function SetOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableContr
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_iImgOpsDFPath"))
 	DFREF saveDFR = GetDataFolderDFR()	
-	string gval
 	switch (sva.eventCode)
 		case 1:
 		case 2:
