@@ -205,10 +205,9 @@ static Function/DF InitialiseFolder()
 	endif
 	
 	if(stringmatch(AxisList(winNameStr),"*bottom*")) // Check if you have a NewImage left;top axes
-		sprintf msg, "Reopen as Newimage %s", imgNameTopGraphStr
+		sprintf msg, "Reopen %s using ATH_Display#NewImg", imgNameTopGraphStr
 		KillWindow $winNameStr
-		NewImage/K=1/N=$winNameStr w3dref
-		ModifyGraph/W=$winNameStr width={Plan,1,top,left}
+		ATH_Display#NewImg(w3dref)
 	endif
 	
 	WMAppend3DImageSlider() // Everything ok now, add a slider to the 3d wave
@@ -419,7 +418,8 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				//		    		print rs,re,cs,ce
 				// ---
 				// twin graph
-				if(gATH_TwinPlotSwitch)
+				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
+					print "twin"
 					MatrixOP/S/O/NTHR=0 profileTwin = sum(subrange(twinWRef, rs, re, cs, ce))
 					Redimension/E=1/N=(nlayersTW) profileTwin
 				endif
@@ -535,19 +535,35 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr"))
 	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
 	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
+	// Twin wave
+	NVAR/Z TwinPlotSwitch = dfr:gATH_TwinPlotSwitch
+	SVAR/Z/SDFR=dfr gATH_LineProfileTwinWaveStr
+	WAVE/Z/SDFR=dfr twinprofile = $gATH_LineProfileTwinWaveStr // twin wave
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			string rangeZStr, sval1, separator, sval2
-			Prompt rangeZStr, "Set scale are \"x0-xn\" or \"x0,dx\""
-			DoPrompt "Set x-axis range (z scale of wave does not change)", rangeZStr
-			if(!V_flag && strlen(rangeZStr))
-				SplitString/E="\s*([-]?[0-9]*[.]?[0-9]+)\s*(-|,)\s*([-]?[0-9]*[.]?[0-9]+)\s*" rangeZStr, sval1, separator, sval2
-				if(!cmpstr(separator, "-"))
+			string rangeZStr, sval1, separator, sval2, inputStr
+			Prompt inputStr, "Set scale as \"x0 xn\" or \"x0,dx\". \nOptionally,  add a semicolon and a second pair to scale TW."
+			DoPrompt "Set x-axis range (override wave's z-scale)", inputStr
+			if(!V_flag && strlen(inputStr))
+				rangeZstr = TrimString(StringFromList(0, inputStr), 1) // remove double+ spaces if any
+				SplitString/E="\s*([-]?[0-9]*[.]?[0-9]+)\s*(\s+|\s*,)\s*([-]?[0-9]*[.]?[0-9]+)\s*" rangeZStr, sval1, separator, sval2
+				if(!cmpstr(TrimString(separator), "")) // If there is one or more spaces
 					SetScale/I x, str2num(sval1), str2num(sval2), profile
 				elseif(!cmpstr(separator, ","))
 					SetScale/P x, str2num(sval1), str2num(sval2), profile
 				else
 					print "Invalid range input"
+				endif
+				rangeZstr = TrimString(StringFromList(1, inputStr), 1) // remove double+ spaces if any
+				if(strlen(TrimString(rangeZstr)))
+					SplitString/E="\s*([-]?[0-9]*[.]?[0-9]+)\s*(\s+|\s*,)\s*([-]?[0-9]*[.]?[0-9]+)\s*" rangeZStr, sval1, separator, sval2
+					if(!cmpstr(TrimString(separator), "")) // If there is one or more spaces
+						SetScale/I x, str2num(sval1), str2num(sval2), twinprofile
+					elseif(!cmpstr(separator, ","))
+						SetScale/P x, str2num(sval1), str2num(sval2), twinprofile
+					else
+						print "Invalid range input"
+					endif
 				endif
 			endif
 			break
@@ -592,7 +608,6 @@ static Function CheckBoxTwinPlot(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	SVAR/Z/SDFR=dfr gATH_TwinWavePath
 	WAVE/Z twinWRef = $gATH_TwinWavePath // twin wave
 	SVAR/Z/SDFR=dfr gATH_LineProfileTwinWaveStr
-	SVAR/Z/SDFR=dfr gATH_TwinWavePath
 	switch(cb.checked)
 		case 1:		// Mouse up
 			// Create the twinwave plot
