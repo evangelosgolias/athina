@@ -106,9 +106,9 @@ static Function CreatePanel()
 	SetDrawEnv/W=iDriftCorrection fsize= 13,fstyle= 1,textrgb= (1,12815,52428)
 	DrawText/W=iDriftCorrection 2,16,"Interactive drift correction"
 	Checkbox FastMode,pos={12.00,17.50},title="SHIFT+Click & drift",fSize=11,font="Menlo"
-	Checkbox FastMode,value=0,proc=ATH_iDriftCorrection#FastModeCheckbox
-	SetDrawEnv textrgb= (2,39321,1), fname= "Menlo", fSize=10
-	DrawText 7,88," Set anchor, use arrows \n for ±layer. SHIFT+Click\n drifts layer & layer++.\n Shift+r restores layer."	
+	Checkbox FastMode,value=0,disable=2,proc=ATH_iDriftCorrection#FastModeCheckbox
+	SetDrawEnv textrgb= (2,39321,1), fname= "Menlo", fSize=9
+	DrawText 7,85,"1. ---- Set anchor ----\n2. Arrows/wheel to ±layer \n3. SHIFT+click drifts layer+\n4. Shift+r restores layer."	
 	Button SetAnchorCursor,pos={23.00,90.00},size={120.00,20.00},title="(Re)Set anchor",fSize=12,fColor=(39321,39321,39321)
 	Button SetAnchorCursor,valueColor=(65535,0,0), proc=ATH_iDriftCorrection#SetAnchorCursorButton
 	//All buttons, except restore3dwave and LDC, are disabled until the anchor is set
@@ -199,14 +199,15 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 				ModifyImage/W=$gATH_WindowNameStr $gATH_imgNameTopWindowStr plane=gLayer
 			endif
 			if(s.keyCode == 82) // if R (SHIFT+r) is pressed - Restore original layer
-				ImageTransform/P=(gLayer) getPlane w3dBackUpRef // get the image from the backup wave
-				WAVE M_ImagePlane
-				ImageTransform/O/P=(gLayer) removeZplane w3dRef
-				ImageTransform/O/P=(gLayer)/INSW=M_ImagePlane insertZplane w3dRef
-				WAVE M_ImagePlane
+				w3dRef[][][gLayer] = w3dBackUpRef[p][q]
 			endif
 			hookresult = 1
 			break
+		case 22: // mouse wheel
+			gLayer += s.WheelDy
+			ModifyImage/W=$gATH_WindowNameStr $gATH_imgNameTopWindowStr plane=gLayer
+			hookresult = 1
+			break			
 	endswitch
 	return hookresult
 End
@@ -253,12 +254,13 @@ static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonCo
 			gATH_AnchorPositionY = vcsr(I, gATH_WindowNameStr)
 			SetDrawLayer/W=$gATH_WindowNameStr Overlay
 			DrawAction/W=$gATH_WindowNameStr delete
-			SetDrawEnv/W=$gATH_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,43690,0), dash=0
+			SetDrawEnv/W=$gATH_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,0,0), dash=3
 			DrawLine/W=$gATH_WindowNameStr x0, gATH_AnchorPositionY, xmax, gATH_AnchorPositionY
-			SetDrawEnv/W=$gATH_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,43690,0), dash=0
+			SetDrawEnv/W=$gATH_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,0,0), dash=3
 			DrawLine/W=$gATH_WindowNameStr gATH_AnchorPositionX, y0, gATH_AnchorPositionX, ymax
 			SetDrawLayer/W=$gATH_WindowNameStr UserFront
 			if(!numtype(gATH_AnchorPositionX))
+				CheckBox FastMode, win = $B_Struct.win, disable = 0
 				Button DriftImage, win=$B_Struct.win, disable = 0
 				Button CascadeDrift, win=$B_Struct.win, disable = 0
 				Button SelectedLayersDrift, win=$B_Struct.win,  disable = 0
@@ -535,7 +537,7 @@ static Function FastModeCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	NVAR/SDFR=dfr gATH_dy
 	NVAR/SDFR=dfr gATH_FastMode
 	switch(cb.checked)
-		case 1:	// When we are in the fast mode, anchor will be a red do
+		case 1:	// When we are in the fast mode, anchor will be a red do				
 			gATH_FastMode = 1
 			Cursor/W=$gATH_WindowNameStr/K I
 			DrawAction/L=Overlay/W=$gATH_WindowNameStr delete
