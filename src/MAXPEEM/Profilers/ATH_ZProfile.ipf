@@ -419,7 +419,6 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				// ---
 				// twin graph
 				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
-					print "twin"
 					MatrixOP/S/O/NTHR=0 profileTwin = sum(subrange(twinWRef, rs, re, cs, ce))
 					Redimension/E=1/N=(nlayersTW) profileTwin
 				endif
@@ -663,7 +662,7 @@ static Function SetTwinWavePath(STRUCT WMSetVariableAction &sva) : SetVariableCo
 		case 2:
 		case 3: 							// Live update
 			CheckDisplayed/W=$sva.win dfr:$gATH_LineProfileTwinWaveStr
-			if(!V_flag)
+			if(!V_flag && WaveExists(profileTwin))
 				AppendToGraph/W=$sva.win/T/R profileTwin
 			endif
 			WAVE wRef = $sva.sval
