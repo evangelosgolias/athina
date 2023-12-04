@@ -298,7 +298,7 @@ static Function InitialiseGraph(DFREF dfr)
 		Label left "\\u#2 Intensity (arb. u.)";DelayUpdate
 		Label bottom "\\u#2 Energy (eV)"
 		ControlBar 40
-		ModifyGraph/Z cbRGB=(57346,65535,49151)
+		ModifyGraph/Z cbRGB=(65535,54611,49151)
 		Button SaveProfileButton, pos={15.00,10.00},size={80.00,20.00}, proc=ATH_ZProfile#SaveProfileButton, title="Save prof.", help={"Save current profile"}, valueColor=(1,12815,52428)
 		Button SetScaleZaxis, pos={105.00,10.00}, size={80.00,20.00}, proc=ATH_ZProfile#SetScaleButton, title="Set scale", help={"Set abscissas range"}, valueColor=(1,12815,52428)
 		CheckBox PlotProfile, pos={195.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckboxPlotProfile,title="Plot prof.", fSize=14, value= 1

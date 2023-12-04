@@ -210,6 +210,7 @@ static Function CreatePanel(DFREF dfr)
 	NewImage/G=1/K=1/N=$profilePlotStr dfr:M_ExtractedSurface // Do not Flip image (/F) to get top axis
 	SetAxis/A left
 	ModifyGraph/W=$profilePlotStr width = 340 * pix, height = 470 * pix
+	ModifyGraph/Z cbRGB=(65535,65534,49151)
 
 	ControlBar/W=$profilePlotStr 50	
 	AutoPositionWindow/E/M=0/R=$gATH_WindowNameStr
