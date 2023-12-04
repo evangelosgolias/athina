@@ -649,15 +649,23 @@ End
 static Function SetTwinWavePath(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_rootdfrZProfileStr"))
-	SVAR/Z/SDFR=dfr gATH_TwinWavePath
+	NVAR/Z TwinPlotSwitch = dfr:gATH_TwinPlotSwitch
 	NVAR/Z/SDFR=dfr gATH_Nx
 	NVAR/Z/SDFR=dfr gATH_Ny // gATH_Nx, gATH_Ny are the last dim indices, so npts = lastidx + 1
-	variable nx = gATH_Nx + 1; 
+	variable nx = gATH_Nx + 1
 	variable ny = gATH_Ny + 1
+	SVAR/Z/SDFR=dfr gATH_TwinWavePath
+	SVAR/Z/SDFR=dfr gATH_LineProfileTwinWaveStr	
+	WAVE/Z profileTwin = dfr:$gATH_LineProfileTwinWaveStr
+									
 	switch (sva.eventCode)
 		case 1:
 		case 2:
 		case 3: 							// Live update
+			CheckDisplayed/W=$sva.win dfr:$gATH_LineProfileTwinWaveStr
+			if(!V_flag)
+				AppendToGraph/W=$sva.win/T/R profileTwin
+			endif
 			WAVE wRef = $sva.sval
 			if(WaveExists(wRef) && (DimSize(wRef,0)==nx && DimSize(wRef,1)==ny) && WaveDims(wRef)==3)
 				gATH_TwinWavePath = sva.sval
