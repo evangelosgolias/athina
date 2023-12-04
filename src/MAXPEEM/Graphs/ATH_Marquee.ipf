@@ -53,60 +53,6 @@ static Function MarqueeToMask()
 	endif
 End
 
-static Function PullToZero()
-	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
-		GetMarquee/K left, bottom;
-		OperationsOnGraphTracesWithMarquee(V_left, V_right, 0)
-	else
-		print "Operation needs a graph with left and bottom axes"
-	endif
-End
-
-static Function NormalizeToOne()
-	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
-		GetMarquee/K left, bottom;
-		OperationsOnGraphTracesWithMarquee(V_left, V_right, 1)
-	else
-		print "Operation needs a graph with left and bottom axes"
-	endif
-End
-
-static Function MaximumToOne()
-	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
-		GetMarquee/K left, bottom;
-		OperationsOnGraphTracesWithMarquee(V_left, V_right, 2)
-	else
-		print "Operation needs a graph with left and bottom axes"
-	endif
-End
-
-static Function BackupTraces()
-	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
-		GetMarquee/K left, bottom;
-		OperationsOnGraphTracesWithMarquee(V_left, V_right, 3)
-	else
-		print "Operation needs a graph with left and bottom axes"
-	endif
-End
-
-static Function RestoreTraces()
-	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
-		GetMarquee/K left, bottom;
-		OperationsOnGraphTracesWithMarquee(V_left, V_right, 4)
-	else
-		print "Operation needs a graph with left and bottom axes"
-	endif
-End
-
-static Function NormaliseTracesWithProfile()
-	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
-		GetMarquee/K left, bottom;
-		OperationsOnGraphTracesWithMarquee(V_left, V_right, 5)
-	else
-		print "Operation needs a graph with left and bottom axes"
-	endif
-End
-
 static Function CoordinatesToROIMask(variable left, variable top, variable right, variable bottom, [variable interior, variable exterior])
 	/// Generate a Mask from Marquee
 	/// The graph should have left, top axes
@@ -148,6 +94,26 @@ static Function/WAVE WAVECoordinatesToROIMask(variable left, variable top, varia
 	return ATH_ROIMask
 End
 
+
+static Function MarqueeToTraceOperation(variable op)
+	// op:  0: PullToZero
+	//		1: Normalise to one
+	//		2: Maximun to one
+	//		3: Backup Traces
+	//		4: Restore Traces
+	//		5: Normalise to profile
+		
+	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
+		GetMarquee/K left, bottom;
+		OperationsOnGraphTracesWithMarquee(V_left, V_right, op)
+	elseif(CheckActiveAxis("", "top") && CheckActiveAxis("", "right"))
+		GetMarquee/K right, top;
+		OperationsOnGraphTracesWithMarquee(V_left, V_right, op)		
+	else
+		print "Operation needs a graph with left and bottom axes"
+	endif
+End
+
 static Function OperationsOnGraphTracesWithMarquee(variable left, variable right, variable operationSelection)
 	// Trace calculations using graph marquee
 	string waveListStr, traceNameStr
@@ -177,16 +143,15 @@ static Function OperationsOnGraphTracesWithMarquee(variable left, variable right
 				wRef /= V_max
 				break
 			case 3: // Backup traces
-				dfStr = GetWavesDataFolder(TraceNameToWaveRef("", traceNameStr), 1)
-				SetDataFolder $dfStr
+				DFREF dfr = GetWavesDataFolderDFR(TraceNameToWaveRef("", traceNameStr))
 				buffer = NameOfWave(wref) + "_undo"
-				Duplicate/O wref, $buffer
+				Duplicate/O wref, dfr:$buffer
 				break
 			case 4: // Restore traces
-				dfStr = GetWavesDataFolder(TraceNameToWaveRef("", traceNameStr), 1)
-				SetDataFolder $dfStr
+				DFREF dfr = GetWavesDataFolderDFR(TraceNameToWaveRef("", traceNameStr))
 				buffer = NameOfWave(wref) + "_undo"
-				Duplicate/O $buffer, wref
+				Duplicate/O dfr:$buffer, wref
+				KillWaves/Z dfr:$buffer
 				break
 			case 5:
 				if(launchBrowserSwitch)
@@ -195,17 +160,17 @@ static Function OperationsOnGraphTracesWithMarquee(variable left, variable right
 					launchBrowserSwitch = 0
 				endif
 				
-				ATH_WaveOp#NormaliseWaveWithWave(wRef, waveProf)
-				
+				ATH_WaveOp#NormaliseWaveWithWave(wRef, waveProf)		
 				break
 			default:
-				print "Unkwokn ATH_OperatiosGraphTracesForXAS operationSelection"
+				print "Unknown ATH_OperatiosGraphTracesForXAS operationSelection"
 				break
 		endswitch
 		i++
 	while (1)
 	SetDataFolder currDFR
 End
+
 
 static Function Partition3DRegion()
 	GetMarquee/K left, top;

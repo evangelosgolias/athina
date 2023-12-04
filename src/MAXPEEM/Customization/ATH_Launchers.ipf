@@ -963,6 +963,39 @@ static Function HistogramShiftToGaussianCenter()
 	endif	
 End
 
+static Function TwoTraceCalcs()
+	string winNameStr = WinName(0, 1, 1), cmdStr, resNameStr, noteStr
+	string traceNameListStr = TraceNameList("", ";", 1 + 4)
+	string traceName1Str = StringFromList(0, traceNameListStr)
+	string traceName2Str = StringFromList(1, traceNameListStr)
+	if(!strlen(traceName1Str) || !strlen(traceName2Str))
+		print "You need two traces on top graph."
+		return -1
+	endif
+	WAVE w1 = TraceNameToWaveRef(winNameStr, traceName1Str)
+	WAVE w2 = TraceNameToWaveRef(winNameStr, traceName2Str)
+	DFREF currDF = GetDataFolderDFR()
+	string w1Str = GetWavesDataFolder(w1, 2)
+	string w2Str = GetWavesDataFolder(w2, 2)	
+	resNameStr = CreateDataObjectName(currDF, "ATH_op", 1, 0, 1)
+	Duplicate w1, currDF:$resNameStr
+	WAVE wR = currDF:$resNameStr	
+	string wResStr = GetWavesDataFolder(wR, 2)
+	string inputStr = "wR = "	
+	Prompt inputStr, "Enter operation as wR = f(w1, w2) [e.g wR=w1-w2 or MatrixOP wR = w1/w2]"
+	DoPrompt "Operation between two traces", inputStr
+	cmdStr = ReplaceString("w1", inputStr, w1Str)
+	cmdStr = ReplaceString("w2", cmdStr, w2Str)
+	cmdStr = ReplaceString("wR", cmdStr, wResStr, 0, 1) // Esssential otherwise all w are replaced!
+	Execute/Q/Z cmdStr
+	noteStr = "Operation: " + inputStr + "\n"
+	noteStr += "wR->"+wResStr + "\n"	
+	noteStr += "w1->"+w1Str + "\n"
+	noteStr += "w2->"+w2Str + "\n"
+	Note wR, noteStr
+	return 0
+End
+
 static Function QuickTextAnnotation()
 	string textStr = "" 
 	string color ="black"

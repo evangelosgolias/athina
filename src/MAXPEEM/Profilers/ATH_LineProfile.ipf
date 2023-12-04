@@ -48,8 +48,24 @@ static Function MainMenu()
 	DFREF dfr = InitialiseFolder(winNameStr)
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
-	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(1.1 * nrows/2), round(0.9 * ncols/2)
-	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.9 * nrows/2), round(1.1 * ncols/2)
+	
+	string cmdStr, axisStr, dumpStr, val1Str, val2Str
+	string axisTopRangeStr = StringByKey("SETAXISCMD", AxisInfo("", "top"))
+	SplitString/E="\s*([A-Z,a-z,^a-zA-Z0-9]*)\s*([A-Z,a-z]*)\s*([-]?[0-9]*[.]?[0-9]+)\s*(,)\s*([-]?[0-9]*[.]?[0-9]+)\s*"\
+	axisTopRangeStr, cmdStr, axisStr, val1Str, dumpStr, val2Str
+	variable midOfImageX = 0.5 * (str2num(val1Str) + str2num(val2Str))
+	string axisLeftRangeStr = StringByKey("SETAXISCMD", AxisInfo("", "left"))
+	SplitString/E="\s*([A-Z,a-z,^a-zA-Z0-9]*)\s*([A-Z,a-z]*)\s*([-]?[0-9]*[.]?[0-9]+)\s*(,)\s*([-]?[0-9]*[.]?[0-9]+)\s*"\
+	axisLeftRangeStr, cmdStr, axisStr, val1Str, dumpStr, val2Str
+	variable midOfImageY = 0.5 * (str2num(val1Str) + str2num(val2Str))
+	// When autoscaled then SETAXISCMD is SetAxis/A
+	if(numtype(midOfImageX)) // if NaN
+		Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr nrows*0.6, ncols*0.4
+		Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr nrows*0.4, ncols*0.6
+	else
+		Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr midOfImageX*1.1, midOfImageY*0.9
+		Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr midOfImageX*0.9, midOfImageY*1.1
+	endif
 	InitialiseGraph(dfr)
 	SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_LineProfile#CursorsHookFunction // Set the hook
 	SetWindow $winNameStr userdata(ATH_LinkedWinImageLPP) = "ATH_LineProfilePlot_" + winNameStr // Name of the plot we will make, used to communicate the

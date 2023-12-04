@@ -119,13 +119,16 @@ Menu "GraphMarquee"
 	"ATH Save Oval ROI (2D, 3D)", /Q, ATH_Marquee#SaveROICoordinatesToDatabase()
 	"ATH Z-profiler: Set rectangular ROI  (3D)", /Q, ATH_ZProfile#GraphMarqueeLaunchRectangle()	
 	"ATH Z-profiler: Set oval ROI  (3D)", /Q, ATH_ZProfile#GraphMarqueeLaunchOval()
-	"ATH Backup traces (1D)", /Q, ATH_Marquee#BackupTraces()
-	"ATH Restore traces (1D)", /Q, ATH_Marquee#RestoreTraces()
-	"ATH Normalise to profile (1D)", /Q, ATH_Marquee#NormaliseTracesWithProfile()
-	"ATH Normalize to one (1D)", /Q, ATH_Marquee#NormalizeToOne()
-	"ATH Pull to zero (1D)", /Q, ATH_Marquee#PullToZero()
-	"ATH Maximum to one (1D)", /Q, ATH_Marquee#MaximumToOne()
-	"ATH Partition region (2D, 3D)", /Q, ATH_Marquee#Partition3DRegion()
+	"ATH Partition region (2D, 3D)", /Q, ATH_Marquee#Partition3DRegion()		
+	SubMenu "Trace Calcs (TG, 1D[2])"
+		"ATH Backup traces", /Q, ATH_Marquee#MarqueeToTraceOperation(3)
+		"ATH Restore traces", /Q, ATH_Marquee#MarqueeToTraceOperation(4)
+		"ATH Normalise to profile)", /Q, ATH_Marquee#MarqueeToTraceOperation(5)
+		"ATH Normalize to one)", /Q, ATH_Marquee#MarqueeToTraceOperation(1)
+		"ATH Pull to zero)", /Q, ATH_Marquee#MarqueeToTraceOperation(0)
+		"ATH Maximum to one", /Q, ATH_Marquee#MarqueeToTraceOperation(2)
+		"ATH Custom calculation ...", /Q, ATH_Launch#TwoTraceCalcs()
+	End	
 End
 
 Menu "DataBrowserObjectsPopup"
