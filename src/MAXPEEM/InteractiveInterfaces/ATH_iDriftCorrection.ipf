@@ -189,8 +189,8 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 			if(!NVAR_Exists(gLayer))
 				ATH_Display#Append3DImageSlider()
 			endif
-			if(gATH_FastMode)
-				if((s.keyCode == 29 || s.keyCode == 30) && gLayer < gATH_w3dnlayers) // right or up
+			if(gATH_FastMode && s.eventMod==2)
+				if((s.keyCode == 29 || s.keyCode == 30 || s.keyCode == 32) && gLayer < gATH_w3dnlayers) // right or up or SPACE
 					gLayer+=1
 				elseif((s.keyCode == 28 || s.keyCode == 31) && gLayer) // left or down
 					gLayer-=1
@@ -199,9 +199,10 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 			endif
 			if(s.keyCode == 82) // if R (SHIFT+r) is pressed - Restore original layer
 				w3dRef[][][gLayer] = w3dBackUpRef[p][q]
-			endif
+			endif		
 			hookresult = 1
 			break
+			
 		case 22: // mouse wheel
 				gLayer += s.WheelDy
 				if(gLayer < 0)
