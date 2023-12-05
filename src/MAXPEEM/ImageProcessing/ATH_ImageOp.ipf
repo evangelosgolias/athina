@@ -376,40 +376,44 @@ static Function/WAVE WAVEImageEdgeDetectionToStack(WAVE w3dref, string method)
 	return wRefFREE
 End
 
+//static Function ImageRotateAndScale(WAVE wRef, variable angle)
+//	/// Rotate the wave wRef (2d or 3d) and scale it to 
+//	/// conserve on image distances.
+//	/// Math: If the side of the image is a, then the rotated image
+//	/// will have side a_rot = a * (cos(angle) + sin(angle))
+//	/// @param wRef: 2d or 3d wave
+//	/// @param angle: clockwise rotation in degrees
+//	string rotWaveNameStr = NameOfWave(wRef) + "_rot"
+//	Duplicate/O wRef, $rotWaveNameStr
+//	WAVE wRefRot = $rotWaveNameStr
+//	ImageRotate/O/E=0/A=(angle) wRefRot
+//	string noteStr = NameOfWave(wRef) + " rotated by " + num2str(angle) + " deg"
+//	Note/K wRefRot, noteStr
+//	CopyScales/P wRef, wRefRot // /P needed here to prevent on image distances.	
+//End
 
-static Function ImageRotateAndScale(WAVE wRef, variable angle)
-	/// Rotate the wave wRef (2d or 3d) and scale it to 
-	/// conserve on image distances.
-	/// Math: If the side of the image is a, then the rotated image
-	/// will have side a_rot = a * (cos(angle) + sin(angle))
-	/// @param wRef: 2d or 3d wave
-	/// @param angle: clockwise rotation in degrees
-	
-	variable angleRad = angle * pi / 180
-	string rotWaveNameStr = NameOfWave(wRef) + "_rot"
-	Duplicate/O wRef, $rotWaveNameStr
-	WAVE wRefRot = $rotWaveNameStr
-	ImageRotate/O/E=0/A=(angle) wRefRot
-	string noteStr = NameOfWave(wRef) + " rotated by " + num2str(angle) + " deg"
-	Note/K wRefRot, noteStr
-	CopyScales/P wRef, wRefRot // /P needed here to prevent on image distances.	
-End
-
-static Function ImageBackupRotateAndScale(WAVE wRef, variable angle)
+static Function ImageBackupRotateAndScale(WAVE wRef, variable angle, [variable flipY])
 	/// Backup and rotate image. Create backup in the sourcewave folder.
 	/// Math: If the side of the image is a, then the rotated image
 	/// will have side a_rot = a * (cos(angle) + sin(angle))
 	/// @param wRef: 2d or 3d wave	
 	/// @param angle: clockwise rotation in degrees
-	variable angleRad = angle * pi / 180
+	/// @param fliY: flip cols
+
+	flipY = ParamIsDefault(flipY) ? 0 : flipY
 	string backupWaveNameStr = NameOfWave(wRef) + "_undo"
 	DFREF wDFR = GetWavesDataFolderDFR(wRef)
 	Duplicate/O wRef, wDFR:$backupWaveNameStr
+	WAVE wRefbck = wDFR:$backupWaveNameStr	
+	string noteStr = ""
+	if(flipY)
+		ImageTransform flipCols wRef // flip the y-axis
+		noteStr += "Flipped  y-axis (rows)\n"
+	endif
 	ImageRotate/O/E=0/A=(angle) wRef
-	WAVE wRefbck = wDFR:$backupWaveNameStr
-	string noteStr ="Image rotated by " + num2str(angle) + " deg"
+	noteStr +="Image rotated by " + num2str(angle) + " deg\n"
 	Note/K wRef, noteStr
-	CopyScales/P wRef, wRefbck // /P needed here to prevent on image distances.	
+	CopyScales/P wRefbck, wRef // /P needed here to prevent on image distances.	
 End
 
 static Function BackupTopImage()

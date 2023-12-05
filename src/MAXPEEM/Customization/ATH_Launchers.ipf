@@ -831,15 +831,15 @@ static Function Rotate3DWaveAxes()
 	Note $newwaveNameStr, noteStr
 End
 
-static Function ImageRotateAndScale()
-	/// Rotated/scaled wave in created in the working dfr.
-	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
-	variable angle = ATH_Dialog#GenericSingleVarPrompt("Angle (deg)", "Image rotate and scale")
-	if(WaveExists(wRef))
-		ATH_ImgOp#ImageRotateAndScale(wRef, angle)
-	endif
-	return 0
-End
+//static Function ImageRotateAndScale()
+//	/// Rotated/scaled wave in created in the working dfr.
+//	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
+//	variable angle = ATH_Dialog#GenericSingleVarPrompt("Angle (deg)", "Image rotate and scale")
+//	if(WaveExists(wRef))
+//		ATH_ImgOp#ImageRotateAndScale(wRef, angle)
+//	endif
+//	return 0
+//End
 
 static Function ImageRotateAndScaleFromMetadata()
 	/// This operation transform the image as seen in the microscope
@@ -857,12 +857,12 @@ static Function ImageRotateAndScaleFromMetadata()
 	if(!strlen(imgNameTopGraphStr))
 		//print "No image in top graph!"
 		return -1
-	endif
-	
-	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	endif	
+	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave	
 	variable angle = NumberByKey("FOVRot(deg)", note(wRef), ":", "\n")
-	ImageTransform flipRows wRef // flip the y-axis
-	ATH_ImgOp#ImageBackupRotateAndScale(wRef, angle)
+	string noteStr = note(wRef)
+	ATH_ImgOp#ImageBackupRotateAndScale(wRef, angle, flipY = 1) // Flip rows and rotate
+	Note wRef, noteStr
 End
 
 

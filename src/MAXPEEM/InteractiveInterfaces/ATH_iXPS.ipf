@@ -32,8 +32,8 @@
 // ------------------------------------------------------- //
 
 
-/// Note that the program needs E to be at the lower part of the KE of the dispersion.
-/// Line profile is extracted from E -> F cursor.
+/// NOTE: the program needs E to be at the lower part of the KE of the dispersion. Line profile is extracted
+/// from E -> F cursor. Also set the A - Low KE end and B - High KE end.
 
 static constant kATHEnergyPerPixel = 0.00780685 // energy per pixel - default setting 30.04.2023
 
@@ -56,8 +56,8 @@ static Function MainMenu()
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
 	// Cursors to set the scale
-	Cursor/I/C=(0,65535,0)/H=1/P/N=1 A $imgNameTopGraphStr round(1.8 * nrows/2), round(0.2 * ncols/2)
-	Cursor/I/C=(0,65535,0)/H=1/P/N=1 B $imgNameTopGraphStr round(0.2 * nrows/2), round(1.8 * ncols/2)
+	Cursor/I/C=(0,65535,0)/H=1/S=1/P/N=1 A $imgNameTopGraphStr round(1.8 * nrows/2), round(0.2 * ncols/2)
+	Cursor/I/C=(0,65535,0)/H=1/S=1/P/N=1 B $imgNameTopGraphStr round(0.2 * nrows/2), round(1.8 * ncols/2)
 	// Cursors to get the profile
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(1.6 * nrows/2), round(0.4 * ncols/2)
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.4 * nrows/2), round(1.6 * ncols/2)
@@ -751,6 +751,7 @@ static Function SetCursorsAB(STRUCT WMButtonAction &B_Struct): ButtonControl)
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			if(!CursorABSwitch) // if not yet set
+				SetAxis/W=$parentWindow/A/R left // Auto-scale in case of zoomed in!
 				Ax = hcsr(A, parentWindow)
 				Ay = vcsr(A, parentWindow)
 				Bx = hcsr(B, parentWindow)
