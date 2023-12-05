@@ -151,7 +151,6 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 	SVAR/Z/SDFR=dfr gATH_imgNameTopWindowStr
 	NVAR/Z/SDFR=dfr gATH_FastMode
 	NVAR/Z/SDFR=dfr gATH_w3dnlayers
-	NVAR/Z/SDFR=dfr gATH_layerN
 	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer
 	NVAR/SDFR=dfr gATH_AnchorPositionX
 	NVAR/SDFR=dfr gATH_AnchorPositionY
@@ -204,10 +203,16 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 			hookresult = 1
 			break
 		case 22: // mouse wheel
-			gLayer += s.WheelDy
-			ModifyImage/W=$gATH_WindowNameStr $gATH_imgNameTopWindowStr plane=gLayer
-			hookresult = 1
-			break			
+				gLayer += s.WheelDy
+				if(gLayer < 0)
+					gLayer = 0
+				endif
+				if(gLayer > gATH_w3dnlayers - 1)
+					gLayer = gATH_w3dnlayers - 1
+				endif				
+				ModifyImage/W=$gATH_WindowNameStr $gATH_imgNameTopWindowStr plane=gLayer
+				hookresult = 1
+			break
 	endswitch
 	return hookresult
 End

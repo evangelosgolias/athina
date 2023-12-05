@@ -212,8 +212,8 @@ static Function CalculateXMLDMap(WAVE wRef, variable angleStep)
 			[minV, maxV] = WaveMinAndMax(freeData)
 			ATH_Coef[0] = meanV
 			ATH_Coef[1] = (maxV - minV)/2
-			ATH_Coef[2] = freeData[9] > meanV ? -pi/4 : pi/4
-			FuncFit/Q ATH_FuncFit#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints /X=xScaleW
+			ATH_Coef[2] = gnoise(pi/4)//freeData[9] > meanV ? -pi/4 : pi/4
+			FuncFit/Q ATH_FuncFit#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints// /X=xScaleW
 			wxmld[i][j] = ATH_Coef[2]*180/pi
 			woff[i][j] = ATH_Coef[0]
 			wfact[i][j] = ATH_Coef[1]

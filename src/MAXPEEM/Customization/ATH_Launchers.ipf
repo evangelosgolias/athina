@@ -981,7 +981,7 @@ static Function TwoTraceCalcs()
 	Duplicate w1, currDF:$resNameStr
 	WAVE wR = currDF:$resNameStr	
 	string wResStr = GetWavesDataFolder(wR, 2)
-	string inputStr = "wR = "	
+	string inputStr = "wR = w1 - w2 "	
 	Prompt inputStr, "Enter operation as wR = f(w1, w2) [e.g wR=w1-w2 or MatrixOP wR = w1/w2]"
 	DoPrompt "Operation between two traces", inputStr
 	cmdStr = ReplaceString("w1", inputStr, w1Str)
