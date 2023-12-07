@@ -1142,15 +1142,15 @@ static Function PixelateSingleImageOrStack()
 			return -1
 		endif
 		
-		if(!ATH_WaveOp#IntegerQ(nx))
+		if(!ATH_Num#IntegerQ(nx))
 			nx = trunc(nx)
 			print "Truncate nx: ", num2str(nx)
 		endif
-		if(!ATH_WaveOp#IntegerQ(ny))
+		if(!ATH_Num#IntegerQ(ny))
 			ny = trunc(ny)
 			print "Truncate ny: ", num2str(ny)			
 		endif
-		if(!ATH_WaveOp#IntegerQ(nz))
+		if(!ATH_Num#IntegerQ(nz))
 			nz = trunc(nz)
 			print "Truncate nz: ", num2str(nz)			
 		endif		
@@ -1162,11 +1162,11 @@ static Function PixelateSingleImageOrStack()
 		if(V_flag)
 			return -1
 		endif
-		if(!ATH_WaveOp#IntegerQ(nx))
+		if(ATH_Num#IntegerQ(nx))
 			nx = trunc(nx)
 			print "Truncate nx: ", num2str(nx)
 		endif
-		if(!ATH_WaveOp#IntegerQ(ny))
+		if(!ATH_Num#IntegerQ(ny))
 			ny = trunc(ny)
 			print "Truncate ny: ", num2str(ny)			
 		endif		

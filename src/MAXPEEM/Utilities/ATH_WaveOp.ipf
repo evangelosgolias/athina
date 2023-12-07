@@ -803,13 +803,3 @@ static Function TWaveRemoveEntriesFromStringList(WAVE/T textW, string stringList
 	return 0
 End
 
-//// Numerical helper functions 
-
-static Function IntegerQ(variable num)
-	/// Check in a number is integer
-	if(num == trunc(num))
-		return 1
-	else
-		return 0
-	endif
-End
