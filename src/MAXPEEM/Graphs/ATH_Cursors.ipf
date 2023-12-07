@@ -397,15 +397,12 @@ End
 
 /// Generic interaction using a cursor and a CallbackFunction
 
-static Function InteractiveCursorAction(WAVE wRef)
+static Function InteractiveCursorAction(WAVE wSrc, WAVE wRef)
 	/// Interactive operation using a callback functio
 	/// ATH_CursorCallBack()
 	
 	// Check if the wave is displayed
-	CheckDisplayed/A wRef
-	if(!V_flag)
-		ATH_Display#NewImg(wRef)
-	endif
+	ATH_Display#NewImg(wRef)
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	// Use cursor C
@@ -415,7 +412,8 @@ static Function InteractiveCursorAction(WAVE wRef)
 	// Make folder in database
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr) // Root folder here
 	// Store globals
-	string/G dfr:gATH_wRefDataFolder = GetWavesDataFolder(wRef, 2)
+	string/G dfr:gATH_wRefPath = GetWavesDataFolder(wRef, 2)
+	string/G dfr:gATH_wSrcPath = GetWavesDataFolder(wSrc, 2)
 	// Hook and metadata
 	SetWindow $winNameStr, hook(MyiCursorActionHook) = ATH_Cursors#iCursorUsingCallbackHookFunction // Set the hook
 	SetWindow $winNameStr, userData(ATH_iCursorDFR) = "root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr
@@ -425,13 +423,15 @@ End
 static Function iCursorUsingCallbackHookFunction(STRUCT WMWinHookStruct &s)
     variable hookResult = 0
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr) // imgNameTopGraphStr will have '' if needed.
-	SVAR/SDFR=dfr gATH_wRefDataFolder
-	WAVE wRef = $gATH_wRefDataFolder
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr)
+	SVAR/SDFR=dfr gATH_wRefPath, gATH_wSrcPath
+	WAVE/Z wRef = $gATH_wRefPath
+	WAVE/Z wSrc = $gATH_wSrcPath
 		switch(s.eventCode)
 	    case 7: // cursor moved
 			if(!cmpstr(s.cursorName, "C")) // It should work only with E, F you might have other cursors on the image
-				CursorCallBack(wRef, s.pointNumber, s.ypointNumber) // Function using row, column
+				CursorCallBack(wSrc, wRef, s.pointNumber, s.ypointNumber) // Function using row, column
+				//CursorCallBack3(wRef, s.pointNumber, s.ypointNumber) // Function using row, column
 			endif
 	   			hookResult = 1
 	   			break
@@ -447,23 +447,60 @@ static Function iCursorUsingCallbackHookFunction(STRUCT WMWinHookStruct &s)
     return hookResult       // 0 if nothing done, else 1
 End
 
-static Function CursorCallBack(WAVE wRef, variable p0, variable q0)
-	MatrixOP/O root:getBeam = beam(wRef, p0, q0)
-	WAVE wOff = root:XMLD:XMLDStack_4x4x1_XMLDMap_offset
-	WAVE wfact = root:XMLD:XMLDStack_4x4x1_XMLDMap_factor
-	WAVE wphase = root:XMLD:XMLDStack_4x4x1_XMLDMap	
-	Make/O root:sinPlotW /WAVE=wsin
-	SetScale/I x, (-pi/2 + pi/18), pi/2, wsin, root:getBeam
+static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
+	DFREF dfr = GetWavesDataFolderDFR(wRef)
+	MatrixOP/O dfr:getBeam = beam(wSrc, p0, q0)
+	WAVE gb = dfr:getBeam
+	WAVE wOff = dfr:$(NameOfWave(wSrc)+"_XMLDMap1_offset")
+	WAVE wfact = dfr:$(NameOfWave(wSrc)+"_XMLDMap1_factor")
+	//WAVE wphase = dfr:XMLDStack_4x4x1_XMLDMap	
+	Make/O dfr:sinPlotW /WAVE=wsin
+	SetScale/I x, (-pi/2), pi/2, wsin, dfr:getBeam
 	variable xOff = wOff[p0][q0]
 	variable xFact = wfact[p0][q0]
-	variable phase = wphase[p0][q0]
+	variable phase = wRef[p0][q0]*pi/180 // sin needs rad
 	wsin = xOff + xFact * sin(x + phase)^2
 	RemoveFromGraph/W=Graph0/ALL
-	AppendToGraph/W=Graph0 root:getBeam;ModifyGraph/W=Graph0 mode(getBeam)=3,marker(getBeam)=19,msize(getBeam)=4
+	AppendToGraph/W=Graph0 dfr:getBeam;ModifyGraph/W=Graph0 mode(getBeam)=3,marker(getBeam)=19,msize(getBeam)=4
+	AppendToGraph/W=Graph0 wsin; ModifyGraph/W=Graph0 lsize(sinPlotW)=2,rgb(sinPlotW)=(1,16019,65535)
+//	RemoveFromGraph/W=Graph0/ALL
+//	AppendToGraph/W=Graph0 root:getBeam
+	WAVE buffer
+	CopyScales gb, buffer
+	buffer = wsin(x)
+	MatrixOP/FREE tval = sum((buffer - gb)*(buffer - gb))
+	variable csq = tval[0]
+	TextBox/W=Graph0/C/N=text0/F=0/A=MC num2str(csq)
+	return 0
+End
+//
+static Function CursorCallBack2(WAVE wSrc, WAVE wRef, variable p0, variable q0)
+	DFREF dfr = GetWavesDataFolderDFR(wRef)
+	MatrixOP/O dfr:getBeam = beam(wSrc, p0, q0)
+	string baseWname = NameOfWave(wSrc)
+	WAVE w_A = dfr:$(baseWname +"_A1")
+	WAVE w_y0 = dfr:$(baseWname +"_y01")
+	WAVE w_f = dfr:$(baseWname +"_f1")
+	WAVE w_phi = dfr:$(baseWname +"_phi1")
+	//WAVE wphase = dfr:XMLDStack_4x4x1_XMLDMap	
+	Make/O dfr:sinPlotW /WAVE=wsin
+	SetScale/I x, (-pi/2 + pi/18), pi/2, wsin, root:getBeam
+	variable xA = w_A[p0][q0]
+	variable xy0 = w_y0[p0][q0]
+	variable xf = w_f[p0][q0]
+	variable phi = wRef[p0][q0]*pi/180 // sin needs rad
+	wsin = xy0 + xA * sin(x*xf + phi)
+	RemoveFromGraph/W=Graph0/ALL
+	AppendToGraph/W=Graph0 dfr:getBeam;ModifyGraph/W=Graph0 mode(getBeam)=3,marker(getBeam)=19,msize(getBeam)=4
 	AppendToGraph/W=Graph0 wsin; ModifyGraph/W=Graph0 lsize(sinPlotW)=2,rgb(sinPlotW)=(1,16019,65535)
 //	RemoveFromGraph/W=Graph0/ALL
 //	AppendToGraph/W=Graph0 root:getBeam
 	return 0
 End
 
+static Function CursorCallBack3(WAVE wRef, variable p0, variable q0)
+	DFREF dfr = GetWavesDataFolderDFR(wRef)
+	MatrixOP/O dfr:getBeam0 = beam(wRef, p0, q0)
+	return 0
+End
 /// End of generic interaction using a cursor and a CallbackFunction

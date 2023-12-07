@@ -178,6 +178,172 @@ End
 //		0 - map calculations completed
 //		1 - input wave was not a 3D wave
 //@
+
+//static Function CalculateXMLDMap(WAVE wRef, variable angleStep)
+//
+//	variable angleStepRad = angleStep * pi/180
+//	variable rows = DimSize(wRef, 0)
+//	variable cols = DimSize(wRef, 1)
+//	variable layers = DimSize(wRef, 2)
+//	if(!layers)
+//		return 1
+//	endif
+//	variable i, j
+//	string basepartNameStr = NameofWave(wRef)
+//	DFREF dfr = GetWavesDataFolderDFR(wRef)
+//	string mapNameStr = CreateDataObjectName(dfr, (basepartNameStr+"_phase") , 1, 0 ,1)
+//	Make/N=(rows, cols) $mapNameStr /WAVE = wphase
+//	mapNameStr = CreateDataObjectName(dfr, (basepartNameStr+"_offset") , 1, 0 ,1)
+//	Make/N=(rows, cols) $mapNameStr	/WAVE = woff
+//	mapNameStr = CreateDataObjectName(dfr, (basepartNameStr+"_factor") , 1, 0 ,1)
+//	Make/N=(rows, cols) $mapNameStr /WAVE = wfact
+//	// Get the fitting stuff ready
+//	Make/FREE/D/N=3 ATH_Coef
+//	Make/FREE/T/N=3 ATH_Constraints
+//	ATH_Constraints = {"K1 > 1.0e-4", "K2 > -pi/2", "K2 <= pi/2"} // angular constrain and Julian's comment re K1.
+//	Make/FREE/N=(layers) freeData
+//	SetScale/P x, (-pi/2), angleStepRad, freeData
+//	Make/FREE/N=(layers) xScaleW = pnt2x(freeData, p)
+//	variable meanV, minV, maxV // use these to make a reasonable initial conditions guess
+//	variable Errcnt
+//	for(i = 0; i < rows; i++)
+//		for(j = 0; j < cols; j++)
+//			// /S keeps scaling.
+//			// NOTE: If you add /FREE here the scaling will be lost!!!
+//			MatrixOP/O/S freeData = beam(wRef, i, j)
+//			meanV = mean(freeData)
+//			[minV, maxV] = WaveMinAndMax(freeData)
+//			ATH_Coef[0] = meanV
+//			ATH_Coef[1] = (maxV-minV)/2
+//			// Estimate a good initial guess for the phase
+//			//FFT/FREE/PAD={20}/DEST=phaseFREEw/OUT=5 freeData
+//			//ATH_Coef[2] = mod(phaseFREEw(2), pi/2)
+//			ATH_Coef[2] = gnoise(pi/4)
+//			variable V_FitError = 0
+//			variable V_FitOptions = 2
+//			FuncFit/Q ATH_FuncFit#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints
+//			if (V_FitError)
+//				Errcnt+=1
+//				wphase[i][j] = 90//ATH_Coef[2]*180/pi
+//				woff[i][j] = ATH_Coef[0]
+//				wfact[i][j] = ATH_Coef[1]
+//				continue    // fit failed, move on to the next one
+//			endif
+//			wphase[i][j] = ATH_Coef[2]*180/pi
+//			woff[i][j] = ATH_Coef[0]
+//			wfact[i][j] = ATH_Coef[1]
+//		endfor
+//	endfor
+//	print "Errors: ", Errcnt
+//	V_FitOptions = 0
+//	KillWaves/Z W_sigma, fit__free_ // Cleanup the garbage
+//End
+
+
+//static Function CalculateXMLDMap(WAVE wRef, variable angleStep)
+//
+//	variable angleStepRad = angleStep * pi/180
+//	variable rows = DimSize(wRef, 0)
+//	variable cols = DimSize(wRef, 1)
+//	variable layers = DimSize(wRef, 2)
+//	if(!layers)
+//		return 1
+//	endif
+//	variable i, j
+//	string basepartNameStr = NameofWave(wRef)
+//	DFREF dfr = GetWavesDataFolderDFR(wRef)
+//	string mapNameStr = CreateDataObjectName(dfr, (basepartNameStr+"_phase") , 1, 0 ,1)	
+//	Make/N=(rows, cols) dfr:$mapNameStr /WAVE = wphase
+//	mapNameStr = CreateDataObjectName(dfr, (basepartNameStr+"_offset") , 1, 0 ,1)	
+//	Make/N=(rows, cols) dfr:$mapNameStr	/WAVE = woff
+//	mapNameStr = CreateDataObjectName(dfr, (basepartNameStr+"_factor") , 1, 0 ,1)
+//	Make/N=(rows, cols) dfr:$mapNameStr /WAVE = wfact
+//	// Get the fitting stuff ready
+//	Make/FREE/D/N=3 ATH_Coef
+//	Make/FREE/T/N=3 ATH_Constraints
+//	ATH_Constraints = {"K1 > 1.0e-3", "K2 > -pi/2", "K2 <= pi/2"} // angular constrain and Julian's comment re K1.
+//	Make/FREE/N=(layers) freeData
+//	SetScale/P x, (-pi/2 + angleStepRad), angleStepRad, freeData
+//	Make/FREE/N=(layers) xScaleW = pnt2x(freeData, p)
+//	variable meanV, minV, maxV // use these to make a reasonable initial conditions guess
+//	variable k, cnt = 0, buffer
+//	Make/O/D/N=5 ATH_fitPhase
+//	for(i = 0; i < rows; i++)
+//		for(j = 0; j < cols; j++)
+//			// /S keeps scaling. 
+//			// NOTE: If you add /FREE here the scaling will be lost!!!
+//			MatrixOP/O/S freeData = beam(wRef, i, j)
+//			meanV = mean(freeData)
+//			[minV, maxV] = WaveMinAndMax(freeData)
+//			ATH_Coef[0] = meanV
+//			ATH_Coef[1] = abs((maxV-minV)/2)
+//			ATH_Coef[2] = gnoise(pi/4)
+//			FuncFit/Q ATH_FuncFit#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints
+//			buffer = ATH_Coef[2]
+//			// start a loop and fit
+//			for(k = 0; k < 5; k++)
+//				ATH_Coef[2] = gnoise(pi/4)
+//				FuncFit/Q ATH_FuncFit#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints
+//				if(abs(buffer - ATH_Coef[2]) < 0.3)
+//					break
+//				endif
+//			endfor
+//			wphase[i][j] = ATH_Coef[2]*180/pi
+//			woff[i][j] = ATH_Coef[0]
+//			wfact[i][j] = ATH_Coef[1]
+//		endfor
+//	endfor
+//	KillWaves/Z W_sigma, fit__free_ // Cleanup the garbage
+//End
+
+//static Function CalculateXMLDMap2(WAVE wRef, variable angleStep)
+//	// Sinusoid: y = K0+K1*sin(K2*x+K3).
+//	variable angleStepRad = angleStep * pi/180
+//	variable rows = DimSize(wRef, 0)
+//	variable cols = DimSize(wRef, 1)
+//	variable layers = DimSize(wRef, 2)
+//	if(!layers)
+//		return 1
+//	endif
+//	variable i, j
+//	string basepartNameStr = NameofWave(wRef)
+//	DFREF dfr = GetWavesDataFolderDFR(wRef)
+//	string mapNameStr = CreateDataObjectName(dfr, (basepartNameStr+"_phi") , 1, 0 ,1)	
+//	Make/N=(rows, cols) dfr:$mapNameStr /WAVE = wphi
+//	mapNameStr = CreateDataObjectName(dfr, (basepartNameStr+"_y0") , 1, 0 ,1)	
+//	Make/N=(rows, cols) dfr:$mapNameStr	/WAVE = wy0
+//	mapNameStr = CreateDataObjectName(dfr, (basepartNameStr+"_A") , 1, 0 ,1)
+//	Make/N=(rows, cols) dfr:$mapNameStr /WAVE = wA
+//	mapNameStr = CreateDataObjectName(dfr, (basepartNameStr+"_f") , 1, 0 ,1)
+//	Make/N=(rows, cols) dfr:$mapNameStr /WAVE = wf	
+//	// Get the fitting stuff ready
+//	Make/FREE/T/N=3 ATH_Constraints
+//	ATH_Constraints = {"K1>1e-4", "K2>2", "K2<2", "K3>-1.56", "K3<=  1.5708"} // angular constrain and Julian's comment re K1.
+//	Make/FREE/N=(layers) freeData
+//	SetScale/P x, (-pi/2), angleStepRad, freeData
+//	variable V_FitError
+//	variable V_FitOptions
+//	V_FitOptions = 2
+//	for(i = 0; i < rows; i++)
+//		for(j = 0; j < cols; j++)
+//			// /S keeps scaling. 
+//			// NOTE: If you add /FREE here the scaling will be lost!!!
+//			MatrixOP/O/S freeData = beam(wRef, i, j)		
+//			CurveFit/M=0/W=2/Q/B=12 sin freeData /D /C=ATH_Constraints
+//			if (V_FitError)
+//				continue
+//			endif
+//			WAVE W_Coef
+//			wy0[i][j] = W_Coef[0]
+//			wA[i][j] = W_Coef[1]
+//			wf[i][j] = W_Coef[2]			
+//			wphi[i][j] = 180/pi*mod(W_Coef[3],pi)
+//		endfor
+//	endfor
+//	V_FitOptions = 0
+//	KillWaves/Z W_sigma, fit__free_, W_Coef // Cleanup the garbage
+//End
+
 static Function CalculateXMLDMap(WAVE wRef, variable angleStep)
 
 	variable angleStepRad = angleStep * pi/180
@@ -199,10 +365,12 @@ static Function CalculateXMLDMap(WAVE wRef, variable angleStep)
 	Make/FREE/T/N=3 ATH_Constraints
 	ATH_Constraints = {"K1 > 1.0e-3", "K2 > -pi/2", "K2 <= pi/2"} // angular constrain and Julian's comment re K1.
 	Make/FREE/N=(layers) freeData
-	SetScale/P x, (-pi/2 + angleStepRad), angleStepRad, freeData
+	SetScale/P x, -pi/2 , angleStepRad, freeData
 	Make/FREE/N=(layers) xScaleW = pnt2x(freeData, p)
 	variable meanV, minV, maxV // use these to make a reasonable initial conditions guess
-
+	variable V_chisq
+	variable buffer, cnt
+	Make/FREE seedW = {0, 0.5, -0.5, 1, -1}
 	for(i = 0; i < rows; i++)
 		for(j = 0; j < cols; j++)
 			// /S keeps scaling. 
@@ -210,13 +378,27 @@ static Function CalculateXMLDMap(WAVE wRef, variable angleStep)
 			MatrixOP/O/S freeData = beam(wRef, i, j)
 			meanV = mean(freeData)
 			[minV, maxV] = WaveMinAndMax(freeData)
-			ATH_Coef[0] = meanV
-			ATH_Coef[1] = (maxV - minV)/2
-			ATH_Coef[2] = gnoise(pi/4)//freeData[9] > meanV ? -pi/4 : pi/4
-			FuncFit/Q ATH_FuncFit#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints// /X=xScaleW
+//			ATH_Coef[0] = meanV
+//			ATH_Coef[1] = (maxV - minV)/2
+//			ATH_Coef[2] = freeData[9] > meanV ? -pi/4 : pi/4
+//			FFT/FREE/DEST=fftc/PAD=20/OUT=5 freeData
+			cnt = 0
+			ATH_Coef[0] = 1//mean(freeData)
+			ATH_Coef[1] = 1//(WaveMax(freeData) - WaveMin(freeData))*0.5
+			ATH_Coef[2] = seedW[cnt]//gnoise(pi/4)//fftc(2)//imag(grabC)
+			FuncFit/Q ATH_FuncFit#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints
+			buffer = V_chisq
+			for(;;)
+				cnt += 1
+				ATH_Coef[2] =seedW[cnt]
+				FuncFit/Q ATH_FuncFit#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints				
+				if(buffer <= V_chisq || cnt > 3)
+					break
+				endif
+			endfor
 			wxmld[i][j] = ATH_Coef[2]*180/pi
 			woff[i][j] = ATH_Coef[0]
-			wfact[i][j] = ATH_Coef[1]
+			wfact[i][j] = ATH_Coef[1]				
 		endfor
 	endfor
 	KillWaves/Z W_sigma, fit__free_ // Cleanup the garbage
