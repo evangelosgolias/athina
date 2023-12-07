@@ -451,8 +451,8 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	DFREF dfr = GetWavesDataFolderDFR(wRef)
 	MatrixOP/O dfr:getBeam = beam(wSrc, p0, q0)
 	WAVE gb = dfr:getBeam
-	WAVE wOff = dfr:$(NameOfWave(wSrc)+"_XMLDMap1_offset")
-	WAVE wfact = dfr:$(NameOfWave(wSrc)+"_XMLDMap1_factor")
+	WAVE wOff = dfr:$(NameOfWave(wRef)+"_offset")
+	WAVE wfact = dfr:$(NameOfWave(wRef)+"_factor")
 	//WAVE wphase = dfr:XMLDStack_4x4x1_XMLDMap	
 	Make/O dfr:sinPlotW /WAVE=wsin
 	SetScale/I x, (-pi/2), pi/2, wsin, dfr:getBeam
@@ -465,12 +465,12 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	AppendToGraph/W=Graph0 wsin; ModifyGraph/W=Graph0 lsize(sinPlotW)=2,rgb(sinPlotW)=(1,16019,65535)
 //	RemoveFromGraph/W=Graph0/ALL
 //	AppendToGraph/W=Graph0 root:getBeam
-	WAVE buffer
-	CopyScales gb, buffer
-	buffer = wsin(x)
-	MatrixOP/FREE tval = sum((buffer - gb)*(buffer - gb))
-	variable csq = tval[0]
-	TextBox/W=Graph0/C/N=text0/F=0/A=MC num2str(csq)
+//	WAVE buffer
+//	CopyScales gb, buffer
+//	buffer = wsin(x)
+//	MatrixOP/FREE tval = sum((buffer - gb)*(buffer - gb))
+//	variable csq = tval[0]
+//	TextBox/W=Graph0/C/N=text0/F=0/A=MC num2str(csq)
 	return 0
 End
 //

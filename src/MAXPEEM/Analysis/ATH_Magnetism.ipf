@@ -356,10 +356,11 @@ static Function CalculateXMLDMap(WAVE wRef, variable angleStep)
 	variable i, j
 	string mapBaseNameStr = NameofWave(wRef) + "_XMLDMap"
 	string mapNameStr = CreateDataObjectName(dfr, mapBaseNameStr, 1, 0 ,1)
-	Make/N=(rows, cols) $mapNameStr, $(mapNameStr+"_offset"), $(mapNameStr+"_factor")
+	Make/N=(rows, cols) $mapNameStr, $(mapNameStr+"_offset"), $(mapNameStr+"_factor"), $(mapNameStr+"_Pidx")
 	WAVE wxmld = $mapNameStr
 	WAVE woff = $(mapNameStr+"_offset")
 	WAVE wfact = $(mapNameStr+"_factor")
+	WAVE wPidx = $(mapNameStr+"_Pidx")	
 	// Get the fitting stuff ready
 	Make/FREE/D/N=3 ATH_Coef
 	Make/FREE/T/N=3 ATH_Constraints
@@ -370,21 +371,21 @@ static Function CalculateXMLDMap(WAVE wRef, variable angleStep)
 	variable meanV, minV, maxV // use these to make a reasonable initial conditions guess
 	variable V_chisq
 	variable buffer, cnt
-	Make/FREE seedW = {0, 0.5, -0.5, 1, -1}
+	Make/FREE seedW = {0, 0.5, -0.5, 1, -1, 2, -2}
 	for(i = 0; i < rows; i++)
 		for(j = 0; j < cols; j++)
 			// /S keeps scaling. 
 			// NOTE: If you add /FREE here the scaling will be lost!!!
 			MatrixOP/O/S freeData = beam(wRef, i, j)
-			meanV = mean(freeData)
-			[minV, maxV] = WaveMinAndMax(freeData)
+			//meanV = mean(freeData)
+			//[minV, maxV] = WaveMinAndMax(freeData)
 //			ATH_Coef[0] = meanV
 //			ATH_Coef[1] = (maxV - minV)/2
 //			ATH_Coef[2] = freeData[9] > meanV ? -pi/4 : pi/4
 //			FFT/FREE/DEST=fftc/PAD=20/OUT=5 freeData
 			cnt = 0
-			ATH_Coef[0] = 1//mean(freeData)
-			ATH_Coef[1] = 1//(WaveMax(freeData) - WaveMin(freeData))*0.5
+			ATH_Coef[0] = 1 //mean(freeData)
+			ATH_Coef[1] = 1 //(WaveMax(freeData) - WaveMin(freeData))*0.5
 			ATH_Coef[2] = seedW[cnt]//gnoise(pi/4)//fftc(2)//imag(grabC)
 			FuncFit/Q ATH_FuncFit#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints
 			buffer = V_chisq
@@ -392,7 +393,8 @@ static Function CalculateXMLDMap(WAVE wRef, variable angleStep)
 				cnt += 1
 				ATH_Coef[2] =seedW[cnt]
 				FuncFit/Q ATH_FuncFit#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints				
-				if(buffer <= V_chisq || cnt > 3)
+				if(V_chisq <= buffer || cnt > 5)
+					wPidx[i][j] = cnt
 					break
 				endif
 			endfor
