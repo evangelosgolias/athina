@@ -101,7 +101,6 @@ static Function CreatePanel()
 	variable/G dfr:gATH_LDCendX = NaN
 	variable/G dfr:gATH_LDCendY = NaN
 	NewPanel/K=1/EXT=0/N=iDriftCorrection/W=(0,0,165,380)/HOST=$winNameStr
-	//ShowInfo/CP=0/W=$winNameStr
 	SetDrawLayer UserBack
 	SetDrawEnv/W=iDriftCorrection fsize= 13,fstyle= 1,textrgb= (1,12815,52428)
 	DrawText/W=iDriftCorrection 2,16,"Interactive drift correction"
@@ -542,6 +541,7 @@ static Function FastModeCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	switch(cb.checked)
 		case 1:	// When we are in the fast mode, anchor will be a red do				
 			gATH_FastMode = 1
+			DoWindow/F $gATH_WindowNameStr
 			Cursor/W=$gATH_WindowNameStr/K I
 			DrawAction/L=Overlay/W=$gATH_WindowNameStr delete
 			SetDrawLayer/W=$gATH_WindowNameStr Overlay
