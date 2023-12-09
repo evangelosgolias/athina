@@ -69,9 +69,9 @@ static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 	gATH_aYlen = abs(V_top-V_bottom)		
 	NVAR/SDFR=dfr gATH_Rect
 	gATH_Rect = 0
-	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
-	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	DrawOval gATH_left, gATH_top, gATH_right, gATH_bottom
+	SetDrawLayer/W=$winNameStr ProgFront // ImageGenerateROIMask needs ProgFront layer
+	SetDrawEnv/W=$winNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+	DrawOval/W=$winNameStr gATH_left, gATH_top, gATH_right, gATH_bottom
 	Cursor/I/C=(65535,0,0)/S=2/N=1/A=0 J $wnamestr 0.5 * (gATH_left + gATH_right), 0.5 * (gATH_top + gATH_bottom)
 	return 0
 End
@@ -115,9 +115,9 @@ static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 	gATH_aYlen = abs(V_top-V_bottom)		
 	NVAR/SDFR=dfr gATH_Rect
 	gATH_Rect = 1
-	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
-	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	DrawRect gATH_left, gATH_top, gATH_right, gATH_bottom
+	SetDrawLayer/W=$winNameStr ProgFront // ImageGenerateROIMask needs ProgFront layer
+	SetDrawEnv/W=$winNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+	DrawRect/W=$winNameStr gATH_left, gATH_top, gATH_right, gATH_bottom
 	Cursor/I/C=(65535,0,0)/S=2/N=1/A=0 J $wnamestr 0.5 * (gATH_left + gATH_right), 0.5 * (gATH_top + gATH_bottom)
 	return 0
 End
@@ -172,14 +172,14 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 	gATH_right = gATH_Sright
 	gATH_top = gATH_Stop
 	gATH_bottom = gATH_Sbottom
-	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
-	SetDrawEnv linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	DrawRect gATH_left, gATH_top, gATH_right, gATH_bottom
+	SetDrawLayer/W=$winNameStr ProgFront // ImageGenerateROIMask needs ProgFront layer
+	SetDrawEnv/W=$winNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+	DrawRect/W=$winNameStr gATH_left, gATH_top, gATH_right, gATH_bottom
 	
 	if(gATH_Rect)
-		DrawRect gATH_left, gATH_top, gATH_right, gATH_bottom
+		DrawRect/W=$winNameStr gATH_left, gATH_top, gATH_right, gATH_bottom
 	else
-		DrawOval gATH_left, gATH_top, gATH_right, gATH_bottom
+		DrawOval/W=$winNameStr gATH_left, gATH_top, gATH_right, gATH_bottom
 	endif
 	
 	Cursor/I/C=(65535,0,0)/S=2/N=1/A=0 J $wnamestr 0.5 * (gATH_left + gATH_right), 0.5 * (gATH_top + gATH_bottom)
@@ -255,28 +255,28 @@ static Function/DF InitialiseFolder()
 	return dfr
 End	
 
-static Function DrawOvalImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
+static Function DrawOvalImageROI(string winNameStr, variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
 	// Use ATH_ZProfileDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
-	SetDrawLayer UserFront 
-	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
-	DrawOval left, top, right, bottom
-	SetDrawLayer ProgFront 
+	SetDrawLayer/W=$winNameStr UserFront 
+	SetDrawEnv/W=$winNameStr linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
+	DrawOval/W=$winNameStr left, top, right, bottom
+	SetDrawLayer/W=$winNameStr ProgFront 
 	return 0
 End
 
-static Function DrawRectImageROI(variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
+static Function DrawRectImageROI(string winNameStr, variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
 	// Use ATH_ZProfileDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
-	SetDrawLayer UserFront 
-	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
-	DrawRect left, top, right, bottom
-	SetDrawLayer ProgFront 
+	SetDrawLayer/W=$winNameStr UserFront 
+	SetDrawEnv/W=$winNameStr linefgc = (red, green, blue), fillpat = 0, linethick = 1, xcoord= top, ycoord= left
+	DrawRect/W=$winNameStr left, top, right, bottom
+	SetDrawLayer/W=$winNameStr ProgFront 
 	return 0
 End
 
-static Function ClearROIMarkingsUserFront()
-	SetDrawLayer UserFront
-	DrawAction delete
-	SetDrawLayer ProgFront
+static Function ClearROIMarkingsUserFront(string winNameStr)
+	SetDrawLayer/W=$winNameStr UserFront
+	DrawAction/W=$winNameStr delete
+	SetDrawLayer/W=$winNameStr ProgFront
 	return 0
 End
 
@@ -387,10 +387,10 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			break
 		case 7: // cursor moved
 			if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor
-				DrawAction/W=$WindowNameStr delete // TODO: Here add the env commands of ATH_ZProfileDrawImageROICursor before switch and here only the draw command
-				SetDrawEnv/W=$WindowNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+				DrawAction/W=$s.winName delete
+				SetDrawEnv/W=$s.winName linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 				if(gATH_Rect)
-					DrawRect/W=$WindowNameStr xOff - gATH_aXlen * 0.5 + s.pointNumber * dx, yOff + gATH_aYlen * 0.5 + s.yPointNumber * dy, \
+					DrawRect/W=$s.winName xOff - gATH_aXlen * 0.5 + s.pointNumber * dx, yOff + gATH_aYlen * 0.5 + s.yPointNumber * dy, \
 					xOff + gATH_aXlen * 0.5 + s.pointNumber * dx,  yOff - (gATH_aYlen * 0.5) + s.yPointNumber * dy
 
 				else
@@ -510,11 +510,10 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 					colorcnt += 1
 				endif
-				DoWindow/F $WindowNameStr
 				if(gATH_Rect)
-					DrawRectImageROI(gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+					DrawRectImageROI(WindowNameStr, gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
 				else
-					DrawOvalImageROI(gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+					DrawOvalImageROI(WindowNameStr, gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
 				endif
 			endif
 			if(gATH_Rect)

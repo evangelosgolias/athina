@@ -185,17 +185,17 @@ static Function CreatePlot(DFREF dfr)
 	return 0
 End
 
-static Function ClearLineMarkings()
-	SetDrawLayer UserFront
-	DrawAction delete
-	SetDrawLayer ProgFront
+static Function ClearLineMarkings(string winNameStr)
+	SetDrawLayer/W=$winNameStr UserFront
+	DrawAction/W=$winNameStr delete
+	SetDrawLayer/W=$winNameStr ProgFront
 	return 0
 End
 
-static Function DrawLineUserFront(variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
-	SetDrawLayer UserFront 
-	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left
-	DrawLine x0, y0, x1, y1
+static Function DrawLineUserFront(string winNameStr, variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
+	SetDrawLayer/W=$winNameStr UserFront 
+	SetDrawEnv/W=$winNameStr linefgc = (red, green, blue), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left
+	DrawLine/W=$winNameStr x0, y0, x1, y1
 	return 0
 End
 
@@ -234,12 +234,12 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	switch(s.eventCode)
 		case 0: // Use activation to update the cursors if you request defaults
 			if(updateCursorsPositions)
-				SetDrawLayer ProgFront
-			    DrawAction delete
-	   			SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+				SetDrawLayer/W=$s.winName ProgFront
+			    DrawAction/W=$s.winName delete
+	   			SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 				Cursor/I/C=(65535,0,0,30000)/S=1/N=1 E $ImageNameStr C1x0, C1y0
 				Cursor/I/C=(65535,0,0,30000)/S=1/N=1 F $ImageNameStr C2x0, C2y0
-				DrawLine C1x0, C1y0, C2x0, C2y0
+				DrawLine/W=$s.winName C1x0, C1y0, C2x0, C2y0
 				Make/O/FREE/N=2 xTrace={C1x0, C2x0}, yTrace = {C1y0, C2y0}
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
 				updateCursorsPositions = 0
@@ -275,9 +275,9 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 			break
 	    case 7: // cursor moved
 			if(!cmpstr(s.cursorName, "E") || !cmpstr(s.cursorName, "F")) // It should work only with E, F you might have other cursors on the image
-				SetDrawLayer ProgFront
-			    DrawAction delete
-	   			SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+				SetDrawLayer/W=$s.winName ProgFront
+			    DrawAction/W=$s.winName delete
+	   			SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	   			if(!cmpstr(s.cursorName, "E")) // if you move E
 	   				xc = hcsr(F)
 					yc = vcsr(F)
@@ -285,7 +285,7 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 					C1y = yc
 					C2x = hcsr(E)
 					C2y = vcsr(E)
-					DrawLine xOff + s.pointNumber * dx, yOff + s.ypointNumber * dy, xc, yc
+					DrawLine/W=$s.winName xOff + s.pointNumber * dx, yOff + s.ypointNumber * dy, xc, yc
 	   				Make/O/FREE/N=2 xTrace={xOff + s.pointNumber * dx, xc}, yTrace = {yOff + s.ypointNumber * dy, yc}
 	   			elseif(!cmpstr(s.cursorName, "F")) // if you move F
 	   				xc = hcsr(E)
@@ -294,7 +294,7 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 					C1y = vcsr(F)					
 					C2x = xc
 					C2y = yc
-					DrawLine xc, yc, xoff + s.pointNumber * dx, yOff + s.ypointNumber * dy
+					DrawLine/W=$s.winName xc, yc, xoff + s.pointNumber * dx, yOff + s.ypointNumber * dy
 	   				Make/O/FREE/N=2 xTrace={xc, xOff + s.pointNumber * dx}, yTrace = {yc, yOff + s.ypointNumber * dy}
 	   			endif
 	   			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
@@ -385,8 +385,7 @@ static Function PlotSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 					colorcnt += 1
 				endif
-				DoWindow/F $WindowNameStr
-				DrawLineUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
+				DrawLineUserFront(WindowNameStr,C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
 			endif
 			sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left;" + \
 			"DrawCmd:DrawLine %f, %f, %f, %f;ProfileCmd:Make/O/N=2 xTrace={%f, %f}, yTrace = {%f, %f}\nImageLineProfile/P=(%d) srcWave=%s," +\

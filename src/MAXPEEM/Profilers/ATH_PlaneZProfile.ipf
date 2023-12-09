@@ -280,14 +280,14 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			break
 		case 7:
 			if(!cmpstr(s.cursorName, "G") || !cmpstr(s.cursorName, "H")) // It should work only with G, H you might have other cursors on the image
-				SetDrawLayer ProgFront
-			    DrawAction delete
-	   			SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+				SetDrawLayer/W=$s.winName ProgFront
+			    DrawAction/W=$s.winName delete
+	   			SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	   			C1x = hcsr(G)
 				C1y = vcsr(G)
 				C2x = hcsr(H) 
 		       	C2y = vcsr(H)
-		       	DrawLine C1x, C1y, C2x, C2y
+		       	DrawLine/W=$s.winName C1x, C1y, C2x, C2y
 		       	if(C1x == C2x && C1y == C2y) // Cursors G, H cannot overlap
 		       		break
 		       	endif
@@ -366,14 +366,14 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 		      	SetScale/I x, 0, (Nx * Xfactor), M_ExtractedSurface
 		    endif		    
 		    SetScale/I y, Ystart, Yend, M_ExtractedSurface
-		    SetDrawLayer UserFront
+		    SetDrawLayer/W=$s.winName UserFront
 			hookResult = 1
 		break
 		case 5:
-			SetDrawLayer ProgFront
-			DrawAction delete
-	   		SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left			
-			DrawLine C1x, C1y, C2x, C2y
+			SetDrawLayer/W=$s.winName ProgFront
+			DrawAction/W=$s.winName delete
+	   		SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left			
+			DrawLine/W=$s.winName C1x, C1y, C2x, C2y
 			slp = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
 			if(slp == 0)
 				x1 = C1x
@@ -405,11 +405,11 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				y3 = C2y - ys
 				y4 = C2y + ys
 			endif
-			SetDrawEnv gstart, gname=lineProfileWidth
-			SetDrawEnv linefgc = (65535,16385,16385,32767), fillbgc= (65535,16385,16385,32767), fillpat = -1, linethick = 0, xcoord = top, ycoord = left
-			DrawPoly x1, y1, 1, 1, {x1, y1, x2, y2, x3, y3, x4, y4}
-			SetDrawEnv gstop
-			SetDrawLayer UserFront
+			SetDrawEnv/W=$s.winName gstart, gname=lineProfileWidth
+			SetDrawEnv/W=$s.winName linefgc = (65535,16385,16385,32767), fillbgc= (65535,16385,16385,32767), fillpat = -1, linethick = 0, xcoord = top, ycoord = left
+			DrawPoly/W=$s.winName x1, y1, 1, 1, {x1, y1, x2, y2, x3, y3, x4, y4}
+			SetDrawEnv/W=$s.winName gstop
+			SetDrawLayer/W=$s.winName UserFront
 			hookResult = 1
 		break		
 	endswitch
@@ -487,8 +487,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
 					colorcnt += 1
 				endif
-				DoWindow/F $WindowNameStr
-				DrawLineUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
+				DrawLineUserFront(WindowNameStr,C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
 			endif
 			sprintf recreateCmdStr, "Cmd:ImageTransform/X={%d, %d, %d, %d, 0, %d, %d, 0, %d, "+\
 			"%d, %d} extractSurface %s\nSource: %s",  Nx, Ny, C1x, C1y, C2x, C2y, C2x, C2y, nLayers, w3dNameStr, ImagePathname
@@ -795,9 +794,10 @@ static Function SetVariableProfileWidth(STRUCT WMSetVariableAction& sv) : SetVar
 	return 0
 End
 
-static Function DrawLineUserFront(variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
-	SetDrawLayer UserFront 
-	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left
-	DrawLine x0, y0, x1, y1
+static Function DrawLineUserFront(string winNameStr, variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
+	SetDrawLayer/W=$winNameStr UserFront 
+	SetDrawEnv/W=$winNameStr linefgc = (red, green, blue), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left
+	DrawLine/W=$winNameStr x0, y0, x1, y1
+	SetDrawLayer/W=$winNameStr ProgFront
 	return 0
 End

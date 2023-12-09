@@ -167,7 +167,7 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 			break
 		case 5:
 			if(gATH_FastMode && s.eventMod==2 && gLayer < gATH_w3dnlayers && !numtype(gATH_AnchorPositionX)) //if SHIFT is pressed and Fast Mode is on
-				ImageTransform/P=(gLayer) getPlane w3dRef // get the image
+				ImageTransform/P=(gLayer)/D=dfr:M_ImagePlane getPlane w3dRef // get the image
 				WAVE M_ImagePlane
 				dx = (gATH_AnchorPositionX - AxisValFromPixel(gATH_WindowNameStr, "top", s.mouseLoc.h))/gATH_dx
 				dy = (gATH_AnchorPositionY - AxisValFromPixel(gATH_WindowNameStr, "left", s.mouseLoc.v))/gATH_dy
