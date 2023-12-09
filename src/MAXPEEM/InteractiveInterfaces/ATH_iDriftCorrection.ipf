@@ -167,16 +167,14 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 			break
 		case 5:
 			if(gATH_FastMode && s.eventMod==2 && gLayer < gATH_w3dnlayers && !numtype(gATH_AnchorPositionX)) //if SHIFT is pressed and Fast Mode is on
-				ImageTransform/P=(gLayer)/D=dfr:M_ImagePlane getPlane w3dRef // get the image
-				WAVE M_ImagePlane
 				dx = (gATH_AnchorPositionX - AxisValFromPixel(gATH_WindowNameStr, "top", s.mouseLoc.h))/gATH_dx
 				dy = (gATH_AnchorPositionY - AxisValFromPixel(gATH_WindowNameStr, "left", s.mouseLoc.v))/gATH_dy
 				MatrixOP/O/FREE layerFREE = layer(w3dRef, gLayer)
-				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D layerFREE // Will overwrite M_Affine
-				WAVE M_Affine
+				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=dfr:M_Affine2D Affine2D layerFREE // Will overwrite M_Affine
 				//ImageTransform/O/P=(gLayer) removeZplane w3dRef
 				//ImageTransform/O/P=(gLayer)/INSW=M_Affine insertZplane w3dRef
-				w3dRef[][][gLayer] = M_Affine[p][q] // is this faster?
+				WAVE ATH_Affine2D = dfr:M_Affine2D
+				w3dRef[][][gLayer] = ATH_Affine2D[p][q]
 				gLayer += 1
 				ModifyImage/W=$gATH_WindowNameStr $gATH_imgNameTopWindowStr plane=gLayer
 			endif
@@ -279,7 +277,6 @@ End
 
 static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
-	DFREF currDF = GetDataFolderDFR()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 	SVAR/Z/SDFR=dfr gATH_w3dPathName
@@ -294,22 +291,22 @@ static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			SetDataFolder dfr
 			gATH_CursorPositionX = hcsr(I, gATH_WindowNameStr)
 			gATH_CursorPositionY = vcsr(I, gATH_WindowNameStr)
 			variable dx = (gATH_AnchorPositionX - gATH_CursorPositionX)/gATH_dx
 			variable dy = (gATH_AnchorPositionY - gATH_CursorPositionY)/gATH_dy
 			MatrixOP/O/FREE layerFREE = layer(w3dRef, gLayer)
-			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D layerFREE // Will overwrite M_Affine
-			WAVE M_Affine
-			w3dRef[][][gLayer] = M_Affine[p][q]
+			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=dfr:M_Affine2D Affine2D layerFREE
+			WAVE ATH_Affine2D = dfr:M_Affine2D
+			w3dRef[][][gLayer] = ATH_Affine2D[p][q]
 			hookresult =  1
 			break
 	endswitch
-	SetDataFolder currDF
 	return hookresult
 End
 
+
+				
 static Function SetStartLayerButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
