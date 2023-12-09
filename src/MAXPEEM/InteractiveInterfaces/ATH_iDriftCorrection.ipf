@@ -195,7 +195,7 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 				ModifyImage/W=$gATH_WindowNameStr $gATH_imgNameTopWindowStr plane=gLayer
 			endif
 			if(s.keyCode == 82) // if R (SHIFT+r) is pressed - Restore original layer
-				w3dRef[][][gLayer] = w3dBackUpRef[p][q]
+				w3dRef[][][gLayer] = w3dBackUpRef[p][q][gLayer]
 			endif		
 			hookresult = 1
 			break
