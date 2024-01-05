@@ -55,12 +55,13 @@ static Function MainMenu()
 	DFREF dfr = InitialiseFolder(winNameStr)
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
+	// Flipped A, B and E, F starting points
 	// Cursors to set the scale
-	Cursor/I/C=(0,65535,0)/H=1/S=1/P/N=1 A $imgNameTopGraphStr round(1.8 * nrows/2), round(0.2 * ncols/2)
-	Cursor/I/C=(0,65535,0)/H=1/S=1/P/N=1 B $imgNameTopGraphStr round(0.2 * nrows/2), round(1.8 * ncols/2)
+	Cursor/I/C=(0,65535,0)/H=1/S=1/P/N=1 A $imgNameTopGraphStr round(1.8 * nrows/2), round(1.8 * ncols/2)	
+	Cursor/I/C=(0,65535,0)/H=1/S=1/P/N=1 B $imgNameTopGraphStr round(0.2 * nrows/2), round(0.2 * ncols/2)
 	// Cursors to get the profile
-	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(1.6 * nrows/2), round(0.4 * ncols/2)
-	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.4 * nrows/2), round(1.6 * ncols/2)
+	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(1.4 * nrows/2), round(1.4 * ncols/2)	
+	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.4 * nrows/2), round(0.4 * ncols/2)
 	InitialiseGraph(dfr)
 	SetWindow $winNameStr, hook(MyiXPSHook) = ATH_iXPS#CursorHookFunction // Set the hook
 	SetWindow $winNameStr userdata(ATH_LinkedWiniXPSPP) = "ATH_XPSProfPlot_" + winNameStr
@@ -171,6 +172,7 @@ End
 static Function XPSPlot(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
 	SVAR/SDFR=dfr gATH_WindowNameStr
+	SVAR/SDFR=dfr gATH_ImagePathname
 	NVAR profileWidth = dfr:gATH_profileWidth
 	NVAR hv = dfr:gATH_hv
 	NVAR Wf = dfr:gATH_Wf
@@ -179,7 +181,7 @@ static Function XPSPlot(DFREF dfr)
 	string profilePlotStr = "ATH_XPSProfPlot_" + gATH_WindowNameStr
 	Make/O/N=0  dfr:W_ImageLineProfile // Make a dummy wave to display 
 	variable pix = 72/ScreenResolution
-	Display/W=(0*pix,0*pix,520*pix,300*pix)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile as "XPS spectrum " + gATH_WindowNameStr
+	Display/W=(0*pix,0*pix,520*pix,300*pix)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile as "XPS spectrum " + gATH_ImagePathname
 	AutoPositionWindow/E/M=0/R=$gATH_WindowNameStr
 	ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=12, lsize=1.5
 	Label left "Intensity (arb. u.)"
@@ -342,7 +344,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	       		C2y = vcsr(F)
     	   		dAE = sqrt((C1x - Ax)^2 + (C1y - Ay)^2)
    	    		//dEF = sqrt((C2x - C1x)^2 + (C2y - C1y)^2)
-  	     		Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the top right energy (lowest KE)
+  	     		Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
   	     		SetScale/P x, Eoffset, epp, W_ImageLineProfile
   	     		//WaveFromKE2BE(W_ImageLineProfile, hv, Wf)
 	   			hookResult = 1
@@ -357,9 +359,12 @@ End
 
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentGraphWin = GetUserData(s.winName, "", "ATH_parentGraphWin")
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
 	switch(s.eventCode)
-		case 2: // Kill the window
-
+		// Window is about to be killed. When using case 2 then I cannot KillWindow and KillDataFolder. 
+		// See the discussion with Wavemetrics. If you want to use case 2, then you need to invoke
+		// Execute/P cmdStr. I do not see any issue in using here case 17 (14.12.2023).
+		case 17:
 			SetWindow $parentGraphWin, hook(MyiXPSHook) = $""
 			SetWindow $parentGraphWin userdata(ATH_LinkedWiniXPSPP) = ""
 			if(WinType(GetUserData(parentGraphWin, "", "ATH_targetGraphWin")) == 1)
@@ -372,7 +377,10 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			SetDrawLayer/W=$parentGraphWin ProgFront
 			DrawAction/W=$parentGraphWin delete
 			SetDrawLayer/W=$parentGraphWin Overlay
-			DrawAction/W=$parentGraphWin delete			
+			DrawAction/W=$parentGraphWin delete
+			SetWindow $s.winName hook(MyiXPSGraphHook) = $""
+			KillWindow $s.winName
+			KillDataFolder dfr
 			break
 	endswitch
 End
@@ -396,76 +404,71 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/Z C2y = dfr:gATH_C2y
 	NVAR/Z colorcnt = dfr:gATH_colorcnt
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	NVAR/Z Ax = dfr:gATH_Ax	
+	NVAR/Z Ax = dfr:gATH_Ax
 	NVAR/Z Ay = dfr:gATH_Ay
-	NVAR/Z Bx = dfr:gATH_Bx	
-	NVAR/Z By = dfr:gATH_By	
-	NVAR/Z dx = dfr:gATH_dx	
-	NVAR/Z dy = dfr:gATH_dy	
+	NVAR/Z Bx = dfr:gATH_Bx
+	NVAR/Z By = dfr:gATH_By
+	NVAR/Z dx = dfr:gATH_dx
+	NVAR/Z dy = dfr:gATH_dy
 	NVAR/Z Eoffset = dfr:gATH_Eoffset
 	NVAR/Z epp = dfr:gATH_epp
 	NVAR/Z stv = dfr:gATH_stv
-	NVAR/Z linepx = dfr:gATH_linepx		
+	NVAR/Z linepx = dfr:gATH_linepx
 	NVAR/Z hv = dfr:gATH_hv
 	NVAR/Z Wf = dfr:gATH_Wf
-		
+
 	string recreateDrawStr
 	DFREF savedfr = GetDataFolderDFR()
-	
+
 	variable postfix = 0, dAE
 	variable red, green, blue
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			do
-				string saveWaveNameStr = w3dNameStr + "_prof" + num2str(postfix)
-				if(WaveExists(savedfr:$saveWaveNameStr) == 1)
-					postfix++
+			string saveWaveBaseStr = w3dNameStr + "_prof"
+			string saveWaveNameStr = CreateDataObjectName(savedfr, saveWaveBaseStr, 1, 0, 5)
+			WAVE/SDFR=dfr W_ImageLineProfile
+			Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
+			dAE = sqrt((C1x - Ax)^2/dx^2 + (C1y - Ay)^2/dy^2)
+			Eoffset = stv - (linepx/2 - dAE) * epp
+			SetScale/P x, Eoffset, epp, savedfr:$saveWaveNameStr
+			if(hv > Wf)
+				WaveFromKE2BE(savedfr:$saveWaveNameStr, hv, Wf)
+			endif
+			if(PlotSwitch)
+				if(WinType(targetGraphWin) == 1)
+					AppendToGraph/W=$targetGraphWin savedfr:$saveWaveNameStr
+					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
+					Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
+					colorcnt += 1 // i++ does not work with globals?
 				else
-					Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
-					dAE = sqrt((C1x - Ax)^2/dx^2 + (C1y - Ay)^2/dy^2)
-					Eoffset = stv - (linepx/2 - dAE) * epp
-					SetScale/P x, Eoffset, epp, savedfr:$saveWaveNameStr
-					if(hv > Wf)
-						WaveFromKE2BE(savedfr:$saveWaveNameStr, hv, Wf)
-					endif
-					if(PlotSwitch)
-						if(WinType(targetGraphWin) == 1)
-							AppendToGraph/W=$targetGraphWin savedfr:$saveWaveNameStr
-							[red, green, blue] = ATH_Graph#GetColor(colorcnt)
-							Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
-							colorcnt += 1 // i++ does not work with globals?
-						else
-							Display/N=$targetGraphWin savedfr:$saveWaveNameStr // Do not kill the graph windows, user might want to save the profiles
-							[red, green, blue] = ATH_Graph#GetColor(colorcnt)
-							Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
-							AutopositionWindow/R=$B_Struct.win $targetGraphWin
-							DoWindow/F $targetGraphWin
-							colorcnt += 1
-						endif
-						if(PlotSwitch && hv > Wf) // Reverse x-axis and add label
-							SetAxis/W=$targetGraphWin/A/R bottom
-							Label/W=$targetGraphWin bottom "\\u#2Binding Energy (eV)"
-						endif
-					endif
-					
-					if(MarkXPSsSwitch)
-						if(!PlotSwitch)
-							[red, green, blue] = ATH_Graph#GetColor(colorcnt)
-							colorcnt += 1
-						endif
-						DoWindow/F $WindowNameStr
-						DrawXPSUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
-					endif
-				break // Stop if you go through the else branch
-				endif	
-			while(1)
+					Display/N=$targetGraphWin savedfr:$saveWaveNameStr // Do not kill the graph windows, user might want to save the profiles
+					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
+					Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
+					AutopositionWindow/R=$B_Struct.win $targetGraphWin
+					DoWindow/F $targetGraphWin
+					colorcnt += 1
+				endif
+				if(PlotSwitch && hv > Wf) // Reverse x-axis and add label
+					SetAxis/W=$targetGraphWin/A/R bottom
+					Label/W=$targetGraphWin bottom "\\u#2Binding Energy (eV)"
+				endif
+			endif
+
+			if(MarkXPSsSwitch)
+				if(!PlotSwitch)
+					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
+					colorcnt += 1
+				endif
+				DoWindow/F $WindowNameStr
+				DrawXPSUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
+			endif
 		sprintf recreateDrawStr, "pathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%.2f\n" + \
-								 "hv(eV):%.2f\nWf(eV):%.2f\nEPP(eV/px):%.8f", ImagePathname,  C1x, C1y, C2x, C2y, Ax, Ay, Bx, By, profileWidth, stv, hv, Wf, epp
+		"hv(eV):%.2f\nWf(eV):%.2f\nEPP(eV/px):%.8f", ImagePathname,  C1x, C1y, C2x, C2y, Ax, Ay, Bx, By, profileWidth, stv, hv, Wf, epp
 		Note savedfr:$saveWaveNameStr, recreateDrawStr
 		// Add metadata
 		break
-	endswitch
-	return 0
+endswitch
+return 0
 End
 
 static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
@@ -484,6 +487,7 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 	NVAR/Z dy = dfr:gATH_dy
 	NVAR/Z linepx = dfr:gATH_linepx
 	NVAR/Z epp = dfr:gATH_epp
+	NVAR/Z Wf = dfr:gATH_Wf	
 	// --------------------------//
 	NVAR/Z C1x0 = dfr0:gATH_C1x0
 	NVAR/Z C1y0 = dfr0:gATH_C1y0
@@ -514,6 +518,7 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 				By0 = By
 				linepx0 = linepx
 				epp0 = epp
+				Wf0 = Wf
 			endif
 			break
 	endswitch
@@ -838,4 +843,61 @@ static Function WaveFromKE2BE(WAVE wRef, variable hv, variable Wf)
 	variable nsteps = DimSize(wRef, 0) - 1
 	variable newoffset = hv - (offset + nsteps * dx) - Wf
 	SetScale/P x, newoffset, dx, wRef
+End
+
+static Function GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
+	/// Get a profile from wRef using the default saved settings
+	/// BEscaleQ = 1 is default. If BEscaleQ = 0 scale with KE
+	BEscaleQ = ParamIsDefault(BEscaleQ) ? 1 : BEscaleQ
+	
+	if(WaveDims(wRef) != 2)
+		return -1
+	endif
+	
+	DFREF dfr0 =  $"root:Packages:ATH_DataFolder:iXPS:DefaultSettings"
+	if(!DataFolderRefStatus(dfr0))
+		print "Default settings DFREF is invalid"
+		return -1
+	endif
+	
+	NVAR/Z C1x0 = dfr0:gATH_C1x0
+	NVAR/Z C1y0 = dfr0:gATH_C1y0
+	NVAR/Z C2x0 = dfr0:gATH_C2x0
+	NVAR/Z C2y0 = dfr0:gATH_C2y0
+	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
+	NVAR/Z Ax0 = dfr0:gATH_Ax0
+	NVAR/Z Ay0 = dfr0:gATH_Ay0
+	NVAR/Z Bx0 = dfr0:gATH_Bx0
+	NVAR/Z By0 = dfr0:gATH_By0
+	NVAR/Z Wf0 = dfr0:gATH_Wf0
+	NVAR/Z epp0 = dfr0:gATH_epp0
+	NVAR/Z linepx0 = dfr0:gATH_linepx0
+	if(!NVAR_Exists(Ax0))
+		return 1
+	endif
+	variable dx = DimDelta(wRef,0)
+	variable dy = DimDelta(wRef,1)
+	
+	DFREF dfr = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	Make/O/N=2 xTrace={C1x0, C2x0}, yTrace = {C1y0, C2y0}
+	ImageLineProfile srcWave=wRef, xWave=xTrace, yWave=yTrace, width = profileWidth0
+	WAVE W_ImageLineProfile
+	string saveWaveBaseStr = NameOfWave(wRef) + "_prof"
+	string saveWaveNameStr = CreateDataObjectName(dfr, saveWaveBaseStr, 1, 0, 5)
+	Duplicate W_ImageLineProfile, dfr:$saveWaveNameStr
+	SetDataFolder dfr
+	variable hv = ATH_String#GetPhotonEnergyFromFilename(NameOfWave(wRef))
+	variable stv = NumberByKey("STV(V)",note(wRef),":","\n" ) 
+	variable dAE = sqrt((C1x0 - Ax0)^2/dx^2 + (C1y0 - Ay0)^2/dy^2)
+	variable Eoffset = stv - (linepx0/2 - dAE) * epp0
+	SetScale/P x, Eoffset, epp0, dfr:$saveWaveNameStr
+	if(hv > Wf0 && BEscaleQ)
+		WaveFromKE2BE(dfr:$saveWaveNameStr, hv, Wf0)
+	endif
+	string recreateDrawStr
+	sprintf recreateDrawStr, "XPS profile using saved settings.\npathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%.2f\n" + \
+	"hv(eV):%.2f\nWf(eV):%.2f\nEPP(eV/px):%.8f", GetWavesDataFolder(wRef, 2), C1x0, C1y0, C2x0, C2y0, Ax0, Ay0, Bx0, By0, profileWidth0, stv, hv, Wf0, epp0
+	Note dfr:$saveWaveNameStr, recreateDrawStr
+	return 0
 End

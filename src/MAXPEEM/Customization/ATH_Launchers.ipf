@@ -608,6 +608,16 @@ static Function ImageBackupFromBrowserSelection()
 	return 0
 End
 
+static Function XPSProfileFromDefaultSettings()
+	string ATHImage = GetBrowserSelection(0)
+	if(WaveDims($ATHImage) != 2)
+		print "Operation needs an image"
+		return -1
+	endif
+	ATH_iXPS#GetProfileUsingDefaults($ATHImage)
+	return 0
+End
+
 // -------
 
 static Function NormalisationImageStackWithImage()

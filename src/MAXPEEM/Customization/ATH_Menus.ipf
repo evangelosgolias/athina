@@ -91,6 +91,7 @@ Menu "Athina"
 		
 	Submenu "XPS"
 		"Extract XPS profile from image (TG, 2D)", /Q, ATH_iXPS#MainMenu()
+		"Extract XPS profile from saved settings (DB, 2D)", /Q, ATH_Launch#XPSProfileFromDefaultSettings()
 		"Subtract background(TG, 1D) ", /Q, BackgroundSubtractGUI()
 	End	
 	
