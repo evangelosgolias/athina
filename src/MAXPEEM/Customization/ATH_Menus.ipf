@@ -162,6 +162,7 @@ End
 
 Menu "GraphPopup" // Right click not on a trace or in the margin of an image
 	"ATH Text Annotation (TG)", /Q, ATH_Launch#QuickTextAnnotation()
+	"ATH SetDataFolder (TG)", /Q, ATH_Launch#SetDataFolderOfTopImage()	
 	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
 End
 

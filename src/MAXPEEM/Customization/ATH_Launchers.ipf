@@ -1314,13 +1314,9 @@ static Function ScalePartialXPSSpectrum()
 	gATH_EnergyScale  = Escale
 End
 
-//Function LoadDATFilesFromFolder() // Deactivated 23.11.2023
-//	string wNameStr = ATH_GenericSingleStrPrompt("Stack name, empty string to auto-name", "Before the selection dialog opens...")
-//	if(strlen(wNameStr))
-//		ATH_Uview#LoadDATFilesFromFolder("", "*", stack3d = 1, wname3d = wNameStr, autoscale = 1)
-//	else
-//		// default name, if wname3d is given, even if empty string, the ParamIsDefault will give 1.
-//		// wname3d = SelectString(ParamIsDefault(wname3d) ? 0: 1,"stack3d", wname3d)
-//		ATH_Uview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 
-//	endif
-//End
+Function SetDataFolderOfTopImage()
+	/// Set the current data folder to the parent dir of the top image
+	WAVE wRef = ATH_ImgOp#TopImageToWaveRef() 
+	SetDataFolder GetWavesDataFolderDFR(wRef)
+	return 0
+End
