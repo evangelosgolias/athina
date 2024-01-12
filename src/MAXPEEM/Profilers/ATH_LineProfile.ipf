@@ -125,7 +125,7 @@ static Function/DF InitialiseFolder(string winNameStr)
 	variable/G dfr:gATH_updateCursorsPositions = 0
 	// Switches and indicators
 	variable/G dfr:gATH_PlotSwitch = 1
-	variable/G dfr:gATH_MarkLinesSwitch = 0
+	variable/G dfr:gATH_MarkLinesSwitch = 1
 	variable/G dfr:gATH_updateSelectedLayer = 1	
 	variable/G dfr:gATH_colorcnt = 0
 	variable/G dfr:gATH_mouseTrackV
@@ -179,7 +179,7 @@ static Function CreatePlot(DFREF dfr)
 	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_LineProfile#RestoreDefaultSettings
 	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",fcolor=(65535,32768,32768),help={"Show width of integrated area while button is pressed"},proc=ATH_LineProfile#ShowProfileWidth
 	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_LineProfile#CheckboxPlotProfile
-	CheckBox MarkLines,pos={127.00,40.00},size={86.00,17.00},title="Mark lines ",fSize=14,value=0,side=1,proc=ATH_LineProfile#CheckboxMarkLines
+	CheckBox MarkLines,pos={127.00,40.00},size={86.00,17.00},title="Mark lines ",fSize=14,value=1,side=1,proc=ATH_LineProfile#CheckboxMarkLines
 	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,value=1,proc=ATH_LineProfile#ProfileLayer3D
 	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1},proc=ATH_LineProfile#SetVariableWidth
 	return 0
@@ -194,7 +194,7 @@ End
 
 static Function DrawLineUserFront(string winNameStr, variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
 	SetDrawLayer/W=$winNameStr UserFront 
-	SetDrawEnv/W=$winNameStr linefgc = (red, green, blue), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left
+	SetDrawEnv/W=$winNameStr linefgc = (red, green, blue), fillpat = 0, linethick = 2, dash= 2, xcoord= top, ycoord= left
 	DrawLine/W=$winNameStr x0, y0, x1, y1
 	return 0
 End

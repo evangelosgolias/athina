@@ -976,7 +976,7 @@ static Function LoadDATFilesFromFolder(string folder, string pattern, [int stack
 	
 	// Get all the .dat files. Use "????" for all files in IndexedFile third argument.
 	// Filter the matches with pattern at the second stage.
-	string allFiles = ListMatch(SortList(IndexedFile(ATH_DATFilesPathTMP, -1, ".dat"),";", 16), pattern)
+	string allFiles = ListMatch(SortList(IndexedFile(ATH_DATFilesPathTMP, -1, ".dat"),";", 80), pattern)
 		
 	variable filesnr = ItemsInList(allFiles)
 
@@ -1146,7 +1146,7 @@ static Function LoadMultiplyDATFiles([int skipmetadata, int autoscale, int stack
    	if(!strlen(filepathStr)) // user cancel?
    		Abort
    	endif	   	
-	loadFiles = SortList(S_fileName, "\r", 16) 
+	loadFiles = SortList(S_fileName, "\r", 80) 
 	variable nrloadFiles = ItemsInList(loadFiles, "\r")
 	if(!nrloadFiles)
 		return 1
