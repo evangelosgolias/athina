@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 #pragma ModuleName = ATH_iXPS
-#pragma version = 1.01
+#pragma version = 1.1
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -34,8 +34,9 @@
 
 /// NOTE: the program needs E to be at the lower part of the KE of the dispersion. Line profile is extracted
 /// from E -> F cursor. Also set the A - Low KE end and B - High KE end.
+/// With microscope settings as of January 2024 low KE in on the bottomn right part of the image as imported in Igor.
 
-static constant kATHEnergyPerPixel = 0.00780685 // energy per pixel - default setting 30.04.2023
+static constant kATHEnergyPerPixel = 0.0056338 // energy per pixel - default setting 24.01.2024 [2K image]
 
 
 static Function MainMenu()
@@ -185,7 +186,7 @@ static Function XPSPlot(DFREF dfr)
 	AutoPositionWindow/E/M=0/R=$gATH_WindowNameStr
 	ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=12, lsize=1.5
 	Label left "Intensity (arb. u.)"
-	Label bottom "\\u#2Kinetic Energy (eV)"
+	Label bottom "\\u#2Kinetic Energy (eV)[E --> F]"
 	
 	SetWindow $profilePlotStr userdata(ATH_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_XPSProf_" + gATH_WindowNameStr 
@@ -200,7 +201,7 @@ static Function XPSPlot(DFREF dfr)
 	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_iXPS#PlotProfile
 	CheckBox MarkXPSs,pos={127.00,40.00},size={86.00,17.00},title="Mark Lines ",fSize=14,value=0,side=1,proc=ATH_iXPS#MarkXPS
 	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=ATH_iXPS#Layer3D
-	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(1,39321,19939),value=profileWidth,limits={0,inf,1},proc=ATH_iXPS#SetVariableWidth
+	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(1,39321,19939),value=profileWidth,limits={0,inf,1},proc=ATH_iXPS#SetProfileWidth
 	Button SetCursorsAB,valueColor=(1,12815,52428), pos={462,17},size={50,70.00},title="Set\nCsr\nA & B",fcolor=(65535,0,0),help={"Set cursors A (top right), B (lower left) and press button to calibrate the energy scale"},proc=ATH_iXPS#SetCursorsAB // Change here	
 	SetVariable setSTV,pos={20,72.00},size={100,20.00},title="STV", fSize=14,fColor=(0,0,65535),value=stv,limits={0,inf,1},proc=ATH_iXPS#SetSTV // Energy per pixel
 	SetVariable sethv,pos={135,72.00},size={90,20.00},title="hv", fSize=14,fColor=(65535,0,0),value=hv,limits={0,inf,1},proc=ATH_iXPS#Sethv
@@ -226,7 +227,7 @@ End
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	/// The XPS profile is plotted from E to F
-    variable hookResult = 0
+	variable hookResult = 0
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
 	DFREF currdfr = GetDataFolderDFR()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iXPSRootDF"))
@@ -242,19 +243,19 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
 	NVAR/Z C2y = dfr:gATH_C2y
-	
-	NVAR/Z Ax = dfr:gATH_Ax	
-	NVAR/Z Ay = dfr:gATH_Ay	
-	NVAR/Z Bx = dfr:gATH_Bx	
-	NVAR/Z By = dfr:gATH_By	
+
+	NVAR/Z Ax = dfr:gATH_Ax
+	NVAR/Z Ay = dfr:gATH_Ay
+	NVAR/Z Bx = dfr:gATH_Bx
+	NVAR/Z By = dfr:gATH_By
 	NVAR/Z linepx = dfr:gATH_linepx
 	NVAR/Z epp = dfr:gATH_epp
 	NVAR/Z stv = dfr:gATH_stv
 	NVAR/Z Wf = dfr:gATH_Wf
 	NVAR/Z hv = dfr:gATH_hv
-	NVAR/Z Eoffset = dfr:gATH_Eoffset	
+	NVAR/Z Eoffset = dfr:gATH_Eoffset
 	NVAR/Z lowBE = dfr:gATH_lowBE
-	
+
 	NVAR/Z mouseTrackV = dfr:gATH_mouseTrackV
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
@@ -266,17 +267,17 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z C2y0 = dfr0:gATH_C2y0
 	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
 	WAVE/Z imgWaveRef = $ImagePathname
-	WAVE/Z/SDFR=dfr W_ImageLineProfile 
-	variable xc, yc, dAE, dEF
-	
+	WAVE/Z/SDFR=dfr W_ImageLineProfile
+	variable xc, yc, dAE, dEF, dOE, dOF, dOA
+
 	linepx = sqrt((Ax-Bx)^2+(Ay-By)^2)
 
 	switch(s.eventCode)
 		case 0: // Use activation to update the cursors if you request defaults
 			if(updateCursorsPositions)
 				SetDrawLayer ProgFront
-			    DrawAction delete
-	   			SetDrawEnv Linefgc = (65535,0,0,65535), fillpat = 0, Linethick = 1, xcoord = top, ycoord = left
+				DrawAction delete
+				SetDrawEnv Linefgc = (65535,0,0,65535), fillpat = 0, Linethick = 1, xcoord = top, ycoord = left
 				Cursor/I/C=(65535,0,0,30000)/S=1/N=1 E $imgNameTopGraphStr C1x0, C1y0
 				Cursor/I/C=(65535,0,0,30000)/S=1/N=1 F $imgNameTopGraphStr C2x0, C2y0
 				DrawLine C1x0, C1y0, C2x0, C2y0
@@ -296,21 +297,28 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 		case 4:
 			mouseTrackV = s.mouseLoc.v
 			break
-       	case 5: // mouse up
-       		C1x = hcsr(E) 
-       		C1y = vcsr(E)
-       		C2x = hcsr(F)
-       		C2y = vcsr(F)
-       		/// Note: E is ag the low KE part (higher BE)
-       		/// N.B Line profile is taken from E to F
-       		dAE = sqrt((C1x - Ax)^2 + (C1y - Ay)^2)
-       		dEF = sqrt((C2x - C1x)^2 + (C2y - C1y)^2)
-       		// offset in eV from the top right energy (lowest KE)
-       		Eoffset = stv - (linepx/2 - dAE) * epp
-       		//SetScale/I x, Eoffset, (Eoffset + dEF*epp), W_ImageLineProfile
-       		SetScale/P x, Eoffset, epp, W_ImageLineProfile
-       		//WaveFromKE2BE(W_ImageLineProfile, hv, Wf)
-       		hookResult = 1
+		case 5: // mouse up
+			C1x = hcsr(E)
+			C1y = vcsr(E)
+			C2x = hcsr(F)
+			C2y = vcsr(F)
+			/// Note: E is ag the low KE part (higher BE)
+			/// N.B Line profile is taken from E to F
+			dAE = sqrt((C1x - Ax)^2 + (C1y - Ay)^2)
+			dEF = sqrt((C2x - C1x)^2 + (C2y - C1y)^2)
+			// offset in eV from the top right energy (lowest KE)
+			dOE = sqrt(C1x^2 + C1y^2)
+			dOA = sqrt(Ax^2 + Ay^2)
+			//dOF = sqrt(C2x^2 + C2y^2)
+			if(dOE < dOA)
+				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+			else
+				Eoffset = stv - (linepx/2 + dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+			endif
+			//SetScale/I x, Eoffset, (Eoffset + dEF*epp), W_ImageLineProfile
+			SetScale/P x, Eoffset, epp, W_ImageLineProfile
+			//WaveFromKE2BE(W_ImageLineProfile, hv, Wf)
+			hookResult = 1
 			break
 		case 8: // modifications, either move the slides or the cursors
 			// NB: s.cursorName gives "" in the switch but "-" outside for no cursor under cursor or CursorName (A,B,...J)
@@ -321,40 +329,46 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
 			endif
 			break
-	    case 7: // cursor moved
+		case 7: // cursor moved
 			if(!cmpstr(s.cursorName, "E") || !cmpstr(s.cursorName, "F")) // It should work only with E, F you might have other cursors on the image
 				SetDrawLayer ProgFront
-			    DrawAction delete
-	   			SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	   			if(!cmpstr(s.cursorName, "E")) // if you move E
-	   				xc = hcsr(F)
+				DrawAction delete
+				SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+				if(!cmpstr(s.cursorName, "E")) // if you move E
+					xc = hcsr(F)
 					yc = vcsr(F)
 					DrawLine s.pointNumber * dx, s.ypointNumber * dy, xc, yc
-	   				Make/O/FREE/N=2 xTrace={s.pointNumber * dx, xc}, yTrace = {s.ypointNumber * dy, yc}
-	   			elseif(!cmpstr(s.cursorName, "F")) // if you move F
-	   				xc = hcsr(E)
+					Make/O/FREE/N=2 xTrace={s.pointNumber * dx, xc}, yTrace = {s.ypointNumber * dy, yc}
+				elseif(!cmpstr(s.cursorName, "F")) // if you move F
+					xc = hcsr(E)
 					yc = vcsr(E)
 					DrawLine  xc, yc, s.pointNumber * dx, s.ypointNumber * dy
-	   				Make/O/FREE/N=2 xTrace={xc, s.pointNumber * dx}, yTrace = {yc, s.ypointNumber * dy}
-	   			endif
-	   			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
-	   			C1x = hcsr(E) 
-       			C1y = vcsr(E)
-    	   		C2x = hcsr(F)
-	       		C2y = vcsr(F)
-    	   		dAE = sqrt((C1x - Ax)^2 + (C1y - Ay)^2)
-   	    		//dEF = sqrt((C2x - C1x)^2 + (C2y - C1y)^2)
-  	     		Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
-  	     		SetScale/P x, Eoffset, epp, W_ImageLineProfile
-  	     		//WaveFromKE2BE(W_ImageLineProfile, hv, Wf)
-	   			hookResult = 1
-	   			break
+					Make/O/FREE/N=2 xTrace={xc, s.pointNumber * dx}, yTrace = {yc, s.ypointNumber * dy}
+				endif
+				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+				C1x = hcsr(E)
+				C1y = vcsr(E)
+				C2x = hcsr(F)
+				C2y = vcsr(F)
+				dAE = sqrt((C1x - Ax)^2 + (C1y - Ay)^2)
+				dOE = sqrt(C1x^2 + C1y^2)
+				dOA = sqrt(Ax^2 + Ay^2)
+				//dOF = sqrt(C2x^2 + C2y^2)
+				if(dOE < dOA)
+					Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+				else
+					Eoffset = stv - (linepx/2 + dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+				endif
+				SetScale/P x, Eoffset, epp, W_ImageLineProfile
+				//WaveFromKE2BE(W_ImageLineProfile, hv, Wf)
+				hookResult = 1
+				break
 			endif
 			hookresult = 0
 			break
-    endswitch
-    SetdataFolder currdfr
-    return hookResult       // 0 if nothing done, else 1
+	endswitch
+	SetdataFolder currdfr
+	return hookResult       // 0 if nothing done, else 1
 End
 
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
@@ -420,7 +434,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	string recreateDrawStr
 	DFREF savedfr = GetDataFolderDFR()
 
-	variable postfix = 0, dAE
+	variable postfix = 0, dAE, dOE, dOA
 	variable red, green, blue
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
@@ -429,7 +443,14 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 			WAVE/SDFR=dfr W_ImageLineProfile
 			Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
 			dAE = sqrt((C1x - Ax)^2/dx^2 + (C1y - Ay)^2/dy^2)
-			Eoffset = stv - (linepx/2 - dAE) * epp
+			dOE = sqrt(C1x^2 + C1y^2)
+			dOA = sqrt(Ax^2 + Ay^2)
+			//dOF = sqrt(C2x^2 + C2y^2)
+			if(dOE < dOA)
+				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+			else
+				Eoffset = stv - (linepx/2 + dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+			endif
 			SetScale/P x, Eoffset, epp, savedfr:$saveWaveNameStr
 			if(hv > Wf)
 				WaveFromKE2BE(savedfr:$saveWaveNameStr, hv, Wf)
@@ -462,12 +483,12 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 				DoWindow/F $WindowNameStr
 				DrawXPSUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
 			endif
-		sprintf recreateDrawStr, "pathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%.2f\n" + \
-		"hv(eV):%.2f\nWf(eV):%.2f\nEPP(eV/px):%.8f", ImagePathname,  C1x, C1y, C2x, C2y, Ax, Ay, Bx, By, profileWidth, stv, hv, Wf, epp
-		Note savedfr:$saveWaveNameStr, recreateDrawStr
-		// Add metadata
-		break
-endswitch
+			sprintf recreateDrawStr, "pathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%.2f\n" + \
+			"hv(eV):%.2f\nWf(eV):%.2f\nEPP(eV/px):%.8f", ImagePathname,  C1x, C1y, C2x, C2y, Ax, Ay, Bx, By, profileWidth, stv, hv, Wf, epp
+			Note savedfr:$saveWaveNameStr, recreateDrawStr
+			// Add metadata
+			break
+	endswitch
 return 0
 End
 
@@ -703,7 +724,7 @@ static Function MarkXPS(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	return 0
 End
 
-static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
+static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
