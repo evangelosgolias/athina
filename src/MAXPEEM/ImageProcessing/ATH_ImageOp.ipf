@@ -694,15 +694,34 @@ static Function GrayToRGBImage(WAVE wRef)
 	Rename M_RGBOut, $newnameStr
 End
 
-static Function RGBToGrayImage(WAVE wRef)
+static Function RGB2Gray8Image(WAVE wRef)
 	// Convert a 3D RGB image to grayscale (8-bit)
 	if(WaveDims(wRef) != 3)
 		return -1
 	endif
-	string wnaneStr = NameOfWave(wRef) + "_gray"
+	string wnaneStr = NameOfWave(wRef) + "_u8"
 	ImageTransform rgb2gray wRef
 	WAVE M_RGB2Gray
 	Rename M_RGB2Gray, $wnaneStr
+	return 0
+End
+
+static Function RGB2Gray16Image(WAVE wRef)
+	// Convert a 3D RGB image to grayscale (16-bit) /W/U
+	//The RGB values are converted into the luminance Y of the YIQ standard using:
+	// Y = 0.299R + 0.587G + 0.114B
+	
+	if(WaveDims(wRef) != 3)
+		return -1
+	endif
+	string basewnaneStr = NameOfWave(wRef) + "_u16"
+	variable nrows = DimSize(wref, 0)
+	variable ncols = DimSize(wref, 1)
+	DFREF cwdfr = GetDataFolderDFR()
+	string waveNameStr = CreateDataObjectName(cwdfr, basewnaneStr, 1, 0, 1)
+	Make/N=(nrows, ncols) $waveNameStr /WAVE=img
+	CopyScales wRef, img
+	img = 0.299*wRef[p][q][0] + 0.587*wRef[p][q][1] + 0.11*wRef[p][q][2]
 	return 0
 End
 

@@ -795,7 +795,17 @@ static Function InsertImageToStack()
 	endif
 	ATH_Display#RestartWM3DImageSlider(winNameStr)
 	return 0	
+End
 
+static Function ImgRGB2Gray16()
+	string ATHImage = GetBrowserSelection(0)
+	WAVE/Z wRef = $ATHImage
+	if(WaveExists(wRef))
+		ATH_ImgOp#RGB2Gray16Image(wRef)
+	else 
+		return -1
+	endif
+	return 0
 End
 
 static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operation
