@@ -69,22 +69,17 @@ static Function ZapAllDataFoldersInPath(string path)
 	SetDataFolder saveDF 
 End
 
+// N.B: Changed on 31.01.2024.
 static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cornerstone function
 	/// Create a data folder using fullpath and return a DF reference.
 	/// If parent directories do not exist they are created.
 	/// SetDF set the cwd to fullpath if set.
 
 	setDF = ParamIsDefault(setDF) ? 0 : setDF
-	// First take care of liberal names in path string. eg root:A folder will become root:'A folder'.
-	variable steps = ItemsInlist(ParseFilePath(2, fullpath, ":", 0, 0), ":"), i // ParseFilePath adds missing : at the end.
-	string correctFullPath = ""
-	for(i = 0; i < steps ; i++) // i = 0 & steps return NULL string
-		correctFullPath += PossiblyQuoteName(ParseFilePath(0, fullpath, ":", 0, i)) + ":"
-	endfor
 
 	// If the directory exists
-	if(DataFolderExists(ParseFilePath(2, correctFullPath, ":", 0, 0))) // ":" at the end needed to function properly
-		DFREF dfr = $correctFullPath
+	if(DataFolderExists(ParseFilePath(2, fullpath, ":", 0, 0))) // ":" at the end needed to function properly
+		DFREF dfr = $fullpath
 		if (setDF)
 			SetDataFolder dfr
 		endif
@@ -92,11 +87,12 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	endif
 
 	/// Create a list of missing paths, parents first.
+	variable steps = ItemsInlist(ParseFilePath(2, fullpath, ":", 0, 0), ":"), i
 	string fldrs = "", fldrstr
 	for(i = 1; i < steps ; i++) // i = 0 & steps return NULL string
-		fldrs += ParseFilePath(1, correctFullPath, ":", 0, i) + ";"
+		fldrs += ParseFilePath(1, fullpath, ":", 0, i) + ";"
 	endfor
-	fldrs += ParseFilePath(2, correctFullPath, ":", 0, 0) // add the full path (last child folder is created here
+	fldrs += ParseFilePath(2, fullpath, ":", 0, 0) // add the full path (last child folder is created here
 	// now create the folder from parent to child
 	variable fldrnum = ItemsInList(fldrs)
 	for(i = 0; i < fldrnum; i++)
@@ -106,10 +102,11 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 		endif
 	endfor
 
-	DFREF dfr = $correctFullPath
+	DFREF dfr = $fullpath
 	if (setDF)
 		SetDataFolder dfr
 	endif
+	
 	return dfr
 End
 

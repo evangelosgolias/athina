@@ -51,7 +51,6 @@ Menu "Athina"
 		"New image (stack) from saved ROI (TG, 2D, 3D)", /Q, ATH_Launch#MakeWaveFromSavedROI()
 		"Pixelate image (TG, 2D, 3D)", /Q, ATH_Launch#PixelateSingleImageOrStack()
 		"FFT (TG, 2D)", /Q, ATH_Launch#ImageFFTTransform()
-//		"Rotate image (TG, 2D, 3D) ", /Q, ATH_Launch#ImageRotateAndScale()
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, ATH_Launch#ImageRotateAndScaleFromMetadata()
 		"Remove background (TG, 2D, 3D)", /Q, ATH_Launch#ImgRemoveBackground()
 		"RGB to gray 16-bit (DB, 3D)", /Q, ATH_Launch#ImgRGB2Gray16()
@@ -122,7 +121,7 @@ Menu "GraphMarquee"
 	"ATH Save Oval ROI (2D, 3D)", /Q, ATH_Marquee#SaveROICoordinatesToDatabase()
 	"ATH Print ROI stats (2D, 3D)", /Q, ATH_Marquee#GetMarqueeWaveStats()	
 	"ATH Partition region (2D, 3D)", /Q, ATH_Marquee#Partition3DRegion()		
-	SubMenu "Trace Calcs (TG, 1D[2])"
+	SubMenu "ATH Trace Calcs (TG, 1D[2])"
 		"ATH Backup traces", /Q, ATH_Marquee#MarqueeToTraceOperation(3)
 		"ATH Restore traces", /Q, ATH_Marquee#MarqueeToTraceOperation(4)
 		"ATH Normalise to profile", /Q, ATH_Marquee#MarqueeToTraceOperation(5)

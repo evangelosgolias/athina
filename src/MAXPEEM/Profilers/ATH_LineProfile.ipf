@@ -174,7 +174,7 @@ static Function CreatePlot(DFREF dfr)
 	SetWindow $profilePlotStr, hook(MyLineProfileGraphHook) = ATH_LineProfile#GraphHookFunction // Set the hook
 	
 	ControlBar 70	
-	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=ATH_LineProfile#PlotSaveProfile
+	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=ATH_LineProfile#SaveProfile
 	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=ATH_LineProfile#SaveDefaultSettings
 	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_LineProfile#RestoreDefaultSettings
 	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",fcolor=(65535,32768,32768),help={"Show width of integrated area while button is pressed"},proc=ATH_LineProfile#ShowProfileWidth
@@ -334,7 +334,7 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 
-static Function PlotSaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_ShowSavedGraphsWindow")

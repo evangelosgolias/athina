@@ -847,19 +847,8 @@ static Function Rotate3DWaveAxes()
 	DFREF dfr = GetDataFolderDFR()	
 	string noteStr = "ImageTransform/G=" + num2str(num)+ " transposeVol " + wnameStr	
 	Rename M_VolumeTranspose, $newwaveNameStr
-	CopyScales/P srcDFR:$wnameStr, dfr:$newwaveNameStr
 	Note $newwaveNameStr, noteStr
 End
-
-//static Function ImageRotateAndScale()
-//	/// Rotated/scaled wave in created in the working dfr.
-//	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
-//	variable angle = ATH_Dialog#GenericSingleVarPrompt("Angle (deg)", "Image rotate and scale")
-//	if(WaveExists(wRef))
-//		ATH_ImgOp#ImageRotateAndScale(wRef, angle)
-//	endif
-//	return 0
-//End
 
 static Function ImageRotateAndScaleFromMetadata()
 	/// This operation transform the image as seen in the microscope
@@ -875,7 +864,6 @@ static Function ImageRotateAndScaleFromMetadata()
 	Wave wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	
 	if(!strlen(imgNameTopGraphStr))
-		//print "No image in top graph!"
 		return -1
 	endif	
 	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave	
