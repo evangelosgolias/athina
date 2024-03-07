@@ -864,6 +864,7 @@ static Function ImageRotateAndScaleFromMetadata()
 	Wave wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	
 	if(!strlen(imgNameTopGraphStr))
+		//print "No image in top graph!"
 		return -1
 	endif	
 	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave	

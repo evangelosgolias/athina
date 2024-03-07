@@ -194,9 +194,10 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 					hookResult = 1
 					break
 			endswitch
+			CopyScales/I wimg1, wimg2 // Copy back the scale, M_Affine is pixel-scaled
+			// has to be first so wXMCD, wSum do not need rescaling			
 			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 			wSum = wImg1 + wImg2
-			CopyScales/I wimg1, wimg2 // Copy back the scale, M_Affine is pixel-scaled
 			break
 	endswitch
 	//SetDataFolder saveDFR

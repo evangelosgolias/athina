@@ -143,6 +143,7 @@ Menu "DataBrowserObjectsPopup"
 		"ATH Stack with profile", /Q, ATH_Launch#NormalisationImageStackWithProfile()
 		"ATH Stack with stack", /Q, ATH_Launch#NormalisationImageStackWithImageStack()
 	End
+	
 End
 
 Menu "TracePopup"
