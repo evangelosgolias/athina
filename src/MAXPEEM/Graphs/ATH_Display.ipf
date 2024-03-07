@@ -49,18 +49,18 @@ static Function NewImg(WAVE wRef)
 	screenLength = abs(screenBottom - screenTop)
 	variable imgFactor = (floor(DimSize(wRef, 0) / 1024)) ? (floor(DimSize(wRef, 0) / 1024)):1
 	variable scaleFactor
-	if(screenWidth > 3835)
-		scaleFactor = 0.75 / imgFactor
-	elseif(screenWidth > 2555)
-		scaleFactor = 0.5 / imgFactor
-	elseif(screenWidth > 1915)
-		scaleFactor = 0.33 / imgFactor
-	elseif(screenWidth > 1275)	
-		scaleFactor = 0.25 / imgFactor
-	else
-		scaleFactor = 0
-	endif
-	DoAutoSizeImage(scaleFactor, -1)
+//	if(screenWidth > 3835)
+//		scaleFactor = 0.75 / imgFactor
+//	elseif(screenWidth > 2555)
+//		scaleFactor = 0.5 / imgFactor
+//	elseif(screenWidth > 1915)
+//		scaleFactor = 0.33 / imgFactor
+//	elseif(screenWidth > 1275)	
+//		scaleFactor = 0.25 / imgFactor
+//	else
+//		scaleFactor = 0
+//	endif
+//	DoAutoSizeImage(scaleFactor, -1)
 	// Simple solution when Dims x, y are the same
 	if(DimSize(wRef, 0) == DimSize(wRef, 1))
 		ModifyGraph width={Plan,1,top,left}, height = 0
