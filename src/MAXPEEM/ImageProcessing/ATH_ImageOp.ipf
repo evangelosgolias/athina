@@ -669,10 +669,11 @@ static Function HistogramShiftToGaussianCenterStack(WAVE w3d, [variable overwrit
 	return 0
 End
 
-static Function/WAVE TopImageToWaveRef()
+static Function/WAVE TopImageToWaveRef([string graphName])
 	// Return a wave reference from the top graph
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	
+	graphName = SelectString(ParamIsDefault(graphName) ? 0: 1, WinName(0, 1, 1), graphName) // Empty case will be handled below
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(graphName, ";"),";")
 	// if there is no image in the top graph strlen(imgNameTopGraphStr) = 0
 	if(strlen(imgNameTopGraphStr))
 		WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave

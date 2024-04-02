@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_Display
-#pragma version = 1.01
+#pragma version = 1.1
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -32,6 +32,7 @@
 
 #include <Imageslider> // Used in many .ipfs
 #include <Autosize Images>
+#include <WMImageInfo>
 
 static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
 
@@ -40,35 +41,13 @@ static Function NewImg(WAVE wRef)
 	NewImage/G=1/K=1 wRef
 	string windowNameStr = GetWavesDataFolder(wRef, 2)[5, inf] // Discrard root:
 	DoWindow/T kwTopWin, windowNameStr
-	string igorInfoStr = StringByKey( "SCREEN1", IgorInfo(0)) // INFO: Change here if needed	
-	igorInfoStr = RemoveListItem(0, igorInfoStr, ",")
-	variable screenLeft, screenTop, screenRight, screenBottom
-	sscanf igorInfoStr, "RECT=%d,%d,%d,%d", screenLeft, screenTop, screenRight, screenBottom
-	variable screenWidth, screenLength
-	screenWidth = abs(screenRight - screenLeft)
-	screenLength = abs(screenBottom - screenTop)
-	variable imgFactor = (floor(DimSize(wRef, 0) / 1024)) ? (floor(DimSize(wRef, 0) / 1024)):1
-	variable scaleFactor
-//	if(screenWidth > 3835)
-//		scaleFactor = 0.75 / imgFactor
-//	elseif(screenWidth > 2555)
-//		scaleFactor = 0.5 / imgFactor
-//	elseif(screenWidth > 1915)
-//		scaleFactor = 0.33 / imgFactor
-//	elseif(screenWidth > 1275)	
-//		scaleFactor = 0.25 / imgFactor
-//	else
-//		scaleFactor = 0
-//	endif
-//	DoAutoSizeImage(scaleFactor, -1)
-	// Simple solution when Dims x, y are the same
+	string winNameStr = WinName(0, 1, 1)
 	if(DimSize(wRef, 0) == DimSize(wRef, 1))
 		ModifyGraph width={Plan,1,top,left}, height = 0
 	else
 		ModifyGraph width = 0, height = 0
 	endif
 
-	// Copy from ATH_AutoRangeTopImagePerPlaneAndVisibleArea()
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
 	string colorScaleStr
 	variable cmapSwitch
@@ -77,7 +56,40 @@ static Function NewImg(WAVE wRef)
 		Append3DImageSlider()
 	endif
 	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3, ctab= {*,*,$colorScaleStr,cmapSwitch} // Autoscale per plane / visible area Image		
+	SetWindow $winNameStr, hook(AthinaMainDisplayHook) = ATH_Display#DisplayHookFunction // Set the hook	
 	return 0
+End
+
+Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
+	// Fast exit if nothing is meant to be done
+	switch (s.eventCode)
+		case 22:	//	mouseWheel
+			break
+		default:
+			return 0
+	endswitch
+	// Proceed 	
+	Wave w = ATH_ImgOp#TopImageToWaveRef(graphName=s.winName)
+	int is3D = WaveDims(w)==3
+	int plane
+
+	switch (s.eventCode)
+
+		case 22:	//	mouseWheel
+			if (s.eventMod & 8)		//	if the ctrl key is pressed
+				ATH_Display#Mangify(s)
+				return 0
+			endif
+			
+			int direction = (s.wheelDy > 0) ? 1 : -1
+			if (is3D)
+				STRUCT sMousePosition ms
+				ATH_Display#GetMousePosition(ms, s.winName, s.mouseLoc)
+				plane = ATH_Display#GetLayerIndex(s.winName, w=ms.w)
+				ATH_Display#SetLayerIndex(s.winName, plane+direction, w=ms.w)
+			endif
+			return 0
+	endswitch
 End
 
 static Function Append3DImageSlider()
@@ -362,3 +374,242 @@ static Function RestartWM3DImageSlider(string winNameStr)
 	ATH_Display#Append3DImageSlider()
 	return 0
 End
+
+// =======================================================================
+//
+//
+// The following code is a modified version of SIDAM functions.
+// see https://github.com/yuksk/SIDAM
+//
+// =======================================================================
+
+Structure sMousePosition
+	string	xaxis
+	string	yaxis
+	float	x
+	float	y
+	variable/C	z	
+	float	p
+	float	q
+	WAVE	w
+EndStructure
+
+Structure sAxisRange
+	STRUCT range x
+	STRUCT range y
+	STRUCT range p
+	STRUCT range q
+	string	xaxis
+	string	yaxis
+EndStructure
+
+static Function Mangify(STRUCT WMWinHookStruct &s)
+	STRUCT sMousePosition ms
+	ATH_Display#GetMousePosition(ms, s.winName, s.mouseLoc)
+	if (!WaveExists(ms.w))
+		return 1
+	endif
+	//	upward -> expand
+	//	downward -> shrink
+	variable coef = 1 - 0.1*sign(s.wheelDy)
+	GetAxis/Q/W=$s.winName $ms.xaxis
+	SetAxis/W=$s.winName $ms.xaxis  ms.x+(V_min-ms.x)*coef, ms.x+(V_max-ms.x)*coef
+	GetAxis/Q/W=$s.winName $ms.yaxis
+	SetAxis/W=$s.winName $ms.yaxis  ms.y+(V_min-ms.y)*coef, ms.y+(V_max-ms.y)*coef
+End
+
+Static Structure range
+	STRUCT rangesub min
+	STRUCT rangesub max
+EndStructure
+
+Static Structure rangesub
+	variable value
+	uchar auto
+EndStructure
+
+static Function GetMousePosition(
+	STRUCT sMousePosition &s,
+	string grfName,
+	STRUCT Point &ps,		//	e.g., WMWinHookStruct.mouseLoc
+	[
+		int grid
+	])
+
+	grid = ParamIsDefault(grid) ? 1 : grid
+	s.xaxis = ""	; s.yaxis = ""
+	s.x = NaN ;	s.y = NaN ;	s.z = NaN
+	s.p = NaN ;	s.q = NaN ;
+	WAVE/Z s.w = $""
+
+	GetWaveAndValues(s,grfName,ps)
+	if (!WaveExists(s.w))	//	the mouse cursor is not on any image
+		return 1
+	elseif (WaveExists(ImageNameToWaveRef(grfName,PossiblyQuoteName(NameOfWave(s.w)))))
+		//	The following is for when s.w is a 2D/3D wave and is displayed as an image,
+		//	but even when s.w is 2D/3D, it can be displayed as a trace.
+		//	The above if state is to exclude the latter situation.
+		//	(WaveDims(s.w) > 1 fails.)
+		variable ox = DimOffset(s.w,0), oy = DimOffset(s.w,1)
+		variable dx = DimDelta(s.w,0), dy = DimDelta(s.w,1)
+		variable tx = limit(s.x, min(ox,ox+dx*(DimSize(s.w,0)-1)), max(ox,ox+dx*(DimSize(s.w,0)-1)))
+		variable ty = limit(s.y, min(oy,oy+dy*(DimSize(s.w,1)-1)), max(oy,oy+dy*(DimSize(s.w,1)-1)))
+		variable tp = (tx-ox)/dx, tq = (ty-oy)/dy
+		s.p = grid ? round(tp) : tp
+		s.q = grid ? round(tq) : tq
+		s.x = grid ? (ox + dx * s.p) : tx
+		s.y = grid ? (oy + dy * s.q) : ty
+		//	the present layer, 0 for 2D images
+		int layer = NumberByKey("plane", ImageInfo(grfName, NameOfWave(s.w), 0), "=")
+		s.z = s.w(tx)(ty)[limit(layer,0,DimSize(s.w,2)-1)]
+	endif
+	return 0
+End
+
+Static Function GetWaveAndValues(STRUCT sMousePosition &ms, string grfName, STRUCT Point &ps)
+	STRUCT sAxisRange as
+	string listStr, itemName
+	variable mousex, mousey
+	variable axis_x_max, axis_x_min, axis_y_max, axis_y_min
+	variable wave_x_max, wave_x_min, wave_y_max, wave_y_min
+	variable ox, dx, oy, dy
+	variable isInRange	//	isInRange has to be variable (not int)
+	int swap = strsearch(WinRecreation(grfName,1), "swapXY", 4) != -1
+	int i, isImg, nx, ny
+
+	//	Traces are handled only when there is no image.
+	listStr = ImageNameList(grfName,";")
+	if (!strlen(listStr))
+		listStr = TraceNameList(grfName, ";", 1)
+	endif
+
+	//	search from the top item
+	for (i = ItemsInList(listStr)-1; i >= 0; i--)
+		itemName = StringFromList(i,listStr)
+
+		aGetAxis(grfName,itemName,as)
+
+		//	When the axis is reversed, as.xmin > as.xmax and as.ymin > as.ymax
+		axis_x_min = min(as.x.min.value, as.x.max.value)
+		axis_x_max = max(as.x.min.value, as.x.max.value)
+		axis_y_min = min(as.y.min.value, as.y.max.value)
+		axis_y_max = max(as.y.min.value, as.y.max.value)
+
+		mousex = AxisValFromPixel(grfName, as.xaxis, (swap ? ps.v : ps.h))
+		mousey = AxisValFromPixel(grfName, as.yaxis, (swap ? ps.h : ps.v))
+
+		Wave/Z w = ImageNameToWaveRef(grfName,itemName)
+		isImg = WaveExists(w)
+
+		//	When dx (dy) is negative, min and max are reversed
+		if (isImg)
+			ox = DimOffset(w,0)
+			oy = DimOffset(w,1)
+			dx = DimDelta(w,0)
+			dy = DimDelta(w,1)
+			nx = DimSize(w,0)
+			ny = DimSize(w,1)
+			wave_x_min = dx>0 ? ox-0.5*dx : ox+dx*(nx-0.5)
+			wave_x_max = dx>0 ? ox+dx*(nx-0.5) : ox-0.5*dx
+			wave_y_min = dy>0 ? oy-0.5*dy : oy+dy*(ny-0.5)
+			wave_y_max = dy>0 ? oy+dy*(ny-0.5) : oy-0.5*dy
+		endif
+
+		isInRange = !isImg ? 1 : \
+			(mousex >= max(axis_x_min, wave_x_min)) \
+			& (mousex <= min(axis_x_max, wave_x_max)) \
+			& (mousey >= max(axis_y_min, wave_y_min)) \
+			& (mousey <= min(axis_y_max, wave_y_max))
+		if (isInRange)
+			ms.xaxis = as.xaxis
+			ms.yaxis = as.yaxis
+			ms.x = mousex
+			ms.y = mousey
+			if (isImg)
+				Wave ms.w = w
+			else
+				Wave ms.w = TraceNameToWaveRef(grfName,itemName)
+			endif
+			return 1
+		endif
+	endfor
+	return 0
+End
+
+static Function aGetAxis(string grfName, string tName, STRUCT sAxisRange &s)
+	string info = ImageInfo(grfName, tName, 0)
+	variable isImg = strlen(info)
+	if (isImg)
+		WAVE w = ImageNameToWaveRef(grfName, tName)
+	else
+		info = TraceInfo(grfName, tName, 0)
+		WAVE w = TraceNameToWaveRef(grfName, tName)
+	endif
+
+	int i0, i1
+
+	s.xaxis = StringByKey("XAXIS", info)
+	GetAxis/W=$grfName/Q $s.xaxis
+	s.x.min.value = V_min
+	s.x.max.value = V_max
+	[i0, i1] = CheckAxisAuto(grfName, s.xaxis)
+	s.x.min.auto = i0
+	s.x.max.auto = i1
+
+	s.yaxis = StringByKey("YAXIS", info)
+	GetAxis/W=$grfName/Q $s.yaxis
+	s.y.min.value = V_min
+	s.y.max.value = V_max
+	[i0, i1] = CheckAxisAuto(grfName, s.yaxis)
+	s.y.min.auto = i0
+	s.y.max.auto = i1
+
+	s.p.min.value = isImg ? round((s.x.min.value-DimOffset(w,0))/DimDelta(w,0)) \
+		: round((s.x.min.value-leftx(w))/deltax(w))
+	s.p.max.value = isImg ? round((s.x.max.value-DimOffset(w,0))/DimDelta(w,0)) \
+		: round((s.x.max.value-leftx(w))/deltax(w))
+	s.q.min.value = isImg ? round((s.y.min.value-DimOffset(w,1))/DimDelta(w,1)) : NaN
+	s.q.max.value = isImg ? round((s.y.max.value-DimOffset(w,1))/DimDelta(w,1)) : NaN
+End
+
+static Function [int isMinAuto, int isMaxAuto] CheckAxisAuto(string grfName, string axisName)
+	string infoStr = AxisInfo(grfName, axisName)
+	string type = StringByKey("AXTYPE", infoStr)
+	string cmdStr = StringByKey("SETAXISCMD", infoStr)
+	int isAuto = strsearch(cmdStr, "/A", 0) != -1
+	isMinAuto = (strsearch(cmdStr, "*,", 0) != -1) || isAuto
+	isMaxAuto = (strsearch(cmdStr, ",*", 0) != -1) || isAuto
+End
+
+static Function GetLayerIndex(string grfName, [Wave/Z w])
+	if (ParamIsDefault(w))
+		WAVE/Z w = ATH_ImgOp#TopImageToWaveRef(graphName=grfName)
+	endif
+	if (!WaveExists(w) || WaveDims(w) != 3)
+		return NaN
+	endif
+	
+	return NumberByKey("plane", ImageInfo(grfName, NameOfWave(w), 0), "=")
+End
+
+Function SetLayerIndex(String grfName, int index, [Wave/Z w])
+	if (ParamIsDefault(w))
+		WAVE/Z w =  ATH_ImgOp#TopImageToWaveRef(graphName=grfName)
+	endif
+	if (!WaveExists(w) || WaveDims(w) != 3)
+		return 1
+	endif
+	
+	ModifyImage/W=$grfName $NameOfWave(w) plane=limit(round(index), 0, DimSize(w,2)-1)
+	// Do not insert DoUpdate/W=$grfName here.
+	// If inserted, when this function is called from a hook function, the
+	// modification event of a hook function, which are expected to be called
+	// by a change made by the above ModifyImage, is not called. This problem
+	// occurs in Igor 8.
+	return 0
+End
+
+// =======================================================================
+// 
+// =======================================================================
+
