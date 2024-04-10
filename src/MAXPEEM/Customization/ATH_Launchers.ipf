@@ -824,6 +824,7 @@ static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operat
 	else
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order)
 	endif
+	Note wRef, "\nRemove background order: " + num2str(layerN)
 End
 
 static Function Rotate3DWaveAxes()
