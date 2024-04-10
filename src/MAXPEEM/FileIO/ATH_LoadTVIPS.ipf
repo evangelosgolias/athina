@@ -46,7 +46,7 @@ static Function LoadTVIPStiff(string filepathStr, string waveNameStr)
 	fileFilters += "All Files:.*;"
 	string message
     if (!strlen(filepathStr) && !strlen(waveNameStr)) 
-		message = "Select .dat file. \nFilename will be wave's name. (overwrite)\n "
+		message = "Select .tif file. \nWavename will be filename without file extension.\n "
    		Open/F=fileFilters/M=message/D/R numref
    		filepathStr = S_filename
    		
@@ -58,12 +58,12 @@ static Function LoadTVIPStiff(string filepathStr, string waveNameStr)
 		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
 		
 	elseif (strlen(filepathStr) && !strlen(waveNameStr))
-		message = "Select .dat file. \nWave names are filenames /O.\n "
+		message = "Select .tif file. \nWavename will be filename without file extension.\n "
 		Open/F=fileFilters/R numRef as filepathStr
 		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
 		
 	elseif (!strlen(filepathStr) && strlen(waveNameStr))
-		message = "Select .dat file. \n Destination wave will be overwritten\n "
+		message = "Select .tif file. \nWavename will be filename without file extension.\n "
    		Open/F=fileFilters/M=message/D/R numref
    		filepathStr = S_filename
    		
@@ -81,6 +81,11 @@ static Function LoadTVIPStiff(string filepathStr, string waveNameStr)
 	//Guess the dimenions...
 	variable Nx = DimSize(wRef, 0)
 	variable imgN = DimSize(wRef, 1)/Nx
-	Redimension/E=1/N=(Nx,Nx,imgN) wRef
+	if(imgN==1)
+		Redimension/E=1/N=(Nx,Nx) wRef
+	else
+		Redimension/E=1/N=(Nx,Nx,imgN) wRef
+	endif
+	Note wRef, filepathStr
 	return 0
 End
