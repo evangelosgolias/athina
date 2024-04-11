@@ -139,48 +139,10 @@ End
 
 ///Functions to import datasets acquired at the I06 beamline at Diamond (UK)
 
-static Function LoadDiamondHDFDataSet()
-	/// Load data acquired at i06 beamline at Diamond
-	DFREF saveDF = GetDataFolderDFR()
-	SetDataFolder NewFreeDataFolder()
-	variable fileid_
-	string fileFilters = "HDF files (*.hdf):.hdf;"
-	fileFilters += "All Files:.*;"
-	Open /D/R/F=fileFilters fileid_
-	string filepathname = S_fileName
-	if(!strlen(filepathname))
-		Abort 
-	endif
-	HDF5OpenFile/R fileid_ as filepathname
-	HDF5LoadGroup/R/T/Z :, fileid_, "entry"	
-	HDF5CloseFile fileid_
-	// Here S_filename should hold the filename
-	string filename = StringFromList(0, S_filename, ".")
-	// Make a folder to load all measurements
-	NewDataFolder saveDF:$filename
-	DFREF destDF = saveDF:$filename
-	// We loaded the thingy, now let's extract data to a proper 3D wave
-	WAVE wRef = :entry:data:data // here 
-	
-    variable rows = DimSize(wRef, 0)
-    variable layers = DimSize(wRef, 2)
-    variable chunks = DimSize(wRef, 3)
-    variable type = WaveType(wRef)	
-    variable i
-    string wnameStr
-    ImageTransform/TM4D=4821 transpose4D wRef
-    WAVE M_4DTranspose
-	for(i = 0; i < rows; i++)
-		wnameStr = filename + "_" + num2str(i)
-		MatrixOP destDF:$wnameStr = chunk(M_4DTranspose, i)
-	endfor
-	SetDataFolder saveDF
-End
-
-static Function LoadDiamondNXSDataSet()
-	/// Load data acquired at i06 beamline at Diamond
+static Function LoadNXSXMCDDataSet()
+	/// Load XMCD data acquired at i06 beamline at Diamond
 	/// along with basic metadada, STV and FoV. Imported 
-	/// waves are scaled using FoV
+	/// waves are FoV-scaled
 	DFREF saveDF = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
 	variable fileid_
@@ -228,12 +190,9 @@ static Function LoadDiamondNXSDataSet()
 End
 
 // Select many files to load at once
-static Function LoadMultiplyDiamondNXSDataSets()
-	/// Load data acquired at i06 beamline at Diamond
-	/// along with basic metadada, STV and FoV. Imported
-	/// waves are scaled using FoV
-	DFREF saveDF = GetDataFolderDFR()
-	SetDataFolder NewFreeDataFolder()
+static Function LoadNXSDataSets()
+	/// Load data acquired at i06 beamline at Diamond, XMCD or XAS
+	/// along with basic metadada, STV and FoV.
 	variable fileid_
 	string fileFilters = "NXS files (*.nxs):.nxs;"
 	fileFilters += "All Files:.*;"
@@ -244,8 +203,11 @@ static Function LoadMultiplyDiamondNXSDataSets()
 	endif
 	string filename, foldername, selFilePath, wnameStr
 	variable numFiles = ItemsInList(filepaths, "\r"), i, j, rows
-
-	for(i = 0; i < numFiles; i++)
+	
+	DFREF saveDF = GetDataFolderDFR()	
+	SetDataFolder NewFreeDataFolder()
+	
+	for(i = 0; i < numFiles; i++) 
 		selFilePath = StringFromList(i, filepaths, "\r")
 		HDF5OpenFile/R fileid_ as selFilePath
 		HDF5LoadGroup/R/T/Z :, fileid_, "entry"
@@ -255,22 +217,40 @@ static Function LoadMultiplyDiamondNXSDataSets()
 		NewDataFolder saveDF:$foldername
 		DFREF destDF = saveDF:$foldername
 		WAVE wRef = :entry:medipix:data
-		rows = DimSize(wRef, 0)
-		variable fov, stv
-		ImageTransform/TM4D=8421 transpose4D wRef
-		WAVE M_4DTranspose
 		WAVE wFoV = :entry:instrument:leem:fov_a
 		WAVE wSTV = :entry:instrument:leem:stv
-		for(j = 0; j < rows; j++)
+		
+		if(WaveDims(wRef) == 4) // Assume XMCD spectrum or similar?
+			rows = DimSize(wRef, 0)
+			variable fov, stv
+			ImageTransform/TM4D=8421 transpose4D wRef
+			WAVE M_4DTranspose
+			for(j = 0; j < rows; j++)
+				wnameStr = foldername + "_" + num2str(j)
+				fov = wFoV[0]
+				stv = wSTV[0]
+				MatrixOP destDF:$wnameStr = chunk(M_4DTranspose, j)
+				WAVE w = destDF:$wnameStr
+				SetScale/I x, 0, fov, w
+				SetScale/I y, 0, fov, w
+				Note w, ("STV(V):"+num2str(stv))
+			endfor
+		elseif(WaveDims(wRef) == 3) // Assume XAS spectrum
 			wnameStr = foldername + "_" + num2str(j)
+			ImageTransform/G=4 transposeVol wRef
+			WAVE M_VolumeTranspose
+			MoveWave M_VolumeTranspose, destDF:$wnameStr 
+			WAVE w = destDF:$wnameStr 
+			WAVE wE = :entry:medipix:fastEnergy
 			fov = wFoV[0]
 			stv = wSTV[0]
-			MatrixOP destDF:$wnameStr = chunk(M_4DTranspose, j)
-			WAVE w = destDF:$wnameStr
 			SetScale/I x, 0, fov, w
-			SetScale/I y, 0, fov, w
-			Note w, ("STV(V):"+num2str(stv))
-		endfor
+			SetScale/I y, 0, fov, w	
+			SetScale/I z, wE[0], wE[numpnts(wE)-1], w
+		else
+			print "Unkown dataset in " + selFilePath
+			return -1
+		endif
 		// Rename the folder here to avoid overwriting 
 		RenameDataFolder :entry, $("dump" + num2str(i))
 	endfor
