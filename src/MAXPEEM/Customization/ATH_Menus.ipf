@@ -37,8 +37,9 @@ Menu "Athina"
 		".dat files in folder and stack ...", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 				
 		".dat files and stack ...", /Q, ATH_Uview#LoadMultiplyDATFiles(stack3d = 1, autoscale = 1)		
 		".dat files in folder...", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", autoscale = 1)
-		".tif (EMMENU5)...", /Q, ATH_TVIPS#LoadTVIPStiff("", "")		
+		".tif (EMMENU5)...", /Q, ATH_TVIPS#LoadTVIPStiff("", "")	
 		".HDF5 file ...", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
+		".nxs NeXus files ...",/Q, ATH_HDF5#LoadMultiplyDiamondNXSDataSets()
 	End
 	
 	Submenu "Image Operations"
