@@ -824,7 +824,7 @@ static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operat
 	else
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order)
 	endif
-	Note wRef, "\nRemove background order: " + num2str(layerN)
+	Note wRef, "\nImageRemoveBackground/P=" + num2str(order)
 End
 
 static Function Rotate3DWaveAxes()
@@ -1153,16 +1153,13 @@ static Function PixelateSingleImageOrStack()
 		endif
 		
 		if(!ATH_Num#IntegerQ(nx))
-			nx = trunc(nx)
-			print "Truncate nx: ", num2str(nx)
+			print "Truncate nx: ", num2str(trunc(nx))
 		endif
 		if(!ATH_Num#IntegerQ(ny))
-			ny = trunc(ny)
-			print "Truncate ny: ", num2str(ny)			
+			print "Truncate ny: ", num2str(trunc(ny))			
 		endif
 		if(!ATH_Num#IntegerQ(nz))
-			nz = trunc(nz)
-			print "Truncate nz: ", num2str(nz)			
+			print "Truncate nz: ", num2str(trunc(nz))			
 		endif		
 		ATH_ImgOp#PixelateImageStack(wRef, nx, ny, nz)
 	elseif(WaveDims(wRef) == 2)
@@ -1172,13 +1169,11 @@ static Function PixelateSingleImageOrStack()
 		if(V_flag)
 			return -1
 		endif
-		if(ATH_Num#IntegerQ(nx))
-			nx = trunc(nx)
-			print "Truncate nx: ", num2str(nx)
+		if(!ATH_Num#IntegerQ(nx))
+			print "Truncate nx: ", num2str(trunc(nx))
 		endif
 		if(!ATH_Num#IntegerQ(ny))
-			ny = trunc(ny)
-			print "Truncate ny: ", num2str(ny)			
+			print "Truncate ny: ", num2str(trunc(ny))			
 		endif		
 		ATH_ImgOp#PixelateImage(wRef, nx, ny)
 	else
