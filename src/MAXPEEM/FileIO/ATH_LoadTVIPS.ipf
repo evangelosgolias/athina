@@ -77,6 +77,7 @@ static Function LoadTVIPStiff(string filepathStr, string waveNameStr)
 		Abort "Path for datafile not specified (check ATH_TVIPS#LoadTVIPStiff)!"
 	endif
 	ImageLoad/T=tiff/N=$waveNameStr/Q filepathStr
+	Close numref
 	WAVE wRef = $StringFromList(0, S_waveNames)
 	//Guess the dimenions...
 	variable Nx = DimSize(wRef, 0)

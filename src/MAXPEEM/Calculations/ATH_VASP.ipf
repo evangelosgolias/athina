@@ -28,10 +28,19 @@ static Function/S LoadHDF5SpecificGroups(string groupname)
 	return fullDFPathStr
 End
 
-static Function LoadVASPElectronicStructureOPT()
+static Function LoadVASPElectronicStructureAndPlot()
 	string basepathStr = ATH_VASP#LoadHDF5SpecificGroups("results") // N.B. ends with : 
 	variable efermi = ATH_VASP#GetEFermi(basepathStr)
-	DFREF eigenDF = $(basepathStr+"electron_eigenvalues_kpoints_opt")
+	
+	if(DataFolderExists(basepathStr+"electron_eigenvalues_kpoints_opt"))
+		DFREF eigenDF = $(basepathStr+"electron_eigenvalues_kpoints_opt")
+	elseif(DataFolderExists(basepathStr+"electron_eigenvalues"))
+		DFREF eigenDF = $(basepathStr+"electron_eigenvalues")
+	else
+		print "DataFolder not found"
+		return -1
+	endif
+	
 	WAVE/SDFR=eigenDF eigenvalues
 	eigenvalues -= efermi
 	string waveNoteStr = NameOfWave(eigenvalues) + " -= " + num2str(efermi)
@@ -47,17 +56,20 @@ static Function GetEFermi(string basePathStr)
 End
 
 static function ShiftEigenvaluesWithEfermi(string basePathStr)
-	string pathStr = basePathStr + ":electron_dos"
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(pathStr)
-	
+	variable efermi = ATH_VASP#GetEFermi(basePathStr)
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(basePathStr + ":" + "electron_eigenvalues_kpoints_opt")
+	WAVE/SDFR=dfr eigenvalues
+	eigenvalues -= efermi
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(basePathStr + ":" + "electron_eigenvalues_kpoints_opt")
+	WAVE/SDFR=dfr eigenvalues
+	eigenvalues -= efermi	
 End
 
 static Function VASP_PlotBandStructure(WAVE bw, [WAVE kw, string tracename, string graphnameStr]) // Plot Eigenvalues
 	// bw - Eigevalues 3d wave, one row as imported from .h5 file
 	// kw - kpoints 1d wave
 	variable nbands = DimSize(bw, 1), i
-	string cmd
-
+	string cmd	
 	// Set the kw if set using UserData
 	
 	string winNameStr = UniqueName("BandStructure", 6, 0)

@@ -915,6 +915,30 @@ static Function ImageWindow3D(WAVE wRef, string method)
 	return 0
 End
 
+static Function ShiftWaveUsingCursors(string graphStr)
+	// Shift wave wRef relative to the A cursor difference between
+	// the top graph (wRef) and graphStr
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE wRef = ImageNameToWaveRef(winNameStr, imgNameTopGraphStr)
+	if(!strlen(imgNameTopGraphStr))
+		return -1
+	endif
+	variable x0 = hcsr(A, winNameStr)
+	variable y0 = vcsr(A, winNameStr)	
+	variable x1 = hcsr(A, graphStr)
+	variable y1 = vcsr(A, graphStr)
+	if(numtype(x0) == 2 || numtype(x1) == 2)
+		return -1
+	endif
+	variable dx = x1 - x0
+	variable dy = y1 - y0
+	string destWave = NameOfWave(wRef) + "_shift"
+	ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$destWave Affine2D wRef
+	Note/K $destWave, "Source: "+ NameOfWave(wRef) + "\ndx: " + num2str(dx) + "\ndy: " + num2str(dy)
+	return 0 	
+End
+
 //Function ResampleImageStackWithXYScales(WAVE w3d, variable Nx, variable Ny)
 //	/// Resample the w3d with factors Nx, Ny => Nx * x, Ny * y
 //	/// Works with 2D, 3D waves also	

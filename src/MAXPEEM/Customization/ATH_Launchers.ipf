@@ -204,15 +204,17 @@ static Function CalculateXMCDFromStack()
 	MatrixOP/O/FREE w1free = layer(w3dref, 0)
 	MatrixOP/O/FREE w2free = layer(w3dref, 1)
 	string basename = NameofWave(w3dref) + "_xmcd"
-	DFREF currDFR = GetWavesDataFolderDFR(w3dref)
-	string sourceDFRStr = GetWavesDataFolder(w3dref, 1)
+	DFREF dfr = GetWavesDataFolderDFR(w3dref)
+	DFREF saveDF = GetDataFolderDFR()
 	string xmcdWaveStr = CreatedataObjectName(currDFR, basename, 1, 0, 1)
-	string destWaveNameStr = sourceDFRStr + xmcdWaveStr
-	ATH_Magnetism#CalculateXMCD(w1free, w2free, destWaveNameStr) // NewXMCD in the source DFR!
-	string noteStr = "Source: " + sourceDFRStr + NameofWave(w3dref)
-	Note/K $destWaveNameStr, noteStr
-	CopyScales w3dref, $destWaveNameStr 
-	ATH_Display#NewImg($destWaveNameStr)
+	SetDataFolder dfr
+	ATH_Magnetism#CalculateXMCD(w1free, w2free, xmcdWaveStr) // NewXMCD in the source DFR!
+	string noteStr = "Source: " + GetWavesDataFolder(w3dref, 2)
+	Note/K $xmcdWaveStr, noteStr
+	CopyScales w3dref, $xmcdWaveStr 
+	ATH_Display#NewImg($xmcdWaveStr)
+	SetDataFolder saveDF
+	return 0
 End
 
 static Function DialogLoadTwoImagesAndRegisterQ()
@@ -389,7 +391,13 @@ static Function ImageStackAlignmentFullImage()
 	endif
 	//Restore the note
 	string copyNoteStr = note($backupWavePathStr)
-	Note/K w3dref,copyNoteStr
+	string driftCorrectionNoteStr = "Drift correction using " + StringFromList(algo, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
+	driftCorrectionNoteStr += "Normalise range [0, 1]: " + StringFromList(normalise, "dummy;Yes;No") + "\n"
+	driftCorrectionNoteStr += "Apply histogram equalization: " + StringFromList(histEq, "dummy;Yes;No")+"\n"
+	driftCorrectionNoteStr += "Edge detection method: " + StringFromList(edgeAlgo, "dummy;None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei")+"\n"
+	driftCorrectionNoteStr += "Cutoff drift (pixels): " + num2str(cutoff)+"\n"
+	Note/K w3dref,driftCorrectionNoteStr
+	Note w3dref,copyNoteStr
 End
 
 
@@ -479,8 +487,15 @@ static Function ImageStackAlignmentPartition()
 	endif
 	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
 	string copyNoteStr = note($backupWavePathStr)
+	string driftCorrectionNoteStr = "Drift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
+	driftCorrectionNoteStr += "Apply filter:" + StringFromList(filter, "dummy;None;gauss;avg;median;max;min") + ", N = " + num2str(filterN) + ", repeated "+num2str(nrTimes)+" times\n"
+	driftCorrectionNoteStr += "Normalise range [0, 1]: " + StringFromList(normalise, "dummy;Yes;No") + "\n"
+	driftCorrectionNoteStr += "Apply histogram equalization: " + StringFromList(histEq, "dummy;Yes;No")+"\n"
+	driftCorrectionNoteStr += "Edge detection method: " + StringFromList(edgeAlgo, "dummy;None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei")+"\n"
+	driftCorrectionNoteStr += "Cutoff drift (pixels): " + num2str(cutoff)+"\n"
 	KillWaves partitionWave
-	Note/K w3dref,copyNoteStr
+	Note/K w3dref,driftCorrectionNoteStr
+	Note w3dref,copyNoteStr
 End
 
 static Function LinearDriftCorrestionStackABCursors()
@@ -731,15 +746,16 @@ static Function RemoveImagesFromImageStack()
 		return -1
 	endif	
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	variable startLayer, nrLayers
+	variable startLayer, nrLayers, flag
 	if(WaveDims(w3dref) == 3 && DataFolderExists("root:Packages:WM3DImageSlider:" + winNameStr))
 		NVAR glayer = root:Packages:WM3DImageSlider:$(winNameStr):gLayer
 		startLayer = glayer
 	else
 		return -1
 	endif
-	nrLayers = ATH_Dialog#GenericSingleVarPrompt("How many layers you want to remove (start from top image)?", "ATH_RemoveImagesFromImageStack")
-	if(nrLayers)
+	Prompt nrLayers, "How many layers you want to remove (start from top image)?"
+	DoPrompt "ATH_RemoveImagesFromImageStack", nrLayers
+	if(nrLayers > 0 && !V_flag) // TODO: Use negative for backward removal
 		ATH_ImgOp#RemoveImagesFromImageStack(w3dref, startLayer, nrLayers)
 		ATH_Display#RestartWM3DImageSlider(winNameStr)
 	endif
@@ -869,7 +885,7 @@ static Function ImageRotateAndScaleFromMetadata()
 		return -1
 	endif	
 	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave	
-	variable angle = NumberByKey("FOVRot(deg)", note(wRef), ":", "\n")
+	variable angle = (-1) * NumberByKey("FOVRot(deg)", note(wRef), ":", "\n")
 	string noteStr = note(wRef)
 	ATH_ImgOp#ImageBackupRotateAndScale(wRef, angle, flipY = 1) // Flip rows and rotate
 	Note wRef, noteStr
@@ -946,18 +962,20 @@ End
 static Function AverageImagePlanes()
 
 	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
-	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0 || !DimSize(wRef,2) > 2) //  WaveDims(wRef) == 0 when wRef is NULL
-		print "AverageImagePlanes() needs an image stack with at least three layers in the top graph."
+	variable nlayers = DimSize(wRef,2)
+	if(WaveDims(wRef) != 3 || nlayers < 2)
+		print "AverageImagePlanes() needs an image stack with at least two layers in the top graph."
 		return -1
 	endif
+	
 	DFREF dfr = GetDataFolderDFR()
-	ImageTransform averageImage wRef // At least three layers!
-	WAVE M_AveImage
 	string basenameStr = NameOfWave(wRef) + "_avg"
-	string avgPlanesNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 1)
-	Duplicate M_AveImage, $avgPlanesNameStr
-	CopyScales wRef, $avgPlanesNameStr
-	KillWaves/Z M_StdvImage, M_AveImage
+	string avgWaveNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 1)
+	MatrixOP $avgWaveNameStr = sumBeams(wRef)/nlayers
+	CopyScales wRef, $avgWaveNameStr
+	string NoteStr = GetWavesDataFolder(wRef, 2) + "- layer(" +num2str(nlayers) + ") average"
+	Note $avgWaveNameStr, NoteStr
+	return 0
 End
 
 static Function HistogramShiftToGaussianCenter()

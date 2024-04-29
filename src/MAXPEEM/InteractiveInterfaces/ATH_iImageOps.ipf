@@ -217,8 +217,8 @@ static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonContr
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			ControlInfo/W=$B_Struct.win SetOpFormula
-			string note2WaveStr = "Operation: " + S_value + "\nimg1: " \
-			+ wName1Str + "\nimg2: " + wName2Str + "\nTotal drift dx:" + num2str(gATH_dx) \
+			string note2WaveStr = "Operation: " + S_value + "\nimg1 (w1): " \
+			+ wName1Str + "\nimg2 (w2): " + wName2Str + "\nTotal drift dx:" + num2str(gATH_dx) \
 			+ " dy:" + num2str(gATH_dy)
 			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)		
 			string saveOpResWaveStr = CreatedataObjectName(sourceDF, "iOp", 1, 0, 1)

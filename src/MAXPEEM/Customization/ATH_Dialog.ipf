@@ -90,16 +90,6 @@ static Function [string returnStrVar1, string returnStrVar2] GenericDoubleStrPro
 	return [returnStrVar1, returnStrVar2] 
 End
 
-static Function GenericSingleVarPrompt(string strPrompt, string msgDialog)
-	variable returnVar 
-	Prompt returnVar, strPrompt
-	DoPrompt msgDialog, returnVar
-	if(V_flag)
-		return -1
-	endif
-	return returnVar
-End
-
 // Browser selection
 
 static Function/S SelectWavesInModalDataBrowser(string msg)
