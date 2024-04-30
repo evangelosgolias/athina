@@ -199,21 +199,19 @@ static Function MakeSquare3DWave(WAVE w3d, [variable size])
 	return 0
 End
 
-static Function AverageStackToImage(WAVE w3d, [string avgImageName])
+static Function AverageImageStack(WAVE wRef, [string outWaveStr])
 	/// Average a 3d wave along z.
 	/// @param w3d WAVE Wave name to average (3d wave)
-	/// @param avgImageName string optional Name of the output wave, default ATH_AvgStack.
-	avgImageName = SelectString(ParamIsDefault(avgImageName) ? 0: 1, "ATH_AvgStack", avgImageName)
-	variable nlayers = DimSize(w3d, 2)
-	ImageTransform sumplanes w3d // averageImage does not work for two layers!
-	WAVE M_SumPlanes
-	M_SumPlanes /= nlayers
-	Duplicate/O M_SumPlanes, $avgImageName
-	KillWaves/Z M_SumPlanes
-	string nameofWaveStr = NameOfWave(w3d)
-	string w3dNoteStr = nameofWaveStr + " average (" + num2str(nlayers) + ")\n"
-	CopyScales w3d, $avgImageName 
-	Note/K $avgImageName w3dNoteStr
+	/// @param avgWaveNameStr string optional: Name of the output wave, default NameOfWave(wRef) + "_avg".
+	/// if outWaveStr is given and the wave exists it will be overwritten
+	DFREF dfr = GetDataFolderDFR()
+	string basenameStr = NameOfWave(wRef) + "_avg"	
+	outWaveStr = SelectString(ParamIsDefault(outWaveStr) ? 0: 1, CreatedataObjectName(dfr, basenameStr, 1, 0, 1), outWaveStr)
+	variable nlayers = DimSize(wRef, 2)
+	MatrixOP/O $outWaveStr = sumBeams(wRef)/nlayers
+	string waveNoteStr = GetWavesDataFolder(wRef, 2) + " layer average (" +num2str(nlayers) + ")"
+	CopyScales wRef, $outWaveStr 
+	Note/K $outWaveStr waveNoteStr
 	return 0
 End
 
@@ -532,45 +530,7 @@ static Function MatchWaveTypes(WAVE wRef, WAVE wDest)
 	return 0
 End
 
-static Function SetSameWaveTypes(WAVE wRef, WAVE wDest)
-	// Change WaveType of wDest to the one of wRef
-	variable wTypeRef = WaveType(wRef)
-	switch(wTypeRef)
-		case 2: // 32-bit float
-			Redimension/S wDest
-			break
-		case 4: // 64-bit float
-			Redimension/D wDest
-			break
-		case 8: // 8-bit integer
-			Redimension/B wDest
-			break
-		case 16: // 16-bit integer
-			Redimension/W wDest
-			break
-		case 32: // 32-bit integer
-			Redimension/I wDest
-			break
-		case 72: // 8-bit unsigned integer
-			Redimension/B/U wDest
-			break
-		case 80: // 16-bit unsigned integer
-			Redimension/W/U wDest
-			break
-		case 96: // 32-bit unsigned integer
-			Redimension/I/U wDest
-			break
-		case 128: // 64-bit integer
-			Redimension/L wDest
-			break
-		case 196: // 64-bit unsigned integer
-			Redimension/L/U wDest
-			break
-	endswitch
-	return 0
-End
-
-static Function SetWaveType(WAVE wRef, int wType)
+static Function WaveCasting(WAVE wRef, int wType)
 	// Change to WaveType
 	switch(wType)
 		case 2: // 32-bit float

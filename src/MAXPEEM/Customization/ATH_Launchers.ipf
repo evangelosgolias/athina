@@ -68,11 +68,10 @@ static Function AverageStackToImageFromMenu()
 	string msgDialog = "Average a stack (3d wave) in working DF"
 	[selectWaveStr, waveNameStr] = ATH_Dialog#GenericSingleStrPromptAndPopup(strPrompt1, strPrompt2, waveListStr, msgDialog)
 	if(!strlen(waveNameStr))
-		ATH_WaveOp#AverageStackToImage($selectWaveStr)
+		ATH_WaveOp#AverageImageStack($selectWaveStr)
 	else
-		ATH_WaveOp#AverageStackToImage($selectWaveStr, avgImageName = waveNameStr)
+		ATH_WaveOp#AverageImageStack($selectWaveStr, outWaveStr = waveNameStr)
 	endif
-	KillWaves/Z M_StdvImage
 End
 
 static Function AverageStackToImageFromTraceMenu()
@@ -85,11 +84,10 @@ static Function AverageStackToImageFromTraceMenu()
 	string waveNameStr
 	waveNameStr = ATH_Dialog#GenericSingleStrPrompt(strPrompt, msgDialog)
 	if(!strlen(waveNameStr))
-		ATH_WaveOp#AverageStackToImage(w3dref)
+		ATH_WaveOp#AverageImageStack(w3dref)
 	else
-		ATH_WaveOp#AverageStackToImage(w3dref, avgImageName = waveNameStr)
+		ATH_WaveOp#AverageImageStack(w3dref, outWaveStr = waveNameStr)
 	endif
-	KillWaves/Z M_StdvImage
 End
 
 static Function AverageStackToImageFromBrowserMenu()
@@ -97,103 +95,11 @@ static Function AverageStackToImageFromBrowserMenu()
 	if(ATH_Dialog#CountSelectedWavesInDataBrowser(waveDimemsions = 3) == 1\
 	 && ATH_Dialog#CountSelectedWavesInDataBrowser() == 1) // If we selected a single 3D wave
 		string selected3DWaveStr = GetBrowserSelection(0)
-		WAVE w3dRef = $selected3DWaveStr	
+		WAVE wRef = $selected3DWaveStr	
 	else
 		Abort "Operation needs an image stack (3d wave)"
 	endif
-
-//	string strPrompt = "Averaged wave nane (leave empty for ATH_AvgStack)"
-//	string msgDialog = "Average stack along z"
-//	string waveNameStr
-//	waveNameStr = ATH_GenericSingleStrPrompt(strPrompt, msgDialog)
-//	if(!strlen(waveNameStr))
-//		ATH_AverageStackToImage(w3dref)
-//	else
-//		ATH_AverageStackToImage(w3dref, avgImageName = waveNameStr)
-//	endif
-	// Changed and we give a unique name with an WaveName_avg suffix
-	DFREF cdfr = GetDataFolderDFR()
-	bufferStr = NameOfWave(w3dRef) + "_avg"
-	waveNameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 1)
-	ATH_WaveOp#AverageStackToImage(w3dref, avgImageName = waveNameStr)
-	KillWaves/Z M_StdvImage
-End
-
-static Function RegisterQCalculateXRayDichroism()
-	string msg = "Select two waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
-	string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
-	
-	// S_fileName is a carriage-return-separated list of full paths to one or more files.
-	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
-	string selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)
-	if(nrSelectedWaves != 2)
-		DoAlert/T="MAXPEEM would like you to know" 1, "Select two (2) .dat files only.\n" + \
-				"Do you want a another chance with the browser selection?"
-		if(V_flag == 1)
-			RegisterQCalculateXRayDichroism()
-			return 0
-		elseif(V_flag == 2)
-			Abort
-		else
-			print "ATH_RegisterQCalculateXRayDichroism()! Abormal behavior."
-		endif
-		
-		Abort // Abort the running instance otherwise the code that follows will run 
-			  // as many times as the dialog will be displayed. Equavalenty, it can 
-			  // be placed in the if (V_flag == 1) branch.
-	endif
-	string wave1Str = StringFromList(0, selectedWavesStr) // The last dat has been eliminated when importing waves, so we are ok
-	string wave2Str = StringFromList(1, selectedWavesStr)
-	WAVE wimg1 = $wave1Str
-	WAVE wimg2 = $wave2Str
-	
-	if(WaveDims(wimg1) != 2 || WaveDims(wimg2) != 2)
-		Abort "Operation need two images"
-	endif	
-	string selectedWavesPopupStr = wave1Str + ";" + wave2Str
-	variable registerImageQ
-	string saveWaveName = ""
-	//Set defaults 
-	Prompt wave1Str, "img1", popup, selectedWavesPopupStr
-	Prompt wave2Str, "img2", popup, selectedWavesPopupStr
-	Prompt registerImageQ, "Automatic image registration?", popup, "Yes;No" // Yes = 1, No = 2!
-	Prompt saveWaveName, "Name of the XMC(L)D wave (default: ATHxmcd)"
-	DoPrompt "XMC(L)D = (img1 - img2)/(img1 + img2)", wave1Str, wave2Str, registerImageQ, saveWaveName
-	if(V_flag) // User cancelled
-		return 1
-	endif
-	
-	// Make a note for the XMC(L)D image
-	string xmcdWaveNoteStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n"
-	xmcdWaveNoteStr += "img1: "
-	xmcdWaveNoteStr += note(wimg1)
-	xmcdWaveNoteStr += "\n"
-	xmcdWaveNoteStr += "\nimg2: "
-	xmcdWaveNoteStr += note(wimg2)
-	
-	if(!(WaveType(wimg1) & 0x02))
-		Redimension/S wimg1
-	endif
-	
-	if(!(WaveType(wimg2) & 0x02))
-		Redimension/S wimg2
-	endif 
-	
-	Duplicate/FREE wimg2, wimg2copy
-	if(registerImageQ == 1)
-		ATH_ImgAlign#ImgRegistration(wimg1, wimg2copy)
-	endif
-	if(!strlen(saveWaveName))
-		saveWaveName = "ATHxmcd"
-	endif
-	ATH_Magnetism#CalculateXMCD(wimg1, wimg2copy, saveWaveName)
-	// if you use /P, the dimension scaling is copied in slope/intercept format 
-	// so that if srcWaveName  and the other waves have differing dimension size 
-	// (number of points if the wave is a 1D wave), then their dimension values 
-	// will still match for the points they have in common
-	CopyScales wimg1, $saveWaveName 
-	Note/K $saveWaveName, xmcdWaveNoteStr
-	return 0
+	ATH_WaveOp#AverageImageStack(wRef)
 End
 
 static Function CalculateXMCDFromStack()
@@ -959,22 +865,13 @@ static Function SumImagePlanes()
 	return 0
 End
 
-static Function AverageImagePlanes()
-
+static Function AverageImageStack()
 	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
-	variable nlayers = DimSize(wRef,2)
+	variable nlayers = DimSize(wRef,2)	
 	if(WaveDims(wRef) != 3 || nlayers < 2)
-		print "AverageImagePlanes() needs an image stack with at least two layers in the top graph."
 		return -1
-	endif
-	
-	DFREF dfr = GetDataFolderDFR()
-	string basenameStr = NameOfWave(wRef) + "_avg"
-	string avgWaveNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 1)
-	MatrixOP $avgWaveNameStr = sumBeams(wRef)/nlayers
-	CopyScales wRef, $avgWaveNameStr
-	string NoteStr = GetWavesDataFolder(wRef, 2) + "- layer(" +num2str(nlayers) + ") average"
-	Note $avgWaveNameStr, NoteStr
+	endif	
+	ATH_WaveOp#AverageImageStack(wRef)
 	return 0
 End
 

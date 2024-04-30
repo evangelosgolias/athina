@@ -44,7 +44,7 @@ Menu "Athina"
 	
 	Submenu "Image Operations"
 		"Average layers (range) (TG, 3D)", /Q, ATH_Launch#AverageLayersRange()
-		"Average image stack(TG, 3D)", /Q, ATH_Launch#AverageImagePlanes()
+		"Average image stack(TG, 3D)", /Q, ATH_Launch#AverageImageStack()
 		"Append image(s) to stack (TG, 3D)", /Q, ATH_Launch#StackImagesToImageStack()
 		"Insert image at slider position  (TG, 3D)", /Q, ATH_Launch#InsertImageToStack()
 		"Extract layers to stack (TG, 3D)", /Q, ATH_Launch#ExtractLayerRangeToStack()
