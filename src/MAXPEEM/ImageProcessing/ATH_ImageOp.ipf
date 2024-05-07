@@ -31,19 +31,36 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static Function AutoRangeTopImage()
+static Function RangeMeanSigmaTopImage()
 	// Autoscale image of the top grap
-	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
-	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr)
+	if(!WaveExists(wRef))
+		return -1
+	endif
+	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store	
 	string colorScaleStr
 	variable cmapSwitch
-	sscanf StringByKey("RECREATION",Imageinfo("",NameOfWave(wRef),0)), matchPattern, colorScaleStr, cmapSwitch
-	variable wmin =WaveMin(wRef)
-	variable wmax =WaveMax(wRef)	
-	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {wmin,wmax,$colorScaleStr,cmapSwitch} // Autoscale Image
+	string infoStr = Imageinfo(winNameStr, NameOfWave(wRef), 0)
+	sscanf StringByKey("RECREATION",infoStr), matchPattern, colorScaleStr, cmapSwitch
+	GetAxis/W=$winNameStr/Q $StringByKey("XAXIS", infoStr)
+	variable xmin = V_min, xmax = V_max
+	GetAxis/W=$winNameStr/Q $StringByKey("YAXIS", infoStr)
+	variable ymin = V_min, ymax = V_max
+	int is3D = WaveDims(wRef) == 3, plane
+	if(is3D)
+		plane = ATH_Display#GetLayerIndex(winNameStr)
+		WaveStats/Q/RMD=[ScaleToIndex(wRef, xmin,0), ScaleToIndex(wRef, xmax,0)][ScaleToIndex(wRef, ymin,1), ScaleToIndex(wRef, ymax,1)][plane] wref	
+	else 
+		WaveStats/Q/RMD=[ScaleToIndex(wRef, xmin,0), ScaleToIndex(wRef, xmax,0)][ScaleToIndex(wRef, ymin,1), ScaleToIndex(wRef, ymax,1)] wref	
+	endif
+	variable meanV = V_avg
+	variable stdV = V_sdev
+	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {meanV-3*stdV,meanV+3*stdV,$colorScaleStr,cmapSwitch} // Autoscale Image
 End
 
-static Function AutoRangeTopImagePerPlaneAndVisibleArea()
+static Function AutoRangeTopImagePlane()
 	// Autoscale image of the top grap
 	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
@@ -676,7 +693,7 @@ static Function/WAVE TopImageToWaveRef([string graphName])
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(graphName, ";"),";")
 	// if there is no image in the top graph strlen(imgNameTopGraphStr) = 0
 	if(strlen(imgNameTopGraphStr))
-		WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+		WAVE wRef = ImageNameToWaveRef(graphName, imgNameTopGraphStr) // full path of wave
 		return wRef
 	else 
 		return $""

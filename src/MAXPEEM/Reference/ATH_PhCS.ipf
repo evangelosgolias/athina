@@ -35,24 +35,24 @@
 // tested on Igor 7.02 and 6.37
 
 // marked and ummarked button colors:
-constant unmarkR=65535  
-constant unmarkG=65535
-constant unmarkB=62500
+static constant unmarkR=65535  
+static constant unmarkG=65535
+static constant unmarkB=62500
 
-constant markR=65535
-constant markG=12500
-constant markB=12500
+static constant markR=65535
+static constant markG=12500
+static constant markB=12500
 
 // panel background color:
-constant PTbgR=21845
-constant PTbgG=21845
-constant PTbgB=21845
+static constant PTbgR=21845
+static constant PTbgG=21845
+static constant PTbgB=21845
 
-constant dfs=9 // element button default/base font size
+static constant dfs=9 // element button default/base font size
 
-constant defaultscale = 2 // default scale factor for panel. valid values: 1, 1.25, 1.5, 2, 2.5
+static constant defaultscale = 2 // default scale factor for panel. valid values: 1, 1.25, 1.5, 2, 2.5
 
-constant maxelem=104 // highest desired atomic nr+1
+static constant maxelem=104 // highest desired atomic nr+1
  
 
 //************************************************************

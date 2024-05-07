@@ -148,8 +148,8 @@ Menu "DataBrowserObjectsPopup"
 End
 
 Menu "TracePopup"
-	"ATH Autoscale Image (2D, 3D)", /Q, ATH_ImgOp#AutoRangeTopImage()
-	"ATH Dynamic Autoscale Image Plane (3D)", /Q, ATH_ImgOp#AutoRangeTopImagePerPlaneAndVisibleArea()
+	"ATH (µ, 3σ) Image Range (2D, 3D)", /Q, ATH_ImgOp#RangeMeanSigmaTopImage()
+	"ATH [min, max] Image Range (2D, 3D)", /Q, ATH_ImgOp#AutoRangeTopImagePlane()
 	"ATH Z-profiler: Use saved ROI  (3D)", /Q, ATH_ZProfile#TracePopupLaunchSavedROI()		
 	"ATH Save layer (TG, 3D)", /Q, ATH_ImgOp#GetLayerFromImageStack()
 	"ATH Save current view (TG, 2D, 3D)", /Q, ATH_ImgOp#GetScaledZoominImageWindow()

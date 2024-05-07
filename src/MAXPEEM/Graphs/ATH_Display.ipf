@@ -55,32 +55,40 @@ static Function NewImg(WAVE wRef)
 	if(WaveDims(wRef)==3)
 		Append3DImageSlider()
 	endif
-	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3, ctab= {*,*,$colorScaleStr,cmapSwitch} // Autoscale per plane / visible area Image		
+	WaveStats/Q wRef //$GetWavesDataFolder(wRef, 2)
+	variable ImgAvg = V_avg
+	variable ImgStd = V_sdev
+	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3, ctab= {ImgAvg - 3 * ImgStd, ImgAvg + 3 * ImgStd,$colorScaleStr,cmapSwitch} // Autoscale per plane / visible area Image		
 	SetWindow $winNameStr, hook(AthinaMainDisplayHook) = ATH_Display#DisplayHookFunction // Set the hook	
 	return 0
 End
 
 Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	// Fast exit if nothing is meant to be done
-	switch (s.eventCode)
-		case 22:	//	mouseWheel
-			break
-		default:
-			return 0
-	endswitch
-	// Proceed 	
+	//	switch (s.eventCode)
+	//		case 22:	//	mouseWheel
+	//			break
+	//		default:
+	//			return 0
+	//	endswitch
+	// Proceed
 	Wave w = ATH_ImgOp#TopImageToWaveRef(graphName=s.winName)
 	int is3D = WaveDims(w)==3
 	int plane
 
 	switch (s.eventCode)
-
+		case 11:
+			if(s.eventMod & 8 && s.keycode==82)
+				ATH_Range#pnl(s.winName)
+				return 1
+			endif
+			return 1
 		case 22:	//	mouseWheel
 			if (s.eventMod & 8)		//	if the ctrl key is pressed
 				ATH_Display#Mangify(s)
 				return 0
 			endif
-			
+
 			int direction = (s.wheelDy > 0) ? 1 : -1
 			if (is3D)
 				STRUCT sMousePosition ms
@@ -236,7 +244,7 @@ static Function W3DImageSliderProc(string name, variable value, variable event)
 	NVAR gLayer
 	SVAR imageName
 
-	ModifyImage  $imageName plane=(gLayer)
+	ModifyImage/W=$grfName  $imageName plane=(gLayer)
 	
 	string helpStr=""
 	WAVE/Z imageW = ImageNameToWaveRef(grfName, imageName)
@@ -319,8 +327,15 @@ static Function SetImageRangeTo94Percent()
 		print "Operation needs an image or image stack"
 		return -1
 	endif
-
-	GetMarquee/K left, top
+	// Error handling in case axes are different
+	GetMarquee/Z/K left, top; variable errorCode = GetRTError(1) // Same line, supressed even when debugger on
+	
+	if(errorCode)
+		print "AthinaError: " + GetErrMessage(errorCode, 3)
+		SetDataFolder saveDF
+		return -1
+	endif
+	
 	if(!V_flag)
 		return 0
 	endif
@@ -415,7 +430,7 @@ static Function Mangify(STRUCT WMWinHookStruct &s)
 	GetAxis/Q/W=$s.winName $ms.xaxis
 	SetAxis/W=$s.winName $ms.xaxis  ms.x+(V_min-ms.x)*coef, ms.x+(V_max-ms.x)*coef
 	GetAxis/Q/W=$s.winName $ms.yaxis
-	SetAxis/W=$s.winName $ms.yaxis  ms.y+(V_min-ms.y)*coef, ms.y+(V_max-ms.y)*coef
+	SetAxis/R/W=$s.winName $ms.yaxis  ms.y+(V_min-ms.y)*coef, ms.y+(V_max-ms.y)*coef // EG: R needed to set the axis properly when autoscale.
 End
 
 Static Structure range
