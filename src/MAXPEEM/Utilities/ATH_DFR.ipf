@@ -98,7 +98,7 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	for(i = 0; i < fldrnum; i++)
 		fldrstr = StringFromList(i, fldrs)
 		if(!DataFolderExists(fldrstr)) // ":" at the end needed to function properly - No! (08.01.23)
-			NewDataFolder/O $RemoveEnding(fldrstr) // Here the last ":" pops an error
+			NewDataFolder/O $RemoveEnding(fldrstr, ":") // Here the last ":" pops an error
 		endif
 	endfor
 

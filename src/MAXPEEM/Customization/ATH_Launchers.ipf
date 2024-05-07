@@ -818,7 +818,7 @@ static Function ScalePlanesBetweenZeroAndOne()
 	endif
 	ATH_ImgOp#ScalePlanesBetweenZeroAndOne(wRef)
 	print NameOfWave(wRef) + " scaled to [0, 1]"
-	ATH_ImgOp#AutoRangeTopImage() // Autoscale the image
+	ATH_ImgOp#AutoRangeTopImagePlane() // Autoscale the image
 	return 0
 End
 
