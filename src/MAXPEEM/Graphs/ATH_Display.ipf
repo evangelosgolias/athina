@@ -81,7 +81,7 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			if(s.eventMod & 8)
 				if(s.keycode==82)
 					ATH_Range#pnl(s.winName)
-					//return 1 FALLTHROUGHT to not block other hook functions
+					//FALLTHROUGHT: do not block other keycode events in hook functions
 				endif
 			endif
 			break //
@@ -90,7 +90,7 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				ATH_Display#Mangify(s)
 				return 0
 			endif
-
+			
 			int direction = (s.wheelDy > 0) ? 1 : -1
 			if (is3D)
 				STRUCT sMousePosition ms
