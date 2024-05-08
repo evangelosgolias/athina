@@ -251,6 +251,7 @@ Static Function pnl(String grfName)
 	
 	Button doB pos={5,PNLHEIGHT-25}, size={65,20}, title="Apply", fcolor=(26205,52428,1), win=$pnlName
 	Button cancelB pos={PNLWIDTH-70,PNLHEIGHT-25}, size={65,20}, title="Cancel", fcolor=(65535,0,0), win=$pnlName
+	Button refreshB pos={PNLWIDTH-165,PNLHEIGHT-25}, size={65,20}, fcolor=(65535,43690,0), title="Refresh", win=$pnlName
 
 	ModifyControlList ControlNameList(pnlName,";","zm*C") mode=1, proc=ATH_Range#pnlCheck, fsize = 13, win=$pnlName
 	ModifyControlList ControlNameList(pnlName,";","zm*V") size={60,18}, bodyWidth=60, proc=ATH_Range#pnlSetVar,fsize = 13, win=$pnlName
@@ -651,14 +652,21 @@ Static Function pnlButton(STRUCT WMButtonAction &s)
 		case "cancelB":
 			KillWindow $s.win
 			break
+		case "refreshB":
+			// ------ EG ---- //
+				updateZmode(s.win)
+	updateZRange(GetUserData(s.win,"","grf"), pause=1)
 
+	updatePnlCursorsPos(s.win)
+	updatePnlColor(s.win)
+	updatePnlPresentValues(s.win)
+			break
 		case "presentB":
-		case "fullB":		
+		case "fullB":
 			updatePnlHistogram(s.win, NumberByKey(s.ctrlName, "presentB:0;fullB:1"))
 			updatePnlCursorsPos(s.win)
 			updatePnlColor(s.win)
 			break
-			
 	endswitch
 	return 0
 End
@@ -931,9 +939,7 @@ Static Function/WAVE updateZRange_getValues(String grfName, String imgName,
 	int m0, Variable v0, int m1, Variable v1)
 	//EG edit to work with Marquee
 	variable plane, flag, left, right, top, bottom, minV, maxV
-	GetMarquee/W=$grfName/Z
-	flag = V_flag;	left = V_left; right = V_right; top = V_top; bottom = V_bottom
-
+	[flag, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex(grfName=grfName)
 	if (m0 >= 2 || m1 >= 2)		//	sigma, cut, logsigma
 		Wave tw = SIDAMImageNameToWaveRef(grfName, imgName=imgName, displayed=1)
 		if(WaveDims(tw)==3)
@@ -1268,7 +1274,7 @@ static Function SIDAM_GetColorTableMinMax(String grfName, String imgName,
 End
 
 //******************************************************************************
-//	Create SIDAM temporary folder root:Packages:SIDAM:procName:grfName and
+//	Create SIDAM temporary folder root:Packages:ATH_DataFolder:Range:grfName and
 //	return a string containing the path.
 //******************************************************************************
 static Function/S SIDAMNewDF(String grfName, String procName)
@@ -1428,27 +1434,25 @@ static Function/WAVE SIDAMHistogram(Wave/Z w, [variable startz, variable endz,
 	variable deltaz, int bins, int cumulative, int normalize, int cmplxmode, string grfName])
 
 	STRUCT paramStructHist s
-	
+
 	// EG: My code injection to use range with marquee. Added string grfName as an optional argument
 	// Original code:
 	// Wave/Z s.w = w
 	// Also remove the optional argument from all calls of the function in file
-	if(ParamIsDefault(grfName))
-		Wave/Z s.w = w
-	else
-		GetMarquee/W=$grfName
-		if(V_flag)
-			if(WaveDims(w)==3)
-				string infoStr = ImageInfo(grfName, NameOfWave(w), 0)
-				variable plane = NumberByKey("plane", infoStr, "=")
-				Duplicate/FREE/RMD=[V_left, V_right][V_top,V_bottom][plane] w, wRMD
-			else
-				Duplicate/FREE/RMD=[V_left, V_right][V_top,V_bottom] w, wRMD
-			endif
-			Wave/Z s.w = wRMD
+	variable plane, flag, left, right, top, bottom
+	[flag, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex(grfName=grfName)
+	
+	if(flag)
+		if(WaveDims(w)==3)
+			string infoStr = ImageInfo(grfName, NameOfWave(w), 0)
+			plane = NumberByKey("plane", infoStr, "=")
+			Duplicate/FREE/RMD=[left, right][top,bottom][plane] w, wRMD
 		else
-			Wave/Z s.w = w
+			Duplicate/FREE/RMD=[left, right][top,bottom] w, wRMD
 		endif
+		Wave/Z s.w = wRMD
+	else
+		Wave/Z s.w = w
 	endif
 	// end of interjection.
 	s.bins = ParamIsDefault(bins) ? DEFALUT_BINS : bins

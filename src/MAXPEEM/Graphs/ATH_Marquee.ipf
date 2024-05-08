@@ -184,15 +184,45 @@ static Function Partition3DRegion()
 	return 0
 End
 
+static Function [variable flag, variable leftR, variable rightR, variable topR, variable bottomR] GetMarqueeToIndex([string grfName, string axisX, string axisY])
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	axisX = SelectString(ParamIsDefault(axisX) ? 0: 1,"left", axisX)
+	axisY = SelectString(ParamIsDefault(axisY) ? 0: 1,"top", axisY)
+	variable errCode
+	
+	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
+	GetMarquee/W=$grfName $axisX, $axisY; errCode = GetRTError(1);
+	flag = V_flag
+	if(errCode)
+		print GetErrMessage(errCode)
+		return [flag, -1, -1, -1, -1]
+	endif
+	leftR = ScaleToIndex(wRef, V_left, 0)
+	rightR = ScaleToIndex(wRef, V_right, 0)
+	topR = ScaleToIndex(wRef, V_top, 1)
+	bottomR = ScaleToIndex(wRef, V_bottom, 1)
+	return [flag, leftR, rightR, topR, bottomR]
+End
+
 static Function GetMarqueeWaveStats()
 	/// Wavestats for a marquee region in a 2D wave. In case of a 3D wave the stats 
 	/// are calculated for all layers.
-	GetMarquee left, top;
+	GetMarquee/Z
+	variable plane, flag, left, right, top, bottom
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList("", ";"),";")
-	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	if(WaveDims(waveRef) == 2 || WaveDims(waveRef) == 3)
-		WaveStats/RMD=(V_left, V_right)(V_top, V_bottom)[]/M=1 waveRef
+	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	[flag, left, right, top, bottom] = GetMarqueeToIndex()
+	if(WaveDims(wRef) == 2)
+		WaveStats/RMD=[left, right][top, bottom] wRef
+	elseif(WaveDims(wRef)==3)
+		string infoStr = ImageInfo(WinName(0, 1, 1), imgNameTopGraphStr, 0)
+		plane = NumberByKey("plane", infoStr, "=")
+		WaveStats/RMD=[left, right][top, bottom][plane] wRef
+	else
+		return -1
+		//TODO: Make it work with traces. You need TraceNameToWaveRef
 	endif
+	return 0
 End
 
 static Function CheckActiveAxis(string graphname, string axis)

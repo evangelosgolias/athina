@@ -115,6 +115,7 @@ End
 // -------------------------------------------------------
 
 Menu "GraphMarquee"
+	"ATH (µ, 3σ) Image Range (2D, 3D)", /Q, ATH_ImgOp#RangeMeanSigmaTopImage()
 	"ATH Image range 94% of ROI (2D, 3D)", /Q, ATH_Display#SetImageRangeTo94Percent()
 	"ATH Z-profiler: Set rectangular ROI  (3D)", /Q, ATH_ZProfile#GraphMarqueeLaunchRectangle()	
 	"ATH Z-profiler: Set oval ROI  (3D)", /Q, ATH_ZProfile#GraphMarqueeLaunchOval()	

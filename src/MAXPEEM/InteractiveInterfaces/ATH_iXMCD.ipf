@@ -109,7 +109,7 @@ static Function CreateiXMCDPanel(WAVE wXMCD, WAVE wSum)
 	
 	SetVariable setDriftStep,win=$winiXMCDNameStr,pos={130,10},size={160,20.00},title="Drift step (px)"
 	SetVariable setDriftStep,win=$winiXMCDNameStr,value=gATH_driftStep,help={"Set drift value for img2"}
-	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,10,1},live=1,proc=ATH_iXMCD#SetDriftStepVar	
+	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,25,1},live=1,proc=ATH_iXMCD#SetDriftStepVar	
 
 	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20.00,10.00},size={90.00,20.00},proc=ATH_iXMCD#SaveXMCDImageButton
 	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save XMCD", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
@@ -134,7 +134,7 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	WAVE/SDFR=dfr wXMCD
 	WAVE/SDFR=dfr wSum
 	SVAR/SDFR=dfr wName2Str
-
+	
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
 	string dfrStr = GetUserData(s.winName, "", "ATH_iXMCDPath"), cmdStr
 	switch(s.eventCode)
@@ -185,9 +185,11 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 					hookResult = 1
 					break
 				case 82: // R to restore.
-					Duplicate/O wImg2_undo, wImg2
-					gATH_dx = 0; gATH_dy = 0			
-					hookResult = 1
+					if(!(s.eventMod & 8)) // Mac CMD+R has the same effect with SHIFT+R. Now works only with R (SHIFT+r)
+						Duplicate/O wImg2_undo, wImg2
+						gATH_dx = 0; gATH_dy = 0			
+						hookResult = 1
+					endif
 					break
 				default:
 					// The keyText field requires Igor Pro 7 or later. See Keyboard Events.

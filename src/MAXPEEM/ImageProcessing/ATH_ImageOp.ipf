@@ -47,13 +47,22 @@ static Function RangeMeanSigmaTopImage()
 	GetAxis/W=$winNameStr/Q $StringByKey("XAXIS", infoStr)
 	variable xmin = V_min, xmax = V_max
 	GetAxis/W=$winNameStr/Q $StringByKey("YAXIS", infoStr)
-	variable ymin = V_min, ymax = V_max
-	int is3D = WaveDims(wRef) == 3, plane
+	variable ymin = V_min, ymax = V_max, plane, flag, left, right, top, bottom
+	int is3D = WaveDims(wRef) == 3
+	plane = ATH_Display#GetLayerIndex(winNameStr)
+	[flag, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex()	
 	if(is3D)
-		plane = ATH_Display#GetLayerIndex(winNameStr)
-		WaveStats/Q/RMD=[ScaleToIndex(wRef, xmin,0), ScaleToIndex(wRef, xmax,0)][ScaleToIndex(wRef, ymin,1), ScaleToIndex(wRef, ymax,1)][plane] wref	
+		if(flag)
+			WaveStats/Q/RMD=[left, right][top, bottom][plane] wref
+		else
+			WaveStats/Q/RMD=[][][plane] wref		
+		endif
 	else 
-		WaveStats/Q/RMD=[ScaleToIndex(wRef, xmin,0), ScaleToIndex(wRef, xmax,0)][ScaleToIndex(wRef, ymin,1), ScaleToIndex(wRef, ymax,1)] wref	
+		if(flag)
+			WaveStats/Q/RMD=[left, right][top, bottom] wref
+		else
+			WaveStats/Q wref		
+		endif
 	endif
 	variable meanV = V_avg
 	variable stdV = V_sdev

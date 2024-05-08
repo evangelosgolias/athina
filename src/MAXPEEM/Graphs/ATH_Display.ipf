@@ -78,11 +78,13 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 
 	switch (s.eventCode)
 		case 11:
-			if(s.eventMod & 8 && s.keycode==82)
-				ATH_Range#pnl(s.winName)
-				return 1
+			if(s.eventMod & 8)
+				if(s.keycode==82)
+					ATH_Range#pnl(s.winName)
+					//return 1 FALLTHROUGHT to not block other hook functions
+				endif
 			endif
-			return 1
+			break //
 		case 22:	//	mouseWheel
 			if (s.eventMod & 8)		//	if the ctrl key is pressed
 				ATH_Display#Mangify(s)

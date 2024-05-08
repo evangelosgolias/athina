@@ -183,9 +183,11 @@ static Function WindowHook(STRUCT WMWinHookStruct &s)
 					hookResult = 1
 					break
 				case 82: // R to restore.
-					Duplicate/O w2_undo, w2		
-					gATH_dx = 0; gATH_dy = 0		
-					hookResult = 1
+					if(!(s.eventMod & 8)) // Mac CMD+R has the same effect with SHIFT+R. Now works only with R (SHIFT+r)
+						Duplicate/O w2_undo, w2		
+						gATH_dx = 0; gATH_dy = 0		
+						hookResult = 1
+					endif
 					break
 				default:
 					hookResult = 1
