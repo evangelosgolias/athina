@@ -941,6 +941,7 @@ Static Function/WAVE updateZRange_getValues(String grfName, String imgName,
 	variable plane, flag, left, right, top, bottom, minV, maxV
 	[flag, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex(grfName=grfName)
 	if (m0 >= 2 || m1 >= 2)		//	sigma, cut, logsigma
+		//EG edit to work with Marquee. Wave is partitioned here if zoomed!!
 		Wave tw = SIDAMImageNameToWaveRef(grfName, imgName=imgName, displayed=1)
 		if(WaveDims(tw)==3)
 			string infoStr = ImageInfo(grfName, imgName, 0)
