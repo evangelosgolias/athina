@@ -205,19 +205,28 @@ static Function [variable flag, variable leftR, variable rightR, variable topR, 
 End
 
 static Function GetMarqueeWaveStats()
-	/// Wavestats for a marquee region in a 2D wave. In case of a 3D wave the stats 
+	/// Wavestats for a marquee region in a 2D wave. In case of a 3D wave the stats
 	/// are calculated for all layers.
 	GetMarquee/Z
 	variable plane, flag, left, right, top, bottom
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList("", ";"),";")
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList("", ";"),";"), msg, cmd
 	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+	string infoStr = ImageInfo(WinName(0, 1, 1), imgNameTopGraphStr, 0)
+	plane = NumberByKey("plane", infoStr, "=")	
 	[flag, left, right, top, bottom] = GetMarqueeToIndex()
-	if(WaveDims(wRef) == 2)
-		WaveStats/RMD=[left, right][top, bottom] wRef
-	elseif(WaveDims(wRef)==3)
-		string infoStr = ImageInfo(WinName(0, 1, 1), imgNameTopGraphStr, 0)
-		plane = NumberByKey("plane", infoStr, "=")
+	msg = "\n##--------------------------------------------------##\n"
+	msg += "Statistics of " + GetWavesDataFolder(wRef, 2) + "\n"
+	msg += "Marquee: left = "+num2str(IndexToScale(wRef, left, 0)) + ", "
+	msg += "right = "+num2str(IndexToScale(wRef, right, 0)) + ", "
+	msg += "top = "+num2str(IndexToScale(wRef, top, 1)) + ", "
+	msg += "botttom = "+num2str(IndexToScale(wRef, bottom, 1)) + ", "
+	if(WaveDims(wRef)==3)
+		msg += "plane = " + num2str(plane) + "\n"
+	endif	
+	if(WaveDims(wRef) == 2 || WaveDims(wRef)==3)
+		print msg
 		WaveStats/RMD=[left, right][top, bottom][plane] wRef
+		print "%%--------------------------------------------------%%"
 	else
 		return -1
 		//TODO: Make it work with traces. You need TraceNameToWaveRef
