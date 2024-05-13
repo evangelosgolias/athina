@@ -86,7 +86,6 @@ Menu "Athina"
 
 	Submenu "XMC(L)D calculation"
 		"XMC(L)D (3D[2]) ... ", /Q, ATH_Launch#CalculationXMCD3d()
-		"XMC(L)D (2D[2]) ...", /Q, ATH_Launch#RegisterQCalculateXRayDichroism()
 		"XMC(L)D combinations (3D[1]) ...", /Q, ATH_Launch#XMCDCombinations()
 	End	
 		

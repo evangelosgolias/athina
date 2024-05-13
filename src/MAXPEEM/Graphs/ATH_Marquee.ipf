@@ -216,10 +216,10 @@ static Function GetMarqueeWaveStats()
 	[flag, left, right, top, bottom] = GetMarqueeToIndex()
 	msg = "\n##--------------------------------------------------##\n"
 	msg += "Statistics of " + GetWavesDataFolder(wRef, 2) + "\n"
-	msg += "Marquee: left = "+num2str(IndexToScale(wRef, left, 0)) + ", "
-	msg += "right = "+num2str(IndexToScale(wRef, right, 0)) + ", "
-	msg += "top = "+num2str(IndexToScale(wRef, top, 1)) + ", "
-	msg += "botttom = "+num2str(IndexToScale(wRef, bottom, 1)) + ", "
+	msg += "Marquee: left = "+num2str(IndexToScale(wRef, left, 0)) + "; "
+	msg += "right = "+num2str(IndexToScale(wRef, right, 0)) + "; "
+	msg += "top = "+num2str(IndexToScale(wRef, top, 1)) + "; "
+	msg += "botttom = "+num2str(IndexToScale(wRef, bottom, 1)) + "; "
 	if(WaveDims(wRef)==3)
 		msg += "plane = " + num2str(plane) + "\n"
 	endif	

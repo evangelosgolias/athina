@@ -251,7 +251,7 @@ Static Function pnl(String grfName)
 	
 	Button doB pos={5,PNLHEIGHT-25}, size={65,20}, title="Apply", fcolor=(26205,52428,1), win=$pnlName
 	Button cancelB pos={PNLWIDTH-70,PNLHEIGHT-25}, size={65,20}, title="Cancel", fcolor=(65535,0,0), win=$pnlName
-	Button refreshB pos={PNLWIDTH-165,PNLHEIGHT-25}, size={65,20}, fcolor=(65535,43690,0), title="Refresh", win=$pnlName
+	Button refreshB pos={PNLWIDTH-165,PNLHEIGHT-25},  title="Refresh", size={65,20}, fcolor=(65535,43690,0), win=$pnlName
 
 	ModifyControlList ControlNameList(pnlName,";","zm*C") mode=1, proc=ATH_Range#pnlCheck, fsize = 13, win=$pnlName
 	ModifyControlList ControlNameList(pnlName,";","zm*V") size={60,18}, bodyWidth=60, proc=ATH_Range#pnlSetVar,fsize = 13, win=$pnlName

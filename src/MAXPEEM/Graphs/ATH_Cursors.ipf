@@ -43,10 +43,10 @@ End
 
 static Function MeasureDistanceUsingFreeCursorsCD()
 	/// Use Cursors C, D (Free) to measure distances in a graph
-	/// Uses ATH_MeasureDistanceUsingFreeCursorsCDHook. 
+	/// Uses ATH_MeasureDistanceUsingFreeCursorsCDHook.
 	string winNameStr = WinName(0, 1, 1) //Top graph
 	string topTraceNameStr = StringFromList(0, TraceNameList(winNameStr,";",1))
-	
+
 	if(strlen(topTraceNameStr)) // If you have a trace
 		Cursor/A=1/F/H=1/S=1/C=(0,65535,0)/N=1/P C $topTraceNameStr 0.25, 0.45
 		Cursor/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $topTraceNameStr 0.75, 0.55
@@ -56,14 +56,24 @@ static Function MeasureDistanceUsingFreeCursorsCD()
 		Cursor/I/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $imgNameTopGraphStr 0.75, 0.55
 	endif
 	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrDCHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsCDHook
-	TextBox/W=$winNameStr/C/A=LB/G=(65535,0,0)/E=2/N=DistanceCDInfo "\Z10Z-Toggle mode\ns - Scale (img)\nm(M)- Mark d(1/d)\ni - Mark (Inv. Sc)\nEsc - quit"
 	string userdataStrQ = GetUserData(winNameStr, "", "ATH_SavedDistanceForScale")
-	print userdataStrQ
+
 	if(!strlen(userdataStrQ)) // If data were saved previously used them
 		SetWindow $winNameStr userdata(ATH_DistanceForScale) = "1"
 		SetWindow $winNameStr userdata(ATH_SetScale) = "1"
 		SetWindow $winNameStr userdata(ATH_CursorDistanceMode) = "0"
 		SetWindow $winNameStr userdata(ATH_SavedDistanceForScale) = ""
+	endif
+	ControlBar 30
+	Button scaleB pos={10,4}, size={65,20}, title="Scale", win=$winNameStr, help = {"Place cursots C, D and set scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button savescaleB pos={85, 4}, size={80,20}, title="Save Scale", win=$winNameStr, help = {"Save current scale for future use"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button modeB pos={175,4}, title="Direct", size={80,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button markB pos={265,4}, title="Mark", size={65,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button closeB pos={340,4}, title="Close", size={65,20}, fcolor=(65535,0,0), win=$winNameStr, help = {"Removes control bar"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	if(!str2num(GetUserData(winNameStr, "", "ATH_CursorDistanceMode"))) // 0 - direct, 1 - reciprocal
+		Button modeB, title = "Direct", fcolor=(65535,43690,0), win=$winNameStr
+	else
+		Button modeB, title = "Reciprocal", fcolor=(0,65535,26586), win=$winNameStr
 	endif
 End
 
@@ -74,12 +84,7 @@ static Function MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	variable sscale = str2num(GetUserData(s.winName, "", "ATH_SetScale"))
 	variable sdist = str2num(GetUserData(s.winName, "", "ATH_DistanceForScale"))
 	variable factor = sscale / sdist
-	x1 = hcsr(C, s.WinName)
-	x2 = hcsr(D, s.WinName)
-	y1 = vcsr(C, s.WinName)
-	y2 = vcsr(D, s.WinName)
-	z1 = zcsr(C, s.WinName)
-	z2 = zcsr(D, s.WinName)
+	x1 = hcsr(C, s.WinName);x2 = hcsr(D, s.WinName);y1 = vcsr(C, s.WinName);y2 = vcsr(D, s.WinName);z1 = zcsr(C, s.WinName);z2 = zcsr(D, s.WinName)
 	distance = sqrt((x1-x2)^2 + (y1-y2)^2)
 	string baseTextStr, cmdStr, notXStr, notYStr, notDStr, notscDStr, notZStr, axisX, axisY, scaleDrawCmd, sdamp
 	if(abs(x1-x2) < 1e-4)
@@ -133,113 +138,6 @@ static Function MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 	endif
 	
 	switch(s.eventCode)
-	
-		case 11: // Esc
-			if(s.keycode == 27)
-				TextBox/W=$s.WinName/K/N=DistanceCD
-				TextBox/W=$s.WinName/K/N=DistanceCDInfo
-				SetWindow $s.WinName, hook(ATH_MeasureDistanceCsrDCHook) = $""
-				Cursor/W=$s.WinName/K C
-				Cursor/W=$s.WinName/K D
-			endif
-			if(s.keycode == 115) // press s
-				if(imgQ) // scaling only for images
-					Prompt vbuffer, "Enter value to scale"
-					DoPrompt "Scale C, D cursor distance", vbuffer
-					if(V_flag) // if you cancel
-						hookResult = 1
-						break
-					endif 
-					if(!vbuffer) // if you set scale to 0
-						vbuffer = 1
-					endif
-					SetWindow $s.winName userdata(ATH_SetScale) = num2str(vbuffer)
-					SetWindow $s.winName userdata(ATH_DistanceForScale) = num2str(distance)
-					scaleDrawCmd = "DrawLine/W=" + s.WinName + "  " + num2str(x1)+"," + num2str(y1) +"," + num2str(x2) +"," + num2str(y2)
-					SetWindow $s.winName userdata(ATH_SavedDistanceForScale) = scaleDrawCmd
-				endif
-			endif
-			if(s.keycode == 83) // press S
-				scaleDrawCmd = GetUserData(s.winName, "", "ATH_SavedDistanceForScale")
-				if(strlen(scaleDrawCmd)) // If a scale is saved
-					sscanf scaleDrawCmd, ("DrawLine/W=%s %f,%f,%f,%f"), sdamp, x1, y2, x2, y2 // Restored the saved positions
-					SetDrawLayer/W=$s.WinName UserFront
-					SetDrawEnv/W=$s.WinName textrgb= (0,0,65535), xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
-					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, "Ss: "+num2str(sscale)
-					SetDrawEnv/W=$s.WinName arrow = 3, linefgc= (0,0,65535), xcoord =top, ycoord = left
-					Execute/Q/Z scaleDrawCmd
-				endif
-			endif
-			if(s.keycode == 122) // pressed z
-				SetWindow $s.winName userdata(ATH_CursorDistanceMode) = num2str(!inverseD)
-			endif
-			if(s.keycode == 109) // Press m to mark
-				if(!imgQ)
-					SetDrawLayer/W=$s.WinName UserFront
-					GetAxis/Q top
-					if(V_flag) // V_flag == 1, top is not active
-						axisX = "bottom"
-					else
-						axisX = "top"
-					endif
-					GetAxis/Q left
-					if(V_flag) // V_flag == 1, left is not active
-						axisY = "right"
-					else
-						axisY = "left"
-					endif
-					SetDrawEnv/W=$s.WinName textrgb=(0,0,65535),xcoord =$axisX, ycoord = $axisY
-					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(abs(x2-x1))
-					SetDrawEnv/W=$s.WinName linefgc=(0,0,65535), arrow = 3, xcoord =$axisX, ycoord = $axisY
-					DrawLine/W=$s.WinName x1, (y1+y2)/2, x2, (y1+y2)/2
-				else
-					SetDrawLayer/W=$s.WinName UserFront
-					SetDrawEnv/W=$s.WinName linefgc= (0,0,65535), arrow = 3, xcoord =top, ycoord = left
-					DrawLine/W=$s.WinName x1, y1, x2, y2
-					SetDrawEnv/W=$s.WinName textrgb= (0,0,65535), xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
-					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, "D:"+num2str(distance)
-				endif
-			endif
-			if(s.keycode == 77) // Press M to mark 1/d or dy in graphs
-				if(!imgQ)
-					SetDrawLayer/W=$s.WinName UserFront
-					GetAxis/Q top
-					if(V_flag) // V_flag == 1, top is not active
-						axisX = "bottom"
-					else
-						axisX = "top"
-					endif
-					GetAxis/Q left
-					if(V_flag) // V_flag == 1, left is not active
-						axisY = "right"
-					else
-						axisY = "left"
-					endif
-					SetDrawEnv/W=$s.WinName textrgb=(0,0,65535), xcoord=$axisX, ycoord = $axisY,  textrot= 90
-					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, num2str(abs(y2-y1))
-					SetDrawEnv/W=$s.WinName linefgc= (0,0,65535), arrow = 3, xcoord =$axisX, ycoord = $axisY
-					DrawLine/W=$s.WinName (x1+x2)/2, y1, (x1+x2)/2, y2
-				else
-					SetDrawLayer/W=$s.WinName UserFront
-					SetDrawEnv/W=$s.WinName linefgc= (0,0,65535),arrow = 3, xcoord =top, ycoord = left
-					DrawLine/W=$s.WinName x1, y1, x2, y2
-					SetDrawEnv/W=$s.WinName textrgb=(0,0,65535), xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
-					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, "I:"+num2str(1/distance)
-				endif
-			endif
-			if(s.keycode == 105) // Press i to mark scaled inverse distance
-				if(!imgQ)
-					// Nothing is done, it might change in the future
-				else
-					SetDrawLayer/W=$s.WinName UserFront
-					SetDrawEnv/W=$s.WinName linefgc= (0,0,65535), arrow = 3, xcoord =top, ycoord = left
-					DrawLine/W=$s.WinName x1, y1, x2, y2
-					SetDrawEnv/W=$s.WinName textrgb=(0,0,65535), xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
-					DrawText/W=$s.WinName (x1+x2)/2, (y1+y2)/2, "IS:" + num2str(sscale * sdist/distance)
-				endif
-			endif
-			hookResult = 1 // Do not focus on Command window!
-			break
 		case 7:
 			if(imgQ)
 				if(inverseD)
@@ -260,6 +158,118 @@ static Function MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
 			break
 	endswitch
 	return hookResult
+End
+
+Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change this behavior
+
+	if (s.eventCode != 2) // If not pressed return
+		return 0
+	endif
+
+	variable x1, x2, y1, y2, z1, z2, distance, vbuffer, inverseD, imgQ
+	variable sscale = str2num(GetUserData(s.win, "", "ATH_SetScale"))
+	variable sdist = str2num(GetUserData(s.win, "", "ATH_DistanceForScale"))
+	variable factor = sscale / sdist
+	x1 = hcsr(C, s.win);x2 = hcsr(D, s.win);y1 = vcsr(C, s.win);y2 = vcsr(D, s.win);z1 = zcsr(C, s.win);z2 = zcsr(D, s.win)
+	distance = sqrt((x1-x2)^2 + (y1-y2)^2)
+	string baseTextStr, cmdStr, notXStr, notYStr, notDStr, notscDStr, notZStr, axisX, axisY, scaleDrawCmd, sdamp
+
+	inverseD = str2num(GetUserData(s.win, "", "ATH_CursorDistanceMode")) // 0 - normal, 1 - inverse
+	imgQ = !strlen(StringFromList(0, TraceNameList(s.win,";",1))) // 0 - trace, 1 - image
+
+	strswitch (s.ctrlName)
+		case "scaleB":
+			if(imgQ) // scaling only for images
+				Prompt vbuffer, "Enter value to scale"
+				DoPrompt "Scale C, D cursor distance", vbuffer
+				if(V_flag) // if you cancel
+					return 1
+				endif
+				if(!vbuffer) // if you set scale to 0
+					vbuffer = 1
+				endif
+				SetWindow $s.win userdata(ATH_SetScale) = num2str(vbuffer)
+				SetWindow $s.win userdata(ATH_DistanceForScale) = num2str(distance)
+				scaleDrawCmd = "DrawLine/W=" + s.win + "  " + num2str(x1)+"," + num2str(y1) +"," + num2str(x2) +"," + num2str(y2)
+				SetWindow $s.win userdata(ATH_SavedDistanceForScale) = scaleDrawCmd
+			endif
+			break
+		case "savescaleB":
+			scaleDrawCmd = GetUserData(s.win, "", "ATH_SavedDistanceForScale")
+			if(strlen(scaleDrawCmd)) // If a scale is saved
+				sscanf scaleDrawCmd, ("DrawLine/W=%s %f,%f,%f,%f"), sdamp, x1, y2, x2, y2 // Restored the saved positions
+				SetDrawLayer/W=$s.win UserFront
+				SetDrawEnv/W=$s.win textrgb= (0,0,65535), xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
+				DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, "Ss: "+num2str(sscale)
+				SetDrawEnv/W=$s.win arrow = 3, linefgc= (0,0,65535), xcoord =top, ycoord = left
+				Execute/Q/Z scaleDrawCmd
+			endif
+			break
+		case "modeB": // direct/reciprocal
+			SetWindow $s.win userdata(ATH_CursorDistanceMode) = num2str(!inverseD)
+			if(!str2num(GetUserData(s.win, "", "ATH_CursorDistanceMode"))) // 0 - direct, 1 - reciprocal
+				Button modeB, title = "Direct", fcolor=(65535,43690,0), win=$s.win
+			else
+				Button modeB, title = "Reciprocal", fcolor=(0,65535,26586), win=$s.win
+			endif
+			break
+		case "markB": // direct/reciprocal
+			if(!imgQ)  // Traces
+				SetDrawLayer/W=$s.win UserFront
+				GetAxis/Q top
+				if(V_flag) // V_flag == 1, top is not active
+					axisX = "bottom"
+				else
+					axisX = "top"
+				endif
+				GetAxis/Q left
+				if(V_flag) // V_flag == 1, left is not active
+					axisY = "right"
+				else
+					axisY = "left"
+				endif
+				if(!str2num(GetUserData(s.win, "", "ATH_CursorDistanceMode"))) // 0 - direct, 1 - reciprocal
+					SetDrawEnv/W=$s.win textrgb=(0,0,65535),xcoord =$axisX, ycoord = $axisY
+					DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, num2str(abs(x2-x1))
+					SetDrawEnv/W=$s.win linefgc=(0,0,65535), arrow = 3, xcoord =$axisX, ycoord = $axisY
+					DrawLine/W=$s.win x1, (y1+y2)/2, x2, (y1+y2)/2
+				else
+					SetDrawEnv/W=$s.win textrgb=(0,0,65535), xcoord=$axisX, ycoord = $axisY,  textrot= 90
+					DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, num2str(abs(y2-y1))
+					SetDrawEnv/W=$s.win linefgc= (0,0,65535), arrow = 3, xcoord =$axisX, ycoord = $axisY
+					DrawLine/W=$s.win (x1+x2)/2, y1, (x1+x2)/2, y2
+				endif
+			else  // Images
+				if(!str2num(GetUserData(s.win, "", "ATH_CursorDistanceMode"))) // 0 - direct, 1 - reciprocal
+					SetDrawLayer/W=$s.win UserFront
+					SetDrawEnv/W=$s.win linefgc= (0,0,65535), arrow = 3, xcoord =top, ycoord = left
+					DrawLine/W=$s.win x1, y1, x2, y2
+					SetDrawEnv/W=$s.win textrgb= (0,0,65535), xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
+					DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, "D:"+num2str(distance)
+				else
+					SetDrawLayer/W=$s.win UserFront
+					SetDrawEnv/W=$s.win linefgc= (0,0,65535),arrow = 3, xcoord =top, ycoord = left
+					DrawLine/W=$s.win x1, y1, x2, y2
+					SetDrawEnv/W=$s.win textrgb=(0,0,65535), xcoord =top, ycoord = left, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
+					DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, "I:"+num2str(1/distance)
+				endif
+			endif
+			break
+			case "closeB":
+				TextBox/W=$s.win/K/N=DistanceCD
+				TextBox/W=$s.win/K/N=DistanceCDInfo
+				SetWindow $s.win, hook(ATH_MeasureDistanceCsrDCHook) = $""
+				Cursor/W=$s.win/K C
+				Cursor/W=$s.win/K D
+				KillControl/W=$s.win scaleB
+				KillControl/W=$s.win savescaleB
+				KillControl/W=$s.win modeB
+				KillControl/W=$s.win markB
+				KillControl/W=$s.win closeB
+				ControlBar/W=$s.win 0
+				break
+		endswitch
+		return 0
 End
 
 Structure sUserCursorPositions

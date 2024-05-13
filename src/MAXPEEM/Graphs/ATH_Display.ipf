@@ -42,11 +42,6 @@ static Function NewImg(WAVE wRef)
 	string windowNameStr = GetWavesDataFolder(wRef, 2)[5, inf] // Discrard root:
 	DoWindow/T kwTopWin, windowNameStr
 	string winNameStr = WinName(0, 1, 1)
-	if(DimSize(wRef, 0) == DimSize(wRef, 1))
-		ModifyGraph width={Plan,1,top,left}, height = 0
-	else
-		ModifyGraph width = 0, height = 0
-	endif
 
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
 	string colorScaleStr
@@ -60,6 +55,7 @@ static Function NewImg(WAVE wRef)
 	variable ImgStd = V_sdev
 	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3, ctab= {ImgAvg - 3 * ImgStd, ImgAvg + 3 * ImgStd,$colorScaleStr,cmapSwitch} // Autoscale per plane / visible area Image		
 	SetWindow $winNameStr, hook(AthinaMainDisplayHook) = ATH_Display#DisplayHookFunction // Set the hook	
+	SetWindow $winNameStr, userdata(ATH_isPlanQ) = "0" // *No* ModifyGraph width={Plan,1,top,left} 
 	return 0
 End
 
@@ -75,15 +71,24 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	Wave w = ATH_ImgOp#TopImageToWaveRef(graphName=s.winName)
 	int is3D = WaveDims(w)==3
 	int plane
-
+	// MeasureDistanceUsingFreeCursorsCDHook needs fixing. It will not work as is now
+	// Use a panel there maybe?
 	switch (s.eventCode)
 		case 11:
-			if(s.eventMod & 8)
-				if(s.keycode==82)
+			switch(s.keycode)
+				case 114:
 					ATH_Range#pnl(s.winName)
-					//FALLTHROUGHT: do not block other keycode events in hook functions
-				endif
-			endif
+					return 1
+				case 115:
+					if(str2num(GetUserData(s.winName, "", "ATH_isPlanQ")))
+						SetWindow $s.winName, userdata(ATH_isPlanQ) = "0"
+						ModifyGraph width = 0, height = 0
+					else
+						SetWindow $s.winName, userdata(ATH_isPlanQ) = "1"
+						ModifyGraph width={Plan,1,top,left}						
+					endif
+					return 1
+			endswitch
 			break //
 		case 22:	//	mouseWheel
 			if (s.eventMod & 8)		//	if the ctrl key is pressed
