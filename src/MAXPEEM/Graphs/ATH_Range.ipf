@@ -209,7 +209,6 @@ Static Function pnl(String grfName)
 
 	//	Controls
 	PopupMenu imageP title="image",pos={3,7},size={218,19},bodyWidth=180,fsize=13,win=$pnlName
-	CheckBox allC title="all",pos={225,9},proc=ATH_Range#pnlCheck,fsize=13,win=$pnlName
 	
 	GroupBox zminG pos={4,30},size={128,141},title="first Z",fColor=(65280,32768,32768),fsize=13,win=$pnlName
 
@@ -481,11 +480,6 @@ Static Function pnlHookParentUpdatePanel(String grfName)
 		Execute/Q cmdStr		
 	endif
 	
-	//	If only one image is shown in the graph, allC is unnecessary.
-	if (ItemsInList(ImageNameList(grfName,";")) < 2)
-		CheckBox allC value=0, disable=1, win=$pnlName
-	endif
-
 	updatePnlHistogram(pnlName, 0)
 	updatePnlAxis(pnlName)
 	resetPnlCtrls(pnlName)
@@ -678,17 +672,7 @@ Static Function pnlCheck(STRUCT WMCheckboxAction &s)
 		return 0
 	endif
 	
-	if (CmpStr(s.ctrlName,"allC"))
-		updatePnlRadioBox(s.win, s.ctrlName)
-	else
-		Variable height = s.checked ? CTRLHEIGHT : PNLHEIGHT
-		Variable dy = (PNLHEIGHT-CTRLHEIGHT) * (s.checked ? -1 : 1)
-		MoveSubWindow/W=$s.win fnum=(0,0,PNLWIDTH,height)
-		SetWindow $(s.win+"#G0") hide=s.checked
-		ModifyControlList "doB;cancelB;toP" pos+={0,dy}, win=$s.win
-		ModifyControlList "imageP" disable=(s.checked*2), win=$s.win
-		ModifyControlList "adjustT;presentB;fullB" disable=s.checked, win=$s.win
-	endif
+	updatePnlRadioBox(s.win, s.ctrlName)
 
 	updateZmode(s.win)
 	updateZRange(GetUserData(s.win,"","grf"), pause=1)
@@ -879,15 +863,7 @@ Static Function updateZmode(String pnlName)
 	Variable v1 = m1 ? maxValuew[m1-1] : 0
 
 	String grfName = GetUserData(pnlName,"","grf")
-	String imgNameList
-
-	ControlInfo/W=$pnlName allC
-	if (V_Value)
-		imgNameList = ImageNameList(grfName,";")
-	else
-		ControlInfo/W=$pnlName imageP
-		imgNameList = S_Value + ";"
-	endif
+	String imgNameList = ImageNameList(grfName,";")
 
 	setZmodeValue(grfName, imgNameList, "m0", m0)
 	setZmodeValue(grfName, imgNameList, "v0", v0)
