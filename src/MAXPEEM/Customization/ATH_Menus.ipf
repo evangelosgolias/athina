@@ -159,7 +159,6 @@ Menu "TracePopup"
 	"ATH Restore image (2D, 3D)", /Q, ATH_ImgOp#RestoreTopImageFromBackup()
 	"ATH Clear UserFront layer" ,/Q, ATH_ZProfile#ClearROIMarkingsUserFront("")	
 	"ATH Calculate XMC(L)D (3D[2])", /Q, ATH_Launch#CalculateXMCDFromStack()
-	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
 End
 
 Menu "GraphPopup" // Right click not on a trace or in the margin of an image

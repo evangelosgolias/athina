@@ -88,6 +88,9 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ModifyGraph width={Plan,1,top,left}						
 					endif
 					return 1
+				case 105:
+					ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
+					return 1
 			endswitch
 			break //
 		case 22:	//	mouseWheel
