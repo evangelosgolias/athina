@@ -68,7 +68,7 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	//			return 0
 	//	endswitch
 	// Proceed
-	Wave w = ATH_ImgOp#TopImageToWaveRef(graphName=s.winName)
+	Wave w = ATH_ImgOp#TopImageToWaveRef(grfName=s.winName)
 	int is3D = WaveDims(w)==3
 	int plane
 	// MeasureDistanceUsingFreeCursorsCDHook needs fixing. It will not work as is now
@@ -76,23 +76,29 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	switch (s.eventCode)
 		case 11:
 			switch(s.keycode)
-				case 114:
+				case 100: //d
+					ATH_iDriftCorrection#CreatePanel()
+					return 1			
+				case 105: // i
+					ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
+					return 1
+				case 108: //l
+					ATH_LineProfile#MainMenu()
+					return 1
+				case 114: // r
 					ATH_Range#pnl(s.winName)
 					return 1
-				case 115:
+				case 115: // s
 					if(str2num(GetUserData(s.winName, "", "ATH_isPlanQ")))
 						SetWindow $s.winName, userdata(ATH_isPlanQ) = "0"
 						ModifyGraph width = 0, height = 0
 					else
 						SetWindow $s.winName, userdata(ATH_isPlanQ) = "1"
-						ModifyGraph width={Plan,1,top,left}						
+						ModifyGraph width={Plan,1,top,left}
 					endif
 					return 1
-				case 105:
-					ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
-					return 1
 			endswitch
-			break //
+			break
 		case 22:	//	mouseWheel
 			if (s.eventMod & 8)		//	if the ctrl key is pressed
 				ATH_Display#Mangify(s)
@@ -608,7 +614,7 @@ End
 
 static Function GetLayerIndex(string grfName, [Wave/Z w])
 	if (ParamIsDefault(w))
-		WAVE/Z w = ATH_ImgOp#TopImageToWaveRef(graphName=grfName)
+		WAVE/Z w = ATH_ImgOp#TopImageToWaveRef(grfName=grfName)
 	endif
 	if (!WaveExists(w) || WaveDims(w) != 3)
 		return NaN
@@ -619,7 +625,7 @@ End
 
 Function SetLayerIndex(String grfName, int index, [Wave/Z w])
 	if (ParamIsDefault(w))
-		WAVE/Z w =  ATH_ImgOp#TopImageToWaveRef(graphName=grfName)
+		WAVE/Z w =  ATH_ImgOp#TopImageToWaveRef(grfName=grfName)
 	endif
 	if (!WaveExists(w) || WaveDims(w) != 3)
 		return 1

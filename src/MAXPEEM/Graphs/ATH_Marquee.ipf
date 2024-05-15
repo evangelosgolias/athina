@@ -190,7 +190,7 @@ static Function [variable flag, variable leftR, variable rightR, variable topR, 
 	axisY = SelectString(ParamIsDefault(axisY) ? 0: 1,"top", axisY)
 	variable errCode
 	
-	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
+	WAVE wRef = ATH_ImgOp#TopImageToWaveRef(grfName=grfName)
 	GetMarquee/W=$grfName $axisX, $axisY; errCode = GetRTError(1);
 	flag = V_flag
 	if(errCode)

@@ -54,7 +54,8 @@ static Function CreatePanel()
 	endif
 	// We need a 3d wave
 	if(WaveDims(w3dref) != 3)
-		Abort "Operation needs an image stack (3d wave)"
+		print "Operation needs an image stack (3d wave)"
+		return -1
 	endif
 
 	string cmdStr, axisStr, dumpStr, val1Str, val2Str
