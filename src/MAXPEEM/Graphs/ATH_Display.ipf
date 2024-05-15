@@ -39,6 +39,8 @@ static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
 static Function NewImg(WAVE wRef)
 	// Display an image or stack
 	NewImage/G=1/K=1 wRef
+	// Error handlgi
+	ATH_exe#HandleSimpleError("NewImg")
 	string windowNameStr = GetWavesDataFolder(wRef, 2)[5, inf] // Discrard root:
 	DoWindow/T kwTopWin, windowNameStr
 	string winNameStr = WinName(0, 1, 1)

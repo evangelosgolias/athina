@@ -86,11 +86,14 @@ static Function/S Make3DWaveDataBrowserSelection(string wname3dStr, [variable ma
 	//		print "ATH: Renamed your wave to \"" + (wname3d + "_rn") + "\" to avoid conflicts"
 	//		wname3d += "_rn"
 	//	endif
-		
+	string buffer		
 	variable i = 0
 	do
-		if(strlen(GetBrowserSelection(i)))
-			listOfSelectedWaves += GetBrowserSelection(i) + ";" // Match stored at S_value
+		buffer = GetBrowserSelection(i)
+		if(strlen(buffer))
+			if(WaveDims($buffer)==2 || WaveDims($buffer)==3)
+				listOfSelectedWaves += GetBrowserSelection(i) + ";" // Match stored at S_value
+			endif
 		endif
 		i++
 	while (strlen(GetBrowserSelection(i)))

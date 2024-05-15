@@ -89,3 +89,13 @@ static Function CmdExecutionInFolderWithPattern(string cmdStr, string pattern)
 	endfor
 	return 0
 End
+
+static Function HandleSimpleError(string funName)
+	// Handle execution error, clear and print a message.
+	string msg=GetErrMessage(GetRTError(0),3); variable err=GetRTError(1)
+	if (err != 0)
+		print "Error in " + funName +  ": " + msg
+		return -1
+	endif
+	return 0
+End

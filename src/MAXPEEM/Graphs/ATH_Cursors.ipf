@@ -31,6 +31,24 @@
 // ------------------------------------------------------- //
 
 
+static Function/S GetActiveCursors([string grfName])
+	grfName = SelectString(ParamIsDefault(grfName), grfName, WinName(0,1,1))
+	if (WinType(grfName) != 1)
+		return ""
+	endif
+	
+	String list = "ABCDEFGHIJ", active = "", info
+	int i, n
+	for (i = 0, n = strlen(list); i < n; i++)
+		info = CsrInfo($(list[i]), grfName)
+		if (!strlen(info) || strsearch(info, "A=0", 0)!=-1)
+			continue
+		endif
+		active += list[i]
+	endfor
+	return active
+End
+
 static Function GetDistanceFromCursors(string C1, string C2)
 	/// Returns the distance between C1 and C2 if given.
 	return sqrt((hcsr($C1) - hcsr($C2))^2 + (vcsr($C1) - vcsr($C2))^2)

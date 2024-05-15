@@ -41,8 +41,7 @@ End
 
 static Function Make3DWaveDataBrowserSelection([variable displayStack])
 	displayStack = ParamIsDefault(displayStack) ? 0: displayStack // Give any non-zero to display the stack
-	string wname3dStr
-	wname3dStr = ATH_WaveOp#Make3DWaveDataBrowserSelection("ATH_stack", autoPath = 1) // stack in sourcedir if all waves in the same folder, otherwise in cwd
+	string wname3dStr = ATH_WaveOp#Make3DWaveDataBrowserSelection("ATH_stack", autoPath = 1) // stack in sourcedir if all waves in the same folder, otherwise in cwd
 	// Do you want to display the stack?
 	if(displayStack && strlen(wname3dStr)) // wname3dStr = "" when you select no or one wave
 		ATH_Display#NewImg($wname3dStr)
@@ -730,25 +729,6 @@ static Function ImgRGB2Gray16()
 	return 0
 End
 
-static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operation
-	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
-	variable order = 1
-	Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
-	DoPrompt "Background subtraction ", order
-	order = trunc(order)
-	if(V_flag || order < 1 || order > 12)
-		return -1
-	endif
-	ATH_WaveOp#BackupWaveInWaveDFQ(wRef)
-	if(ATH_Windows#IsWM3DAxisActiveQ("")) // Do we have active axis in top window?
-		variable layerN = ATH_Windows#GetCurrentPlaneWM3DAxis("")
-		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = layerN)
-	else
-		ATH_ImgOp#ImgRemoveBackground(wRef, order = order)
-	endif
-	Note wRef, "\nImageRemoveBackground/P=" + num2str(order)
-End
-
 static Function Rotate3DWaveAxes()
 	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
 	if(WaveDims(wRef) !=3)
@@ -1097,8 +1077,6 @@ static Function PixelateSingleImageOrStack()
 	return 0
 End
 
-
-
 static Function ScaleXPSSpectrum()
 	///	Add description here.
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESSpectrumScale" ) // Root folder here
@@ -1229,4 +1207,25 @@ Function SetDataFolderOfTopImage()
 	WAVE wRef = ATH_ImgOp#TopImageToWaveRef() 
 	SetDataFolder GetWavesDataFolderDFR(wRef)
 	return 0
+End
+
+// Remove background
+
+static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operation
+	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
+	variable order = 1
+	Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
+	DoPrompt "Background subtraction ", order
+	order = trunc(order)
+	if(V_flag || order < 1 || order > 12)
+		return -1
+	endif
+	ATH_WaveOp#BackupWaveInWaveDFQ(wRef)
+	if(ATH_Windows#IsWM3DAxisActiveQ("")) // Do we have active axis in top window?
+		variable layerN = ATH_Windows#GetCurrentPlaneWM3DAxis("")
+		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = layerN)
+	else
+		ATH_ImgOp#ImgRemoveBackground(wRef, order = order)
+	endif
+	Note wRef, "\nImageRemoveBackground/P=" + num2str(order)
 End

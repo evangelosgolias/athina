@@ -695,14 +695,14 @@ static Function HistogramShiftToGaussianCenterStack(WAVE w3d, [variable overwrit
 	return 0
 End
 
-static Function/WAVE TopImageToWaveRef([string graphName])
+static Function/WAVE TopImageToWaveRef([string grfName])
 	// Return a wave reference from the top graph
 	
-	graphName = SelectString(ParamIsDefault(graphName) ? 0: 1, WinName(0, 1, 1), graphName) // Empty case will be handled below
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(graphName, ";"),";")
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(grfName, ";"),";")
 	// if there is no image in the top graph strlen(imgNameTopGraphStr) = 0
 	if(strlen(imgNameTopGraphStr))
-		WAVE wRef = ImageNameToWaveRef(graphName, imgNameTopGraphStr) // full path of wave
+		WAVE wRef = ImageNameToWaveRef(grfName, imgNameTopGraphStr) // full path of wave
 		return wRef
 	else 
 		return $""
@@ -781,22 +781,6 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, WAVE wMask, vari
 	else
 		return 1
 	endif
-End
-
-static Function ImageRemoveBackgroundOriginal(WAVE wRef, [variable order])
-	// Remove background of an image (default 1st order)
-	// Use order = n, n > 1 for higher order polynomial
-	// Use overwite = 1 to overwite the original wave
-	order = ParamIsDefault(order) ? 1: order
-	variable nrows, ncols
-	nrows = DimSize(wRef,0)
-	ncols = DimSize(wRef,1)
-	Make/O/FREE/N=(nrows,ncols)/B/U maskWFree = 1
-	if(WaveType(wRef) & 0x02) // We need a 32-bit float for better results
-		Redimension/S wRef
-	endif
-	ImageRemoveBackground/R=maskWFree/P=(order) wRef
-	return 0
 End
 
 static Function ImageResampling(WAVE wRef,  string func, variable xOffset, variable yOffset,
