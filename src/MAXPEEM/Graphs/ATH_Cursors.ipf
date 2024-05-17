@@ -30,6 +30,8 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+static constant kCBOFFSET = 30
+
 
 static Function/S GetActiveCursors([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName), grfName, WinName(0,1,1))
@@ -59,12 +61,11 @@ static Function GetDistanceFromABCursors()
 	return sqrt((hcsr(A) - hcsr(B))^2 + (vcsr(A) - vcsr(B))^2)
 End
 
-static Function MeasureDistanceUsingFreeCursorsCD()
+static Function MeasureDistanceUsingFreeCursors()
 	/// Use Cursors C, D (Free) to measure distances in a graph
 	/// Uses ATH_MeasureDistanceUsingFreeCursorsCDHook.
 	string winNameStr = WinName(0, 1, 1) //Top graph
 	string topTraceNameStr = StringFromList(0, TraceNameList(winNameStr,";",1))
-
 	if(strlen(topTraceNameStr)) // If you have a trace
 		Cursor/A=1/F/H=1/S=1/C=(0,65535,0)/N=1/P C $topTraceNameStr 0.25, 0.45
 		Cursor/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $topTraceNameStr 0.75, 0.55
@@ -73,13 +74,13 @@ static Function MeasureDistanceUsingFreeCursorsCD()
 		Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0)/N=1/P C $imgNameTopGraphStr 0.25, 0.45
 		Cursor/I/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $imgNameTopGraphStr 0.75, 0.55
 	endif
-	ControlBar 30
-	Button scaleB pos={10,4}, size={65,20}, title="Scale", win=$winNameStr, help = {"Place cursots C, D and set scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button drawscaleB pos={85, 4}, size={80,20}, title="Draw Scale", win=$winNameStr, help = {"Save current scale for future use"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button modeB pos={175,4}, title="Direct", size={80,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button markB pos={265,4}, title="Mark", size={65,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button closeB pos={340,4}, title="Close", size={65,20}, fcolor=(65535,0,0), win=$winNameStr, help = {"Removes control bar"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton	
-	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrDCHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsCDHook
+	ControlBar 30 + kCBOFFSET
+	Button scaleB pos={10,4+kCBOFFSET}, size={65,20}, title="Scale", win=$winNameStr, help = {"Place cursots C, D and set scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button drawscaleB pos={85, 4+kCBOFFSET}, size={80,20}, title="Draw Scale", win=$winNameStr, help = {"Save current scale for future use"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button modeB pos={175,4+kCBOFFSET}, title="Direct", size={80,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button markB pos={265,4+kCBOFFSET}, title="Mark", size={65,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button closeB pos={340,4+kCBOFFSET}, title="Close", size={65,20}, fcolor=(65535,0,0), win=$winNameStr, help = {"Removes control bar"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton	
+	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrDCHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsHook
 
 	string userdataStrQ = GetUserData(winNameStr, "", "ATH_SavedDistanceForScale")
 
@@ -100,7 +101,7 @@ static Function MeasureDistanceUsingFreeCursorsCD()
 	endif	
 End
 
-static Function MeasureDistanceUsingFreeCursorsCDHook(STRUCT WMWinHookStruct &s)
+static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 	/// Hook function for ATH_MeasureDistanceUsingFreeCursorsCD()
 	variable hookResult = 0
 	variable x1, x2, y1, y2, z1, z2, distance, vbuffer, inverseD, imgQ
@@ -291,7 +292,12 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 			KillControl/W=$s.win modeB
 			KillControl/W=$s.win markB
 			KillControl/W=$s.win closeB
-			ControlBar/W=$s.win 0
+			if(ATH_Windows#IsWM3DAxisActiveQ(s.win))
+				ControlInfo/W=$s.win kwControlBar
+				ControlBar V_Height - kCBOFFSET
+			else
+				ControlBar/W=$s.win 0
+			endif
 			break
 	endswitch
 	return 0

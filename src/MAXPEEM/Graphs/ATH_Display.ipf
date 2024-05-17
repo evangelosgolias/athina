@@ -82,7 +82,7 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					ATH_iDriftCorrection#CreatePanel()
 					return 1			
 				case 105: // i
-					ATH_Cursors#MeasureDistanceUsingFreeCursorsCD()
+					ATH_Cursors#MeasureDistanceUsingFreeCursors()
 					return 1
 				case 108: //l
 					ATH_LineProfile#MainMenu()

@@ -137,12 +137,12 @@ End
 
 static Function/S NormaliseImageStackWithImageStack(WAVE w3dRef1, WAVE w3dRef2)
 	// If you have 16-bit waves then Redimension/S to SP
-	if(WaveType(w3dRef1) == 80 || WaveType(w3dRef1) == 16)
-		Redimension/S w3dRef1
-	endif
-	if(WaveType(w3dRef2) == 80 || WaveType(w3dRef2) == 16)
-		Redimension/S w3dRef2
-	endif
+//	if(WaveType(w3dRef1) == 80 || WaveType(w3dRef1) == 16)
+//		Redimension/S w3dRef1
+//	endif
+//	if(WaveType(w3dRef2) == 80 || WaveType(w3dRef2) == 16)
+//		Redimension/S w3dRef2
+//	endif
 	DFREF currDF = GetDataFolderDFR()	
 	string normWaveBaseNameStr =  NameOfWave(w3dRef1) + "_norm"
 	string normWaveStr = CreateDataObjectName(currDF, normWaveBaseNameStr, 1, 0, 1)	
@@ -153,13 +153,13 @@ End
 
 static Function/S NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
 	// Normalise a 3d wave (stack) with a line profile (1d wave) along the layer (z) direction
-	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
-		Redimension/S w3dRef
-	endif
-	if(WaveType(profWaveRef) == 80 || WaveType(profWaveRef) == 16)
-		Redimension/S profWaveRef
-	endif
-		
+//	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
+//		Redimension/S w3dRef
+//	endif
+//	if(WaveType(profWaveRef) == 80 || WaveType(profWaveRef) == 16)
+//		Redimension/S profWaveRef
+//	endif
+//		
 	DFREF currDF = GetDataFolderDFR()	
 	string normWaveBaseNameStr = NameOfWave(w3dRef) + "_norm"
 	string normWaveStr = CreateDataObjectName(currDF, normWaveBaseNameStr, 1, 0, 1)	
