@@ -40,7 +40,8 @@ static Function [variable x0, variable y0] GetSinglePointWithDistanceFromLine(va
 	return [x0, y0]
 End
 
-static Function [variable xp0, variable yp0, variable xp1, variable yp1 ] GetBothPointsWithDistanceFromLine(variable x1, variable y1, variable s, variable d)
+static Function [variable xp0, variable yp0, variable xp1, variable yp1 ] GetBothPointsWithDistanceFromLine(variable x1, 
+																		  variable y1, variable s, variable d)
 	/// Return the coordinates of points with distance d from a line passing from A(x1, y1) witl slope s.
 	/// Points are on either side of of A.
 	
@@ -73,7 +74,8 @@ static Function [variable xshift, variable yshift] GetVerticesPerpendicularToLin
 	 return [xshift, yshift]
 End
 
-static Function [variable xn1, variable yn1, variable xn2, variable yn2] SymmetricLineShrink(variable x1, variable y1, variable x2, variable y2, variable Sfactor)
+static Function [variable xn1, variable yn1, variable xn2, variable yn2] SymmetricLineShrink(variable x1, variable y1, 
+																		  variable x2, variable y2, variable Sfactor)
 	/// Returns the points (xn1, yn1) and (xn2, yn2) that define a line segnemt with
 	/// length Sfactor times the length of the line defined by (x1, y1) and (x2, y2).
 	/// The center of both line segments is fixed.
@@ -127,7 +129,8 @@ static Function GetAntipodalPoint(variable x1, variable y1, variable x0, variabl
 	//return [xn, yn]
 End
 
-static Function [variable slope, variable shift] LineEquationFromTwoPoints(variable x0, variable y0, variable x1, variable y1)
+static Function [variable slope, variable shift] LineEquationFromTwoPoints(variable x0,
+												 variable y0, variable x1, variable y1)
 	/// Returns A, B for y = A x + B passing through A(x0, y0), B(x1, y1)
 	/// Note: Result w.r.t a standard cartesian system.
 	slope = (y1 - y0) /(x1 - x0)
@@ -139,7 +142,8 @@ static Function [variable slope, variable shift] LineEquationFromTwoPoints(varia
 	return [slope, shift]
 End
 
-static Function [WAVE wx, WAVE wy] XYWavesOfLineFromTwoPoints(variable x0, variable y0, variable x1, variable y1, variable npts)
+static Function [WAVE wx, WAVE wy] XYWavesOfLineFromTwoPoints(variable x0, 
+								   variable y0, variable x1, variable y1, variable npts)
 	//
 	Make/FREE/N=(npts) wx, wy
 	SetScale/I x, x0, x1, wx

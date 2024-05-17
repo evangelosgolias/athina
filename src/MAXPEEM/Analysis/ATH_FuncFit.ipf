@@ -32,7 +32,7 @@
 
 static constant k_B = 8.617333262e-5 // Boltzmann constant in eV/K
 
-static Function FermiEdge(WAVE w, variable x) : FitFunc
+static Function FitFermiEdge(WAVE w, variable x) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ f(E) = y0 + 1 / (exp((E - Ef)/kT) + 1)
 	//CurveFitDialog/ 
@@ -46,7 +46,7 @@ static Function FermiEdge(WAVE w, variable x) : FitFunc
 	return w[0] + 1 / (exp((x-w[1])/w[2])+1)
 End
 
-static Function FermiEdgeTimesLine(WAVE w, variable x) : FitFunc
+static Function FitFermiEdgeTimesLine(WAVE w, variable x) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ f(E) = y0 + (a * E + b) / (exp((E - Ef)/kT) + 1)
 	//CurveFitDialog/ 
@@ -62,7 +62,7 @@ static Function FermiEdgeTimesLine(WAVE w, variable x) : FitFunc
 	return w[0] + (w[4]*x+w[3]) / (exp((x-w[1])/w[2])+1)
 End
 
-static Function XASStepBackground(WAVE w, variable E) : FitFunc
+static Function FitXASStepBackground(WAVE w, variable E) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) = w[0] + w[1]/3 * (1 + 2/pi * atan((E-w[2])/w[3]) + w[1]/6 * (1 + 2/pi * atan((E-w[4])/w[5])
 	//CurveFitDialog/ 	
@@ -80,7 +80,7 @@ static Function XASStepBackground(WAVE w, variable E) : FitFunc
 End
 
 // All-at-once
-static Function FermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+static Function FitFermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	/// FitFunc shared by Emile Rienks (BESSY-II, 1^3)
 	//
 	// pw[0] = offset
@@ -116,7 +116,7 @@ static Function FermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFun
 End
 
 // All-at-once
-static Function XMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+static Function FitXMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(x + yw[2])^2
 	//CurveFitDialog/ 	
@@ -129,7 +129,7 @@ static Function XMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	yw = pw[0] + pw[1] * sin(xw - pw[2])^2
 End
 
-static Function XMLDIntensityWtGradient(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+static Function FitXMLDIntensityWtGradient(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(x + yw[2])^2
 	//CurveFitDialog/ 	
@@ -141,6 +141,32 @@ static Function XMLDIntensityWtGradient(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ w[2] = phase
 	yw = pw[0] + pw[1] * xw + pw[2] * sin(xw + pw[2])^2
 End
+
+static Function FitGaussian2D(WAVE pw, WAVE yw, WAVE wx, WAVE wy) : Fitfunc
+
+	//pw[0]: const bck
+	//pw[1]: Amplitude
+	//pw[2]: angle (rad)
+	//pw[3]: x0
+	//pw[4]: y0
+	//pw[5]: sigmax
+	//pw[6]: sigmay
+	
+	//You need a 1d version of your laser image as an yw input!
+	
+	Variable a, b, c
+	
+	
+	a = cos(pw[2])^2/(2*pw[5]^2) + sin(pw[2])^2/(2*pw[6]^2)
+	
+	b = sin(2*pw[2])/(4*pw[5]^2) - sin(2*pw[2])/(4*pw[6]^2)
+	
+	c = sin(pw[2])^2/(2*pw[5]^2) + cos(pw[2])^2/(2*pw[6]^2)
+	
+	yw = pw[0] + pw[1] * exp(-(a*(wx-pw[3])^2+2*b*(wx-pw[3])*(wy-pw[4])+c*(wy-pw[4])^2))
+	
+End 
+
 
 // Does not function well, fix it
 //Function FermiEdgeTimesLinearDOSGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc	

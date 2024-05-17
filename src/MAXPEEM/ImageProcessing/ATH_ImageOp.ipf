@@ -120,12 +120,13 @@ End
 
 static Function/S NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
 	// If you have 16-bit waves then Redimension/S to SP
-	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
-		Redimension/S w3dRef
-	endif
-	if(WaveType(w2dRef) == 80 || WaveType(w2dRef) == 16)
-		Redimension/S w2dRef
-	endif
+//	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
+//		Redimension/S w3dRef
+//	endif
+//	if(WaveType(w2dRef) == 80 || WaveType(w2dRef) == 16)
+//		Redimension/S w2dRef
+//	endif
+// Not needed, MatrixOP will transform it
 	DFREF currDF = GetDataFolderDFR()	
 	string normWaveBaseNameStr = NameOfWave(w3dRef) + "_norm"
 	string normWaveStr = CreateDataObjectName(currDF, normWaveBaseNameStr, 1, 0, 1)	
@@ -781,6 +782,35 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, WAVE wMask, vari
 	else
 		return 1
 	endif
+End
+
+static Function ImgRemoveBackgroundCols(WAVE wRef, variable orderN) //TODO! Fix
+	// Image Remove 1-d background from each column
+	//Make/O/N=(DimSize(wRef,1), orderN) fitCoeff
+	if(WaveType(wRef) & 0x10) // If WORD (int16)
+		Redimension/S wRef
+	endif
+	variable y0 = DimSize(wRef, 1); variable dy = DimDelta(wRef, 1)
+	variable i, imax =DimSize(wRef,1)
+	Wave/Z W_coef
+	variable fitErrorCode
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	MatrixOP/FREE getCol = col(wRef, 0) // Get one and scale it.
+	SetScale/I x, y0, dy, getCol
+	for(i=0;i<imax;i++)
+		MatrixOP/S/FREE getCol = col(wRef, i) // /S prevent scaling
+		CurveFit/Q/M=0/W=2 poly_XOffset orderN, getCol/D
+		NVAR/Z V_fitError
+		fitErrorCode = V_fitError
+		if(fitErrorCode)
+			print "FitError col:", num2str(i)
+		endif
+		//fitCoeff[i][] = W_coef[q]
+		wRef[i][] -= poly(W_coef, x)
+	endfor
+	SetDataFolder saveDF
+	return 0
 End
 
 static Function ImageResampling(WAVE wRef,  string func, variable xOffset, variable yOffset,
