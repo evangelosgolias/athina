@@ -74,12 +74,18 @@ static Function MeasureDistanceUsingFreeCursors()
 		Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0)/N=1/P C $imgNameTopGraphStr 0.25, 0.45
 		Cursor/I/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $imgNameTopGraphStr 0.75, 0.55
 	endif
-	ControlBar 30 + kCBOFFSET
-	Button scaleB pos={10,4+kCBOFFSET}, size={65,20}, title="Scale", win=$winNameStr, help = {"Place cursots C, D and set scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button drawscaleB pos={85, 4+kCBOFFSET}, size={80,20}, title="Draw Scale", win=$winNameStr, help = {"Save current scale for future use"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button modeB pos={175,4+kCBOFFSET}, title="Direct", size={80,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button markB pos={265,4+kCBOFFSET}, title="Mark", size={65,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button closeB pos={340,4+kCBOFFSET}, title="Close", size={65,20}, fcolor=(65535,0,0), win=$winNameStr, help = {"Removes control bar"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton	
+	variable lCBOFFSET 
+	if(ATH_Windows#IsWM3DAxisActiveQ(winNameStr))
+		lCBOFFSET = kCBOFFSET
+		ControlBar 30 + lCBOFFSET
+	else
+		ControlBar 30
+	endif
+	Button scaleB pos={10,4+lCBOFFSET}, size={65,20}, title="Scale", win=$winNameStr, help = {"Place cursots C, D and set scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button drawscaleB pos={85, 4+lCBOFFSET}, size={80,20}, title="Draw Scale", win=$winNameStr, help = {"Save current scale for future use"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button modeB pos={175,4+lCBOFFSET}, title="Direct", size={80,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button markB pos={265,4+lCBOFFSET}, title="Mark", size={65,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button closeB pos={340,4+lCBOFFSET}, title="Close", size={65,20}, fcolor=(65535,0,0), win=$winNameStr, help = {"Removes control bar"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton	
 	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrDCHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsHook
 
 	string userdataStrQ = GetUserData(winNameStr, "", "ATH_SavedDistanceForScale")
