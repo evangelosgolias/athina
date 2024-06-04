@@ -111,7 +111,6 @@ static Function/DF InitialiseFolder(string winNameStr)
 	string/G dfr:gATH_imgNameTopWindowStr = imgNameTopGraphStr
 	string/G dfr:gATH_WindowNameStr = winNameStr
 	string/G dfr:gATH_ImagePathname = GetWavesDataFolder(imgWaveRef, 2)
-	string/G dfr:gATH_ImagePath = GetWavesDataFolder(imgWaveRef, 1)
 	string/G dfr:gATH_ImageNameStr = NameOfWave(imgWaveRef)
 	variable/G dfr:gATH_dx = DimDelta(imgWaveRef,0)
 	variable/G dfr:gATH_dy = DimDelta(imgWaveRef,1)
@@ -210,7 +209,6 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	SetdataFolder dfr
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
-	SVAR/Z ImagePath = dfr:gATH_ImagePath
 	SVAR/Z ImageNameStr = dfr:gATH_ImageNameStr
 	NVAR/Z dx = dfr:gATH_dx
 	NVAR/Z dy = dfr:gATH_dy
