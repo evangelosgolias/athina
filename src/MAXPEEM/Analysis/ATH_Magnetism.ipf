@@ -68,19 +68,23 @@ static Function CalculateXMCDToWave(WAVE w1, WAVE w2, WAVE wXMCD)
 	wXMCD = (w1 - w2)/(w1 + w2)
 End
 
-static Function CalculateXMCDFromStackToWave(WAVE w3d, WAVE wXMCD)
+static Function CalculateXMCDFromStack(WAVE w3d, [string wnameStr])
 	/// Calculate XMCD/XMLD of two images and save it to 
-	/// @param w13d WAVE Wave with 2 layers.
-	/// @param wXMCD WAVE Calculated XMCD/XMLD wave 
-	
+	/// @param w13d WAVE Wave with 2 layers.	
 	if(DimSize(w3d, 2) != 2)
 		return -1
 	endif	
-	if(!(WaveType(w3d) & 0x02 && WaveType(wXMCD) & 0x02))
-		Redimension/S w3d, wXMCD
+	if(WaveType(w3d) & 0x10) // if int16
+		Redimension/S w3d
 	endif
-
-	MatrixOP/O wXMCD = (layer(w3d,0) - layer(w3d,1))/(layer(w3d,0) + layer(w3d,1))
+	MatrixOP/FREE w1 = layer(w3d,0)
+	MatrixOP/FREE w2 = layer(w3d,1)	
+	if(ParamIsDefault(wnameStr))
+		MatrixOP/O wXMCD = (w1-w2)/(w1+w2)
+	else
+		MatrixOP/O $wnameStr = (w1-w2)/(w1+w2)
+	endif
+	return 0
 End
 
 static Function CalculateWaveSumFromStackToWave(WAVE w3d, WAVE wSum)

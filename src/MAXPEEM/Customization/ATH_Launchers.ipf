@@ -102,21 +102,16 @@ static Function AverageStackToImageFromBrowserMenu()
 End
 
 static Function CalculateXMCDFromStack()
-	WAVE/Z w3dref = ATH_ImgOp#TopImageToWaveRef()
-	if(DimSize(w3dref,2) != 2)
-		Abort "A stack with two layers in needed"
-	endif
-	MatrixOP/O/FREE w1free = layer(w3dref, 0)
-	MatrixOP/O/FREE w2free = layer(w3dref, 1)
-	string basename = NameofWave(w3dref) + "_xmcd"
-	DFREF dfr = GetWavesDataFolderDFR(w3dref)
+	WAVE/Z w3d = ATH_ImgOp#TopImageToWaveRef()
+	string basename = NameofWave(w3d) + "_xmcd"
+	DFREF dfr = GetWavesDataFolderDFR(w3d)
 	DFREF saveDF = GetDataFolderDFR()
 	string xmcdWaveStr = CreatedataObjectName(currDFR, basename, 1, 0, 1)
 	SetDataFolder dfr
-	ATH_Magnetism#CalculateXMCD(w1free, w2free, xmcdWaveStr) // NewXMCD in the source DFR!
-	string noteStr = "Source: " + GetWavesDataFolder(w3dref, 2)
+	ATH_Magnetism#CalculateXMCDFromStack(w3d, wnameStr=xmcdWaveStr)
+	string noteStr = "Source: " + GetWavesDataFolder(w3d, 2)
 	Note/K $xmcdWaveStr, noteStr
-	CopyScales w3dref, $xmcdWaveStr 
+	CopyScales w3d, $xmcdWaveStr 
 	ATH_Display#NewImg($xmcdWaveStr)
 	SetDataFolder saveDF
 	return 0

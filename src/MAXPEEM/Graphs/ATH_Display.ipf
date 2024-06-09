@@ -73,13 +73,21 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	Wave w = ATH_ImgOp#TopImageToWaveRef(grfName=s.winName)
 	int is3D = WaveDims(w)==3
 	int plane
-	// MeasureDistanceUsingFreeCursorsCDHook needs fixing. It will not work as is now
-	// Use a panel there maybe?
 	switch (s.eventCode)
 		case 11:
 			switch(s.keycode)
+				case 97: // a - average if you have a 3d wave
+					if(is3d)
+						ATH_WaveOp#AverageImageStack(w)
+					endif
+					return 1
 				case 100: //d
-					ATH_iDriftCorrection#CreatePanel()
+					GetMarquee/W=$s.winName
+					if(V_flag)
+						ATH_Launch#ImageStackAlignmentPartition() // If marquee present launch partition dc 
+					else
+						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
+					endif
 					return 1			
 				case 105: // i
 					ATH_Cursors#MeasureDistanceUsingFreeCursors()
@@ -99,10 +107,24 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ModifyGraph width={Plan,1,top,left}
 					endif
 					return 1
+				case 120: // x, calculate xmcd
+					if(is3d && DimSize(w, 2)==2)
+						ATH_Launch#CalculateXMCDFromStack()
+						
+					endif
+					return 1
+				case 122: // z, launch z-profile if marquee present
+					if(is3d)
+						GetMarquee/W=$s.winName
+						if(V_flag) // FIX: You need to move cursor to update z-profile
+							ATH_ZProfile#GraphMarqueeLaunchRectangle()
+						endif
+					endif
+					return 1
 			endswitch
 			break
 		case 22:	//	mouseWheel
-			if (s.eventMod & 8)		//	if the ctrl key is pressed
+			if (s.eventMod & 8)		//	if the ctrl key is pressed (CMD on )
 				ATH_Display#Mangify(s)
 				return 0
 			endif

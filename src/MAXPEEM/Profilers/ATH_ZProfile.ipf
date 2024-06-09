@@ -46,7 +46,7 @@ static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 		endif
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MyZprofileHook) = ATH_ZProfile#CursorHookFunction // Set the hook
+		SetWindow $winNameStr hook(MyZprofileHook) = ATH_ZProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageZPP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_ZProfileDFR) = GetDataFolder(1, dfr)//"root:Packages:ATH_DataFolder:ZBeamProfiles:" + PossiblyQuoteName(NameOfWave(w3dref))
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see ATH_InitialiseLineProfileFolder
@@ -54,7 +54,12 @@ static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 		Abort "z-profile needs a 3d wave"
 	endif
 	DoWindow/F $winNameStr // You need to have your imange stack as a top window
-	GetMarquee/K left, top
+	variable errCode
+	GetMarquee/K left, top; errCode = GetRTError(1);
+	if(errCode)
+		KillWindow $winNameStr
+		ATH_Display#NewImg(w3dref)
+	endif
 	NVAR/SDFR=dfr gATH_left
 	NVAR/SDFR=dfr gATH_right
 	NVAR/SDFR=dfr gATH_top
@@ -92,15 +97,20 @@ static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 		endif
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
-		SetWindow $winNameStr, hook(MyZprofileHook) = ATH_ZProfile#CursorHookFunction // Set the hook
+		DoWindow/F $winNameStr // You need to have your imange stack as a top window
+		SetWindow $winNameStr hook(MyZprofileHook) = ATH_ZProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageZPP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_ZProfileDFR) = GetDataFolder(1, dfr)
 		SetWindow $winNameStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + winNameStr  //  Same as gATH_WindowNameStr, see InitialiseFolder
 	else
 		Abort "z-profile needs a 3d wave"
 	endif	
-	DoWindow/F $winNameStr // You need to have your imange stack as a top window
-	GetMarquee/K left, top
+	variable errCode
+	GetMarquee/K left, top; errCode = GetRTError(1);
+	if(errCode)
+		KillWindow $winNameStr
+		ATH_Display#NewImg(w3dref)
+	endif
 	NVAR/SDFR=dfr gATH_left
 	NVAR/SDFR=dfr gATH_right
 	NVAR/SDFR=dfr gATH_top
@@ -149,6 +159,7 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 		endif	
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
+		DoWindow/F $winNameStr // You need to have your imange stack as a top window	
 		SetWindow $winNameStr, hook(MyZprofileHook) = ATH_ZProfile#CursorHookFunction // Set the hook
 		SetWindow $winNameStr userdata(ATH_LinkedWinImageZPP) = "ATH_ZProfPlot_" + winNameStr // Name of the plot we will make, used to send the kill signal to the plot
 		SetWindow $winNameStr userdata(ATH_ZProfileDFR) = GetDataFolder(1, dfr)
@@ -156,8 +167,6 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 	else
 		Abort "z-profile needs a 3d wave"
 	endif	
-	DoWindow/F $winNameStr // You need to have your imange stack as a top window
-			
 	NVAR/SDFR=dfr gATH_left	
 	NVAR/SDFR=dfr gATH_right
 	NVAR/SDFR=dfr gATH_top
@@ -197,17 +206,6 @@ static Function/DF InitialiseFolder()
 	string msg // Error reporting
 	if(!strlen(imgNameTopGraphStr)) // we do not have an image in top graph
 		Abort "No image in top graph. Start profile with an image stack in top window."
-	endif
-	
-	if(WaveDims(w3dref) != 3)
-		sprintf msg, "Z-profile works with 3d waves only.  Wave %s is in top window", imgNameTopGraphStr
-		Abort msg
-	endif
-	
-	if(stringmatch(AxisList(winNameStr),"*bottom*")) // Check if you have a NewImage left;top axes
-		sprintf msg, "Reopen %s using ATH_Display#NewImg", imgNameTopGraphStr
-		KillWindow $winNameStr
-		ATH_Display#NewImg(w3dref)
 	endif
 	
 	WMAppend3DImageSlider() // Everything ok now, add a slider to the 3d wave
