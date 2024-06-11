@@ -39,7 +39,7 @@ static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
 static Function NewImg(WAVE wRef)
 	// Display an image or stack
 	NewImage/G=1/K=1 wRef
-	// Error handlgi
+	// Error handling
 	ATH_exe#HandleSimpleError("NewImg")
 	string windowNameStr = GetWavesDataFolder(wRef, 2)[5, inf] // Discrard root:
 	DoWindow/T kwTopWin, windowNameStr
@@ -61,19 +61,10 @@ static Function NewImg(WAVE wRef)
 	return 0
 End
 
-Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
-	// Fast exit if nothing is meant to be done
-		switch (s.eventCode)
-			case 22:	//	mouseWheel
-			case 11:
-				break
-			default:
-				return 0
-		endswitch
-	// Proceed
+static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
+	// 
 	Wave w = ATH_ImgOp#TopImageToWaveRef(grfName=s.winName)
 	int is3D = WaveDims(w)==3
-	int plane
 	switch (s.eventCode)
 		case 11:
 			strswitch(num2char(s.keycode))
@@ -85,11 +76,11 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				case "d": //d
 					GetMarquee/W=$s.winName
 					if(V_flag)
-						ATH_Launch#ImageStackAlignmentPartition() // If marquee present launch partition dc 
+						ATH_Launch#ImageStackAlignmentPartition() // If marquee present launch partition dc
 					else
 						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
 					endif
-					return 1			
+					return 1
 				case "i": // i
 					ATH_Cursors#MeasureDistanceUsingFreeCursors()
 					return 1
@@ -110,16 +101,16 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					return 1
 				case "x": // x, calculate xmcd
 					if(is3d && DimSize(w, 2)==2)
-						ATH_Launch#CalculateXMCDFromStack()	
+						ATH_Launch#CalculateXMCDFromStack()
 					endif
 					return 1
 				case "z": // z, launch z-profile if marquee present
 					if(is3d)
 						GetMarquee/W=$s.winName
 						if(V_flag) // FIX: You need to move cursor to update z-profile
-							// Without Execute/P you do not get updated profile without 
+							// Without Execute/P you do not get updated profile without
 							// moving the cursor (J)
-							Execute/P "ATH_ZProfile#GraphMarqueeLaunchRectangle()"
+							Execute/P/Q "ATH_ZProfile#GraphMarqueeLaunchRectangle()"
 						endif
 					endif
 					return 1
@@ -130,12 +121,12 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				ATH_Display#Mangify(s)
 				return 0
 			endif
-			
+
 			int direction = (s.wheelDy > 0) ? 1 : -1
 			if (is3D)
 				STRUCT sMousePosition ms
 				ATH_Display#GetMousePosition(ms, s.winName, s.mouseLoc)
-				plane = ATH_Display#GetLayerIndex(s.winName, w=ms.w)
+				int plane = ATH_Display#GetLayerIndex(s.winName, w=ms.w)
 				ATH_Display#SetLayerIndex(s.winName, plane+direction, w=ms.w)
 			endif
 			return 0
