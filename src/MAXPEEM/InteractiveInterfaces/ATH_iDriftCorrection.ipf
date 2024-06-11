@@ -101,7 +101,8 @@ static Function CreatePanel()
 	variable/G dfr:gATH_LDCstartY = NaN
 	variable/G dfr:gATH_LDCendX = NaN
 	variable/G dfr:gATH_LDCendY = NaN
-	NewPanel/K=1/EXT=0/N=iDriftCorrection/W=(0,0,165,380)/HOST=$winNameStr
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution
+	NewPanel/K=1/EXT=0/N=iDriftCorrection/W=(0,0,165*pntConv,380*pntConv)/HOST=$winNameStr
 	SetDrawLayer UserBack
 	SetDrawEnv/W=iDriftCorrection fsize= 13,fstyle= 1,textrgb= (1,12815,52428)
 	DrawText/W=iDriftCorrection 2,16,"Interactive drift correction"

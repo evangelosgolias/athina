@@ -206,10 +206,10 @@ static Function CreatePanel(DFREF dfr)
 	SetDataFolder dfr
 	ImageTransform/X={ Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface wRef
 	SetDataFolder cdfr 
-	variable pix = 72/ScreenResolution
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution
 	NewImage/G=1/K=1/N=$profilePlotStr dfr:M_ExtractedSurface // Do not Flip image (/F) to get top axis
 	SetAxis/A left
-	ModifyGraph/W=$profilePlotStr width = 340 * pix, height = 470 * pix
+	ModifyGraph/W=$profilePlotStr width = 340 * pntConv, height = 470 * pntConv
 	ModifyGraph/Z cbRGB=(65535,65534,49151)
 
 	ControlBar/W=$profilePlotStr 50	

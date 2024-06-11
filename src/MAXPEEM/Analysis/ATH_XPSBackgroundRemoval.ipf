@@ -412,9 +412,9 @@ Function BackgroundSubtractGUI() //BackgroundSubtractGUI(inwave)
 	Wave/SDFR=strg Data_Orig, Data_Net, Data_Back, NegResiduals
 	Data_Net = NaN; Data_Back = NaN; NegResiduals = NaN
 	//+++++++++++++++++++++++++++++++++++ generate the panels +++++++++++++++++++++++++++++++++++
-	Variable pix = 72/ScreenResolution
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution	
 	//EG: changed /K flag, some users just close the window
-	Display/W=(230*pix,50*pix,1115*pix,550*pix)/K=1/N=$gName Data_Orig as gTitle + NameOfWave(inwave)
+	Display/W=(230*pntConv,50*pntConv,1115*pntConv,550*pntConv)/K=1/N=$gName Data_Orig as gTitle + NameOfWave(inwave)
 //	Display/W=(230*pix,50*pix,1115*pix,550*pix)/K=1/N=$gName Data_Orig as gTitle + NameOfWave(inwave)
 	AppendToGraph/C=(0,0,65280) 							Data_Back							// the calculated background
 	AppendToGraph/C=(0,39168,0) 							Data_Net							// the spectrum with subtracted background
@@ -759,11 +759,11 @@ Function BackRem_ButtonAction(s) : ButtonControl
 			if (V_Flag == 2 && V_Value == 1)													// additionally plot the output
 				Wave back = inwaveDF:$(inwName+"_bck")
 				Wave wnet = inwaveDF:$(inwName+"_net")
-				Display/K=1/W=(200,50,700,300) inwave as "Background for " + inwName			// display the results
+				variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution	
+				Display/K=1/W=(200*pntConv,50*pntConv,700*pntConv,300*pntConv) inwave as "Background for " + inwName			// display the results
 				AppendToGraph/C=(0,0,65280) back
 				AppendToGraph/C=(0,39168,0) wnet
 				ModifyGraph mirror(left)=1, mirror(bottom)=2, minor=1, standoff=0, ZisZ=1, notation(left)=1
-				
 				Legend/C/N=text0/B=1/F=0/A=LT													// add a legend with the settings
 				String settings = ReplaceString("\r",ReplaceString(" = ",AddNote,"="),";")
 				String funcType = StringByKey("function", settings, "=")

@@ -160,8 +160,8 @@ static Function CreatePlot(DFREF dfr)
 	NVAR profileWidth = dfr:gATH_profileWidth
 	string profilePlotStr = "ATH_LineProfilePlot_" + gATH_WindowNameStr
 	Make/O/N=0  dfr:W_LineProfileDisplacement, dfr:W_ImageLineProfile // Make a dummy wave to display 
-	variable pix = 72/ScreenResolution
-	Display/W=(0*pix,0*pix,500*pix,300*pix)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile vs dfr:W_LineProfileDisplacement as "Line profile " + gATH_WindowNameStr
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution
+	Display/W=(0*pntConv,0*pntConv,500*pntConv,300*pntConv)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile vs dfr:W_LineProfileDisplacement as "Line profile " + gATH_WindowNameStr
 	AutoPositionWindow/E/M=0/R=$gATH_WindowNameStr
 	ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=14, lsize=1.5
 	ModifyGraph/Z cbRGB=(49151,65535,49151)

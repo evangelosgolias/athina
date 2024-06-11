@@ -223,14 +223,13 @@ Static Function PTDisplayPanel()
 	variable ptddwidth=gscf*120,ptddheight=11*bh
 	
 	string gscfstr=ptpig.scfstr
-		
-	ptwidth=gscf*(ptpig.ptwidth+120)
-	ptheight=gscf*ptpig.ptheight
-	left=gscf*ptpig.left
-	top=gscf*ptpig.top
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution			
+	ptwidth=gscf*(ptpig.ptwidth+120)*pntConv
+	ptheight=gscf*ptpig.ptheight*pntConv
+	left=gscf*ptpig.left*pntConv
+	top=gscf*ptpig.top*pntConv
 	
 	string strgscf = num2str(gscf)
-		
 	NewPanel/K=(gkill)/W=(gptleft,gpttop,gptleft+ptwidth,gpttop+ptheight)
 	ModifyPanel cbRGB=(PTbgR,PTbgG,PTbgB), fixedSize=1//,noEdit=1
 	DoWindow/C/T PhotoionisationCrossSectionPanel," MAXPEEM Photoionisation CrossSection"

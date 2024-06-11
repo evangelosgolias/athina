@@ -203,8 +203,8 @@ Static Function pnl(String grfName)
 	SIDAM_GetColorTableMinMax(grfName, imgName, zmin, zmax)
 
 	String dfTmp = pnlInit(grfName, imgName, zmin, zmax)
-
-	NewPanel/EXT=0/HOST=$targetWin/W=(0,0,PNLWIDTH,PNLHEIGHT)/N=$PNAME
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution
+	NewPanel/EXT=0/HOST=$targetWin/W=(0,0,PNLWIDTH*pntConv,PNLHEIGHT*pntConv)/N=$PNAME
 	String pnlName = targetWin + "#" + PNAME
 
 	//	Controls

@@ -97,27 +97,15 @@ static Function MakePanel()
 	variable screenWidth, screenLength, listlength, listwidth
 	screenWidth = abs(screenRight - screenLeft)
 	screenLength = abs(screenBottom - screenTop)
-	
-	// Tune 0.XXX coefficients
-	if(screenWidth < 2000)
-		panelLeft = screenWidth * 0.85
-		panelRight = screenWidth
-		panelTop = screenLength * 0.2
-		panelBottom = screenLength * 0.8
-		listlength = abs(panelBottom - panelTop) * 0.925
-		listwidth = abs(panelRight - panelLeft)
-	else
-		panelLeft = screenWidth * 0.9
-		panelRight = screenWidth
-		panelTop = screenLength * 0.3
-		panelBottom = screenLength * 0.7
-		listlength = abs(panelBottom - panelTop) * 0.925
-		listwidth = abs(panelRight - panelLeft)
-	endif
-	
+	panelLeft = screenWidth * 0.85
+	panelRight = screenWidth
+	panelTop = screenLength * 0.2
+	panelBottom = screenLength * 0.8
+	listlength = abs(panelBottom - panelTop) * 0.925
+	listwidth = abs(panelRight - panelLeft)
 	NVAR/Z/SDFR=dfr gSelectedSpace
-
-	NewPanel /N=ATH_SpacesPanel/W=(panelLeft, panelTop, panelRight, panelBottom) as "ATH Spaces"
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution	
+	NewPanel /N=ATH_SpacesPanel/W=(panelLeft*pntConv, panelTop*pntConv, panelRight*pntConv, panelBottom*pntConv) as "ATH Spaces"
 	SetDrawLayer UserBack
 	Button NewSpace,pos={10,8.00},size={listwidth * 0.25,20.00},help={"Create new space"}
 	Button NewSpace,fColor=(3,52428,1),proc=ATH_Spaces#NewSpaceButton
