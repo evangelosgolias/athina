@@ -39,11 +39,12 @@ static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 	if(WaveDims(w3dref) == 3) // if it is a 3d wave
 		// When plotting waves from calculations we might have NaNs or Infs.
 		// Remove them before starting and replace them with zeros
-		Wavestats/M=1/Q w3dref
-		if(V_numNaNs || V_numInfs)
-			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
-			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
-		endif
+		// Changed 11.06.2024 - We do not want to change the wave
+//		Wavestats/M=1/Q w3dref
+//		if(V_numNaNs || V_numInfs)
+//			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
+//			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
+//		endif
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
 		SetWindow $winNameStr hook(MyZprofileHook) = ATH_ZProfile#CursorHookFunction // Set the hook
@@ -90,11 +91,12 @@ static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 	if(WaveDims(w3dref) == 3) // if it is a 3d wave
 		// When plotting waves from calculations we might have NaNs or Infs.
 		// Remove them before starting and replace them with zeros
-		Wavestats/M=1/Q w3dref
-		if(V_numNaNs || V_numInfs)
-			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
-			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
-		endif
+		// Changed 11.06.2024 - We do not want to change the wave
+//		Wavestats/M=1/Q w3dref
+//		if(V_numNaNs || V_numInfs)
+//			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
+//			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
+//		endif
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
 		DoWindow/F $winNameStr // You need to have your imange stack as a top window

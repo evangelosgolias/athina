@@ -117,7 +117,9 @@ Static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					if(is3d)
 						GetMarquee/W=$s.winName
 						if(V_flag) // FIX: You need to move cursor to update z-profile
-							ATH_ZProfile#GraphMarqueeLaunchRectangle()
+							// Without Execute/P you do not get updated profile without 
+							// moving the cursor (J)
+							Execute/P "ATH_ZProfile#GraphMarqueeLaunchRectangle()"
 						endif
 					endif
 					return 1
