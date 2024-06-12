@@ -95,7 +95,7 @@ static Function/DF InitialiseFolder()
 		WMAppend3DImageSlider() // Everything ok now, add a slider to the 3d wave
 	endif
     DFREF rootDF = $("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:")
-    string UniqueimgNameTopGraphStr = CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1)
+    string UniqueimgNameTopGraphStr = PossiblyQuoteName(CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1))
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + UniqueimgNameTopGraphStr) // Root folder here
 
 	variable nrows = DimSize(imgWaveRef, 0)
@@ -206,10 +206,11 @@ static Function CreatePanel(DFREF dfr)
 	SetDataFolder dfr
 	ImageTransform/X={ Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface wRef
 	SetDataFolder cdfr 
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution
 	NewImage/G=1/K=1/N=$profilePlotStr dfr:M_ExtractedSurface // Do not Flip image (/F) to get top axis
 	SetAxis/A left
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution	
 	ModifyGraph/W=$profilePlotStr width = 340 * pntConv, height = 470 * pntConv
+	Execute/P/Q "ModifyGraph width=0,height=0"
 	ModifyGraph/Z cbRGB=(65535,65534,49151)
 
 	ControlBar/W=$profilePlotStr 50	
@@ -241,18 +242,18 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
 	WAVE/Z w3dRef = $ImagePathname
-	NVAR/Z nlayers = dfr:gATH_nLayers 
+	NVAR/Z nlayers = dfr:gATH_nLayers
 	NVAR/Z C1x = dfr:gATH_C1x
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
 	NVAR/Z C2y = dfr:gATH_C2y
 	NVAR/Z Nx = dfr:gATH_Nx
-	NVAR/Z Ny = dfr:gATH_Ny	
+	NVAR/Z Ny = dfr:gATH_Ny
 	NVAR/Z nLayers =  dfr:gATH_nLayers
 	NVAR/Z OverrideNx = dfr:gATH_OverrideNx
 	NVAR/Z OverrideNy = dfr:gATH_OverrideNy
 	// Set scale
-	NVAR/Z Xfactor = dfr:gATH_Xfactor	
+	NVAR/Z Xfactor = dfr:gATH_Xfactor
 	NVAR/Z Ystart = dfr:gATH_Ystart
 	NVAR/Z Yend = dfr:gATH_Yend
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
@@ -281,18 +282,18 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 		case 7:
 			if(!cmpstr(s.cursorName, "G") || !cmpstr(s.cursorName, "H")) // It should work only with G, H you might have other cursors on the image
 				SetDrawLayer/W=$s.winName ProgFront
-			    DrawAction/W=$s.winName delete
-	   			SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	   			C1x = hcsr(G)
+				DrawAction/W=$s.winName delete
+				SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+				C1x = hcsr(G)
 				C1y = vcsr(G)
-				C2x = hcsr(H) 
-		       	C2y = vcsr(H)
-		       	DrawLine/W=$s.winName C1x, C1y, C2x, C2y
-		       	if(C1x == C2x && C1y == C2y) // Cursors G, H cannot overlap
-		       		break
-		       	endif
-		    endif
-		    	WAVE/Z M_ExtractedSurface, ATH_WaveSumProfiles
+				C2x = hcsr(H)
+				C2y = vcsr(H)
+				DrawLine/W=$s.winName C1x, C1y, C2x, C2y
+				if(C1x == C2x && C1y == C2y) // Cursors G, H cannot overlap
+					break
+				endif
+			endif
+			WAVE/Z M_ExtractedSurface, ATH_WaveSumProfiles
 			if(profileWidth == 1)
 				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 			else
@@ -313,7 +314,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 					endfor
 					ATH_WaveSumProfiles /= profileWidth
 				endif
-						
+
 				if(slp == inf)
 					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
 						x1 = C1x + i // assume dx = dy = 1
@@ -330,9 +331,9 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 					endfor
 					ATH_WaveSumProfiles /= profileWidth
 				endif
-				
-				// If s is not 0 or inf do the work here	
-				if(slp != 0 && slp != inf)			
+
+				// If s is not 0 or inf do the work here
+				if(slp != 0 && slp != inf)
 					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
 						[x1, y1] = ATH_Geometry#GetSinglePointWithDistanceFromLine(C1x, C1y, slp, i)
 						[x2, y2] = ATH_Geometry#GetSinglePointWithDistanceFromLine(C2x, C2y, slp, i)
@@ -354,25 +355,25 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			endif
 
 			normGHCursors = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
-		    if(!OverrideNx) // Do not override
-		   		Nx = normGHCursors	
+			if(!OverrideNx) // Do not override
+				Nx = normGHCursors
 			endif
-	       	if(!OverrideNy) // Do not override
-		      	Ny = nLayers					
-			endif				
-		    if(OverrideNx)
-		       	SetScale/I x, 0, (normGHCursors * Xfactor), M_ExtractedSurface
-		    else
-		      	SetScale/I x, 0, (Nx * Xfactor), M_ExtractedSurface
-		    endif		    
-		    SetScale/I y, Ystart, Yend, M_ExtractedSurface
-		    SetDrawLayer/W=$s.winName UserFront
+			if(!OverrideNy) // Do not override
+				Ny = nLayers
+			endif
+			if(OverrideNx)
+				SetScale/I x, 0, (normGHCursors * Xfactor), M_ExtractedSurface
+			else
+				SetScale/I x, 0, (Nx * Xfactor), M_ExtractedSurface
+			endif
+			SetScale/I y, Ystart, Yend, M_ExtractedSurface
+			SetDrawLayer/W=$s.winName UserFront
 			hookResult = 1
-		break
+			break
 		case 5:
 			SetDrawLayer/W=$s.winName ProgFront
 			DrawAction/W=$s.winName delete
-	   		SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left			
+			SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 			DrawLine/W=$s.winName C1x, C1y, C2x, C2y
 			slp = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
 			if(slp == 0)
@@ -383,9 +384,9 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				y1 = C1y + 0.5 * profileWidth
 				y2 = C1y - 0.5 * profileWidth
 				y3 = C2y - 0.5 * profileWidth
-				y4 = C2y + 0.5 * profileWidth 
+				y4 = C2y + 0.5 * profileWidth
 			elseif(slp == inf)
-			print "inf"
+				print "inf"
 				y1 = C1y
 				y2 = C1y
 				y3 = C2y
@@ -411,10 +412,10 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			SetDrawEnv/W=$s.winName gstop
 			SetDrawLayer/W=$s.winName UserFront
 			hookResult = 1
-		break		
+			break
 	endswitch
-    SetdataFolder currdfr
-    return hookResult       // 0 if nothing done, else 1
+	SetdataFolder currdfr
+	return hookResult       // 0 if nothing done, else 1
 End
 
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
@@ -450,6 +451,7 @@ End
 static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl // Change using UniqueName for displaying
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+	DFREF currdfr = GetDataFolderDFR()	
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 	SVAR/Z w3dNameStr = dfr:gATH_ImageNameStr
@@ -478,7 +480,9 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 			if(PlotSwitch)
 				saveImageStr = targetGraphWin + "_s" + num2str(postfix)
 				NewImage/G=1/K=1/N=$saveImageStr savedfr:$saveWaveNameStr
-				ModifyGraph/W=$saveImageStr width = 330, height = 470
+				variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution	
+				ModifyGraph/W=$saveImageStr width = 330*pntConv, height = 470*pntConv
+				Execute/P/Q "ModifyGraph width=0,height=0"
 				colorcnt += 1
 			endif
 
