@@ -95,8 +95,8 @@ static Function/DF InitialiseFolder()
 		WMAppend3DImageSlider() // Everything ok now, add a slider to the 3d wave
 	endif
     DFREF rootDF = $("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:")
-    string UniqueimgNameTopGraphStr = PossiblyQuoteName(CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1))
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + UniqueimgNameTopGraphStr) // Root folder here
+    string UniqueimgNameTopGraphStr = CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1)
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + PossiblyQuoteName(UniqueimgNameTopGraphStr)) // Root folder here
 
 	variable nrows = DimSize(imgWaveRef, 0)
 	variable ncols = DimSize(imgWaveRef, 1)
@@ -480,9 +480,10 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 			if(PlotSwitch)
 				saveImageStr = targetGraphWin + "_s" + num2str(postfix)
 				NewImage/G=1/K=1/N=$saveImageStr savedfr:$saveWaveNameStr
-				variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution	
+				variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution
 				ModifyGraph/W=$saveImageStr width = 330*pntConv, height = 470*pntConv
-				Execute/P/Q "ModifyGraph width=0,height=0"
+				SetAxis/A left
+				Execute/P/Q "ModifyGraph/W=$\""+saveImageStr+"\" width=0,height=0"			
 				colorcnt += 1
 			endif
 

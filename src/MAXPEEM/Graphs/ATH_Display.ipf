@@ -39,6 +39,9 @@ static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
 static Function NewImg(WAVE wRef)
 	// Display an image or stack
 	NewImage/G=1/K=1 wRef
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution
+	ModifyGraph height = 400 * pntConv, width = 400 * pntConv
+	Execute/P/Q "ModifyGraph width=0,height=0"
 	// Error handling
 	ATH_exe#HandleSimpleError("NewImg")
 	string windowNameStr = GetWavesDataFolder(wRef, 2)[5, inf] // Discrard root:

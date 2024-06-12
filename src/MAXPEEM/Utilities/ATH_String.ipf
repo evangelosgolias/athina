@@ -101,3 +101,27 @@ static Function/WAVE WAVEStringListToTextWave(string stringListStr, [string sep]
 		return ListToTextWave(stringListStr, sep)		
 	endif
 End
+
+static Function isLiberalQ(string s)
+	// Checks if a string is liberal.
+	// Returns 0 for empty string
+	string regex = "^[a-zA-Z]{1}[a-zA-Z0-9_]+$"
+	if(GrepString(s, regex) || !strlen(s))
+		return 0
+	else
+		return 1
+	endif
+End
+
+static Function isPathStringLegalQ(string path)
+	variable steps = ItemsInlist(path, ":"), i
+	string str
+	for(i = 0; i < steps ; i++)
+		str = StringFromList(i, path, ":")
+		
+		if(ATH_String#isLiberalQ(str) && (cmpstr(str[0],"'") || cmpstr(str[strlen(str)-1],"'")) )
+			return 0
+		endif
+	endfor
+	return 1
+End

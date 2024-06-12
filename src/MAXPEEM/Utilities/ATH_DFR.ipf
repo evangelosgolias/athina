@@ -74,9 +74,17 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	/// Create a data folder using fullpath and return a DF reference.
 	/// If parent directories do not exist they are created.
 	/// SetDF set the cwd to fullpath if set.
-
+	/// N.B If the folder contains paths with liberal names without 
+	/// enclosing single quotes then the path is sanitised
+	
 	setDF = ParamIsDefault(setDF) ? 0 : setDF
 
+	// Sanitize path, liberal names
+	// It is not always needed, 
+	if(!ATH_String#isPathStringLegalQ(fullpath))
+		fullpath = SanitizePath(fullpath)
+	endif
+	
 	// If the directory exists
 	if(DataFolderExists(ParseFilePath(2, fullpath, ":", 0, 0))) // ":" at the end needed to function properly
 		DFREF dfr = $fullpath
@@ -108,6 +116,21 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	endif
 	
 	return dfr
+End
+
+static Function/S SanitizePath(string path)
+	// Fix liberal relative pathnames in fullpath
+	variable steps = ItemsInlist(path, ":"), i
+	string spath = "", str
+	for(i = 0; i < steps ; i++) // i = 0 & steps return NULL string
+		str = StringFromList(i, path, ":")
+		if(ATH_String#isLiberalQ(str))
+			spath += PossiblyQuoteName(str) + ":"
+		else
+			spath += str + ":"
+		endif
+	endfor
+	return spath
 End
 
 static Function PrintFoldersAndFiles(string pathName, string extension, variable recurse, variable level)
