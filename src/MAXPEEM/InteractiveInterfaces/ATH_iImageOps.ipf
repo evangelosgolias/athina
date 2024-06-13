@@ -44,7 +44,7 @@ static Function MainMenu()
 	string wave2NameStr = StringFromList(1, selectedWavesStr)
 	WAVE w1 = $wave1NameStr
 	WAVE w2 = $wave2NameStr	
-	if(nrSelectedWaves != 2 || !ATH_WaveOp#AllWaveDimensionsEqualQ(w1, w2) \
+	if(nrSelectedWaves != 2 || !ATH_WaveOp#WaveDimensionsEqualQ(w1, w2) \
 	   || WaveDims(w1) != 2 || WaveDims(w2) != 2)
 		DoAlert/T="Please select only two 2d waves with equal dimensions sizes." 1,  ""+\
 				  "Do you want a another chance with the browser selection?"

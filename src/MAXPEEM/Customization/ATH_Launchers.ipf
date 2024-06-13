@@ -248,7 +248,7 @@ static Function ImageStackAlignmentFullImage()
 		return -1
 	endif
 	
-	string backupWavePathStr = ATH_WaveOp#BackupWaveInWaveDF(w3dref)
+	string backupWavePathStr = ATH_DFR#BackupWaveInWaveDF(w3dref)
 	int switchWaveCopy = 0
 	if(normalise == 1)
 		ATH_ImgOp#ScalePlanesBetweenZeroAndOne(w3dRef)
@@ -337,7 +337,7 @@ static Function ImageStackAlignmentPartition()
 		return -1
 	endif
 	
-	string backupWavePathStr = ATH_WaveOp#BackupWaveInWaveDF(w3dref)
+	string backupWavePathStr = ATH_DFR#BackupWaveInWaveDF(w3dref)
 
 	variable left, right, top, bottom
 
@@ -416,7 +416,7 @@ static Function LinearDriftCorrestionStackABCursors()
 	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P B $imgNameTopGraphStr 0.75, 0.5
 	variable slope, shift
 	
-	string backupWavePathStr = ATH_WaveOp#BackupWaveInWaveDF(w3dref)	
+	string backupWavePathStr = ATH_DFR#BackupWaveInWaveDF(w3dref)	
 	
 	variable x0, y0, x1, y1
 	STRUCT sUserCursorPositions s
@@ -450,7 +450,7 @@ static Function LinearDriftCorrestionPlanesABCursors()
 	if(DimSize(w3dref, 2) < 3)
 		return -1
 	endif
-	string backupWavePathStr = ATH_WaveOp#BackupWaveInWaveDF(w3dref)
+	string backupWavePathStr = ATH_DFR#BackupWaveInWaveDF(w3dref)
 	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P A $imgNameTopGraphStr 0.25, 0.5
 	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P B $imgNameTopGraphStr 0.75, 0.5
 	variable slope, shift, x0, y0, x1, y1, startL, endL, nlayers
@@ -855,7 +855,7 @@ static Function HistogramShiftToGaussianCenter()
 	if(!WaveExists(wRef))
 		Abort "Wave Reference is NULL"
 	endif
-	ATH_WaveOp#BackupWaveInWaveDF(wRef) // backup the wave, we will overwrite
+	ATH_DFR#BackupWaveInWaveDF(wRef) // backup the wave, we will overwrite
 	if(WaveDims(wRef) == 3)	
 		ATH_ImgOp#HistogramShiftToGaussianCenterStack(wRef, overwrite=1)
 	else
@@ -968,7 +968,7 @@ static Function DeleteBigWaves()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:FindBigWaves")
 	WAVE/SDFR=dfr/T waveNamesW
 	WAVE/SDFR=dfr waveSizesW 
-	ATH_WaveOp#TWaveRemoveEntriesFromPatters(waveNamesW, "root:Packages:*", otherW = waveSizesW) // Do not operate on root:Packages !
+	ATH_TWave#TWaveRemoveEntriesFromPatters(waveNamesW, "root:Packages:*", otherW = waveSizesW) // Do not operate on root:Packages !
 	variable totalSizeMB = sum(waveSizesW)
 	variable nwaves = DimSize(waveNamesW, 0)
 	string editWindowName = UniqueName("BigWaves", 7, 0)
@@ -990,7 +990,7 @@ static Function DeleteBigWaves()
 		KillDataFolder/Z dfr
 		return 1
 	else
-		ATH_WaveOp#DeleteWavesInTextWave(waveNamesW)
+		ATH_TWave#DeleteWavesInTextWave(waveNamesW)
 		KillWindow/Z $editWindowName
 		// Here DimSize(waveNamesW, 0) as nwaves might have changed
 		print "Deleted " + num2str(DimSize(waveNamesW, 0)) + " waves. Total space freed: " + num2str(totalSizeMB) + " MBs"
@@ -1010,7 +1010,7 @@ static Function DeleteBigWavesDisplayed()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:FindBigWaves")
 	WAVE/SDFR=dfr/T waveNamesW
 	WAVE/SDFR=dfr waveSizesW 
-	ATH_WaveOp#TWaveRemoveEntriesFromPatters(waveNamesW, "root:Packages:*", otherW = waveSizesW) // Do not operate on root:Packages !
+	ATH_TWave#TWaveRemoveEntriesFromPatters(waveNamesW, "root:Packages:*", otherW = waveSizesW) // Do not operate on root:Packages !
 	variable totalSizeMB = sum(waveSizesW)
 	variable nwaves = DimSize(waveNamesW, 0)
 	string editWindowName = UniqueName("BigWaves", 7, 0)
@@ -1022,7 +1022,7 @@ static Function DeleteBigWavesDisplayed()
 		KillDataFolder/Z dfr
 		return 1
 	else	
-		ATH_WaveOp#DeleteWavesInTextWave(waveNamesW)
+		ATH_TWave#DeleteWavesInTextWave(waveNamesW)
 		KillWindow/Z $editWindowName
 		print "Deleted " + num2str(nwaves) + " waves. Total space freed: " + num2str(totalSizeMB) + " MBs"
 		KillDataFolder dfr		
@@ -1215,7 +1215,7 @@ static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operat
 	if(V_flag || order < 1 || order > 12)
 		return -1
 	endif
-	ATH_WaveOp#BackupWaveInWaveDFQ(wRef)
+	ATH_DFR#BackupWaveInWaveDFQ(wRef)
 	if(ATH_Windows#IsWM3DAxisActiveQ("")) // Do we have active axis in top window?
 		variable layerN = ATH_Windows#GetCurrentPlaneWM3DAxis("")
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = layerN)
@@ -1224,3 +1224,4 @@ static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operat
 	endif
 	Note wRef, "\nImageRemoveBackground/P=" + num2str(order)
 End
+

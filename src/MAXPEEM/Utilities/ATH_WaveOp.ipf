@@ -114,10 +114,10 @@ static Function/S Make3DWaveDataBrowserSelection(string wname3dStr, [variable ma
 	variable nx = DimSize(wref,0)
 	variable ny = DimSize(wref,1)
 	// List of all waves
-	WAVE/WAVE waveListFree = ATH_WaveOp#StringWaveListToWaveRef(listOfSelectedWaves, isFree = 1)	
+	WAVE/WAVE waveListFree = ATH_WaveOp#WaveListStrToWaveRef(listOfSelectedWaves, isFree = 1)	
 	// Checks if all waves are in the same folder
 	if(autoPath)
-		makeInSourceDFR = ATH_WaveOp#AllWavesSamePathQ(waveListFree)
+		makeInSourceDFR = ATH_DFR#AllWavesSamePathQ(waveListFree)
 	endif
 	if(makeInSourceDFR)
 		DFREF saveDF = GetDataFolderDFR()
@@ -151,7 +151,7 @@ static Function/S Make3DWaveDataBrowserSelection(string wname3dStr, [variable ma
 	return (folder + wname3dStr)
 End
 
-static Function/WAVE StringWaveListToWaveRef(string wavelistStr, [int isFree])
+static Function/WAVE WaveListStrToWaveRef(string wavelistStr, [int isFree])
 	// Gets a wavelist and retuns a Wave reference Wave.
 	// Wave is free is isFree is set
 	
@@ -172,22 +172,6 @@ static Function/WAVE StringWaveListToWaveRef(string wavelistStr, [int isFree])
 	return wRefw
 End
 
-static Function AllWavesSamePathQ(WAVE/WAVE wWAVEList)
-	// Function checks whether all have are in the same data folder
-	// 0 - no, 1 - yes.  
-	variable nrwaves = DimSize(wWAVEList, 0), i
-	if(nrwaves < 2)
-		return -1
-	endif
-	DFREF dfr0 = GetWavesDataFolderDFR(wWAVEList[0]), dfr1
-	for(i = 1; i < nrwaves; i++)
-		dfr1 = GetWavesDataFolderDFR(wWAVEList[i])
-		if(!DataFolderRefsEqual(dfr0 , dfr1))
-			return 0
-		endif
-	endfor
-	return 1
-End
 static Function MakeSquare3DWave(WAVE w3d, [variable size])
 	/// Creates a 3d waves with the same rows, cols by interpolation of w3d.
 	/// The wave scaling using the interval /I.
@@ -218,7 +202,7 @@ static Function/WAVE AverageImageStack(WAVE wRef, [string outWaveStr])
 	return $outWaveStr
 End
 
-static Function WavePartition(WAVE wRef, string partitionNameStr, variable startX, variable endX, variable startY, variable endY, [variable evenNum, variable tetragonal])
+static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable startX, variable endX, variable startY, variable endY, [variable evenNum, variable tetragonal])
 	/// Partition a 3D to get an orthorhombic 3d wave
 	/// @param startP int
 	/// @param endP int
@@ -286,79 +270,7 @@ static Function WavePartition(WAVE wRef, string partitionNameStr, variable start
 	endif
 	MatrixOP $partitionNameStr = subrange(wRef, startP, startP + nWaveRows + 1, startQ, startQ + nWaveCols + 1) // Need to add 1 to have even number of rows/cols with MatrixOP subrange
 	Note $partitionNameStr, ("Partition of " + GetWavesDataFolder(wRef, 2)+": ["+num2str(startX)+","+num2str(endX)+"]"+"["+num2str(startY)+","+num2str(endY)+"]")
-	return 0
-End
-
-static Function/WAVE WAVEWavePartition(WAVE wRef, variable startX, variable endX, variable startY, variable endY, [variable evenNum, variable tetragonal])
-	/// Partition a 3D to get an orthorhombic 3d wave
-	/// @param startX int
-	/// @param endX int
-	/// @param startY int
-	/// @param endY
-	/// @param evenNum int optional set rows, cols to the closest even number
-	/// @param tetragonal int optional When set the number of rows and columns of the partition equals max(rows, cols).
-	evenNum = ParamIsDefault(evenNum) ? 0: evenNum
-	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
-
-	variable nrows = DimSize(wRef, 0)
-	variable ncols = DimSize(wRef, 1)
-	variable rowsOff = DimOffset(wRef, 0)
-	variable colsOff = DimOffset(wRef, 1)
-	
-	variable xmin = rowsOff
-	variable ymin = colsOff
-	variable xmax = rowsOff + (nrows - 1) * DimDelta(wRef, 0)
-	variable ymax = colsOff + (ncols - 1) * DimDelta(wRef, 1)
-	
-	if(startX < xmin)
-		startX = xmin
-	endif
-	
-	if(endX > xmax)
-		endX = xmax
-	endif
-	
-	if(startY < ymin)
-		startY = ymin
-	endif
-	
-	if(endY > ymax)
-		endY = ymax
-	endif	
-	
-	if (!(startX < endX && startY < endY && startX >= xmin && startY >= ymin \
-		&& endX <= xmax && endY <= ymax))
-		Abort "Error: Out of bounds p, q values or X_min >= X_max."
-	endif
-	
-	variable startP, endP, startQ, endQ
-	// P, Q if image is scaled
-	startP = ScaleToIndex(wRef, startX, 0)
-	endP   = ScaleToIndex(wRef, endX, 0)
-	startQ = ScaleToIndex(wRef, startY, 1)
-	endQ   = ScaleToIndex(wRef, endY, 1)
-	
-	variable nWaveRows = endP-startP
-	variable nWaveCols = endQ-startQ
-	
-	if(evenNum)
-		if(mod(nWaveRows, 2))
-			nWaveRows += 1			
-		endif
-		if(mod(nWaveCols, 2))
-			nWaveCols += 1
-		endif
-	endif
-
-	if(tetragonal) // should follow evenNum, so no need to add extra conditions here
-		nWaveRows = max(nWaveRows, nWaveCols)
-		nWaveCols = nWaveRows
-	endif
-
-	variable nlayers = DimSize(wRef, 2)
-	MatrixOP/FREE wFreeRef = subrange(wRef, startP, startP + nWaveRows + 1, startQ, startQ + nWaveCols + 1) // Need to add 1 to have even number of rows/cols with MatrixOP subrange
-	Note wFreeRef, ("Partition of " + GetWavesDataFolder(wRef, 2)+": ["+num2str(startX)+","+num2str(endX)+"]"+"["+num2str(startY)+","+num2str(endY)+"]")
-	return wFreeRef
+	return $partitionNameStr
 End
 
 static Function ZapNaNAndInfWithValue(WAVE waveRef, variable val)
@@ -464,7 +376,7 @@ static Function SetWaveOffsetZero(WAVE wRef, [int dim])
 	return 0
 End
 
-static Function ImageDimensionsEqualQ(WAVE w1, WAVE w2)
+static Function Wave2DDimensionsEqualQ(WAVE w1, WAVE w2)
 	// Return 1 if images have equal number of rows, cols and 0 otherwise.
 	// Works for 2D and 3D waves.
 	if(WaveDims(w1) > 1 && WaveDims(w1) < 4 && WaveDims(w2) > 1 && WaveDims(w2) < 4)
@@ -481,14 +393,14 @@ static Function AllImagesEqualDimensionsQ(WAVE/WAVE wRefw)
 	WAVE w1 = wRefw[0]
 	for(i = 1; i < nwaves; i++)
 		WAVE w2 = wRefw[i]
-		if(!ATH_WaveOp#ImageDimensionsEqualQ(w1, w2))
+		if(!ATH_WaveOp#Wave2DDimensionsEqualQ(w1, w2))
 			return 0
 		endif
 	endfor
 	return 1
 End
 
-static Function AllWaveDimensionsEqualQ(WAVE w1, WAVE w2)
+static Function WaveDimensionsEqualQ(WAVE w1, WAVE w2)
 	// Return 1 if waves have the same num of elements in all dims
 	// Works for any wave
 	return ((DimSize(w1, 0) == DimSize(w2, 0)) && (DimSize(w1, 1) == DimSize(w2, 1)\
@@ -574,114 +486,9 @@ static Function WaveCasting(WAVE wRef, int wType)
 	return 0
 End
 
-static Function/S BackupWaveInWaveDF(WAVE wref)
-	// Backup a wave in the same DF. If a wave with wavename_undo exists, nothing is done
-	// If a backup wave is created a message is printed in the command window.
-	// The function returns a string of backupWavePathStr
-	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref) + "_undo")
-
-	if(!WaveExists($backupWavePathStr))
-		Duplicate wref, $backupWavePathStr
-		print "Backup wave: ", backupWavePathStr
-	endif
-	return backupWavePathStr
-End
-
-static Function/S BackupWaveInWaveDFQ(WAVE wref)
-	// Backup a wave in the same DF. If a wave with wavename_undo exists
-	// the user is prompted to proceed and overwrite the destination wave or not.
-	// If a backup wave is created a message is printed in the command window.
-	// The function returns a string of backupWavePathStr
-	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref) + "_undo")
-
-	if(WaveExists($backupWavePathStr))
-		DoAlert/T="Overwite backup wave?", 1, ("Do you want to overwite " + backupWavePathStr + "?")
-		if(V_flag == 1)
-			Duplicate/O wref, $backupWavePathStr
-			print "Backup/O wave: ", backupWavePathStr
-		endif
-	else
-		Duplicate wref, $backupWavePathStr
-		print "Backup wave: ", backupWavePathStr
-	endif
-	return backupWavePathStr // return the backup wavename in either case.
-End
-
-static Function/S BackupWave3DLayerInWaveDF(WAVE wref, variable layerN)
-	// Backup a layer from a 3d wave in the same DF as wavename_p2_undo if /P=2 is used
-	// If a wave with wavename_pN_undo exists, nothing is done
-	// If a backup wave is created a message is printed in the command window.
-	// The function returns a string of backupWavePathStr
-	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref)\
-						       + "_p" + num2str(layerN) + "_undo")
-	if(!WaveExists($backupWavePathStr))
-		MatrixOP $backupWavePathStr = layer(wRef, layerN)
-		print "Backup of layer ", num2str(layerN), " ", backupWavePathStr
-	endif
-	return backupWavePathStr
-End
-
-static Function/S BackupWave3DLayerInWaveDFQ(WAVE wref, variable layerN)
-	// Backup a layer from a 3d wave in the same DF as wavename_p2_undo if /P=2 
-	// is used. If a wave with wavename_pN_undo exists the user is prompted
-	// to proceed and overwrite the destination wave or not.
-	// If a backup wave is created a message is printed in the command window.
-	// The function returns a string of backupWavePathStr
-	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref)\
-						       + "_p" + num2str(layerN) + "_undo")
-	if(WaveExists($backupWavePathStr))
-		DoAlert/T="Overwite backup wave?", 1, ("Do you want to overwite " + backupWavePathStr + "?")
-		if(V_flag == 1)
-			MatrixOP/O $backupWavePathStr = layer(wRef, layerN)
-			print "Backup/O of layer ", num2str(layerN), " ", backupWavePathStr
-		endif
-	else
-		MatrixOP $backupWavePathStr = layer(wRef, layerN)
-		print "BackupRestore of layer ", num2str(layerN), " ", backupWavePathStr
-	endif
-	return backupWavePathStr // return the backup wavename in either case.
-		
-End
-
-static Function RestoreWaveFromBackup(WAVE wRef)
-	// Restore image from wRef_undo if it exists. wRef and WRef_undo 
-	// should be in the same DF.
-	string waveNameStr = NameOfWave(wref)
-	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(waveNameStr + "_undo")
-	if(WaveExists($backupWavePathStr))
-		Duplicate $backupWavePathStr, wRef
-		print waveNameStr, " restored from backup"
-	endif
-	return 0
-End
-
-static Function RestoreWave3DLayerFromBackup(WAVE wref, variable layerN)
-	// Restore image from wRef_pN_undo if it exists. wRef and wRef_pN_undo 
-	// should be in the same DF.
-	string waveNameStr = NameOfWave(wref)
-	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(wavenameStr\
-						       + "_p" + num2str(layerN) + "_undo")
-	if(WaveExists($backupWavePathStr))
-		ImageTransform/P=(layerN)/D=$backupWavePathStr setplane wRef
-		print "Backup of layer ", num2str(layerN), " ", backupWavePathStr
-	endif
-	return 0
-End
-
 static Function RightDimVal(WAVE w, int dim)
 	// Return the last value of dimension dim
 	return DimOffSet(w, dim) + DimDelta(w, dim) * (DimSize(w, dim) - 1 ) 
-End
-
-static Function NextPowerOfTwo(variable num)
-	 /// Return the first power of two after num.
-	 /// @param num double 
-	variable bufferVar
-	variable result = 1
-	do
-		result *= 2
-	while (result < num)
-	return result
 End
 
 static Function SizeOfWave(wv)
@@ -705,64 +512,3 @@ static Function SizeOfWave(wv)
 
     return total / 1024 / 1024
 End
-
-static Function IsFloatQ(WAVE wRef)
-	// Returns true of wRef is 32 or 64 bit float wave
-	return ((WaveType(wRef) & 0x02) || (WaveType(wRef) & 0x04))
-End
-
-static Function IsFloat32Q(WAVE wRef)
-	// Returns true of wRef is 32 bit float wave
-	return WaveType(wRef) & 0x02 
-End
-
-static Function IsFloat64Q(WAVE wRef)
-	// Returns true of wRef is 64 bit float wave
-	return WaveType(wRef) & 0x04 
-End
-
-static Function TWaveRemoveEntriesFromPatters(WAVE/T textW, string patternStr, [WAVE otherW])
-	// Remove entries from textW that start with pathbase
-	// Optionally we can remove the same entries from another wave otherW
-	// We use this in ATH_LaunchDeleteBigWaves
-	variable otherWQ = ParamIsDefault(otherW) ? 0 : 1
-	variable numpts = DimSize(textW, 0), i
-	for(i = numpts - 1; i > 0; i--)
-		if(Stringmatch(textW[i], patternStr))
-			DeletePoints i, 1, textW
-			if(otherWQ)
-				DeletePoints i, 1, otherW
-			endif
-		endif
-	endfor
-	return 0
-End
-
-static Function DeleteWavesInTextWave(WAVE/T textW)
-	// Delete big waves listed in textW
-	variable nw = DimSize(textW, 0), i
-	for(i = 0; i < nw; i++)			
-		KillWaves/Z $textW[i]
-	endfor
-	return 0
-End
-
-// Dev -- need testing
-static Function TWaveRemoveEntriesFromStringList(WAVE/T textW, string stringListStr, [WAVE otherW])
-	// Remove entries from textW in stringListStr
-	// Optionally we can remove the same entries from another wave otherW
-	// We use this in ATH_LaunchDeleteBigWavesDisplayed
-	
-	variable otherWQ = ParamIsDefault(otherW) ? 0 : 1
-	variable numpts = DimSize(textW, 0), i
-	for(i = numpts - 1; i > 0; i--)
-		if(1)
-			DeletePoints i, 1, textW
-			if(otherWQ)
-				DeletePoints i, 1, otherW
-			endif
-		endif
-	endfor
-	return 0
-End
-

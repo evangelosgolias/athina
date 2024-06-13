@@ -327,7 +327,7 @@ static Function AppendImagesToImageStack(WAVE wRef, string waveListStr)
 	//
 	// Append images in waveListStr to wRef
 	//
-	WAVE/WAVE wRefw = ATH_WaveOp#StringWaveListToWaveRef(waveListStr, isFree = 1)
+	WAVE/WAVE wRefw = ATH_WaveOp#WaveListStrToWaveRef(waveListStr, isFree = 1)
 	InsertPoints 0, 1, wRefw
 	Duplicate/FREE wRef, wRefFREE
 	wRefw[0] = wRefFREE
@@ -345,7 +345,7 @@ static Function ConcatenateImages(string destWaveStr, string waveListStr)
 	//
 	// Concatenate wave to destWaveStr
 	//
-	WAVE/WAVE wRefw = ATH_WaveOp#StringWaveListToWaveRef(waveListStr, isFree = 1)
+	WAVE/WAVE wRefw = ATH_WaveOp#WaveListStrToWaveRef(waveListStr, isFree = 1)
 	Concatenate/O/NP=2 {wRefw}, $destWaveStr
 End
 
@@ -498,9 +498,9 @@ static Function ScalePlanesByMinMaxRange(WAVE w3d, [variable f64])
 	// 
 	f64 = ParamIsDefault(f64) ? 0: 1 //
 	
-	if((!ATH_WaveOp#IsFloat32Q(w3d) && !ATH_WaveOp#IsFloat64Q(w3d)))
+	if((!ATH_Num#IsFloat32Q(w3d) && !ATH_Num#IsFloat64Q(w3d)))
 		Redimension/S w3d
-	elseif(f64 && !ATH_WaveOp#IsFloat64Q(w3d))
+	elseif(f64 && !ATH_Num#IsFloat64Q(w3d))
 		Redimension/D w3d
 	endif
 	MatrixOP/FREE zRangeFree = 1/(maxVal(w3d) - minVal(w3d))
@@ -516,9 +516,9 @@ static Function ScalePlanesByMaxRange(WAVE w3d, [variable f64])
 	// 
 	f64 = ParamIsDefault(f64) ? 0: 1 //
 	
-	if((!ATH_WaveOp#IsFloat32Q(w3d) && !ATH_WaveOp#IsFloat64Q(w3d)))
+	if((!ATH_Num#IsFloat32Q(w3d) && !ATH_Num#IsFloat64Q(w3d)))
 		Redimension/S w3d
-	elseif(f64 && !ATH_WaveOp#IsFloat64Q(w3d))
+	elseif(f64 && !ATH_Num#IsFloat64Q(w3d))
 		Redimension/D w3d
 	endif
 	MatrixOP/FREE zRangeFree = 1/maxVal(w3d)
@@ -535,9 +535,9 @@ static Function ScalePlanesBetweenZeroAndOne(WAVE w3d, [variable f64])
 	// 
 	f64 = ParamIsDefault(f64) ? 0: 1 //
 	
-	if((!ATH_WaveOp#IsFloat32Q(w3d) && !ATH_WaveOp#IsFloat64Q(w3d)))
+	if((!ATH_Num#IsFloat32Q(w3d) && !ATH_Num#IsFloat64Q(w3d)))
 		Redimension/S w3d
-	elseif(f64 && !ATH_WaveOp#IsFloat64Q(w3d))
+	elseif(f64 && !ATH_Num#IsFloat64Q(w3d))
 		Redimension/D w3d
 	endif
 	

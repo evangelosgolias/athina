@@ -21,3 +21,29 @@ static Function IntegerQ(variable num)
 		return 0
 	endif
 End
+
+static Function IsFloatQ(WAVE wRef)
+	// Returns true of wRef is 32 or 64 bit float wave
+	return ((WaveType(wRef) & 0x02) || (WaveType(wRef) & 0x04))
+End
+
+static Function IsFloat32Q(WAVE wRef)
+	// Returns true of wRef is 32 bit float wave
+	return WaveType(wRef) & 0x02 
+End
+
+static Function IsFloat64Q(WAVE wRef)
+	// Returns true of wRef is 64 bit float wave
+	return WaveType(wRef) & 0x04 
+End
+
+static Function NextPowerOfTwo(variable num)
+	 /// Return the first power of two after num.
+	 /// @param num double 
+	variable bufferVar
+	variable result = 1
+	do
+		result *= 2
+	while (result < num)
+	return result
+End
