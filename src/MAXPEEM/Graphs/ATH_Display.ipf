@@ -73,8 +73,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			strswitch(num2char(s.keycode))
 				case "a": // a - average if you have a 3d wave
 					if(is3d)
-						WAVE wavg = ATH_WaveOp#AverageImageStack(w)
-						NewImg(wavg)
+						ATH_WaveOp#AverageImageStack(w)
 					endif
 					return 1
 				case "d": //d

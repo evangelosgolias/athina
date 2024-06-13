@@ -32,6 +32,8 @@
 
 // Launchers
 
+
+
 static Function Make3DWaveUsingPattern()
 	string wname3dStr, pattern
 	[wname3dStr, pattern] = ATH_Dialog#GenericDoubleStrPrompt("Stack name","Match waves (use * wildcard)", "Make a stack from waves using a pattern")

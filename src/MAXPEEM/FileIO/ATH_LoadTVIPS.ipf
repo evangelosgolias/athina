@@ -35,7 +35,7 @@
 // ------------------------------------------------------- //
 
 
-static Function LoadTVIPStiff(string filepathStr, string waveNameStr)
+static Function/WAVE LoadTVIPStiff(string filepathStr, string waveNameStr)
 	/// @param filepathStr string pathname. 
 	/// If "" a dialog opens to select the file.
 	/// @param waveNameStr name of the imported wave. 
@@ -88,5 +88,5 @@ static Function LoadTVIPStiff(string filepathStr, string waveNameStr)
 		Redimension/E=1/N=(Nx,Nx,imgN) wRef
 	endif
 	Note wRef, filepathStr
-	return 0
+	return wRef
 End

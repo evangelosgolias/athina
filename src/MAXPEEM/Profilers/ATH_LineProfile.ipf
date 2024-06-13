@@ -60,7 +60,6 @@ static Function MainMenu()
 	axisLeftRangeStr, cmdStr, axisStr, val1Str, dumpStr, val2Str
 	variable midOfImageY = 0.5 * (str2num(val1Str) + str2num(val2Str))
 	// When autoscaled then SETAXISCMD is SetAxis/A
-	print midOfImageX
 	if(numtype(midOfImageX)) // if NaN
 		Cursor/W=$winNameStr/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr nrows*0.75, ncols*0.25
 		Cursor/W=$winNameStr/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr nrows*0.25, ncols*0.75

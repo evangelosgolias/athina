@@ -186,7 +186,7 @@ static Function MakeSquare3DWave(WAVE w3d, [variable size])
 	return 0
 End
 
-static Function/WAVE AverageImageStack(WAVE wRef, [string outWaveStr])
+static Function AverageImageStack(WAVE wRef, [string outWaveStr])
 	/// Average a 3d wave along z.
 	/// @param w3d WAVE Wave name to average (3d wave)
 	/// @param avgWaveNameStr string optional: Name of the output wave, default NameOfWave(wRef) + "_avg".
@@ -199,7 +199,7 @@ static Function/WAVE AverageImageStack(WAVE wRef, [string outWaveStr])
 	string waveNoteStr = GetWavesDataFolder(wRef, 2) + " layer average (" +num2str(nlayers) + ")"
 	CopyScales wRef, $outWaveStr 
 	Note/K $outWaveStr waveNoteStr
-	return $outWaveStr
+	return 0
 End
 
 static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable startX, variable endX, variable startY, variable endY, [variable evenNum, variable tetragonal])
