@@ -940,7 +940,7 @@ static Function AppendMarkupsToTopImage_DEV() // TODO: DEV here
 End
 
 
-static Function LoadDATFilesFromFolder(string folder, string pattern, [int stack3d, string wname3d, int autoscale])
+static Function LoadDATFilesFromFolder(string folder, string pattern, [int stack3d, string wname3d, int autoscale, int displayImg])
 	// We use ImageTransform stackImages X to create the 3d wave. Compared to 3d wave assignement it is faster by nearly 3x.
 
 	/// Import .dat files that match a pattern from a folder. Waves are named after their filename.
@@ -952,6 +952,9 @@ static Function LoadDATFilesFromFolder(string folder, string pattern, [int stack
 
 	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
 	wname3d = SelectString(ParamIsDefault(wname3d) ? 0: 1,"", wname3d) // Empty case will be handled below
+	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
+	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
+	displayImg = ParamIsDefault(displayImg) ? 0: displayImg	
 	
 	string message = "Select a folder."
 	string fileFilters = "DAT Files (*.dat):.dat;"
@@ -1034,7 +1037,9 @@ static Function LoadDATFilesFromFolder(string folder, string pattern, [int stack
 		SetScale/I x, 0, getScaleXY, $wname3d
 		SetScale/I y, 0, getScaleXY, $wname3d
 	endif
-	
+	if(displayImg)
+		ATH_Display#NewImg(saveDF:$wname3d)
+	endif
 	return 0
 End
 
@@ -1122,16 +1127,19 @@ static Function/WAVE WAVELoadDATFilesFromFolder(string folder, string pattern, [
 	return wRef
 End
 
-static Function LoadMultiplyDATFiles([int skipmetadata, int autoscale, int stack3d])
+static Function LoadMultiplyDATFiles([int skipmetadata, int autoscale, int stack3d, int displayImg])
 	/// Load multiply selected .dat files
 	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
 	/// @param autoScale int optional scales the imported waves if not 0
+	/// @param stack3d int optional stack imported images
+	/// @param displayImg int optional display image only if stacked		
 	/// Note: the selected wave are sort alphanumerically so the first on the list takes the 
 	/// first name in filenames etc.
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata	
 	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
 	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
+	displayImg = ParamIsDefault(displayImg) ? 0: displayImg
 
 	variable numRef, i
     string loadFiles, filepathStr, basenameStr, fileStr0
@@ -1171,6 +1179,9 @@ static Function LoadMultiplyDATFiles([int skipmetadata, int autoscale, int stack
 		Note M_Stack, ("Files loaded to " + newWaveNameStr + ":\n" + loadFiles)
 		MoveWave M_Stack, saveDF:$newWaveNameStr
 		SetDataFolder saveDF
+		if(displayImg)
+			ATH_Display#NewImg(saveDF:$newWaveNameStr)
+		endif
 	else
 		for(i = 0; i < nrloadFiles; i++)
 			LoadSingleDATFile(StringFromList(i,loadFiles, "\r"), "", skipmetadata = skipmetadata, autoscale = autoscale)

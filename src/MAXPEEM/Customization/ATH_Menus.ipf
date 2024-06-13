@@ -34,10 +34,10 @@ Menu "Athina"
 
 	Submenu "Import"
 		".dat files...", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1)
-		".dat files in folder and stack ...", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1) 				
-		".dat files and stack ...", /Q, ATH_Uview#LoadMultiplyDATFiles(stack3d = 1, autoscale = 1)		
+		".dat files in folder and stack ...", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1, displayImg = 1) 				
+		".dat files and stack ...", /Q, ATH_Uview#LoadMultiplyDATFiles(stack3d = 1, autoscale = 1, displayImg = 1)		
 		".dat files in folder...", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", autoscale = 1)
-		".tif (EMMENU5)...", /Q, ATH_TVIPS#LoadTVIPStiff("", "")	
+		".tif (EMMENU5)...", /Q, ATH_TVIPS#LoadTVIPStiff("", "", displayImg = 1)	
 		".HDF5 file ...", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
 		".nxs NeXus files ...",/Q, ATH_HDF5#LoadNXSDataSets()
 	End

@@ -35,11 +35,13 @@
 // ------------------------------------------------------- //
 
 
-static Function/WAVE LoadTVIPStiff(string filepathStr, string waveNameStr)
+static Function LoadTVIPStiff(string filepathStr, string waveNameStr, [int displayImg])
 	/// @param filepathStr string pathname. 
 	/// If "" a dialog opens to select the file.
 	/// @param waveNameStr name of the imported wave. 
-		
+
+	displayImg = ParamIsDefault(displayImg) ? 0: displayImg	
+	
 	variable numRef
 	string separatorchar = ":"
 	string fileFilters = "TVIPS tiff File (*.tif):.tif;"
@@ -88,5 +90,8 @@ static Function/WAVE LoadTVIPStiff(string filepathStr, string waveNameStr)
 		Redimension/E=1/N=(Nx,Nx,imgN) wRef
 	endif
 	Note wRef, filepathStr
-	return wRef
+	if(displayImg)
+		ATH_Display#NewImg(wRef)
+	endif
+	return 0
 End
