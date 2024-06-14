@@ -199,27 +199,29 @@ static Function CreatePanel(DFREF dfr)
 	NVAR/Z OverrideNx = dfr:gATH_OverrideNx
 	NVAR/Z OverrideNy = dfr:gATH_OverrideNy
 	NVAR/Z profileWidth = dfr:gATH_profileWidth	
-	string profilePlotStr = "ATH_ImagePlaneZProf_" + gATH_WindowNameStr
+	string grfname = "ATH_ImagePlaneZProf_" + gATH_WindowNameStr
 	WAVE wRef = $gATH_ImagePathname
 	
 	DFREF cdfr = GetDataFolderDFR()
 	SetDataFolder dfr
 	ImageTransform/X={ Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface wRef
 	SetDataFolder cdfr 
-	NewImage/G=1/K=1/N=$profilePlotStr dfr:M_ExtractedSurface // Do not Flip image (/F) to get top axis
+	NewImage/G=1/K=1/N=$grfname dfr:M_ExtractedSurface // Do not Flip image (/F) to get top axis
+	// Not good idea to use it now as long as the "i" options interferes with the ControlBar of the profilert
+	// Fix it? ATH_Display#NewImg(dfr:M_ExtractedSurface, grfname = grfname)
 	SetAxis/A left
 	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution	
-	ModifyGraph/W=$profilePlotStr width = 340 * pntConv, height = 470 * pntConv
+	ModifyGraph/W=$grfname width = 340 * pntConv, height = 470 * pntConv
 	Execute/P/Q "ModifyGraph width=0,height=0"
 	ModifyGraph/Z cbRGB=(65535,65534,49151)
 
-	ControlBar/W=$profilePlotStr 50	
+	ControlBar/W=$grfname 50	
 	AutoPositionWindow/E/M=0/R=$gATH_WindowNameStr
 		
-	SetWindow $profilePlotStr userdata(ATH_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
-	SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_ImagePlaneProfileZ_" + gATH_WindowNameStr 
-	SetWindow $profilePlotStr userdata(ATH_LinkedWinImageSource) = gATH_WindowNameStr 	
-	SetWindow $profilePlotStr, hook(MyImagePlaneProfileZHook) = ATH_PlaneZProfile#GraphHookFunction// Set the hook
+	SetWindow $grfname userdata(ATH_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
+	SetWindow $grfname userdata(ATH_targetGraphWin) = "ATH_ImagePlaneProfileZ_" + gATH_WindowNameStr 
+	SetWindow $grfname userdata(ATH_LinkedWinImageSource) = gATH_WindowNameStr 	
+	SetWindow $grfname, hook(MyImagePlaneProfileZHook) = ATH_PlaneZProfile#GraphHookFunction// Set the hook
 
 	SetVariable setNx,pos={10,5},size={85,20.00},title="N\\Bx", fSize=14,fColor=(65535,0,0),value=Nx,limits={1,inf,1},proc=ATH_PlaneZProfile#SetVariableNx
 	SetVariable setNy,pos={97,5},size={70,20.00},title="N\\By", fSize=14,fColor=(65535,0,0),value=Ny,limits={1,inf,1},proc=ATH_PlaneZProfile#SetVariableNy
