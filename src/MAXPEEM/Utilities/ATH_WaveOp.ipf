@@ -202,7 +202,8 @@ static Function AverageImageStack(WAVE wRef, [string outWaveStr])
 	return 0
 End
 
-static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable startX, variable endX, variable startY, variable endY, [variable evenNum, variable tetragonal])
+static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable startX, variable endX, 
+					 variable startY, variable endY, [int evenNum, int tetragonal])
 	/// Partition a 3D to get an orthorhombic 3d wave
 	/// @param startP int
 	/// @param endP int
@@ -486,7 +487,7 @@ static Function WaveCasting(WAVE wRef, int wType)
 	return 0
 End
 
-static Function RightDimVal(WAVE w, int dim)
+static Function LastDimVal(WAVE w, int dim)
 	// Return the last value of dimension dim
 	return DimOffSet(w, dim) + DimDelta(w, dim) * (DimSize(w, dim) - 1 ) 
 End
@@ -511,4 +512,23 @@ static Function SizeOfWave(wv)
     endif
 
     return total / 1024 / 1024
+End
+
+Function SumLateralWaveDims(WAVE w)
+	// Sum cols (assumed energy axis) in 2D or
+	// sum rows and cols in 3D waves to make a 1D  wave.
+	string namew = Nameofwave(w) + "_DOS"
+	if(WaveDims(w)==2)
+		MatrixOp $namew = sumcols (w)
+		WAVE WRef = $namew
+		Redimension/N=(DimSize(wRef,1)) wRef
+	elseif (WaveDims (w) ==3)
+		Matrixop $namew = sumRows(sumCols(w))
+		WAVE WRef = $namew
+		Redimension/N=(Dimsize(wRef,2)) wRef
+	else
+		return -1
+	endif
+	Note WRef, GetwavesDataFolder(w, 2)
+	return 0
 End

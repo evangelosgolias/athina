@@ -172,13 +172,16 @@ static Function OperationsOnGraphTracesWithMarquee(variable left, variable right
 End
 
 
-static Function Partition3DRegion()
-	GetMarquee/K left, top;
+static Function Partition3DRegion([int evenNum, int tetragonal])
+	GetMarquee/K left, top; // Always the case
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList("", ";"),";")
 	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	DFREF saveDF = GetDataFolderDFR()
 	string stacknameStr = CreateDataObjectName(saveDF, imgNameTopGraphStr + "_PART", 1, 0, 1)
-	ATH_WaveOp#WavePartition(waveRef, stacknameStr, V_left, V_right, V_top, V_bottom, evenNum = 1)
+	evenNum = ParamIsDefault(evenNum) ? 1 : evenNum
+	tetragonal = ParamIsDefault(tetragonal) ? 0 : tetragonal
+	ATH_WaveOp#WavePartition(waveRef, stacknameStr, V_left, V_right, V_top, V_bottom, \
+	evenNum = evenNum, tetragonal = tetragonal)
 	WAVE wavePRT = $stacknameStr
 	CopyScales/P waveRef, wavePRT
 	return 0

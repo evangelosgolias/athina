@@ -121,7 +121,9 @@ Menu "GraphMarquee"
 	"ATH Save Rect ROI (2D, 3D)", /Q, ATH_Marquee#SaveROICoordinatesToDatabase(rect = 1)		
 	"ATH Save Oval ROI (2D, 3D)", /Q, ATH_Marquee#SaveROICoordinatesToDatabase()
 	"ATH Print ROI stats (2D, 3D)", /Q, ATH_Marquee#GetMarqueeWaveStats()	
-	"ATH Partition region (2D, 3D)", /Q, ATH_Marquee#Partition3DRegion()		
+	"ATH Partition region (2D, 3D)", /Q, ATH_Marquee#Partition3DRegion(evenNum=1)
+	"ATH Partition square region (2D, 3D)", /Q, ATH_Marquee#Partition3DRegion(evenNum=1, tetragonal=1)		
+			
 	SubMenu "ATH Trace Calcs (TG, 1D[2])"
 		"ATH Backup traces", /Q, ATH_Marquee#MarqueeToTraceOperation(3)
 		"ATH Restore traces", /Q, ATH_Marquee#MarqueeToTraceOperation(4)
