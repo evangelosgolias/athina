@@ -76,7 +76,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			strswitch(num2char(s.keycode))
 				case "a": // a - average if you have a 3d wave
 					if(is3d)
-						ATH_WaveOp#AverageImageStack(w)
+						NewImg(ATH_WaveOp#AverageImageStack(w))
 					endif
 					return 1
 				case "d": //d
@@ -93,6 +93,9 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				case "l": //l
 					ATH_LineProfile#MainMenu()
 					return 1
+				case "p": // r
+					ATH_PlaneZProfile#MenuLaunch()
+					return 1					
 				case "r": // r
 					ATH_Range#pnl(s.winName)
 					return 1

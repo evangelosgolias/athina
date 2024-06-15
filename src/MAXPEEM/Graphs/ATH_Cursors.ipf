@@ -30,7 +30,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static constant kCBOFFSET = 30
+static constant kCBOFFSET = 30 // height of WM plane slider in 3d waves
 
 
 static Function/S GetActiveCursors([string grfName])
@@ -75,11 +75,13 @@ static Function MeasureDistanceUsingFreeCursors()
 		Cursor/I/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $imgNameTopGraphStr 0.75, 0.55
 	endif
 	variable lCBOFFSET 
+	ControlInfo kwControlBar
+	lCBOFFSET = V_height
 	if(ATH_Windows#IsWM3DAxisActiveQ(winNameStr))
 		lCBOFFSET = kCBOFFSET
-		ControlBar 30 + lCBOFFSET
+		ControlBar V_height + lCBOFFSET
 	else
-		ControlBar 30
+		ControlBar V_height
 	endif
 	Button scaleB pos={10,4+lCBOFFSET}, size={65,20}, title="Scale", win=$winNameStr, help = {"Place cursots C, D and set scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
 	Button drawscaleB pos={85, 4+lCBOFFSET}, size={80,20}, title="Draw Scale", win=$winNameStr, help = {"Save current scale for future use"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton

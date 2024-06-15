@@ -518,7 +518,7 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 		case 2:	// "mouse up after mouse down"
 			Prompt Xscale, "X-scale: set cursors and enter the calibrating value \n(0: pixel scale, X-scale < 0 : do nothing)"
 			Prompt Ystart_l, "Y top value"			
-			Prompt Yend_l, "Y bottom value"
+			Prompt Yend_l, "Y bottom value (Y_bottom < Y_top)"
 			DoPrompt "Set X, Y scale (Zero removes scale)", Xscale, Ystart_l, Yend_l
 			if(V_flag) // User cancelled
 				return -1
