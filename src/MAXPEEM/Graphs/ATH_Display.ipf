@@ -79,6 +79,9 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
 					endif
 					return 1
+				case "b":
+					ATH_ImgOp#RestoreTopImageFromBackup(wname=NameOfWave(w))
+					return 1
 				case "d": //d
 					GetMarquee/W=$s.winName
 					if(V_flag)
