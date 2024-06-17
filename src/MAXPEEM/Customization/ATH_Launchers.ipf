@@ -110,7 +110,9 @@ static Function CalculateXMCDFromStack()
 	DFREF saveDF = GetDataFolderDFR()
 	string xmcdWaveStr = CreatedataObjectName(currDFR, basename, 1, 0, 1)
 	SetDataFolder dfr
-	ATH_Magnetism#CalculateXMCDFromStack(w3d, wnameStr=xmcdWaveStr)
+	if(ATH_Magnetism#CalculateXMCDFromStack(w3d, wnameStr=xmcdWaveStr))
+		return 1 // return if you have more than two layers
+	endif
 	string noteStr = "Source: " + GetWavesDataFolder(w3d, 2)
 	Note/K $xmcdWaveStr, noteStr
 	CopyScales w3d, $xmcdWaveStr 

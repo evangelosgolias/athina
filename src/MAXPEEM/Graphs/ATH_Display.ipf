@@ -62,7 +62,7 @@ static Function NewImg(WAVE wRef, [string grfname])
 	variable ImgAvg = V_avg
 	variable ImgStd = V_sdev
 	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3, ctab= {ImgAvg - 3 * ImgStd, ImgAvg + 3 * ImgStd,$colorScaleStr,cmapSwitch} // Autoscale per plane / visible area Image		
-	SetWindow $winNameStr, hook(AthinaMainDisplayHook) = ATH_Display#DisplayHookFunction // Set the hook	
+	SetWindow $winNameStr, hook(AthinaDisplayHook) = ATH_Display#DisplayHookFunction // Set the hook	
 	SetWindow $winNameStr, userdata(ATH_isPlanQ) = "0" // *No* ModifyGraph width={Plan,1,top,left} 
 	return 0
 End

@@ -464,7 +464,6 @@ static Function RestoreTopImageFromBackup([string wname])
 	/// and it is located on the same folder as the source image
 	
 	wname = SelectString(ParamIsDefault(wname) ? 0: 1,"", wname)
-
 	if(!ParamIsDefault(wname))
 		WAVE wRef = $wname
 	else
@@ -482,7 +481,7 @@ static Function RestoreTopImageFromBackup([string wname])
 		Duplicate/O wRefbck, wRef
 		CheckDisplayed/A wRefbck
 		if(V_Flag) // if wave is displayed
-			print "Cannot kill " + backupWaveNameStr + ". CheckDisplayed == 1. "
+			print "Cannot kill " + backupWaveNameStr + ". CheckDisplayed == 1."
 		else
 			KillWaves wRefbck
 		endif

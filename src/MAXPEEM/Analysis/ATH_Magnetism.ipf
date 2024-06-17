@@ -72,7 +72,7 @@ static Function CalculateXMCDFromStack(WAVE w3d, [string wnameStr])
 	/// Calculate XMCD/XMLD of two images and save it to 
 	/// @param w13d WAVE Wave with 2 layers.	
 	if(DimSize(w3d, 2) != 2)
-		return -1
+		return 1
 	endif	
 	if(WaveType(w3d) & 0x10) // if int16
 		Redimension/S w3d
