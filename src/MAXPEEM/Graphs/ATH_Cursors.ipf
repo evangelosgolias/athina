@@ -81,7 +81,7 @@ static Function MeasureDistanceUsingFreeCursors()
 		lCBOFFSET = kCBOFFSET
 		ControlBar V_height + lCBOFFSET
 	else
-		ControlBar V_height
+		ControlBar kCBOFFSET
 	endif
 	Button scaleB pos={10,4+lCBOFFSET}, size={65,20}, title="Scale", win=$winNameStr, help = {"Place cursots C, D and set scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
 	Button drawscaleB pos={85, 4+lCBOFFSET}, size={80,20}, title="Draw Scale", win=$winNameStr, help = {"Save current scale for future use"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
