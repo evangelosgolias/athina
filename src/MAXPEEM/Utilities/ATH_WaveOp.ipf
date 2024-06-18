@@ -268,6 +268,9 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 	if(tetragonal) // should follow evenNum, so no need to add extra conditions here
 		nWaveRows = max(nWaveRows, nWaveCols)
 		nWaveCols = nWaveRows
+		if(nWaveRows > nrows || nWaveCols > ncols)
+			return $""
+		endif
 	endif
 	MatrixOP $partitionNameStr = subrange(wRef, startP, startP + nWaveRows + 1, startQ, startQ + nWaveCols + 1) // Need to add 1 to have even number of rows/cols with MatrixOP subrange
 	Note $partitionNameStr, ("Partition of " + GetWavesDataFolder(wRef, 2)+": ["+num2str(startX)+","+num2str(endX)+"]"+"["+num2str(startY)+","+num2str(endY)+"]")

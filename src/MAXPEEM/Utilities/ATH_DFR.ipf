@@ -31,44 +31,6 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static Function ZapDataInFolderTree(string path) 
-	/// Kills the contents of a data folder and the contents of its 
-	/// children without killing any data folders and without attempting 
-	/// to kill any waves that may be in use.
-
-	string saveDF = GetDataFolder(1) 
-	SetDataFolder path
-
-	KillWaves/A/Z 
-	KillVariables/A/Z 
-	KillStrings/A/Z
-
-	variable numDataFolders = CountObjects(":", 4), i
-
-	for(i=0; i<numDataFolders; i+=1)
-		string nextPath = GetIndexedObjName(":", 4, i) 
-		ZapDataInFolderTree(nextPath) 
-	endfor
-
-	SetDataFolder saveDF 
-End
-
-static Function ZapAllDataFoldersInPath(string path) 
-	/// Kills all data folders in path.
-
-	string saveDF = GetDataFolder(1) 
-	SetDataFolder path
-
-	variable numDataFolders = CountObjects(":", 4), i
-
-	for(i=0; i<numDataFolders; i+=1)
-		string nextPath = GetIndexedObjName(":", 4, i) 
-		KillDataFolder $nextPath 
-	endfor
-
-	SetDataFolder saveDF 
-End
-
 // N.B: Changed on 31.01.2024.
 static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cornerstone function
 	/// Create a data folder using fullpath and return a DF reference.
@@ -116,6 +78,44 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	endif
 	
 	return dfr
+End
+
+static Function ZapDataInFolderTree(string path) 
+	/// Kills the contents of a data folder and the contents of its 
+	/// children without killing any data folders and without attempting 
+	/// to kill any waves that may be in use.
+
+	string saveDF = GetDataFolder(1) 
+	SetDataFolder path
+
+	KillWaves/A/Z 
+	KillVariables/A/Z 
+	KillStrings/A/Z
+
+	variable numDataFolders = CountObjects(":", 4), i
+
+	for(i=0; i<numDataFolders; i+=1)
+		string nextPath = GetIndexedObjName(":", 4, i) 
+		ZapDataInFolderTree(nextPath) 
+	endfor
+
+	SetDataFolder saveDF 
+End
+
+static Function ZapAllDataFoldersInPath(string path) 
+	/// Kills all data folders in path.
+
+	string saveDF = GetDataFolder(1) 
+	SetDataFolder path
+
+	variable numDataFolders = CountObjects(":", 4), i
+
+	for(i=0; i<numDataFolders; i+=1)
+		string nextPath = GetIndexedObjName(":", 4, i) 
+		KillDataFolder $nextPath 
+	endfor
+
+	SetDataFolder saveDF 
 End
 
 static Function/S SanitizePath(string path)
@@ -403,4 +403,24 @@ static Function RestoreWave3DLayerFromBackup(WAVE wref, variable layerN)
 		print "Backup of layer ", num2str(layerN), " ", backupWavePathStr
 	endif
 	return 0
+End
+
+static Function/S GetAllWavesStrDF(DFREF dfr)
+	// Return a string of all fullpaths of waves
+	// in the data folder dfr
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder dfr
+	string objName, listStr = ""
+	variable index = 0
+	do
+		objName = GetIndexedObjNameDFR(dfr, 1, index)
+		WAVE wref = $objName
+		if (strlen(objName) == 0)
+			break
+		endif
+		listStr+= GetWavesDataFolder(wRef,2) +";"
+		index += 1
+	while(1)
+	SetDataFolder saveDF
+	return listStr
 End

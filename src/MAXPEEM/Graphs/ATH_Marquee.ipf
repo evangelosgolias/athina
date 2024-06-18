@@ -180,8 +180,10 @@ static Function Partition3DRegion([int evenNum, int tetragonal])
 	string stacknameStr = CreateDataObjectName(saveDF, imgNameTopGraphStr + "_PART", 1, 0, 1)
 	evenNum = ParamIsDefault(evenNum) ? 1 : evenNum
 	tetragonal = ParamIsDefault(tetragonal) ? 0 : tetragonal
-	ATH_WaveOp#WavePartition(waveRef, stacknameStr, V_left, V_right, V_top, V_bottom, \
-	evenNum = evenNum, tetragonal = tetragonal)
+	if(!WaveExists(ATH_WaveOp#WavePartition(waveRef, stacknameStr, V_left, V_right, V_top, V_bottom, \
+	evenNum = evenNum, tetragonal = tetragonal))) // Wave does not exists, most probably wave cannot be produced
+		return 1
+	endif
 	WAVE wavePRT = $stacknameStr
 	CopyScales/P waveRef, wavePRT
 	return 0
