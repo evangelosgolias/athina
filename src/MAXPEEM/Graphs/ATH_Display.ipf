@@ -73,16 +73,16 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	int is3D = WaveDims(w)==3
 	switch (s.eventCode)
 		case 11:
-			strswitch(num2char(s.keycode))
-				case "a": // a - average if you have a 3d wave
+			switch(s.keycode)
+				case 97: // a - average if you have a 3d wave
 					if(is3d)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
 					endif
 					return 1
-				case "b":
+				case 98:
 					ATH_ImgOp#RestoreTopImageFromBackup(wname=NameOfWave(w))
 					return 1
-				case "d": //d
+				case 100: //d
 					GetMarquee/W=$s.winName
 					if(V_flag)
 						ATH_Launch#ImageStackAlignmentPartition() // If marquee present launch partition dc
@@ -90,19 +90,19 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
 					endif
 					return 1
-				case "i": // i
+				case 105: // i
 					ATH_Cursors#MeasureDistanceUsingFreeCursors()
 					return 1
-				case "l": //l
+				case 108: //l
 					ATH_LineProfile#MainMenu()
 					return 1
-				case "p": // r
+				case 112: // p
 					ATH_PlaneZProfile#MenuLaunch()
 					return 1					
-				case "r": // r
+				case 114: // r
 					ATH_Range#pnl(s.winName)
 					return 1
-				case "s": // s
+				case 115: // s
 					if(str2num(GetUserData(s.winName, "", "ATH_isPlanQ")))
 						SetWindow $s.winName, userdata(ATH_isPlanQ) = "0"
 						ModifyGraph width = 0, height = 0
@@ -111,12 +111,12 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ModifyGraph width={Plan,1,top,left}
 					endif
 					return 1
-				case "x": // x, calculate xmcd
+				case 120: // x, calculate xmcd
 					if(is3d && DimSize(w, 2)==2)
 						ATH_Launch#CalculateXMCDFromStack()
 					endif
 					return 1
-				case "z": // z, launch z-profile if marquee present
+				case 122: // z, launch z-profile if marquee present
 					if(is3d)
 						GetMarquee/W=$s.winName
 						if(V_flag) // FIX: You need to move cursor to update z-profile
