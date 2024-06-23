@@ -55,6 +55,7 @@ Menu "Athina"
 		"FFT (TG, 2D)", /Q, ATH_Launch#ImageFFTTransform()
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, ATH_Launch#ImageRotateAndScaleFromMetadata()
 		"Remove background (TG, 2D, 3D)", /Q, ATH_Launch#ImgRemoveBackground()
+		"Remove background flattening (TG, 2D, 3D)", /Q, ATH_Launch#FlattenImage()		
 		"RGB to gray 16-bit (DB, 3D)", /Q, ATH_Launch#ImgRGB2Gray16()
 		"Duplicate image and data (TG, 2D, 3D)", /Q, ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
 		"Backup Image (TG)", /Q, ATH_ImgOp#BackupTopImage()	

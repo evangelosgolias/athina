@@ -752,6 +752,28 @@ static Function RGB2Gray16Image(WAVE wRef)
 	return 0
 End
 
+static Function FlattenImage(WAVE wRef, string method, variable kernelN, variable iterN, [int overwrite])
+	// Flatten image using a
+	overwrite = ParamIsDefault(overwrite) ? 0 : overwrite
+	string allmethods = "gauss;avg;median:max;min"
+	variable ifunc = WhichListItem(method, allmethods)
+	if(ifunc == -1)
+		return -1
+	endif
+
+	Duplicate/O/FREE wRef, bkgFREE
+	MatrixFilter/P=(iterN)/N=(kernelN) $method bkgFREE // MatrixFilter operation overwrites source
+	if(overwrite)
+		wRef -= bkgFREE
+	else
+		string waveNameStr = NameOfWave(wRef)
+		DFREF dfr = GetDataFolderDFR()
+		string flattenWaveStr = CreateDataObjectName(dfr, waveNameStr + "_flt", 1, 0, 1)
+		MatrixOP $flattenWaveStr = wRef - bkgFREE
+	endif
+	return 0
+End
+
 static Function ImgRemoveBackground(WAVE wRef, [variable order, WAVE wMask, variable layerN])
 	// Remove background of an image (default 1st order)
 	// Use order = n, n > 1 for higher order polynomial
@@ -904,9 +926,10 @@ static Function PixelateImageStack(WAVE wRef, variable nx, variable ny, variable
 	return 0
 End
 
-static Function MatrixFilter3D(WAVE wRef, string method, variable size, variable passes)
+static Function MatrixFilter3D(WAVE wRef, string method, variable size, variable passes, [int overwite])
 	/// Applies the MatrixFilter/N=size/P=passes method wRef
 	/// to each layer of wRef
+	overwite = ParamIsDefault(overwite) ? 1 : overwite // default overwite (used in drift correction)
 	string allmethods = "gauss;avg;median:max;min"
 	variable ifunc = WhichListItem(method, allmethods)
 	if(ifunc == -1 || WaveDims(wRef) != 3)
@@ -925,7 +948,45 @@ static Function MatrixFilter3D(WAVE wRef, string method, variable size, variable
 	WAVE M_Stack
 	// Restore scale here
 	CopyScales wRef, M_Stack
-	Duplicate/O M_Stack, saveDF:$NameofWave(wRef)		
+	if(overwite)
+		Duplicate/O M_Stack, saveDF:$NameofWave(wRef)
+	else
+		string newWaveNameStr = NameofWave(wRef) + "_flt"
+		Duplicate/O M_Stack, saveDF:$newWaveNameStr
+	endif		
+	SetDataFolder saveDF
+	return 0
+End
+
+static Function FlattenImage3D(WAVE wRef, string method, variable size, variable passes, [int overwrite])
+	/// Applies the MatrixFilter/N=size/P=passes method wRef
+	/// to each layer of wRef
+	overwrite = ParamIsDefault(overwrite) ? 1 : overwrite // default overwite (used in drift correction)
+	string allmethods = "gauss;avg;median:max;min"
+	variable ifunc = WhichListItem(method, allmethods)
+	if(ifunc == -1 || WaveDims(wRef) != 3)
+		return -1
+	endif
+	variable nlayers = DimSize(wRef, 2), i
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	string buffer = "getStacklayer_", waveNameStr
+	for(i = 0; i < nlayers; i++)
+		waveNameStr = buffer + num2str(i)
+		MatrixOP/FREE/O layerFree = layer(wRef, i)
+		MatrixFilter/N=(size)/P=(passes) $method layerFree
+		MatrixOP $waveNameStr = layer(wRef, i) - layerFree	
+	endfor
+	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
+	WAVE M_Stack
+	// Restore scale here
+	CopyScales wRef, M_Stack
+	if(overwrite)
+		Duplicate/O M_Stack, saveDF:$NameofWave(wRef)
+	else
+		string newWaveNameStr = NameofWave(wRef) + "_flt"
+		Duplicate/O M_Stack, saveDF:$newWaveNameStr
+	endif		
 	SetDataFolder saveDF
 	return 0
 End

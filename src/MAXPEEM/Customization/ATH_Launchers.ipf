@@ -792,7 +792,9 @@ static Function ScalePlanesBetweenZeroAndOne()
 	WAVE wRef = ATH_ImgOp#TopImageToWaveRef() 
 	// If you have 2D do it fast here and return
 	if(WaveDims(wRef) == 2)
-		ImageTransform/O scalePlanes wRef
+		MatrixOP/FREE wFree = wRef-minVal(wRef)
+		MatrixOP/O wFree = wFree/maxVal(wFree)
+		Duplicate/O wFree, wRef
 		return 0
 	endif
 	ATH_ImgOp#ScalePlanesBetweenZeroAndOne(wRef)
@@ -1229,3 +1231,32 @@ static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operat
 	Note wRef, "\nImageRemoveBackground/P=" + num2str(order)
 End
 
+// Flatten Image
+
+static Function FlattenImage([string method, variable kernelN, variable iterN])
+	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
+	kernelN = ParamIsDefault(kernelN) ? 2^5 : kernelN
+	iterN = ParamIsDefault(iterN) ? 1 : iterN		
+	string msg = "Flatten: img-bkg (layer-wise)"
+	Prompt method, "Method", popup, "avg;gauss;median;max;min"
+	Prompt kernelN, "Kernel size"
+	Prompt iterN, "Iterations"
+	DoPrompt msg, method, kernelN, iterN
+	// Create backup here
+	if(WaveDims(wRef) == 2)
+		ATH_ImgOp#BackupTopImage()
+		ATH_ImgOp#FlattenImage(wRef, method, kernelN, iterN, overwrite = 1)
+	elseif(WaveDims(wRef) == 3)
+		ATH_ImgOp#BackupTopImage()
+		ATH_ImgOp#FlattenImage3D(wRef, method, kernelN, iterN, overwrite = 1)
+	else
+		return -1
+	endif
+	return 0
+End
+
+	string allmethods = 
+	variable ifunc = WhichListItem(method, allmethods)
+	if(ifunc == -1 || WaveDims(wRef) != 3)
+		return -1
+	endif
