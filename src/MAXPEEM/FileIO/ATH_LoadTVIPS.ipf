@@ -78,6 +78,8 @@ static Function LoadTVIPStiff(string filepathStr, string waveNameStr, [int displ
 	else
 		Abort "Path for datafile not specified (check ATH_TVIPS#LoadTVIPStiff)!"
 	endif
+	
+	
 	ImageLoad/T=tiff/N=$waveNameStr/Q filepathStr
 	Close numref
 	WAVE wRef = $StringFromList(0, S_waveNames)

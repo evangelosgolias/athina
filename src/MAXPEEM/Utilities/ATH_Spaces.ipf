@@ -97,7 +97,7 @@ static Function MakePanel()
 	variable screenWidth, screenLength, listlength, listwidth
 	screenWidth = abs(screenRight - screenLeft)
 	screenLength = abs(screenBottom - screenTop)
-	panelLeft = screenWidth * 0.85
+	panelLeft = screenWidth * 0.9
 	panelRight = screenWidth
 	panelTop = screenLength * 0.2
 	panelBottom = screenLength * 0.8
@@ -107,14 +107,97 @@ static Function MakePanel()
 	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution	
 	NewPanel /N=ATH_SpacesPanel/W=(panelLeft*pntConv, panelTop*pntConv, panelRight*pntConv, panelBottom*pntConv) as "ATH Spaces"
 	SetDrawLayer UserBack
-	Button NewSpace,pos={10,8.00},size={listwidth * 0.25,20.00},help={"Create new space"}
-	Button NewSpace,fColor=(3,52428,1),proc=ATH_Spaces#NewSpaceButton
-	Button DeleteSpace,pos={10 + listwidth * 0.075 + listwidth * 0.25,8.00},size={listwidth * 0.25,20.00},title="Delete"
-	Button DeleteSpace,help={"Delete existing space"},fColor=(65535,16385,16385),proc=ATH_Spaces#DeleteSpaceButton
-	Button ShowAll,pos={10 + listwidth * 0.075 * 2 + listwidth * 0.25 * 2,8.00},size={listwidth * 0.25,20.00},title="All"
-	Button ShowAll,help={"Show all windows"},fColor=(32768,40777,65535),proc=ATH_Spaces#ShowAllButton
-	ListBox listOfspaces,pos={1.00,37.00},size={listwidth,listlength},proc=ATH_Spaces#ListBoxFunction
+	Button NewSpaceB,pos={20,8.00},size={listwidth * 0.3333,20.00},help={"Create new space"},fColor=(3,52428,1)
+	Button DeleteSpaceB,pos={20 + listwidth * 0.5,8.00},size={listwidth * 0.3333,20.00},title="Delete"
+	Button DeleteSpaceB,help={"Delete existing space"},fColor=(65535,16385,16385)
+	Button ShowAllB,pos={20,35},size={listwidth * 0.3333,20.00},title="All"
+	Button ShowAllB,help={"Show all windows"},fColor=(32768,40777,65535)
+	Button ShowOrphansB, help={"Show windows with no tag"}, title = "Orphans", fColor=(65535,65533,32768)
+	Button ShowOrphansB, pos={20 + listwidth * 0.5,35},size={listwidth * 0.3333,20.00}
+	ListBox listOfspaces,pos={1.00,60},size={listwidth,listlength},proc=ATH_Spaces#ListBoxFunction
 	ListBox listOfspaces,fSize=14,frame=2,listWave=dfr:ATHSpacesTW,mode=2,selRow=gSelectedSpace
+	
+	ModifyControlList ControlNameList("ATH_SpacesPanel",";","*B") proc=ATH_Spaces#SpacesButton,win=ATH_SpacesPanel
+
+	return 0
+End
+
+Static Function SpacesButton(STRUCT WMButtonAction &s)
+
+	if (s.eventCode != 2)
+		return 0
+	endif
+
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
+	WAVE/T/SDFR=dfr ATHSpacesTW
+	variable index, showSwitchAll, showSwitchOrphans
+	variable numSpaces = DimSize(ATHSpacesTW, 0)
+	string msg
+	NVAR/SDFR=dfr gSelectedSpace
+	NVAR/SDFR=dfr gShowAllWindowsSwitch
+	NVAR/SDFR=dfr gShowOrphanWindowsSwitch
+	strswitch (s.ctrlName)
+		case "NewSpaceB":
+			string newSpaceNameStr = TrimString(ATH_Dialog#GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter the name of the new Space"))
+			if(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)) || GrepString(newSpaceNameStr, "^\*")) // if the name is not unique or empty string
+				do
+					newSpaceNameStr = TrimString(ATH_Dialog#GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter a *different* name for the new Space"))
+				while(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)) || GrepString(newSpaceNameStr, "^\*"))
+			endif
+			if (!numSpaces) // If you have deleted all spaces
+				index = 0
+			else
+				index = gSelectedSpace + 1
+			endif
+			InsertPoints index, 1, ATHSpacesTW
+			ATHSpacesTW[index] = newSpaceNameStr
+			// Set the space you created as active
+			ListBox listOfspaces, selRow = index
+			gSelectedSpace = index
+			ShowWindowsOfSpaceTag(newSpaceNameStr, 1) // Show windows of the new Space - No windows to show!
+			break
+		case "DeleteSpaceB":
+			if(numSpaces)
+				if(gSelectedSpace > numSpaces - 1)
+					gSelectedSpace = numSpaces - 1
+				endif
+				msg = "Do you want to delete \"" + SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace]) + "\""
+				DoAlert/T="You are about to delete a Space", 1, msg
+				if(V_flag == 1)
+					ClearWindowsFromSpaceTag(SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])) // has to come first!
+					DeletePoints gSelectedSpace, 1, ATHSpacesTW
+					gSelectedSpace = gSelectedSpace == 0 ? 0: (gSelectedSpace - 1)
+					ListBox listOfspaces, selRow = gSelectedSpace
+				endif
+			endif
+			break
+		case "ShowAllB":
+			showSwitchAll = 1 - gShowAllWindowsSwitch
+			ModifyControl ShowOrphansB, valueColor=(0,0,0), win=ATH_SpacesPanel
+			if(showSwitchAll)
+				gShowAllWindowsSwitch = 1
+				ModifyControl ShowAllB, valueColor=(65535,0,0), win=ATH_SpacesPanel			
+				ShowAllWindows(0)
+			else
+				gShowAllWindowsSwitch = 0
+				ModifyControl ShowAllB, valueColor=(2,39321,1), win=ATH_SpacesPanel			
+				ShowAllWindows(1)
+			endif
+			break
+		case "ShowOrphansB":
+			showSwitchOrphans = 1 - gShowOrphanWindowsSwitch
+			ModifyControl ShowAllB, valueColor=(0,0,0), win=ATH_SpacesPanel	
+			if(showSwitchOrphans)
+				gShowOrphanWindowsSwitch = 1
+				ModifyControl ShowOrphansB, valueColor=(65535,0,0), win=ATH_SpacesPanel
+				ShowOrphanWindows(0)
+			else
+				gShowOrphanWindowsSwitch = 0
+				ModifyControl ShowOrphansB, valueColor=(2,39321,1), win=ATH_SpacesPanel
+				ShowOrphanWindows(1)
+			endif
+			break
+	endswitch
 	return 0
 End
 
@@ -228,62 +311,6 @@ static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 	return hookresult
 End
 
-static Function NewSpaceButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
-	WAVE/T/SDFR=dfr ATHSpacesTW
-	variable index
-	variable numEntries = DimSize(ATHSpacesTW, 0)
-	NVAR/SDFR=dfr gSelectedSpace
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:	// "mouse up after mouse down"
-			string newSpaceNameStr = TrimString(ATH_Dialog#GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter the name of the new Space"))
-			if(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)) || GrepString(newSpaceNameStr, "^\*")) // if the name is not unique or empty string
-				do
-					newSpaceNameStr = TrimString(ATH_Dialog#GenericSingleStrPrompt("New space name (not empty or starting with *):", "Enter a *different* name for the new Space"))
-				while(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr)) || GrepString(newSpaceNameStr, "^\*"))
-			endif
-			if (!numEntries) // If you have deleted all spaces
-				index = 0
-			else 
-				index = gSelectedSpace + 1
-			endif
-			InsertPoints index, 1, ATHSpacesTW
-			ATHSpacesTW[index] = newSpaceNameStr
-			// Set the space you created as active
-			ListBox listOfspaces, selRow = index
-			gSelectedSpace = index
-			ShowWindowsOfSpaceTag(newSpaceNameStr, 1) // Show windows of the new Space - No windows to show!
-			break
-	endswitch
-End
-
-static Function DeleteSpaceButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
-	WAVE/T/SDFR=dfr ATHSpacesTW
-	variable numSpaces = DimSize(ATHSpacesTW, 0)
-	NVAR/SDFR=dfr gSelectedSpace
-	string msg
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:	// "mouse up after mouse down"
-			if(numSpaces)
-				if(gSelectedSpace > numSpaces - 1)
-					gSelectedSpace = numSpaces - 1
-				endif	
-				msg = "Do you want to delete \"" + SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace]) + "\""
-				DoAlert/T="You are about to delete a Space", 1, msg
-				if(V_flag == 1)
-					ClearWindowsFromSpaceTag(SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])) // has to come first!
-					DeletePoints gSelectedSpace, 1, ATHSpacesTW
-					gSelectedSpace = gSelectedSpace == 0 ? 0: (gSelectedSpace - 1)
-					ListBox listOfspaces, selRow = gSelectedSpace
-				endif
-			endif
-			break
-	endswitch
-End
-
 static Function ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
 	// showSwitch = 0 (hide window) 
 	// showSwitch = 1 (show window)
@@ -340,22 +367,24 @@ static Function ClearWindowsFromSpaceTag(string spaceTagStr)
 	return 0
 End
 
-static Function ShowAllButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
-	NVAR/SDFR=dfr gShowAllWindowsSwitch
-	variable showSwitch
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:	// "mouse up after mouse down"
-			showSwitch = 1 - gShowAllWindowsSwitch
-			if(showSwitch)
-				gShowAllWindowsSwitch = 1
-				ShowAllWindows(0)
-			else
-				gShowAllWindowsSwitch = 0
-				ShowAllWindows(1)
-			endif
-			break
-	endswitch
+static Function UniqueSpaceNameQ(WAVE/T textW, string spaceNameStr)
+	/// Return true of spaceNameStr in not an element of textW (case-insensitive), i.e it is Unique
+	variable numEntries = DimSize(textW, 0), i
+	
+	for(i = 0; i < numEntries; i++)
+		if(!cmpstr(SanitiseATHSpaceName(textW[i]), spaceNameStr))
+			return 0
+		endif
+	endfor
+	return 1
+End
+
+static Function/S SanitiseATHSpaceName(string spaceNameStr)
+	if(GrepString(spaceNameStr, "^\*"))
+		return spaceNameStr[1,inf]
+	else
+		return spaceNameStr
+	endif
 End
 
 static Function ShowAllWindows(variable showSwitch)
@@ -378,22 +407,23 @@ static Function ShowAllWindows(variable showSwitch)
 	return 0
 End
 
-static Function UniqueSpaceNameQ(WAVE/T textW, string spaceNameStr)
-	/// Return true of spaceNameStr in not an element of textW (case-insensitive), i.e it is Unique
-	variable numEntries = DimSize(textW, 0), i
-	
-	for(i = 0; i < numEntries; i++)
-		if(!cmpstr(SanitiseATHSpaceName(textW[i]), spaceNameStr))
-			return 0
+static Function ShowOrphanWindows(variable showSwitch)
+	// Show windows with no tag
+	string winNameStr = "", getSpacetagStr
+	variable i = 0 
+	do
+		i++
+		winNameStr = WinName(i, 87, 0) // i = 0 is the ATH_SpacesPanel, so we skip checking it
+		// Catch "" from setting SetWindow $"" hide = 1/0
+		if(!strlen(winNameStr))
+			break
 		endif
-	endfor
-	return 1
-End
-
-static Function/S SanitiseATHSpaceName(string spaceNameStr)
-	if(GrepString(spaceNameStr, "^\*"))
-		return spaceNameStr[1,inf]
-	else
-		return spaceNameStr
-	endif
+		getSpacetagStr = GetUserData(winNameStr, "", "ATH_SpacesTag")
+		if(!strlen(getSpacetagStr))
+			SetWindow $winNameStr hide = 1 - showSwitch
+		else 
+			SetWindow $winNameStr hide = showSwitch
+		endif
+	while(strlen(winNameStr))
+	return 0
 End
