@@ -660,7 +660,7 @@ Function SetLayerIndex(String grfName, int index, [Wave/Z w])
 		return 1
 	endif
 	
-	ModifyImage/W=$grfName $NameOfWave(w) plane=limit(round(index), 0, DimSize(w,2)-1)
+	ModifyImage/W=$grfName $PossiblyQuoteName(NameOfWave(w)) plane=limit(round(index), 0, DimSize(w,2)-1)
 	// Do not insert DoUpdate/W=$grfName here.
 	// If inserted, when this function is called from a hook function, the
 	// modification event of a hook function, which are expected to be called

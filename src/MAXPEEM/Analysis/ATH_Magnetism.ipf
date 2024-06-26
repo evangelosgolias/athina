@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_Magnetism
-#pragma version = 1.01
+#pragma version = 1.1
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -30,17 +30,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static Function/WAVE WAVECalculateXMCD(WAVE w1, WAVE w2)
-	/// Calculate XMCD/XMLD of two images
-	if(!(WaveType(w1) & 0x02 && WaveType(w2) & 0x02)) // if your wave are not 32-bit integers /SP
-		Redimension/S w1, w2
-	endif
-	Duplicate/FREE w1, wxmcd
-	wxmcd = (w1 - w2)/(w1 + w2)
-	return wxmcd
-End
-
-static Function CalculateXMCD(WAVE w1, WAVE w2, string wxmcdStr)
+static Function/WAVE XMCD(WAVE w1, WAVE w2, [string outWave, WAVE wRef])
 	/// Calculate XMCD/XMLD of two images and save it to 
 	/// @param w1 WAVE Wave 1
 	/// @param w2 WAVE Wave 2
@@ -50,27 +40,27 @@ static Function CalculateXMCD(WAVE w1, WAVE w2, string wxmcdStr)
 	if(!(WaveType(w1) & 0x02 && WaveType(w2) & 0x02))
 		Redimension/S w1, w2
 	endif
-	Duplicate/O w1, $wxmcdStr
-	WAVE wref = $wxmcdStr
-	wref = (w1 - w2)/(w1 + w2)
-End
-
-static Function CalculateXMCDToWave(WAVE w1, WAVE w2, WAVE wXMCD)
-	/// Calculate XMCD/XMLD of two images and save it to 
-	/// @param w1 WAVE Wave 1
-	/// @param w2 WAVE Wave 2
-	/// @param wXMCD WAVE Calculated XMCD/XMLD wave 
 	
-	if(!(WaveType(w1) & 0x02 && WaveType(w2) & 0x02))
-		Redimension/S w1, w2
+	if(!(ParamIsDefault(outWave) %^ ParamIsDefault(wRef)))
+		return $""
 	endif
-
-	wXMCD = (w1 - w2)/(w1 + w2)
+	
+	if(!ParamIsDefault(outWave))
+		Duplicate/O w1, $outWave
+		WAVE w = $outWave
+		w = (w1 - w2)/(w1 + w2)
+		return w
+	else
+		Duplicate/O w1, wRef
+		wRef = (w1 - w2)/(w1 + w2)
+		return wRef
+	endif
 End
 
-static Function CalculateXMCDFromStack(WAVE w3d, [string wnameStr])
-	/// Calculate XMCD/XMLD of two images and save it to 
-	/// @param w13d WAVE Wave with 2 layers.	
+
+static Function StackToXMCD(WAVE w3d, [string wnameStr])
+	/// Calculate XMCD/XMLD of two images
+	/// @param w3d WAVE Wave with 2 layers.	
 	if(DimSize(w3d, 2) != 2)
 		return 1
 	endif	
@@ -87,7 +77,7 @@ static Function CalculateXMCDFromStack(WAVE w3d, [string wnameStr])
 	return 0
 End
 
-static Function CalculateWaveSumFromStackToWave(WAVE w3d, WAVE wSum)
+static Function StackToWaveSum(WAVE w3d, WAVE wSum)
 	
 	if(DimSize(w3d, 2) != 2)
 		return -1
@@ -99,7 +89,7 @@ static Function CalculateWaveSumFromStackToWave(WAVE w3d, WAVE wSum)
 	MatrixOP/O wSum = (layer(w3d,0) + layer(w3d,1))/2
 End
 
-static Function CalculateXMCD3D(WAVE w3d1, WAVE w3d2)
+static Function XMCD3D(WAVE w3d1, WAVE w3d2)
 	// Calculate XMC(L)D for 3D waves over layers.
 	// XMC(L)D = (w3d1 - w3d2)/(w3d1 + w3d2)
 	if(WaveDims(w3d1) != 3 || WaveDims(w3d2) != 3 || (DimSize(w3d1, 2) != DimSize(w3d2, 2)))
@@ -124,7 +114,7 @@ static Function CalculateXMCD3D(WAVE w3d1, WAVE w3d2)
 	return 0
 End
 
-static Function XMCDCombinations(WAVE w3d)
+static Function XMCDComb(WAVE w3d)
 	/// Calculate XMC(L)D = (w3d1 - w3d2)/(w3d1 + w3d2)
 	/// for all different layer combinations of w3d,
 	if(WaveDims(w3d) != 3)
@@ -141,7 +131,7 @@ static Function XMCDCombinations(WAVE w3d)
 		for(j = 0; j < i; j++)
 			MatrixOP/FREE jLayer = layer(w3d, j)
 			buffer = "ATHWaveToStack_idx_" + num2str(cnt)
-			CalculateXMCD(iLayer, jLayer, buffer)
+			XMCD(iLayer, jLayer, outWave = buffer)
 			noteStr += num2str(cnt) + ": (" + num2str(IndexToScale(w3d, i, 2)) \
 					+", "+ num2str(IndexToScale(w3d, j, 2))+")\n"
 			cnt += 1
@@ -154,6 +144,54 @@ static Function XMCDCombinations(WAVE w3d)
 	string saveStackNameStr = CreatedataObjectName(saveDF, "XMCD_Comb", 1, 0, 1)
 	MoveWave M_stack, saveDF:$saveStackNameStr
 	SetDataFolder saveDF
+	return 0
+End
+
+static Function XMCDStack4L(WAVE wRef, [string order, int overwrite, string outWave])
+	// wRef comprises four layers.
+	// Calculate xmcd between stack l0, l1 and l2, l3
+	// then subtract the two xmcd images.
+	// if order is specified then l1 = order[0], ... l4 = order[3]
+	overwrite = ParamIsDefault(overwrite) ? 0 : overwrite
+	order = SelectString(ParamIsDefault(order)? 0 : 1, "0123", order)
+	if(ParamIsDefault(outWave))
+		DFREF dfr = GetDataFolderDFR()
+		outWave = CreateDataObjectName(dfr, NameOfWave(wRef) + "_xmcd", 1, 0, 1)
+	endif
+	string regex = "^(?=[0-3]{4}$)(?!.*(.).*\1).*$" // Matches 0123, 2134, ... all combinations
+	if(!GrepString(order, regex))
+		print order + " is not a permutation of 0123"
+		return -1
+	endif
+	variable l0 = str2num(order[0])
+	variable l1 = str2num(order[1])
+	variable l2 = str2num(order[2])
+	variable l3 = str2num(order[3])
+	string noteStr = "Source: " + GetWavesDataFolder(wRef, 2) + ".\n"
+	noteStr += "Layers:" + note(wRef) + "\n"
+	noteStr += "XMCD calculation (w1-w2)/(w1+w2) between layers "+order[0]+","+order[1]+" (xmcd0) and " + order[2]+","+order[3]+" (xmcd0). "
+	noteStr += "Then the two xmcd images are subtracted xmcd0 - xmcd1"
+	MatrixOP/FREE w0 = layer(wRef, l0)
+	MatrixOP/FREE w1 = layer(wRef, l1)
+	MatrixOP/FREE w2 = layer(wRef, l2)
+	MatrixOP/FREE w3 = layer(wRef, l3)
+	Duplicate/FREE w0, xmcd0, xmcd1, wDest
+	XMCD(w0, w1, wRef=xmcd0)
+	XMCD(w2, w3, wRef=xmcd1)
+	variable errCode, flag
+	if(overwrite)
+		Duplicate/O w0, $outWave; errCode = GetRTError(1);
+	else
+		Duplicate w0, $outWave; errCode = GetRTError(1);
+	endif
+	flag = V_flag
+	if(errCode)
+		print GetErrMessage(errCode)
+		return -1
+	endif
+	WAVE wOut = $outWave
+	wOut = xmcd0 - xmcd1
+	Note wOut, noteStr
 	return 0
 End
 

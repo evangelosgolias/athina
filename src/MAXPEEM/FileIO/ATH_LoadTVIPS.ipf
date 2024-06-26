@@ -97,3 +97,103 @@ static Function LoadTVIPStiff(string filepathStr, string waveNameStr, [int displ
 	endif
 	return 0
 End
+
+static Function LoadTVIPStiffs([int numImages, int displayImg, int stack3d])
+	/// @param filepathStr string pathname.
+	/// If "" a dialog opens to select the file.
+	/// @param waveNameStr name of the imported wave.
+
+	displayImg = ParamIsDefault(displayImg) ? 0: displayImg
+	stack3d = ParamIsDefault(stack3d) ? 0: stack3d
+	
+	variable numRef, Nx, imgN
+	string separatorchar = ":"
+	string fileFilters = "TVIPS tiff File (*.tif):.tif;"
+	fileFilters += "All Files:.*;"
+	string loadFiles, filepath, filename, newWaveNameStr, basenameStr, noteStr
+	string waveNameStr = ""
+	string message = "Select .tif file. \nWavename will be filename without file extension.\n "
+	Open/F=fileFilters/M=message/D/R/MULT=1 numref
+	if(!strlen(S_fileName))
+		return 1
+	endif
+	if(stack3d)
+		DFREF saveDF = GetDataFolderDFR()
+		SetDataFolder NewFreeDataFolder()
+	endif
+	loadFiles = SortList(S_fileName, "\r", 80)
+	variable filesN = ItemsInList(loadFiles, "\r"), i
+	numImages = (ParamIsDefault(numImages) || numImages> filesN) ? filesN : numImages
+	noteStr = "Path: "+ ParseFilePath(1, StringFromList(0, loadFiles, "\r"), separatorchar, 1, 0) + "\n"
+	noteStr += "STCK:"
+	for(i = 0; i < numImages; i++)
+		filepath = StringFromList(i, loadFiles, "\r")
+		filename = ParseFilePath(3, filepath, separatorchar, 0, 0)
+		if(stack3d)
+			waveNameStr += filename + ";"
+		else
+			waveNameStr = filename
+		endif
+		ImageLoad/T=tiff/N=$filename/Q filepath
+		WAVE wRef = $filename
+		Nx = DimSize(wRef, 0)
+		imgN = DimSize(wRef, 1)/Nx
+		if(imgN==1)
+			Redimension/E=1/N=(Nx,Nx) wRef
+		else
+			Redimension/E=1/N=(Nx,Nx,imgN) wRef
+		endif
+		noteStr += filename + "(" + num2str(imgN) +");"
+	endfor
+	
+	if(stack3d)		
+		basenameStr = ParseFilePath(0, filepath, separatorchar, 1, 1)
+		newWaveNameStr = CreateDataObjectName(saveDF, basenameStr, 1, 0, 1)
+		Concatenate/NP=2 waveNameStr, saveDF:$newWaveNameStr
+		SetDataFolder saveDF
+		WAVE w3d = saveDF:$newWaveNameStr
+		CopyScales/P wRef, w3d
+		Note w3d, noteStr
+	endif	
+
+	if(displayImg && stack3d)
+		ATH_Display#NewImg(w3d)
+	endif
+	return 0
+End
+
+// Here you can find functions that could be place in ImgOp module
+
+static Function/WAVE AverageStackedStacks(WAVE wRef, [int overwrite])
+	// Read wave notes
+	overwrite = ParamIsDefault(overwrite) ? 0 : overwrite
+	string noteStr = note(wRef)
+	string stackNames = StringByKey("STCK", noteStr, ":", "\n")
+	string wavenameStr, newWaveNameStr, buffer
+	string wlist = ""
+	variable itemsN = ItemsInList(stackNames), nL, i
+	int startL = 0
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	for(i = 0; i < itemsN; i++)
+		sscanf StringFromList(i, stackNames), "%[^(](%d%[)]", wavenameStr, nL, buffer
+		Duplicate/O/FREE/RMD=[][][startL, startL+nL-1] wRef, freeW
+		buffer = "img_" + num2str(i)
+		wlist += buffer+";"
+		ATH_WaveOp#AverageImageStack(freeW, outWaveStr = buffer)
+		startL += nL
+	endfor
+	if(overwrite)
+		Concatenate/O/NP=2 wlist, wRef
+		Note/K wRef, stackNames
+		SetDataFolder saveDF
+		return wRef
+	else
+		newWaveNameStr = CreateDataObjectName(saveDF, NameOfWave(wRef) + "_stck_avg", 1, 0, 1)
+		Concatenate/O/NP=2 wlist, saveDF:$newWaveNameStr
+		Note/K saveDF:$newWaveNameStr, stackNames
+		SetDataFolder saveDF
+		return saveDF:$newWaveNameStr
+	endif
+End
+
