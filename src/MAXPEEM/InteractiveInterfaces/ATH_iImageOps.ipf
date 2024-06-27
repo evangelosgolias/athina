@@ -231,7 +231,7 @@ static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonContr
 			+ wName1Str + "\nimg2 (w2): " + wName2Str + "\nTotal w2 drift dx:" + num2str(gATH_dx) \
 			+ " dy:" + num2str(gATH_dy) +"\n"
 			note2WaveStr += "Copy to command line: \nImageInterpolate/APRM={1,0,"+num2str(gATH_dx)+",0,1,"+num2str(gATH_dy)+\
-			",1,0} Affine2D" + wName2Str
+			",1,0} Affine2D " + wName2Str
 			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)		
 			string saveOpResWaveStr = CreatedataObjectName(sourceDF, "iOp", 1, 0, 1)
 			Duplicate wOpResult, sourceDF:$saveOpResWaveStr
