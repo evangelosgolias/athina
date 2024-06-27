@@ -109,7 +109,7 @@ static Function CreateiXMCDPanel(WAVE wXMCD, WAVE wSum)
 	
 	SetVariable setDriftStep,win=$winiXMCDNameStr,pos={130,10},size={160,20.00},title="Drift step (px)"
 	SetVariable setDriftStep,win=$winiXMCDNameStr,value=gATH_driftStep,help={"Set drift value for img2"}
-	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,25,1},live=1,proc=ATH_iXMCD#SetDriftStepVar	
+	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,32,1},live=1,proc=ATH_iXMCD#SetDriftStepVar	
 
 	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20.00,10.00},size={90.00,20.00},proc=ATH_iXMCD#SaveXMCDImageButton
 	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save XMCD", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)

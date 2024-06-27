@@ -110,7 +110,7 @@ static Function CreateiOpsImgsCalculationPanel(WAVE wOpResult)
 	Button SaveOpResult,win=$winNameStr,title="Save Result", help={"Save result in CWD"}, valueColor=(1,12815,52428)	
 	SetVariable setDriftStep,win=$winNameStr,pos={130,10},size={120,20.00},title="Pixel step"
 	SetVariable setDriftStep,win=$winNameStr,value=gATH_driftStep,help={"Set drift value for w2"}
-	SetVariable setDriftStep,win=$winNameStr,fSize=14,limits={0,10,1},live=1,proc=ATH_iImgOps#SetDriftStepVar		
+	SetVariable setDriftStep,win=$winNameStr,fSize=14,limits={0,32,1},live=1,proc=ATH_iImgOps#SetDriftStepVar		
 	SetVariable SetOpFormula,win=$winNameStr,fSize=14,pos={260,10},size={160,20.00},title="f(w1, w2)",value=_STR:OpStr
 	SetVariable SetOpFormula,proc=ATH_iImgOps#SetOpFormula
 	CheckBox SecOp, pos={60,38}, side=1, size={100.00,18.00}, proc=ATH_iImgOps#CheckBoxSecOp,title="Enable second operation", fSize=14, value= 0
@@ -310,7 +310,7 @@ static Function CheckBoxSecOp(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 			if(!strlen(GetUserData(cb.win,"", "ATH_iSecOpWinName")))
 				string iSecOpWinName = UniqueName(cb.win+"_secOp", 6, 0)
 				ATH_Display#NewImg(wSecOpResult, grfName=iSecOpWinName)
-				SetWindow $cb.win userdata(ATH_iSecOpWinName) = iSecOpWinName	
+				SetWindow $cb.win userdata(ATH_iSecOpWinName) = iSecOpWinName
 				DoWindow/T $iSecOpWinName "iSecOperation"			
 			endif
 			SetDataFolder saveDFR
