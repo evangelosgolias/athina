@@ -142,10 +142,6 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	// Needed if you want more than one hook functions to be able to cleanup/close 
 	// windows linked a parent window.
 		case 2:
-			Duplicate/O wimg2, $wName2Str // wName2Str is a full path
-			string note2ImgStr = "\nTotal drift dx:" + num2str(gATH_dx) \
-			+ " dy:" + num2str(gATH_dy) + " of " + wName2Str
-			Note wimg2, note2ImgStr
 			string sumWinStr = GetUserData(s.winName, "", "ATH_iSumWin")
 			string killwincmd = "KillWindow/Z "+sumWinStr // keep Z in case you've killed the iSum
 			Execute/P/Q killWinCmd
@@ -220,20 +216,14 @@ static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			string note2WaveStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " \
-			+ wName1Str + "\nimg2: " + wName2Str + "\nTotal drift dx:" + num2str(gATH_dx) \
-			+ "px & dy:" + num2str(gATH_dy) + " px"
+			+ wName1Str + "\nimg2: " + wName2Str + "\nTotal img2 pixel drift dx:" + num2str(gATH_dx) \
+			+ " dy:" + num2str(gATH_dy) + "\n"
+			note2WaveStr += "Copy to command line: \nImageInterpolate/APRM={1,0,"+num2str(gATH_dx)+",0,1,"+num2str(gATH_dy)+\
+			",1,0} Affine2D" + wName2Str
 			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)		
 			string savexmcdWaveStr = CreatedataObjectName(sourceDF, "iXMCD", 1, 0, 1)
 			Duplicate wXMCD, sourceDF:$savexmcdWaveStr
 			Note sourceDF:$savexmcdWaveStr, note2WaveStr
-			//Copy the interpolated wave
-			string backupWaveNameStr = NameOfWave($wName2Str) + "_undo"
-			//string saveWave2NameStr = CreatedataObjectName(sourceDF, wname2BaseStr, 1, 0, 1)
-			if(!WaveExists(sourceDF:$backupWaveNameStr))
-				Duplicate/O wimg2_undo, sourceDF:$backupWaveNameStr // Restore original image when done.
-				note2WaveStr = "Backup before iXMCD correction of: " + wName2Str
-				Note sourceDF:$backupWaveNameStr, note2WaveStr
-			endif
 			break
 	endswitch
 	return 0

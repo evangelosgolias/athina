@@ -34,7 +34,7 @@ static Function/WAVE XMCD(WAVE w1, WAVE w2, [string outWave, WAVE wRef])
 	/// Calculate XMCD/XMLD of two images and save it to 
 	/// @param w1 WAVE Wave 1
 	/// @param w2 WAVE Wave 2
-	/// @param wxmcd string Wavemane of calculated XMCD/XMLD
+	/// NB: You have to provife either outWave or wRef
 	
 	// Calculation of XMC(L)D using SP waves
 	if(!(WaveType(w1) & 0x02 && WaveType(w2) & 0x02))

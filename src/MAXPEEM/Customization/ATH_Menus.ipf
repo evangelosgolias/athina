@@ -87,8 +87,9 @@ Menu "Athina"
 	End
 
 	Submenu "XMC(L)D calculation"
-		"XMC(L)D (3D[2]) ... ", /Q, ATH_Launch#CalculationXMCD3d()
-		"XMC(L)D combinations (3D[1]) ...", /Q, ATH_Launch#XMCDCombinations()
+		"XMC(L)D (2D[2]) ... ", /Q, ATH_Launch#CalculationXMCD()
+		"XMC(L)D (3Dx2) ... ", /Q, ATH_Launch#CalculationXMCD3D()
+		"XMC(L)D combinations (3Dx1) ...", /Q, ATH_Launch#XMCDCombinations()
 	End	
 		
 	Submenu "XPS"

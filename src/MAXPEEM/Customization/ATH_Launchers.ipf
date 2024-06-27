@@ -121,63 +121,47 @@ static Function CalculateXMCDFromStack()
 	return 0
 End
 
-static Function DialogLoadTwoImagesAndRegisterQ()
-
-	variable numRef
-	string fileFilters = "dat File (*.dat):.dat;"
-	fileFilters += "All Files:.*;"
-	string msgStr = "Select two images for XMC(L)D calculation."
-	Open/D/R/MULT=1/M=msgStr/F=fileFilters numRef
-	if(!strlen(S_filename))//If you cancel, i.e nothing selected.
-		return 1
-	endif
-	if(ItemsInList(S_filename, "\r") != 2)
-		Abort "Select exactly two .dat files"
-	endif
-
-	WAVE wimg1 = ATH_Uview#WAVELoadSingleDATFile(StringFromList(0,S_filename, "\r"), "",  autoscale = 1)
-	WAVE wimg2 = ATH_Uview#WAVELoadSingleDATFile(StringFromList(1,S_filename, "\r"), "",  autoscale = 1)
+static Function CalculationXMCD()
+	string msg = "Select two 2d waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
+	string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
 	
-	if(WaveType(wimg1) & 0x10) // If WORD (int16)
-		Redimension/S wimg1
+	// S_fileName is a carriage-return-separated list of full paths to one or more files.
+	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
+	string selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)
+	if(nrSelectedWaves != 2)
+		DoAlert/T="MAXPEEM would like you to know" 1, "Select two (2) 2d waves only.\n" + \
+				"Do you want a another chance with the browser selection?"
+		if(V_flag == 1)
+			CalculationXMCD()
+			return 0
+		elseif(V_flag == 2)
+			return -1
+		else
+			print "CalculationXMCD(). Abormal behavior."
+		endif
+		
+		return -1 // Abort the running instance otherwise the code that follows will run 
+			  // as many times as the dialog will be displayed. Equavalenty, it can 
+			  // be placed in the if (V_flag == 1) branch.
 	endif
-
-	if(WaveType(wimg2) & 0x10) // If WORD (int16)
-		Redimension/S wimg2
-	endif
-	string wave1Str = NameOfWave(wimg1)	
-	string wave2Str = NameOfWave(wimg2)
-	string selectedFilesPopupStr = wave1Str + ";" + wave2Str
-	variable registerImageQ = 2 // Default: Yes
-	string saveWaveName = ""
+	string wave1Str = StringFromList(0, selectedWavesStr) // The last dat has been eliminated when importing waves, so we are ok
+	string wave2Str = StringFromList(1, selectedWavesStr)
+	string selectedWavesPopupStr = wave1Str + ";" + wave2Str
 	//Set defaults 
-	Prompt wave1Str, "img1", popup, selectedFilesPopupStr
-	Prompt wave2Str, "img2", popup, selectedFilesPopupStr
-	Prompt registerImageQ, "Automatic image registration?", popup, "Yes;No" // Yes = 1, No = 2!
-	Prompt saveWaveName, "Name of the image stack (default: ATH_XMCD_stk)"
-	DoPrompt "XMC(L)D = (img1 - img2)/(img1 + img2)", wave1Str, wave2Str, registerImageQ, saveWaveName
+	Prompt wave1Str, "w1", popup, selectedWavesPopupStr
+	Prompt wave2Str, "w2", popup, selectedWavesPopupStr
+	DoPrompt "XMC(L)D = (w1 - w2)/(w1 + w2)", wave1Str, wave2Str
 	if(V_flag) // User cancelled
 		return 1
 	endif
-		
-	if(registerImageQ == 1)
-		ATH_ImgAlign#ImgRegistration(wimg1, wimg2) // NB: wimg2 is overwritten here
-	endif
-	
-	if(!strlen(saveWaveName))
-		// We need a unique wave name
-		DFREF currDF = GetDataFolderDFR()
-		saveWaveName = CreatedataObjectName(currDF, "ATH_XMCD_stk", 1, 0, 1)
-	endif
-	variable nrows = DimSize(wimg1, 0)
-	variable ncols = DimSize(wimg1, 1)	
-	Make/N=(nrows, ncols, 2) $saveWaveName
-	CopyScales wimg1, $saveWaveName
-	WAVE w3d = $saveWaveName
-	w3d[][][0] = wimg1[p][q]
-	w3d[][][1] = wimg2[p][q]
-	KillWaves wimg1, wimg2
-	ATH_Display#NewImg(w3d)
+	WAVE w2d1 = $wave1Str
+	WAVE w2d2 = $wave2Str
+	DFREF currDFR = GetDataFolderDFR()
+	string saveWaveName = CreatedataObjectName(currDFR, "XMCD", 1, 0, 1)
+	ATH_Magnetism#XMCD(w2d1, w2d2, outWave = saveWaveName)
+	string noteStr = "ATH_Magnetism#XMCD("+ wave1Str + ","+\
+	wave2Str+", outWave=" + saveWaveName + ")"
+	Note $saveWaveName, noteStr
 	return 0
 End
 
@@ -195,12 +179,12 @@ static Function CalculationXMCD3D()
 			CalculationXMCD3d()
 			return 0
 		elseif(V_flag == 2)
-			Abort
+			return -1
 		else
 			print "CalculationXMCD3d(). Abormal behavior."
 		endif
 		
-		Abort // Abort the running instance otherwise the code that follows will run 
+		return -1 // Abort the running instance otherwise the code that follows will run 
 			  // as many times as the dialog will be displayed. Equavalenty, it can 
 			  // be placed in the if (V_flag == 1) branch.
 	endif

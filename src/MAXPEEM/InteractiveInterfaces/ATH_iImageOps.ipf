@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion= 9
 #pragma ModuleName = ATH_iImgOps
-#pragma version = 1.01
+#pragma version = 1.1
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -81,7 +81,7 @@ static Function MainMenu()
 	endif	
 	
 	Duplicate/O $wave1NameStr, dfr:w1
-	Duplicate/O $wave2NameStr, dfr:w2, dfr:w2_undo,  dfr:wOpResult
+	Duplicate/O $wave2NameStr, dfr:w2, dfr:w2_undo,  dfr:wOpResult, dfr:wSecOpResult
 	//Wave references
 	WAVE w1 = dfr:w1
 	WAVE w2 = dfr:w2	
@@ -90,9 +90,9 @@ static Function MainMenu()
 	variable/G dfr:gATH_driftStep = 1
 	variable/G dfr:gATH_dx = 0	
 	variable/G dfr:gATH_dy = 0
+	variable/G dfr:gATH_secOp = 0	
 	string/G dfr:wName1Str = wave1NameStr
 	string/G dfr:wName2Str = wave2NameStr
-	string/G dfr:wOpResultStr = "root:Packages:ATH_DataFolder:iOpsImgs:" + folderNameStr + ":" + "wOpResult"
 	wOpResult = w1 - w2 // Result calculated whan launched
 	CreateiOpsImgsCalculationPanel(wOpResult)
 End
@@ -103,15 +103,18 @@ static Function CreateiOpsImgsCalculationPanel(WAVE wOpResult)
 	ATH_Display#NewImg(wOpResult)
 	string winNameStr = WinName(0,1)
 	DoWindow/T $winNameStr "iOperation"
-	ControlBar/W=$winNameStr 40	
+	ControlBar/W=$winNameStr 60	
 	string OpStr = "w1 - w2"
+	string SecOpStr = "w1 + w2"
 	Button SaveOpResult,win=$winNameStr,pos={20.00,10.00},size={90.00,20.00},proc=ATH_iImgOps#SaveOpResultButton
 	Button SaveOpResult,win=$winNameStr,title="Save Result", help={"Save result in CWD"}, valueColor=(1,12815,52428)	
 	SetVariable setDriftStep,win=$winNameStr,pos={130,10},size={120,20.00},title="Pixel step"
 	SetVariable setDriftStep,win=$winNameStr,value=gATH_driftStep,help={"Set drift value for w2"}
 	SetVariable setDriftStep,win=$winNameStr,fSize=14,limits={0,10,1},live=1,proc=ATH_iImgOps#SetDriftStepVar		
 	SetVariable SetOpFormula,win=$winNameStr,fSize=14,pos={260,10},size={160,20.00},title="f(w1, w2)",value=_STR:OpStr
-	SetVariable SetOpFormula,proc=ATH_iImgOps#SetOpFormula	
+	SetVariable SetOpFormula,proc=ATH_iImgOps#SetOpFormula
+	CheckBox SecOp, pos={60,38}, side=1, size={100.00,18.00}, proc=ATH_iImgOps#CheckBoxSecOp,title="Enable second operation", fSize=14, value= 0
+	SetVariable SetSecOpFormula,win=$winNameStr,fSize=14,pos={260,38},size={160,20.00},title="secOp",value=_STR:SecOpStr, proc=ATH_iImgOps#SetSecOpFormula
 	string dfrStr = GetWavesDataFolder(wOpResult, 1)
 	SetWindow $winNameStr userdata(ATH_iImgOpsDFPath) = dfrStr
 	SetWindow $winNameStr userdata(ATH_iImgOpsWin) = winNameStr
@@ -131,7 +134,7 @@ static Function WindowHook(STRUCT WMWinHookStruct &s)
 	WAVE/SDFR=dfr wOpResult
 	SVAR/SDFR=dfr wName2Str
 	SVAR/SDFR=dfr wName1Str
-	SVAR/SDFR=dfr wOpResultStr
+	NVAR/Z/SDFR=dfr gATH_secOp
 	
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
 	string dfrStr = GetUserData(s.winName, "", "ATH_iImgOpsDFPath"), cmdStr
@@ -140,14 +143,13 @@ static Function WindowHook(STRUCT WMWinHookStruct &s)
 	// Needed if you want more than one hook functions to be able to cleanup/close 
 	// windows linked a parent window.
 		case 2:
-			Duplicate/O w2, $wName2Str // wName2Str is a full path
-			string note2ImgStr = "\nTotal drift dx:" + num2str(gATH_dx) \
-			+ " dy:" + num2str(gATH_dy) + " of " + wName2Str
-			Note w2, note2ImgStr
-			string sumWinStr = GetUserData(s.winName, "", "ATH_iSumWin")
-			string killwincmd = "KillWindow/Z "+sumWinStr // keep Z in case you've killed the iSum
+//			Duplicate/O w2_undo, $wName2Str // wName2Str is a full path
+//			string note2ImgStr = "\nTotal drift dx:" + num2str(gATH_dx) \
+//			+ " dy:" + num2str(gATH_dy) + " of " + wName2Str
+//			Note w2, note2ImgStr
+			string killwincmd = "KillWindow/Z "+ GetUserData(s.WinName,"", "ATH_iSecOpWinName")
 			Execute/P/Q killWinCmd
-			string killDFCmd = "KillDataFolder "+ GetDataFolder(1, dfr)
+			string killDFCmd = "KillDataFolder/Z "+ GetDataFolder(1, dfr)
 			Execute/P/Q killDFCmd
 			hookresult = 1
 			break
@@ -195,6 +197,12 @@ static Function WindowHook(STRUCT WMWinHookStruct &s)
 			endswitch
 			ControlInfo/W=$s.winName SetOpFormula
 			Execute/Q/Z ("MatrixOP/O wOpResult = " + S_value)
+			
+			if(gATH_secOp)
+				ControlInfo/W=$s.winName SetSecOpFormula
+				Execute/Q/Z ("MatrixOP/O wSecOpResult = " + S_value)
+			endif
+			
 			CopyScales/I w1, w2 // Copy back the scale, M_Affine is pixel-scaled
 			hookResult = 1
 			break
@@ -220,19 +228,14 @@ static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonContr
 		case 2:	// "mouse up after mouse down"
 			ControlInfo/W=$B_Struct.win SetOpFormula
 			string note2WaveStr = "Operation: " + S_value + "\nimg1 (w1): " \
-			+ wName1Str + "\nimg2 (w2): " + wName2Str + "\nTotal drift dx:" + num2str(gATH_dx) \
-			+ " dy:" + num2str(gATH_dy)
+			+ wName1Str + "\nimg2 (w2): " + wName2Str + "\nTotal w2 drift dx:" + num2str(gATH_dx) \
+			+ " dy:" + num2str(gATH_dy) +"\n"
+			note2WaveStr += "Copy to command line: \nImageInterpolate/APRM={1,0,"+num2str(gATH_dx)+",0,1,"+num2str(gATH_dy)+\
+			",1,0} Affine2D" + wName2Str
 			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)		
 			string saveOpResWaveStr = CreatedataObjectName(sourceDF, "iOp", 1, 0, 1)
 			Duplicate wOpResult, sourceDF:$saveOpResWaveStr
 			Note sourceDF:$saveOpResWaveStr, note2WaveStr
-			//Copy the interpolated wave
-			string backupWaveNameStr = NameOfWave($wName2Str) + "_undo"
-			if(!WaveExists(sourceDF:$backupWaveNameStr))
-				Duplicate/O w2_undo, sourceDF:$backupWaveNameStr // Restore original image when done.
-				note2WaveStr = "Backup before iImgOps of: " + wName2Str
-				Note sourceDF:$backupWaveNameStr, note2WaveStr
-			endif
 			break
 	endswitch
 	return 0
@@ -270,5 +273,53 @@ static Function SetOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableContr
 			break
 	endswitch
 	SetDataFolder saveDFR
+	return 0
+End
+
+static Function SetSecOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableControl
+
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_iImgOpsDFPath"))
+	DFREF saveDFR = GetDataFolderDFR()	
+	switch (sva.eventCode)
+		case 1:
+		case 2:
+		case 3: 							// Live update
+			SetDataFolder dfr
+			Execute/Q/Z ("MatrixOP/O wSecOpResult = " + sva.sval)
+			break
+		case -1: 							// Control being killed
+			break
+	endswitch
+	SetDataFolder saveDFR
+	return 0
+End
+
+static Function CheckBoxSecOp(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_iImgOpsDFPath"))
+	NVAR/Z/SDFR=dfr gATH_secOp
+	DFREF saveDFR = GetDataFolderDFR()
+	switch(cb.checked)
+		case 1:		// Mouse up
+			// Create the twinwave plot
+			gATH_secOp = 1
+			WAVE/SDFR=dfr wSecOpResult
+			SetDataFolder dfr
+			ControlInfo/W=$cb.win SetSecOpFormula
+			Execute/Q/Z ("MatrixOP/O wSecOpResult = " + S_value)
+			if(!strlen(GetUserData(cb.win,"", "ATH_iSecOpWinName")))
+				string iSecOpWinName = UniqueName(cb.win+"_secOp", 6, 0)
+				ATH_Display#NewImg(wSecOpResult, grfName=iSecOpWinName)
+				SetWindow $cb.win userdata(ATH_iSecOpWinName) = iSecOpWinName	
+				DoWindow/T $iSecOpWinName "iSecOperation"			
+			endif
+			SetDataFolder saveDFR
+			break
+		case 0:
+			KillWindow/Z $GetUserData(cb.win,"", "ATH_iSecOpWinName")
+			SetWindow $cb.win userdata(ATH_iSecOpWinName) = ""
+			gATH_secOp = 0			
+			break
+	endswitch
 	return 0
 End
