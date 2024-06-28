@@ -78,8 +78,10 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					if(is3d)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
 					endif
+					break
 				case 98:
 					ATH_ImgOp#RestoreTopImageFromBackup(wname=NameOfWave(w))
+					break					
 				case 100: //d
 					GetMarquee/W=$s.winName
 					if(V_flag)
@@ -87,6 +89,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					else
 						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
 					endif
+					break					
 				case 102: // f
 					ATH_Launch#SetTopImageDF()
 					break
@@ -95,12 +98,16 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break 
 				case 105: // i
 					ATH_Cursors#MeasureDistanceUsingFreeCursors()
+					break					
 				case 108: //l
 					ATH_LineProfile#MainMenu()
+					break					
 				case 112: // p
 					ATH_PlaneZProfile#MenuLaunch()
+					break					
 				case 114: // r
 					ATH_Range#pnl(s.winName)
+					break					
 				case 115: // s
 					if(str2num(GetUserData(s.winName, "", "ATH_isPlanQ")))
 						SetWindow $s.winName, userdata(ATH_isPlanQ) = "0"
@@ -109,10 +116,12 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						SetWindow $s.winName, userdata(ATH_isPlanQ) = "1"
 						ModifyGraph width={Plan,1,top,left}
 					endif
+					break					
 				case 120: // x, calculate xmcd
 					if(is3d && DimSize(w, 2)==2)
 						ATH_Launch#CalculateXMCDFromStack()
 					endif
+					break					
 				case 122: // z, launch z-profile if marquee present
 					if(is3d)
 						GetMarquee/W=$s.winName
@@ -122,9 +131,9 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 							Execute/P/Q "ATH_ZProfile#GraphMarqueeLaunchRectangle()"
 						endif
 					endif
+					break					
 			endswitch
 			return 1 // all cases should return so topWin stays in focus
-			break
 		case 22:	//	mouseWheel
 			if (s.eventMod & 8)		//	if the ctrl key is pressed (CMD on )
 				ATH_Display#Mangify(s)
