@@ -496,8 +496,8 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 				endif
 				DrawLineUserFront(WindowNameStr,C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
 			endif
-			sprintf recreateCmdStr, "Cmd:ImageTransform/X={%d, %d, %d, %d, 0, %d, %d, 0, %d, "+\
-			"%d, %d} extractSurface %s\nSource: %s",  Nx, Ny, C1x, C1y, C2x, C2y, C2x, C2y, nLayers, w3dNameStr, ImagePathname
+			sprintf recreateCmdStr, "Source: %s\nCmd:ImageTransform/X={%d, %d, %d, %d, 0, %d, %d, 0, %d, "+\
+			"%d, %d} extractSurface %s\n",  ImagePathname, Nx, Ny, C1x, C1y, C2x, C2y, C2x, C2y, nLayers, w3dNameStr
 			Note savedfr:$saveWaveNameStr, recreateCmdStr
 			break
 	endswitch

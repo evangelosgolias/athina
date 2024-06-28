@@ -338,7 +338,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
 	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_ShowSavedGraphsWindow")
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
-	SVAR/Z w3dNameStr = dfr:gATH_ImageNameStr
+	SVAR/Z wavenameStr = dfr:gATH_ImageNameStr
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
 	Wave/SDFR=dfr W_ImageLineProfile
 	Wave/SDFR=dfr W_LineProfileDisplacement
@@ -358,7 +358,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable red, green, blue
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			string saveWaveBaseNameStr = w3dNameStr + "_Lprof"
+			string saveWaveBaseNameStr = wavenameStr + "_Lprof"
 			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 5)
 			Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
 			variable xRange = W_LineProfileDisplacement[DimSize(W_LineProfileDisplacement,0)-1] - W_LineProfileDisplacement[0]
@@ -386,10 +386,10 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 				endif
 				DrawLineUserFront(WindowNameStr,C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
 			endif
-			sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left;" + \
+			sprintf recreateDrawStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left;" + \
 			"DrawCmd:DrawLine %f, %f, %f, %f;ProfileCmd:Make/O/N=2 xTrace={%f, %f}, yTrace = {%f, %f}\nImageLineProfile/P=(%d) srcWave=%s," +\
 			"xWave=xTrace, yWave=yTrace, width = %f\nDisplay/K=1 W_ImageLineProfile vs W_LineProfileDisplacement" + \
-			"", ImagePathname, red, green, blue, C1x, C1y, C2x, C2y, C1x, C2x, C1y, C2y, selectedLayer, ImagePathname, profileWidth
+			"", wavenameStr, ImagePathname, red, green, blue, C1x, C1y, C2x, C2y, C1x, C2x, C1y, C2y, selectedLayer, ImagePathname, profileWidth
 			Note savedfr:$saveWaveNameStr, recreateDrawStr
 			break
 	endswitch

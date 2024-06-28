@@ -517,11 +517,11 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 				endif
 			endif
 			if(gATH_Rect)
-				sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
-				"DrawCmd:DrawRect %f, %f, %f, %f", w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
+				sprintf recreateDrawStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
+				"DrawCmd:DrawRect %f, %f, %f, %f", w3dNameStr, w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
 			else
-				sprintf recreateDrawStr, "pathName:%s;DrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
-				"DrawCmd:DrawOval %f, %f, %f, %f", w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
+				sprintf recreateDrawStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
+				"DrawCmd:DrawOval %f, %f, %f, %f", w3dNameStr, w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
 			endif
 			Note savedfr:$saveWaveNameStr, recreateDrawStr
 			break
