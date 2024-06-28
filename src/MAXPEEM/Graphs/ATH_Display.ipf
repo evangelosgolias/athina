@@ -93,9 +93,9 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				case 102: // f
 					ATH_Launch#SetTopImageDF()
 					break
-				case 70: // F
-					ATH_Launch#SetTopImageDF(gotoLastSetFolder=1)
-					break 
+//				case 70: // F
+//					ATH_Launch#SetTopImageDF(gotoLastSetFolder=1)
+//					break 
 				case 105: // i
 					ATH_Cursors#MeasureDistanceUsingFreeCursors()
 					break					

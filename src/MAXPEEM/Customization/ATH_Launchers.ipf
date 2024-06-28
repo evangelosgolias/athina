@@ -1187,30 +1187,9 @@ static Function ScalePartialXPSSpectrum()
 	gATH_EnergyScale  = Escale
 End
 
-Function SetTopImageDF([int gotoLastSetFolder])
+Function SetTopImageDF()
 	/// Set the current data folder to the parent dir of the top image
-	/// The function saved in the global variable root:Packages:ATH_DataFolder:FileSystem:gATH_LastSetFolder
-	/// the previous working directory.
-	/// if gotoLastSetFolder is true then we can go back the the saved directoe
-	
-	gotoLastSetFolder = ParamIsDefault(gotoLastSetFolder) ? 0 : gotoLastSetFolder
 	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:FileSystem")
-	SVAR/Z/SDFR=dfr gATH_LastSetFolder
-	DFREF currDF = GetDataFolderDFR()
-	if(SVAR_Exists(gATH_LastSetFolder))
-		if(gotoLastSetFolder)
-			string bufferDFstr =  GetDataFolder(1)
-			SetDataFolder gATH_LastSetFolder
-			gATH_LastSetFolder = bufferDFstr
-			return 0 // NB: Here return nothing else to do
-		endif
-		if(!DataFolderRefsEqual($gATH_LastSetFolder,currDFR))
-			gATH_LastSetFolder =  GetDataFolder(1)
-		endif
-	else
-		string/G dfr:gATH_LastSetFolder = GetDataFolder(1)
-	endif
 	SetDataFolder GetWavesDataFolderDFR(wRef)
 	return 0
 End
