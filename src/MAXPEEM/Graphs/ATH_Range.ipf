@@ -2,7 +2,7 @@
 #pragma rtGlobals = 3
 #pragma ModuleName = ATH_Range
 #pragma IgorVersion = 9
-#pragma version = 1.0
+#pragma version = 1.1
 
 /// *** The present code is an adapted copy from SIDAM project
 /// see https://github.com/yuksk/SIDAM ***
@@ -251,7 +251,8 @@ Static Function pnl(String grfName)
 	Button doB pos={5,PNLHEIGHT-25}, size={65,20}, title="Apply", fcolor=(26205,52428,1), win=$pnlName
 	Button cancelB pos={PNLWIDTH-70,PNLHEIGHT-25}, size={65,20}, title="Cancel", fcolor=(65535,0,0), win=$pnlName
 	Button refreshB pos={PNLWIDTH-165,PNLHEIGHT-25},  title="Refresh", size={65,20}, fcolor=(65535,43690,0), win=$pnlName
-
+	Button reverseColorsB, pos={230,6},size={25,20},title="Rc",fsize=13,win=$pnlName
+	
 	ModifyControlList ControlNameList(pnlName,";","zm*C") mode=1, proc=ATH_Range#pnlCheck, fsize = 13, win=$pnlName
 	ModifyControlList ControlNameList(pnlName,";","zm*V") size={60,18}, bodyWidth=60, proc=ATH_Range#pnlSetVar,fsize = 13, win=$pnlName
 	ModifyControlList "zminV;zmaxV" size={100,18}, bodyWidth=100, win=$pnlName
@@ -648,18 +649,25 @@ Static Function pnlButton(STRUCT WMButtonAction &s)
 			break
 		case "refreshB":
 			// ------ EG ---- //
-				updateZmode(s.win)
-	updateZRange(GetUserData(s.win,"","grf"), pause=1)
+			updateZmode(s.win)
+			updateZRange(GetUserData(s.win,"","grf"), pause=1)
 
-	updatePnlCursorsPos(s.win)
-	updatePnlColor(s.win)
-	updatePnlPresentValues(s.win)
+			updatePnlCursorsPos(s.win)
+			updatePnlColor(s.win)
+			updatePnlPresentValues(s.win)
 			break
 		case "presentB":
 		case "fullB":
 			updatePnlHistogram(s.win, NumberByKey(s.ctrlName, "presentB:0;fullB:1"))
 			updatePnlCursorsPos(s.win)
 			updatePnlColor(s.win)
+			break
+		case "reverseColorsB":
+			string matchPattern = "ctab= {%*f,%*f,%*[^,],%d}" //%* -> Read but not store
+			variable cmapSwitch
+			ControlInfo/W=$s.win imageP
+			sscanf StringByKey("RECREATION",Imageinfo("",S_Value,0)), matchPattern, cmapSwitch
+			ModifyImage/W=$GetUserData(s.win,"","grf") $S_Value ctab={,,,!cmapSwitch}
 			break
 	endswitch
 	return 0
