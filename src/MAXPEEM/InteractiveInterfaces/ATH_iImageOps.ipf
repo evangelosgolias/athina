@@ -106,15 +106,16 @@ static Function CreateiOpsImgsCalculationPanel(WAVE wOpResult)
 	ControlBar/W=$winNameStr 60	
 	string OpStr = "w1 - w2"
 	string SecOpStr = "w1 + w2"
-	Button SaveOpResult,win=$winNameStr,pos={20.00,10.00},size={90.00,20.00},proc=ATH_iImgOps#SaveOpResultButton
+	Button SaveOpResult,win=$winNameStr,pos={20.00,8},size={90.00,18},proc=ATH_iImgOps#SaveOpResultButton
 	Button SaveOpResult,win=$winNameStr,title="Save Result", help={"Save result in CWD"}, valueColor=(1,12815,52428)	
-	SetVariable setDriftStep,win=$winNameStr,pos={130,10},size={120,20.00},title="Pixel step"
+	Button RestoreImgs,win=$winNameStr,title="Restore",pos={20.00,35},size={90.00,20.00},fColor=(3,52428,1),proc=ATH_iImgOps#RestoreImagesButton	
+	SetVariable setDriftStep,win=$winNameStr,pos={130,8},size={120,20.00},title="Pixel step"
 	SetVariable setDriftStep,win=$winNameStr,value=gATH_driftStep,help={"Set drift value for w2"}
 	SetVariable setDriftStep,win=$winNameStr,fSize=14,limits={0,32,1},live=1,proc=ATH_iImgOps#SetDriftStepVar		
-	SetVariable SetOpFormula,win=$winNameStr,fSize=14,pos={260,10},size={160,20.00},title="f(w1, w2)",value=_STR:OpStr
+	SetVariable SetOpFormula,win=$winNameStr,fSize=14,pos={260,8},size={160,20.00},title="f(w1, w2)",value=_STR:OpStr
 	SetVariable SetOpFormula,proc=ATH_iImgOps#SetOpFormula
-	CheckBox SecOp, pos={60,38}, side=1, size={100.00,18.00}, proc=ATH_iImgOps#CheckBoxSecOp,title="Enable second operation", fSize=14, value= 0
-	SetVariable SetSecOpFormula,win=$winNameStr,fSize=14,pos={260,38},size={160,20.00},title="secOp",value=_STR:SecOpStr, proc=ATH_iImgOps#SetSecOpFormula
+	CheckBox SecOp, pos={130,35}, side=1, size={120.00,20}, proc=ATH_iImgOps#CheckBoxSecOp,title="Enable Sec. Op.", fSize=14, value= 0
+	SetVariable SetSecOpFormula,win=$winNameStr,fSize=14,pos={260,35},size={160,20.00},title="secOp",value=_STR:SecOpStr, proc=ATH_iImgOps#SetSecOpFormula
 	string dfrStr = GetWavesDataFolder(wOpResult, 1)
 	SetWindow $winNameStr userdata(ATH_iImgOpsDFPath) = dfrStr
 	SetWindow $winNameStr userdata(ATH_iImgOpsWin) = winNameStr
@@ -184,16 +185,6 @@ static Function WindowHook(STRUCT WMWinHookStruct &s)
 					Duplicate/O M_Affine, w2				
 					hookResult = 1
 					break
-				case 82: // R to restore.
-					if(!(s.eventMod & 8)) // Mac CMD+R has the same effect with SHIFT+R. Now works only with R (SHIFT+r)
-						Duplicate/O w2_undo, w2		
-						gATH_dx = 0; gATH_dy = 0		
-						hookResult = 1
-					endif
-					break
-				default:
-					hookResult = 1
-					break
 			endswitch
 			ControlInfo/W=$s.winName SetOpFormula
 			Execute/Q/Z ("MatrixOP/O wOpResult = " + S_value)
@@ -209,6 +200,33 @@ static Function WindowHook(STRUCT WMWinHookStruct &s)
 	endswitch
 	SetDataFolder saveDFR
 	return hookResult	// If non-zero, we handled event and Igor will ignore it.
+End
+
+static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgOpsDFPath"))
+	DFREF saveDFR = GetDataFolderDFR()
+	NVAR/SDFR=dfr gATH_dx
+	NVAR/SDFR=dfr gATH_dy
+	WAVE/SDFR=dfr w1
+	WAVE/SDFR=dfr w2
+	WAVE/SDFR=dfr w2_undo
+	WAVE/SDFR=dfr wOpResult
+	NVAR/Z/SDFR=dfr gATH_secOp
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			SetDataFolder dfr
+			Duplicate/O w2_undo, w2
+			gATH_dx = 0; gATH_dy = 0
+			ControlInfo/W=$B_Struct.win SetOpFormula
+			Execute/Q/Z ("MatrixOP/O wOpResult = " + S_value)
+			if(gATH_secOp)
+				ControlInfo/W=$B_Struct.win SetSecOpFormula
+				Execute/Q/Z ("MatrixOP/O wSecOpResult = " + S_value)
+			endif
+			break
+	endswitch
+	SetDataFolder saveDFR
+	return 0
 End
 
 static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonControl

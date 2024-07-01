@@ -113,13 +113,14 @@ static Function CreateiXMCDPanel(WAVE wXMCD, WAVE wSum)
 
 	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20.00,10.00},size={90.00,20.00},proc=ATH_iXMCD#SaveXMCDImageButton
 	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save XMCD", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
-
+	Button RestoreImgs title="Restore",fColor=(3,52428,1),size={70,20},pos={300.00,10.00},valueColor=(0,0,0),proc=ATH_iXMCD#RestoreImagesButton
+	
 	// Set the path to all windows
 	string dfrStr = GetWavesDataFolder(wXMCD, 1)
 	SetWindow $winiXMCDNameStr userdata(ATH_iXMCDPath) = dfrStr
 	SetWindow $winiXMCDNameStr userdata(ATH_iXMCDWin) = winiXMCDNameStr
 	SetWindow $winiXMCDNameStr userdata(ATH_iSumWin) = winiSumNameStr
-	SetWindow $winiXMCDNameStr, hook(MyiXMCDWinHook) = ATH_iXMCD#iXMCDWindowHook // Set the hook
+	SetWindow $winiXMCDNameStr,hook(MyiXMCDWinHook) = ATH_iXMCD#iXMCDWindowHook // Set the hook
 	return 0
 End
 
@@ -180,15 +181,6 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 					Duplicate/O M_Affine, wImg2				
 					hookResult = 1
 					break
-				case 82: // R to restore.
-						Duplicate/O wImg2_undo, wImg2
-						gATH_dx = 0; gATH_dy = 0			
-						hookResult = 1
-					break
-				default:
-					// The keyText field requires Igor Pro 7 or later. See Keyboard Events.
-					hookResult = 1
-					break
 			endswitch
 			CopyScales/I wimg1, wimg2 // Copy back the scale, M_Affine is pixel-scaled
 			// has to be first so wXMCD, wSum do not need rescaling			
@@ -198,6 +190,26 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	endswitch
 	//SetDataFolder saveDFR
 	return hookResult	// If non-zero, we handled event and Igor will ignore it.
+End
+
+static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
+	WAVE/SDFR=dfr wImg1
+	WAVE/SDFR=dfr wImg2
+	WAVE/SDFR=dfr wXMCD
+	WAVE/SDFR=dfr wimg2_undo
+	WAVE/SDFR=dfr wSum
+	NVAR/SDFR=dfr gATH_dx
+	NVAR/SDFR=dfr gATH_dy
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			Duplicate/O wImg2_undo, wImg2
+			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
+			wSum = wImg1 + wImg2			
+			gATH_dx = 0; gATH_dy = 0
+			break
+	endswitch
+	return 0
 End
 
 static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl

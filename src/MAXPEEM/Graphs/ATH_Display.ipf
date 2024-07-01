@@ -78,7 +78,12 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					if(s.eventMod & 2) // works with SHIFT + F only!
 						ATH_Launch#SetTopImageDF()
 					endif
-					break			
+					break
+				case 82: // R
+					if(s.eventMod & 2) // works with SHIFT + R only!
+						ATH_iImgRotation#CreatePanel()
+					endif
+					break						
 				case 97: // a - average if you have a 3d wave
 					if(is3d)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
@@ -132,7 +137,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					endif
 					break					
 			endswitch
-			return 1 // all cases should return so topWin stays in focus
+			//Do not return anything here, you will block any othe case 11.
 		case 22:	//	mouseWheel
 			if (s.eventMod & 8)		//	if the ctrl key is pressed (CMD on )
 				ATH_Display#Mangify(s)
