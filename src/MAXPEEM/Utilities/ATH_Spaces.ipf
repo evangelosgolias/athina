@@ -254,7 +254,13 @@ static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 				prefix = ""
 			endif
 			oldSpaceNameStr = SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])
-			newSpaceNameStr = TrimString(ATH_Dialog#GenericSingleStrPrompt("New name", msg))
+			newSpaceNameStr = oldSpaceNameStr // start with the old string, help with correcting typos
+			Prompt newSpaceNameStr, "New name"
+			DoPrompt "Change name of Space", newSpaceNameStr
+			if(V_flag)
+				return 1
+			endif
+			newSpaceNameStr = TrimString(newSpaceNameStr)
 			if(!UniqueSpaceNameQ(ATHSpacesTW, newSpaceNameStr) || !strlen(TrimString(newSpaceNameStr))|| GrepString(newSpaceNameStr, "^\*")) // if the name is not unique or empty string
 				do
 					newSpaceNameStr = TrimString(ATH_Dialog#GenericSingleStrPrompt("Space name already exists or string is empty or starts with *, enter a valid name:", \

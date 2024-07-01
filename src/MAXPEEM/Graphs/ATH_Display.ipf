@@ -74,6 +74,11 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	switch (s.eventCode)
 		case 11:
 			switch(s.keycode)
+				case 70: // F
+					if(s.eventMod & 2) // works with SHIFT + F only!
+						ATH_Launch#SetTopImageDF()
+					endif
+					break			
 				case 97: // a - average if you have a 3d wave
 					if(is3d)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
@@ -90,12 +95,6 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
 					endif
 					break					
-				case 102: // f
-					ATH_Launch#SetTopImageDF()
-					break
-//				case 70: // F
-//					ATH_Launch#SetTopImageDF(gotoLastSetFolder=1)
-//					break 
 				case 105: // i
 					ATH_Cursors#MeasureDistanceUsingFreeCursors()
 					break					
