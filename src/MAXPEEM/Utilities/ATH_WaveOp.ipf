@@ -535,3 +535,31 @@ Function SumLateralWaveDims(WAVE w)
 	Note WRef, GetwavesDataFolder(w, 2)
 	return 0
 End
+
+static Function GetWaveType(WAVE wRef)
+	// Return the number of bytes per element of wave wRef
+	variable wTypeRef = WaveType(wRef)
+	switch(wTypeRef)
+		case 2: // 32-bit float
+			return 32
+		case 4: // 64-bit float
+			return 64
+		case 8: // 8-bit integer
+			return 8
+		case 16: // 16-bit integer
+			return 16
+		case 32: // 32-bit integer
+			return 32
+		case 72: // 8-bit unsigned integer
+			return 8
+		case 80: // 16-bit unsigned integer
+			return 16
+		case 96: // 32-bit unsigned integer
+			return 32
+		case 128: // 64-bit integer
+			return 64
+		case 196: // 64-bit unsigned integer
+			return 64
+	endswitch
+	return 0 // if nothing matches
+End

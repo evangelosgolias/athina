@@ -230,6 +230,7 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
 	WAVE/Z imgWaveRef = $ImagePathname
 	variable xc, yc
+
 	switch(s.eventCode)
 		case 0: // Use activation to update the cursors if you request defaults
 			if(updateCursorsPositions)
