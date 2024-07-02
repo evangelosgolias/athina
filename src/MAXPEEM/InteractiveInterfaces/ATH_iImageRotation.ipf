@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_iImgRotation
-#pragma version = 1.01
+#pragma version = 1.1
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -183,17 +183,18 @@ static Function SaveCopyButton(STRUCT WMButtonAction &ba) : ButtonControl
 	NVAR/SDFR=dfr gATH_Angle
 	WAVE wRef = $gATH_wPathname
 	WAVE wRefbck = $gATH_wBackupPathNameStr
-	string backupwNameStr = gATH_wNameStr + "_rot"
 	switch( ba.eventCode )
 		case 2: // mouse up
+			DFREF dfr = GetWavesDataFolderDFR(wRef)
 			string noteStr = gATH_wPathname + " rotated by " + num2str(gATH_Angle) + " deg"
-			Duplicate/O wRef, $backupwNameStr /WAVE =wCopyRef
+			string backupwNameStr = CreatedataObjectName(dfr, gATH_wNameStr + "_r", 1, 0, 1)
+			Duplicate/O wRef, dfr:$backupwNameStr /WAVE =wCopyRef
 			Note wCopyRef, noteStr
+			ATH_Display#NewImg(wCopyRef)
 			break
 		case -1: // control being killed
 			break
 	endswitch
-
 	return 0
 End
 
