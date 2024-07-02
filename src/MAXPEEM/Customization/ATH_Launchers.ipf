@@ -764,12 +764,15 @@ End
 static Function ImageFFTTransform()
 	// FFT of the top image
 	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
+	DFREF saveDF = GetDataFolderDFR()
+	DFREF waveDF = GetWavesDataFolderDFR(wRef)
 	if(WaveExists(wRef))
-		ATH_Transform#FFT2D(wRef)
-		WAVE wREF_FFT = $(NameOfWave(wRef) + "_FFT")
-		ATH_Display#NewImg(wREF_FFT)
+		SetDataFolder waveDF
+		WAVE wFFT = ATH_Transform#FFT2D(wRef)
+		ATH_Display#NewImg(wFFT)
+		SetDataFolder saveDF
 	endif
-	
+	return 0
 End
 
 static Function ScalePlanesBetweenZeroAndOne()

@@ -5,13 +5,14 @@
 #pragma ModuleName = ATH_Transform
 #pragma version = 1.01
 
-static Function FFT2D(WAVE wRef)
+static Function/WAVE FFT2D(WAVE wRef)
 	/// FFT of a 2D wave
-	
+	DFREF dfr = GetWavesDataFolderDFR(wRef)
 	Duplicate/FREE wref, wRefFree
-	//MatrixFilter/N=5 gauss, wRefFree	
-	Redimension/C wRefFree 	
-	string destWaveNameStr = NameOfWave(wRef) + "_FFT"
+	Redimension/C wRefFree 
+	string  basenameStr = NameOfWave(wRef) + "_FFT"
+	string destWaveNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 1)
 	//ImageFilter/N=3/P=2 gauss wRefFree
 	FFT/OUT=3/DEST=$destWaveNameStr wRefFree
+	return $destWaveNameStr
 End
