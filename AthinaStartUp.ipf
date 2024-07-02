@@ -48,7 +48,8 @@ Function ATH_AthinaLauncher()
 		Execute/P "INSERTINCLUDE \"ATH_Spaces\""
 		Execute/P "INSERTINCLUDE \"ATH_String\""
 		Execute/P "INSERTINCLUDE \"ATH_TextWaves\""
-		Execute/P "INSERTINCLUDE \"ATH_WaveOp\""		
+		Execute/P "INSERTINCLUDE \"ATH_WaveOp\""
+		Execute/P "INSERTINCLUDE \"ATH_Export\""				
 		Execute/P "COMPILEPROCEDURES "
 	else
 		Execute/P "DELETEINCLUDE \"ATH_Func\""
@@ -93,6 +94,7 @@ Function ATH_AthinaLauncher()
 		Execute/P "DELETEINCLUDE \"ATH_String\""
 		Execute/P "DELETEINCLUDE \"ATH_TextWaves\""
 		Execute/P "DELETEINCLUDE \"ATH_WaveOp\""
+		Execute/P "DELETEINCLUDE \"ATH_Export\""						
 		Execute/P "COMPILEPROCEDURES "
 	endif
 	return 0
