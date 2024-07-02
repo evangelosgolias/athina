@@ -40,17 +40,17 @@ static Function NewImg(WAVE wRef, [string grfname])
 	// Display an image or stack
 	if(ParamIsDefault(grfname))
 		NewImage/G=1/K=1 wRef
-		grfname = GetWavesDataFolder(wRef, 2)[5, inf] // Discrard root:	
-		DoWindow/T kwTopWin, grfname
+		grfname = WinName(0, 1, 1)
+		string graphTitle = GetWavesDataFolder(wRef, 2)[5, inf] // Discrard root:	
+		DoWindow/T kwTopWin, graphTitle
 	else
 		NewImage/G=1/K=1/N=$grfName wRef
 	endif
 	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution
-	ModifyGraph height = 400 * pntConv, width = 400 * pntConv
+	ModifyGraph/W=$grfname height = 400 * pntConv, width = 400 * pntConv
 	Execute/P/Q "ModifyGraph width=0,height=0"
 	// Error handling
 	ATH_exe#HandleSimpleError("NewImg")	
-	string winNameStr = WinName(0, 1, 1)
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
 	string colorScaleStr
 	variable cmapSwitch
@@ -61,9 +61,10 @@ static Function NewImg(WAVE wRef, [string grfname])
 	WaveStats/Q wRef //$GetWavesDataFolder(wRef, 2)
 	variable ImgAvg = V_avg
 	variable ImgStd = V_sdev
-	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3, ctab= {ImgAvg - 3 * ImgStd, ImgAvg + 3 * ImgStd,$colorScaleStr,cmapSwitch} // Autoscale per plane / visible area Image		
-	SetWindow $winNameStr, hook(AthinaDisplayHook) = ATH_Display#DisplayHookFunction // Set the hook	
-	SetWindow $winNameStr, userdata(ATH_isPlanQ) = "0" // *No* ModifyGraph width={Plan,1,top,left} 
+	ModifyImage/W=$grfname $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3, ctab= {ImgAvg - 3 * ImgStd, ImgAvg + 3 * ImgStd,$colorScaleStr,cmapSwitch} // Autoscale per plane / visible area Image
+	ModifyGraph/W=$grfname fSize=12
+	SetWindow $grfname, hook(AthinaDisplayHook) = ATH_Display#DisplayHookFunction // Set the hook	
+	SetWindow $grfname, userdata(ATH_isPlanQ) = "0" // *No* ModifyGraph width={Plan,1,top,left}
 	return 0
 End
 
@@ -139,11 +140,10 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			endswitch
 			//Do not return anything here, you will block any othe case 11.
 		case 22:	//	mouseWheel
-			if (s.eventMod & 8)		//	if the ctrl key is pressed (CMD on )
+			if (s.eventMod & 4)		//	if the ctrl key is pressed (CMD on )
 				ATH_Display#Mangify(s)
 				return 0
 			endif
-
 			int direction = (s.wheelDy > 0) ? 1 : -1
 			if (is3D)
 				STRUCT sMousePosition ms
