@@ -201,12 +201,11 @@ static Function CreatePanel(DFREF dfr)
 	NVAR/Z profileWidth = dfr:gATH_profileWidth	
 	string grfname = "ATH_ImagePlaneZProf_" + gATH_WindowNameStr
 	WAVE wRef = $gATH_ImagePathname
-	
 	DFREF cdfr = GetDataFolderDFR()
 	SetDataFolder dfr
 	ImageTransform/X={ Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface wRef
 	SetDataFolder cdfr 
-	NewImage/G=1/K=1/N=$grfname dfr:M_ExtractedSurface // Do not Flip image (/F) to get top axis
+	ATH_Display#NewImg(dfr:M_ExtractedSurface, grfname = grfname)
 	// Not good idea to use it now as long as the "i" options interferes with the ControlBar of the profilert
 	// Fix it? ATH_Display#NewImg(dfr:M_ExtractedSurface, grfname = grfname)
 	SetAxis/A left
@@ -481,7 +480,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 			Duplicate dfr:M_ExtractedSurface, savedfr:$saveWaveNameStr
 			if(PlotSwitch)
 				saveImageStr = targetGraphWin + "_s" + num2str(postfix)
-				NewImage/G=1/K=1/N=$saveImageStr savedfr:$saveWaveNameStr
+				ATH_Display#NewImg(savedfr:$saveWaveNameStr, grfName = saveImageStr)
 				variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution
 				ModifyGraph/W=$saveImageStr width = 330*pntConv, height = 470*pntConv
 				SetAxis/A left
