@@ -766,7 +766,7 @@ static Function ImageFFTTransform([int noPlot])
 	// the transform happends at the marked region
 	// ATH_Transform#FFT2D creates the FFT wave in wRef DF.
 	noPlot = ParamIsDefault(noPlot) ? 0 : noPlot
-	string grfName = WinName(0, 1, 1)
+	string grfName = WinName(0, 1, 1), noteStr
 	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef(grfName=grfName)
 	if(WaveExists(wRef))
 		GetMarquee/W=$grfName
@@ -776,6 +776,8 @@ static Function ImageFFTTransform([int noPlot])
 			GetMarquee/W=$grfName/K $xaxis, $yaxis
 			WAVE wPart = ATH_WaveOp#WavePartition(wRef, "", V_left, V_right, V_top, V_bottom, \
 	evenNum = 1, free = 1)
+			// N.B. ATH_WaveOp#WavePartition returns pixel scaled image
+			CopyScales/P wRef, wPart
 			// Rename the free wave before the FFT2D
 			// https://www.wavemetrics.com/code-snippet/rename-free-waves
 			DFREF saveDF = GetDataFolderDFR()
@@ -786,7 +788,10 @@ static Function ImageFFTTransform([int noPlot])
 		else
 			WAVE wFFT = ATH_Transform#FFT2D(wRef)
 		endif
-		Note wFFT, "FFT of " + GetWavesDataFolder(wRef, 2)
+		noteStr = "FFT of " + GetWavesDataFolder(wRef, 2) 
+		noteStr += "Marquee - left: "+ num2str(V_left)+", right: "+ num2str(V_right)
+		noteStr += "top: " + num2str(V_top) + "bottom: " + num2str(V_bottom)
+		Note wFFT, noteStr
 		if(!noPlot)
 			ATH_Display#NewImg(wFFT)
 		endif

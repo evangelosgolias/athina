@@ -93,7 +93,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
 					endif
 					break
-				case 98:
+				case 98: // b
 					ATH_ImgOp#RestoreTopImageFromBackup(wname=NameOfWave(w))
 					break					
 				case 100: //d
@@ -104,7 +104,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
 					endif
 					break
-//				case 102: //fατη
+//				case 102: //f
 //						ATH_Launch#SetTopImageDF()
 //					break			
 				case 105: // i
