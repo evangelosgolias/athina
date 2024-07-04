@@ -786,6 +786,7 @@ static Function ImageFFTTransform([int noPlot])
 		else
 			WAVE wFFT = ATH_Transform#FFT2D(wRef)
 		endif
+		Note wFFT, "FFT of " + GetWavesDataFolder(wRef, 2)
 		if(!noPlot)
 			ATH_Display#NewImg(wFFT)
 		endif

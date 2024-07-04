@@ -104,9 +104,9 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
 					endif
 					break
-				case 102:
-						ATH_Launch#SetTopImageDF()
-					break			
+//				case 102: //fατη
+//						ATH_Launch#SetTopImageDF()
+//					break			
 				case 105: // i
 					ATH_Cursors#MeasureDistanceUsingFreeCursors()
 					break					
