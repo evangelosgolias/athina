@@ -788,9 +788,9 @@ static Function ImageFFTTransform([int noPlot])
 		else
 			WAVE wFFT = ATH_Transform#FFT2D(wRef)
 		endif
-		noteStr = "FFT of " + GetWavesDataFolder(wRef, 2) 
-		noteStr += "Marquee - left: "+ num2str(V_left)+", right: "+ num2str(V_right)
-		noteStr += "top: " + num2str(V_top) + "bottom: " + num2str(V_bottom)
+		noteStr = "FFT of " + GetWavesDataFolder(wRef, 2) + "\n"
+		noteStr += "Marquee: ["+ num2str(V_left)+","+ num2str(V_right)
+		noteStr += "," + num2str(V_top) + "," + num2str(V_bottom) + "]"
 		Note wFFT, noteStr
 		if(!noPlot)
 			ATH_Display#NewImg(wFFT)
