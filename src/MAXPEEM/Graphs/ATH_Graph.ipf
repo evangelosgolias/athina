@@ -152,15 +152,15 @@ static Function [variable red, variable green, variable blue] GetColor(variable 
      return [red, green, blue]
 End
 
-static Function [string axisX, string axisY] GetAxes([string graphName])
-	graphName = SelectString(ParamIsDefault(graphName) ? 0: 1, WinName(0, 1, 1), graphName) // Empty case will be handled below
-	GetAxis/Q/W=$graphName top
+static Function [string axisX, string axisY] GetAxes([string grfName])
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	GetAxis/Q/W=$grfName top
 	if(V_flag) // V_flag == 1, top is not active
 		axisX = "bottom"
 	else
 		axisX = "top"
 	endif
-	GetAxis/Q/W=$graphName left
+	GetAxis/Q/W=$grfName left
 	if(V_flag) // V_flag == 1, left is not active
 		axisY = "right"
 	else

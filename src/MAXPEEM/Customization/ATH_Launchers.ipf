@@ -761,16 +761,34 @@ static Function ImageRotateAndScaleFromMetadata()
 End
 
 
-static Function ImageFFTTransform()
-	// FFT of the top image
-	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
-	DFREF saveDF = GetDataFolderDFR()
-	DFREF waveDF = GetWavesDataFolderDFR(wRef)
+static Function ImageFFTTransform([int noPlot])
+	// FFT of the top image. If Marquee is present
+	// the transform happends at the marked region
+	// ATH_Transform#FFT2D creates the FFT wave in wRef DF.
+	noPlot = ParamIsDefault(noPlot) ? 0 : noPlot
+	string grfName = WinName(0, 1, 1)
+	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef(grfName=grfName)
 	if(WaveExists(wRef))
-		SetDataFolder waveDF
-		WAVE wFFT = ATH_Transform#FFT2D(wRef)
-		ATH_Display#NewImg(wFFT)
-		SetDataFolder saveDF
+		GetMarquee/W=$grfName
+		if(V_flag) // if there is a Marquee a free wave will be used.
+			string xaxis, yaxis
+			[xaxis, yaxis] = ATH_Graph#GetAxes(grfName=grfName)
+			GetMarquee/W=$grfName/K $xaxis, $yaxis
+			WAVE wPart = ATH_WaveOp#WavePartition(wRef, "", V_left, V_right, V_top, V_bottom, \
+	evenNum = 1, free = 1)
+			// Rename the free wave before the FFT2D
+			// https://www.wavemetrics.com/code-snippet/rename-free-waves
+			DFREF saveDF = GetDataFolderDFR()
+			SetDataFolder NewFreeDataFolder()
+			MoveWave wPart, :$NameOfWave(wRef) // !!!  NewFreeDataFolder():$NameOfWave(wRef) crashes Igor 9 on Mac (Apple silicon!)
+			SetDataFolder saveDF
+			WAVE wFFT = ATH_Transform#FFT2D(wPart)
+		else
+			WAVE wFFT = ATH_Transform#FFT2D(wRef)
+		endif
+		if(!noPlot)
+			ATH_Display#NewImg(wFFT)
+		endif
 	endif
 	return 0
 End
@@ -858,7 +876,7 @@ End
 
 static Function TwoTraceCalcs()
 	string winNameStr = WinName(0, 1, 1), cmdStr, resNameStr, noteStr
-	string traceNameListStr = TraceNameList("", ";", 1 + 4)
+	string traceNameListStr = TraceNameList(winNameStr, ";", 1 + 4)
 	string traceName1Str = StringFromList(0, traceNameListStr)
 	string traceName2Str = StringFromList(1, traceNameListStr)
 	if(!strlen(traceName1Str) || !strlen(traceName2Str))
@@ -889,6 +907,14 @@ static Function TwoTraceCalcs()
 	return 0
 End
 
+static Function TraceNormalisationWithValue()
+	// Todo
+	// Normalise a trace (or a list of traces OR all) using a value or maxwave, minwave ....whatever
+	string winNameStr = WinName(0, 1, 1)
+	string traceNameListStr = TraceNameList(winNameStr, ";", 1 + 4)
+	print "Not Yet implemented"
+	return 0
+End
 static Function QuickTextAnnotation()
 	string textStr = "" 
 	string color ="black"

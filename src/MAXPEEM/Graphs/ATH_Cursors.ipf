@@ -208,7 +208,7 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 
 	inverseD = str2num(GetUserData(s.win, "", "ATH_CursorDistanceMode")) // 0 - normal, 1 - inverse
 	imgQ = !strlen(StringFromList(0, TraceNameList(s.win,";",1))) // 0 - trace, 1 - image
-	[axisX, axisY] = ATH_Graph#GetAxes(graphName=s.win)
+	[axisX, axisY] = ATH_Graph#GetAxes(grfName=s.win)
 	strswitch (s.ctrlName)
 		case "scaleB":
 			if(imgQ) // scaling only for images

@@ -202,8 +202,12 @@ static Function/WAVE AverageImageStack(WAVE wRef, [string outWaveStr])
 	return $outWaveStr
 End
 
+// TODO: Revise code in the future
 static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable startX, variable endX, 
-					 variable startY, variable endY, [int evenNum, int tetragonal])
+					 variable startY, variable endY, [int evenNum, int tetragonal, int free])
+	///				 
+	/// N.B Assume that startX, endX, startY and endY are scaled coordinates, not points (we usually work with scaled images)				 
+	///
 	/// Partition a 3D to get an orthorhombic 3d wave
 	/// @param startP int
 	/// @param endP int
@@ -211,10 +215,11 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 	/// @param endQ
 	/// @param evenNum int optional set rows, cols to the closest even number
 	/// @param tetragonal int optional When set the number of rows and columns of the partition equals max(rows, cols).
+	/// @param free int optional - generate and return a free wave
 
 	evenNum = ParamIsDefault(evenNum) ? 0: evenNum
 	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
-
+	free = ParamIsDefault(free) ? 0 : free
 	variable nrows = DimSize(wRef, 0)
 	variable ncols = DimSize(wRef, 1)
 	variable rowsOff = DimOffset(wRef, 0)
@@ -225,6 +230,7 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 	variable xmax = rowsOff + (nrows - 1) * DimDelta(wRef, 0)
 	variable ymax = colsOff + (ncols - 1) * DimDelta(wRef, 1)
 	
+	// Sanity checks
 	if(startX < xmin)
 		startX = xmin
 	endif
@@ -245,6 +251,7 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 		&& endX <= xmax && endY <= ymax))
 		Abort "Error: Out of bounds p, q values or X_min >= X_max."
 	endif
+	// end of sanity checks
 	
 	variable startP, endP, startQ, endQ
 	// P, Q values might come from scaled images
@@ -256,11 +263,13 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 	variable nWaveRows = endP-startP
 	variable nWaveCols = endQ-startQ
 	
-	if(evenNum)
-		if(mod(nWaveRows, 2))
+	// subrange (MatrixOP) io /RMD (Duplicate) include start and end index.
+	// to get an evenNum you need to have odd nWaveRow & nWaveCols
+	if(evenNum)	 
+		if(!mod(nWaveRows, 2))
 			nWaveRows += 1
 		endif
-		if(mod(nWaveCols, 2))
+		if(!mod(nWaveCols, 2))
 			nWaveCols += 1
 		endif
 	endif
@@ -272,9 +281,15 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 			return $""
 		endif
 	endif
-	MatrixOP $partitionNameStr = subrange(wRef, startP, startP + nWaveRows + 1, startQ, startQ + nWaveCols + 1) // Need to add 1 to have even number of rows/cols with MatrixOP subrange
-	Note $partitionNameStr, ("Partition of " + GetWavesDataFolder(wRef, 2)+": ["+num2str(startX)+","+num2str(endX)+"]"+"["+num2str(startY)+","+num2str(endY)+"]")
-	return $partitionNameStr
+	if(free)
+		MatrixOP/FREE wFreeRef = subrange(wRef, startP, startP + nWaveRows, startQ, startQ + nWaveCols)
+		return wFreeRef
+	else
+		MatrixOP $partitionNameStr = subrange(wRef, startP, startP + nWaveRows, startQ, startQ + nWaveCols)
+		Note $partitionNameStr, ("Partition of " + GetWavesDataFolder(wRef, 2)+": ["+num2str(startX)+","+num2str(endX)+"]"+"["+num2str(startY)+","+num2str(endY)+"]")
+		return $partitionNameStr
+	endif
+	
 End
 
 static Function ZapNaNAndInfWithValue(WAVE waveRef, variable val)

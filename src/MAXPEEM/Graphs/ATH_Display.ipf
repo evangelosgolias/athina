@@ -37,6 +37,9 @@
 static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
 
 static Function NewImg(WAVE wRef, [string grfname])
+	if(!WaveExists(wRef))
+		return -1
+	endif
 	// Display an image or stack
 	if(ParamIsDefault(grfname))
 		NewImage/G=1/K=1 wRef
@@ -77,7 +80,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			switch(s.keycode)
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
-						ATH_Launch#SetTopImageDF()
+						ATH_Launch#ImageFFTTransform()
 					endif
 					break
 				case 82: // R
@@ -100,6 +103,9 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					else
 						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
 					endif
+					break
+				case 102:
+						ATH_Launch#SetTopImageDF()
 					break			
 				case 105: // i
 					ATH_Cursors#MeasureDistanceUsingFreeCursors()
@@ -140,7 +146,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			endswitch
 			//Do not return anything here, you will block any othe case 11.
 		case 22:	//	mouseWheel
-			if (s.eventMod & 4)		//	if the ctrl key is pressed (CMD on )
+			if (s.eventMod & 4)		// Magnify with ALT key pressed.
 				ATH_Display#Mangify(s)
 				return 0
 			endif

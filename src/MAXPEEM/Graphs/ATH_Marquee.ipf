@@ -94,92 +94,17 @@ static Function/WAVE WAVECoordinatesToROIMask(variable left, variable top, varia
 	return ATH_ROIMask
 End
 
-
-static Function MarqueeToTraceOperation(variable op)
-	// op:  0: PullToZero
-	//		1: Normalise to one
-	//		2: Maximun to one
-	//		3: Backup Traces
-	//		4: Restore Traces
-	//		5: Normalise to profile
-		
-	if(CheckActiveAxis("", "bottom") && CheckActiveAxis("", "left"))
-		GetMarquee/K left, bottom;
-		OperationsOnGraphTracesWithMarquee(V_left, V_right, op)
-	elseif(CheckActiveAxis("", "top") && CheckActiveAxis("", "right"))
-		GetMarquee/K right, top;
-		OperationsOnGraphTracesWithMarquee(V_left, V_right, op)		
-	else
-		print "Operation needs a graph with left and bottom axes"
-	endif
-End
-
-static Function OperationsOnGraphTracesWithMarquee(variable left, variable right, variable operationSelection)
-	// Trace calculations using graph marquee
-	string waveListStr, traceNameStr
-	waveListStr = TraceNameList("", ";", 1 + 4)
-	string buffer, dfStr
-	DFREF currDFR = GetDataFolderDFR()
-	variable launchBrowserSwitch = 1
-	variable i = 0
-	do
-		traceNameStr = StringFromList(i, waveListStr)
-		if (strlen(traceNameStr) == 0)
-			break
-		endif
-		WAVE wRef = TraceNameToWaveRef("", traceNameStr)
-		if(WaveDims(wRef) != 1)
-			Abort "Operates only on traces"
-		endif
-		WaveStats/Q/R=(left, right) wRef
-		switch(operationSelection)
-			case 0: // Pull to zero
-				wRef -= V_avg
-				break
-			case 1: // Normalise to one
-				wRef /= V_avg
-				break
-			case 2: // Max to one
-				wRef /= V_max
-				break
-			case 3: // Backup traces
-				DFREF dfr = GetWavesDataFolderDFR(TraceNameToWaveRef("", traceNameStr))
-				buffer = NameOfWave(wref) + "_undo"
-				Duplicate/O wref, dfr:$buffer
-				break
-			case 4: // Restore traces
-				DFREF dfr = GetWavesDataFolderDFR(TraceNameToWaveRef("", traceNameStr))
-				buffer = NameOfWave(wref) + "_undo"
-				Duplicate/O dfr:$buffer, wref
-				KillWaves/Z dfr:$buffer
-				break
-			case 5:
-				if(launchBrowserSwitch)
-					string selectedWaveStr = ATH_Dialog#SelectWavesInModalDataBrowser("Select notmalisation profile")
-					WAVE waveProf = $StringFromList(0, selectedWaveStr)
-					launchBrowserSwitch = 0
-				endif
-				
-				ATH_WaveOp#NormaliseWaveWithWave(wRef, waveProf)		
-				break
-			default:
-				print "Unknown ATH_OperatiosGraphTracesForXAS operationSelection"
-				break
-		endswitch
-		i++
-	while (1)
-	SetDataFolder currDFR
-End
-
-
-static Function Partition3DRegion([int evenNum, int tetragonal])
-	GetMarquee/K left, top; // Always the case
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList("", ";"),";")
-	WAVE waveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	DFREF saveDF = GetDataFolderDFR()
-	string stacknameStr = CreateDataObjectName(saveDF, imgNameTopGraphStr + "_PART", 1, 0, 1)
+static Function PartitionRegion([int evenNum, int tetragonal])
 	evenNum = ParamIsDefault(evenNum) ? 1 : evenNum
 	tetragonal = ParamIsDefault(tetragonal) ? 0 : tetragonal
+	string grfName = WinName(0, 1, 1)
+	string xaxis, yaxis
+	[xaxis, yaxis] = ATH_Graph#GetAxes(grfName=grfName) // Use top graph
+	GetMarquee/W=$grfName/K $xaxis, $yaxis
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(grfName, ";"),";")
+	WAVE waveRef = ImageNameToWaveRef(grfName, imgNameTopGraphStr) // full path of wave
+	DFREF saveDF = GetDataFolderDFR()
+	string stacknameStr = CreateDataObjectName(saveDF, imgNameTopGraphStr + "_PART", 1, 0, 1)
 	if(!WaveExists(ATH_WaveOp#WavePartition(waveRef, stacknameStr, V_left, V_right, V_top, V_bottom, \
 	evenNum = evenNum, tetragonal = tetragonal))) // Wave does not exists, most probably wave cannot be produced
 		return 1
@@ -313,7 +238,7 @@ static Function UserSetMarquee_ContButtonProc(STRUCT WMButtonAction &B_Struct): 
 	string structStr, xaxis, yaxis
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			[xaxis, yaxis] = ATH_Graph#GetAxes(graphName = winNameStr)
+			[xaxis, yaxis] = ATH_Graph#GetAxes(grfName = winNameStr)
 			GetMarquee/W=$winNameStr/K $xaxis, $yaxis
 			s.left = V_left
 			s.right = V_right
