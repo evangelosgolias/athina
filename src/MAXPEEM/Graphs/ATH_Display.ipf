@@ -73,7 +73,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	Wave w = ATH_ImgOp#TopImageToWaveRef(grfName=s.winName)
 	int is3D = WaveDims(w)==3
 	switch (s.eventCode)
-		case 11:
+			case 11:
 			switch(s.keycode)
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
@@ -94,13 +94,13 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					ATH_ImgOp#RestoreTopImageFromBackup(wname=NameOfWave(w))
 					break					
 				case 100: //d
-					GetMarquee/W=$s.winName
+					GetMarquee/W=$s.winName // Just check if there is Marquee, no axes.
 					if(V_flag)
 						ATH_Launch#ImageStackAlignmentPartition() // If marquee present launch partition dc
 					else
 						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
 					endif
-					break					
+					break			
 				case 105: // i
 					ATH_Cursors#MeasureDistanceUsingFreeCursors()
 					break					

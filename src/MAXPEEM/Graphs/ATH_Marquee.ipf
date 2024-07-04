@@ -296,7 +296,7 @@ static Function [variable leftR, variable rightR, variable topR, variable bottom
 	StructGet/S s, GetUserData(winNameStr, "", "sATH_Coords")
 	
 	if(s.canceled)
-		GetMarquee/W=$winNameStr/K
+		GetMarquee/W=$winNameStr/K // Kill Marquee
 		Abort
 	endif
 	leftR = s.left
@@ -310,10 +310,11 @@ static Function UserSetMarquee_ContButtonProc(STRUCT WMButtonAction &B_Struct): 
 	STRUCT sUserMarqueePositions s
 	string winNameStr = GetUserData(B_Struct.win, "", "sATH_winNameStr")
 	StructGet/S s, GetUserData(winNameStr, "", "sATH_Coords")
-	string structStr
+	string structStr, xaxis, yaxis
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			GetMarquee/W=$winNameStr/K left, top
+			[xaxis, yaxis] = ATH_Graph#GetAxes(graphName = winNameStr)
+			GetMarquee/W=$winNameStr/K $xaxis, $yaxis
 			s.left = V_left
 			s.right = V_right
 			s.top = V_top
