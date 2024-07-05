@@ -204,7 +204,7 @@ End
 
 // TODO: Revise code in the future
 static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable startX, variable endX, 
-					 variable startY, variable endY, [int evenNum, int tetragonal, int free])
+					 variable startY, variable endY, [int evenNum, int tetragonal, int WaveFREE])
 	///				 
 	/// N.B Assume that startX, endX, startY and endY are scaled coordinates, not points (we usually work with scaled images)				 
 	///
@@ -219,7 +219,7 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 
 	evenNum = ParamIsDefault(evenNum) ? 0: evenNum
 	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
-	free = ParamIsDefault(free) ? 0 : free
+	WaveFREE = ParamIsDefault(WaveFREE) ? 0 : WaveFREE
 	variable nrows = DimSize(wRef, 0)
 	variable ncols = DimSize(wRef, 1)
 	variable rowsOff = DimOffset(wRef, 0)
@@ -281,7 +281,7 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 			return $""
 		endif
 	endif
-	if(free)
+	if(WaveFREE)
 		MatrixOP/FREE wFreeRef = subrange(wRef, startP, startP + nWaveRows, startQ, startQ + nWaveCols)
 		return wFreeRef
 	else
