@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_iImgRotation
-#pragma version = 1.1
+#pragma version = 1.2
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -30,8 +30,6 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
-
-/// Interactive drift correction of a 3D wave
 
 static Function CreatePanel()
 	
@@ -77,10 +75,10 @@ static Function CreatePanel()
 	Slider RotAngleSlider vert=0,limits={-180,180,0},pos={15,25},size={270,50},ticks=50, fSize=12
 	Slider RotAngleSlider variable=dfr:gATH_Angle,proc=ATH_iImgRotation#SliderProc
 	SetVariable RotAngle title="Set angle",fSize=14,size={120,20}, pos={90,70}, value = dfr:gATH_Angle, proc=ATH_iImgRotation#SetAngle
-	Button SaveImg title="Save copy",size={80,20},pos={20,100},proc=ATH_iImgRotation#SaveCopyButton
-	Button OverwiteImg title="Overwite ",size={70,20}, pos={110,100},proc=ATH_iImgRotation#OverwriteImgButton
-	Button RestoreImageRot title="Restore",size={80,20},pos={190,100},fColor=(3,52428,1),proc=ATH_iImgRotation#RestoreImageRotButton
-
+	Button SaveImgB title="Save copy",size={80,20},pos={20,100},proc=ATH_iImgRotation#iRotButton
+	Button OverwiteImgB title="Overwite ",size={70,20}, pos={110,100},proc=ATH_iImgRotation#iRotButton
+	Button RestoreImageRotB title="Restore",size={80,20},pos={190,100},fColor=(3,52428,1),proc=ATH_iImgRotation#iRotButton
+		
 	SetWindow $winNameStr#iImageRotation hook(MyImageRotationPanelHook) = ATH_iImgRotation#PanelHookFunction
 	SetWindow $winNameStr#iImageRotation userdata(ATH_iRotateFolder) = "root:Packages:ATH_DataFolder:InteractiveImageRotation:" + winNameStr
 	SetWindow $winNameStr#iImageRotation userdata(ATH_iImageRotateParentWindow) = winNameStr
@@ -175,7 +173,12 @@ static Function SetAngle(STRUCT WMSetVariableAction &sva) : SetVariableControl
 	return 0
 End
 
-static Function SaveCopyButton(STRUCT WMButtonAction &ba) : ButtonControl
+Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
+
+	if (ba.eventCode != 2)
+		return 0
+	endif
+
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(ba.win, "", "ATH_iRotateFolder"))
 	SVAR/SDFR=dfr gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr
@@ -183,63 +186,31 @@ static Function SaveCopyButton(STRUCT WMButtonAction &ba) : ButtonControl
 	NVAR/SDFR=dfr gATH_Angle
 	WAVE wRef = $gATH_wPathname
 	WAVE wRefbck = $gATH_wBackupPathNameStr
-	switch( ba.eventCode )
-		case 2: // mouse up
+	string noteStr
+	strswitch (ba.ctrlName)
+		case "SaveImgB":
 			DFREF dfr = GetWavesDataFolderDFR(wRef)
-			string noteStr = gATH_wPathname + " rotated by " + num2str(gATH_Angle) + " deg"
-			string backupwNameStr = CreatedataObjectName(dfr, gATH_wNameStr + "_r", 1, 0, 1)
+			noteStr = gATH_wPathname + " rotated by " + num2str(gATH_Angle) + " deg"
+			string backupwNameStr = CreatedataObjectName(dfr, gATH_wNameStr + "_rt", 1, 0, 1)
 			Duplicate/O wRef, dfr:$backupwNameStr /WAVE =wCopyRef
 			Note wCopyRef, noteStr
-			ATH_Display#NewImg(wCopyRef)
+			ATH_Display#NewImg(wCopyRef)			//*** FALLTHROUGH ***
 			break
-		case -1: // control being killed
-			break
-	endswitch
-	return 0
-End
-
-static Function OverwriteImgButton(STRUCT WMButtonAction &ba) : ButtonControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(ba.win, "", "ATH_iRotateFolder"))
-	SVAR/SDFR=dfr gATH_wPathname
-	SVAR/SDFR=dfr gATH_wBackupPathNameStr
-	NVAR/SDFR=dfr gATH_Angle
-	WAVE wRef = $gATH_wPathname
-	WAVE wRefbck = $gATH_wBackupPathNameStr
-	switch( ba.eventCode )
-		case 2: // mouse up
-			DoAlert 1, "Do want to ovewrite the source image? The operation cannot be restored"
+		case "OverwiteImgB":
+			DoAlert 1, "Do want to ovewrite the source image? You cannot undo the operation"
 			if(V_Flag == 1)
-				string noteStr = gATH_wPathname + " rotated by " + num2str(gATH_Angle) + " deg"
-				Duplicate/O wRef, wRefbck
-				Note wRefbck, noteStr
+				noteStr = gATH_wPathname + " rotated by " + num2str(gATH_Angle) + " deg"
 				Note wRef, noteStr
-				Button RestoreImageRot, win=$ba.win, fColor=(65535,0,0)
-				ControlUpdate/W=$ba.win RestoreImageRot
+				Duplicate/O wRef, wRefbck
+				Button RestoreImageRotB, win=$ba.win, fColor=(65535,0,0), disable=2, title = "Restore", fstyle=16
+				ControlUpdate/W=$ba.win RestoreImageRotB
 			endif
 			break
-		case -1: // control being killed
-			break
-	endswitch
-
-	return 0
-End
-
-static Function RestoreImageRotButton(STRUCT WMButtonAction &ba) : ButtonControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(ba.win, "", "ATH_iRotateFolder"))
-	SVAR/SDFR=dfr gATH_wPathname
-	SVAR/SDFR=dfr gATH_wBackupPathNameStr
-	NVAR/SDFR=dfr gATH_Angle
-	WAVE wRef = $gATH_wPathname
-	WAVE wRefbck = $gATH_wBackupPathNameStr
-	switch( ba.eventCode )
-		case 2: // mouse up
+		case "RestoreImageRotB":
 			Duplicate/O wRefbck, wRef
 			gATH_Angle = 0 // Set angle to zero
 			break
-		case -1: // control being killed
-			break
 	endswitch
-
 	return 0
 End
 
