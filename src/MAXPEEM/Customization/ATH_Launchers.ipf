@@ -772,19 +772,17 @@ static Function ImageFFTTransform([int noPlot])
 		GetMarquee/W=$grfName
 		if(V_flag) // if there is a Marquee a free wave will be used.
 			string xaxis, yaxis
+			DFREF dfr = GetDataFolderDFR()
 			[xaxis, yaxis] = ATH_Graph#GetAxes(grfName=grfName)
 			GetMarquee/W=$grfName/K $xaxis, $yaxis
 			WAVE wPart = ATH_WaveOp#WavePartition(wRef, "", V_left, V_right, V_top, V_bottom, \
-	evenNum = 1, free = 1)
+	evenNum = 1, WaveFREE = 1) // FREE WAVE
 			// N.B. ATH_WaveOp#WavePartition returns pixel scaled image
 			CopyScales/P wRef, wPart
-			// Rename the free wave before the FFT2D
-			// https://www.wavemetrics.com/code-snippet/rename-free-waves
-			DFREF saveDF = GetDataFolderDFR()
-			SetDataFolder NewFreeDataFolder()
-			MoveWave wPart, :$NameOfWave(wRef) // !!!  NewFreeDataFolder():$NameOfWave(wRef) crashes Igor 9 on Mac (Apple silicon!)
-			SetDataFolder saveDF
-			WAVE wFFT = ATH_Transform#FFT2D(wPart)
+			WAVE wFFT = ATH_Transform#FFT2D(wPart) // WPart is a FREE wave
+			// We have to do it here as ATH_Transform#FFT2D will return  free wave witn name _free__FFT whatever.
+			string destWaveNameStr = CreatedataObjectName(dfr, NameOfWave(wRef)+"_FFT", 1, 0, 1)
+			Rename wFFT, $destWaveNameStr
 		else
 			WAVE wFFT = ATH_Transform#FFT2D(wRef)
 		endif
@@ -798,6 +796,7 @@ static Function ImageFFTTransform([int noPlot])
 	endif
 	return 0
 End
+
 
 static Function ScalePlanesBetweenZeroAndOne()
 	WAVE wRef = ATH_ImgOp#TopImageToWaveRef() 
