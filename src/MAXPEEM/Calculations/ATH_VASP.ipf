@@ -28,7 +28,8 @@ static Function/S LoadHDF5SpecificGroups(string groupname)
 	return fullDFPathStr
 End
 
-static Function LoadVASPElectronicStructureAndPlot()
+static Function LoadVASPElectronicStructureAndPlot([int plotQ])
+	plotQ = ParamIsDefault(plotQ) ? 0 : plotQ
 	string basepathStr = ATH_VASP#LoadHDF5SpecificGroups("results") // N.B. ends with : 
 	variable efermi = ATH_VASP#GetEFermi(basepathStr)
 	
@@ -45,7 +46,9 @@ static Function LoadVASPElectronicStructureAndPlot()
 	eigenvalues -= efermi
 	string waveNoteStr = NameOfWave(eigenvalues) + " -= " + num2str(efermi)
 	Note eigenvalues, waveNoteStr
-	ATH_VASP#VASP_PlotBandStructure(eigenvalues)
+	if(plotQ)
+		ATH_VASP#VASP_PlotBandStructure(eigenvalues)
+	endif
 End
 static Function GetEFermi(string basePathStr)
 	// Where is Efermi
