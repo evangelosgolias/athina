@@ -72,7 +72,7 @@ static Function MeasureDistanceUsingFreeCursors()
 	else
 		string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 		Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0)/N=1/P C $imgNameTopGraphStr 0.25, 0.45
-		Cursor/I/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $imgNameTopGraphStr 0.75, 0.55
+		Cursor/I/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $imgNameTopGraphStr 0.5, 0.5 // start at the center, FFT friendly!
 	endif
 	variable lCBOFFSET 
 	ControlInfo kwControlBar
