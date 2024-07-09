@@ -765,6 +765,8 @@ static Function ImageFFTTransform([int noPlot])
 	// FFT of the top image. If Marquee is present
 	// the transform happends at the marked region
 	// ATH_Transform#FFT2D creates the FFT wave in wRef DF.
+	
+	// FFT wave in the cwd
 	noPlot = ParamIsDefault(noPlot) ? 0 : noPlot
 	string grfName = WinName(0, 1, 1), noteStr
 	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef(grfName=grfName)
