@@ -41,7 +41,7 @@ static Function DuplicateWaveAndDisplayOfTopImage()
 	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
 	DFREF cdfr = GetDataFolderDFR()
     string duplicateWinNameStr = UniqueName(winNameStr + "_", 6, 1, winNameStr)
-    string waveNameStr = CreateDataObjectName(cdfr, NameOfWave(wRef) + "_d", 1, 0, 5)
+    string waveNameStr = CreateDataObjectName(cdfr, NameOfWave(wRef) + "_", 1, 0, 5)
     Duplicate wRef, cdfr:$waveNameStr // Copy the wave to the working dir
     ControlInfo/W=$winNameStr WM3DAxis
     if(!V_flag && WaveDims(wRef) == 3) // If there is no 3d axis, there should be a reason.

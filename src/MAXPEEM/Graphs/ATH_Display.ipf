@@ -77,10 +77,16 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	int is3D = WaveDims(w)==3
 	switch (s.eventCode)
 			case 11:
+			print s.keycode
 			switch(s.keycode)
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
 						ATH_Launch#ImageFFTTransform()
+					endif
+					break
+				case 78: // N
+					if(s.eventMod & 2) // works with SHIFT + F only!
+						ATH_Launch#QuickTextAnnotation()
 					endif
 					break
 				case 82: // R
@@ -112,7 +118,10 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break					
 				case 108: //l
 					ATH_LineProfile#MainMenu()
-					break					
+					break
+				case 110: // n
+					ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
+					break		
 				case 112: // p
 					ATH_PlaneZProfile#MenuLaunch()
 					break					
