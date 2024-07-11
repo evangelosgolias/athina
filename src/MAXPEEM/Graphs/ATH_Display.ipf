@@ -77,7 +77,6 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	int is3D = WaveDims(w)==3
 	switch (s.eventCode)
 			case 11:
-			print s.keycode
 			switch(s.keycode)
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
