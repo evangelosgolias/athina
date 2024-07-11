@@ -67,12 +67,12 @@ static Function MeasureDistanceUsingFreeCursors()
 	string winNameStr = WinName(0, 1, 1) //Top graph
 	string topTraceNameStr = StringFromList(0, TraceNameList(winNameStr,";",1))
 	if(strlen(topTraceNameStr)) // If you have a trace
-		Cursor/A=1/F/H=1/S=1/C=(0,65535,0)/N=1/P C $topTraceNameStr 0.25, 0.45
-		Cursor/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $topTraceNameStr 0.75, 0.55
+		Cursor/A=1/F/H=1/S=1/C=(16385,49025,65535)/N=1/P C $topTraceNameStr 0.25, 0.45
+		Cursor/A=1/F/H=1/S=1/C=(65535,43690,0)/N=1/P D $topTraceNameStr 0.75, 0.55
 	else
 		string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-		Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0)/N=1/P C $imgNameTopGraphStr 0.25, 0.45
-		Cursor/I/A=1/F/H=1/S=1/C=(65535,0,0)/N=1/P D $imgNameTopGraphStr 0.5, 0.5 // start at the center, FFT friendly!
+		Cursor/I/A=1/F/H=1/S=1/C=(16385,49025,65535)/N=1/P C $imgNameTopGraphStr 0.25, 0.45
+		Cursor/I/A=1/F/H=1/S=1/C=(65535,43690,0)/N=1/P D $imgNameTopGraphStr 0.5, 0.5 // start at the center, FFT friendly!
 	endif
 	variable lCBOFFSET 
 	ControlInfo kwControlBar
@@ -81,7 +81,7 @@ static Function MeasureDistanceUsingFreeCursors()
 		lCBOFFSET = kCBOFFSET
 		ControlBar V_height + lCBOFFSET
 	else
-		ControlBar kCBOFFSET
+		ControlBar V_height + kCBOFFSET
 	endif
 	Button scaleB pos={10,4+lCBOFFSET}, size={65,20}, title="Scale", win=$winNameStr, help = {"Place cursots C, D and set scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
 	Button drawscaleB pos={85, 4+lCBOFFSET}, size={80,20}, title="Draw Scale", win=$winNameStr, help = {"Save current scale for future use"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
@@ -300,12 +300,8 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 			KillControl/W=$s.win modeB
 			KillControl/W=$s.win markB
 			KillControl/W=$s.win closeB
-			if(ATH_Windows#IsWM3DAxisActiveQ(s.win))
-				ControlInfo/W=$s.win kwControlBar
-				ControlBar V_Height - kCBOFFSET
-			else
-				ControlBar/W=$s.win 0
-			endif
+			ControlInfo/W=$s.win kwControlBar
+			ControlBar V_Height - kCBOFFSET
 			break
 	endswitch
 	return 0
