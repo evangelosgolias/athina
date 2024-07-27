@@ -285,6 +285,7 @@ static Function W3DImageSliderWinHook(STRUCT WMWinHookStruct &s)// ST: 310601 - 
 				variable plane = NumberByKey("plane", rec, "=", ";", 0)
 				if (numtype(plane) == 0 && (gLayer != plane))
 					gLayer = plane
+					DoWindow/F $s.winName
 					ATH_Display#W3DImageSliderProc("",0,0)
 				endif
 			endif

@@ -62,7 +62,7 @@ static Function GetEFermi(string basePathStr)
 	return efermi[0]
 End
 
-static Function PlotBandStructure(WAVE bw, [WAVE kw, variable efermi, string tracename, string grfName]) // Plot Eigenvalues
+static Function PlotBandStructure(WAVE bw, [WAVE kw, string tracename, string grfName]) // Plot Eigenvalues
 	// bw - Eigevalues 3d wave, one row as imported from .h5 file
 	// kw - kpoints 1d wave
 	// Eigenvalues have bands at cols!
