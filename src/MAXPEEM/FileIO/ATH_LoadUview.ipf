@@ -325,7 +325,6 @@ static Function LoadSingleDATFile(string filepathStr, string waveNameStr
 	endif
 
 	Close numRef
-	//ImageTransform flipRows datWave // flip the y-axis
 		
 	string mdatastr = ""
 	
@@ -1250,7 +1249,6 @@ static Function/WAVE WAVELoadSingleCorruptedDATFile(string filepathStr, string w
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
 	Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr /WAVE=datWave
 	FBinRead/F=2 numRef, datWave
-	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
 	return datwave
@@ -1320,7 +1318,6 @@ static Function LoadSingleCorruptedDATFile(string filepathStr, string waveNameSt
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
 	Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr /WAVE=datWave
 	FBinRead/F=2 numRef, datWave
-	ImageTransform flipRows datWave // flip the y-axis
 	Close numRef
 	
 	// Convert to SP or DP 	
