@@ -84,7 +84,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					endif
 					break
 				case 78: // N
-					if(s.eventMod & 2) // works with SHIFT + F only!
+					if(s.eventMod & 2) // works with SHIFT + N only!
 						ATH_Launch#QuickTextAnnotation()
 					endif
 					break
@@ -144,9 +144,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				case 122: // z, launch z-profile if marquee present
 					if(is3d)
 						GetMarquee/W=$s.winName
-						if(V_flag) // FIX: You need to move cursor to update z-profile
-							// Without Execute/P you do not get updated profile without
-							// moving the cursor (J)
+						if(V_flag)
 							Execute/P/Q "ATH_ZProfile#GraphMarqueeLaunchRectangle()"
 						endif
 					endif

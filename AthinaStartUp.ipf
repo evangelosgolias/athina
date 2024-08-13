@@ -105,5 +105,5 @@ End
 //******************************************************************************
 Menu "Macros", dynamic
 	//	Nothing is displayed after MAXPEEM is started
-	SelectString(strlen(FunctionList("CreateDataFolderGetDFREF",";","KIND:18,WIN:ATH_DFR.ipf")), "Launch Athina", "Unload Athina"), /Q, ATH_AthinaLauncher()
+	SelectString(strlen(FunctionList("CreateDataFolderGetDFREF",";","KIND:18,WIN:ATH_DFR.ipf")), "Launch athina", "Unload athina"), /Q, ATH_AthinaLauncher()
 End

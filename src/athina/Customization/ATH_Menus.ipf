@@ -30,7 +30,7 @@
 // ------------------------------------------------------- //
 
 
-Menu "Athina"
+Menu "athina"
 
 	Submenu "Import"
 		".dat files...", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1)
