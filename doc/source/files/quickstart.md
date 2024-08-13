@@ -124,7 +124,7 @@ When you use **athina's** New Image function then you can use the following keyb
 
 #### Keyboard shortcuts
 
-With a graph created using "ATH NewImage" as the top graph (TG) press:
+With a top graph created using "ATH NewImage" press:
 
 - **a** : average image stack.
 - **b** : restore image from backup if there is one.
