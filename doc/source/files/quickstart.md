@@ -128,7 +128,7 @@ With a graph created using "ATH NewImage" as the top graph (TG) press:
 
 - **a** : average image stack
 - **b** : restore image from backup, if any
-- **d** : if marquee present launch automatic drift correction, if not launch interactive drift correction
+- **d** : if marquee is present launch automatic drift correction, if not launch interactive drift correction
 - **i** : measure distance on image using cursors
 - **l** : launch image line profile
 - **n** : duplicate source wave of TG and display it
@@ -136,7 +136,7 @@ With a graph created using "ATH NewImage" as the top graph (TG) press:
 - **r** : show Range panel
 - **s** : Toggle square image on/off
 - **x** : calculate XMC(L)D [only if you have a image stack with 2 layers]
-- **z** : launch z profiler
+- **z** : launch z profiler if marquee is present on the graph
 - **SHIFT + F** : calculate FFT
 - **SHIFT + N** : annotate image
 - **SHIFT + R** : launch interactive image rotation
