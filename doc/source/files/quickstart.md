@@ -137,9 +137,9 @@ With a graph created using "ATH NewImage" as the top graph (TG) press:
 - **s** : Toggle square image on/off
 - **x** : calculate XMC(L)D [only if you have a image stack with 2 layers]
 - **z** : launch z profiler if marquee is present on the graph
-- **SHIFT + F** : calculate FFT
-- **SHIFT + N** : annotate image
-- **SHIFT + R** : launch interactive image rotation
+- **SHIFT + f** : calculate FFT
+- **SHIFT + n** : annotate image
+- **SHIFT + r** : launch interactive image rotation
 - **Alt + mousewheel** : zoom image centered at the cursor
 
 Build time: {sub-ref}`today`
