@@ -107,9 +107,9 @@ then select an item to procceds.
 - .HDF5 file ... : Import entries from an HDF5 file
 - .nxs NeXus files ...: Import data from a NeXus file
 
-### Display an image/image
+### Display an image/image stack
 
-It is beneficial to display the new image using **athina's** built-in NewImg() function. To do so, **right-click on a 2D or 3D wave and press "ATH NewImage"**.
+It is beneficial to display the new image using **athina's** built-in NewImg() function. To do so, **right-click on a 2D or 3D wave and select "ATH NewImage"**.
 
 ```{figure} media/ath_display.png
 :alt: ATH Display
