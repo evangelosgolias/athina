@@ -168,3 +168,17 @@ static Function [string axisX, string axisY] GetAxes([string grfName])
 	endif
 	return [axisX, axisY]
 End
+
+static Function/S GetGraphCtabStr([string grfName])
+	grfName = SelectString(ParamIsDefault(grfName), grfName, "")
+	return StringByKey("RECREATION",ImageInfo(grfName, ImageNameList(grfName,";"), 0))
+End
+
+static Function SetGraphCtabStr(string ctabStr, [string grfName])
+	grfName = SelectString(ParamIsDefault(grfName), grfName, "")	
+	string cmdStr = "ModifyImage "
+	string waveNameStr = StringFromList(0, ImageNameList(grfName, ";"))
+	cmdStr += waveNameStr + " "
+	cmdStr += ctabStr
+	Execute/P/Q cmdStr
+End

@@ -72,11 +72,13 @@ static Function NewImg(WAVE wRef, [string grfname])
 End
 
 static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
-	// 
+	//
 	Wave w = ATH_ImgOp#TopImageToWaveRef(grfName=s.winName)
 	int is3D = WaveDims(w)==3
+	variable hookResult = 0
+	string buffer
 	switch (s.eventCode)
-			case 11:
+		case 11:
 			switch(s.keycode)
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
@@ -92,7 +94,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					if(s.eventMod & 2) // works with SHIFT + R only!
 						ATH_iImgRotation#CreatePanel()
 					endif
-					break						
+					break
 				case 97: // a - average if you have a 3d wave
 					if(is3d)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
@@ -100,7 +102,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break
 				case 98: // b
 					ATH_ImgOp#RestoreTopImageFromBackup(wname=NameOfWave(w))
-					break					
+					break
 				case 100: //d
 					GetMarquee/W=$s.winName // Just check if there is Marquee, no axes.
 					if(V_flag)
@@ -109,24 +111,24 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
 					endif
 					break
-//				case 102: //f
-//						ATH_Launch#SetTopImageDF()
-//					break			
+					//				case 102: //f
+					//						ATH_Launch#SetTopImageDF()
+					//					break
 				case 105: // i
 					ATH_Cursors#MeasureDistanceUsingFreeCursors()
-					break					
+					break
 				case 108: //l
 					ATH_LineProfile#MainMenu()
 					break
 				case 110: // n
 					ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
-					break		
+					break
 				case 112: // p
 					ATH_PlaneZProfile#MenuLaunch()
-					break					
+					break
 				case 114: // r
 					ATH_Range#pnl(s.winName)
-					break					
+					break
 				case 115: // s
 					if(str2num(GetUserData(s.winName, "", "ATH_isPlanQ")))
 						SetWindow $s.winName, userdata(ATH_isPlanQ) = "0"
@@ -135,12 +137,12 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						SetWindow $s.winName, userdata(ATH_isPlanQ) = "1"
 						ModifyGraph width={Plan,1,top,left}
 					endif
-					break					
+					break
 				case 120: // x, calculate xmcd
 					if(is3d && DimSize(w, 2)==2)
 						ATH_Launch#CalculateXMCDFromStack()
 					endif
-					break					
+					break
 				case 122: // z, launch z-profile if marquee present
 					if(is3d)
 						GetMarquee/W=$s.winName
@@ -148,8 +150,9 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 							Execute/P/Q "ATH_ZProfile#GraphMarqueeLaunchRectangle()"
 						endif
 					endif
-					break					
+					break
 			endswitch
+			hookResult = 1
 			//Do not return anything here, you will block any othe case 11.
 		case 22:	//	mouseWheel
 			if (s.eventMod & 4)		// Magnify with ALT key pressed.
@@ -163,8 +166,9 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				int plane = ATH_Display#GetLayerIndex(s.winName, w=ms.w)
 				ATH_Display#SetLayerIndex(s.winName, plane+direction, w=ms.w)
 			endif
-			return 0
+			return hookResult
 	endswitch
+	return hookResult
 End
 
 static Function Append3DImageSlider()
@@ -282,7 +286,13 @@ static Function W3DImageSliderWinHook(STRUCT WMWinHookStruct &s)// ST: 310601 - 
 				string rec = info[pos + 11, strlen(info) - 1] // strlen("RECREATION:") = 11
 				variable plane = NumberByKey("plane", rec, "=", ";", 0)
 				if (numtype(plane) == 0 && (gLayer != plane))
-					gLayer = plane
+					// gLayer = plane 
+					// TODO: Removed on the 14.08.2024 
+					// When the NewImg windows hook is involved then plane is reduced by
+					// one for every key stroke. I have to investigate why.
+					// Now the slider doesn't change with mouseWheel, unless the cursor
+					// is on the the slider.
+					// Best solution: Write another function to deal with Sliders etc.
 					DoWindow/F $s.winName
 					ATH_Display#W3DImageSliderProc("",0,0)
 				endif
