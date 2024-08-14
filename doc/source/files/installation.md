@@ -2,7 +2,7 @@
 
 If you are at MAXIV network use following link:
 
-* [athina - source code at MAXIV gitlab](http://kits-maxiv.gitlab-pages.maxiv.lu.se/cfg-maxiv-ansible-galaxy/)
+* [athina - source code at MAXIV gitlab]https://gitlab.maxiv.lu.se/evangelosgolias/athina)
 
 otherwise use the public gitlab link:
 

@@ -1,6 +1,6 @@
 # How-to
 
-Under construction
+Here we will list examples of how to analyze data or perform operations using athina.
 
 ## XPS
 
