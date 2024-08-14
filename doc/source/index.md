@@ -9,7 +9,7 @@ See [](files/installation.md) on how to install _athina_ on your Windows or MacO
 
 ## Internal links
 
-* [athina - source code at MAXIV gitlab](http://kits-maxiv.gitlab-pages.maxiv.lu.se/cfg-maxiv-ansible-galaxy/)
+* [athina - source code at MAXIV gitlab](https://gitlab.maxiv.lu.se/evangelosgolias/athina)
 
 ## External links
 
