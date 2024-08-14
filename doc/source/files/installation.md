@@ -2,7 +2,7 @@
 
 If you are at MAXIV network use following link:
 
-* [athina - source code at MAXIV gitlab]https://gitlab.maxiv.lu.se/evangelosgolias/athina)
+* [athina - source code at MAXIV gitlab](https://gitlab.maxiv.lu.se/evangelosgolias/athina)
 
 otherwise use the public gitlab link:
 
