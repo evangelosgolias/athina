@@ -1,16 +1,14 @@
 # Installation
 
-If you want to install **athina** on your Widows or Mac computer follow the steps below.
-
-If you are at MAXIV network then use following link:
+If you are at MAXIV network use following link:
 
 * [athina - source code at MAXIV gitlab](http://kits-maxiv.gitlab-pages.maxiv.lu.se/cfg-maxiv-ansible-galaxy/)
 
-otherwise use the public link:
+otherwise use the public gitlab link:
 
 * [athina - GitLab](https://gitlab.com/evangelosgolias/athina)
 
- then unpack the compressed file.
+ download and unpack the compressed file.
 
  You have two options for installation.
 
@@ -44,7 +42,7 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
 *Mac*:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/User Procedures
 
-**To launch the package, choose Macros > athina**
+**To launch the package, go to Macros > athina**
 
 ```{hint} 
 If you don't know where the folders are, choose Menubar > Help > Show Igor Pro User Files in Igor Pro.

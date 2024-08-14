@@ -18,7 +18,7 @@ The main components of the Data Browser window are:
 
 ```{note} 
 The red arrow marks the current data folder in Igor's filesystem. 
-When the arrow is white it means that it points to the parent folder of the current data folder because the folder three is collapsed.
+When the arrow is white then it points to the collapsed parent folder of the current data folder.
 ```
 
 ```{figure} media/DataBrowserFolders.png
@@ -45,21 +45,21 @@ Marquee on an STM image pointed by the red arrow.
 ```
 ### athina's menus and operations
 
-athina's **main menu** offers several operations that can be launched either using the top graph (TG) or a wave selected by the user. 
+athina's **main menu** offers several operations that can be launched either using the top graph (TG) or a wave selected.
 
 ```{note} 
-Top graph (TG) is the last graph you selected, created or interacted with. 
+Top graph (TG) is the last graph the user selected, created or interacted with. 
 ```
-Custom athinas' operations indicate the objects are acted upon using the following 
+Custom athina's operations indicate the objects they act upon using the following abbreviations:
 
-- 1D: trace
-- 2D: image
-- 3D: stack of images
-- TG: top graph
-- DB: selected item in data browser 
+- 1D: a trace
+- 2D: an image
+- 3D: a stack of images
+- TG: the top graph
+- DB: selected item(s) in data browser 
 
 ```{note} 
-Ellipsis (...) at the end of a main menu entry informs that there will be a prompt with instructions on how to proceed
+Ellipsis (...) at the end of a main menu entry indicates there will be a follow-up prompt to continue with the operation.
 ```
 
 ```{figure} media/athinasMenu.png
@@ -71,9 +71,7 @@ Ellipsis (...) at the end of a main menu entry informs that there will be a prom
 athina's "Image Operations" menu items
 ```
 
-Contexual menus (right-click on an image or border of graph or item in the data browser etc) reveal athina's operations. 
-
-**athinas' operations are prefixed with "ATH"**
+Contexual menus right-click on an image;border of graph;item in the data browser etc. reveal more custom operations. **athinas' operations are prefixed with "ATH"**. Most name are self-explanatory followed by indications, see above, for the objects they operate.
 
 ### Load data
 
@@ -82,7 +80,7 @@ Igor Pro can load several file formats using the built-in menu accesible at **Da
 **athina** extends Igor's capabilities by adding support for:
 
 - .dat files: Elmitec's proprietatary image format
-- .tif stack: Saved using TVIPS EMMENU5
+- .tif stack: TVIPS EMMENU5 tif image stack format
 - .nxs: NeXus files
 - .HDF5: custom HDF5 files used at MAXIV
 
@@ -94,17 +92,17 @@ To load data go to **athina > Import >** and the following menu will appear:
 :align: center
 :name: importdata
 
-Import data using athina
+Import data using athina's main menu entry.
 ```
-then select an item to procceds. 
+then select an item to procced. The options are: 
 
 - .dat files... : Import selected .dat files
-- .dat files in folder and stack ... : Import all .dat files in the selected folder and stack them
-- .dat files and stack ... : Import selected .dat files and stack them
-- .dat files in folder... : Import all .dat files in folder
-- .tif (EMMENU5)... : Import selected .tif file
-- .tifs (EMMENU5) and stack... : Import selected .tif file and stack them
-- .HDF5 file ... : Import entries from an HDF5 file
+- .dat files in folder and stack ... : Import all .dat files in the selected folder and stack them (3D wave)
+- .dat files and stack ... : Import selected .dat files and stack them (3D wave)
+- .dat files in folder... : Import all .dat files in a folder
+- .tif (EMMENU5)... : Import selected .tif file (3D wave)
+- .tifs (EMMENU5) and stack... : Import selected .tif file and stack them (3D wave)
+- .HDF5 file ... : Import entries from an HDF5 file 
 - .nxs NeXus files ...: Import data from a NeXus file
 
 ### Display an image/image stack
@@ -117,7 +115,7 @@ It is beneficial to display the new image using **athina's** built-in NewImg() f
 :align: center
 :name: ATH_Display
 
-Display an image using **athina's** NewImg function
+Display an image using **athina's** built-in function.
 ```
 
 When you use **athina's** New Image function then you can use the following keyboard shortcults to perform custom actions.
@@ -126,17 +124,17 @@ When you use **athina's** New Image function then you can use the following keyb
 
 With a top graph created using "ATH NewImage" press:
 
-- **a** : average image stack.
-- **b** : restore image from backup if there is one.
-- **d** : if marquee is present launch automatic drift correction, if not launch interactive drift correction.
+- **a** : average image stack and display.
+- **b** : restore image from backup if it exists.
+- **d** : *if marquee is present* launch automatic drift correction, if not launch interactive drift correction.
 - **i** : measure distance on image using cursors.
-- **l** : launch image line profile.
+- **l** : launch image line profiler.
 - **n** : duplicate source wave of TG and display it.
 - **p** : launch plane profiler.
 - **r** : show Range panel.
 - **s** : Toggle square image on/off.
-- **x** : calculate XMC(L)D [only if you have a image stack with 2 layers].
-- **z** : launch z profiler if marquee is present on the graph.
+- **x** : calculate XMC(L)D [*only if you have a image stack with 2 layers*].
+- **z** : launch z profiler *if marquee is present on the graph*.
 - **SHIFT + f** : calculate FFT.
 - **SHIFT + n** : annotate image.
 - **SHIFT + r** : launch interactive image rotation.
