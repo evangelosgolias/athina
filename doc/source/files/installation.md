@@ -45,7 +45,7 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
 **To launch the package, go to Macros > athina**
 
 ```{hint} 
-If you don't know where the folders are, choose Menubar > Help > Show Igor Pro User Files in Igor Pro.
+If you don't know where the folders are, select on the main menu **Help > Show Igor Pro User Files in Igor Pro**.
 ```
 
 ```{Note}
