@@ -272,7 +272,7 @@ static Function W3DImageSliderWinHook(STRUCT WMWinHookStruct &s)// ST: 310601 - 
 		
 		Slider WM3DAxis		,win=$(s.winName)	,pos={left+10,gOriginalHeight+10}						,size={right-left-kImageSliderLMargin,16}
 		SetVariable WM3DVal	,win=$(s.winName)	,pos={right-kImageSliderLMargin+15,gOriginalHeight+6}	,size={60,18}
-		Button WM3DDoneBtn	,win=$(s.winName)	,pos={right-kImageSliderLMargin+85,gOriginalHeight+6}	,size={50,18}
+		Button WM3DDoneBtn	,win=$(s.winName)	,pos={right-kImageSliderLMargin+85,gOriginalHeight+6}	,size={50,18}	
 	elseif (s.EventCode == 8)	// modified
 		DFREF valDF = $(WMkSliderDataFolderBase + s.winName)
 		SVAR/Z/SDFR=valDF imageName
@@ -306,7 +306,6 @@ static Function W3DImageSliderWinHook(STRUCT WMWinHookStruct &s)// ST: 310601 - 
 			RenameDataFolder oldDF, $(s.winName)
 		endif
 	endif		
-		
 	return 0
 End
 
@@ -321,8 +320,7 @@ static Function W3DImageSliderProc(string name, variable value, variable event)
 
 	NVAR gLayer
 	SVAR imageName
-
-	ModifyImage/W=$grfName  $imageName plane=(gLayer)
+	ModifyImage/W=$grfName $imageName plane=(gLayer)
 	
 	string helpStr=""
 	WAVE/Z imageW = ImageNameToWaveRef(grfName, imageName)
