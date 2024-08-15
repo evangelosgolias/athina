@@ -53,7 +53,7 @@ You can copy other files/folders of the /src directory in your Igor Procedure fo
 ```
 
 ```{Caution} 
-When you update you should delete _athina_ folder before copying the newer version, as filenames might differ versions.
+When you update you should delete _athina_ folder before copying the newer version, as filenames might differ between versions.
 ```
 
 Build time: {sub-ref}?`today`
