@@ -38,7 +38,7 @@ Guide to Spaces:
 * Press Shift + Click on a row of the ListBox to move the top window to the selected space
 * Press Alt + Click anywhere in the ListBox of the panel (rows or empty space below) to pin the top window to all spaces (visible everywhere)
 * To unpin press Shift + Alt + Click anywhere in the ListBox to unpin the window (becomes free floating). You can also make a normal window free-floating using the same procedure. Alternatively, if you want to  unpin and link it to a space do Shift + Click on a row of the ListBox.
-* Press CTRL + click (CMD on Mac) to mark a Space with an asterisk
+* Press CTRL + click (CMD on Mac) to mark/unmark a space with an asterisk and link it to the selected data folder in the data browser. When selecting a Space with an asterisk the current data folder changes to the linked data folder.
 
 ```{tip} TL;DR
 
@@ -46,7 +46,7 @@ Guide to Spaces:
 -  Double click: Rename *Space*
 -  Alt + Click (not a named row): Pin top window (appears in all *Spaces*)
 -  Shift + Alt + Click: unpin top window
--  CTRL + click to mark a Space with an asterisk
+-  CTRL + click to mark a Space with an asterisk and link it to the selected data folder in browser
 ```
 
 ## Data cleanup
