@@ -72,7 +72,7 @@ static Function MenuLauch()
 	NVAR/Z/SDFR=dfr gShowAllWindowsSwitch
 	if(!WaveExists(ATHSpacesTW)) // If there is no text wave
 		Make/T/N=1 dfr:ATHSpacesTW = "Main"
-		Make/T/N=1 dfr:ATHSpacesTWDF = "root:"
+		Make/T/N=1 dfr:ATHSpacesTWDF
 		variable/G dfr:gSelectedSpace = 0
 		variable/G dfr:gShowAllWindowsSwitch = 0
 	endif
