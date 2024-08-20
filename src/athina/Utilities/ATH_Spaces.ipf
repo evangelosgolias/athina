@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_Spaces
-#pragma version = 1.1
+#pragma version = 1.2
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -52,7 +52,8 @@
 // 9. To unpin press Shift + Alt + Click anywhere in the ListBox to unpin the window (becomes free floating).
 // You can also make a normal window free-floating using the same procedure. Alternatively, if you want to 
 // unpin and link it to a space goto 7.
-// 10. Use Ctlr + click to mark/unmark a space with an asterisk
+// 10. Use Ctlr + click to mark/unmark a space with an asterisk and link it to the selected data folder in the data browser. 
+// When selecting a Space with an asterisk the current data folder changes to the linked data folder.
 // ------------------------------------------------------- //
 ///
 /// TL;DR:
@@ -60,7 +61,7 @@
 /// Double click: Rename
 /// Alt + Click (empty space): Pin window
 /// Shift + Alt + Click; unpin
-/// Ctlr + click to mark/unmark a space with an asterisk
+/// Ctlr + click to mark a Space with an asterisk and link it to the selected data folder in browser
 ///
 
 static Function MenuLauch()
@@ -71,6 +72,7 @@ static Function MenuLauch()
 	NVAR/Z/SDFR=dfr gShowAllWindowsSwitch
 	if(!WaveExists(ATHSpacesTW)) // If there is no text wave
 		Make/T/N=1 dfr:ATHSpacesTW = "Main"
+		Make/T/N=1 dfr:ATHSpacesTWDF = "root:"
 		variable/G dfr:gSelectedSpace = 0
 		variable/G dfr:gShowAllWindowsSwitch = 0
 	endif
@@ -129,7 +131,7 @@ Static Function SpacesButton(STRUCT WMButtonAction &s)
 	endif
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
-	WAVE/T/SDFR=dfr ATHSpacesTW
+	WAVE/T/SDFR=dfr ATHSpacesTW, ATHSpacesTWDF
 	variable index, showSwitchAll, showSwitchOrphans
 	variable numSpaces = DimSize(ATHSpacesTW, 0)
 	string msg
@@ -150,6 +152,7 @@ Static Function SpacesButton(STRUCT WMButtonAction &s)
 				index = gSelectedSpace + 1
 			endif
 			InsertPoints index, 1, ATHSpacesTW
+			InsertPoints index, 1, ATHSpacesTWDF
 			ATHSpacesTW[index] = newSpaceNameStr
 			// Set the space you created as active
 			ListBox listOfspaces, selRow = index
@@ -166,6 +169,7 @@ Static Function SpacesButton(STRUCT WMButtonAction &s)
 				if(V_flag == 1)
 					ClearWindowsFromSpaceTag(SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace])) // has to come first!
 					DeletePoints gSelectedSpace, 1, ATHSpacesTW
+					DeletePoints gSelectedSpace, 1, ATHSpacesTWDF
 					gSelectedSpace = gSelectedSpace == 0 ? 0: (gSelectedSpace - 1)
 					ListBox listOfspaces, selRow = gSelectedSpace
 				endif
@@ -204,9 +208,9 @@ End
 static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
-	WAVE/T/SDFR=dfr ATHSpacesTW
+	WAVE/T/SDFR=dfr ATHSpacesTW, ATHSpacesTWDF
 	NVAR/SDFR=dfr gSelectedSpace
-	string msg, newSpaceNameStr, oldSpaceNameStr, winNameStr, buffer, prefix, listLinkedPP
+	string msg, newSpaceNameStr, oldSpaceNameStr, winNameStr, buffer, prefix, listLinkedPP, linkedFolder
 	variable numSpaces = DimSize(ATHSpacesTW, 0)
 	variable hookresult = 0, i
 	switch(LB_Struct.eventCode)
@@ -237,7 +241,10 @@ static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 			gSelectedSpace = LB_Struct.row
 			if(gSelectedSpace > numSpaces - 1)
 				gSelectedSpace = numSpaces - 1
-			endif	
+			endif
+			if(GrepString(ATHSpacesTW[gSelectedSpace], "^\*") && strlen(ATHSpacesTWDF[gSelectedSpace]))
+				SetDataFolder ATHSpacesTWDF[gSelectedSpace]
+			endif
 			hookresult = 1
 			break
 		case 3: // Double click
@@ -279,12 +286,23 @@ static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 				gSelectedSpace = numSpaces - 1
 			endif
 			if(LB_Struct.eventMod == 9) // If CTRL+click or CMD+click (Mac) is pressed in a row
+				winNameStr = WinName(1, 87, 0) // Top Window: Graph, Table, Layout, Notebook or Panel
 				if(GrepString(ATHSpacesTW[gSelectedSpace], "^\*"))
 					buffer = ATHSpacesTW[gSelectedSpace] 
 					ATHSpacesTW[gSelectedSpace] = buffer[1, inf]
+					ATHSpacesTWDF[gSelectedSpace] = ""
 				else
 					buffer = "*" + ATHSpacesTW[gSelectedSpace]
 					ATHSpacesTW[gSelectedSpace] = buffer
+					linkedFolder = GetBrowserSelection(0);variable errorCode = GetRTError(1)
+					if(errorCode)
+						print "AthinaError: " + GetErrMessage(errorCode, 3)
+					else
+						if(exists(linkedFolder)==1 || exists(linkedFolder)==2)
+							linkedFolder =  GetDataFolder(1)	
+						endif
+						ATHSpacesTWDF[gSelectedSpace] = linkedFolder
+					endif
 				endif
 			else
 				ShowWindowsOfSpaceTag(SanitiseATHSpaceName(ATHSpacesTW[gSelectedSpace]), 1)	
