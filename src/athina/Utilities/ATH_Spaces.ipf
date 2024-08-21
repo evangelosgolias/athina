@@ -297,16 +297,23 @@ static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 					ATHSpacesTW[gSelectedSpace] = buffer[1, inf]
 					ATHSpacesTWDF[gSelectedSpace] = ""
 				else
-					buffer = "*" + ATHSpacesTW[gSelectedSpace]
-					ATHSpacesTW[gSelectedSpace] = buffer
 					linkedFolder = GetBrowserSelection(0);variable errorCode = GetRTError(1)
 					if(errorCode)
-						print "AthinaError: " + GetErrMessage(errorCode, 3)
+						print "athinaSpacesError: " + GetErrMessage(errorCode, 3)
 					else
-						if(exists(linkedFolder)==1 || exists(linkedFolder)==2)
-							linkedFolder =  GetDataFolder(1)	
+						buffer = "*" + ATHSpacesTW[gSelectedSpace]
+						ATHSpacesTW[gSelectedSpace] = buffer
+						if(exists(linkedFolder)==1)
+							ATHSpacesTWDF[gSelectedSpace] = GetWavesDataFolder($linkedFolder,1)
+						elseif(exists(linkedFolder)==2)
+							ATHSpacesTWDF[gSelectedSpace] = ParseFilePath(1, linkedFolder, ":", 1, 0)
+						elseif(DataFolderExists(linkedFolder))
+							ATHSpacesTWDF[gSelectedSpace] = linkedFolder
+						else // Remove asterisk, did not catch a directory
+							buffer = ATHSpacesTW[gSelectedSpace] 
+							ATHSpacesTW[gSelectedSpace] = buffer[1, inf]
+							ATHSpacesTWDF[gSelectedSpace] = ""
 						endif
-						ATHSpacesTWDF[gSelectedSpace] = linkedFolder
 					endif
 				endif
 			else
