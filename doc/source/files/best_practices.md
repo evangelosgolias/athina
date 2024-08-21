@@ -6,7 +6,7 @@ When you import data using the menu entry **athina > Import** or by drag-and-dro
 
 Images are imported as waves named after the source filename (minus the file extention, i.e. .dat). When you import images in a stack, athina sets a unique name composed by "ATH\_Stack" plus a numerical suffix.
 
-Use Igor's data browser to organise your data in folders. In Igor if the data folder is not show press *CTRL + B*. In the image below you can see an example folder structure in an Igor experiment. Using "New Data Folder" you create a new directory with parent the current working directory (cwd). Cwd is marked with a red arrow and you can change directory either by right-click and  select "Set Current Data Folder"  or move the arrow using the mouse to the desired directory. You can rename or delete a data folder. You can drag and move a data folder to another parent directory. You can also move waves in folders by drag-and-drop.
+Use Igor's data browser to organise your data in folders. In Igor if the data folder is not show press *CTRL+B*. In the image below you can see an example folder structure in an Igor experiment. Using "New Data Folder" you create a new directory with parent the current working directory (cwd). Cwd is marked with a red arrow and you can change directory either by right-click and  select "Set Current Data Folder"  or move the arrow using the mouse to the desired directory. You can rename or delete a data folder. You can drag and move a data folder to another parent directory. You can also move waves in folders by drag-and-drop.
 
 ```{Caution} 
 When you delete a folder, you delete also the containing waves without warning. If at least one of the waves is displayed in a graph or table then delete does nothing.
@@ -29,24 +29,33 @@ When a Space is click-selected, only windows with the same space tag are shown (
 
 Guide to Spaces:
 
-* Press the "New" button to create a new Space, name should be unique, otherwise you will be prompted to change your input. When a new "Space" is created it becomes your active working Space. New Spaces are created below the active row selection, and at the moment you cannot change their order.
-* Press "Delete" to delete the selected space. Windows associated with the space are released and not linked to any space ("" tag).
+* Press the "New" button to create a new Space, name should be unique, otherwise you will be prompted to change your input. When a new "Space" is created it becomes your active working Space. New Spaces are created below the active row selection.
+* Press "Delete" to delete the selected space. Windows associated with the space are released and not linked to any space (orphans).
 * Press "All" to show/hide all windows whether linked to a Space or not.
 * Press "Orphans" to show windows that do not belong to any Space
 * When the Igor Spaces Panel is open any window you create is associated with the active Space.
 * Double click on a row to rename the Space
-* Press Shift + Click on a row of the ListBox to move the top window to the selected space
-* Press Alt + Click anywhere in the ListBox of the panel (rows or empty space below) to pin the top window to all spaces (visible everywhere)
-* To unpin press Shift + Alt + Click anywhere in the ListBox to unpin the window (becomes free floating). You can also make a normal window free-floating using the same procedure. Alternatively, if you want to  unpin and link it to a space do Shift + Click on a row of the ListBox.
-* Press CTRL + click (CMD on Mac) to mark/unmark a space with an asterisk and link it to the selected data folder in the data browser. When selecting a Space with an asterisk the current data folder changes to the linked data folder.
+* Press SHIFT+click on a row of the ListBox to move the top window to the selected space
+* Press ALT+Cclick anywhere in the ListBox of the panel (rows or empty space below) to pin the top window to all spaces (visible everywhere)
+* To unpin press SHIFT+ALT+click anywhere in the ListBox to unpin the window (becomes free floating). You can also make a normal window free-floating using the same procedure. Alternatively, if you want to  unpin and link it to a space do SHIFT+click on a row of the ListBox.
+* Press CTRL+click (CMD on Mac) to mark/unmark a space with an asterisk and link it to the selected data folder in the data browser. When selecting a Space with an asterisk the current data folder changes to the linked data folder.
 
-```{tip} TL;DR
+```{figure} media/SpacesPanel.png
+:alt: Spaces Panel
+:scale: 33%
+:align: center
+:name: SpacesPanel
 
--  Use Shift + Click a row/*Space* to assign the top window.
--  Double click: Rename *Space*
--  Alt + Click (not a named row): Pin top window (appears in all *Spaces*)
--  Shift + Alt + Click: unpin top window
--  CTRL + click to mark a Space with an asterisk and link it to the selected data folder in browser
+Spaces panel. **Hover over over the red question mark (?) for quick help**.
+```
+
+```{tip} Quick-help
+
+-  SHIFT+Click: on a Space to associate with the top window.
+-  Double-click: Rename the Space.
+-  ALT+click (on an enpty row NOT a Space): Pin top window to all Spaces.
+-  SHIFT+ALT+click: unpin top window and make (now with no Space link, i.e. orphan).
+-  CTRL+click (CMD+click on Mac): link space to the selected data folder in Data Browser (now marked with an asterisk). Current data folder changes when you select spaces with asterisk.
 ```
 
 ## Data cleanup
