@@ -8,4 +8,4 @@ It has built-in support for reading Elmitec's proprietary .dat files, EMMENU tif
 
 *athina's* documentation: https://evangelosgolias.gitlab.io/athina/
 
-if you want to access the documentation from MAXIV synchrotron facility (intranet): http://evangelosgolias.gitlab-pages.maxiv.lu.se/athina/
+to access the documentation from the intranet of MAXIV synchrotron facility: http://evangelosgolias.gitlab-pages.maxiv.lu.se/athina/
