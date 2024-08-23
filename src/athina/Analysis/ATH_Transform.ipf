@@ -6,7 +6,9 @@
 #pragma version = 1.01
 
 static Function/WAVE FFT2D(WAVE wRef)
+	///
 	/// FFT of a 2D wave
+	///
 	DFREF dfr = GetWavesDataFolderDFR(wRef)
 	Duplicate/FREE wref, wRefFree
 	Redimension/C wRefFree 
