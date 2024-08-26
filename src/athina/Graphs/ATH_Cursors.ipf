@@ -397,49 +397,44 @@ static Function UserGetCursorsPositions_CancelBProc(STRUCT WMButtonAction &B_Str
 End
 // End of Cursor positions with PauseforUser
 
-// Test needed here.
-//static Function CursorsToAngle(string Cursor1, string Cursor2 [, variable deg]) 
-//	// Returns the angle in rad or degrees of the line passing through Cursor1, Cursor2
-//	// Angle range [-π/2, π/2]. NOTE: Y- axis is reversed in images
-//	// We want compatibility with ImageRotate where positive angle rotate clock-wise
-//	//
-//	// Usage example:
-//	// Use the function do set a line with cursors and get the image rotated such as
-//	// the direction of the line is paralled to the top axis.
-//	//
-//	// ImageRotate/A=(ATH_CursorsToAngle(E, F, deg=1)) waveRef
-//
-//	deg = ParamIsDefault(deg) ? 0 : 1
-//	variable XExists = strlen(CsrInfo($Cursor1))
-//	variable YExists = strlen(CsrInfo($Cursor2))
-//	if(!XExists)
-//		print "Cursor ", Cursor1, " not in graph"
-//		return -1
-//	endif
-//	if(!YExists)
-//		print "Cursor ", Cursor2, " not in graph"
-//		return -1
-//	endif
-//	variable x1 = hcsr($Cursor1)
-//	variable y1 = vcsr($Cursor1)
-//	variable x2 = hcsr($Cursor2)
-//	variable y2 = vcsr($Cursor2)
-//
-//	variable angle, dx, dy
-//	if(y1 == y2)
-//		return 0
-//	elseif(x1 == x2)
-//		if(deg)
-//			return 90
-//		else
-//			return pi
-//		endif
-//	endif
-//	dy = y2 - y1
-//	dx = x2 - x1
-//	angle = (deg == 0) ? atan(dy/dx) : atan(dy/dx)*180/pi
-//	return angle
-//End
+static Function ThreeCursorsToAngle(string Cursor1, string Cursor2, string Cursor3, [, variable deg]) 
+	//
+	// Returns the angle in rad or degrees of the angle formed by the cursors 
+	// Cursor1, Cursor2 & Cursor3 (corner of angle at Cursor2)
+	//
+	deg = ParamIsDefault(deg) ? 0 : 1
+	variable angle
+	variable C1Exists = strlen(CsrInfo($Cursor1))
+	variable C2Exists = strlen(CsrInfo($Cursor2))
+	variable C3Exists = strlen(CsrInfo($Cursor3))
+	
+	if(!C1Exists)
+		print "Cursor ", Cursor1, " not in graph"
+		return -1
+	endif
+	
+	if(!C2Exists)
+		print "Cursor ", Cursor2, " not in graph"
+		return -1
+	endif
+	
+	if(!C3Exists)
+		print "Cursor ", Cursor3, " not in graph"
+		return -1
+	endif	
+	
+	variable x1 = hcsr($Cursor1); variable y1 = vcsr($Cursor1)
+	variable x2 = hcsr($Cursor2); variable y2 = vcsr($Cursor2)
+	variable x3 = hcsr($Cursor3); variable y3 = vcsr($Cursor3)
+
+	variable l1 = cabs(cmplx(x3-x2, y3-y2))
+	variable l2 = cabs(cmplx(x3-x1, y3-y1))
+	variable l3 = cabs(cmplx(x2-x1, y2-y1))
+	
+	angle = acos((-l2^2+l1^2+l3^2)/(2*l1*l3))	
+		
+	return (deg == 0) ? angle : angle*180/pi
+End
 
 /// Generic interaction using a cursor and a CallbackFunction
 
