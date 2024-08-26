@@ -399,9 +399,9 @@ End
 
 static Function ThreeCursorsToAngle(string Cursor1, string Cursor2, string Cursor3, [, variable deg]) 
 	//
-	// Returns the angle in rad or degrees of the angle formed by the cursors 
+	// Returns  the angle formed by the cursors 
 	// Cursor1, Cursor2 & Cursor3 (corner of angle at Cursor2)
-	//
+	// in rad or degrees.
 	deg = ParamIsDefault(deg) ? 0 : 1
 	variable angle
 	variable C1Exists = strlen(CsrInfo($Cursor1))
