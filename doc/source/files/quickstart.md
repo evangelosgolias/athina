@@ -125,7 +125,6 @@ When you use **athina's** New Image function then you can use the following keyb
 With a top graph created using "ATH NewImage" press:
 
 - **a** : average image stack and display.
-- **b** : restore image from backup if it exists.
 - **d** : *if marquee is present* launch automatic drift correction, if not launch interactive drift correction.
 - **i** : measure distance on image using cursors.
 - **l** : launch image line profiler.
@@ -133,8 +132,9 @@ With a top graph created using "ATH NewImage" press:
 - **p** : launch plane profiler.
 - **r** : show Range panel.
 - **s** : Toggle square image on/off.
-- **x** : calculate XMC(L)D [*only if you have a image stack with 2 layers*].
+- **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
 - **z** : launch z profiler *if marquee is present on the graph*.
+- **SHIFT + b** : restore image from backup if it exists.
 - **SHIFT + f** : calculate FFT.
 - **SHIFT + n** : annotate image.
 - **SHIFT + r** : launch interactive image rotation.

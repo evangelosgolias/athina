@@ -100,8 +100,10 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
 					endif
 					break
-				case 98: // b
-					ATH_ImgOp#RestoreTopImageFromBackup(wname=NameOfWave(w))
+				case 98: // SHIFT + b
+					if(s.eventMod & 2)
+						ATH_ImgOp#RestoreTopImageFromBackup(wname=NameOfWave(w))
+					endif
 					break
 				case 100: //d
 					GetMarquee/W=$s.winName // Just check if there is Marquee, no axes.

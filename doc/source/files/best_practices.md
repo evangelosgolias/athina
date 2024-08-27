@@ -21,24 +21,27 @@ When you delete a folder, you delete also the containing waves without warning. 
 
 ## Spaces
 
-*Spaces* organises windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate desktops (spaces). It is recommended to launch *Spaces* from the get-go to avoid screen overloading. Without spaces, and especially when you create windows for display-only data and you do not kill them, your desktop will soon turn into a scramble of loose images/plots.
+*Spaces* organise windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate desktops (Spaces!). It is recommended to launch *Spaces* from the get-go to avoid screen overloading. Without Spaces, and especially when you create windows for display-only data and you do not kill them, your desktop will soon turn into a scramble of loose images/plots.
 
-To launch *Spaces* select **athina > Utilities > Spaces** and a panel titled ATH Spaces (winName: ATH_SpacesPanel). 
+To launch *Spaces* select **athina > Utilities > Spaces** and a panel titled ATH Spaces (winName: ATH_SpacesPanel) will pop. Move it at the right end of your desktop. 
 
-When a Space is click-selected, only windows with the same space tag are shown (space name is the space tag).
+When a Space is click-selected, only windows that belong to the selected Space are shown, all others are hidden. All graphs, notebooks, layouts created are automatically assigned to the active (selected) Space. You can move windows between spaces, pin them to all spaces, make them orphans (they do not belong to Space), create, delete and rename a Space as well as link a Space to a specific data folder. 
 
-Guide to Spaces:
+A short guide of Spaces buttons mouse actions and key-bindings:
 
-* Press the "New" button to create a new Space, name should be unique, otherwise you will be prompted to change your input. When a new "Space" is created it becomes your active working Space. New Spaces are created below the active row selection.
-* Press "Delete" to delete the selected space. Windows associated with the space are released and not linked to any space (orphans).
-* Press "All" to show/hide all windows whether linked to a Space or not.
-* Press "Orphans" to show windows that do not belong to any Space
-* When the Igor Spaces Panel is open any window you create is associated with the active Space.
-* Double click on a row to rename the Space
-* Press SHIFT+click on a row of the ListBox to move the top window to the selected space
-* Press ALT+Cclick anywhere in the ListBox of the panel (rows or empty space below) to pin the top window to all spaces (visible everywhere)
-* To unpin press SHIFT+ALT+click anywhere in the ListBox to unpin the window (becomes free floating). You can also make a normal window free-floating using the same procedure. Alternatively, if you want to  unpin and link it to a space do SHIFT+click on a row of the ListBox.
-* Press CTRL+click (CMD on Mac) to mark/unmark a space with an asterisk and link it to the selected data folder in the data browser. When selecting a Space with an asterisk the current data folder changes to the linked data folder.
+* __When the Spaces Panel is open any window you create is associated with the active Space__
+* __Buttons__ 
+    - Press the "New" button to create a new Space, name should be unique, otherwise you will be prompted to change your input. When a new "Space" is created it becomes your active working Space. New Spaces are created below the active row selection.
+    - Press "Delete" to delete the selected space. Windows associated with the space are released and not linked to any space (orphans).
+    - ress "All" to show/hide all windows whether linked to a Space or not.
+    - Press "Orphans" to show windows that do not belong to any Space
+* __Mouse__
+    - Double click on a row to rename the Space
+* __Key-bindings__
+    - Press SHIFT+click on a row of the ListBox to move the top window to the selected space
+    - Press ALT+Cclick anywhere in the ListBox of the panel (rows or empty space below) to pin the top window to all spaces (visible everywhere)
+    - To unpin press SHIFT+ALT+click anywhere in the ListBox to unpin the window (becomes free floating). You can also make a normal window free-floating using the same procedure. Alternatively, if you want to  unpin and link it to a space do SHIFT+click on a row of the ListBox.
+    - Press CTRL+click (CMD on Mac) to mark/unmark a space with an asterisk and link it to the selected data folder in the data browser. When selecting a Space with an asterisk the current data folder changes to the linked data folder.
 
 ```{figure} media/SpacesPanel.png
 :alt: Spaces Panel
