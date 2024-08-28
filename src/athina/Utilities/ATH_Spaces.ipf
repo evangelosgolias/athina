@@ -122,7 +122,7 @@ static Function MakePanel()
 	string helpStr = "- SHIFT+Click: on a Space to associate with the top window.\n- Double-click: Rename the Space.\n- " +\
 	"ALT+click (on an enpty row NOT a space): Pin top window to all Spaces.\n- SHIFT+ALT+click: unpin top window and make (now with no Space link, i.e. orphan).\n- "+\
 	"CTRL+click( CMD+click): link space to the selected data folder in Data Browser (now marked with an asterisk).\nCurrent data folder changes when you select spaces with asterisk."
-	TitleBox HelpTitle, title = "?", pos={125,20}, frame=0, fSize=14,fstyle=1, fColor=(65535,0,0), labelBack=(65535,49151,55704), help={helpStr}
+	TitleBox HelpTitle, title = "?", pos={20 + listwidth * 0.4,20}, frame=0, fSize=14,fstyle=1, fColor=(65535,0,0), labelBack=(65535,49151,55704), help={helpStr}
 	
 	ModifyControlList ControlNameList("ATH_SpacesPanel",";","*B") proc=ATH_Spaces#SpacesButton,win=ATH_SpacesPanel
 
