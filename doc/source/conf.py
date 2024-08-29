@@ -17,8 +17,8 @@
 
 # -- Project information -----------------------------------------------------
 
-project = "Athina documentation"
-copyright = "2023, Evangelos Golias"
+project = "athina documentation"
+copyright = "2024, Evangelos Golias"
 author = "Evangelos Golias"
 
 
