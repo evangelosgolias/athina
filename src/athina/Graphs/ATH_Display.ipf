@@ -73,7 +73,15 @@ End
 
 static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	//
-	Wave w = ATH_ImgOp#TopImageToWaveRef(grfName=s.winName)
+	// 31.08.2024: Deal with calls from /EXT windows. We control
+	//	using the wave reference. This is patchwork, we need to 
+	// find a more stable solution
+	//
+	// •DisplayHelpTopic "Hook Functions for Exterior Subwindows"
+	Wave/Z w = ATH_ImgOp#TopImageToWaveRef(grfName=s.winName)
+	if(!WaveExists(w))
+		return 0
+	endif
 	int is3D = WaveDims(w)==3
 	variable hookResult = 0
 	string buffer
@@ -251,6 +259,18 @@ End
 //*******************************************************************************************************
 
 static Function W3DImageSliderWinHook(STRUCT WMWinHookStruct &s)// ST: 310601 - graph hook to resize the controls dynamically
+
+	// Note on 31.08.2024: In some cases when an /EXT window is active while calling W3DImageSliderWinHook
+	// then there is no data folder and we pass the if branch and "DoWindow/F $s.winName" pop an error
+	// as subwindiws have names GraphXX#EXTWindowName. Here we add a second condition that there should be only
+	// 
+	
+	if(ATH_String#isEXTWindow(s.WinName))
+		return 0
+	endif
+	
+	//
+	
 	if(!DataFolderExists(WMkSliderDataFolderBase + s.winName))
 		KillControl/W=$s.winName WM3DAxis
 		KillControl/W=$s.winName WM3DVal

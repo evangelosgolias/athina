@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_iDriftCorrection
-#pragma version = 2.0
+#pragma version = 2.1
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -109,7 +109,7 @@ static Function CreatePanel()
 	Checkbox FastMode,pos={12.00,17.50},title="SHIFT+Click & drift",fSize=11,font="Menlo"
 	Checkbox FastMode,value=0,disable=2,proc=ATH_iDriftCorrection#FastModeCheckbox
 	SetDrawEnv textrgb= (2,39321,1), fname= "Menlo", fSize=9
-	DrawText 7,85,"1. ---- Set anchor ----\n2. Arrows/wheel to ±layer \n3. SHIFT+click drifts layer+\n4. Shift+r restores layer."	
+	DrawText 7,85,"1. ---- Set anchor ----\n2. Arrows/wheel to ±layer \n3. SHIFT+click drifts layer+\n4. Del/Bksp restores layer."	
 	Button SetAnchorCursor,pos={23.00,90.00},size={120.00,20.00},title="(Re)Set anchor",fSize=12,fColor=(39321,39321,39321)
 	Button SetAnchorCursor,valueColor=(65535,0,0), proc=ATH_iDriftCorrection#SetAnchorCursorButton
 	//All buttons, except restore3dwave and LDC, are disabled until the anchor is set
@@ -158,6 +158,24 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
 	variable dx, dy
+	
+	if(!NVAR_Exists(gLayer))
+		ATH_Display#Append3DImageSlider()
+	endif
+	
+	if(gATH_FastMode && s.specialKeyCode)
+		if((s.specialKeyCode == 101 || s.specialKeyCode == 102) && gLayer < gATH_w3dnlayers) // right or up
+			gLayer+=1
+		elseif((s.specialKeyCode == 100 || s.specialKeyCode == 103) && gLayer) // left or down
+			gLayer-=1
+		endif
+		ModifyImage/W=$gATH_WindowNameStr $gATH_imgNameTopWindowStr plane=gLayer
+		if(s.specialKeyCode == 300 || s.specialKeyCode == 301) // Delete or Backspace- Restore original layer
+			w3dRef[][][gLayer] = w3dBackUpRef[p][q][gLayer]
+		endif
+		hookresult = 1
+	endif
+	
 	switch(s.eventCode)
 		case 2: // Kill the window
 			//CopyScales/I $gATH_w3dBackupPathNameStr, $gATH_w3dPathName
@@ -181,27 +199,6 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 			endif
 			hookresult = 1
 			break
-		case 11:
-			// This will keep the slider always on. It has to be here and not before the switch
-			// branch as GetWindow kwTopWin, property in Append3DImageSlider() will see the /EXT
-			// window as top and cannot act on it!
-			if(!NVAR_Exists(gLayer))
-				ATH_Display#Append3DImageSlider()
-			endif
-			if(gATH_FastMode && s.eventMod==2)
-				if((s.keyCode == 29 || s.keyCode == 30 || s.keyCode == 32) && gLayer < gATH_w3dnlayers) // right or up or SPACE
-					gLayer+=1
-				elseif((s.keyCode == 28 || s.keyCode == 31) && gLayer) // left or down
-					gLayer-=1
-				endif
-				ModifyImage/W=$gATH_WindowNameStr $gATH_imgNameTopWindowStr plane=gLayer
-			endif
-			if(s.keyCode == 82) // if R (SHIFT+r) is pressed - Restore original layer
-				w3dRef[][][gLayer] = w3dBackUpRef[p][q][gLayer]
-			endif		
-			hookresult = 1
-			break
-			
 		case 22: // mouse wheel
 				gLayer += s.WheelDy
 				if(gLayer < 0)
@@ -471,7 +468,6 @@ static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct)
 			SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
 			variable val1 = str2num(sval1), val2 = str2num(sval2)
 			if(val1 < 0 || val1 > val2 || val2 > lastlayerN)
-				print "Skipped"
 				return -1
 			endif
 			Duplicate/FREE/RMD=[][][0, val1-1] w3dRef, waveFree0

@@ -113,6 +113,11 @@ static Function isLiberalQ(string s)
 	endif
 End
 
+static Function isEXTWindow(string s)
+	// Is s the same of an EXT window, GraphXX#ExtWindowName
+	return strsearch(s, "#", 0) != -1
+End
+
 static Function isPathStringLegalQ(string path)
 	variable steps = ItemsInlist(path, ":"), i
 	string str
