@@ -138,56 +138,60 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
 	string dfrStr = GetUserData(s.winName, "", "ATH_iXMCDPath"), cmdStr
-	switch(s.eventCode)
+	// deal with arrows
+	if(s.specialKeyCode)
+		switch(s.specialKeyCode)
+			case 100: //left arrow
+				gATH_dx -= gATH_driftStep
+				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wImg2_undo
+				WAVE/SDFR=dfr M_Affine
+				Duplicate/O M_Affine, wImg2
+				hookResult = 1
+				break
+			case 101: //right arrow
+				gATH_dx += gATH_driftStep
+				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wImg2_undo
+				WAVE/SDFR=dfr M_Affine
+				Duplicate/O M_Affine, wImg2
+				hookResult = 1
+				break
+			case 102: // up arrow
+				gATH_dy -= gATH_driftStep
+				ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wImg2_undo
+				WAVE/SDFR=dfr M_Affine
+				Duplicate/O M_Affine, wImg2
+				hookResult = 1
+				break
+			case 103: // down arrow
+				gATH_dy += gATH_driftStep
+				ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wImg2_undo
+				WAVE/SDFR=dfr M_Affine
+				Duplicate/O M_Affine, wImg2
+				hookResult = 1
+				break
+			default:
+				break
+		endswitch
+		if(hookResult)
+			CopyScales/I wimg1, wimg2 // Copy back the scale, M_Affine is pixel-scaled
+			// has to be first so wXMCD, wSum do not need rescaling
+			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
+			wSum = wImg1 + wImg2
+		endif
+	endif
+	
+	if(s.eventCode == 2)
 	// Window is about to be killed case 17. 
 	// Needed if you want more than one hook functions to be able to cleanup/close 
 	// windows linked a parent window.
-		case 2:
-			string sumWinStr = GetUserData(s.winName, "", "ATH_iSumWin")
-			string killwincmd = "KillWindow/Z "+sumWinStr // keep Z in case you've killed the iSum
-			Execute/P/Q killWinCmd
-			WaveClear wImg1, wImg2, wXMCD, wSum, wImg2_undo // Note: Might not be needed
-			string killDFCmd = "KillDataFolder "+ GetDataFolder(1, dfr)
-			Execute/P/Q killDFCmd
-			hookresult = 1
-			break
-		case 11:					// Keyboard event
-			switch (s.keycode)
-				case 28: //left arrow
-					gATH_dx -= gATH_driftStep
-					ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wImg2_undo
-					WAVE/SDFR=dfr M_Affine
-					Duplicate/O M_Affine, wImg2
-					hookResult = 1
-					break
-				case 29: //right arrow
-					gATH_dx += gATH_driftStep
-					ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wImg2_undo
-					WAVE/SDFR=dfr M_Affine
-					Duplicate/O M_Affine, wImg2				
-					hookResult = 1
-					break
-				case 30: // up arrow
-					gATH_dy -= gATH_driftStep
-					ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wImg2_undo
-					WAVE/SDFR=dfr M_Affine
-					Duplicate/O M_Affine, wImg2			
-					hookResult = 1
-					break
-				case 31: // down arrow
-					gATH_dy += gATH_driftStep
-					ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wImg2_undo
-					WAVE/SDFR=dfr M_Affine
-					Duplicate/O M_Affine, wImg2				
-					hookResult = 1
-					break
-			endswitch
-			CopyScales/I wimg1, wimg2 // Copy back the scale, M_Affine is pixel-scaled
-			// has to be first so wXMCD, wSum do not need rescaling			
-			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
-			wSum = wImg1 + wImg2
-			break
-	endswitch
+		string sumWinStr = GetUserData(s.winName, "", "ATH_iSumWin")
+		string killwincmd = "KillWindow/Z "+sumWinStr // keep Z in case you've killed the iSum
+		Execute/P/Q killWinCmd
+		WaveClear wImg1, wImg2, wXMCD, wSum, wImg2_undo // Note: Might not be needed
+		string killDFCmd = "KillDataFolder "+ GetDataFolder(1, dfr)
+		Execute/P/Q killDFCmd
+		hookresult = 1
+	endif
 	//SetDataFolder saveDFR
 	return hookResult	// If non-zero, we handled event and Igor will ignore it.
 End

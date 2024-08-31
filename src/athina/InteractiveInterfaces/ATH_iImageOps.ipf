@@ -139,65 +139,64 @@ static Function WindowHook(STRUCT WMWinHookStruct &s)
 	
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
 	string dfrStr = GetUserData(s.winName, "", "ATH_iImgOpsDFPath"), cmdStr
-	switch(s.eventCode)
-	// Window is about to be killed case 17. 
-	// Needed if you want more than one hook functions to be able to cleanup/close 
-	// windows linked a parent window.
-		case 2:
-//			Duplicate/O w2_undo, $wName2Str // wName2Str is a full path
-//			string note2ImgStr = "\nTotal drift dx:" + num2str(gATH_dx) \
-//			+ " dy:" + num2str(gATH_dy) + " of " + wName2Str
-//			Note w2, note2ImgStr
-			string killwincmd = "KillWindow/Z "+ GetUserData(s.WinName,"", "ATH_iSecOpWinName")
-			Execute/P/Q killWinCmd
-			string killDFCmd = "KillDataFolder/Z "+ GetDataFolder(1, dfr)
-			Execute/P/Q killDFCmd
-			hookresult = 1
-			break
-		case 11:					// Keyboard event
-			SetDataFolder dfr
-			switch (s.keycode)
-				case 28: //left arrow
-					gATH_dx -= gATH_driftStep
-					ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D w2_undo
-					WAVE/SDFR=dfr M_Affine
-					Duplicate/O M_Affine, w2
-					hookResult = 1
-					break
-				case 29: //right arrow
-					gATH_dx += gATH_driftStep
-					ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D w2_undo
-					WAVE/SDFR=dfr M_Affine
-					Duplicate/O M_Affine, w2				
-					hookResult = 1
-					break
-				case 30: // up arrow
-					gATH_dy -= gATH_driftStep
-					ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D w2_undo
-					WAVE/SDFR=dfr M_Affine
-					Duplicate/O M_Affine, w2			
-					hookResult = 1
-					break
-				case 31: // down arrow
-					gATH_dy += gATH_driftStep
-					ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D w2_undo
-					WAVE/SDFR=dfr M_Affine
-					Duplicate/O M_Affine, w2				
-					hookResult = 1
-					break
-			endswitch
+	SetDataFolder dfrStr
+	if(s.specialKeyCode)	
+		switch(s.specialKeyCode)
+			case 100: //left arrow
+				gATH_dx -= gATH_driftStep
+				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D w2_undo
+				WAVE/SDFR=dfr M_Affine
+				Duplicate/O M_Affine, w2
+				hookResult = 1
+				break
+			case 101: //right arrow
+				gATH_dx += gATH_driftStep
+				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D w2_undo
+				WAVE/SDFR=dfr M_Affine
+				Duplicate/O M_Affine, w2
+				hookResult = 1
+				break
+			case 102: // up arrow
+				gATH_dy -= gATH_driftStep
+				ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D w2_undo
+				WAVE/SDFR=dfr M_Affine
+				Duplicate/O M_Affine, w2
+				hookResult = 1
+				break
+			case 103: // down arrow
+				gATH_dy += gATH_driftStep
+				ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D w2_undo
+				WAVE/SDFR=dfr M_Affine
+				Duplicate/O M_Affine, w2
+				hookResult = 1
+				break
+			default:
+				break
+		endswitch
+		
+		if(hookResult) // hookResult == 1, we handle the event so an arrow has been pressed. Calculate images
 			ControlInfo/W=$s.winName SetOpFormula
 			Execute/Q/Z ("MatrixOP/O wOpResult = " + S_value)
-			
 			if(gATH_secOp)
 				ControlInfo/W=$s.winName SetSecOpFormula
 				Execute/Q/Z ("MatrixOP/O wSecOpResult = " + S_value)
 			endif
-			
 			CopyScales/I w1, w2 // Copy back the scale, M_Affine is pixel-scaled
-			hookResult = 1
-			break
-	endswitch
+		endif
+	endif	
+
+	if(s.eventCode == 2)
+//		Duplicate/O w2_undo, $wName2Str // wName2Str is a full path
+//		string note2ImgStr = "\nTotal drift dx:" + num2str(gATH_dx) \
+//		+ " dy:" + num2str(gATH_dy) + " of " + wName2Str
+//		Note w2, note2ImgStr
+		string killwincmd = "KillWindow/Z "+ GetUserData(s.WinName,"", "ATH_iSecOpWinName")
+		Execute/P/Q killWinCmd
+		string killDFCmd = "KillDataFolder/Z "+ GetDataFolder(1, dfr)
+		Execute/P/Q killDFCmd
+		hookresult = 1
+	endif
+	
 	SetDataFolder saveDFR
 	return hookResult	// If non-zero, we handled event and Igor will ignore it.
 End
