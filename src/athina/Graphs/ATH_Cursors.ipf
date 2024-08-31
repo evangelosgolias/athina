@@ -100,7 +100,6 @@ static Function MeasureDistanceUsingFreeCursors()
 	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrDCHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsHook
 
 	GetWindow $winNameStr hook(ATH_MeasureDistanceCsrDCHook)
-	print "After ", S_value
 
 	string userdataStrQ = GetUserData(winNameStr, "", "ATH_SavedDistanceForScale")
 
