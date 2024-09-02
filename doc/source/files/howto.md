@@ -96,7 +96,7 @@ Use the marquee to zoom in to a region of an image
 ```
 
 First you have to move the cursor to the reference point you want to use and press " (Re)Set anchor". Dashed red lines will indicate the reference point you've (re)set - it's the crossing point. 
-Move the slider and then cursor and press "Drift Image" to manually drift an image.
+Move the slider and then cursor and press "Drift Image" to manually drift an image (mouse wheel works also).
 Press "Drift N images" and select a range of images you want to move.
 Press "Cascade drift" to move all images from the current image to the end of the stack.
 
@@ -110,8 +110,17 @@ Linear drift correction is useful in linear drifts between layes that usually ha
 Press "Checkpoint" to save the state of the stack (N.B you cannot restore the original stack afterwards)
 Press "Restore stack" to revert all changes.
 
-Last, there a fast drift correction that can be enables by ticking the "SHIFT+Click & drift". When enabled a red dot marks your fiducial point.
+Last, there a fast drift correction that can be enables by ticking the "SHIFT+Click & drift". **You cannot enable this mode unless you have set a reference point** When the mode is enabled the fiducial point is not a red dot, it is small as we assume that most of the time you'd like to work in a small part of the image to be more precise. Use:
 
+* SHIFT + left mouse clich on a point to drift correct the image. The reference point will be moved to the point you clicked on, so you are following your fiducial point with your mouse. After clicking the image stack will move to the next layer.
+* Use arrow keys of mousewheel to skip layers or go back to previous ones. 
+* Press Delete or BackSpace to revern the current layer to it's starting position (no drift correction).
+
+```{caution} 
+
+If you have drift correct your stack the changes are automatically applies if you close the iDriftCorrection side-window. There is no backup left to restore your slide to its original state. **If you want to discard any changes with you to press "Restore stack" before exiting.**
+
+```
 
 ## Profiles along the third dimension
 
