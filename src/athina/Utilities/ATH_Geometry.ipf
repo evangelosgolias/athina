@@ -42,13 +42,24 @@ End
 
 static Function [variable xp0, variable yp0, variable xp1, variable yp1 ] GetBothPointsWithDistanceFromLine(variable x1, 
 																		  variable y1, variable s, variable d)
-	/// Return the coordinates of points with distance d from a line passing from A(x1, y1) witl slope s.
+	/// Return the coordinates of points with distance d from a line passing from A(x1, y1) with slope s.
 	/// Points are on either side of of A.
-	
-	xp0 = x1 - d * s / sqrt(s^2 + 1)
-	xp1 = x1 + d * s / sqrt(s^2 + 1)
-	yp0 = y1 + 1/s * (x1 - xp0)
-	yp1 = y1 + 1/s * (x1 - xp1)
+	if(s == 0)
+		xp0 = x1 - d/2
+		xp1 = x1 + d/2
+		yp0 = y1
+		yp1 = y1
+	elseif(numtype(s) == 1)
+		xp0 = x1
+		xp1 = x1
+		yp0 = y1 - d/2
+		yp1 = y1 + d/2
+	else
+		xp0 = x1 - d * s / sqrt(s^2 + 1)
+		xp1 = x1 + d * s / sqrt(s^2 + 1)
+		yp0 = y1 + 1/s * (x1 - xp0)
+		yp1 = y1 + 1/s * (x1 - xp1)
+	endif
 	return [xp0, yp0, xp1, yp1]
 End
 

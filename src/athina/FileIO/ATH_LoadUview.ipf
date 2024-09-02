@@ -191,7 +191,6 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
 	endif
 	Close numRef
 	
-//	ImageTransform flipRows datWave // flip the y-axis
 	string mdatastr = ""
 	
 	if(!skipmetadata)

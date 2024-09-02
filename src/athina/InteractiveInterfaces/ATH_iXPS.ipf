@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 #pragma ModuleName = ATH_iXPS
-#pragma version = 1.1
+#pragma version = 1.2
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -32,11 +32,12 @@
 // ------------------------------------------------------- //
 
 
-/// NOTE: the program needs E to be at the lower part of the KE of the dispersion. Line profile is extracted
-/// from E -> F cursor. Also set the A - Low KE end and B - High KE end.
-/// With microscope settings as of January 2024 low KE in on the bottomn right part of the image as imported in Igor.
+/// NOTE: the program needs E to be at the lower part of the KE of the dispersion.
+/// Line profile is extracted from E -> F cursor. Also set the A - Low KE and B - High KE end.
+/// With microscope settings as of January 2024 low KE in on the bottomn right part of the 
+/// image as imported in Igor.
 
-static constant kATHEnergyPerPixel = 0.0056338 // energy per pixel - default setting 24.01.2024 [2K image]
+static constant kATHEnergyPerPixel =   0.00558659 // energy per pixel - default setting 02.09.2024 [2K image]
 
 
 static Function MainMenu()
@@ -58,11 +59,11 @@ static Function MainMenu()
 	variable ncols = DimSize(imgWaveRef,1)
 	// Flipped A, B and E, F starting points
 	// Cursors to set the scale
-	Cursor/I/C=(0,65535,0)/H=1/S=1/P/N=1 A $imgNameTopGraphStr round(1.8 * nrows/2), round(1.8 * ncols/2)	
-	Cursor/I/C=(0,65535,0)/H=1/S=1/P/N=1 B $imgNameTopGraphStr round(0.2 * nrows/2), round(0.2 * ncols/2)
+	Cursor/I/C=(0,65535,0)/H=1/S=1/P/N=1 B $imgNameTopGraphStr round(1.8 * nrows/2), round(1.8 * ncols/2)	
+	Cursor/I/C=(0,65535,0)/H=1/S=1/P/N=1 A $imgNameTopGraphStr round(0.2 * nrows/2), round(0.2 * ncols/2)
 	// Cursors to get the profile
-	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(1.4 * nrows/2), round(1.4 * ncols/2)	
-	Cursor/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr round(0.4 * nrows/2), round(0.4 * ncols/2)
+	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(0.4 * nrows/2), round(0.4 * ncols/2)
+	Cursor/I/C=(1,16019,65535)/S=1/P/N=1 F $imgNameTopGraphStr round(1.4 * nrows/2), round(1.4 * ncols/2)	
 	InitialiseGraph(dfr)
 	SetWindow $winNameStr, hook(MyiXPSHook) = ATH_iXPS#CursorHookFunction // Set the hook
 	SetWindow $winNameStr userdata(ATH_LinkedWiniXPSPP) = "ATH_XPSProfPlot_" + winNameStr
@@ -243,7 +244,6 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
 	NVAR/Z C2y = dfr:gATH_C2y
-
 	NVAR/Z Ax = dfr:gATH_Ax
 	NVAR/Z Ay = dfr:gATH_Ay
 	NVAR/Z Bx = dfr:gATH_Bx
@@ -255,7 +255,6 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z hv = dfr:gATH_hv
 	NVAR/Z Eoffset = dfr:gATH_Eoffset
 	NVAR/Z lowBE = dfr:gATH_lowBE
-
 	NVAR/Z mouseTrackV = dfr:gATH_mouseTrackV
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
@@ -268,19 +267,18 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
 	WAVE/Z imgWaveRef = $ImagePathname
 	WAVE/Z/SDFR=dfr W_ImageLineProfile
-	variable xc, yc, dAE, dEF, dOE, dOF, dOA
-
-	linepx = sqrt((Ax-Bx)^2+(Ay-By)^2)
+	variable xc, yc, dAE, dEB
 
 	switch(s.eventCode)
 		case 0: // Use activation to update the cursors if you request defaults
 			if(updateCursorsPositions)
-				SetDrawLayer ProgFront
-				DrawAction delete
-				SetDrawEnv Linefgc = (65535,0,0,65535), fillpat = 0, Linethick = 1, xcoord = top, ycoord = left
-				Cursor/I/C=(65535,0,0,30000)/S=1/N=1 E $imgNameTopGraphStr C1x0, C1y0
-				Cursor/I/C=(65535,0,0,30000)/S=1/N=1 F $imgNameTopGraphStr C2x0, C2y0
-				DrawLine C1x0, C1y0, C2x0, C2y0
+				SetDrawLayer/W=$s.winName ProgFront
+				DrawAction/W=$s.winName delete
+				SetDrawEnv/W=$s.winName Linefgc = (65535,0,0,65535), fillpat = 0, Linethick = 1, xcoord = top, ycoord = left
+				Cursor/I/C=(65535,0,0)/S=1/N=1 E $imgNameTopGraphStr C1x0, C1y0
+				Cursor/I/C=(1,16019,65535)/S=1/N=1 F $imgNameTopGraphStr C2x0, C2y0
+				SetDrawEnv/W=$s.winName Linefgc = (0,65535,0,65535), fillpat = 0, Linethick = 1, xcoord = top, ycoord = left
+				DrawLine/W=$s.winName C1x0, C1y0, C2x0, C2y0
 				Make/O/FREE/N=2 xTrace={C1x0, C2x0}, yTrace = {C1y0, C2y0}
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
 				updateCursorsPositions = 0
@@ -302,22 +300,12 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			C1y = vcsr(E)
 			C2x = hcsr(F)
 			C2y = vcsr(F)
-			/// Note: E is ag the low KE part (higher BE)
+			/// Note: E is at the low KE part (higher BE)
 			/// N.B Line profile is taken from E to F
 			dAE = sqrt((C1x - Ax)^2 + (C1y - Ay)^2)
-			dEF = sqrt((C2x - C1x)^2 + (C2y - C1y)^2)
 			// offset in eV from the top right energy (lowest KE)
-			dOE = sqrt(C1x^2 + C1y^2)
-			dOA = sqrt(Ax^2 + Ay^2)
-			//dOF = sqrt(C2x^2 + C2y^2)
-			if(dOE < dOA)
-				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
-			else
-				Eoffset = stv - (linepx/2 + dAE) * epp // offset in eV from the bottom right energy (lowest KE)
-			endif
-			//SetScale/I x, Eoffset, (Eoffset + dEF*epp), W_ImageLineProfile
+			Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom left energy (lowest KE)
 			SetScale/P x, Eoffset, epp, W_ImageLineProfile
-			//WaveFromKE2BE(W_ImageLineProfile, hv, Wf)
 			hookResult = 1
 			break
 		case 8: // modifications, either move the slides or the cursors
@@ -331,18 +319,18 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			break
 		case 7: // cursor moved
 			if(!cmpstr(s.cursorName, "E") || !cmpstr(s.cursorName, "F")) // It should work only with E, F you might have other cursors on the image
-				SetDrawLayer ProgFront
-				DrawAction delete
-				SetDrawEnv linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+				SetDrawLayer/W=$s.winName ProgFront
+				DrawAction/W=$s.winName delete
+				SetDrawEnv/W=$s.winName linefgc = (0,65535,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 				if(!cmpstr(s.cursorName, "E")) // if you move E
 					xc = hcsr(F)
 					yc = vcsr(F)
-					DrawLine s.pointNumber * dx, s.ypointNumber * dy, xc, yc
+					DrawLine/W=$s.winName s.pointNumber * dx, s.ypointNumber * dy, xc, yc
 					Make/O/FREE/N=2 xTrace={s.pointNumber * dx, xc}, yTrace = {s.ypointNumber * dy, yc}
 				elseif(!cmpstr(s.cursorName, "F")) // if you move F
 					xc = hcsr(E)
 					yc = vcsr(E)
-					DrawLine  xc, yc, s.pointNumber * dx, s.ypointNumber * dy
+					DrawLine/W=$s.winName  xc, yc, s.pointNumber * dx, s.ypointNumber * dy
 					Make/O/FREE/N=2 xTrace={xc, s.pointNumber * dx}, yTrace = {yc, s.ypointNumber * dy}
 				endif
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
@@ -351,16 +339,8 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				C2x = hcsr(F)
 				C2y = vcsr(F)
 				dAE = sqrt((C1x - Ax)^2 + (C1y - Ay)^2)
-				dOE = sqrt(C1x^2 + C1y^2)
-				dOA = sqrt(Ax^2 + Ay^2)
-				//dOF = sqrt(C2x^2 + C2y^2)
-				if(dOE < dOA)
-					Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
-				else
-					Eoffset = stv - (linepx/2 + dAE) * epp // offset in eV from the bottom right energy (lowest KE)
-				endif
+				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
 				SetScale/P x, Eoffset, epp, W_ImageLineProfile
-				//WaveFromKE2BE(W_ImageLineProfile, hv, Wf)
 				hookResult = 1
 				break
 			endif
@@ -434,7 +414,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	string recreateDrawStr
 	DFREF savedfr = GetDataFolderDFR()
 
-	variable postfix = 0, dAE, dOE, dOA
+	variable postfix = 0, dAE
 	variable red, green, blue
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
@@ -443,14 +423,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 			WAVE/SDFR=dfr W_ImageLineProfile
 			Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
 			dAE = sqrt((C1x - Ax)^2/dx^2 + (C1y - Ay)^2/dy^2)
-			dOE = sqrt(C1x^2 + C1y^2)
-			dOA = sqrt(Ax^2 + Ay^2)
-			//dOF = sqrt(C2x^2 + C2y^2)
-			if(dOE < dOA)
-				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
-			else
-				Eoffset = stv - (linepx/2 + dAE) * epp // offset in eV from the bottom right energy (lowest KE)
-			endif
+			Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
 			SetScale/P x, Eoffset, epp, savedfr:$saveWaveNameStr
 			if(hv > Wf)
 				WaveFromKE2BE(savedfr:$saveWaveNameStr, hv, Wf)
@@ -484,7 +457,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 				DrawXPSUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
 			endif
 			sprintf recreateDrawStr, "pathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%.2f\n" + \
-			"hv(eV):%.2f\nWf(eV):%.2f\nEPP(eV/px):%.8f", ImagePathname,  C1x, C1y, C2x, C2y, Ax, Ay, Bx, By, profileWidth, stv, hv, Wf, epp
+			"hv(eV):%.2f\nWf(eV):%.2f\nEPP(eV/px):%.8f", ImagePathname,  Ax, Ay, Bx, By, C1x, C1y, C2x, C2y, profileWidth, stv, hv, Wf, epp
 			Note savedfr:$saveWaveNameStr, recreateDrawStr
 			// Add metadata
 			break
@@ -582,31 +555,49 @@ static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonC
 	
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			C1x = C1x0
-			C1y = C1y0
-			C2x = C2x0
-			C2y = C2y0
-			profileWidth = profileWidth0
-			Ax = Ax0
-			Ay = Ay0
-			Bx = Bx0
-			By = By0
-			linepx = linepx0
-			epp = epp0
-			Cursor/K/W=$parentWindow A
-			Cursor/K/W=$parentWindow B
-			Button SetCursorsAB fcolor=(0,65535,0)
-			ControlUpdate/W=$B_Struct.win SetCursorsAB
-			SetDrawLayer/W=$parentWindow Overlay
-			DrawAction/W=$parentWindow delete
-			SetDrawEnv/W=$parentWindow linefgc = (0, 65535, 0, 32767), fillpat = 0, linethick = 0.5, dash= 3, xcoord= top, ycoord= left
-			DrawLine/W=$parentWindow Ax, Ay, Bx, By
-			SetDrawEnv/W=$parentWindow linefgc = (0, 65535, 0, 32767), fillfgc= (0,65535,0, 32767), fillpat = 1, linethick = 1, dash= 1, xcoord= top, ycoord= left
-			DrawOval/W=$parentWindow (Ax + Bx)/2 + 3 * dx, (Ay + By)/2 + 3 * dy, (Ax + Bx)/2 - 3 * dx, (Ay + By)/2 - 3 * dy
-			SetDrawLayer/W=$parentWindow ProgFront
-			CursorABSwitch = 1
-			updateCursorsPositions = 1
-			DoWindow/F $parentWindow
+			if(linepx0)
+				C1x = C1x0
+				C1y = C1y0
+				C2x = C2x0
+				C2y = C2y0
+				profileWidth = profileWidth0
+				Ax = Ax0
+				Ay = Ay0
+				Bx = Bx0
+				By = By0
+				linepx = linepx0
+				epp = epp0
+				Cursor/K/W=$parentWindow A
+				Cursor/K/W=$parentWindow B
+				Button SetCursorsAB fcolor=(0,65535,0), win=$B_Struct.win
+				ControlUpdate/W=$B_Struct.win SetCursorsAB
+				SetDrawLayer/W=$parentWindow Overlay
+				DrawAction/W=$parentWindow delete
+				SetDrawEnv/W=$parentWindow linefgc = (0, 65535, 0, 32767), fillpat = 0, linethick = 0.5, dash= 3, xcoord= top, ycoord= left
+				DrawLine/W=$parentWindow Ax, Ay, Bx, By
+				SetDrawEnv/W=$parentWindow linefgc = (0, 65535, 0, 32767), fillfgc= (0,65535,0, 32767), fillpat = 1, linethick = 1, dash= 1, xcoord= top, ycoord= left
+				DrawOval/W=$parentWindow (Ax + Bx)/2 + 3 * dx, (Ay + By)/2 + 3 * dy, (Ax + Bx)/2 - 3 * dx, (Ay + By)/2 - 3 * dy
+				variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(Ax, Ay, Bx, By)
+				variable Ax1, Ay1, Ax2, Ay2
+				[Ax1, Ay1, Ax2, Ay2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Ax, Ay, -1/slope, 200*dx)
+				SetDrawLayer/W=$parentWindow Overlay 
+				SetDrawEnv/W=$parentWindow linefgc = (65535,0,0), fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
+				DrawLine/W=$parentWindow Ax1, Ay1, Ax2, Ay2
+				// Use the same local variables for the second line
+				[Ax1, Ay1, Ax2, Ay2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Bx, By, -1/slope, 200*dx) // B is the bottom point
+				SetDrawLayer/W=$parentWindow Overlay 
+				SetDrawEnv/W=$parentWindow linefgc = (1,16019,65535),  fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
+				DrawLine/W=$parentWindow Ax1, Ay1, Ax2, Ay2
+				// Draw the midpoint using the same lcoal variable
+				[Ax1, Ay1, Ax2, Ay2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(0.5*(Ax+Bx), 0.5*(Ay+By), -1/slope, 200*dx) // B is the bottom point
+				SetDrawLayer/W=$parentWindow Overlay 
+				SetDrawEnv/W=$parentWindow linefgc = (16386,65535,16385), fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
+				DrawLine/W=$parentWindow Ax1, Ay1, Ax2, Ay2
+				SetDrawLayer/W=$parentWindow ProgFront
+				CursorABSwitch = 1
+				updateCursorsPositions = 1
+				DoWindow/F $parentWindow
+			endif
 			break
 	endswitch
 End
@@ -746,7 +737,7 @@ static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableCon
 	WAVE/Z/SDFR=dfr W_ImageLineProfile
 	variable dAE, Eoffset
 	switch(sv.eventCode)
-		case 6:		
+		case 6:
 			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
     	   	dAE = sqrt((C1x - Ax)^2 + (C1y - Ay)^2)
   	     	Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the top right energy (lowest KE)
@@ -789,10 +780,28 @@ static Function SetCursorsAB(STRUCT WMButtonAction &B_Struct): ButtonControl)
 				Button SetCursorsAB fcolor=(0,65535,0)
 				ControlUpdate/W=$B_Struct.win SetCursorsAB
 				SetDrawLayer/W=$parentWindow Overlay 
-				SetDrawEnv/W=$parentWindow linefgc = (1,39321,19939, 32767), fillpat = 0, linethick = 0.5, dash= 3, xcoord= top, ycoord= left
+				SetDrawEnv/W=$parentWindow linefgc = (1,39321,19939, 32767), fillpat = 0, linethick = 3, dash= 3, xcoord= top, ycoord= left
 				DrawLine/W=$parentWindow Ax, Ay, Bx, By
-				SetDrawEnv/W=$parentWindow linefgc = (1,39321,19939, 32767), fillfgc= (0,65535,0, 32767), fillpat = 1, linethick = 1, dash= 1, xcoord= top, ycoord= left	
+				SetDrawEnv/W=$parentWindow linefgc = (1,39321,19939, 32767), fillfgc= (0,65535,0, 32767), fillpat = 1, linethick = 3, dash= 1, xcoord= top, ycoord= left
 				DrawOval/W=$parentWindow (Ax + Bx)/2 + 3 * dx, (Ay + By)/2 + 3 * dy, (Ax + Bx)/2 - 3 * dx, (Ay + By)/2 - 3 * dy
+				SetDrawLayer/W=$parentWindow Overlay 
+				SetDrawEnv/W=$parentWindow linefgc = (1,39321,19939, 32767), fillfgc= (0,65535,0, 32767), fillpat = 1, linethick = 1, dash= 1, xcoord= top, ycoord= left	
+				variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(Ax, Ay, Bx, By)
+				variable Ax1, Ay1, Ax2, Ay2
+				[Ax1, Ay1, Ax2, Ay2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Ax, Ay, -1/slope, 200*dx)
+				SetDrawLayer/W=$parentWindow Overlay 
+				SetDrawEnv/W=$parentWindow linefgc = (65535,0,0), fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
+				DrawLine/W=$parentWindow Ax1, Ay1, Ax2, Ay2
+				// Use the same local variables for the second line
+				[Ax1, Ay1, Ax2, Ay2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Bx, By, -1/slope, 200*dx) // B is the bottom point
+				SetDrawLayer/W=$parentWindow Overlay 
+				SetDrawEnv/W=$parentWindow linefgc = (1,16019,65535),  fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
+				DrawLine/W=$parentWindow Ax1, Ay1, Ax2, Ay2
+				// Draw the midpoint using the same lcoal variable
+				[Ax1, Ay1, Ax2, Ay2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(0.5*(Ax+Bx), 0.5*(Ay+By), -1/slope, 200*dx) // B is the bottom point
+				SetDrawLayer/W=$parentWindow Overlay 
+				SetDrawEnv/W=$parentWindow linefgc = (16386,65535,16385), fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
+				DrawLine/W=$parentWindow Ax1, Ay1, Ax2, Ay2
 				SetDrawLayer/W=$parentWindow ProgFront
 				CursorABSwitch = 1
 			else
