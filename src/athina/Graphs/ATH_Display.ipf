@@ -85,9 +85,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	int is3D = WaveDims(w)==3
 	variable hookResult = 0
 	string buffer
-	if(strlen(s.focusCtrl))
-		print "Receive and early event"
-	endif
+
 	switch (s.eventCode)
 		case 11:
 			switch(s.keycode)
