@@ -75,10 +75,12 @@ static Function MenuLauch()
 		Make/T/N=1 dfr:ATHSpacesTWDF
 		variable/G dfr:gSelectedSpace = 0
 		variable/G dfr:gShowAllWindowsSwitch = 0
+		variable/G dfr:gShowOrphanWindowsSwitch = 0
 	endif
 	if(!(NVAR_Exists(gSelectedSpace) || NVAR_Exists(gShowAllWindowsSwitch)))
 		variable/G dfr:gSelectedSpace = 0
 		variable/G dfr:gShowAllWindowsSwitch = 0
+		variable/G dfr:gShowOrphanWindowsSwitch = 0		
 	endif
 	if(WinType("ATH_SpacesPanel")) // Will return 7 for a panel, 0 if it's not there 
 		DoWindow/F ATH_SpacesPanel

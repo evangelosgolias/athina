@@ -104,6 +104,11 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_iImgRotation#CreatePanel()
 					endif
 					break
+				case 88: // X
+					if(s.eventMod & 2) // works with SHIFT + X only!
+						ATH_iXPS#MainMenu()
+					endif
+					break
 				case 97: // a - average if you have a 3d wave
 					if(is3d)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
@@ -132,7 +137,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
 					break
 				case 112: // p
-					ATH_PlaneZProfile#MenuLaunch()
+					ATH_PlaneZProfile#MainMenu()
 					break
 				case 114: // r
 					ATH_Range#pnl(s.winName)

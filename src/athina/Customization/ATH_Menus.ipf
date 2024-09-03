@@ -38,9 +38,9 @@ Menu "athina"
 		".dat files and stack .../2", /Q, ATH_Uview#LoadMultiplyDATFiles(stack3d = 1, autoscale = 1, displayImg = 1)		
 		".dat files in folder...", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", autoscale = 1)
 		".tif (EMMENU5).../3", /Q, ATH_TVIPS#LoadTVIPStiff("", "", displayImg = 1)	
-		".tifs (EMMENU5) and stack.../4", /Q, ATH_TVIPS#LoadTVIPStiffs(displayImg = 1, stack3d = 1)	
-		".HDF5 file .../5", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
-		".nxs NeXus files .../6",/Q, ATH_HDF5#LoadNXSDataSets()
+		".tifs (EMMENU5) and stack...", /Q, ATH_TVIPS#LoadTVIPStiffs(displayImg = 1, stack3d = 1)	
+		".HDF5 file .../4", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
+		".nxs NeXus files .../5",/Q, ATH_HDF5#LoadNXSDataSets()
 	End
 	
 	Submenu "Image Operations"
@@ -68,8 +68,8 @@ Menu "athina"
 	
 	Submenu "Interactive Operations"
 		"Drift correction (TG, 3D) ", /Q, ATH_iDriftCorrection#CreatePanel()
-		"XMC(L)D calculation ...", /Q, ATH_iXMCD#MenuLaunch()
-		"Image calculation ...", /Q, ATH_iImgOps#MainMenu()
+		"XMC(L)D calculation .../6", /Q, ATH_iXMCD#MenuLaunch()
+		"Image calculation .../7", /Q, ATH_iImgOps#MainMenu()
 		"Image rotation (TG, 2D, 3D) ", /Q,  ATH_iImgRotation#CreatePanel()		
 	End
 	
@@ -82,7 +82,7 @@ Menu "athina"
 	
 	Submenu "Profiles "
 		"Line profile (TG, 2D, 3D)", /Q, ATH_LineProfile#MainMenu()
-		"Plane profile (TG, 3D)",/Q, ATH_PlaneZProfile#MenuLaunch()	
+		"Plane profile (TG, 3D)",/Q, ATH_PlaneZProfile#MainMenu()	
 		"(Z profile -> Use Marquee on TG (3D)"//, /Q, DoAlert 0, "Use Marquee for Z-profile!"
 	End
 
@@ -100,7 +100,7 @@ Menu "athina"
 	
 	Submenu "Utilities"
 		"Spaces",/Q, ATH_Spaces#MenuLauch()
-		"Free space",/Q, ATH_Launch#DeleteBigWaves()
+		"Free space/8",/Q, ATH_Launch#DeleteBigWaves()
 		"List HDF5 (.h5) entries...", /Q, ATH_HDF5#ListHDF5Groups()		
 		"Photoionisation CrossSection",/Q, ATH_PhCS#PhotoionisationCrossSection()
 	End
