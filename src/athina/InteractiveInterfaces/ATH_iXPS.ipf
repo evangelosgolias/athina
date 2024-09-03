@@ -127,7 +127,8 @@ static Function/DF InitialiseFolder(string winNameStr)
 	variable/G dfr:gATH_Ay = 0	
 	variable/G dfr:gATH_Bx = 0
 	variable/G dfr:gATH_By = 0
-	variable/G dfr:gATH_STV = NumberByKey("STV(V)",note(imgWaveRef),":","\n" ) // Start voltage from metadata
+	variable stv_ = NumberByKey("STV(V)",note(imgWaveRef),":","\n" ) // Start voltage from metadata
+	variable/G dfr:gATH_STV = numtype(stv_) ? 0 : stv_
 	variable/G dfr:gATH_Eoffset = 0
 	variable/G dfr:gATH_linepx
 	variable/G dfr:gATH_lowBE // bottom left part is the low BE.
@@ -288,14 +289,16 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				Make/O/FREE/N=2 xTrace={C1x0, C2x0}, yTrace = {C1y0, C2y0}
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
 				// Activate window, e.g after pressing "Restore Settings"
-				linepx = sqrt(((Ax-Bx)/dx)^2+((Ay-By)/dy)^2) // Calculate it again.
-				dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
-				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
-				if(UseBESwitch)
-					BE_Eoffset = hv - Eoffset - Wf
-					SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
-				else
-					SetScale/P x, Eoffset, epp, W_ImageLineProfile
+				if(stv)
+					linepx = sqrt(((Ax-Bx)/dx)^2+((Ay-By)/dy)^2) // Calculate it again.
+					dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
+					Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+					if(UseBESwitch)
+						BE_Eoffset = hv - Eoffset - Wf
+						SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
+					else
+						SetScale/P x, Eoffset, epp, W_ImageLineProfile
+					endif
 				endif
 				updateCursorsPositions = 0
 			endif
@@ -318,15 +321,17 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			C2y = vcsr(F)
 			/// Note: E is at the low KE part (higher BE)
 			/// N.B Line profile is taken from E to F
-			dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
-			linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
-			// offset in eV from the top right energy (lowest KE)
-			Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom left energy (lowest KE)
-			if(UseBESwitch)
-				BE_Eoffset = hv - Eoffset - Wf
-				SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
-			else
-				SetScale/P x, Eoffset, epp, W_ImageLineProfile
+			if(stv)
+				dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
+				linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
+				// offset in eV from the top right energy (lowest KE)
+				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom left energy (lowest KE)
+				if(UseBESwitch)
+					BE_Eoffset = hv - Eoffset - Wf
+					SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
+				else
+					SetScale/P x, Eoffset, epp, W_ImageLineProfile
+				endif
 			endif
 			hookResult = 1
 			break
@@ -337,14 +342,16 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				selectedLayer = glayer
 				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
-				linepx = sqrt(((Ax-Bx)/dx)^2+((Ay-By)/dy)^2) // Calculate it again.
-				dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
-				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
-				if(UseBESwitch)
-					BE_Eoffset = hv - Eoffset - Wf
-					SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
-				else
-					SetScale/P x, Eoffset, epp, W_ImageLineProfile
+				if(stv)
+					linepx = sqrt(((Ax-Bx)/dx)^2+((Ay-By)/dy)^2) // Calculate it again.
+					dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
+					Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+					if(UseBESwitch)
+						BE_Eoffset = hv - Eoffset - Wf
+						SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
+					else
+						SetScale/P x, Eoffset, epp, W_ImageLineProfile
+					endif
 				endif
 			endif
 			break
@@ -369,14 +376,16 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				C1y = vcsr(E)
 				C2x = hcsr(F)
 				C2y = vcsr(F)
-				dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
-				linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
-				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
-				if(UseBESwitch)
-					BE_Eoffset = hv - Eoffset - Wf
-					SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
-				else
-					SetScale/P x, Eoffset, epp, W_ImageLineProfile
+				if(stv)
+					dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
+					linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
+					Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+					if(UseBESwitch)
+						BE_Eoffset = hv - Eoffset - Wf
+						SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
+					else
+						SetScale/P x, Eoffset, epp, W_ImageLineProfile
+					endif
 				endif
 				hookResult = 1
 				break
@@ -458,17 +467,19 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 			string saveWaveBaseStr = w3dNameStr + "_prof"
 			string saveWaveNameStr = CreateDataObjectName(savedfr, saveWaveBaseStr, 1, 0, 5)
 			// It has to come first, it is used to scale to BE
-			dAE = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
-			linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
-			Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
-			// Duplicate the wave		
-			WAVE/SDFR=dfr W_ImageLineProfile
-			Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
-			if(UseBESwitch)
-				variable BE_Eoffset = hv - Eoffset - Wf
-				SetScale/P x, BE_Eoffset, -epp, savedfr:$saveWaveNameStr
-			else
-				SetScale/P x, Eoffset, epp, savedfr:$saveWaveNameStr
+			if(stv)
+				dAE = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
+				linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
+				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+				// Duplicate the wave
+				WAVE/SDFR=dfr W_ImageLineProfile
+				Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
+				if(UseBESwitch)
+					variable BE_Eoffset = hv - Eoffset - Wf
+					SetScale/P x, BE_Eoffset, -epp, savedfr:$saveWaveNameStr
+				else
+					SetScale/P x, Eoffset, epp, savedfr:$saveWaveNameStr
+				endif
 			endif
 			if(PlotSwitch)
 				if(WinType(targetGraphWin) == 1)
@@ -733,7 +744,7 @@ static Function Layer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
-	
+
 	DFREF currdfr = GetDataFolderDFR()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
 	NVAR/Z C1x = dfr:gATH_C1x
@@ -742,25 +753,38 @@ static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableCon
 	NVAR/Z C2y = dfr:gATH_C2y
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
-	NVAR/Z Ax = dfr:gATH_Ax	
+	NVAR/Z Ax = dfr:gATH_Ax
 	NVAR/Z Ay = dfr:gATH_Ay
-	NVAR/Z dx = dfr:gATH_dx	
-	NVAR/Z dy = dfr:gATH_dy	
-	NVAR/Z stv = dfr:gATH_stv	
-	NVAR/Z epp = dfr:gATH_epp	
+	NVAR/Z Bx = dfr:gATH_Bx
+	NVAR/Z By = dfr:gATH_By	
+	NVAR/Z dx = dfr:gATH_dx
+	NVAR/Z dy = dfr:gATH_dy
+	NVAR/Z stv = dfr:gATH_stv
+	NVAR/Z epp = dfr:gATH_epp
+	NVAR/Z hv = dfr:gATH_hv	
+	NVAR/Z Wf = dfr:gATH_Wf		
 	NVAR/Z linepx = dfr:gATH_linepx
+	NVAR/Z UseBESwitch = dfr:gATH_UseBELineSwitch	
 	SetDataFolder dfr
 	Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
 	WAVE/Z imgWaveRef = $ImagePathname
 	WAVE/Z/SDFR=dfr W_ImageLineProfile
-	variable dAE, Eoffset
+	variable dAE, Eoffset, BE_Eoffset
 	switch(sv.eventCode)
 		case 6:
 			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
-    	   	dAE = sqrt( ((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
-  	     	Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the top right energy (lowest KE)
-  	     	SetScale/P x, Eoffset, epp, W_ImageLineProfile	
+			if(stv)
+				dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
+				linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
+				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+				if(UseBESwitch)
+					BE_Eoffset = hv - Eoffset - Wf
+					SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
+				else
+					SetScale/P x, Eoffset, epp, W_ImageLineProfile
+				endif
+			endif
 			break
 	endswitch
 	SetDataFolder currdfr
@@ -950,15 +974,18 @@ static Function GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
 	Duplicate W_ImageLineProfile, dfr:$saveWaveNameStr
 	SetDataFolder dfr
 	variable hv = ATH_String#GetPhotonEnergyFromFilename(NameOfWave(wRef))
-	variable stv = NumberByKey("STV(V)",note(wRef),":","\n" )
-	variable dAE = sqrt(((C1x0 - Ax0)/dx)^2 + ((C1y0 - Ay0)/dy)^2)
-	variable Eoffset = stv - (linepx0/2 - dAE) * epp0
-	SetScale/P x, Eoffset, epp0, dfr:$saveWaveNameStr
-	if(hv > Wf0 && BEscaleQ)
-		variable BE_Eoffset = hv - Eoffset - Wf0
-		SetScale/P x, BE_Eoffset, -epp0, W_ImageLineProfile
-	else
-		SetScale/P x, Eoffset, epp0, W_ImageLineProfile
+	variable stv_ = NumberByKey("STV(V)",note(wRef),":","\n" )
+	variable stv = numtype(stv_) ? 0 : stv_
+	if(stv)
+		variable dAE = sqrt(((C1x0 - Ax0)/dx)^2 + ((C1y0 - Ay0)/dy)^2)
+		variable Eoffset = stv - (linepx0/2 - dAE) * epp0
+		SetScale/P x, Eoffset, epp0, dfr:$saveWaveNameStr
+		if(hv > Wf0 && BEscaleQ)
+			variable BE_Eoffset = hv - Eoffset - Wf0
+			SetScale/P x, BE_Eoffset, -epp0, W_ImageLineProfile
+		else
+			SetScale/P x, Eoffset, epp0, W_ImageLineProfile
+		endif
 	endif
 	string recreateDrawStr
 	sprintf recreateDrawStr, "XPS profile using saved settings.\npathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%.2f\n" + \
