@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 #pragma ModuleName = ATH_iXPS
-#pragma version = 1.2
+#pragma version = 2.0
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -134,7 +134,7 @@ static Function/DF InitialiseFolder(string winNameStr)
 	
 	// Switches and indicators
 	variable/G dfr:gATH_PlotSwitch = 1
-	variable/G dfr:gATH_MarkXPSLineSwitch = 0
+	variable/G dfr:gATH_UseBELineSwitch = 0
 	variable/G dfr:gATH_SelectLayer = 0
 	variable/G dfr:gATH_colorcnt = 0
 	variable/G dfr:gATH_mouseTrackV
@@ -147,6 +147,7 @@ static Function/DF InitialiseFolder(string winNameStr)
 		variable/G dfr0:gATH_C2x0 = round(0.9 * nrows/2)
 		variable/G dfr0:gATH_C2y0 = round(1.1 * ncols/2)
 		variable/G dfr0:gATH_profileWidth0 = 0
+		variable/G dfr0:gATH_linepx0 = 0		
 		variable/G dfr0:gATH_Ax0 = 0
 		variable/G dfr0:gATH_Ay0 = 0
 		variable/G dfr0:gATH_Bx0 = 0
@@ -177,6 +178,7 @@ static Function XPSPlot(DFREF dfr)
 	NVAR Wf = dfr:gATH_Wf
 	NVAR epp = dfr:gATH_epp
 	NVAR stv = dfr:gATH_STV
+	NVAR/Z UseBESwitch = dfr:gATH_UseBELineSwitch	
 	string profilePlotStr = "ATH_XPSProfPlot_" + gATH_WindowNameStr
 	Make/O/N=0  dfr:W_ImageLineProfile // Make a dummy wave to display 
 	variable pix = 72/ScreenResolution
@@ -184,7 +186,11 @@ static Function XPSPlot(DFREF dfr)
 	AutoPositionWindow/E/M=0/R=$gATH_WindowNameStr
 	ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=12, lsize=1.5
 	Label left "Intensity (arb. u.)"
-	Label bottom "\\u#2Kinetic Energy (eV)[E --> F]"
+	if(UseBESwitch)
+		Label/W=$profilePlotStr bottom "\\u#2Binding Energy (eV)[E --> F]"
+	else
+		Label/W=$profilePlotStr bottom "\\u#2Kinetic Energy (eV)[E --> F]"
+	endif
 	
 	SetWindow $profilePlotStr userdata(ATH_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_XPSProf_" + gATH_WindowNameStr 
@@ -209,7 +215,7 @@ static Function XPSPlot(DFREF dfr)
 	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Shows width of integrated area while button is pressed"},proc=ATH_iXPS#ShowProfileWidth
 	Button SetCursorsAB,valueColor=(1,12815,52428), pos={462,17},size={50,70.00},title="Set\nCsr\nA & B",fcolor=(65535,0,0),help={"Set cursors A (top right), B (lower left) and press button to calibrate the energy scale"},proc=ATH_iXPS#SetCursorsAB // Change here		
 	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_iXPS#PlotProfile
-	CheckBox MarkXPSs,pos={127.00,40.00},size={86.00,17.00},title="Mark Lines ",fSize=14,value=0,side=1,proc=ATH_iXPS#MarkXPS
+	CheckBox UseBE,pos={127.00,40.00},size={86.00,17.00},title="Show BE ",fSize=14,value=0,side=1,proc=ATH_iXPS#UseBE
 	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=ATH_iXPS#Layer3D
 	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(1,39321,19939),value=profileWidth,limits={0,inf,1},proc=ATH_iXPS#SetProfileWidth
 	SetVariable setSTV,pos={20,72.00},size={100,20.00},title="STV", fSize=14,fColor=(0,0,65535),value=stv,limits={0,inf,1},proc=ATH_iXPS#SetSTV // Energy per pixel
@@ -223,13 +229,6 @@ static Function ClearXPSMarkings()
 	SetDrawLayer UserFront
 	DrawAction delete
 	SetDrawLayer ProgFront
-	return 0
-End
-
-static Function DrawXPSUserFront(variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
-	SetDrawLayer UserFront 
-	SetDrawEnv linefgc = (red, green, blue), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left
-	DrawLine x0, y0, x1, y1
 	return 0
 End
 
@@ -262,12 +261,12 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z Wf = dfr:gATH_Wf
 	NVAR/Z hv = dfr:gATH_hv
 	NVAR/Z Eoffset = dfr:gATH_Eoffset
-	NVAR/Z lowBE = dfr:gATH_lowBE
 	NVAR/Z mouseTrackV = dfr:gATH_mouseTrackV
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
 	NVAR/Z updateSelectedLayer = dfr:gATH_updateSelectedLayer
 	NVAR/Z updateCursorsPositions = dfr:gATH_updateCursorsPositions
+	NVAR/Z UseBESwitch = dfr:gATH_UseBELineSwitch
 	NVAR/Z C1x0 = dfr0:gATH_C1x0
 	NVAR/Z C1y0 = dfr0:gATH_C1y0
 	NVAR/Z C2x0 = dfr0:gATH_C2x0
@@ -275,8 +274,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
 	WAVE/Z imgWaveRef = $ImagePathname
 	WAVE/Z/SDFR=dfr W_ImageLineProfile
-	variable xc, yc, dAE
-
+	variable xc, yc, dAE, BE_Eoffset
 	switch(s.eventCode)
 		case 0: // Use activation to update the cursors if you request defaults
 			if(updateCursorsPositions)
@@ -291,9 +289,14 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
 				// Activate window, e.g after pressing "Restore Settings"
 				linepx = sqrt(((Ax-Bx)/dx)^2+((Ay-By)/dy)^2) // Calculate it again.
-				dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)			
-				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)			
-				SetScale/P x, Eoffset, epp, W_ImageLineProfile				
+				dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
+				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+				if(UseBESwitch)
+					BE_Eoffset = hv - Eoffset - Wf
+					SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
+				else
+					SetScale/P x, Eoffset, epp, W_ImageLineProfile
+				endif
 				updateCursorsPositions = 0
 			endif
 			break
@@ -319,7 +322,12 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
 			// offset in eV from the top right energy (lowest KE)
 			Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom left energy (lowest KE)
-			SetScale/P x, Eoffset, epp, W_ImageLineProfile
+			if(UseBESwitch)
+				BE_Eoffset = hv - Eoffset - Wf
+				SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
+			else
+				SetScale/P x, Eoffset, epp, W_ImageLineProfile
+			endif
 			hookResult = 1
 			break
 		case 8: // modifications, either move the slides or the cursors
@@ -329,6 +337,15 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				selectedLayer = glayer
 				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+				linepx = sqrt(((Ax-Bx)/dx)^2+((Ay-By)/dy)^2) // Calculate it again.
+				dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
+				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+				if(UseBESwitch)
+					BE_Eoffset = hv - Eoffset - Wf
+					SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
+				else
+					SetScale/P x, Eoffset, epp, W_ImageLineProfile
+				endif
 			endif
 			break
 		case 7: // cursor moved
@@ -355,7 +372,12 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
 				linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
 				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
-				SetScale/P x, Eoffset, epp, W_ImageLineProfile
+				if(UseBESwitch)
+					BE_Eoffset = hv - Eoffset - Wf
+					SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
+				else
+					SetScale/P x, Eoffset, epp, W_ImageLineProfile
+				endif
 				hookResult = 1
 				break
 			endif
@@ -404,7 +426,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
 	Wave/SDFR=dfr W_ImageLineProfile
 	NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch
-	NVAR/Z MarkXPSsSwitch = dfr:gATH_MarkXPSLineSwitch
+	NVAR/Z UseBESwitch = dfr:gATH_UseBELineSwitch
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
 	NVAR/Z C1x = dfr:gATH_C1x
@@ -435,14 +457,18 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 		case 2:	// "mouse up after mouse down"
 			string saveWaveBaseStr = w3dNameStr + "_prof"
 			string saveWaveNameStr = CreateDataObjectName(savedfr, saveWaveBaseStr, 1, 0, 5)
-			WAVE/SDFR=dfr W_ImageLineProfile
-			Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
+			// It has to come first, it is used to scale to BE
 			dAE = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
 			linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
 			Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
-			SetScale/P x, Eoffset, epp, W_ImageLineProfile
-			if(hv > Wf)
-				WaveFromKE2BE(savedfr:$saveWaveNameStr, hv, Wf)
+			// Duplicate the wave		
+			WAVE/SDFR=dfr W_ImageLineProfile
+			Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
+			if(UseBESwitch)
+				variable BE_Eoffset = hv - Eoffset - Wf
+				SetScale/P x, BE_Eoffset, -epp, savedfr:$saveWaveNameStr
+			else
+				SetScale/P x, Eoffset, epp, savedfr:$saveWaveNameStr
 			endif
 			if(PlotSwitch)
 				if(WinType(targetGraphWin) == 1)
@@ -458,20 +484,11 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 					DoWindow/F $targetGraphWin
 					colorcnt += 1
 				endif
-				if(PlotSwitch && hv > Wf) // Reverse x-axis and add label
-					SetAxis/W=$targetGraphWin/A/R bottom
+				if(UseBESwitch)
 					Label/W=$targetGraphWin bottom "\\u#2Binding Energy (eV)"
 				endif
 			endif
 
-			if(MarkXPSsSwitch)
-				if(!PlotSwitch)
-					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
-					colorcnt += 1
-				endif
-				DoWindow/F $WindowNameStr
-				DrawXPSUserFront(C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
-			endif
 			sprintf recreateDrawStr, "pathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%.2f\n" + \
 			"hv(eV):%.2f\nWf(eV):%.2f\nEPP(eV/px):%.8f", ImagePathname,  Ax, Ay, Bx, By, C1x, C1y, C2x, C2y, profileWidth, stv, hv, Wf, epp
 			Note savedfr:$saveWaveNameStr, recreateDrawStr
@@ -503,7 +520,8 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 	NVAR/Z C1y0 = dfr0:gATH_C1y0
 	NVAR/Z C2x0 = dfr0:gATH_C2x0
 	NVAR/Z C2y0 = dfr0:gATH_C2y0
-	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0	
+	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
+	NVAR/Z linepx0 = dfr0:gATH_linepx0		
 	NVAR/Z Ax0 = dfr0:gATH_Ax0
 	NVAR/Z Ay0 = dfr0:gATH_Ay0	
 	NVAR/Z Bx0 = dfr0:gATH_Bx0
@@ -521,6 +539,7 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 				C2x0 = C2x
 				C2y0 = C2y
 				profileWidth0 = profileWidth
+				linepx0 = linepx
 				Ax0 = Ax
 				Ay0 = Ay
 				Bx0 = Bx
@@ -713,21 +732,6 @@ static Function Layer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	return 0
 End
 
-static Function MarkXPS(STRUCT WMCheckboxAction& cb) : CheckBoxControl
-	
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
-	NVAR/Z MarkXPSsSwitch = dfr:gATH_MarkXPSLineSwitch
-	switch(cb.checked)
-		case 1:
-			MarkXPSsSwitch = 1
-			break
-		case 0:
-			MarkXPSsSwitch = 0
-			break
-	endswitch
-	return 0
-End
-
 static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	DFREF currdfr = GetDataFolderDFR()
@@ -833,6 +837,26 @@ static Function SetCursorsAB(STRUCT WMButtonAction &B_Struct): ButtonControl)
 	endswitch
 	
 End
+	
+static Function UseBE(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+	
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
+	NVAR/Z UseBESwitch = dfr:gATH_UseBELineSwitch
+	NVAR/Z updateCursorsPositions = dfr:gATH_updateCursorsPositions	
+	switch(cb.checked)
+		case 1:
+			UseBESwitch = 1
+			Label/W=$cb.win bottom "\\u#2Binding Energy (eV)[E --> F]"
+			break
+		case 0:
+			UseBESwitch = 0
+			Label/W=$cb.win bottom "\\u#2Kinetic Energy (eV)[E --> F]"
+			break
+	endswitch
+	updateCursorsPositions = 1 // do update by making GetUserData(cb.win, "", "ATH_parentGraphWin") TG
+	DoWindow/F $GetUserData(cb.win, "", "ATH_parentGraphWin")
+	return 0
+End
 
 static Function Sethv(STRUCT WMSetVariableAction& sv) : SetVariableControl	
 
@@ -882,29 +906,22 @@ static Function SetSTV(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	return 0
 End
 
-static Function WaveFromKE2BE(WAVE wRef, variable hv, variable Wf)
-	variable dx = DimDelta(wRef, 0)
-	variable offset = DimOffset(wRef, 0)
-	variable nsteps = DimSize(wRef, 0) - 1
-	variable newoffset = hv - (offset + nsteps * dx) - Wf
-	SetScale/P x, newoffset, dx, wRef
-End
-
+// This is used to for waves selected in the DB, not here
 static Function GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
 	/// Get a profile from wRef using the default saved settings
 	/// BEscaleQ = 1 is default. If BEscaleQ = 0 scale with KE
 	BEscaleQ = ParamIsDefault(BEscaleQ) ? 1 : BEscaleQ
-	
+
 	if(WaveDims(wRef) != 2)
 		return -1
 	endif
-	
+
 	DFREF dfr0 =  $"root:Packages:ATH_DataFolder:iXPS:DefaultSettings"
 	if(!DataFolderRefStatus(dfr0))
 		print "Default settings DFREF is invalid"
 		return -1
 	endif
-	
+
 	NVAR/Z C1x0 = dfr0:gATH_C1x0
 	NVAR/Z C1y0 = dfr0:gATH_C1y0
 	NVAR/Z C2x0 = dfr0:gATH_C2x0
@@ -922,7 +939,7 @@ static Function GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
 	endif
 	variable dx = DimDelta(wRef,0)
 	variable dy = DimDelta(wRef,1)
-	
+
 	DFREF dfr = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
 	Make/O/N=2 xTrace={C1x0, C2x0}, yTrace = {C1y0, C2y0}
@@ -933,12 +950,15 @@ static Function GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
 	Duplicate W_ImageLineProfile, dfr:$saveWaveNameStr
 	SetDataFolder dfr
 	variable hv = ATH_String#GetPhotonEnergyFromFilename(NameOfWave(wRef))
-	variable stv = NumberByKey("STV(V)",note(wRef),":","\n" ) 
+	variable stv = NumberByKey("STV(V)",note(wRef),":","\n" )
 	variable dAE = sqrt(((C1x0 - Ax0)/dx)^2 + ((C1y0 - Ay0)/dy)^2)
 	variable Eoffset = stv - (linepx0/2 - dAE) * epp0
 	SetScale/P x, Eoffset, epp0, dfr:$saveWaveNameStr
 	if(hv > Wf0 && BEscaleQ)
-		WaveFromKE2BE(dfr:$saveWaveNameStr, hv, Wf0)
+		variable BE_Eoffset = hv - Eoffset - Wf0
+		SetScale/P x, BE_Eoffset, -epp0, W_ImageLineProfile
+	else
+		SetScale/P x, Eoffset, epp0, W_ImageLineProfile
 	endif
 	string recreateDrawStr
 	sprintf recreateDrawStr, "XPS profile using saved settings.\npathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%.2f\n" + \
