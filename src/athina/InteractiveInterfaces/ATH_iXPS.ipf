@@ -282,11 +282,11 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				SetDrawLayer/W=$s.winName ProgFront
 				DrawAction/W=$s.winName delete
 				SetDrawEnv/W=$s.winName Linefgc = (65535,0,0,65535), fillpat = 0, Linethick = 1, xcoord = top, ycoord = left
-				Cursor/I/C=(65535,0,0)/S=1/N=1 E $imgNameTopGraphStr C1x0, C1y0
-				Cursor/I/C=(1,16019,65535)/S=1/N=1 F $imgNameTopGraphStr C2x0, C2y0
+				Cursor/I/C=(65535,0,0)/S=1/N=1 E $imgNameTopGraphStr C1x, C1y
+				Cursor/I/C=(1,16019,65535)/S=1/N=1 F $imgNameTopGraphStr C2x, C2y
 				SetDrawEnv/W=$s.winName Linefgc = (0,65535,0,65535), fillpat = 0, Linethick = 1, xcoord = top, ycoord = left
-				DrawLine/W=$s.winName C1x0, C1y0, C2x0, C2y0
-				Make/O/FREE/N=2 xTrace={C1x0, C2x0}, yTrace = {C1y0, C2y0}
+				DrawLine/W=$s.winName C1x, C1y, C2x, C2y
+				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
 				// Activate window, e.g after pressing "Restore Settings"
 				if(stv)

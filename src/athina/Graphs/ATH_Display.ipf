@@ -96,7 +96,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break
 				case 78: // N
 					if(s.eventMod & 2) // works with SHIFT + N only!
-						ATH_Launch#QuickTextAnnotation()
+						ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
 					endif
 					break
 				case 82: // R
@@ -134,7 +134,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					ATH_LineProfile#MainMenu()
 					break
 				case 110: // n
-					ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
+					ATH_Launch#QuickTextAnnotation()
 					break
 				case 112: // p
 					ATH_PlaneZProfile#MainMenu()
@@ -172,12 +172,18 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				ATH_Display#Mangify(s)
 				return 0
 			endif
-			int direction = (s.wheelDy > 0) ? 1 : -1
 			if (is3D)
-				STRUCT sMousePosition ms
-				ATH_Display#GetMousePosition(ms, s.winName, s.mouseLoc)
-				int plane = ATH_Display#GetLayerIndex(s.winName, w=ms.w)
-				ATH_Display#SetLayerIndex(s.winName, plane+direction, w=ms.w)
+				int direction = (s.wheelDy > 0) ? 1 : -1
+				NVAR/Z gLayer = root:Packages:WM3DImageSlider:$s.winName:gLayer
+				NVAR/Z gRightLim = root:Packages:WM3DImageSlider:$s.winName:gRightLim				
+				gLayer += s.WheelDy
+				if(gLayer < 0)
+					gLayer = 0
+				endif
+				if(gLayer > gRightLim)
+					gLayer = gRightLim 
+				endif				
+				ModifyImage/W=$s.winName $NameOfWave(w) plane=gLayer
 			endif
 			return hookResult
 	endswitch
@@ -228,7 +234,9 @@ static Function Append3DImageSlider()
 	Variable/G gOriginalHeight= V_Height			// we append below original controls (if any)
 	ControlBar gOriginalHeight+30
 	
-	GetWindow kwTopWin,gsize
+	// 04.09.2024. Error pops when closing a window with slider and an /EXT window.
+	GetWindow/Z kwTopWin,gsize; 
+	
 	Variable scale = ScreenResolution / 72										// ST: 210601 - properly scale position for windows
 	Variable left = V_left*scale
 	Variable right = limit(V_right*scale, left+kImageSliderLMargin+50,inf)		// ST: 210601 - make sure the controls get not too small
