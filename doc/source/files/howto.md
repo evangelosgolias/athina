@@ -118,7 +118,7 @@ Last, there a fast drift correction that can be enables by ticking the "SHIFT+Cl
 
 ```{caution} 
 
-If you have drift correct your stack the changes are automatically applies if you close the iDriftCorrection side-window. There is no backup left to restore your slide to its original state. **If you want to discard any changes with you to press "Restore stack" before exiting.**
+If you have drift correct your stack the changes are automatically applies if you close the iDriftCorrection side-window. There is no backup left to restore your stack to its original state. **If you want to discard any changes with you to press "Restore stack" before exiting.**
 
 ```
 
@@ -195,6 +195,24 @@ Here XMCD/XMLD
 
 ## XPS
 
-XPS datasets are saved as images of the dispersive plane. To extract the spectrum from the image you need to know the energy scale of the image, you need the conversion factor EPP (energy per pixel). This can be calculated if you have a know spin-orbit split core level (e.g. Au 4f)
+XPS datasets are saved as images of the dispersive plane. To extract the spectrum from the image you need to know the energy scale of the image, you need the conversion factor EPP (energy per pixel). This can be calculated if you have a know spin-orbit split core level (e.g. Au 4f).
+
+```{figure} media/setDPLineiXPS.png
+:alt: Set DP line in PES mode
+:scale: 33%
+:align: center
+:name: setDPLine
+
+Set markers A, B at the edges of the dispersive plane and press "Press Csr A & B"
+```
+
+```{figure} media/extractXPSProfile.png
+:alt: Extract an XPS profile
+:scale: 33%
+:align: center
+:name: extractXPS
+
+Press "Save Profile" to extract the displayed profile.
+```
 
 ## PED & ARPES

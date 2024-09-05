@@ -66,7 +66,7 @@ Ellipsis (...) at the end of a main menu entry indicates there will be a follow-
 :alt: athina's menu item
 :scale: 33%
 :align: center
-:name: MarqueeOnImage
+:name: athina_menu
 
 athina's "Image Operations" menu items
 ```
@@ -128,7 +128,7 @@ With a top graph created using "ATH NewImage" press:
 - **d** : *if marquee is present* launch automatic drift correction, if not launch interactive drift correction.
 - **i** : measure distance on image using cursors.
 - **l** : launch image line profiler.
-- **n** : duplicate source wave of TG and display it.
+- **n** : annotate image.
 - **p** : launch plane profiler.
 - **r** : show Range panel.
 - **s** : Toggle square image on/off.
@@ -136,8 +136,9 @@ With a top graph created using "ATH NewImage" press:
 - **z** : launch z profiler *if marquee is present on the graph*.
 - **SHIFT + b** : restore image from backup if it exists.
 - **SHIFT + f** : calculate FFT.
-- **SHIFT + n** : annotate image.
+- **SHIFT + n** : duplicate source wave of TG and display it.
 - **SHIFT + r** : launch interactive image rotation.
+- **SHIFT + x** : launch interactive PES (XPS) extractor
 - **Alt + mousewheel** : zoom image centered at the cursor.
 
 Build time: {sub-ref}`today`
