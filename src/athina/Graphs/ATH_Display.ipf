@@ -205,7 +205,7 @@ static Function Append3DImageSlider()
 		return 0
 	endif
 	
-	Wave w= $WMGetImageWave(iName)	// get the wave associated with the top image.	
+	Wave w = $WMGetImageWave(iName)	// get the wave associated with the top image.	
 	if(DimSize(w,2)<=0)
 		DoAlert 0,"Need a 3D image"
 		return 0
@@ -229,7 +229,7 @@ static Function Append3DImageSlider()
 		gRightLim=DimSize(w,2)-1					//image is 3D grayscale
 	endif
 	
-	String/G imageName=PossiblyQuoteName(nameOfWave(w)) // EG.
+	String/G imageName = PossiblyQuoteName(NameOfWave(w)) // EG.
 	ControlInfo kwControlBar
 	Variable/G gOriginalHeight= V_Height			// we append below original controls (if any)
 	ControlBar gOriginalHeight+30

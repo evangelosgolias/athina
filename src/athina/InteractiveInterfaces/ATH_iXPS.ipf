@@ -180,6 +180,7 @@ static Function XPSPlot(DFREF dfr)
 	NVAR epp = dfr:gATH_epp
 	NVAR stv = dfr:gATH_STV
 	NVAR/Z UseBESwitch = dfr:gATH_UseBELineSwitch	
+	NVAR/Z CursorABSwitch = dfr:gATH_CursorABSwitch	
 	string profilePlotStr = "ATH_XPSProfPlot_" + gATH_WindowNameStr
 	Make/O/N=0  dfr:W_ImageLineProfile // Make a dummy wave to display 
 	variable pix = 72/ScreenResolution
@@ -210,19 +211,28 @@ static Function XPSPlot(DFREF dfr)
 		Button SaveCursorPositions, fColor=(65535,0,0)
 	endif
 	
-	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save current profile"},proc=ATH_iXPS#SaveProfile
-	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile width as defaults"},proc=ATH_iXPS#SaveDefaultSettings
-	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_iXPS#RestoreDefaultSettings
-	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Shows width of integrated area while button is pressed"},proc=ATH_iXPS#ShowProfileWidth
-	Button SetCursorsAB,valueColor=(1,12815,52428), pos={462,17},size={50,70.00},title="Set\nCsr\nA & B",fcolor=(65535,0,0),help={"Set cursors A (top right), B (lower left) and press button to calibrate the energy scale"},proc=ATH_iXPS#SetCursorsAB // Change here		
-	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_iXPS#PlotProfile
-	CheckBox UseBE,pos={127.00,40.00},size={86.00,17.00},title="Show BE ",fSize=14,value=0,side=1,proc=ATH_iXPS#UseBE
-	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=ATH_iXPS#Layer3D
-	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(1,39321,19939),value=profileWidth,limits={0,inf,1},proc=ATH_iXPS#SetProfileWidth
-	SetVariable setSTV,pos={20,72.00},size={100,20.00},title="STV", fSize=14,fColor=(0,0,65535),value=stv,limits={0,inf,1},proc=ATH_iXPS#SetSTV // Energy per pixel
-	SetVariable sethv,pos={135,72.00},size={90,20.00},title="hv", fSize=14,fColor=(65535,0,0),value=hv,limits={0,inf,1},proc=ATH_iXPS#Sethv
-	SetVariable setWf,pos={235,72.00},size={90,20.00},title="Wf", fSize=14,fColor=(1,39321,19939),value=Wf,limits={0,inf,0.1},proc=ATH_iXPS#SetWf
-	SetVariable setEPP,pos={335,72.00},size={118,20.00},title="EPP", fSize=14,fColor=(0,0,65535),value=epp,limits={0,10,0.01},proc=ATH_iXPS#SetEPP // Energy per pixel
+	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save current profile"},proc=ATH_iXPS#SaveProfile, win=$profilePlotStr
+	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile width as defaults"},proc=ATH_iXPS#SaveDefaultSettings, win=$profilePlotStr
+	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_iXPS#RestoreDefaultSettings, win=$profilePlotStr
+	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Shows width of integrated area while button is pressed"},proc=ATH_iXPS#ShowProfileWidth, win=$profilePlotStr
+	Button SetCursorsAB,valueColor=(1,12815,52428), pos={462,17},size={50,70.00},title="Set\nCsr\nA & B",fcolor=(65535,0,0),help={"Set cursors A (top right), B (lower left) and press button to calibrate the energy scale"},proc=ATH_iXPS#SetCursorsAB, win=$profilePlotStr
+	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_iXPS#PlotProfile, win=$profilePlotStr
+	CheckBox UseBE,pos={127.00,40.00},size={86.00,17.00},title="Show BE ",fSize=14,value=0,side=1,proc=ATH_iXPS#UseBE, win=$profilePlotStr
+	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=ATH_iXPS#Layer3D, win=$profilePlotStr
+	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(1,39321,19939),value=profileWidth,limits={0,inf,1},proc=ATH_iXPS#SetProfileWidth, win=$profilePlotStr
+	SetVariable setSTV,pos={20,72.00},size={100,20.00},title="STV", fSize=14,fColor=(0,0,65535),value=stv,limits={0,inf,1},proc=ATH_iXPS#SetSTV, win=$profilePlotStr
+	SetVariable sethv,pos={135,72.00},size={90,20.00},title="hv", fSize=14,fColor=(65535,0,0),value=hv,limits={0,inf,1},proc=ATH_iXPS#Sethv, win=$profilePlotStr
+	SetVariable setWf,pos={235,72.00},size={90,20.00},title="Wf", fSize=14,fColor=(1,39321,19939),value=Wf,limits={0,inf,0.1},proc=ATH_iXPS#SetWf, win=$profilePlotStr
+	SetVariable setEPP,pos={335,72.00},size={118,20.00},title="EPP", fSize=14,fColor=(0,0,65535),value=epp,limits={0,10,0.01},proc=ATH_iXPS#SetEPP, win=$profilePlotStr // Energy per pixel
+	
+	if(!epp0)
+		Button RestoreCursorPositions, disable = 2, win=$profilePlotStr
+	endif
+	
+	if(!CursorABSwitch)
+		Button SaveCursorPositions, disable = 2, win=$profilePlotStr
+	endif
+	
 	return 0
 End
 
@@ -277,7 +287,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	WAVE/Z/SDFR=dfr W_ImageLineProfile
 	variable xc, yc, dAE, BE_Eoffset
 	switch(s.eventCode)
-		case 0: // Use activation to update the cursors if you request defaults
+		case 0: // Use activation to update the cursors if you request defaults		
 			if(updateCursorsPositions)
 				SetDrawLayer/W=$s.winName ProgFront
 				DrawAction/W=$s.winName delete
@@ -518,49 +528,54 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 	NVAR/Z C2y = dfr:gATH_C2y
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
 	NVAR/Z Ax = dfr:gATH_Ax
-	NVAR/Z Ay = dfr:gATH_Ay	
+	NVAR/Z Ay = dfr:gATH_Ay
 	NVAR/Z Bx = dfr:gATH_Bx
 	NVAR/Z By = dfr:gATH_By
 	NVAR/Z dx = dfr:gATH_dx
 	NVAR/Z dy = dfr:gATH_dy
 	NVAR/Z linepx = dfr:gATH_linepx
 	NVAR/Z epp = dfr:gATH_epp
-	NVAR/Z Wf = dfr:gATH_Wf	
+	NVAR/Z Wf = dfr:gATH_Wf
 	// --------------------------//
 	NVAR/Z C1x0 = dfr0:gATH_C1x0
 	NVAR/Z C1y0 = dfr0:gATH_C1y0
 	NVAR/Z C2x0 = dfr0:gATH_C2x0
 	NVAR/Z C2y0 = dfr0:gATH_C2y0
 	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
-	NVAR/Z linepx0 = dfr0:gATH_linepx0		
+	NVAR/Z linepx0 = dfr0:gATH_linepx0
 	NVAR/Z Ax0 = dfr0:gATH_Ax0
-	NVAR/Z Ay0 = dfr0:gATH_Ay0	
+	NVAR/Z Ay0 = dfr0:gATH_Ay0
 	NVAR/Z Bx0 = dfr0:gATH_Bx0
 	NVAR/Z By0 = dfr0:gATH_By0
 	NVAR/Z Wf0 = dfr0:gATH_Wf0
 	NVAR/Z epp0 = dfr0:gATH_epp0
-
+	NVAR/Z CursorABSwitch = dfr:gATH_CursorABSwitch
+	
 	switch(B_Struct.eventCode)	// numeric switch
-			case 2:	// "mouse up after mouse down"
-			string msg = "Overwite the default cursor positions and profile XPSwidth?"
-			DoAlert/T="MAXPEEM would like to ask you" 1, msg
-			if(V_flag == 1)
-				C1x0 = C1x
-				C1y0 = C1y
-				C2x0 = C2x
-				C2y0 = C2y
-				profileWidth0 = profileWidth
-				linepx0 = linepx
-				Ax0 = Ax
-				Ay0 = Ay
-				Bx0 = Bx
-				By0 = By
-				epp0 = epp
-				Wf0 = Wf
-				Button SaveCursorPositions, fColor=(2,39321,1), win=$B_Struct.win
+		case 2:	// "mouse up after mouse down"
+			ControlInfo/W=$B_Struct.win RestoreCursorPositions
+			if(CursorABSwitch)
+				string msg = "Save (Overwite) current state as default?"
+				DoAlert/T="MAXPEEM would like to ask you" 1, msg
+				if(V_flag == 1)
+					C1x0 = C1x
+					C1y0 = C1y
+					C2x0 = C2x
+					C2y0 = C2y
+					profileWidth0 = profileWidth
+					linepx0 = linepx
+					Ax0 = Ax
+					Ay0 = Ay
+					Bx0 = Bx
+					By0 = By
+					epp0 = epp
+					Wf0 = Wf
+					Button SaveCursorPositions, fColor=(2,39321,1), win=$B_Struct.win
+					Button RestoreCursorPositions, disable = 0, win=$B_Struct.win
+				endif
 			endif
 			break
-	endswitch
+		endswitch
 End
 
 static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
@@ -810,7 +825,7 @@ static Function SetCursorsAB(STRUCT WMButtonAction &B_Struct): ButtonControl)
 	
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			if(!CursorABSwitch) // if not yet set
+			if(!CursorABSwitch) // if not yet set -> CursorABSwitch = 0
 				SetAxis/W=$parentWindow/A/R left // Auto-scale in case of zoomed in!
 				Ax = hcsr(A, parentWindow)
 				Ay = vcsr(A, parentWindow)
@@ -846,6 +861,7 @@ static Function SetCursorsAB(STRUCT WMButtonAction &B_Struct): ButtonControl)
 				SetDrawEnv/W=$parentWindow linefgc = (16386,65535,16385), fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
 				DrawLine/W=$parentWindow Ax1, Ay1, Ax2, Ay2
 				SetDrawLayer/W=$parentWindow ProgFront
+				Button SaveCursorPositions, disable = 0, win=$B_Struct.win				
 				CursorABSwitch = 1
 			else
 				Cursor/W=$parentWindow/I/C=(0,65535,0, 30000)/H=1/P/N=1 A $imgNameTopGraphStr Ax, Ay
@@ -854,7 +870,8 @@ static Function SetCursorsAB(STRUCT WMButtonAction &B_Struct): ButtonControl)
 				DrawAction/W=$parentWindow delete
 				Button SetCursorsAB fcolor=(65535,0,0)
 				ControlUpdate/W=$B_Struct.win SetCursorsAB
-				SetDrawLayer/W=$parentWindow ProgFront 
+				SetDrawLayer/W=$parentWindow ProgFront
+				Button SaveCursorPositions, disable = 2, win=$B_Struct.win				
 				CursorABSwitch = 0
 			endif
 			break
