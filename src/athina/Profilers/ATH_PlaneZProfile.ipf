@@ -209,7 +209,7 @@ static Function CreatePanel(DFREF dfr)
 	// Not good idea to use it now as long as the "i" options interferes with the ControlBar of the profilert
 	// Fix it? ATH_Display#NewImg(dfr:M_ExtractedSurface, grfname = grfname)
 	SetAxis/A left
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution	
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution	
 	ModifyGraph/W=$grfname width = 340 * pntConv, height = 470 * pntConv
 	Execute/P/Q "ModifyGraph width=0,height=0"
 	ModifyGraph/Z cbRGB=(65535,65534,49151)
@@ -481,7 +481,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 			if(PlotSwitch)
 				saveImageStr = targetGraphWin + "_s" + num2str(postfix)
 				ATH_Display#NewImg(savedfr:$saveWaveNameStr, grfName = saveImageStr)
-				variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution
+				variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 				ModifyGraph/W=$saveImageStr width = 330*pntConv, height = 470*pntConv
 				SetAxis/A left
 				Execute/P/Q "ModifyGraph/W=$\""+saveImageStr+"\" width=0,height=0"			

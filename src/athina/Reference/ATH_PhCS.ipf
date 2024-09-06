@@ -223,7 +223,7 @@ Static Function PTDisplayPanel()
 	variable ptddwidth=gscf*120,ptddheight=11*bh
 	
 	string gscfstr=ptpig.scfstr
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution			
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution			
 	ptwidth=gscf*(ptpig.ptwidth+120)*pntConv
 	ptheight=gscf*ptpig.ptheight*pntConv
 	left=gscf*ptpig.left*pntConv

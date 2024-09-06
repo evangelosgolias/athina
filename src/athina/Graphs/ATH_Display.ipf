@@ -49,7 +49,7 @@ static Function NewImg(WAVE wRef, [string grfname])
 	else
 		NewImage/G=1/K=1/N=$grfName wRef
 	endif
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution == 96)? 1 : 72/ScreenResolution
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 	ModifyGraph/W=$grfname height = 400 * pntConv, width = 400 * pntConv
 	Execute/P/Q "ModifyGraph width=0,height=0"
 	// Error handling
