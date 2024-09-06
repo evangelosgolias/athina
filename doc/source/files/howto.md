@@ -2,17 +2,19 @@
 
 Here we are show some examples of how to analyze data or perform specific operations using athina.
 
-## Drift correction
+## Operations
+
+### Drift correction
 
 During data acquisition images can drift because of temperature or electronic instabilities, space-charge effects or external vibrations. Frequently, the effect is not visible as the drifts are below the spatial resolution of the instrument but sometimes there are so prominent that the analysis of image stacks is pointless without drift correction. athina can correct drifted images using different approaches and the current paragraph is not a complete guide of athina's capabilities, built-in algorithms and methodologies. If you want to know more about the implementation you have to read Igor's manual about ImageRegistration, ImageInterpolation, FFT and others and also browse and inspect the source code along witn having an understanding of image processing. 
 
 There is no silver bullet for dfift correction, trial-and-error is your guide but later on we will give some tips and tricks.
 
-### Backup/restore image stack
+#### Backup/restore image stack
 
 When you apply drift correction to a stack of images a backup is always created in case you want to revert the operation. The name of the backup wave is the name of your original wave with an "_undo" suffix (NameOfWave\_undo). *To restore the original image press SHIFT+b (if plotted using ATH NewImage) or right-click on the image and select "ATH Restore Image" or right-click on the source wave in the data browser and select "ATH Restore Image". If you are happy with the drift correction it is advised to delete the backup wave either manually in the data browser or using the "athina > Utilities > Free Space" function.
 
-### Automatic
+#### Automatic
 
 athina uses two main methods to drift-correct images: Image Registatration and (cross) correlation. Image Registration can do sub-pixel drift-correction, while at the moment (it can change in future releases) correlation drift-corrects by an integer number of pixels. 
 
@@ -71,7 +73,7 @@ Select a characteristic feature using the marquee and press continue to procced.
 When you try to aling XAS or XPEEM images where the contrast reverses between layers the **correlation method** gives better results. When you acquire a stack of images under the same conditions the Registration is the best method.
 ```
 
-### Interactive
+#### Interactive
 
 For difficult drift correction cases there is an interactive drift correction panel. To launch it you can either select "athina > Interactive Operations > Drift Correction" or **press z with no marquee** ("ATH NewImage") in top graph to launch the interactive panel.
 
@@ -121,10 +123,11 @@ Last, there a fast drift correction that can be enables by ticking the "SHIFT+Cl
 If you have drift correct your stack the changes are automatically applies if you close the iDriftCorrection side-window. There is no backup left to restore your stack to its original state. **If you want to discard any changes with you to press "Restore stack" before exiting.**
 
 ```
+## Analyze microscopy data
 
-## Profiles along the third dimension
+### XAS, LEEM-IV & LEED-IV
 
-***Applies to XAS, XPEEM, LEEM-IV, LEED-IV or any three-dimensional dataset***
+***Can be used by any three-dimensional dataset if you want to extract a profile along the third dimension.***
 
 Extracting a profile along the third dimension (z-profile) is the most fundamental operation in an image stack. The third dimension can be the photon energy (XAS), electron kinetic energy (XPEEM, LEEM-IV, LEED-IV), time or any other quantity. 
 In a stack of images, you need to define the area you'd like to integrate along the z dimension, so set your marquee, right-click in the marquee area and select to lauch the z-profiler using a rectangular or oval region as shown in the image below.
@@ -138,7 +141,6 @@ In a stack of images, you need to define the area you'd like to integrate along 
 
 Right-click in the marquee area to see your options
 ```
-
 
 ```{tip} 
 Launch image stack using **ATH NewImage**, set the marquee and press **z**, the z-profiler will be launched using the rectangular marked area.
@@ -189,11 +191,11 @@ Two z-profiles are shown in different colours. Blue is always the profiles of th
 The operation is very useful when you want to get information from the same region about two different measaurements. The twin plot comes from the region of the second stack as the one displayed in the active stack. Therefore, the two stacks have to be aligned and drift-corrected to ensure that you are not sampling signal from different regions.
 ```
 
-## XMCD/XMLD
+### XMCD/XMLD
 
 Here XMCD/XMLD 
 
-## XPS
+### XPS
 
 XPS datasets are saved as images of the dispersive plane. To extract the spectrum from the image you need to know the energy scale of the image, you need the conversion factor EPP (energy per pixel). This can be calculated if you have a know spin-orbit split core level (e.g. Au 4f).
 
@@ -215,4 +217,4 @@ Set markers A, B at the edges of the dispersive plane and press "Press Csr A & B
 Press "Save Profile" to extract the displayed profile.
 ```
 
-## PED & ARPES
+### PED & ARPES
