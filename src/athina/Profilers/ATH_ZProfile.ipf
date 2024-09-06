@@ -220,13 +220,12 @@ static Function/DF InitialiseFolder()
     //string UniqueFolderNameStr = CreateDataObjectName(rootDF, winNameStr, 11, 0, 1)
     // winNameStr is unique
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + winNameStr) // Root folder here
-	string zprofilestr = "wZLineProfileWave"
-	Make/O/N=(nlayers) dfr:$zprofilestr /Wave = profile // Store the line profile 
+	Make/O/N=(nlayers) dfr:wZLineProfileWave /Wave = profile // Store the line profile 
 	SetScale/P x, z0, dz, profile
 	string/G dfr:gATH_imgNameTopWindowStr = imgNameTopGraphStr
 	string/G dfr:gATH_WindowNameStr = winNameStr
-	string/G dfr:gATH_LineProfileWaveStr = zprofilestr // image profile wave
-	string/G dfr:gATH_LineProfileTwinWaveStr = zprofilestr + "_Twin"// image profile wave	
+	string/G dfr:gATH_LineProfileWaveStr = "wZLineProfileWave" // image profile wave
+	string/G dfr:gATH_LineProfileTwinWaveStr = "wZLineProfileWave" + "_Twin"// image profile wave	
 	string/G dfr:gATH_w3dPathname = GetWavesDataFolder(w3dref, 2)
 	string/G dfr:gATH_w3dPath = GetWavesDataFolder(w3dref, 1)
 	string/G dfr:gATH_w3dNameStr = NameOfWave(w3dref)
@@ -315,6 +314,14 @@ static Function InitialiseGraph(DFREF dfr)
 		SetVariable SetTwinWavePath,value=gATH_TwinWavePath,proc=ATH_ZProfile#SetTwinWavePath
 	else
 		DoWindow/F $profilePlotStr // if it is bring it to the FG
+		string cmdStr = GetUserData(profilePlotStr, "","ScaleZProfileCmdStr") // plot
+		if(strlen(cmdStr))
+			Execute/Q/Z/P  cmdStr
+		endif
+		cmdStr = GetUserData(profilePlotStr, "","ScaleZProfileTwinCmdStr") // Twin plot!
+		if(strlen(cmdStr))
+			Execute/Q/Z/P  cmdStr
+		endif		
 	endif
 	return 0
 End
@@ -537,6 +544,7 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/Z TwinPlotSwitch = dfr:gATH_TwinPlotSwitch
 	SVAR/Z/SDFR=dfr gATH_LineProfileTwinWaveStr
 	WAVE/Z/SDFR=dfr twinprofile = $gATH_LineProfileTwinWaveStr // twin wave
+	string scaleCmd, scaleTwinCmd
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			string rangeZStr, sval1, separator, sval2, inputStr
@@ -547,8 +555,14 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 				SplitString/E="\s*([-]?[0-9]*[.]?[0-9]+)\s*(\s+|\s*,)\s*([-]?[0-9]*[.]?[0-9]+)\s*" rangeZStr, sval1, separator, sval2
 				if(!cmpstr(TrimString(separator), "")) // If there is one or more spaces
 					SetScale/I x, str2num(sval1), str2num(sval2), profile
+					scaleCmd  = "SetScale/I x,"+sval1+","+sval2 +", "
+					scaleCmd += GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr")+LineProfileWaveStr
+					SetWindow $B_Struct.win userdata(ScaleZProfileCmdStr) = scaleCmd
 				elseif(!cmpstr(separator, ","))
 					SetScale/P x, str2num(sval1), str2num(sval2), profile
+					scaleCmd  = "SetScale/I x,"+sval1+","+sval2 +", "
+					scaleCmd += GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr")+LineProfileWaveStr					
+					SetWindow $B_Struct.win userdata(ScaleZProfileCmdStr) = scaleCmd
 				else
 					print "Invalid range input"
 				endif
@@ -557,8 +571,14 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 					SplitString/E="\s*([-]?[0-9]*[.]?[0-9]+)\s*(\s+|\s*,)\s*([-]?[0-9]*[.]?[0-9]+)\s*" rangeZStr, sval1, separator, sval2
 					if(!cmpstr(TrimString(separator), "")) // If there is one or more spaces
 						SetScale/I x, str2num(sval1), str2num(sval2), twinprofile
+						scaleTwinCmd  = "SetScale/I x,"+sval1+","+sval2 +", "
+						scaleTwinCmd += GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr")+gATH_LineProfileTwinWaveStr
+						SetWindow $B_Struct.win userdata(ScaleZProfileTwinCmdStr) = scaleTwinCmd						
 					elseif(!cmpstr(separator, ","))
 						SetScale/P x, str2num(sval1), str2num(sval2), twinprofile
+						scaleTwinCmd  = "SetScale/P x,"+sval1+","+sval2 +", "
+						scaleTwinCmd += GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr")+gATH_LineProfileTwinWaveStr
+						SetWindow $B_Struct.win userdata(ScaleZProfileTwinCmdStr) = scaleTwinCmd								
 					else
 						print "Invalid range input"
 					endif
