@@ -560,7 +560,7 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 					SetWindow $B_Struct.win userdata(ScaleZProfileCmdStr) = scaleCmd
 				elseif(!cmpstr(separator, ","))
 					SetScale/P x, str2num(sval1), str2num(sval2), profile
-					scaleCmd  = "SetScale/I x,"+sval1+","+sval2 +", "
+					scaleCmd  = "SetScale/P x,"+sval1+","+sval2 +", "
 					scaleCmd += GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr")+LineProfileWaveStr					
 					SetWindow $B_Struct.win userdata(ScaleZProfileCmdStr) = scaleCmd
 				else

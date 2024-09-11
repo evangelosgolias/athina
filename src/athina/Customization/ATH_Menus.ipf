@@ -99,7 +99,7 @@ Menu "athina"
 	End	
 	
 	Submenu "Utilities"
-		"Spaces",/Q, ATH_Spaces#MenuLauch()
+		"Spaces",/Q, ATH_Spaces#MenuLaunch()
 		"Free space/8",/Q, ATH_Launch#DeleteBigWaves()
 		"List HDF5 (.h5) entries...", /Q, ATH_HDF5#ListHDF5Groups()		
 		"Photoionisation CrossSection",/Q, ATH_PhCS#PhotoionisationCrossSection()

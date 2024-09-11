@@ -88,7 +88,13 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 
 	switch (s.eventCode)
 		case 11:
+		print s.keyCode
 			switch(s.keycode)
+				case 66: // SHIFT + B
+					if(s.eventMod & 2)
+						ATH_ImgOp#RestoreTopImageFromBackup(wname=NameOfWave(w))
+					endif
+					break
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
 						ATH_Launch#ImageFFTTransform()
@@ -112,11 +118,6 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				case 97: // a - average if you have a 3d wave
 					if(is3d)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
-					endif
-					break
-				case 98: // SHIFT + b
-					if(s.eventMod & 2)
-						ATH_ImgOp#RestoreTopImageFromBackup(wname=NameOfWave(w))
 					endif
 					break
 				case 100: //d
@@ -183,7 +184,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				if(gLayer > gRightLim)
 					gLayer = gRightLim 
 				endif				
-				ModifyImage/W=$s.winName $NameOfWave(w) plane=gLayer
+				ModifyImage/W=$s.winName '' plane=gLayer
 			endif
 			return hookResult
 	endswitch

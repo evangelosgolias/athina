@@ -64,7 +64,7 @@
 /// CTRL+click (CMD+click on MacOS): link space to the selected data folder in Data Browser 
 /// (now marked with an asterisk). Current data folder changes when you select spaces with asterisk.
 
-static Function MenuLauch()
+static Function MenuLaunch()
 	
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
 	WAVE/Z/T/SDFR=dfr ATHSpacesTW
