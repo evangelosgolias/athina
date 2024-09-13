@@ -2,7 +2,7 @@
 #pragma TextEncoding = "UTF-8"
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and later
-#pragma ModuleName  = ATH_TVIPS
+#pragma ModuleName  = ATH_LoadImg
 #pragma version = 1.01
 // ------------------------------------------------------- //
 // Functions to import data acquired using EMMenu5.
@@ -35,7 +35,7 @@
 // ------------------------------------------------------- //
 
 
-static Function LoadTVIPStiff(string filepathStr, string waveNameStr, [int displayImg])
+static Function Loadtiff(string filepathStr, string waveNameStr, [int displayImg])
 	/// @param filepathStr string pathname. 
 	/// If "" a dialog opens to select the file.
 	/// @param waveNameStr name of the imported wave. 
@@ -98,7 +98,7 @@ static Function LoadTVIPStiff(string filepathStr, string waveNameStr, [int displ
 	return 0
 End
 
-static Function LoadTVIPStiffs([int numImages, int displayImg, int stack3d])
+static Function Loadtiffs([int numImages, int displayImg, int stack3d])
 	/// @param filepathStr string pathname.
 	/// If "" a dialog opens to select the file.
 	/// @param waveNameStr name of the imported wave.

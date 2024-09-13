@@ -37,8 +37,8 @@ Menu "athina"
 		".dat files in folder and stack .../1", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1, displayImg = 1) 				
 		".dat files and stack .../2", /Q, ATH_Uview#LoadMultiplyDATFiles(stack3d = 1, autoscale = 1, displayImg = 1)		
 		".dat files in folder...", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", autoscale = 1)
-		".tif (EMMENU5).../3", /Q, ATH_TVIPS#LoadTVIPStiff("", "", displayImg = 1)	
-		".tifs (EMMENU5) and stack...", /Q, ATH_TVIPS#LoadTVIPStiffs(displayImg = 1, stack3d = 1)	
+		".tif (EMMENU5).../3", /Q, ATH_LoadImg#LoadTiff("", "", displayImg = 1)	
+		".tifs (EMMENU5) and stack...", /Q, ATH_LoadImg#Loadtiffs(displayImg = 1, stack3d = 1)	
 		".HDF5 file .../4", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
 		".nxs NeXus files .../5",/Q, ATH_HDF5#LoadNXSDataSets()
 	End
