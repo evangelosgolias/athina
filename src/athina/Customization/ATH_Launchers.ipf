@@ -1274,9 +1274,3 @@ static Function FlattenImage([string method, variable kernelN, variable iterN])
 	endif
 	return 0
 End
-
-	string allmethods = 
-	variable ifunc = WhichListItem(method, allmethods)
-	if(ifunc == -1 || WaveDims(wRef) != 3)
-		return -1
-	endif
