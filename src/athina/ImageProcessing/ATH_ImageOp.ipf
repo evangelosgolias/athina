@@ -49,7 +49,7 @@ static Function RangeMeanSigmaTopImage()
 	GetAxis/W=$winNameStr/Q $StringByKey("YAXIS", infoStr)
 	variable ymin = V_min, ymax = V_max, plane, flag, left, right, top, bottom
 	int is3D = WaveDims(wRef) == 3
-	plane = ATH_Display#GetLayerIndex(winNameStr)
+	plane = GetLayerIndex(winNameStr)
 	[flag, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex()	
 	if(is3D)
 		if(flag)
@@ -67,6 +67,17 @@ static Function RangeMeanSigmaTopImage()
 	variable meanV = V_avg
 	variable stdV = V_sdev
 	ModifyImage $PossiblyQuoteName(NameOfWave(wRef)) ctab= {meanV-3*stdV,meanV+3*stdV,$colorScaleStr,cmapSwitch} // Autoscale Image
+End
+
+static Function GetLayerIndex(string grfName, [Wave/Z w])
+	if (ParamIsDefault(w))
+		WAVE/Z w = ATH_ImgOp#TopImageToWaveRef(grfName=grfName)
+	endif
+	if (!WaveExists(w) || WaveDims(w) != 3)
+		return NaN
+	endif
+	
+	return NumberByKey("plane", ImageInfo(grfName, NameOfWave(w), 0), "=")
 End
 
 static Function AutoRangeTopImagePlane()
