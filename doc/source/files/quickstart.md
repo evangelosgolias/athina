@@ -139,6 +139,7 @@ With a top graph created using "ATH NewImage" press:
 - **SHIFT + n** : duplicate source wave of TG and display it.
 - **SHIFT + r** : launch interactive image rotation.
 - **SHIFT + x** : launch interactive PES (XPS) extractor
-- **Alt + mousewheel** : zoom image centered at the cursor.
+- **ALT + mousewheel** : zoom image centered at the cursor.
+- **CTRL (CMD) + Close Window**: Wave displayed is deleted after closing the window (report in history).
 
 Build time: {sub-ref}`today`

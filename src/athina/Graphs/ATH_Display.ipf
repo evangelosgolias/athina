@@ -88,10 +88,18 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	int is3D = WaveDims(w)==3
 	variable hookResult = 0
 	string buffer
-
+	
 	switch (s.eventCode)
+		case 2: // kill
+			if(s.eventMod & 8) // Kill the wave when Ctrl (cmd) is pressed 
+				string wavePathStr = GetWavesDataFolder(w, 2)
+				Execute/P/Q/Z "KillWaves " + wavePathStr
+				if(!V_flag) // if no errors
+					print "Timestamp: " + time() + " Report: Deleted wave " + wavePathStr
+				endif
+			endif
+			break
 		case 11:
-		print s.keyCode
 			switch(s.keycode)
 				case 66: // SHIFT + B
 					if(s.eventMod & 2)
