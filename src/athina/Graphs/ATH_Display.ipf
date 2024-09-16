@@ -48,7 +48,7 @@ static Function NewImg(WAVE wRef, [string grfname])
 		NewImage/G=1/K=1 wRef
 		grfname = WinName(0, 1, 1)
 		string graphTitle = GetWavesDataFolder(wRef, 2)[5, inf] // Discrard root:	
-		DoWindow/T kwTopWin, graphTitle
+		DoWindow/T $grfname, graphTitle
 	else
 		NewImage/G=1/K=1/N=$grfName wRef
 	endif
@@ -69,8 +69,12 @@ static Function NewImg(WAVE wRef, [string grfname])
 	variable ImgStd = V_sdev
 	ModifyImage/W=$grfname $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3, ctab= {ImgAvg - 3 * ImgStd, ImgAvg + 3 * ImgStd,$colorScaleStr,cmapSwitch} // Autoscale per plane / visible area Image
 	ModifyGraph/W=$grfname fSize=12
-	SetWindow $grfname, hook(AthinaDisplayHook) = ATH_Display#DisplayHookFunction // Set the hook	
-	SetWindow $grfname, userdata(ATH_isPlanQ) = "0" // *No* ModifyGraph width={Plan,1,top,left}
+	SetWindow $grfname, hook(AthinaDisplayHook) = ATH_Display#DisplayHookFunction // Set the hook
+	if(DimSize(wRef, 0) == DimSize(wRef, 1))
+		SetWindow $grfname, userdata(ATH_isPlanQ) = "1"
+	else
+		SetWindow $grfname, userdata(ATH_isPlanQ) = "0"
+	endif
 	return 0
 End
 
@@ -495,7 +499,6 @@ static Function SetImageRangeTo94Percent()
 	elseif(WaveDims(imgWaveRef) == 2)
 		planeN = - 1
 	else
-		print "Operation needs an image or image stack"
 		return -1
 	endif
 	// Error handling in case axes are different
