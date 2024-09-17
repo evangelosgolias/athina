@@ -95,7 +95,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	
 	switch (s.eventCode)
 		case 2: // kill
-			if(s.eventMod & 8) // Kill the wave when Ctrl (cmd) is pressed 
+			if(s.eventMod & 4) // Kill the wave when ALT is pressed 
 				string wavePathStr = GetWavesDataFolder(w, 2)
 				Execute/P/Q/Z "KillWaves " + wavePathStr
 				if(!V_flag) // if no errors
