@@ -102,20 +102,20 @@ static Function/WAVE WAVEStringListToTextWave(string stringListStr, [string sep]
 	endif
 End
 
-static Function isLiberalQ(string s)
+static Function isLiberalQ(string str)
 	// Checks if a string is liberal.
 	// Returns 0 for empty string
 	string regex = "^[a-zA-Z]{1}[a-zA-Z0-9_]+$"
-	if(GrepString(s, regex) || !strlen(s))
+	if(GrepString(str, regex) || !strlen(str))
 		return 0
 	else
 		return 1
 	endif
 End
 
-static Function isEXTWindow(string s)
+static Function isEXTWindow(string str)
 	// Is s the same of an EXT window, GraphXX#ExtWindowName
-	return strsearch(s, "#", 0) != -1
+	return strsearch(str, "#", 0) != -1
 End
 
 static Function isPathStringLegalQ(string path)
@@ -129,4 +129,16 @@ static Function isPathStringLegalQ(string path)
 		endif
 	endfor
 	return 1
+End
+
+static Function/S ExtendPathStr(string str, string ext)
+	// Add ext to s, which is usually a full path to a wave
+	// For example:
+	// Add "_undo" to the root:'2434w' -> root:'2434w_undo' !
+
+	if(!cmpstr(str[strlen(str) - 1], "'"))
+		return RemoveEnding(str, "'") + ext + "'"
+	else
+		return str+ext
+	endif
 End
