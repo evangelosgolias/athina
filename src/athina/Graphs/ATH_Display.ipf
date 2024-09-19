@@ -95,12 +95,10 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	
 	switch (s.eventCode)
 		case 2: // kill
-			if(s.eventMod & 4) // Kill the wave when ALT is pressed 
+			if(s.eventMod & 4) // Kill the wave and its backup when ALT is pressed 
 				string wavePathStr = GetWavesDataFolder(w, 2)
 				Execute/P/Q/Z "KillWaves " + wavePathStr
-				if(!V_flag) // if no errors
-					print "Timestamp: " + time() + " Report: Deleted wave " + wavePathStr
-				endif
+				Execute/P/Q/Z "KillWaves " + wavePathStr + "_undo"
 			endif
 			break
 		case 11:
