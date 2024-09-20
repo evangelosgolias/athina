@@ -24,9 +24,12 @@ folder Sample123, use the optional argument -r Sample123:'Dataset after heating'
 
 positional arguments:
   h5px                  Igor Pro .h5xp file. Partial or full path
+
   outdir                Output folder (create/overwrite)
 
 options:
   -h, --help            show this help message and exit
+
   -r ROOT, --root ROOT  Root folder
+  
   -m META, --meta META  Export metadata (0 = No, 1 = Yes [default])
