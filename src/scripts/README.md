@@ -2,7 +2,7 @@ The script igor_h5px.py exports all your data from an Igor Pro HDF5 file (h5px) 
 
 It exports all the data (or selected folders) and mirrors the folder structure of the Igor file.
 
-Objects are exported as follows: 
+Data are exported as follows: 
 
 1D waves: XY pairs (scaling included) in a .txt file
 2D waves: lossless .tif files, keeping the bit resolution of the original data
