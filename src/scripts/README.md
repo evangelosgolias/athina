@@ -28,8 +28,6 @@ positional arguments:
   outdir                Output folder (create/overwrite)
 
 options:
-  -h, --help            show this help message and exit
-
-  -r ROOT, --root ROOT  Root folder
-  
-  -m META, --meta META  Export metadata (0 = No, 1 = Yes [default])
+  - -h, --help            show this help message and exit
+  - -r ROOT, --root ROOT  Root folder
+  - -m META, --meta META  Export metadata (0 = No, 1 = Yes [default])
