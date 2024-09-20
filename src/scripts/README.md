@@ -30,3 +30,6 @@ optional arguments:
   - -h, --help            show this help message and exit
   - -r ROOT, --root ROOT  Root folder
   - -m META, --meta META  Export metadata (0 = No, 1 = Yes [default])
+
+Copy the script file to any of your PATH folders and use it (recommended) or place it in 
+the same directory with your h5px file and run as "python script igor_h5px.py MyExprerimentsName.h5px output_dir".
