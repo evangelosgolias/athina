@@ -75,8 +75,11 @@ def export_h5px(hdf5_file, output_dir, root, meta):
             else:
                 if isinstance(obj, h5py.Dataset):
                     # Read dataset into numpy array
-                    data = obj[()]
-
+                    try:
+                        data = obj[()]
+                    except TypeError:
+                        #np.dtype(object), most probably a text wave
+                        pass
                     # Filter string and variable objects (shape = ())
                     try:
                         shape = data.shape
