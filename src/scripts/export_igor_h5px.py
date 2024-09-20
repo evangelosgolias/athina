@@ -122,7 +122,7 @@ def export_h5px(hdf5_file, output_dir, root, meta):
                             fp.write(metadata.decode("utf-8") + "\n" + "-" * 32 + "\n")
                     
                     # Check dimensionality of the dataset
-                    if len(shape) == 0:
+                    if len(shape) == 0 or (type(data.flat[-1]) in (bytes, str)):
                         pass
                     elif len(shape) == 1:
                         # 1D Dataset - Export as .txt
