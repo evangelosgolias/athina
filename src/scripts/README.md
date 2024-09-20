@@ -7,7 +7,7 @@ Data are exported as follows:
 - 1D waves: XY pairs (scaling included) in a .txt file
 - 2D waves: lossless .tif files, keeping the bit resolution of the original data
 - 3D waves: .tif stacks, keeping the bit resolution of the original data
- 
+- String, variables and textwaves are currntly ignored (it might change in the future)
 These datasets can be easily imported without plugins from any other program.
  
 Metadata can be written in README.txt files in every folder (wave notes and scaling).

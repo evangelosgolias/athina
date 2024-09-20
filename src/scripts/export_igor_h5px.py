@@ -78,7 +78,6 @@ def export_h5px(hdf5_file, output_dir, root, meta):
                     try:
                         data = obj[()]
                     except TypeError:
-                        #np.dtype(object), most probably a text wave
                         pass
                     # Filter string and variable objects (shape = ())
                     try:
@@ -122,7 +121,9 @@ def export_h5px(hdf5_file, output_dir, root, meta):
                             fp.write(metadata.decode("utf-8") + "\n" + "-" * 32 + "\n")
                     
                     # Check dimensionality of the dataset
-                    if len(shape) == 0 or (type(data.flat[-1]) in (bytes, str)):
+                    # The second test catches textwaves, until you find a better way.
+                    # data.flat is a very fast operation.
+                    if len(shape) == 0 or (type(data.flat[0]) in (bytes, str)):
                         pass
                     elif len(shape) == 1:
                         # 1D Dataset - Export as .txt
