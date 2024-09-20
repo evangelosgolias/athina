@@ -4,11 +4,9 @@ It exports all the data (or selected folders) and mirrors the folder structure o
 
 Data are exported as follows: 
 
-1D waves: XY pairs (scaling included) in a .txt file
-
-2D waves: lossless .tif files, keeping the bit resolution of the original data
-
-3D waves: .tif stacks, keeping the bit resolution of the original data
+- 1D waves: XY pairs (scaling included) in a .txt file
+- 2D waves: lossless .tif files, keeping the bit resolution of the original data
+- 3D waves: .tif stacks, keeping the bit resolution of the original data
  
 These datasets can be easily imported without plugins from any other program.
  
