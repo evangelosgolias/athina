@@ -14,15 +14,13 @@ otherwise use the public gitlab link:
 
 ## Option 1 (Auto-load athina at Igor startup)
 
-Copy the contents of the **src** folder to:
+Copy the contents of the **src/athina** folder to:
 
 *Windows*:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
 
 *Mac*:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
-
-and give it a name (or keep it src if you are lazy).
 
 **athina will automatically load when you launch Igor Pro.**
 
@@ -37,15 +35,13 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
 *Mac*:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
 
-Copy the contents of the **src** folder in:
+Copy the contents of the **src/athina** folder to:
 
 *Windows*:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
 
 *Mac*:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/User Procedures
-
-and give it a name (or keep it src if you are lazy).
 
 **To launch the package, go to Macros > athina**
 

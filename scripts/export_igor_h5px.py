@@ -120,10 +120,12 @@ def export_h5px(hdf5_file, output_dir, root, meta):
                             ])
                             fp.write(metadata.decode("utf-8") + "\n" + "-" * 32 + "\n")
                     
-                    # Check dimensionality of the dataset
-                    # The second test catches textwaves, until you find a better way.
+                    # Check dimensionality of the dataset.
+                    # First test catches strings and variables.
+                    # Second gets waves with zero elements
+                    # The third test catches textwaves, until you find a better way.
                     # data.flat is a very fast operation.
-                    if len(shape) == 0 or (type(data.flat[0]) in (bytes, str)):
+                    if len(shape) == 0 or not data.size or (type(data.flat[0]) in (bytes, str)):
                         pass
                     elif len(shape) == 1:
                         # 1D Dataset - Export as .txt
