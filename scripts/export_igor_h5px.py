@@ -105,8 +105,13 @@ def export_h5px(hdf5_file, output_dir, root, meta):
                     try:
                         bWaveNote = obj.attrs['IGORWaveNote']
                     except Exception:
-                        bWaveNote = b""
+                        bWaveNote = b""                    
 
+                    try:
+                        bWaveUnits = str(obj.attrs['IGORWaveUnits'])
+                    except Exception:
+                        bWaveUnits = "None"
+                    
                     save_name = obj.name.replace("/Packed Data", output_dir)
 
                     # Save metadata to README.txt for waves only
@@ -116,7 +121,8 @@ def export_h5px(hdf5_file, output_dir, root, meta):
                             metadata = b"\n".join([
                                 bytes(obj.name.replace("/Packed Data", "root").replace("/", ":"), 'utf-8'),
                                 b'Wave note:', bWaveNote,
-                                b'Wave scaling [dx x0]', bytes(np.array2string(bWaveScale), 'utf-8')
+                                b'Wave scaling [dx x0]', bytes(np.array2string(bWaveScale), 'utf-8'),
+                                b'Wave units ', bytes(bWaveUnits, 'utf-8'),
                             ])
                             fp.write(metadata.decode("utf-8") + "\n" + "-" * 32 + "\n")
                     
