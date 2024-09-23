@@ -209,7 +209,7 @@ if __name__ == "__main__":
     parser.add_argument('h5px', type=str, help='Igor Pro .h5xp file partial or full path')
     parser.add_argument('outdir', type=str, help='Output folder (create/overwrite)')
     parser.add_argument("-r", "--root", help="Root folder", type=str, default="root", required=False)
-    parser.add_argument("-m", "--meta", help="Export metadata (0 = No, 1 = Yes [default])", type=int, default=True, required=False)
+    parser.add_argument("-m", "--meta", help="Export metadata (0 = No, 1 = Yes [default])", type=int, default=1, required=False)
     
     args = parser.parse_args()
     
