@@ -225,6 +225,11 @@ if __name__ == "__main__":
         root = "/Packed Data"
     else:
         root = os.path.join('/Packed Data', args.root).replace(":", "/")
+    # Check if we have the right file
+    filename, extention = os.path.splitext(args.h5px)
+    if extention == '.h5xp':
+        # Call main        
+        mainF(args.h5px, args.outdir, root, args.meta)
+    else:
+        print(args.h5px + " is not an h5px file, sorry ... ")
     
-    # Call main
-    mainF(args.h5px, args.outdir, root, args.meta)
