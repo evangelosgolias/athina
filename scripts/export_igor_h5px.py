@@ -50,6 +50,7 @@ options:
 
 import h5py
 import os
+import re
 import logging
 import time
 import argparse
@@ -67,7 +68,7 @@ def export_h5px(hdf5_file, output_dir, root, meta):
         start = time.time()
         logging.info('Operation started on: %s', time.ctime())
         logging.info(f'Opened HDF5 {hdf5_file}')
-        
+        logging.info(f'Root directory is "{root}"')
         # Callable
         def process_group(name, obj):
             if name.split("/")[0] == 'Packages':
@@ -112,11 +113,11 @@ def export_h5px(hdf5_file, output_dir, root, meta):
                     except Exception:
                         bWaveUnits = "None"
                     
-                    save_name = obj.name.replace("/Packed Data", output_dir)
+                    save_name = obj.name.replace(root, output_dir)
 
                     # Save metadata to README.txt for waves only
                     if meta and len(shape):
-                        readme_path = os.path.join(obj.parent.name.replace("/Packed Data", output_dir), 'README.txt')
+                        readme_path = os.path.join(obj.parent.name.replace(root, output_dir), 'README.txt')
                         with open(readme_path, 'a') as fp:
                             metadata = b"\n".join([
                                 bytes(obj.name.replace("/Packed Data", "root").replace("/", ":"), 'utf-8'),
@@ -161,7 +162,7 @@ def export_h5px(hdf5_file, output_dir, root, meta):
                 elif isinstance(obj, h5py.Group):
                     # Create folder in output directory if not exists
                     logging.info(f'<Entering folder>: {obj.name}')
-                    target_path = os.path.join(obj.name.replace("/Packed Data", output_dir))
+                    target_path = os.path.join(obj.name.replace(root, output_dir))
                     if not os.path.exists(target_path):
                         os.makedirs(target_path)
                         if meta:
@@ -201,7 +202,6 @@ def mainF(hdf5_file, output_dir, root, meta):
     )
     export_h5px(hdf5_file, output_dir, root, meta)
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
@@ -224,7 +224,8 @@ if __name__ == "__main__":
     if args.root == "root":
         root = "/Packed Data"
     else:
-        root = os.path.join('/Packed Data', args.root).replace(":", "/")
+        # We don't use os.path here it is OS dependent
+        root = "/".join(('/Packed Data', args.root)).replace(":", "/").replace("//", "/")
     # Check if we have the right file
     filename, extention = os.path.splitext(args.h5px)
     if extention == '.h5xp':
