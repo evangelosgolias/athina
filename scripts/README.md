@@ -4,7 +4,7 @@
 pip install h5xp-extractor
 ~~~
 
-#
+# Information
 
 The script h5xp_extractor.py extracts wave data from an Igor Pro HDF5 file (h5px).
 
