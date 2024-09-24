@@ -1,26 +1,36 @@
-The script igor_h5px.py exports all your data from an Igor Pro HDF5 file (h5px) to a directory.
+# Installation
 
-It exports all the data (or selected folders) and mirrors the folder structure of the Igor file.
+~~~
+pip install h5xp-extractor
+~~~
 
-Data are exported as follows: 
+#
 
-- 1D waves: XY pairs (scaling included) in a .txt file
-- 2D waves: lossless .tif files, keeping the bit resolution of the original data
-- 3D waves: .tif stacks, keeping the bit resolution of the original data
-- String, variables and textwaves are currntly ignored (it might change in the future)
-These datasets can be easily imported without plugins from any other program.
+The script h5xp_extractor.py extracts wave data from an Igor Pro HDF5 file (h5px).
+
+It exports all or selected data folders and mirrors the folder structure of source file.
+
+Datasets are exported as follows: 
+
+- 1D waves: XY pairs (scaling included) to .txt files
+- 2D waves: lossless .tif images (preserving bit resolution).
+- 3D waves: .tif stacks (preserving bit resolution)
+- String, variables and textwaves are currently ignored.
  
-Metadata can be written in README.txt files in every folder (wave notes and scaling).
-You can either export everything or export selected folders.
 A detailed export .log files is written in the root export directory.
 
-**usage: export_igor_h5px.py [-h] [-r ROOT] [-m META] h5px outdir**
+**usage: h5xp_extractor.py [-h] [-r ROOT] [-m META] h5px outdir**
 
-You can set the optional argument -r FolderName (--root) to set another export 
-root folder. Use single quotes for literal names (names with special characters 
-and spaces) and a semicolon as a directory separator. 
-For example, to export only the subfolder 'Dataset after heating' of the parent 
+Metadata are written in README.txt files for every (sub-)folder (default, optionally use -m 0 (--meta) flag to skip README files).
+
+Set the optional flag -r RootFolder (--root) to select another base "root" folder
+for the export. Use single quotes for literal names (names with special characters 
+and spaces) and a semicolon (:) as a directory separator (e.g. folder1:Sample123:'Dataset after heating').
+
+To export only the subfolder 'Dataset after heating' of the parent 
 folder Sample123, use the optional argument -r Sample123:'Dataset after heating'.
+
+**N.B: Skip the root: folder (Igor's root folder) when using the -r to specify Igor Pro folders**
 
 positional arguments:
   - h5px                  Igor Pro .h5xp file. Partial or full path
@@ -30,6 +40,3 @@ optional arguments:
   - -h, --help            show this help message and exit
   - -r ROOT, --root ROOT  Root folder
   - -m META, --meta META  Export metadata (0 = No, 1 = Yes [default])
-
-Copy the script file to any of your PATH folders and use it (recommended) or place it in 
-the same directory with your h5px file and run as "python script igor_h5px.py MyExprerimentsName.h5px output_dir".

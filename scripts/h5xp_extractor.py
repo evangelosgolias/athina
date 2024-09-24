@@ -29,7 +29,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 """
 
 """
-usage: export_Igor_h5px.py [-h] [-r ROOT] [-m META] h5px outdir
+usage: export_Igor_h5xp.py [-h] [-r ROOT] [-m META] h5xp outdir
 
 Export all data from an Igor Pro .h5xp file. Directory structure mirrors the structure of the Igor Pro
 file. By default, all datasets are exported (base folder: root (Igor Pro) or 'Packed Data'). You can set
@@ -39,7 +39,7 @@ example, to export only the subfolder 'Dataset after heating' of the parent fold
 optional argument -r Sample123:'Dataset after heating'.
 
 positional arguments:
-  h5px                  Igor Pro .h5xp file partial or full path
+  h5xp                  Igor Pro .h5xp file partial or full path
   outdir                Output folder (create/overwrite)
 
 options:
@@ -47,10 +47,8 @@ options:
   -r ROOT, --root ROOT  Root folder
   -m META, --meta META  Export metadata (0 = No, 1 = Yes)
 """
-
 import h5py
 import os
-import re
 import logging
 import time
 import argparse
@@ -58,7 +56,7 @@ import numpy as np
 import tifffile as tiff
 
 
-def export_h5px(hdf5_file, output_dir, root, meta):
+def export_h5xp(hdf5_file, output_dir, root, meta):
     if meta:
         # Create README file in the root directory
         open(os.path.join(output_dir, 'README.txt'), 'w').close()
@@ -200,21 +198,21 @@ def mainF(hdf5_file, output_dir, root, meta):
         format='%(asctime)s - %(levelname)s - %(message)s',
         level=logging.INFO
     )
-    export_h5px(hdf5_file, output_dir, root, meta)
+    export_h5xp(hdf5_file, output_dir, root, meta)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description=(
-            "Export all data from an Igor Pro .h5xp file."
+            "Extract data from an Igor Pro .h5xp file."
             " Directory structure mirrors the structure of the Igor Pro file."
             " By default, all datasets are exported (base folder: root (Igor Pro) or 'Packed Data')."
-            " You can set the optional argument -r FolderName (--root) to set another export root folder."
-            " Use single quotes for literal names (names with special characters and spaces) and a semicolon"
+            " You can set the optional argument -r RootFolder (--root) to set another export root folder."
+            " Use single quotes for literal names (names with special characters and spaces) and a semicolon (:)"
             " as a directory separator. For example, to export only the subfolder 'Dataset after heating'"
             " of the parent folder Sample123, use the optional argument -r Sample123:'Dataset after heating'."
         )
     )
-    parser.add_argument('h5px', type=str, help='Igor Pro .h5xp file partial or full path')
+    parser.add_argument('h5xp', type=str, help='Igor Pro .h5xp file partial or full path')
     parser.add_argument('outdir', type=str, help='Output folder (create/overwrite)')
     parser.add_argument("-r", "--root", help="Root folder", type=str, default="root", required=False)
     parser.add_argument("-m", "--meta", help="Export metadata (0 = No, 1 = Yes [default])", type=int, default=1, required=False)
@@ -227,10 +225,10 @@ if __name__ == "__main__":
         # We don't use os.path here it is OS dependent
         root = "/".join(('/Packed Data', args.root)).replace(":", "/").replace("//", "/")
     # Check if we have the right file
-    filename, extention = os.path.splitext(args.h5px)
+    filename, extention = os.path.splitext(args.h5xp)
     if extention == '.h5xp':
         # Call main        
-        mainF(args.h5px, args.outdir, root, args.meta)
+        mainF(args.h5xp, args.outdir, root, args.meta)
     else:
-        print(args.h5px + " is not an h5px file, sorry ... ")
+        print(args.h5xp + " is not an .h5xp file, sorry ... ")
     
