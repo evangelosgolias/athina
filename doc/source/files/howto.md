@@ -67,7 +67,6 @@ Place the marquee around a characteristic feature of your sample, as seen in the
 Select a characteristic feature using the marquee and press continue to procced.
 ```
 
-
 ```{tip} 
 
 When you try to aling XAS or XPEEM images where the contrast reverses between layers the **correlation method** gives better results. When you acquire a stack of images under the same conditions the Registration is the best method.
@@ -123,14 +122,12 @@ Last, there a fast drift correction that can be enables by ticking the "SHIFT+Cl
 If you have drift correct your stack the changes are automatically applies if you close the iDriftCorrection side-window. There is no backup left to restore your stack to its original state. **If you want to discard any changes with you to press "Restore stack" before exiting.**
 
 ```
-## Analyze microscopy data
 
-### XAS, LEEM-IV & LEED-IV
+### Z profile
 
 ***Can be used by any three-dimensional dataset if you want to extract a profile along the third dimension.***
 
-Extracting a profile along the third dimension (z-profile) is the most fundamental operation in an image stack. The third dimension can be the photon energy (XAS), electron kinetic energy (XPEEM, LEEM-IV, LEED-IV), time or any other quantity. 
-In a stack of images, you need to define the area you'd like to integrate along the z dimension, so set your marquee, right-click in the marquee area and select to lauch the z-profiler using a rectangular or oval region as shown in the image below.
+Extracting a profile along the third dimension (z-profile) is the most fundamental operation in an image stack.  In a stack of images, you need to define the area you'd like to integrate along the z dimension, so set your marquee, right-click in the marquee area and select to lauch the z-profiler using a rectangular or oval region as shown in the image below.
 
 
 ```{figure} media/rightClickLaunchZProfile.png
@@ -191,6 +188,16 @@ Two z-profiles are shown in different colours. Blue is always the profiles of th
 The operation is very useful when you want to get information from the same region about two different measaurements. The twin plot comes from the region of the second stack as the one displayed in the active stack. Therefore, the two stacks have to be aligned and drift-corrected to ensure that you are not sampling signal from different regions.
 ```
 
+### Line profile
+
+Describe how to extract a line profile.
+
+## Analyze microscopy data
+
+### XAS, LEEM-IV & LEED-IV
+
+Use the [z-profiler](#z-profile) to extract information from XAS, LEEM-IV and LEED-ID data.
+
 ### XMCD/XMLD
 
 Here XMCD/XMLD 
@@ -198,10 +205,10 @@ Here XMCD/XMLD
 ### XPS
 
 XPS datasets are saved as images of the dispersive plane (DP). To extract the spectrum from the image you need to know the energy scale of the image, i.e. how many eV correspond to one pixel. To calculate this you need either need spin-orbit split core level (e.g. Au 4f) witn known separation between the two peaks or simpler just save two images of the DP with 1V difference in start voltage for a core level of your sample. 
-You can take two line profiles (use the athina's line profile funtion) and calculate how many pixels your peak moved with Δstv = 1 V. Then your conversion factor is: 1/Δpx, Δpx is the pixel difference. You have to put this value, named EPP factor (energy per pixel), to the box and press enter. EPP shouldn't change as long as you do not change the microscope settings.
+You can take two line profiles (use the athina's [line profile](#line-profile) funtion) and calculate how many pixels your peak moved with Δstv = 1 V. Then your conversion factor is: 1/Δpx, Δpx is the pixel difference. You have to put this value, named EPP factor (energy per pixel), to the box and press enter. EPP shouldn't change as long as you do not change the microscope settings.
 
 ```{Note} 
-At the moment the photon energy value (hv) is read from the filename of the image (). If the program fails to read it you have to enter it. STV is read from the image metadata and the Wf is your sample's work function (arbitrary (reasonable) number).
+At the moment the photon energy (hv) is read from the filename of the image. If the program fails to read it you have to enter it. STV is read from the image metadata and the Wf is your sample's work function (arbitrary (reasonable) number).
 ```
 
 Now you have to place the markers, A & B (green marker, see the image below), so that the program finds the middle of the DP (under normal conditions that should be the value of STV). Place the markers exactly at the edges of the DP (you can zoom in and out) and press the button "Set Csr A & B", which will turn green.
@@ -223,12 +230,12 @@ Cursors E and F have colors to indicate the region where they should move. Curso
 
 The bottons, tickboxes of the panel do the following:
 
-- Save Profile: Saves the current spectrum (!)
-- Save Settings: Save all settings (not STV, hv) and restore 
-- Restore settings: Restore saved settings (if they exists the "Save settings" button will be green)
-- Show width: Show set line profile integration width while pressed
-- Plot Profile: Display the saved spectrum
-- Show BE: Show spectrum in BE scale
+- Save Profile: Saves the current spectrum-
+- Save Settings: Save all settings (not STV, hv) and restore.
+- Restore settings: Restore saved settings (if they exists the "Save settings" button will be green).
+- Show width: Show set line profile integration width while pressed.
+- Plot Profile: Display the saved spectrum.
+- Show BE: Show spectrum in BE scale.
 - Stack layer: Update displayed spectrum when displayed plane changes in a 3D wave.
 - Width: integration with of the extraction profile in pixels.
 
@@ -238,7 +245,7 @@ The bottons, tickboxes of the panel do the following:
 :align: center
 :name: extractXPS
 
-Press "Save Profile" to extract the displayed profile.
+Interactive XPS in action
 ```
 
-### PED & ARPES
+### PED/ARPES
