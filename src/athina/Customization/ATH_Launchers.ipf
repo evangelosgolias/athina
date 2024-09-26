@@ -902,15 +902,17 @@ static Function TwoTraceCalcs()
 	string inputStr = "wR = w1 - w2 "	
 	Prompt inputStr, "Enter operation as wR = f(w1, w2) [e.g wR=w1-w2 or MatrixOP wR = w1/w2]"
 	DoPrompt "Operation between two traces", inputStr
-	cmdStr = ReplaceString("w1", inputStr, w1Str)
-	cmdStr = ReplaceString("w2", cmdStr, w2Str)
-	cmdStr = ReplaceString("wR", cmdStr, wResStr, 0, 1) // Esssential otherwise all w are replaced!
-	Execute/Q/Z cmdStr
-	noteStr = "Operation: " + inputStr + "\n"
-	noteStr += "wR->"+wResStr + "\n"	
-	noteStr += "w1->"+w1Str + "\n"
-	noteStr += "w2->"+w2Str + "\n"
-	Note wR, noteStr
+	if(!V_flag)
+		cmdStr = ReplaceString("w1", inputStr, w1Str)
+		cmdStr = ReplaceString("w2", cmdStr, w2Str)
+		cmdStr = ReplaceString("wR", cmdStr, wResStr, 0, 1) // Esssential otherwise all w are replaced!
+		Execute/Q/Z cmdStr
+		noteStr = "Operation: " + inputStr + "\n"
+		noteStr += "wR->"+wResStr + "\n"	
+		noteStr += "w1->"+w1Str + "\n"
+		noteStr += "w2->"+w2Str + "\n"
+		Note wR, noteStr
+	endif
 	return 0
 End
 
