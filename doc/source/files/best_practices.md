@@ -98,9 +98,9 @@ If a wave is displayed, even if it's hidden in a Space, it will not be deleted.
 
 ## Save experiments as HDF5 files
 
-Igor Pro 8 or later has the option to save Igor experiments in .h5xp (HDF5) format besides the traditional .pxp file format. It is advised to save your Igor Pro files at .h5xp to make your datasets accessible to HDF5 viewers, for example [Silx](https://github.com/silx-kit/silx?tab=readme-ov-file).
+Igor Pro 8 or later can save experiments in .h5xp (HDF5) format besides the traditional .pxp format. It is advised to save your Igor Pro files as .h5xp files to make your datasets accessible to HDF5 viewers, for example [Silx](https://github.com/silx-kit/silx?tab=readme-ov-file).
 
-Moreover, you can use the script [h5xp-extractor](https://pypi.org/project/h5xp-extractor/) to extract your data from Igor Pro, without the need of an Igor Pro license.
+Moreover, you can use the script [h5xp-extractor](https://pypi.org/project/h5xp-extractor/) to extract your data from the experiment without Igor Pro.
 
 
 Build time: {sub-ref}`today`
