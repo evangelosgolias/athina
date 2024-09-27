@@ -6,10 +6,10 @@ When you import data using the menu entry **athina > Import** or by drag-and-dro
 
 Images are imported as waves named after the source filename (minus the file extention, i.e. .dat). When you import images in a stack, athina sets a unique name composed by "ATH\_Stack" plus a numerical suffix.
 
-Use Igor's data browser to organise your data in folders. In Igor if the data folder is not show press *CTRL+B*. In the image below you can see an example folder structure in an Igor experiment. Using "New Data Folder" you create a new directory with parent the current working directory (cwd). Cwd is marked with a red arrow and you can change directory either by right-click and  select "Set Current Data Folder"  or move the arrow using the mouse to the desired directory. You can rename or delete a data folder. You can drag and move a data folder to another parent directory. You can also move waves in folders by drag-and-drop.
+Use Igor's data browser to organise your data in folders. If the data folder is not shown press *CTRL+B*. In the image below you can see an example folder structure in an Igor experiment. Using "New Data Folder" you create a new directory with parent the current working directory (cwd). Cwd is marked with a red arrow and you can change directory either by right-click and select "Set Current Data Folder"  or move the arrow using the mouse to the desired directory. You can rename or delete a data folder. You can drag and move a data folder to another directory. You can also move waves in folders by drag-and-drop.
 
 ```{Caution} 
-When you delete a folder, you delete also the containing waves without warning. If at least one of the waves is displayed in a graph or table then delete does nothing.
+When you delete a folder, you delete also its waves without warning. If at least one of the waves is displayed in a graph or table then delete does nothing.
 ```
 
 ```{image} media/DataBrowserFolders.png
@@ -21,26 +21,27 @@ When you delete a folder, you delete also the containing waves without warning. 
 
 ## Spaces
 
-*Spaces* organise windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate desktops (Spaces!). It is recommended to launch *Spaces* from the get-go to avoid screen overloading. Without Spaces, and especially when you create windows for display-only data and you do not kill them, your desktop will soon turn into a scramble of loose images/plots.
+*Spaces* organise windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate desktops (Spaces!). It is recommended to launch *Spaces* from the get-go to avoid screen overloading. 
+Without Spaces, and especially when you create windows for display-only data and you do not kill them, your desktop will soon turn into a scramble of loose images/plots.
 
-To launch *Spaces* select **athina > Utilities > Spaces** and a panel titled ATH Spaces (winName: ATH_SpacesPanel) will pop. Move it at the right end of your desktop. 
+To launch *Spaces* select **athina > Utilities > Spaces** and a panel titled "ATH Spaces" (winName: ATH_SpacesPanel) will appear. Move it at the right end of your desktop or anywhere you like.
 
-When a Space is click-selected, only windows that belong to the selected Space are shown, all others are hidden. All graphs, notebooks, layouts created are automatically assigned to the active (selected) Space. You can move windows between spaces, pin them to all spaces, make them orphans (they do not belong to Space), create, delete and rename a Space as well as link a Space to a specific data folder. 
+When a Space is click-selected, only windows that belong to the selected Space are shown, all others are hidden. **All graphs, notebooks, layouts created are automatically assigned to the active (selected) Space**. You can move windows between spaces, pin them to all spaces, make them orphans (they do not belong to Space), create, delete and rename a Space as well as link a Space to a specific data folder. 
 
 A short guide of Spaces buttons mouse actions and key-bindings:
 
 * __When the Spaces Panel is open any window you create is associated with the active Space__
 * __Buttons__ 
-    - Press the "New" button to create a new Space, name should be unique, otherwise you will be prompted to change your input. When a new "Space" is created it becomes your active working Space. New Spaces are created below the active row selection.
-    - Press "Delete" to delete the selected space. Windows associated with the space are released and not linked to any space (orphans).
-    - ress "All" to show/hide all windows whether linked to a Space or not.
-    - Press "Orphans" to show windows that do not belong to any Space
+    - Press the "New" button to create a new Space. When a new "Space" is created it becomes active. New Spaces are created below the active selection.
+    - Press "Delete" to delete the selected space. Windows associated with the space are released and not linked anymore to any space (orphans).
+    - Press "All" to show/hide all windows.
+    - Press "Orphans" to show windows that do not belong to any Space.
 * __Mouse__
-    - Double click on a row to rename the Space
+    - Double click on a row to rename the Space.
 * __Key-bindings__
-    - Press SHIFT+click on a row of the ListBox to move the top window to the selected space
-    - Press ALT+Cclick anywhere in the ListBox of the panel (rows or empty space below) to pin the top window to all spaces (visible everywhere)
-    - To unpin press SHIFT+ALT+click anywhere in the ListBox to unpin the window (becomes free floating). You can also make a normal window free-floating using the same procedure. Alternatively, if you want to  unpin and link it to a space do SHIFT+click on a row of the ListBox.
+    - Press SHIFT+click on a row to move the top window to the selected Space.
+    - Press ALT+click anywhere in the ListBox of the panel (not on a Space, click at the empty white space) to pin the top window to all spaces (visible everywhere)
+    - To unpin press SHIFT+ALT+click anywhere in the ListBox and the window becomes free-floating. You can also make a non-pinned window free-floating using the same action. Alternatively, if you want to unpin and link it to a space do SHIFT+click on a row of the ListBox.
     - Press CTRL+click (CMD on Mac) to mark/unmark a space with an asterisk and link it to the selected data folder in the data browser. When selecting a Space with an asterisk the current data folder changes to the linked data folder.
 
 ```{figure} media/SpacesPanel.png
@@ -54,7 +55,7 @@ Spaces panel. **Hover over over the red question mark (?) for quick help**.
 
 ```{tip} Quick-help
 
--  SHIFT+Click: on a Space to associate with the top window.
+-  SHIFT+Click: on a Space to link with the top window.
 -  Double-click: Rename the Space.
 -  ALT+click (on an enpty row NOT a Space): Pin top window to all Spaces.
 -  SHIFT+ALT+click: unpin top window and make (now with no Space link, i.e. orphan).
@@ -63,8 +64,8 @@ Spaces panel. **Hover over over the red question mark (?) for quick help**.
 
 ## Data cleanup
 
-It is common to load and process big image stacks with hunders of MB or a few GB in size. If you do not bin your images and acquire in 4K resolution, then an 100 image stack takes about 3.3 GB of space!
-Large Igor experiment (.pxp) files slow down your computer's response (RAM overload) and it takes some time when you save your analysis.
+It is common to load and process big image stacks with hunders of MB or a few GB in size. If you do not bin your images and acquire in 4K resolution, then a 100 image stack takes about 3.3 GB of space!
+Large Igor experiment files slow down your computer's response (RAM overload) and it takes some time when you save your analysis.
 
 A good habit is to clean up your experiment from time to time. Processed image stacks that are not needed anymore is better to be removed from your experiment (if you need the raw data you can reload them). To do this easily run **athina > Utilities > Free Space**. The following prompt will appear:
 
@@ -88,11 +89,18 @@ List of files above the selected threshold to be deleted.
 ```
 
 ```{tip}
-To keep one or more files just delete the corresponding entry in "WaveNamesW" list
+To keep one or more files just delete the corresponding entry in "WaveNamesW" list before pressing continue.
 ```
 
 ```{caution}
 If a wave is displayed, even if it's hidden in a Space, it will not be deleted.
 ```
+
+## Save experiments as HDF5 files
+
+Igor Pro 8 or later has the option to save Igor experiments in .h5xp (HDF5) format besides the traditional .pxp file format. It is advised to save your Igor Pro files at .h5xp to make your datasets accessible to HDF5 viewers, for example [Silx](https://github.com/silx-kit/silx?tab=readme-ov-file).
+
+Moreover, you can use the script [h5xp-extractor](https://pypi.org/project/h5xp-extractor/) to extract your data from Igor Pro, without the need of an Igor Pro license.
+
 
 Build time: {sub-ref}`today`

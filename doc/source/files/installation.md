@@ -49,10 +49,6 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
 If you don't know where the folders are, select on the main menu **Help > Show Igor Pro User Files in Igor Pro**.
 ```
 
-```{Note}
-You can copy other files/folders of the /src directory in your Igor Procedure folder or edit the AthinaStartUp.ipf accordingly in case you need additional features (STM, DFT, ...)
-```
-
 ```{Caution} 
 When you update you should delete _athina_ folder before copying the newer version, as filenames might differ between versions.
 ```

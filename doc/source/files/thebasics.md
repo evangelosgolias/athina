@@ -1,10 +1,10 @@
 # Basic concepts of Igor/athina interface
 
-Let's first introduce some key operations/concepts of athina.
+Let's first introduce some key operations/concepts.
 
 ## Display an image/image stack
 
-The best way to display a new image is by using **athina's** built-in NewImg() function as it comes with many [built-in shortcuts](#ath-newimg---keyboard-shortcuts) . To do so, **right-click on a 2D or 3D wave and select "ATH NewImage"**.
+The best way to display a new image is by using **athina's** built-in function as it comes with useful [shortcuts](#ath-newimg---keyboard-shortcuts). To do so, **right-click on a 2D or 3D wave and select "ATH NewImage"**.
 
 ```{figure} media/ath_display.png
 :alt: ATH Display
@@ -12,22 +12,20 @@ The best way to display a new image is by using **athina's** built-in NewImg() f
 :align: center
 :name: ATH_Display
 
-Display an image using **athina's** built-in function.
+Display an image using athina's built-in function.
 ```
 
-When you use **athina's** New Image function then you can use the following keyboard shortcults to perform custom actions.
+If you use "ATH NewImage" operation you can use the following keyboard shortcuts to perform custom actions.
 
 **ATH NewImage - Keyboard shortcuts**
 
-With a top graph created using "ATH NewImage" press:
-
 - **a** : average image stack and display.
 - **d** : *if marquee is present* launch automatic drift correction, if not launch interactive drift correction.
-- **i** : measure distance on image using cursors.
+- **i** : measure distance on images using cursors.
 - **l** : launch image line profiler.
 - **n** : annotate image.
 - **p** : launch plane z profiler.
-- **r** : show Range panel.
+- **r** : show range panel (contrast).
 - **s** : Toggle square image on/off.
 - **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
 - **z** : launch z profiler *if marquee is present on the graph*.
@@ -95,7 +93,7 @@ athina's operations indicate the objects they act upon using the following abbre
 - DB: selected item(s) in data browser
 
 ```{note} 
-Ellipsis (...) at the end of a main menu entry indicates there will be a follow-up prompt to continue with the operation.
+Ellipsis (...) at the end of a main menu entry singals for a follow-up prompt.
 ```
 
 ```{figure} media/athinasMenu.png
@@ -107,13 +105,13 @@ Ellipsis (...) at the end of a main menu entry indicates there will be a follow-
 athina's "Image Operations" menu items
 ```
 
-Contexual menus right-click on an image;border of graph;item in the data browser etc. reveal more custom operations. **athinas' operations are prefixed with "ATH"**. Most name are self-explanatory followed by indications, see above, for the objects they operate.
+Contexual menus right-click on an image;border of graph;item in the data browser etc. reveal more custom operations. **athinas' operations are prefixed with "ATH"**. Most names are self-explanatory followed by indications, see above, for the objects they can operate.
 
 ## Import data
 
 Igor Pro can load several file formats using the built-in menu accesible at **Data > Load Waves**.
 
-**athina** extends Igor's capabilities by adding support for:
+athina extends Igor's capabilities by adding support for:
 
 - .dat files: Elmitec's proprietatary image format
 - .tif stack: TVIPS EMMENU5 tif image stack format
@@ -132,13 +130,13 @@ Import data using athina's main menu entry.
 ```
 then select an item to procced. The options are: 
 
-- .dat files... : Import selected .dat files
-- .dat files in folder and stack ... : Import all .dat files in the selected folder and stack them (3D wave)
-- .dat files and stack ... : Import selected .dat files and stack them (3D wave)
-- .dat files in folder... : Import all .dat files in a folder
-- .tif (EMMENU5)... : Import selected .tif file (3D wave)
-- .tifs (EMMENU5) and stack... : Import selected .tif file and stack them (3D wave)
-- .HDF5 file ... : Import entries from an HDF5 file 
-- .nxs NeXus files ...: Import data from a NeXus file
+- .dat files... : Import selected .dat files.
+- .dat files in folder and stack ... : Import all .dat files in the selected folder and stack them (3D wave).
+- .dat files and stack ... : Import selected .dat files and stack them (3D wave).
+- .dat files in folder... : Import all .dat files in a folder.
+- .tif (EMMENU5)... : Import selected .tif file (3D wave).
+- .tifs (EMMENU5) and stack... : Import selected .tif file and stack them (3D wave).
+- .HDF5 file ... : Import entries from an HDF5 file (Groups have names "entryX", X is a number).
+- .nxs NeXus files ...: Import data from a NeXus file.
 
 Build time: {sub-ref}`today`
