@@ -10,7 +10,7 @@ otherwise use the public gitlab link:
 
  download and unpack the compressed file.
 
-** You have two options for the installation. **
+**There are two options for the installation.**
 
 ## Auto-load athina at Igor startup
 
@@ -27,7 +27,7 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
 
 ## Manually load athina from Macros menu
 
-Copy the **AthinaStartUp.ipf** file to:
+Copy the **athinaStartUp.ipf** file to:
 
 *Windows*:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
