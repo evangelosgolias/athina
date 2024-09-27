@@ -479,7 +479,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 5)
 			Duplicate dfr:M_ExtractedSurface, savedfr:$saveWaveNameStr
 			if(PlotSwitch)
-				saveImageStr = targetGraphWin + "_s" + num2str(postfix)
+				saveImageStr = CreatedataObjectName(savedfr, targetGraphWin + "_s", 1, 0, 5)
 				ATH_Display#NewImg(savedfr:$saveWaveNameStr, grfName = saveImageStr)
 				variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 				ModifyGraph/W=$saveImageStr width = 330*pntConv, height = 470*pntConv

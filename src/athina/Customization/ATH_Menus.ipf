@@ -104,13 +104,13 @@ Menu "athina"
 		"List HDF5 (.h5) entries...", /Q, ATH_HDF5#ListHDF5Groups()		
 		"Photoionisation CrossSection",/Q, ATH_PhCS#PhotoionisationCrossSection()
 	End
-	Submenu "Beamtime"
-		"Set experiment's root folder",/Q, ATH_Beamtime#SetOrResetBeamtimeRootFolder()
-		"Load newest file",/Q, ATH_Beamtime#LoadNewestFileInPathTreeAndDisplayPython(".dat")
-		"Load newest folder to stack",/Q, ATH_Beamtime#LoadNewestFolderInPathTreeAndDisplay()
-		"Load two newest files to stack",/Q, ATH_Beamtime#LoadNewestTwoFilesInPathTreeAndDisplayPython(".dat")
-
-	End
+//	Submenu "Beamtime"
+//		"Set experiment's root folder",/Q, ATH_Beamtime#SetOrResetBeamtimeRootFolder()
+//		"Load newest file",/Q, ATH_Beamtime#LoadNewestFileInPathTreeAndDisplayPython(".dat")
+//		"Load newest folder to stack",/Q, ATH_Beamtime#LoadNewestFolderInPathTreeAndDisplay()
+//		"Load two newest files to stack",/Q, ATH_Beamtime#LoadNewestTwoFilesInPathTreeAndDisplayPython(".dat")
+//
+//	End
 End
 
 

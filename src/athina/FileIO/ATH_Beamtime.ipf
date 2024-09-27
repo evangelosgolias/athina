@@ -200,6 +200,9 @@ static Function LoadNewestFileInPathTreeAndDisplayPython(string ext)
 	/// will pop to set pathName. The path name is saved as pATH_LoadLastFileIgorPath.
 
 	string filepathStr = GetLastSavedFileInFolderTreePython("pATH_LoadFilesBeamtimeIgorPath", ext) // Change path!
+	if(!strlen(filepathStr))
+		return 1
+	endif
 	#ifdef MACINTOSH
 		filepathStr = ParseFilePath(10, filepathStr, "*", 0, 0)
 	#endif	

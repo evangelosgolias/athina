@@ -1,10 +1,45 @@
-# Quick start
+# Basic concepts of Igor/athina interface
 
-## Basic concepts of Igor/athina interface
+Let's first introduce some key operations/concepts of athina.
 
-Let's first introduce some key concepts of Igor/athina's.
+## Display an image/image stack
 
-### The data browser
+The best way to display a new image is by using **athina's** built-in NewImg() function as it comes with many [built-in shortcuts](#ath-newimg---keyboard-shortcuts) . To do so, **right-click on a 2D or 3D wave and select "ATH NewImage"**.
+
+```{figure} media/ath_display.png
+:alt: ATH Display
+:scale: 33%
+:align: center
+:name: ATH_Display
+
+Display an image using **athina's** built-in function.
+```
+
+When you use **athina's** New Image function then you can use the following keyboard shortcults to perform custom actions.
+
+**ATH NewImage - Keyboard shortcuts**
+
+With a top graph created using "ATH NewImage" press:
+
+- **a** : average image stack and display.
+- **d** : *if marquee is present* launch automatic drift correction, if not launch interactive drift correction.
+- **i** : measure distance on image using cursors.
+- **l** : launch image line profiler.
+- **n** : annotate image.
+- **p** : launch plane z profiler.
+- **r** : show Range panel.
+- **s** : Toggle square image on/off.
+- **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
+- **z** : launch z profiler *if marquee is present on the graph*.
+- **SHIFT + b** : restore image from backup if it exists.
+- **SHIFT + f** : calculate FFT.
+- **SHIFT + n** : duplicate source wave of TG and display it.
+- **SHIFT + r** : launch interactive image rotation.
+- **SHIFT + x** : launch interactive PES (XPS) extractor
+- **ALT + mousewheel** : zoom image centered at the cursor.
+- **CTRL (CMD) + Close Window**: Displayed wave (and its backup wave) will be deleted after the window is closed.
+
+## The data browser
 
 The Data Browser lets you navigate through the data folder hierarchy, examine properties of waves and values of numeric and string variables, load data objects from other Igor experiments, and save a copy of data from the current experiment to an experiment file or folder on disk.
 
@@ -30,7 +65,7 @@ When the arrow is white then it points to the collapsed parent folder of the cur
 Data browser window. If not visible press ctrl+B (cmd+B) to show.
 ```
 
-### The marquee
+## The marquee
 
 A marquee is the dashed-line rectangle that you get when you left-click and drag diagonally in a graph or page layout. It is used by Igor for expanding and shrinking the range of axes, **for selecting a rectangular section of an image**, and for specifying an area of a layout.
 *You can use the marquee as an input device for your procedures*
@@ -43,20 +78,21 @@ A marquee is the dashed-line rectangle that you get when you left-click and drag
 
 Marquee on an STM image pointed by the red arrow.
 ```
-### athina's menus and operations
+## athina's menus
 
-athina's **main menu** offers several operations that can be launched either using the top graph (TG) or a wave selected.
+athina's **main menu** offers several operations that can be launched either using the top graph (TG) or a a selected wave.
 
 ```{note} 
 Top graph (TG) is the last graph the user selected, created or interacted with. 
 ```
-Custom athina's operations indicate the objects they act upon using the following abbreviations:
+
+athina's operations indicate the objects they act upon using the following abbreviations:
 
 - 1D: a trace
 - 2D: an image
 - 3D: a stack of images
 - TG: the top graph
-- DB: selected item(s) in data browser 
+- DB: selected item(s) in data browser
 
 ```{note} 
 Ellipsis (...) at the end of a main menu entry indicates there will be a follow-up prompt to continue with the operation.
@@ -73,7 +109,7 @@ athina's "Image Operations" menu items
 
 Contexual menus right-click on an image;border of graph;item in the data browser etc. reveal more custom operations. **athinas' operations are prefixed with "ATH"**. Most name are self-explanatory followed by indications, see above, for the objects they operate.
 
-### Load data
+## Import data
 
 Igor Pro can load several file formats using the built-in menu accesible at **Data > Load Waves**.
 
@@ -104,42 +140,5 @@ then select an item to procced. The options are:
 - .tifs (EMMENU5) and stack... : Import selected .tif file and stack them (3D wave)
 - .HDF5 file ... : Import entries from an HDF5 file 
 - .nxs NeXus files ...: Import data from a NeXus file
-
-### Display an image/image stack
-
-It is beneficial to display the new image using **athina's** built-in NewImg() function. To do so, **right-click on a 2D or 3D wave and select "ATH NewImage"**.
-
-```{figure} media/ath_display.png
-:alt: ATH Display
-:scale: 33%
-:align: center
-:name: ATH_Display
-
-Display an image using **athina's** built-in function.
-```
-
-When you use **athina's** New Image function then you can use the following keyboard shortcults to perform custom actions.
-
-#### Keyboard shortcuts
-
-With a top graph created using "ATH NewImage" press:
-
-- **a** : average image stack and display.
-- **d** : *if marquee is present* launch automatic drift correction, if not launch interactive drift correction.
-- **i** : measure distance on image using cursors.
-- **l** : launch image line profiler.
-- **n** : annotate image.
-- **p** : launch plane profiler.
-- **r** : show Range panel.
-- **s** : Toggle square image on/off.
-- **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
-- **z** : launch z profiler *if marquee is present on the graph*.
-- **SHIFT + b** : restore image from backup if it exists.
-- **SHIFT + f** : calculate FFT.
-- **SHIFT + n** : duplicate source wave of TG and display it.
-- **SHIFT + r** : launch interactive image rotation.
-- **SHIFT + x** : launch interactive PES (XPS) extractor
-- **ALT + mousewheel** : zoom image centered at the cursor.
-- **CTRL (CMD) + Close Window**: Wave displayed is deleted after closing the window (report in history).
 
 Build time: {sub-ref}`today`

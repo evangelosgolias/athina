@@ -2,7 +2,7 @@
 
 ## Igor folders
 
-When you import data using the menu entry **athina > Import** or by drag-and-drop file (.dat only) in Igor Pro, a wave is created in the current working folder.
+When you import data using the menu entry **athina > Import** or by drag-and-drop a file (.dat only) in Igor Pro, a wave is created in the current working folder.
 
 Images are imported as waves named after the source filename (minus the file extention, i.e. .dat). When you import images in a stack, athina sets a unique name composed by "ATH\_Stack" plus a numerical suffix.
 

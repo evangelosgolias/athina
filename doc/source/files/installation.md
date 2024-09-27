@@ -2,7 +2,7 @@
 
 If you are at MAXIV network use following link:
 
-* [athina - source code at MAXIV gitlab](https://gitlab.maxiv.lu.se/evangelosgolias/athina)
+* [athina - source code at MAXIV gitlab](https://gitlab.maxiv.lu.se/evagko/athina)
 
 otherwise use the public gitlab link:
 
@@ -10,11 +10,11 @@ otherwise use the public gitlab link:
 
  download and unpack the compressed file.
 
- You have two options for installation.
+** You have two options for the installation. **
 
-## Option 1 (Auto-load athina at Igor startup)
+## Auto-load athina at Igor startup
 
-Copy the contents of the **src/athina** folder to:
+Copy the folder **athina** in **/src** to:
 
 *Windows*:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
@@ -25,7 +25,7 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
 **athina will automatically load when you launch Igor Pro.**
 
 
-## Option 2 (Manually load athina from Macros menu)
+## Manually load athina from Macros menu
 
 Copy the **AthinaStartUp.ipf** file to:
 
@@ -35,7 +35,7 @@ C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
 *Mac*:
 /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
 
-Copy the contents of the **src/athina** folder to:
+Copy the folder **athina** in **/src** to:
 
 *Windows*:
 C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures

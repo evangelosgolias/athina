@@ -24,9 +24,10 @@ name: toc
 ---
 
 Installation <files/installation.md>
-Quick start guide <files/quickstart.md>
+The basics <files/thebasics.md>
+Operations <files/operations.md>
+How-to guides <files/howto.md>
 Best practices <files/best_practices.md>
-How-to <files/howto.md>
 ```
 
 Build time: {sub-ref}`today`
