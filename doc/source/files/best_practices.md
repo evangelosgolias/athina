@@ -21,7 +21,7 @@ When you delete a folder, you delete also its waves without warning. If at least
 
 ## Spaces
 
-*Spaces* organise windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate desktops (Spaces!). It is recommended to launch *Spaces* from the get-go to avoid screen overloading. 
+*Spaces* organises windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate desktops (Spaces!). It is recommended to launch *Spaces* from the get-go to avoid screen overloading. 
 Without Spaces, and especially when you create windows for display-only data and you do not kill them, your desktop will soon turn into a scramble of loose images/plots.
 
 To launch *Spaces* select **athina > Utilities > Spaces** and a panel titled "ATH Spaces" (winName: ATH_SpacesPanel) will appear. Move it at the right end of your desktop or anywhere you like.

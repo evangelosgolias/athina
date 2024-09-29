@@ -116,7 +116,7 @@ Plane profile using a PED dataset. Use cursors to define the plane (interactive)
 
 The image size that the profiler extracts has Nx: number of pixels between the cursors G, H (x-axis, point zero is at pointer G) and Ny: number of layers in the stack. 
 
-You can override the default size using the tickboxes and the entering the values of your choice, you will then get an *interpolated* image with the set dimensions.
+You can override the default size using the tickboxes, then enter the values of your choice, you will then get an *interpolated* image with the set dimensions.
 
 You can change the width of the plane profile to the number of pixels you'd like to integrate along the z direction (Width (px)). 
 
@@ -139,21 +139,21 @@ Set scale(s) to zero to remove the scales.
 
 ## Drift correction
 
-During data acquisition images can drift because of temperature or electronic instabilities, space-charge effects or external vibrations. Frequently, the effect is not visible as the drifts are below the spatial resolution of the instrument but sometimes there are so prominent that the analysis of image stacks without drift correction is pointless .athina can correct the drift using different approaches, the current paragraph is not a guide of athina's capabilities, built-in algorithms and methodologies. If you want to know more about the implementation you have to read Igor's manual about ImageRegistration, ImageInterpolation, FFT and other operations then browse and inspect the source code and have some basic understanding of image processing. 
+During data acquisition images can drift because of temperature fluctuations, electronic instabilities, space-charge effects or external vibrations. Frequently, the effect is not visible as the drifts are below the spatial resolution of the instrument but sometimes there are so prominent that the analysis of image stacks without drift correction is pointless .athina can correct the drift using different approaches, the current paragraph is not a guide of athina's capabilities, built-in algorithms and methodologies. If you want to know more about the implementation you have to read Igor's manual about ImageRegistration, ImageInterpolation, FFT and other operations then browse and inspect the source code and have some basic understanding of image processing. 
 
 ```{tip} 
 There is no silver bullet for drift correction, trial-and-error is your guide.
 
 Experience has shown that Image Registration works better when image contrast doesn't change significantly, for example a stack of images acquired under the same conditions.
 
-When you have changes in contrast, for example when acquiring an XPEEM or an XAS image stack, Correlation work better.
+When you have changes in contrast, for example when acquiring an XPEEM or an XAS image stack, correlation works better.
 
-Always select a fiducial/reference point for the alignemt that doesn't change, e.g a defect.
+Always select a fiducial/reference point that does not change contrast, e.g a defect.
 ```
 
 ### Backup/restore image stack
 
-When you apply drift correction to a image stack a backup is always created to revert the operation if needed – and very ofter it does. The name of the backup wave is the name the wave plus an "_undo" suffix. *To restore the original image press SHIFT+b (if plotted using ["ATH NewImage"](thebasics.md#display-an-imageimage-stack)) or right-click on the image and select "ATH Restore Image" or right-click on the source wave in the data browser and select "ATH Restore Image". 
+When correct the drift in a stack a backup is always created to revert the operation if needed – and very ofter it does. The name of the backup wave is the name the wave plus an "_undo" suffix. To restore the original image press SHIFT+b (if plotted using ["ATH NewImage"](thebasics.md#display-an-imageimage-stack)) or right-click on the image and select "ATH Restore Image" or right-click on the source wave in the data browser and select "ATH Restore Image". 
 If you are happy with the drift correction it is advised to delete the backup wave either manually in the data browser or using the "athina > Utilities > Free Space" function.
 
 ### Automatic
@@ -251,7 +251,7 @@ Use:
 
 * SHIFT + left mouse click on a point to drift the image. The reference point will be moved to the point you clicked, so try to follow your reference point with your mouse. After clicking the next layer will be displayed.
 * Use arrow keys or mousewheel to skip layers or go back to previous ones. 
-* Press Delete or BackSpace to revern the current layer to it's starting position (no drift correction).
+* Press Delete or BackSpace to restore the current layer to it's starting position (no drift correction).
 
 ```{caution} 
 If you have drift corrected your stack the changes are applied if you close the iDriftCorrection side-window. There is no backup to restore your stack to its original state. **If you want to discard any changes with you to press "Restore stack" before exiting.**
