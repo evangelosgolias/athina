@@ -39,7 +39,7 @@ Menu "athina"
 		".dat files in folder...", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", autoscale = 1)
 		".tif (EMMENU5).../3", /Q, ATH_LoadImg#LoadTiff("", "", displayImg = 1)	
 		".tifs (EMMENU5) and stack...", /Q, ATH_LoadImg#Loadtiffs(displayImg = 1, stack3d = 1)	
-		".HDF5 file .../4", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
+		".h5 file (MAXIV metadata) .../4", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
 		".nxs NeXus files .../5",/Q, ATH_HDF5#LoadNXSDataSets()
 	End
 	

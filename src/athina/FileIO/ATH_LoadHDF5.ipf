@@ -60,8 +60,6 @@ static Function LoadHDF5File()
 End
 
 static Function LoadHDF5SpecificGroups(string groups)
-	// String should be in the form "2-5,7,9-12,50"
-	groups = ATH_String#ExpandRangeStr(groups)
 	variable fileid_
 	Open /D/R/T="HDF5" fileid_
 	string filepathname = S_fileName
@@ -69,13 +67,35 @@ static Function LoadHDF5SpecificGroups(string groups)
 		Abort 
 	endif
 	HDF5OpenFile/R fileid_ as filepathname
-	//PRM: Assure entryXX as group name, change here if needed 
 	
 	variable n_entries = ItemsInList(groups)
 	variable ii = 0
 	
 	for(ii = 0; ii < n_entries; ii += 1)
-		string groupname = "entry" + StringFromList(ii, groups)
+		HDF5LoadGroup/R/T/Z :, fileid_, StringFromList(ii, groups)
+	endfor
+	
+	HDF5CloseFile fileid_
+End
+
+static Function LoadHDF5SpecificGroupsNamesIndexed(string idxstr, [string strFix])
+	// String should be in the form "2-5,7,9-12,50"
+	strFix = SelectString(ParamIsDefault(strFix), strFix, "")
+	idxstr = ATH_String#ExpandRangeStr(idxstr)
+	variable fileid_
+	Open /D/R/T="HDF5" fileid_
+	string filepathname = S_fileName
+	if(!strlen(filepathname))
+		Abort 
+	endif
+	HDF5OpenFile/R fileid_ as filepathname
+	//PRM: Assume entryXX as group name, change here if needed 
+	
+	variable n_entries = ItemsInList(idxstr)
+	variable ii = 0
+	
+	for(ii = 0; ii < n_entries; ii += 1)
+		string groupname = strFix + StringFromList(ii, idxstr)
 		HDF5LoadGroup/R/T/Z :, fileid_, groupname
 	endfor
 	

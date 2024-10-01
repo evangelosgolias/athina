@@ -56,9 +56,9 @@ End
 static Function LoadHDF5GroupsFromFile()
 	string selectedGroups = ATH_Dialog#GenericSingleStrPrompt("Use single ScanID and/or ranges, e.g.  \"2-5,7,9-12,50\".  Leave string empty to load all entries.", "Before the .h5 selection dialog opens...")
 	if(strlen(selectedGroups))
-		ATH_HDF5#LoadHDF5SpecificGroups(selectedGroups)
+		ATH_HDF5#LoadHDF5SpecificGroupsNamesIndexed(selectedGroups, strFix = "entry")
 	else
-		ATH_HDF5#LoadHDF5File()
+		ATH_HDF5#LoadHDF5File() // Load all.
 	endif
 End
 
