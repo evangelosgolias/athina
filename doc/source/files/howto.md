@@ -41,7 +41,7 @@ There is a counter that accumulates the total drift correction along the x and y
 ## XPS/PES
 
 XPS/PES datasets are saved as images of the dispersive plane (DP). To extract the spectrum from the image you need to know the energy scale of the image, i.e. how many eV correspond to one pixel. To calculate this you need either a spin-orbit split core level (e.g. Au 4f) witn known separation between the two peaks or it is more practical to save two images of the DP with 1V difference in start voltage (STV) for a core level of your sample.
-You can take two line profiles (use the athina's [line profile](operations.md#line-profile) operation) to calculate how many pixels your peak moves with Δ(STV) = 1 V. Then your conversion factor is: 1/Δpx (ev/px), Δpx is the pixel difference. You have to put this value, named EPP factor (energy per pixel), in the box and press enter. EPP shouldn't change as long as you do not change the microscope settings.
+You can take two line profiles (use the athina's [line profile](operations.md#line-profile) operation) to calculate how many pixels your peak moves with STV change of 1 V. Then your conversion factor is: 1/N_px (eV/px), N_px is the pixel difference. You have to put this value, named EPP factor (energy per pixel), in the box and press enter. EPP shouldn't change as long as you do not change the microscope settings.
 
 ```{Note} 
 At the moment the photon energy (hv) is read from the filename of the image, if present (as hvXX, hv=XX, hnXX, hn=XX). If the program fails to read it you have to enter it. STV is read from the image metadata and the Wf is your sample's work function (arbitrary (reasonable) number is the default).

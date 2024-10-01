@@ -4,7 +4,7 @@ Let's first introduce some key operations/concepts.
 
 ## Display an image/image stack
 
-The best way to display a new image is by using **athina's** built-in function as it comes with useful [shortcuts](#ath-newimg---keyboard-shortcuts). To do so, **right-click on a 2D or 3D wave and select "ATH NewImage"**.
+The best way to display a new image is by using **athina's** built-in function as it comes with useful shortcuts, see below. To do so, **right-click on a 2D or 3D wave and select "ATH NewImage"**.
 
 ```{figure} media/ath_display.png
 :alt: ATH Display
