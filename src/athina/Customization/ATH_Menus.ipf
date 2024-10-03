@@ -159,6 +159,8 @@ Menu "TracePopup"
 	"ATH Z-profiler: Use saved ROI  (3D)", /Q, ATH_ZProfile#TracePopupLaunchSavedROI()		
 	"ATH Save layer (TG, 3D)", /Q, ATH_ImgOp#GetLayerFromImageStack()
 	"ATH Save current view (TG, 2D, 3D)", /Q, ATH_ImgOp#GetScaledZoominImageWindow()
+	"ATH Save Axes\Color Range (TG, 2D, 3D)",/Q, ATH_Launch#SaveAxesRangeAndCtab()
+	"ATH Restore Axes\Color Range (TG, 2D, 3D)",/Q, ATH_Launch#SetAxesRangeAndCtabFromSaved()	
 	"ATH Scale Image stack (TG, 3D)", /Q, ATH_ImgOp#SetZScaleOfImageStack()
 	"ATH Select image and copy scales (2D, 3D)", /Q, ATH_ImgOp#ImageSelectToCopyScale()
 	"ATH Backup Image (2D, 3D)", /Q, ATH_ImgOp#BackupTopImage()	
@@ -172,7 +174,6 @@ Menu "GraphPopup" // Right click not on a trace or in the margin of an image
 	"ATH SetDataFolder (TG)", /Q, ATH_Launch#SetTopImageDF()	
 	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursors()
 End
-
 //Menu "AllTracesPopup" // Use SHIFT + right click
 //	//
 //End

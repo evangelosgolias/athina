@@ -874,11 +874,14 @@ static Function HistogramShiftToGaussianCenter()
 		Abort "Wave Reference is NULL"
 	endif
 	ATH_DFR#BackupWaveInWaveDF(wRef) // backup the wave, we will overwrite
+	variable shift
+	// ATH_ImgOp#HistogramShiftToGaussianCenterStack returns the applied shift
 	if(WaveDims(wRef) == 3)	
-		ATH_ImgOp#HistogramShiftToGaussianCenterStack(wRef, overwrite=1)
+		shift = ATH_ImgOp#HistogramShiftToGaussianCenterStack(wRef, overwrite=1)
 	else
-		ATH_ImgOp#HistogramShiftToGaussianCenter(wRef, overwrite=1)
-	endif	
+		shift= ATH_ImgOp#HistogramShiftToGaussianCenter(wRef, overwrite=1)
+	endif
+	Note wref, "Histogram shift num = " + num2str(shift) + " [w -= num]"
 End
 
 static Function TwoTraceCalcs()
@@ -1273,6 +1276,66 @@ static Function FlattenImage([string method, variable kernelN, variable iterN])
 		ATH_ImgOp#FlattenImage3D(wRef, method, kernelN, iterN, overwrite = 1)
 	else
 		return -1
+	endif
+	return 0
+End
+
+// Get and set image range and ctab
+
+static Function SaveAxesRangeAndCtab([string grfName])
+	//
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedAxesRangeCtab" ) // Root folder here
+	string axisX, axisY
+	variable minXV, maxXV, minYV, maxYV
+	[axisX, minXV, maxXV, axisY, minYV, maxYV] = ATH_Graph#GetAxesRange(grfName = grfName)
+	string graphCtabStr = ATH_Graph#GetGraphCtabStr(grfName = grfName)
+	NVAR/Z/SDFR=dfr gATH_AxisMinX
+	if(!NVAR_Exists(gATH_AxisMinX))
+		variable/G dfr:gATH_AxisMinX = minXV
+		variable/G dfr:gATH_AxisMaxX = maxXV
+		variable/G dfr:gATH_AxisMinY = minYV
+		variable/G dfr:gATH_AxisMaxY = maxYV
+		string/G dfr:gATH_AxisX = axisX
+		string/G dfr:gATH_AxisY = axisY		
+		string/G dfr:gATH_GraphCtabStr = graphCtabStr
+	else
+		NVAR/Z/SDFR=dfr gATH_AxisMinX
+		NVAR/Z/SDFR=dfr gATH_AxisMaxX
+		NVAR/Z/SDFR=dfr gATH_AxisMinY
+		NVAR/Z/SDFR=dfr gATH_AxisMaxY
+		SVAR/Z/SDFR=dfr gATH_AxisX
+		SVAR/Z/SDFR=dfr gATH_AxisY
+		SVAR/Z/SDFR=dfr gATH_GraphCtabStr
+		gATH_AxisX = axisX
+		gATH_AxisY = axisY		
+		gATH_AxisMinX = minXV
+		gATH_AxisMaxX = maxXV
+		gATH_AxisMinY = minYV
+		gATH_AxisMaxY = maxYV
+		gATH_GraphCtabStr = graphCtabStr
+	endif
+	return 0
+End
+
+static Function SetAxesRangeAndCtabFromSaved([string grfName])
+	//
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedAxesRangeCtab" ) // Root folder here
+	NVAR/Z/SDFR=dfr gATH_AxisMinX
+	if(!NVAR_Exists(gATH_AxisMinX))
+		return 1
+	else
+		NVAR/Z/SDFR=dfr gATH_AxisMinX
+		NVAR/Z/SDFR=dfr gATH_AxisMaxX
+		NVAR/Z/SDFR=dfr gATH_AxisMinY
+		NVAR/Z/SDFR=dfr gATH_AxisMaxY
+		SVAR/Z/SDFR=dfr gATH_AxisX
+		SVAR/Z/SDFR=dfr gATH_AxisY		
+		SVAR/Z/SDFR=dfr gATH_GraphCtabStr
+		SetAxis/W=$grfName $gATH_AxisX gATH_AxisMinX, gATH_AxisMaxX
+		SetAxis/W=$grfName $gATH_AxisY gATH_AxisMinY, gATH_AxisMaxY
+		ATH_Graph#SetGraphCtabStr(gATH_GraphCtabStr, grfName = grfName)
 	endif
 	return 0
 End

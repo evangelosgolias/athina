@@ -669,7 +669,7 @@ End
 static Function HistogramShiftToGaussianCenterStack(WAVE w3d, [variable overwrite])
 	/// Move the histogram center to the center of the fitted gaussian
 	/// Useful for symmetrising XMCD/XMLD images
-	
+	/// The function returns the applies shift
 	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
 	DFREF currDF = GetDataFolderDFR()
 	variable nrows = DimSize(w3d, 0)
@@ -703,7 +703,7 @@ static Function HistogramShiftToGaussianCenterStack(WAVE w3d, [variable overwrit
 		Duplicate M_Stack, currDF:$saveWaveNameStr
 	endif
 	SetDataFolder currDF
-	return 0
+	return x0 // Return the shift!
 End
 
 static Function/WAVE TopImageToWaveRef([string grfName])

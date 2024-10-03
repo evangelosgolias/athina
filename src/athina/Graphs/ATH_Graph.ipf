@@ -169,9 +169,31 @@ static Function [string axisX, string axisY] GetAxes([string grfName])
 	return [axisX, axisY]
 End
 
+static Function [string axisX, variable minVX, variable maxVX, string axisY,
+				 variable minVY, variable maxVY] GetAxesRange([string grfName])
+	//
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	[axisX, axisY] = ATH_Graph#GetAxes(grfName = grfName)
+	GetAxis/Q/W=$grfName $axisX
+	if(!V_flag) // V_flag == 1, top is not active
+		minVX = V_min
+		maxVX = V_max
+	else
+		return ["", 0, 0, "", 0, 0] // Error
+	endif
+	GetAxis/Q/W=$grfName $axisY
+	if(!V_flag) // V_flag == 1, left is not active
+		minVY = V_min
+		maxVY = V_max
+	else
+		return ["", 0, 0, "", 0, 0] // Error
+	endif
+	return [axisX, minVX, maxVX, axisY, minVY, maxVY]
+End
+
 static Function/S GetGraphCtabStr([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName), grfName, "")
-	return StringByKey("RECREATION",ImageInfo(grfName, ImageNameList(grfName,";"), 0))
+	return StringByKey("RECREATION",ImageInfo(grfName, StringFromList(0, ImageNameList(grfName,";")), 0))
 End
 
 static Function SetGraphCtabStr(string ctabStr, [string grfName])
