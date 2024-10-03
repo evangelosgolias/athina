@@ -101,6 +101,28 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				Execute/P/Q/Z "KillWaves/Z " + ATH_String#ExtendPathStr(wavePathStr, "_undo")
 			endif
 			break
+		// mouseWheel has to be before case 11 -> keyboard events as
+		// there is a leak in the fallhtrough and case 22 gets triggered!
+		// That's a patch until I find something more elegant
+		case 22:	//	mouseWheel
+			if (s.eventMod & 4)		// Magnify with ALT key pressed.
+				ATH_Display#Mangify(s)
+				return 0
+			endif
+			if (is3D)
+				int direction = (s.wheelDy > 0) ? 1 : -1
+				NVAR/Z gLayer = root:Packages:WM3DImageSlider:$s.winName:gLayer
+				NVAR/Z gRightLim = root:Packages:WM3DImageSlider:$s.winName:gRightLim				
+				gLayer += direction
+				if(gLayer < 0)
+					gLayer = 0
+				endif
+				if(gLayer > gRightLim)
+					gLayer = gRightLim 
+				endif				
+				ModifyImage/W=$s.winName '' plane=gLayer
+			endif
+			//return hookResult			
 		case 11:
 			switch(s.keycode)
 				case 66: // SHIFT + B
@@ -180,26 +202,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break
 			endswitch
 			hookResult = 1
-			//Do not return anything here, you will block any othe case 11.
-		case 22:	//	mouseWheel
-			if (s.eventMod & 4)		// Magnify with ALT key pressed.
-				ATH_Display#Mangify(s)
-				return 0
-			endif
-			if (is3D)
-				int direction = (s.wheelDy > 0) ? 1 : -1
-				NVAR/Z gLayer = root:Packages:WM3DImageSlider:$s.winName:gLayer
-				NVAR/Z gRightLim = root:Packages:WM3DImageSlider:$s.winName:gRightLim				
-				gLayer += direction
-				if(gLayer < 0)
-					gLayer = 0
-				endif
-				if(gLayer > gRightLim)
-					gLayer = gRightLim 
-				endif				
-				ModifyImage/W=$s.winName '' plane=gLayer
-			endif
-			return hookResult
+			//Do not return anything here, you will block any other case 11.
 	endswitch
 	return hookResult
 End
