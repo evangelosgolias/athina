@@ -663,11 +663,11 @@ Static Function pnlButton(STRUCT WMButtonAction &s)
 			updatePnlColor(s.win)
 			break
 		case "reverseColorsB":
-			string matchPattern = "ctab= {%*f,%*f,%*[^,],%d}" //%* -> Read but not store
-			variable cmapSwitch
+			string matchPattern = "(.)([0-9])}$", dump, cmapSwitchStr
 			ControlInfo/W=$s.win imageP
-			sscanf StringByKey("RECREATION",Imageinfo("",S_Value,0)), matchPattern, cmapSwitch
-			ModifyImage/W=$GetUserData(s.win,"","grf") $S_Value ctab={,,,!cmapSwitch}
+			string imgNameStr = S_Value
+			SplitString/E=matchPattern StringByKey("RECREATION",Imageinfo("",imgNameStr,0)), dump, cmapSwitchStr
+			ModifyImage/W=$GetUserData(s.win,"","grf") $imgNameStr ctab={,,,!str2num(cmapSwitchStr)}
 			break
 	endswitch
 	return 0
