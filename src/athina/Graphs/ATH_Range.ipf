@@ -248,7 +248,7 @@ Static Function pnl(String grfName)
 	Button presentB pos={90,CTRLHEIGHT-25}, size={100,20}, title="first Z - last Z", win=$pnlName
 	Button fullB pos={200,CTRLHEIGHT-25}, size={45,20}, title="full", win=$pnlName
 	
-	Button doB pos={5,PNLHEIGHT-25}, size={65,20}, title="Apply", fcolor=(26205,52428,1), win=$pnlName
+	Button doB pos={5,PNLHEIGHT-25}, size={65,20}, title="Apply", fcolor=(26205,52428,0), win=$pnlName
 	Button cancelB pos={PNLWIDTH-70,PNLHEIGHT-25}, size={65,20}, title="Cancel", fcolor=(65535,0,0), win=$pnlName
 	Button refreshB pos={PNLWIDTH-165,PNLHEIGHT-25},  title="Refresh", size={65,20}, fcolor=(65535,43690,0), win=$pnlName
 	Button reverseColorsB, pos={230,6},size={25,20},title="Rc",fsize=13,win=$pnlName
@@ -259,6 +259,18 @@ Static Function pnl(String grfName)
 	ModifyControlList ControlNameList(pnlName,";","*T") frame=0,win=$pnlName
 	ModifyControlList ControlNameList(pnlName,";","*B") proc=ATH_Range#pnlButton,win=$pnlName
 	ModifyControlList ControlNameList(pnlName,";","*") focusRing=0, win=$pnlName
+
+	// add some color to indicate a Reversed ColorMap
+	
+	string matchPattern = "(.)([0-9])}$", dump, cmapSwitchStr
+	SplitString/E=matchPattern StringByKey("RECREATION",Imageinfo(targetWin,imgName,0)), dump, cmapSwitchStr
+	
+	if(str2num(cmapSwitchStr))
+		Button reverseColorsB, fcolor=(0,65535,0),win=$pnlName
+	else
+		Button reverseColorsB, fcolor=(65535,0,0),win=$pnlName
+	endif
+	//
 	
 	//	Histogram
 	DefineGuide/W=$pnlName SIDAMFT={FT, CTRLHEIGHT}
@@ -667,9 +679,15 @@ Static Function pnlButton(STRUCT WMButtonAction &s)
 			ControlInfo/W=$s.win imageP
 			string imgNameStr = S_Value
 			SplitString/E=matchPattern StringByKey("RECREATION",Imageinfo("",imgNameStr,0)), dump, cmapSwitchStr
-			ModifyImage/W=$GetUserData(s.win,"","grf") $imgNameStr ctab={,,,!str2num(cmapSwitchStr)}
-			break
-	endswitch
+			variable RcmapQ = !str2num(cmapSwitchStr) // Flip it here
+			ModifyImage/W=$GetUserData(s.win,"","grf") $imgNameStr ctab={,,,RcmapQ}	
+			if(RcmapQ)
+				Button reverseColorsB,fcolor=(0,65535,0),win=$s.win
+			else
+				Button reverseColorsB,fcolor=(65535,0,0),win=$s.win
+			endif			
+				break
+			endswitch
 	return 0
 End
 
