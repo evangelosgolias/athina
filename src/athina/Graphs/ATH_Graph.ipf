@@ -204,3 +204,32 @@ static Function SetGraphCtabStr(string ctabStr, [string grfName])
 	cmdStr += ctabStr
 	Execute/P/Q cmdStr
 End
+
+
+static Function [variable relx, variable rely] AxisValToRel2D(WAVE w, variable xv, variable yv)
+	// Convert for axis to relative coordinates [0, 1]
+	if(!(WaveDims(w)==2 || WaveDims(w)==3))
+		return [-1, -1]
+	endif
+	variable px = ScaleToIndex(w, xv, 0)
+	variable py = ScaleToIndex(w, yv, 1)
+	variable npx = DimSize(w, 0)
+	variable npy = DimSize(w, 1)	
+	relx = px/npx ; rely = py/npy
+	return [relx, rely]
+End
+
+static Function [variable px, variable py] RelToAxisVal2D(WAVE w, variable xr, variable yr)
+	// Convert from relative to axis coordinates
+	// if xr or yr are outside of [0,1] NaN is returned
+	if(!(WaveDims(w)==2 || WaveDims(w)==3))
+		return [-1, -1]
+	endif
+	variable npx = DimSize(w, 0)
+	variable npy = DimSize(w, 1)	
+	variable nx = xr*npx 
+	variable ny = yr*npy
+	px = IndexToScale(w, nx, 0)
+	py = IndexToScale(w, ny, 1)	
+	return [px, py]
+End

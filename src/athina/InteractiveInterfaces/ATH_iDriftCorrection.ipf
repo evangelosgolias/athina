@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_iDriftCorrection
-#pragma version = 2.2
+#pragma version = 2.3
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -38,7 +38,10 @@
 /// Exterior windows are on top
 
 /// Revised and now can handle single images 04.10.2024
-
+/// Revised to use relative coordinate to save Ref. Coord.
+/// to be independent from scale/img size and only drift
+/// to the same spot wrt to the axes.
+///
 static Function CreatePanel()
 
 	string winNameStr = WinName(0, 1, 1)
@@ -144,8 +147,8 @@ static Function CreatePanel()
 	Button DriftReferenceCoordB,proc=ATH_iDriftCorrection#InterStackAlignmentButton, win=$pnlNameStr
 	// Let's sort button status and colors
 	DFREF dfrS = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveDriftCorrection:SavedReferenceCoords:")
-	NVAR/SDFR=dfrS/Z gATH_SavedRefCoordX
-	if(NVAR_Exists(gATH_SavedRefCoordX))
+	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordX
+	if(NVAR_Exists(gATH_SavedRefRelCoordX))
 		Button DriftReferenceCoordB,disable = 0,fColor=(2,39321,1),win=$pnlNameStr
 	else
 		Button DriftReferenceCoordB,disable = 2,fColor=(65535,16385,16385),win=$pnlNameStr
@@ -180,6 +183,8 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer
 	NVAR/SDFR=dfr gATH_AnchorPositionX
 	NVAR/SDFR=dfr gATH_AnchorPositionY
+	NVAR/SDFR=dfr gATH_CursorPositionX
+	NVAR/SDFR=dfr gATH_CursorPositionY	
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
 	variable dx, dy
@@ -203,7 +208,6 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 	
 	switch(s.eventCode)
 		case 2: // Kill the window
-			//CopyScales/I $gATH_w3dBackupPathNameStr, $gATH_w3dPathName
 			Cursor/K I
 			KillDataFolder/Z dfr
 			SetWindow $s.winName, hook(iDriftWindowHook) = $""
@@ -215,14 +219,15 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 				dy = (gATH_AnchorPositionY - AxisValFromPixel(gATH_WindowNameStr, "left", s.mouseLoc.v))/gATH_dy
 				MatrixOP/O/FREE layerFREE = layer(w3dRef, gLayer)
 				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=dfr:M_Affine2D Affine2D layerFREE // Will overwrite M_Affine
-				//ImageTransform/O/P=(gLayer) removeZplane w3dRef
-				//ImageTransform/O/P=(gLayer)/INSW=M_Affine insertZplane w3dRef
 				WAVE ATH_Affine2D = dfr:M_Affine2D
 				w3dRef[][][gLayer] = ATH_Affine2D[p][q]
 				gLayer += 1
 				ModifyImage/W=$gATH_WindowNameStr $gATH_imgNameTopWindowStr plane=gLayer
 			endif
 			hookresult = 1
+			break
+		case 7:
+			gATH_CursorPositionX = s.pointNumber;gATH_CursorPositionY = s.ypointNumber
 			break
 		case 22: // mouse wheel
 				gLayer += s.WheelDy
@@ -272,7 +277,7 @@ static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonCo
 	NVAR/SDFR=dfr gATH_AnchorPositionY
 	NVAR/SDFR=dfr gATH_FastMode
 	DFREF dfrS = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveDriftCorrection:SavedReferenceCoords:")	
-	NVAR/SDFR=dfrS/Z gATH_SavedRefCoordX	
+	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordX	
 	variable xmax = DimSize($gATH_w3dPathname, 0)
 	variable x0 = Dimoffset($gATH_w3dPathname, 0)
 	variable ymax = DimSize($gATH_w3dPathname, 1)
@@ -295,7 +300,7 @@ static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonCo
 				Button CascadeDrift3D, win=$B_Struct.win, disable = 0
 				Button SelectedLayersDrift3D, win=$B_Struct.win,  disable = 0
 				Button SaveReferenceCoordB,  win=$B_Struct.win,  disable = 0
-				if(NVAR_Exists(gATH_SavedRefCoordX))
+				if(NVAR_Exists(gATH_SavedRefRelCoordX))
 					Button DriftReferenceCoordB,win=$B_Struct.win,fColor=(2,39321,1),disable = 0
 				endif
 			endif
@@ -646,39 +651,55 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 	NVAR/SDFR=dfr/Z gATH_AnchorPositionY	
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
-	NVAR/SDFR=dfrS/Z gATH_SavedRefCoordX
-	NVAR/SDFR=dfrS/Z gATH_SavedRefCoordY
-	SVAR/SDFR=dfrS/Z gATH_SavedRefCoordSource
+	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordX
+	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordY
+	SVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordSource
 	
 	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer
 	WAVE/Z w3dBackupRef = $gATH_w3dBackupPathNameStr
 	
 	strswitch (B_Struct.ctrlName)
 		case "SaveReferenceCoordB":
-			if(!numtype(gATH_AnchorPositionX) && !NVAR_Exists(gATH_SavedRefCoordX)) // If anchor is not nan and we haven't saved before
-				variable/G dfrS:gATH_SavedRefCoordX = gATH_AnchorPositionX
-				variable/G dfrS:gATH_SavedRefCoordY = gATH_AnchorPositionY
-				string/G dfrS:gATH_SavedRefCoordSource = gATH_w3dPathname
-			elseif(!numtype(gATH_AnchorPositionX) && NVAR_Exists(gATH_SavedRefCoordX)) // if anchor is a num and we've already saved a ref point
-				gATH_SavedRefCoordX = gATH_AnchorPositionX
-				gATH_SavedRefCoordY = gATH_AnchorPositionY
-				gATH_SavedRefCoordSource = gATH_w3dPathname				
+			variable relx, rely
+			// NB: Save coordinates in pixels! We shouldn't depende on wave scaling
+			if(!numtype(gATH_AnchorPositionX) && !NVAR_Exists(gATH_SavedRefRelCoordX)) // If anchor is not nan and we haven't saved before
+				[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_AnchorPositionX, gATH_AnchorPositionY)
+				variable/G dfrS:gATH_SavedRefRelCoordX = relx
+				variable/G dfrS:gATH_SavedRefRelCoordY = rely
+				string/G dfrS:gATH_SavedRefRelCoordSource = gATH_w3dPathname
+			elseif(!numtype(gATH_AnchorPositionX) && NVAR_Exists(gATH_SavedRefRelCoordX)) // if anchor is a num and we've already saved a ref point
+				[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_AnchorPositionX, gATH_AnchorPositionY)
+				gATH_SavedRefRelCoordX = relx
+				gATH_SavedRefRelCoordY = rely
+				gATH_SavedRefRelCoordSource = gATH_w3dPathname				
 			endif
 			Button ShowReferenceCoordB,disable=0,win=$B_Struct.win
 			hookresult =  1			
 			break
 		case "ShowReferenceCoordB":
 			//-------
+			string axisX, axisY
+			[axisX, axisY] = ATH_Graph#GetAxes(grfName=gATH_WindowNameStr)
 			SetDrawLayer/W=$gATH_WindowNameStr Overlay
 			DrawAction/W=$gATH_WindowNameStr delete
-			SetDrawEnv/W=$gATH_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,0,0), fillbgc= (65535,0,0),fillfgc= (65535,0,0), fillpat= 1
-			DrawOval/W=$gATH_WindowNameStr (gATH_SavedRefCoordX - 2*gATH_dx),  (gATH_SavedRefCoordY - 2*gATH_dy), (gATH_SavedRefCoordX + 2*gATH_dx), (gATH_SavedRefCoordY + 2*gATH_dy)
+			variable axisValX = DimOffset(w3dRef, 0) + gATH_SavedRefRelCoordX * DimSize(w3dRef,0) * DimDelta(w3dRef, 0)
+			variable axisValY = DimOffset(w3dRef, 1) + gATH_SavedRefRelCoordY * DimSize(w3dRef,1) * DimDelta(w3dRef, 1)
+			variable dr = DimDelta(w3dRef, 0)*0.05*DimSize(w3dRef,0)	
+			SetDrawEnv/W=$gATH_WindowNameStr xcoord= $axisX, ycoord= $axisY, linefgc= (65535,0,0), fillbgc= (65535,0,0),fillfgc= (65535,0,0), dash=2
+			//DrawOval/W=$gATH_WindowNameStr (gATH_SavedRefRelCoordX - 2*gATH_dx),  (gATH_SavedRefRelCoordY - 2*gATH_dy), (gATH_SavedRefRelCoordX + 2*gATH_dx), (gATH_SavedRefRelCoordY + 2*gATH_dy)
+			DrawLine/W=$gATH_WindowNameStr axisValX, axisValY-dr, axisValX, axisValY+dr
+			SetDrawEnv/W=$gATH_WindowNameStr xcoord= $axisX, ycoord= $axisY, linefgc= (65535,0,0), fillbgc= (65535,0,0),fillfgc= (65535,0,0), dash=2			
+			DrawLine/W=$gATH_WindowNameStr axisValX-dr, axisValY, axisValX+dr, axisValY
+
 			break
+		// Reference should be relative, between 0 and 1 as the number of pixels and scale might be different. 
 		case "DriftReferenceCoordB":
 			gATH_CursorPositionX = hcsr(I, gATH_WindowNameStr)
 			gATH_CursorPositionY = vcsr(I, gATH_WindowNameStr)
-			variable dx = (gATH_SavedRefCoordX - gATH_CursorPositionX)/gATH_dx
-			variable dy = (gATH_SavedRefCoordY - gATH_CursorPositionY)/gATH_dy
+			variable axisVx, axisVy
+			[axisVx, axisVy] = ATH_Graph#RelToAxisVal2D(w3dRef, gATH_SavedRefRelCoordX, gATH_SavedRefRelCoordY)
+			variable dx = (axisVx - gATH_CursorPositionX)/gATH_dx
+			variable dy = (axisVy - gATH_CursorPositionY)/gATH_dy
 			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=w3dRef Affine2D w3dBackupRef
 			hookresult =  1
 			break
