@@ -569,20 +569,21 @@ End
 
 static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
-	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_LineProfRootDF"))
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
-	SetDataFolder dfr
-	Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
-	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
-	WAVE/Z imgWaveRef = $ImagePathname
+
 	switch(sv.eventCode)
 		case 6:
+			DFREF currdfr = GetDataFolderDFR()
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_LineProfRootDF"))
+			NVAR/Z C1x = dfr:gATH_C1x
+			NVAR/Z C1y = dfr:gATH_C1y
+			NVAR/Z C2x = dfr:gATH_C2x
+			NVAR/Z C2y = dfr:gATH_C2y
+			NVAR/Z profileWidth = dfr:gATH_profileWidth
+			NVAR/Z selectedLayer = dfr:gATH_selectedLayer
+			SetDataFolder dfr
+			Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
+			SVAR/Z ImagePathname = dfr:gATH_ImagePathname
+			WAVE/Z imgWaveRef = $ImagePathname		
 			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
 			break
 	endswitch

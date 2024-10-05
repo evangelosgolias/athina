@@ -38,11 +38,12 @@
 #include <WMImageInfo>
 
 static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
-
+static StrConstant ATH_W3DImageSliderParentDFR = "root:Packages:ATH_DataFolder:W3DImageSlider:"
 static Function NewImg(WAVE wRef, [string grfname])
 	if(!WaveExists(wRef))
 		return -1
 	endif
+
 	// Display an image or stack
 	if(ParamIsDefault(grfname))
 		NewImage/G=1/K=1 wRef
@@ -52,6 +53,7 @@ static Function NewImg(WAVE wRef, [string grfname])
 	else
 		NewImage/G=1/K=1/N=$grfName wRef
 	endif
+	
 	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 	ModifyGraph/W=$grfname height = 400 * pntConv, width = 400 * pntConv
 	Execute/P/Q "ModifyGraph width=0,height=0"
@@ -565,3 +567,268 @@ static Function RestartWM3DImageSlider(string winNameStr)
 	return 0
 End
 
+
+// ---------------------------------
+// ----------------------------------
+	
+//static Structure athSliderParam
+//	uchar dims
+//	uint16 nlayers
+//	uint16 layer
+//	uint16 LeftLim
+//	uint16 RightLim
+//	variable cbOriginalHeight
+//EndStructure
+
+static Function NewImgS(WAVE wRef, [string grfname])
+	if(!WaveExists(wRef))
+		return -1
+	endif
+
+	// End of slider structure
+	// Display an image or stack
+	if(ParamIsDefault(grfname))
+		NewImage/G=1/K=1 wRef
+		grfname = WinName(0, 1, 1)
+		string graphTitle = GetWavesDataFolder(wRef, 2)[5, inf] // Discrard root:	
+		DoWindow/T $grfname, graphTitle
+	else
+		NewImage/G=1/K=1/N=$grfName wRef
+	endif
+//
+//	if(WaveDims(wRef)==3)
+//		STRUCT athSliderParam sld
+//		// Prepare the slider structure
+//		sld.dims = 3
+//		sld.nlayers = DimSize(wRef, 2)
+//		sld.layer = 0
+//		sld.LeftLim = 0
+//		sld.RightLim = sld.nlayers - 1
+//		ControlInfo kwControlBar
+//		sld.cbOriginalHeight = V_Height
+//		string structStr
+//		StructPut/S sld, structStr
+//		SetWindow $grfname userdata(sATH_SliderParam) = structStr
+//	endif
+
+	if(WaveDims(wRef)==3)
+		//
+		string dfrStr = ATH_W3DImageSliderParentDFR + grfName
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
+		variable/G dfr:gLayer = 0
+		variable/G dfr:gLeftLim = 0
+		variable/G dfr:gRightLim = DimSize(wRef, 2) - 1
+		ControlInfo kwControlBar
+		variable/G dfr:gOriginalHeight = V_Height
+		string/G dfr:imageName = NameOfWave(wRef)
+		SetWindow $grfname userdata(ATH_W3DImageSliderDFR) = dfrStr
+	endif
+
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
+	ModifyGraph/W=$grfname height = 400 * pntConv, width = 400 * pntConv
+	Execute/P/Q "ModifyGraph width=0,height=0"
+	// Error handling
+	ATH_exe#HandleSimpleError("NewImg")	
+	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
+	string colorScaleStr
+	variable cmapSwitch
+	sscanf StringByKey("RECREATION",Imageinfo("",NameOfWave(wRef),0)), matchPattern, colorScaleStr, cmapSwitch
+	if(WaveDims(wRef)==3)
+		athAppendSlider(grfName=grfName)
+	endif
+	WaveStats/Q wRef //$GetWavesDataFolder(wRef, 2)
+	variable ImgAvg = V_avg
+	variable ImgStd = V_sdev
+	ModifyImage/W=$grfname $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3, ctab= {ImgAvg - 3 * ImgStd, ImgAvg + 3 * ImgStd,$colorScaleStr,cmapSwitch} // Autoscale per plane / visible area Image
+	ModifyGraph/W=$grfname fSize=12
+	SetWindow $grfname, hook(AthinaDisplayHook) = ATH_Display#DisplayHookFunction__ // Set the hook
+	
+	if(DimSize(wRef, 0) == DimSize(wRef, 1))
+		SetWindow $grfname, userdata(ATH_isPlanQ) = "1"
+	else
+		SetWindow $grfname, userdata(ATH_isPlanQ) = "0"
+	endif
+	return 0
+End
+
+
+Function athAppendSlider([string grfName])
+		// Append a slider if you have a stack
+		// Wave in top graph
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(grfName, "", "ATH_W3DImageSliderDFR"))
+		NVAR/SDFR=dfr gLayer
+		NVAR/SDFR=dfr gOriginalHeight	
+		grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+		WAVE wRef = ATH_ImgOp#TopImageToWaveRef(grfName=grfName)
+		variable nlayers = DimSize(wRef, 2)
+		variable tkImageSliderLMargin = 150
+		ControlBar gOriginalHeight+30
+		variable scale = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
+		GetWindow/Z $grfName,gsize
+		variable left = V_left*scale
+		variable right = limit(V_right*scale, left+tkImageSliderLMargin+50,inf)
+		Slider athW3DSlider,ticks=0,vert=0,limits={0, nlayers-1, 1},variable=gLayer,pos={left+10,gOriginalHeight+10},win=$grfName
+		Slider athW3DSlider, size={right-left-tkImageSliderLMargin-30,16},proc=ATH_Display#NewImgSliderHook,win=$grfName
+		SetVariable athW3DSliderVar,limits={0,nlayers-1, 1},pos={right-165, gOriginalHeight+10},live=1,win=$grfName
+		SetVariable athW3DSliderVar,value=gLayer,size={50,20},proc=ATH_Display#ImageSliderSetVarProc,win=$grfName
+End
+
+Function NewImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
+
+	if (sa.eventCode & 1 || sa.eventCode & 8)	// Value set
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sa.win, "", "ATH_W3DImageSliderDFR"))
+		NVAR/SDFR=dfr gLayer	
+		gLayer = sa.curval
+		ModifyImage/W=$sa.win '' plane=gLayer
+	endif
+	
+	return 0
+
+End
+
+static Function ImageSliderSetVarProc(STRUCT WMSetVariableAction &sva) : SetVariableControl
+	
+	switch( sva.eventCode )
+		case 1:
+		case 2:
+		case 3:
+		case 6:
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_W3DImageSliderDFR"))
+			NVAR/SDFR=dfr gLayer
+			gLayer = sva.dval
+			ModifyImage/W=$sva.win '' plane=gLayer
+			break
+	endswitch
+
+	return 0
+End
+
+// TODO: Automate the process. Create a function that launches
+static Function DisplayHookFunction__(STRUCT WMWinHookStruct &s)
+	//
+	// 31.08.2024: Deal with calls from /EXT windows. We control
+	//	using the wave reference. This is patchwork, we need to 
+	// find a more stable solution
+	//
+	// •DisplayHelpTopic "Hook Functions for Exterior Subwindows"
+	Wave/Z w = ATH_ImgOp#TopImageToWaveRef(grfName=s.winName)
+	if(!WaveExists(w))
+		return 0
+	endif
+	int is3D = WaveDims(w)==3
+	variable hookResult = 0
+	string buffer
+	
+	switch (s.eventCode)
+		case 2: // kill
+			if(s.eventMod & 4) // Kill the wave and its backup when ALT is pressed 
+				string wavePathStr = GetWavesDataFolder(w, 2)
+				Execute/P/Q/Z "KillWaves/Z " + wavePathStr
+				Execute/P/Q/Z "KillWaves/Z " + ATH_String#ExtendPathStr(wavePathStr, "_undo")
+			endif
+			break
+		// mouseWheel has to be before case 11 -> keyboard events as
+		// there is a leak in the fallhtrough and case 22 gets triggered!
+		// That's a patch until I find something more elegant
+		case 22:	//	mouseWheel
+			if (s.eventMod & 4)		// Magnify with ALT key pressed.
+				ATH_Display#Mangify(s)
+				return 0
+			endif
+			if (is3D)
+				DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_W3DImageSliderDFR"))
+				NVAR/SDFR=dfr gLayer, gRightLim, gLeftLim
+				int direction = (s.wheelDy > 0) ? 1 : -1
+				gLayer += direction
+				if(gLayer < 0)
+					gLayer = 0
+				endif
+				if(gLayer > gRightLim)
+					gLayer = gRightLim 
+				endif	
+				ModifyImage/W=$s.winName '' plane=gLayer
+			endif
+			//return hookResult			
+		case 11:
+			switch(s.keycode)
+				case 66: // SHIFT + B
+					if(s.eventMod & 2)
+						ATH_ImgOp#RestoreTopImageFromBackup(wname=NameOfWave(w))
+					endif
+					break
+				case 70: // F
+					if(s.eventMod & 2) // works with SHIFT + F only!
+						ATH_Launch#ImageFFTTransform()
+					endif
+					break
+				case 78: // N
+					if(s.eventMod & 2) // works with SHIFT + N only!
+						ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
+					endif
+					break
+				case 82: // R
+					if(s.eventMod & 2) // works with SHIFT + R only!
+						ATH_iImgRotation#CreatePanel()
+					endif
+					break
+				case 88: // X
+					if(s.eventMod & 2) // works with SHIFT + X only!
+						ATH_iXPS#MainMenu()
+					endif
+					break
+				case 97: // a - average if you have a 3d wave
+					if(is3d)
+						NewImg(ATH_WaveOp#AverageImageStack(w))
+					endif
+					break
+				case 100: //d
+					GetMarquee/W=$s.winName // Just check if there is Marquee, no axes.
+					if(V_flag)
+						ATH_Launch#ImageStackAlignmentPartition() // If marquee present launch partition dc
+					else
+						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
+					endif
+					break
+				case 105: // i
+					ATH_Cursors#MeasureDistanceUsingFreeCursors()
+					break
+				case 108: //l
+					ATH_LineProfile#MainMenu()
+					break
+				case 110: // n
+					ATH_Launch#QuickTextAnnotation()
+					break
+				case 112: // p
+					ATH_PlaneZProfile#MainMenu()
+					break
+				case 114: // r
+					ATH_Range#pnl(s.winName)
+					break
+				case 115: // s
+					if(str2num(GetUserData(s.winName, "", "ATH_isPlanQ")))
+						SetWindow $s.winName, userdata(ATH_isPlanQ) = "0"
+						ModifyGraph width = 0, height = 0
+					else
+						SetWindow $s.winName, userdata(ATH_isPlanQ) = "1"
+						ModifyGraph width={Plan,1,top,left}
+					endif
+					break
+				case 120: // x, calculate xmcd
+					if(is3d && DimSize(w, 2)==2)
+						ATH_Launch#CalculateXMCDFromStack()
+					endif
+					break
+				case 122: // z, launch z-profile if marquee present
+					if(is3d)
+						GetMarquee/W=$s.winName
+						if(V_flag)
+							Execute/P/Q "ATH_ZProfile#GraphMarqueeLaunchRectangle()"
+						endif
+					endif
+					break
+			endswitch
+			hookResult = 1
+			//Do not return anything here, you will block any other case 11.
+	endswitch
+	return hookResult
+End
