@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_iDriftCorrection
-#pragma version = 2.3
+#pragma version = 2.4
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -70,6 +70,8 @@ static Function CreatePanel()
 	variable midOfImageY = 0.5 * (str2num(val1Str) + str2num(val2Str))
 	// When autoscaled then SETAXISCMD is SetAxis/A
 	if(numtype(midOfImageX)) // if NaN
+		midOfImageX = 0.5
+		midOfImageY = 0.5
 		Cursor/W=$winNameStr/I/F/L=0/H=1/C=(1,65535,33232)/S=2/N=1/P I $imgNameTopGraphStr 0.5, 0.5
 	else
 		Cursor/W=$winNameStr/I/F/L=0/H=1/C=(1,65535,33232)/S=2/N=1 I $imgNameTopGraphStr midOfImageX, midOfImageY
@@ -90,11 +92,11 @@ static Function CreatePanel()
 	variable/G dfr:gATH_w3dnlayers = DimSize(w3dref, 2) // 0 for 2D wave
 	variable/G dfr:gATH_AnchorPositionX = NaN // Not set
 	variable/G dfr:gATH_AnchorPositionY = NaN
-	variable/G dfr:gATH_CursorPositionX
-	variable/G dfr:gATH_CursorPositionY
+	variable/G dfr:gATH_CursorPositionX = midOfImageX
+	variable/G dfr:gATH_CursorPositionY = midOfImageY
 	variable/G dfr:gATH_dx = DimDelta(w3dref, 0)
 	variable/G dfr:gATH_dy = DimDelta(w3dref, 1)
-	variable/G dfr:gATH_CursorPositionY
+	variable/G dfr:gATH_SubPixelMode = 0
 	variable/G dfr:gATH_FastMode = 0
 	variable/G dfr:gATH_LDCstartL = NaN
 	variable/G dfr:gATH_LDCendL = NaN
@@ -107,43 +109,51 @@ static Function CreatePanel()
 	SetDrawLayer UserBack
 	SetDrawEnv/W=iDriftCorrection fsize= 13,fstyle= 1,textrgb= (1,12815,52428)
 	DrawText/W=iDriftCorrection 2,16,"Interactive drift correction"
-	Checkbox FastMode3D,pos={12.00,17.50},title="SHIFT+Click & drift",fSize=11,font="Menlo", win=$pnlNameStr
-	Checkbox FastMode3D,value=0,disable=2,proc=ATH_iDriftCorrection#FastMode3DCheckbox,  win=$pnlNameStr
-	SetDrawEnv textrgb= (2,39321,1), fname= "Menlo", fSize=9
-	DrawText 7,85,"1. ---- Set anchor ----\n2. Arrows/wheel to ±layer \n3. SHIFT+click drifts layer+\n4. Del/Bksp restores layer."	
-	Button SetAnchorCursor,pos={23.00,90.00},size={120.00,20.00},title="(Re)Set anchor",fSize=12,fColor=(39321,39321,39321), win=$pnlNameStr 
-	Button SetAnchorCursor,valueColor=(65535,0,0), proc=ATH_iDriftCorrection#SetAnchorCursorButton, win=$pnlNameStr
+	Button ToggleSubPixelMode,title="Sub-pixel drift = OFF",font="Menlo",fSize=11,fColor=(65535,0,0),valueColor=(0,0,0),win=$pnlNameStr
+	Button ToggleSubPixelMode,pos={10,20},size={150,20},proc=ATH_iDriftCorrection#ToggleSubPixelModeButton,win=$pnlNameStr
+	SetDrawLayer UserBack
+	DrawLine 15,50,150,50
+	Button SetAnchorCursor,pos={23.00,57},size={120.00,20.00},title="Anchor not set",fSize=12,fstyle=1,win=$pnlNameStr 
+	Button SetAnchorCursor,valueColor=(65535,0,0),fColor=(61166,61166,61166),proc=ATH_iDriftCorrection#SetAnchorCursorButton,win=$pnlNameStr
+	Button SetAnchorCursor fColor=(61166,61166,61166),help={"You have to set an anchor (reference) point to start drift correction."},win=$pnlNameStr
 	//All buttons, except RestoreWave and LDC, are disabled until the anchor is set
-	Button DriftImage,pos={32.00,125.00},size={100.00,20.00},title="Drift Image",disable=2, win=$pnlNameStr
+	Button DriftImage,pos={32.00,90},size={100.00,20.00},title="Drift Image",disable=2, win=$pnlNameStr
 	Button DriftImage,fSize=12,fColor=(65535,49151,49151),proc=ATH_iDriftCorrection#DriftImageButton, win=$pnlNameStr
-	Button SelectedLayersDrift3D,pos={32.00,160.00},size={100.00,20.00},fColor=(52428,52425,1),disable=2, win=$pnlNameStr
-	Button SelectedLayersDrift3D,title="Drift N images",fSize=12,proc=ATH_iDriftCorrection#DriftSelectedLayers3DWaveButton, win=$pnlNameStr
-	Button CascadeDrift3D,pos={32.00,195.00},size={100.00,20.00},fColor=(65535,49157,16385),disable=2, win=$pnlNameStr
-	Button CascadeDrift3D,title="Cascade drift",fSize=12,proc=ATH_iDriftCorrection#CascadeDrift3DWaveButton, win=$pnlNameStr
+	Button SelectedLayersDrift3D,pos={32.00,125},size={100.00,20.00},fColor=(52428,52425,1),disable=2, win=$pnlNameStr
+	Button SelectedLayersDrift3D,title="Drift N images",fSize=12,proc=ATH_iDriftCorrection#DriftSelectedLayers3DWaveButton,win=$pnlNameStr
+	Button CascadeDrift3D,pos={32.00,160},size={100.00,20.00},fColor=(65535,49157,16385),disable=2, win=$pnlNameStr
+	Button CascadeDrift3D,title="Cascade drift",fSize=12,proc=ATH_iDriftCorrection#CascadeDrift3DWaveButton,win=$pnlNameStr
 	// Draw the region for linear Drift correction
-	SetDrawEnv dash= 3,fillpat= 0;DrawRect 15,225,150,310
+	SetDrawEnv dash= 3,fillpat= 0;DrawRect 15,195,150,280
 	SetDrawEnv fsize= 10
-	DrawText 30,242,"\\F'Menlo'Linear Drift Corr"
-	Button LinearDC3D title="Drift",font="Menlo",fSize=12,fColor=(51664,44236,58982),proc=ATH_iDriftCorrection#LinearDC3DButton, win=$pnlNameStr
-	Button LinearDC3D pos={45,245},size={65,24}, help={"Linear Drift correct between start and end layers"}, disable=2, win=$pnlNameStr
-	Button FirstL3D title="Start",pos={26,280},size={50,20},proc=ATH_iDriftCorrection#SetStartLayer3DButton, win=$pnlNameStr
-	Button LastL3D title="End",pos={85,280},size={50,20},proc=ATH_iDriftCorrection#SetEndLaye3DrButton, win=$pnlNameStr
+	DrawText 30,210,"\\F'Menlo'Linear Drift Corr"
+	string helpStrLinearDC = "Press Start and End after setting the layer using the slider/keys/mousewheel.\n"
+	helpStrLinearDC += "Press Drift to perform linear drift between Start and End layers."
+	Button LinearDC title="Drift",font="Menlo",fSize=12,fColor=(51664,44236,58982),proc=ATH_iDriftCorrection#LinearDCButton,win=$pnlNameStr
+	Button LinearDC pos={45,215},size={65,24}, help={helpStrLinearDC}, disable=2, win=$pnlNameStr
+	Button FirstL title="Start",pos={26,250},size={50,20},proc=ATH_iDriftCorrection#SetStartLayerButton,win=$pnlNameStr
+	Button LastL title="End",pos={85,250},size={50,20},proc=ATH_iDriftCorrection#SetEndLayerButton,win=$pnlNameStr
 	//	
-	Button Checkpoint,pos={32.00,320.00},size={100.00,20.00},fColor=(65535,49151,55704), win=$pnlNameStr
-	Button Checkpoint,title="Checkpoint",fSize=12,proc=ATH_iDriftCorrection#CheckpointButton, win=$pnlNameStr
-	Button RestoreWave,pos={32.00,355.00},size={100.00,20.00},fColor=(32768,54615,65535), win=$pnlNameStr
-	Button RestoreWave,title="Restore stack",fSize=12,proc=ATH_iDriftCorrection#RestoreWaveButton, win=$pnlNameStr
+	Button Checkpoint,pos={32.00,290},size={100.00,20.00},fColor=(65535,49151,55704),win=$pnlNameStr
+	Button Checkpoint,title="Checkpoint",fSize=12,proc=ATH_iDriftCorrection#CheckpointButton,win=$pnlNameStr
+	Button RestoreWave,pos={32.00,320.00},size={100.00,20.00},fColor=(32768,54615,65535),win=$pnlNameStr
+	Button RestoreWave,title="Restore",fSize=15,proc=ATH_iDriftCorrection#RestoreWaveButton,win=$pnlNameStr
+	//		
+	string helpStrShiftClick = "1. (Re)Set anchor.\n2. Use arrows/mousewheel to change between layers \n3. Use SHIFT+right-click"
+	helpStrShiftClick+= " to drift a layer and move to the next.\n4. Use Del/Bksp to restore a layer."	
+	Checkbox FastMode,pos={12.00,350},title="SHIFT+Click & drift",fSize=11,font="Menlo", win=$pnlNameStr
+	Checkbox FastMode,value=0,disable=2,proc=ATH_iDriftCorrection#FastModeCheckbox,help={helpStrShiftClick},win=$pnlNameStr
 	// Save point as reference in the database
-	SetDrawEnv linefgc= (1,12815,52428),dash= 3,fillpat= 0; DrawRect 15,400,150,485
+	SetDrawEnv linefgc= (1,12815,52428),dash= 3,fillpat= 0; DrawRect 15,395,150,480
 	SetDrawEnv textrgb= (65535,0,0), fname= "Arial", fSize=13,fstyle= 1
-	DrawText 17,397,"Inter-stack alignment"
-	SetDrawEnv textrgb= (0,0,0),fname= "Menlo",fstyle= 4,fsize= 10;DrawText 20,420,"Global Ref. (anchor)"
+	DrawText 17,390,"Inter-stack alignment"
+	SetDrawEnv textrgb= (0,0,0),fname= "Menlo",fstyle= 4,fsize= 10;DrawText 20,415,"Global Ref. (anchor)"
 	
-	Button SaveReferenceCoordB,title="Save",fSize=12,pos={18,425},size={60,20.00},win=$pnlNameStr
+	Button SaveReferenceCoordB,title="Save",fSize=12,pos={18,420},size={60,20.00},win=$pnlNameStr
 	Button SaveReferenceCoordB, proc=ATH_iDriftCorrection#InterStackAlignmentButton,disable=2,win=$pnlNameStr
-	Button ShowReferenceCoordB,title="Show",fSize=12,pos={87,425},size={60,20.00},win=$pnlNameStr
+	Button ShowReferenceCoordB,title="Show",fSize=12,pos={87,420},size={60,20.00},win=$pnlNameStr
 	Button ShowReferenceCoordB, proc=ATH_iDriftCorrection#InterStackAlignmentButton,win=$pnlNameStr	
-	Button DriftReferenceCoordB,title="Drift wrt global Ref.",fSize=12,pos={22.00,460},size={120.00,20.00}, win=$pnlNameStr
+	Button DriftReferenceCoordB,title="Drift wrt global Ref.",fSize=12,pos={22.00,455},size={120.00,20.00}, win=$pnlNameStr
 	Button DriftReferenceCoordB,proc=ATH_iDriftCorrection#InterStackAlignmentButton, win=$pnlNameStr
 	// Let's sort button status and colors
 	DFREF dfrS = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveDriftCorrection:SavedReferenceCoords:")
@@ -207,6 +217,11 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 	endif
 	
 	switch(s.eventCode)
+		case 0:
+			gATH_CursorPositionX = hcsr(I, gATH_WindowNameStr)
+			gATH_CursorPositionY = vcsr(I, gATH_WindowNameStr)
+			hookresult = 1
+			break
 		case 2: // Kill the window
 			Cursor/K I
 			KillDataFolder/Z dfr
@@ -227,7 +242,9 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 			hookresult = 1
 			break
 		case 7:
-			gATH_CursorPositionX = s.pointNumber;gATH_CursorPositionY = s.ypointNumber
+			// Same behavior with /F or not
+			gATH_CursorPositionX = hcsr(I, gATH_WindowNameStr)
+			gATH_CursorPositionY = vcsr(I, gATH_WindowNameStr)
 			break
 		case 22: // mouse wheel
 				gLayer += s.WheelDy
@@ -273,6 +290,7 @@ static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonCo
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	SVAR/SDFR=dfr gATH_w3dPathname
+	WAVE/Z w3dRef = $gATH_w3dPathname	
 	NVAR/SDFR=dfr gATH_AnchorPositionX
 	NVAR/SDFR=dfr gATH_AnchorPositionY
 	NVAR/SDFR=dfr gATH_FastMode
@@ -286,20 +304,17 @@ static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonCo
 		case 2:	// "mouse up after mouse down"
 			gATH_AnchorPositionX = hcsr(I, gATH_WindowNameStr)
 			gATH_AnchorPositionY = vcsr(I, gATH_WindowNameStr)
-			SetDrawLayer/W=$gATH_WindowNameStr Overlay
-			DrawAction/W=$gATH_WindowNameStr delete
-			SetDrawEnv/W=$gATH_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,0,0), dash=3
-			DrawLine/W=$gATH_WindowNameStr x0, gATH_AnchorPositionY, xmax, gATH_AnchorPositionY
-			SetDrawEnv/W=$gATH_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,0,0), dash=3
-			DrawLine/W=$gATH_WindowNameStr gATH_AnchorPositionX, y0, gATH_AnchorPositionX, ymax
-			SetDrawLayer/W=$gATH_WindowNameStr UserFront
+			variable relx, rely
+			[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_AnchorPositionX, gATH_AnchorPositionY)
+			DrawTheRefCross(w3dRef, relx, rely, grfName=B_Struct.win)
 			Button SetAnchorCursor fColor=(3,52428,1),valueColor=(0,0,0), win=$B_Struct.win
 			if(!numtype(gATH_AnchorPositionX))
-				CheckBox FastMode3D, win = $B_Struct.win, disable = 0
-				Button DriftImage, win=$B_Struct.win, disable = 0
-				Button CascadeDrift3D, win=$B_Struct.win, disable = 0
-				Button SelectedLayersDrift3D, win=$B_Struct.win,  disable = 0
-				Button SaveReferenceCoordB,  win=$B_Struct.win,  disable = 0
+				CheckBox FastMode, win = $B_Struct.win,disable = 0
+				Button DriftImage, win=$B_Struct.win,disable = 0
+				Button CascadeDrift3D, win=$B_Struct.win,disable = 0
+				Button SelectedLayersDrift3D,win=$B_Struct.win,disable = 0
+				Button SaveReferenceCoordB,win=$B_Struct.win,disable = 0
+				Button SetAnchorCursor,valueColor=(1,26214,0),title="Anchor is set",win=$B_Struct.win
 				if(NVAR_Exists(gATH_SavedRefRelCoordX))
 					Button DriftReferenceCoordB,win=$B_Struct.win,fColor=(2,39321,1),disable = 0
 				endif
@@ -347,7 +362,37 @@ static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	return hookresult
 End
 
-
+static Function ToggleSubPixelModeButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+	variable hookresult = 0
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+	SVAR/Z/SDFR=dfr gATH_WindowNameStr
+	SVAR/Z/SDFR=dfr	gATH_imgNameTopWindowStr
+	SVAR/Z/SDFR=dfr gATH_w3dPathName
+	WAVE/Z w3dRef = $gATH_w3dPathName
+	NVAR/Z/SDFR=dfr gATH_SubPixelMode
+	NVAR/SDFR=dfr gATH_CursorPositionX
+	NVAR/SDFR=dfr gATH_CursorPositionY
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			gATH_SubPixelMode = !gATH_SubPixelMode // Flip mode!
+			variable relx, rely
+			//	When used with the /I flag, x_value and y_value are row and column numbers.
+			//	When used with the /F flag, x_value and y_value are relative graph coordinates (0-1).
+			if(gATH_SubPixelMode)
+				[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_CursorPositionX, gATH_CursorPositionY)
+				Cursor/W=$gATH_WindowNameStr/I/F/L=0/H=1/C=(1,65535,33232)/S=2/P I $gATH_imgNameTopWindowStr relx, rely
+				Button ToggleSubPixelMode title="Sub-pixel drift = ON",fColor=(0,65535,0),win=$B_Struct.win
+			else
+				relx = ScaleToIndex(w3dRef, gATH_CursorPositionX, 0)
+				rely = ScaleToIndex(w3dRef, gATH_CursorPositionY, 1)
+				Cursor/W=$gATH_WindowNameStr/I/L=0/H=1/C=(1,65535,33232)/S=2/P I $gATH_imgNameTopWindowStr relx, rely
+				Button ToggleSubPixelMode title="Sub-pixel drift = OFF",fColor=(65535,0,0),win=$B_Struct.win
+			endif
+			hookresult =  1
+			break
+	endswitch
+	return hookresult
+End
 				
 static Function SetStartLayerButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
@@ -382,7 +427,7 @@ static Function SetStartLayerButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 	return hookresult
 End
 
-static Function SetEndLayer3DButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function SetEndLayerButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
@@ -415,7 +460,7 @@ static Function SetEndLayer3DButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 	return hookresult
 End
 
-static Function LinearDC3DButton(STRUCT WMButtonAction &B_Struct): ButtonControl
+static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
 	DFREF currDF = GetDataFolderDFR()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
@@ -529,21 +574,21 @@ End
 
 static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
-	DFREF currDF = GetDataFolderDFR()	
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
-	SVAR/Z/SDFR=dfr gATH_WindowNameStr
-	SVAR/Z/SDFR=dfr gATH_w3dPathName
-	WAVE/Z w3dRef = $gATH_w3dPathName
-	NVAR/SDFR=dfr gATH_AnchorPositionX
-	NVAR/SDFR=dfr gATH_AnchorPositionY
-	NVAR/SDFR=dfr gATH_CursorPositionX
-	NVAR/SDFR=dfr gATH_CursorPositionY
-	NVAR/SDFR=dfr gATH_dx
-	NVAR/SDFR=dfr gATH_dy
-	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer // Do not use /Z here.
 
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			DFREF currDF = GetDataFolderDFR()
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+			SVAR/Z/SDFR=dfr gATH_WindowNameStr
+			SVAR/Z/SDFR=dfr gATH_w3dPathName
+			WAVE/Z w3dRef = $gATH_w3dPathName
+			NVAR/SDFR=dfr gATH_AnchorPositionX
+			NVAR/SDFR=dfr gATH_AnchorPositionY
+			NVAR/SDFR=dfr gATH_CursorPositionX
+			NVAR/SDFR=dfr gATH_CursorPositionY
+			NVAR/SDFR=dfr gATH_dx
+			NVAR/SDFR=dfr gATH_dy
+			NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer // Do not use /Z here.
 			SetDataFolder dfr
 			if(gATH_AnchorPositionX < 0 || gATH_AnchorPositionY < 0)
 				print "You have first to set a reference position (anchor)"
@@ -564,13 +609,13 @@ static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): Butto
 			WAVE M_Affine
 			Concatenate/O/KILL/NP=2 {M_ReducedWave, M_Affine}, $gATH_w3dPathName
 			hookresult =  1
+			SetDataFolder currDF
 			break
 	endswitch
-	SetDataFolder currDF
 	return hookresult
 End
 
-static Function FastMode3DCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function FastModeCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	variable hookresult = 0
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
@@ -594,9 +639,9 @@ static Function FastMode3DCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxContro
 			Button DriftImage, win=$cb.win, disable = 2
 			Button CascadeDrift3D, win=$cb.win, disable = 2
 			Button SelectedLayersDrift3D, win=$cb.win,  disable = 2
-			Button FirstL3D, win=$cb.win, disable = 2
-			Button LastL3D, win=$cb.win,  disable = 2
-			Button LinearDC3D, win=$cb.win, disable = 2
+			Button FirstL, win=$cb.win, disable = 2
+			Button LastL, win=$cb.win,  disable = 2
+			Button LinearDC, win=$cb.win, disable = 2
 			hookresult = 1
 			break
 		case 0:
@@ -623,9 +668,9 @@ static Function FastMode3DCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxContro
 				Button CascadeDrift3D, win=$cb.win, disable = 0
 				Button SelectedLayersDrift3D, win=$cb.win,  disable = 0
 			endif
-			Button FirstL3D, win=$cb.win, disable = 0
-			Button LastL3D, win=$cb.win,  disable = 0
-			Button LinearDC3D, win=$cb.win, disable = 0
+			Button FirstL, win=$cb.win, disable = 0
+			Button LastL, win=$cb.win,  disable = 0
+			Button LinearDC, win=$cb.win, disable = 0
 			hookresult = 1
 			break
 	endswitch
@@ -654,14 +699,13 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordX
 	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordY
 	SVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordSource
-	
 	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer
 	WAVE/Z w3dBackupRef = $gATH_w3dBackupPathNameStr
 	
 	strswitch (B_Struct.ctrlName)
 		case "SaveReferenceCoordB":
 			variable relx, rely
-			// NB: Save coordinates in pixels! We shouldn't depende on wave scaling
+			// NB: Save coordinates in pixels! We shouldn't depend on wave scaling
 			if(!numtype(gATH_AnchorPositionX) && !NVAR_Exists(gATH_SavedRefRelCoordX)) // If anchor is not nan and we haven't saved before
 				[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_AnchorPositionX, gATH_AnchorPositionY)
 				variable/G dfrS:gATH_SavedRefRelCoordX = relx
@@ -678,19 +722,7 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 			break
 		case "ShowReferenceCoordB":
 			//-------
-			string axisX, axisY
-			[axisX, axisY] = ATH_Graph#GetAxes(grfName=gATH_WindowNameStr)
-			SetDrawLayer/W=$gATH_WindowNameStr Overlay
-			DrawAction/W=$gATH_WindowNameStr delete
-			variable axisValX = DimOffset(w3dRef, 0) + gATH_SavedRefRelCoordX * DimSize(w3dRef,0) * DimDelta(w3dRef, 0)
-			variable axisValY = DimOffset(w3dRef, 1) + gATH_SavedRefRelCoordY * DimSize(w3dRef,1) * DimDelta(w3dRef, 1)
-			variable dr = DimDelta(w3dRef, 0)*0.05*DimSize(w3dRef,0)	
-			SetDrawEnv/W=$gATH_WindowNameStr xcoord= $axisX, ycoord= $axisY, linefgc= (65535,0,0), fillbgc= (65535,0,0),fillfgc= (65535,0,0), dash=2
-			//DrawOval/W=$gATH_WindowNameStr (gATH_SavedRefRelCoordX - 2*gATH_dx),  (gATH_SavedRefRelCoordY - 2*gATH_dy), (gATH_SavedRefRelCoordX + 2*gATH_dx), (gATH_SavedRefRelCoordY + 2*gATH_dy)
-			DrawLine/W=$gATH_WindowNameStr axisValX, axisValY-dr, axisValX, axisValY+dr
-			SetDrawEnv/W=$gATH_WindowNameStr xcoord= $axisX, ycoord= $axisY, linefgc= (65535,0,0), fillbgc= (65535,0,0),fillfgc= (65535,0,0), dash=2			
-			DrawLine/W=$gATH_WindowNameStr axisValX-dr, axisValY, axisValX+dr, axisValY
-
+			DrawTheRefCross(w3dRef, gATH_SavedRefRelCoordX, gATH_SavedRefRelCoordY, grfName=gATH_WindowNameStr)
 			break
 		// Reference should be relative, between 0 and 1 as the number of pixels and scale might be different. 
 		case "DriftReferenceCoordB":
@@ -704,4 +736,23 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 			hookresult =  1
 			break
 	endswitch
+End
+
+static Function DrawTheRefCross(WAVE wRef, variable xv, variable yv, [string grfName])
+	// Draw the ref line
+	string axisX, axisY
+	grfName = StringFromList(0, grfName, "#") // Called from sub-window!
+	[axisX, axisY] = ATH_Graph#GetAxes(grfName=grfName)
+	variable dx = DimDelta(wRef, 0)
+	variable dy = DimDelta(wRef, 1)
+	variable axisValX = DimOffset(wRef, 0) + xv * DimSize(wRef,0) * dx
+	variable axisValY = DimOffset(wRef, 1) + yv * DimSize(wRef,1) * dy
+	variable dr =  0.05 * DimDelta(wRef, 0) * DimSize(wRef,0)	
+	SetDrawLayer/W=$grfName Overlay
+	DrawAction/W=$grfName delete
+	SetDrawEnv/W=$grfName xcoord= $axisX, ycoord= $axisY, linefgc= (65535,0,0), fillbgc= (65535,0,0),fillfgc= (65535,0,0), dash=2
+	DrawLine/W=$grfName axisValX, axisValY-dr, axisValX, axisValY+dr
+	SetDrawEnv/W=$grfName xcoord= $axisX, ycoord= $axisY, linefgc= (65535,0,0), fillbgc= (65535,0,0),fillfgc= (65535,0,0), dash=2
+	DrawLine/W=$grfName axisValX-dr, axisValY, axisValX+dr, axisValY
+	return 0
 End
