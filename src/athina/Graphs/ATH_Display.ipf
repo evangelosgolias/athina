@@ -39,7 +39,8 @@
 
 static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
 static StrConstant ATH_W3DImageSliderParentDFR = "root:Packages:ATH_DataFolder:W3DImageSlider:"
-static Function NewImg(WAVE wRef, [string grfname])
+
+static Function NewImgOld(WAVE wRef, [string grfname])
 	if(!WaveExists(wRef))
 		return -1
 	endif
@@ -580,7 +581,7 @@ End
 //	variable cbOriginalHeight
 //EndStructure
 
-static Function NewImgS(WAVE wRef, [string grfname])
+static Function NewImg(WAVE wRef, [string grfname])
 	if(!WaveExists(wRef))
 		return -1
 	endif
@@ -622,6 +623,7 @@ static Function NewImgS(WAVE wRef, [string grfname])
 		variable/G dfr:gOriginalHeight = V_Height
 		string/G dfr:imageName = NameOfWave(wRef)
 		SetWindow $grfname userdata(ATH_W3DImageSliderDFR) = dfrStr
+		athAppendSlider(grfName=grfName)
 	endif
 
 	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
@@ -633,15 +635,12 @@ static Function NewImgS(WAVE wRef, [string grfname])
 	string colorScaleStr
 	variable cmapSwitch
 	sscanf StringByKey("RECREATION",Imageinfo("",NameOfWave(wRef),0)), matchPattern, colorScaleStr, cmapSwitch
-	if(WaveDims(wRef)==3)
-		athAppendSlider(grfName=grfName)
-	endif
 	WaveStats/Q wRef //$GetWavesDataFolder(wRef, 2)
 	variable ImgAvg = V_avg
 	variable ImgStd = V_sdev
 	ModifyImage/W=$grfname $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3, ctab= {ImgAvg - 3 * ImgStd, ImgAvg + 3 * ImgStd,$colorScaleStr,cmapSwitch} // Autoscale per plane / visible area Image
 	ModifyGraph/W=$grfname fSize=12
-	SetWindow $grfname, hook(AthinaDisplayHook) = ATH_Display#DisplayHookFunction__ // Set the hook
+	SetWindow $grfname, hook(AthinaDisplayHook) = ATH_Display#DisplayHookFunctionEG // Set the hook
 	
 	if(DimSize(wRef, 0) == DimSize(wRef, 1))
 		SetWindow $grfname, userdata(ATH_isPlanQ) = "1"
@@ -662,26 +661,33 @@ Function athAppendSlider([string grfName])
 		WAVE wRef = ATH_ImgOp#TopImageToWaveRef(grfName=grfName)
 		variable nlayers = DimSize(wRef, 2)
 		variable tkImageSliderLMargin = 150
-		ControlBar gOriginalHeight+30
 		variable scale = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-		GetWindow/Z $grfName,gsize
-		variable left = V_left*scale
-		variable right = limit(V_right*scale, left+tkImageSliderLMargin+50,inf)
-		Slider athW3DSlider,ticks=0,vert=0,limits={0, nlayers-1, 1},variable=gLayer,pos={left+10,gOriginalHeight+10},win=$grfName
-		Slider athW3DSlider, size={right-left-tkImageSliderLMargin-30,16},proc=ATH_Display#NewImgSliderHook,win=$grfName
-		SetVariable athW3DSliderVar,limits={0,nlayers-1, 1},pos={right-165, gOriginalHeight+10},live=1,win=$grfName
-		SetVariable athW3DSliderVar,value=gLayer,size={50,20},proc=ATH_Display#ImageSliderSetVarProc,win=$grfName
+		//GetWindow/Z $grfName,gsize
+		//variable left = V_left*scale
+		//variable right = limit(V_right*scale, left+tkImageSliderLMargin+50,inf)
+		GetWindow/Z $grfName gsize
+		gOriginalHeight = V_maxHeight
+		ControlBar gOriginalHeight+30
+		Slider athW3DSlider,ticks=0,vert=0,limits={0, nlayers-1, 1},variable=gLayer,pos={V_left+10,gOriginalHeight+10},win=$grfName
+		Slider athW3DSlider,thumbColor=(0,65535,0),size={V_right*0.8,16},proc=ATH_Display#NewImgSliderHook,win=$grfName
+//		Slider athW3DSlider,labelBack=(57346,65535,49151),win=$grfName
+		SetVariable athW3DSliderVar,limits={0,nlayers-1, 1},pos={V_right*0.825, gOriginalHeight+10},live=1,win=$grfName
+		SetVariable athW3DSliderVar,title=" ",value=gLayer,size={50,20},proc=ATH_Display#ImageSliderSetVarProc,win=$grfName
 End
 
 Function NewImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 
-	if (sa.eventCode & 1 || sa.eventCode & 8)	// Value set
+	if (sa.eventCode & 9 )//|| sa.eventCode & 8)	// Value set
 		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sa.win, "", "ATH_W3DImageSliderDFR"))
 		NVAR/SDFR=dfr gLayer	
 		gLayer = sa.curval
 		ModifyImage/W=$sa.win '' plane=gLayer
 	endif
 	
+	if(sa.eventCode==-1)
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sa.win, "", "ATH_W3DImageSliderDFR"))
+		KillDataFolder/Z dfr
+	endif
 	return 0
 
 End
@@ -704,7 +710,7 @@ static Function ImageSliderSetVarProc(STRUCT WMSetVariableAction &sva) : SetVari
 End
 
 // TODO: Automate the process. Create a function that launches
-static Function DisplayHookFunction__(STRUCT WMWinHookStruct &s)
+static Function DisplayHookFunctionEG(STRUCT WMWinHookStruct &s)
 	//
 	// 31.08.2024: Deal with calls from /EXT windows. We control
 	//	using the wave reference. This is patchwork, we need to 
@@ -720,6 +726,11 @@ static Function DisplayHookFunction__(STRUCT WMWinHookStruct &s)
 	string buffer
 	
 	switch (s.eventCode)
+		case 6:
+			//print s.winRect.top,s.winRect.left,s.winRect.bottom,s.winRect.right
+			Slider athW3DSlider,size={s.winRect.right*0.8,16},win=$s.winName
+			SetVariable athW3DSliderVar, pos={s.winRect.right*0.85, 0+10},win=$s.winName
+			break
 		case 2: // kill
 			if(s.eventMod & 4) // Kill the wave and its backup when ALT is pressed 
 				string wavePathStr = GetWavesDataFolder(w, 2)
@@ -741,10 +752,10 @@ static Function DisplayHookFunction__(STRUCT WMWinHookStruct &s)
 				int direction = (s.wheelDy > 0) ? 1 : -1
 				gLayer += direction
 				if(gLayer < 0)
-					gLayer = 0
+					gLayer = gRightLim
 				endif
 				if(gLayer > gRightLim)
-					gLayer = gRightLim 
+					gLayer = 0 
 				endif	
 				ModifyImage/W=$s.winName '' plane=gLayer
 			endif
