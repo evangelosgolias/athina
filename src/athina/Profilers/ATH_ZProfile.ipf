@@ -32,8 +32,8 @@
 
 static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 	
-	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
 	string winNameStr = WinName(0, 1, 1)
+	string wnamestr = ATH_Graph#TopImageName(grfName=winNameStr)	
 	WAVE w3dref = ImageNameToWaveRef("", wnamestr) // full path of wave
 
 	if(WaveDims(w3dref) == 3) // if it is a 3d wave
@@ -84,8 +84,8 @@ End
 
 static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 	
-	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
 	string winNameStr = WinName(0, 1, 1)
+	string wnamestr = ATH_Graph#TopImageName(grfName=winNameStr)	
 	WAVE w3dref = ImageNameToWaveRef("", wnamestr) // full path of wave
 
 	if(WaveDims(w3dref) == 3) // if it is a 3d wave
@@ -136,8 +136,8 @@ End
 
 static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 	
-	string wnamestr = WMTopImageName() // Where is your cursor? // Use WM routine. No problem with name having # here.
 	string winNameStr = WinName(0, 1, 1)
+	string wnamestr = ATH_Graph#TopImageName(grfName=winNameStr)	
 	WAVE w3dref = ImageNameToWaveRef("", wnamestr) // full path of wave
 	
 	DFREF dfrROI = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedROI")	

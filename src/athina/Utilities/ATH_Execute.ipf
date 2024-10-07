@@ -32,7 +32,7 @@
 // ------------------------------------------------------- //
 
 static Function/S ExecuteShellCommand(uCommand, printCommandInHistory, printResultInHistory [, asAdmin])
-	// Copy of WM procedure
+	// Copy of Wavemetrics procedure
 	String uCommand					// Unix command to execute
 	Variable printCommandInHistory
 	Variable printResultInHistory

@@ -76,7 +76,7 @@ static Function AverageStackToImageFromMenu()
 End
 
 static Function AverageStackToImageFromTraceMenu()
-	WAVE/Z w3dref = ATH_ImgOp#TopImageToWaveRef()
+	WAVE/Z w3dref = ATH_Graph#TopImageToWaveRef()
 	if(!DimSize(w3dref, 2))
 		Abort "Operation needs a stack"
 	endif
@@ -104,7 +104,7 @@ static Function AverageStackToImageFromBrowserMenu()
 End
 
 static Function CalculateXMCDFromStack()
-	WAVE/Z w3d = ATH_ImgOp#TopImageToWaveRef()
+	WAVE/Z w3d = ATH_Graph#TopImageToWaveRef()
 	string basename = NameofWave(w3d) + "_xmcd"
 	DFREF dfr = GetWavesDataFolderDFR(w3d)
 	DFREF saveDF = GetDataFolderDFR()
@@ -713,7 +713,7 @@ static Function ImgRGB2Gray16()
 End
 
 static Function Rotate3DWaveAxes()
-	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
 	if(WaveDims(wRef) !=3)
 		Abort "Operation needs a 3d wave (image stack)!"
 	endif
@@ -769,7 +769,7 @@ static Function ImageFFTTransform([int noPlot])
 	// FFT wave in the cwd
 	noPlot = ParamIsDefault(noPlot) ? 0 : noPlot
 	string grfName = WinName(0, 1, 1), noteStr
-	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef(grfName=grfName)
+	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
 	if(WaveExists(wRef))
 		GetMarquee/W=$grfName
 		if(V_flag) // if there is a Marquee a free wave will be used.
@@ -801,7 +801,7 @@ End
 
 
 static Function ScalePlanesBetweenZeroAndOne()
-	WAVE wRef = ATH_ImgOp#TopImageToWaveRef() 
+	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	// If you have 2D do it fast here and return
 	if(WaveDims(wRef) == 2)
 		MatrixOP/FREE wFree = wRef-minVal(wRef)
@@ -816,7 +816,7 @@ static Function ScalePlanesBetweenZeroAndOne()
 End
 
 static Function AverageLayersRange()
-	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
 	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
 		print "AverageLayersRange() needs an image stack in top graph."
 		return -1
@@ -829,7 +829,7 @@ End
 
 static Function ExtractLayerRangeToStack()
 
-	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
 	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
 		print "ExtractLayersToStack() needs an image stack in top graph."
 		return -1
@@ -842,7 +842,7 @@ End
 
 static Function SumImagePlanes()
 
-	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
 	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
 		print "SumImagePlanes() needs an image stack in top graph."
 		return -1
@@ -859,7 +859,7 @@ static Function SumImagePlanes()
 End
 
 static Function AverageImageStack()
-	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
 	variable nlayers = DimSize(wRef,2)	
 	if(WaveDims(wRef) != 3 || nlayers < 2)
 		return -1
@@ -869,7 +869,7 @@ static Function AverageImageStack()
 End
 
 static Function HistogramShiftToGaussianCenter()
-	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
 	if(!WaveExists(wRef))
 		Abort "Wave Reference is NULL"
 	endif
@@ -945,7 +945,7 @@ static Function QuickTextAnnotation()
 End
 
 static Function MakeWaveFromSavedROI()
-	WAVE/Z wref = ATH_ImgOp#TopImageToWaveRef()
+	WAVE/Z wref = ATH_Graph#TopImageToWaveRef()
 	ATH_WaveOp#MakeWaveFromROI(wRef)
 End
 
@@ -1062,7 +1062,7 @@ static Function DeleteBigWavesDisplayed()
 End
 
 static Function PixelateSingleImageOrStack()
-	WAVE wRef = ATH_ImgOp#TopImageToWaveRef() 
+	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	variable nx = 1, ny = 1, nz = 1
 	if(WaveDims(wRef) == 3)
 		Prompt nx, "Pixelate X:"
@@ -1230,7 +1230,7 @@ End
 
 Function SetTopImageDF()
 	/// Set the current data folder to the parent dir of the top image
-	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
+	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	SetDataFolder GetWavesDataFolderDFR(wRef)
 	return 0
 End
@@ -1238,7 +1238,7 @@ End
 // Remove background
 
 static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operation
-	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
+	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	variable order = 1
 	Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
 	DoPrompt "Background subtraction ", order
@@ -1248,7 +1248,7 @@ static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operat
 	endif
 	ATH_DFR#BackupWaveInWaveDFQ(wRef)
 	if(ATH_Windows#IsW3DSliderActiveQ("")) // Do we have active axis in top window?
-		variable layerN = ATH_Windows#GetCurrentPlaneWM3DAxis("")
+		variable layerN = ATH_Windows#GetgLayerValue("")
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = layerN)
 	else
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order)
@@ -1259,7 +1259,7 @@ End
 // Flatten Image
 
 static Function FlattenImage([string method, variable kernelN, variable iterN])
-	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
+	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	kernelN = ParamIsDefault(kernelN) ? 2^5 : kernelN
 	iterN = ParamIsDefault(iterN) ? 1 : iterN		
 	string msg = "Flatten: img-bkg (layer-wise)"

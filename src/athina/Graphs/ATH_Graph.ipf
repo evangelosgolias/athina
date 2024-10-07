@@ -35,7 +35,7 @@ static Function DuplicateWaveAndDisplayOfTopImage()
 	/// Duplicate the graph of an image (2d, 3d wave) along with the wave at its
 	/// data folder (not cwd). 
 	string winNameStr = WinName(0, 1)
-	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
+	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	DFREF cdfr = GetDataFolderDFR()
     string duplicateWinNameStr = UniqueName(winNameStr + "_", 6, 1, winNameStr)
     string waveNameStr = CreateDataObjectName(cdfr, NameOfWave(wRef) + "_", 1, 0, 5)
@@ -230,3 +230,28 @@ static Function [variable px, variable py] RelToAxisVal2D(WAVE w, variable xr, v
 	py = IndexToScale(w, ny, 1)	
 	return [px, py]
 End
+
+static Function/WAVE TopImageToWaveRef([string grfName])
+	// Return a wave reference from the top graph
+	
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(grfName, ";"),";")
+	// if there is no image in the top graph strlen(imgNameTopGraphStr) = 0
+	if(strlen(imgNameTopGraphStr))
+		WAVE wRef = ImageNameToWaveRef(grfName, imgNameTopGraphStr) // full path of wave
+		return wRef
+	else 
+		return $""
+	endif
+End
+
+Function/S TopImageName([string grfName])
+	// Name of top graph's image. Or grfName's image!
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	string imgNameStr = StringFromList(0,ImageNameList(grfName, ";"),";") 
+	if(strlen(imgNameStr))
+		return imgNameStr
+	else
+		return ""
+	endif
+end

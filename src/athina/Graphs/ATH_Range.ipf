@@ -33,7 +33,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-//#include <WMImageInfo> // Included in ATH_Display
+#include <WMImageInfo>
 
 StrConstant PRESTR_CMD = "•"			//	prefix character for regular commands in the history window
 StrConstant PRESTR_CAUTION = "** "	//	prefix characters for cautions in the history window

@@ -64,7 +64,7 @@ End
 static Function/S GetNewestCreatedFileInPathTree(string pathName, 
 		   string extension, string &latestfile, variable &latestctime, 
 		   variable recurse, variable level)
-	//  ATH_GetNewestCreatedFileInPathTree is a modified WM code of
+	//  ATH_GetNewestCreatedFileInPathTree is a modified Wavemetrics code of
 	//	PrintFoldersAndFiles(pathName, extension, recurse, level)
 	//	It recursively finds all files in a folder and subfolders looking for 
 	//  the creation date of each file, catching the newest one.
@@ -146,7 +146,7 @@ static Function LoadNewestFolderInPathTreeAndDisplay()
 End
 
 static Function/S GetNewestCreatedFolderInPathTree(string pathName, string &latestfolder, variable &latestctime)
-	//  ATH_GetNewestCreatedFileInPathTree is a modified WM code of
+	//  ATH_GetNewestCreatedFileInPathTree is a modified Wavemetrics code of
 	//	PrintFoldersAndFiles(pathName, extension, recurse, level)
 	//	It recursively searches for the newest folder in a folder tree.
 	//	pathName is the name of an Igor symbolic path that you created

@@ -63,7 +63,7 @@ static Function CoordinatesToROIMask(variable left, variable top, variable right
 	interior = ParamIsDefault(interior) ? 1: interior // if set do not read metadata
 	exterior = ParamIsDefault(exterior) ? 0: exterior // if set do not read metadata
 	
-	string wnamestr = WMTopImageName()
+	string wnamestr = ATH_Graph#TopImageName()
 	string winNameStr = WinName(0, 1, 1)
 	DoWindow/F $winNameStr // You need to have your imange stack as a top window
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
@@ -78,8 +78,8 @@ End
 static Function/WAVE WAVECoordinatesToROIMask(variable left, variable top, variable right, variable bottom)
 	/// Generate a SP Mask from Marquee and return a WAVE reference
 	/// The graph should have left, top axes
-	string wnamestr = WMTopImageName()
 	string winNameStr = WinName(0, 1, 1)
+	string wnamestr = ATH_Graph#TopImageName(grfName=winNameStr)
 	DoWindow/F $winNameStr // You need to have your imange stack as a top window
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv linefgc = (65535,16385,16385), fillpat = 0, linethick = 0.5, xcoord = top, ycoord = left
@@ -120,7 +120,7 @@ static Function [variable flag, variable leftR, variable rightR, variable topR, 
 	axisY = SelectString(ParamIsDefault(axisY) ? 0: 1,"top", axisY)
 	variable errCode
 	
-	WAVE wRef = ATH_ImgOp#TopImageToWaveRef(grfName=grfName)
+	WAVE wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
 	GetMarquee/W=$grfName $axisX, $axisY; errCode = GetRTError(1);
 	flag = V_flag
 	if(errCode)

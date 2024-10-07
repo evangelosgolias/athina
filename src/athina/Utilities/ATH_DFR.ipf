@@ -134,7 +134,7 @@ static Function/S SanitizePath(string path)
 End
 
 static Function PrintFoldersAndFiles(string pathName, string extension, variable recurse, variable level)
-	/// This is a WM function
+	/// This is a Wavemetrics function
 	/// Striwng pathName	Name of symbolic path in which to look for folders and files.
 	/// String extensios File name extension (e.g., ".txt") or "????" for all files.
 	/// Variable recurse True to recurse (do it for subfolders too).

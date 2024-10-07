@@ -60,12 +60,13 @@ static Function MainMenu()
 	axisLeftRangeStr, cmdStr, axisStr, val1Str, dumpStr, val2Str
 	variable midOfImageY = 0.5 * (str2num(val1Str) + str2num(val2Str))
 	// When autoscaled then SETAXISCMD is SetAxis/A
+	print midOfImageX,midOfImageY
 	if(numtype(midOfImageX)) // if NaN
 		Cursor/W=$winNameStr/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr nrows*0.75, ncols*0.25
 		Cursor/W=$winNameStr/I/C=(65535,0,0)/S=1/P/N=1 F $imgNameTopGraphStr nrows*0.25, ncols*0.75
 	else
-		Cursor/W=$winNameStr/I/C=(65535,0,0)/S=1/N=1 E $imgNameTopGraphStr midOfImageX*1.25, midOfImageY*0.75
-		Cursor/W=$winNameStr/I/C=(65535,0,0)/S=1/N=1 F $imgNameTopGraphStr midOfImageX*0.75, midOfImageY*1.25
+		Cursor/W=$winNameStr/I/C=(65535,0,0)/S=1/N=1 E $imgNameTopGraphStr midOfImageX*1.05, midOfImageY*0.95
+		Cursor/W=$winNameStr/I/C=(65535,0,0)/S=1/N=1 F $imgNameTopGraphStr midOfImageX*0.95, midOfImageY*1.05
 	endif
 	InitialiseGraph(dfr)
 	SetWindow $winNameStr, hook(MyLineProfileHook) = ATH_LineProfile#CursorsHookFunction // Set the hook

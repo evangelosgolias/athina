@@ -79,7 +79,7 @@ static Function SetNamedHookFunctionToWindow(string hookFuncNameStr, string hook
 	return 0
 End
 
-static Function GetCurrentPlaneWM3DAxis(string windowNameStr)
+static Function GetgLayerValue(string windowNameStr)
 	// Returns the /P=num plane displayed in windowNameStr
 	if(!strlen(windowNameStr))
 		windowNameStr = WinName(0, 1, 1) // top window

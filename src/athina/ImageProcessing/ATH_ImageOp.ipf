@@ -71,7 +71,7 @@ End
 
 static Function GetLayerIndex(string grfName, [Wave/Z w])
 	if (ParamIsDefault(w))
-		WAVE/Z w = ATH_ImgOp#TopImageToWaveRef(grfName=grfName)
+		WAVE/Z w = ATH_Graph#TopImageToWaveRef(grfName=grfName)
 	endif
 	if (!WaveExists(w) || WaveDims(w) != 3)
 		return NaN
@@ -82,7 +82,7 @@ End
 
 static Function AutoRangeTopImagePlane()
 	// Autoscale image of the top grap
-	WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
+	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
 	string colorScaleStr
 	variable cmapSwitch
@@ -122,7 +122,7 @@ static Function SetZScaleOfImageStack() // Uses top graph
 End
 
 static Function ImageSelectToCopyScale() // Uses top graph
-	WAVE wRef =ATH_ImgOp#TopImageToWaveRef()
+	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	// Select the first wave from browser selection
 	string selectedWavesStr = ATH_Dialog#SelectWavesInModalDataBrowser("Select an image to set common dimension scaling")
 	WAVE sourceWaveRef = $StringFromList(0, selectedWavesStr)
@@ -458,7 +458,7 @@ static Function BackupTopImage()
 	/// Backup wave in the top window, the backup is created in the 
 	/// sourcewave datafolder (to be able to restore)
 	
-	WAVE/Z wRef = ATH_ImgOp#TopImageToWaveRef()
+	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
 	if(!WaveExists(wRef))
 		print "Operation needs an image or image stack"
 		return -1
@@ -478,7 +478,7 @@ static Function RestoreTopImageFromBackup([string wname])
 	if(!ParamIsDefault(wname))
 		WAVE wRef = $wname
 	else
-		WAVE wRef = ATH_ImgOp#TopImageToWaveRef()
+		WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	endif
 	
 	if(!WaveExists(wRef))
@@ -704,20 +704,6 @@ static Function HistogramShiftToGaussianCenterStack(WAVE w3d, [variable overwrit
 	endif
 	SetDataFolder currDF
 	return x0 // Return the shift!
-End
-
-static Function/WAVE TopImageToWaveRef([string grfName])
-	// Return a wave reference from the top graph
-	
-	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(grfName, ";"),";")
-	// if there is no image in the top graph strlen(imgNameTopGraphStr) = 0
-	if(strlen(imgNameTopGraphStr))
-		WAVE wRef = ImageNameToWaveRef(grfName, imgNameTopGraphStr) // full path of wave
-		return wRef
-	else 
-		return $""
-	endif
 End
 
 static Function GrayToRGBImage(WAVE wRef)
@@ -1050,89 +1036,8 @@ static Function ShiftWaveUsingCursors(string graphStr)
 	return 0 	
 End
 
-//Function ResampleImageStackWithXYScales(WAVE w3d, variable Nx, variable Ny)
-//	/// Resample the w3d with factors Nx, Ny => Nx * x, Ny * y
-//	/// Works with 2D, 3D waves also	
-//	
-//	variable nlayers = DimSize(w3d, 2), i 
-//	DFREF saveDF = GetDataFolderDFR()
-//	SetDataFolder NewFreeDataFolder()
-//	
-//	for(i = 0; i < nlayers; i++)
-//		MatrixOP/FREE gLayerFree = layer(w3d, i)
-//		ImageInterpolate/FUNC=nn/TRNS={scaleShift, 0, Nx, 0, Ny} Resample gLayerFree
-//		Rename M_InterpolatedImage, $("getStacklayer_" + num2str(i))
-//	endfor
-//	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
-//	WAVE M_Stack
-//	CopyScales w3d, M_Stack
-//	string baseNameStr = NameOfWave(w3d) + num2str(Nx) + "x" + num2str(Ny)
-//	string saveWaveNameStr = CreatedataObjectName(saveDF, baseNameStr, 1, 0, 0)
-//	MoveWave M_Stack saveDF:$saveWaveNameStr
-//	SetDataFolder saveDF
-//	return 0
-//End
-//
-//Function PixelateImageStackWithFactor(WAVE w3d, variable Nxy)
-//	/// Pixelate (bin) the image or image stack with factor Nxy
-//	/// Works with 2D, 3D waves 
-//	
-//	string waveNameStr = NameOfWave(w3d) + "_px" + num2str(Nxy)
-//	ImageInterpolate/PXSZ={Nxy,Nxy}/DEST=$waveNameStr pixelate w3d
-//	return 0
-//End
-
-
-//TODO
-//Function ApplyOperationToFilesInFolderTree(string pathName, 
-//		   string extension, variable recurse, variable level)
-//	///
-//	///  
-//
-//	PathInfo $pathName
-//	string path = S_path	
-//	if(!V_flag) // If path not defined
-//		print "pathName not set!"
-//		NewPath/O pathName
-//	endif
-//	
-//	// Reset or make the string variable
-//	variable folderIndex, fileIndex
-//
-//	// Add files
-//	fileIndex = 0
-//	do
-//		string fileName
-//		fileName = IndexedFile($pathName, fileIndex, extension)
-//		if (strlen(fileName) == 0)
-//			break
-//		endif
-//		WAVE datWave = ATH_WAVELoadSingleDATFile(fileName, "", skipmetadata = 1)
-//		ImageSave/P=$pathName datWave
-//		KillWaves datWave
-//		fileIndex += 1
-//	while(1)
-//	
-//	if (recurse)		// Do we want to go into subfolder?
-//		folderIndex = 0
-//		do
-//			path = IndexedDir($pathName, folderIndex, 1)
-//			if (strlen(path) == 0)
-//				break	// No more folders
-//			endif
-//
-//			string subFolderPathName = "tempPrintFoldersPath_" + num2istr(level+1)
-//			
-//			// Now we get the path to the new parent folder
-//			string subFolderPath
-//			subFolderPath = path
-//			
-//			NewPath/Q/O $subFolderPathName, subFolderPath
-//			ATH_ApplyOperationToFilesInFolderTree(subFolderPathName, extension, recurse, level+1)
-//			KillPath/Z $subFolderPathName
-//			
-//			folderIndex += 1
-//		while(1)
-//	endif
-//	return 0
+//static Function MagnifyAndRestoreDims(WAVE wREF, variable factor)
+//	// Magnify an image by a factor (percentage) and return an 
+//	// image with the original size. 
+//	// If the image is magnified we crop.
 //End

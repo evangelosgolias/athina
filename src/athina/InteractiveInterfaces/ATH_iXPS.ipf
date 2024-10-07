@@ -735,7 +735,7 @@ static Function Layer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
 	NVAR/Z updateSelectedLayer = dfr:gATH_updateSelectedLayer
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
-	if(DataFolderExists("ATH_Display#Append3DImageSlider" + WindowNameStr))
+	if(DataFolderExists(skATH_W3DImageSliderParentDFR + WindowNameStr))
 		NVAR/Z glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(WindowNameStr):gLayer
 		if(NVAR_Exists(glayer))
 			selectedLayer = glayer

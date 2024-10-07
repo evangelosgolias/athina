@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_Display
-#pragma version = 1.2
+#pragma version = 1.3
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -31,16 +31,8 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-// File to control the new image display in athina
-
-#include <Imageslider> // Used in many .ipfs
-#include <Autosize Images>
-#include <WMImageInfo>
-
-
 // Visible everywhere, global constant.
 strConstant skATH_W3DImageSliderParentDFR = "root:Packages:ATH_DataFolder:W3DImageSlider:" // Ends with semicolon
-
 
 static Function NewImg(WAVE wRef, [string grfname])
 	if(!WaveExists(wRef))
@@ -59,16 +51,6 @@ static Function NewImg(WAVE wRef, [string grfname])
 	endif
 
 	if(WaveDims(wRef)==3)
-		//
-		string dfrStr = skATH_W3DImageSliderParentDFR + grfName
-		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
-		variable/G dfr:gLayer = 0
-		variable/G dfr:gLeftLim = 0
-		variable/G dfr:gRightLim = DimSize(wRef, 2) - 1
-		ControlInfo kwControlBar
-		variable/G dfr:gOriginalHeight = V_Height
-		string/G dfr:imageName = NameOfWave(wRef)
-		SetWindow $grfname userdata(ATH_W3DImageSliderDFR) = dfrStr
 		Append3DImageSlider(grfName=grfName)
 	endif
 
@@ -105,7 +87,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	//
 	// •DisplayHelpTopic "Hook Functions for Exterior Subwindows"
 	variable hookResult = 0
-	Wave/Z w = ATH_ImgOp#TopImageToWaveRef(grfName=s.winName)
+	Wave/Z w = ATH_Graph#TopImageToWaveRef(grfName=s.winName)
 	if(!WaveExists(w))
 		return 0
 	endif
@@ -131,7 +113,9 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				return 0
 			endif
 			if (is3D)
-				int direction = (s.wheelDy > 0) ? 1 : -1
+				// s.wheelDy becomes s.wheelDx when SHIFT is pressed.
+				// The other value is zero
+				int direction = ((s.wheelDx+s.wheelDy) > 0) ? 1 : -1
 				gLayer += direction
 				if(gLayer < 0)
 					if(s.eventMod & 2)
@@ -261,19 +245,26 @@ End
 Function Append3DImageSlider([string grfName])
 		// Append a slider if you have a stack
 		// Wave in top graph
-		string dfrStr = GetUserData(grfName, "", "ATH_W3DImageSliderDFR")
-		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(grfName, "", "ATH_W3DImageSliderDFR"))
+			
+		grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)		
+		WAVE wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
+		if(WaveDims(wRef)!=3)
+			return 1
+		endif
+
+		string dfrStr = skATH_W3DImageSliderParentDFR + grfName
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
+		SetWindow $grfName userdata(ATH_W3DImageSliderDFR) = dfrStr
+		ControlInfo kwControlBar
+		variable/G dfr:gLayer = 0
+		variable/G dfr:gLeftLim = 0
+		variable/G dfr:gRightLim = DimSize(wRef, 2) - 1
+		variable/G dfr:gOriginalHeight = V_Height
+		string/G dfr:imageName = NameOfWave(wRef)
+		
+		variable nlayers = DimSize(wRef, 2)
 		NVAR/Z/SDFR=dfr gLayer
 		NVAR/Z/SDFR=dfr gOriginalHeight
-		grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
-		WAVE wRef = ATH_ImgOp#TopImageToWaveRef(grfName=grfName)
-		variable nlayers = DimSize(wRef, 2)
-		variable zoffset = DimOffset(wRef, 2)
-		variable tkImageSliderLMargin = 150
-		variable scale = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-		//GetWindow/Z $grfName,gsize
-		//variable left = V_left*scale
-		//variable right = limit(V_right*scale, left+tkImageSliderLMargin+50,inf)
 		
 		GetWindow/Z $grfName gsize
 		gOriginalHeight = V_maxHeight

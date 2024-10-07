@@ -32,7 +32,7 @@
 // ------------------------------------------------------- //
 
 /// Note: We cannot launch the operation without having a slider on at the moment
-/// the problem is the WM functions used in ATH_Display. "GetWindow kwTopWin, property" fails
+/// the problem is the Wavemetrics functions used in ATH_Display. "GetWindow kwTopWin, property" fails
 /// as it acts on the /EXT panel with "error: this operation is for graphs only"
 /// static Function Append3DImageSlider() is the source of error.
 /// Exterior windows are on top
@@ -189,8 +189,9 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 	WAVE/Z w3dBackUpRef = $gATH_w3dBackupPathNameStr
 	SVAR/Z/SDFR=dfr gATH_imgNameTopWindowStr
 	NVAR/Z/SDFR=dfr gATH_FastMode
+	NVAR/Z/SDFR=dfr	gATH_SubPixelMode
 	NVAR/Z/SDFR=dfr gATH_w3dnlayers
-	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer
+	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
 	NVAR/SDFR=dfr gATH_AnchorPositionX
 	NVAR/SDFR=dfr gATH_AnchorPositionY
 	NVAR/SDFR=dfr gATH_CursorPositionX
@@ -232,6 +233,9 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 			if(gATH_FastMode && s.eventMod==2 && gLayer < gATH_w3dnlayers && !numtype(gATH_AnchorPositionX)) //if SHIFT is pressed and Fast Mode is on
 				dx = (gATH_AnchorPositionX - AxisValFromPixel(gATH_WindowNameStr, "top", s.mouseLoc.h))/gATH_dx
 				dy = (gATH_AnchorPositionY - AxisValFromPixel(gATH_WindowNameStr, "left", s.mouseLoc.v))/gATH_dy
+				if(!gATH_SubPixelMode)
+					dx = round(dx); dy = round(dy)
+				endif
 				MatrixOP/O/FREE layerFREE = layer(w3dRef, gLayer)
 				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=dfr:M_Affine2D Affine2D layerFREE // Will overwrite M_Affine
 				WAVE ATH_Affine2D = dfr:M_Affine2D
@@ -340,7 +344,7 @@ static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/SDFR=dfr gATH_CursorPositionY
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
-	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer
+	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
 
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
@@ -370,6 +374,7 @@ static Function ToggleSubPixelModeButton(STRUCT WMButtonAction &B_Struct): Butto
 	SVAR/Z/SDFR=dfr gATH_w3dPathName
 	WAVE/Z w3dRef = $gATH_w3dPathName
 	NVAR/Z/SDFR=dfr gATH_SubPixelMode
+	NVAR/SDFR=dfr gATH_FastMode	
 	NVAR/SDFR=dfr gATH_CursorPositionX
 	NVAR/SDFR=dfr gATH_CursorPositionY
 	switch(B_Struct.eventCode)	// numeric switch
@@ -378,15 +383,18 @@ static Function ToggleSubPixelModeButton(STRUCT WMButtonAction &B_Struct): Butto
 			variable relx, rely
 			//	When used with the /I flag, x_value and y_value are row and column numbers.
 			//	When used with the /F flag, x_value and y_value are relative graph coordinates (0-1).
-			if(gATH_SubPixelMode)
-				[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_CursorPositionX, gATH_CursorPositionY)
-				Cursor/W=$gATH_WindowNameStr/I/F/L=0/H=1/C=(1,65535,33232)/S=2/P I $gATH_imgNameTopWindowStr relx, rely
-				Button ToggleSubPixelMode title="Sub-pixel drift = ON",fColor=(0,65535,0),win=$B_Struct.win
-			else
-				relx = ScaleToIndex(w3dRef, gATH_CursorPositionX, 0)
-				rely = ScaleToIndex(w3dRef, gATH_CursorPositionY, 1)
-				Cursor/W=$gATH_WindowNameStr/I/L=0/H=1/C=(1,65535,33232)/S=2/P I $gATH_imgNameTopWindowStr relx, rely
-				Button ToggleSubPixelMode title="Sub-pixel drift = OFF",fColor=(65535,0,0),win=$B_Struct.win
+				if(gATH_SubPixelMode)
+					[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_CursorPositionX, gATH_CursorPositionY)
+					Cursor/W=$gATH_WindowNameStr/I/F/L=0/H=1/C=(1,65535,33232)/S=2/P I $gATH_imgNameTopWindowStr relx, rely
+					Button ToggleSubPixelMode title="Sub-pixel drift = ON",fColor=(0,65535,0),win=$B_Struct.win
+				else
+					relx = ScaleToIndex(w3dRef, gATH_CursorPositionX, 0)
+					rely = ScaleToIndex(w3dRef, gATH_CursorPositionY, 1)
+					Cursor/W=$gATH_WindowNameStr/I/L=0/H=1/C=(1,65535,33232)/S=2/P I $gATH_imgNameTopWindowStr relx, rely
+					Button ToggleSubPixelMode title="Sub-pixel drift = OFF",fColor=(65535,0,0),win=$B_Struct.win
+				endif
+			if(gATH_FastMode) //We are in FastMode. We don't need Cursor!
+				Cursor/K I
 			endif
 			hookresult =  1
 			break
@@ -398,7 +406,7 @@ static Function SetStartLayerButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 	variable hookresult = 0
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
-	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer
+	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
 	NVAR/Z/SDFR=dfr gATH_LDCstartL
 	NVAR/Z/SDFR=dfr gATH_LDCendL	
 	NVAR/Z/SDFR=dfr gATH_LDCstartX
@@ -431,7 +439,7 @@ static Function SetEndLayerButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 	variable hookresult = 0
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
-	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer
+	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
 	NVAR/Z/SDFR=dfr gATH_LDCstartL
 	NVAR/Z/SDFR=dfr gATH_LDCendL	
 	NVAR/Z/SDFR=dfr gATH_LDCstartX
@@ -542,7 +550,7 @@ static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct)
 	NVAR/SDFR=dfr gATH_CursorPositionY
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
-	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer
+	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
 
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
@@ -588,7 +596,7 @@ static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): Butto
 			NVAR/SDFR=dfr gATH_CursorPositionY
 			NVAR/SDFR=dfr gATH_dx
 			NVAR/SDFR=dfr gATH_dy
-			NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer // Do not use /Z here.
+			NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:gLayer // Do not use /Z here.
 			SetDataFolder dfr
 			if(gATH_AnchorPositionX < 0 || gATH_AnchorPositionY < 0)
 				print "You have first to set a reference position (anchor)"
@@ -620,6 +628,8 @@ static Function FastModeCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_iImgAlignFolder"))
 	SVAR/Z/SDFR=dfr gATH_WindowNameStr
 	SVAR/Z/SDFR=dfr gATH_imgNameTopWindowStr
+	SVAR/Z/SDFR=dfr gATH_w3dPathName
+	WAVE/Z w3dRef = $gATH_w3dPathName	
 	NVAR/SDFR=dfr gATH_AnchorPositionX
 	NVAR/SDFR=dfr gATH_AnchorPositionY
 	NVAR/SDFR=dfr gATH_dx
@@ -636,6 +646,7 @@ static Function FastModeCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 			SetDrawEnv/W=$gATH_WindowNameStr xcoord= top, ycoord= left, linefgc= (65535,0,0), fillbgc= (65535,0,0),fillfgc= (65535,0,0), fillpat= 1
 			DrawOval (gATH_AnchorPositionX - gATH_dx/2),  (gATH_AnchorPositionY - gATH_dy/2), (gATH_AnchorPositionX + gATH_dx/2), (gATH_AnchorPositionY + gATH_dy/2)
 			SetDrawLayer/W=$gATH_WindowNameStr UserFront
+			//DrawTheRefCross(w3dRef,gATH_AnchorPositionX, gATH_AnchorPositionY,grfName=gATH_WindowNameStr)
 			Button DriftImage, win=$cb.win, disable = 2
 			Button CascadeDrift3D, win=$cb.win, disable = 2
 			Button SelectedLayersDrift3D, win=$cb.win,  disable = 2
@@ -699,7 +710,7 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordX
 	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordY
 	SVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordSource
-	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(gATH_WindowNameStr):gLayer
+	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
 	WAVE/Z w3dBackupRef = $gATH_w3dBackupPathNameStr
 	
 	strswitch (B_Struct.ctrlName)
