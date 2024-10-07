@@ -192,9 +192,9 @@ There you have the following options:
 * "Apply filter": Apply one filter: gauss, avg, median, max or min.
 * "Filter N = 3 ..": Filte's size (N x N matrix).
 * "Apply filter 1..5 times": How many times to apply the filter.
-* "Normalise range [0, 1]": Normalise image between [0, 1].
 * "Apply histogram equalization": Yes/No.
 * "Edge detection method": shen, kirsch, sobel, prewitt, canny, roberts, marr or frei.
+* "Sub-pixel drift (Registration)": Integer pixel corrections is default, enable sub-pixel corrections (applies to Registration only).
 * "Cutoff drift (pixels)": Threshold above which no drift correction applies.
 * "Print drift layer": Yes/No to show the drift calculated/applied per layer.
 
@@ -211,7 +211,14 @@ Select a characteristic feature using the marquee and press continue to procced.
 
 ### Interactive
 
-For difficult drift correction cases you can use the interactive drift correction panel. To launch it you can either select "athina > Interactive Operations > Drift Correction" or press "z" (["ATH NewImage"](thebasics.md#display-an-imageimage-stack)) without any marquee in top graph.
+For difficult drift correction cases you can use the interactive drift correction panel. To launch it you can either select "athina > Interactive Operations > Drift Correction" or press "z" (["ATH NewImage"](thebasics.md#display-an-imageimage-stack)) **without** a marquee in the graph.
+
+```{note} 
+The interative drift correction works in two modes. The default mode (button "Sub-pixel drift = OFF" is red) drift images an integer number of pixels, with no distortion in the corrected image. 
+If you want to enable sub-pixel drift corrections press the button "Sub-pixel drift = OFF" to turn it green (now name is "Sub-pixel drift = ON" ). Note that sub-pixel drift corrections introduce aliasing effects, which can be considetable when the ignal to noise ratio is very small.
+```
+
+The interactive drift correction panel will open on the side of the window, as seen in the image below.
 
 ```{figure} media/interactiveDriftCorrection.png
 :alt: Interactive drift correction panel.
@@ -221,33 +228,24 @@ For difficult drift correction cases you can use the interactive drift correctio
 
 The interactive drift correction panel.
 ```
-Using the green cursor you can set a reference point or indicate the position to move a feature. If you want to be more precise you can zoom in in a part of the image using the marquee and right-click and select "Expand" (to go back presse CTLR + A (CMD + A on a Mac)) as seen below.
 
-```{figure} media/expandWithMarquee.png
-:alt: Zoom in using the marquee
-:scale: 33%
-:align: center
-:name: expandWithMarquee
-
-Use the marquee to zoom in to a region of an image.
-```
-
-First, move the cursor to the reference point of your choice and press "(Re)Set anchor". The crossing point of two perpendicular dashed red lines will mark the reference point. Change the active image using the slider (mouse wheel works also) and then set the cursor to your reference point and press "Drift Image" to drift the image .
+Use the green cursor (crosshair) to drift correct the a stack if images. First, you need to set a reference point for alignment, a defect or a chatacteristic region in your sample, we call this point **anchor**. If you want to be more precise you can zoom in in a part of the image using the marquee and right-click and select "Expand" (to go back press CTLR + A (CMD + A on a Mac)). Press the button "Set anchor" to set the anchor, it will turn green. You case reset the anchor to another position by pressing again the button (no style change of the button this time). Change the displayed image using the slider (mouse wheel works also) and then set the cursor to your reference (anchor) point and press "Drift Image" to drift the image .
 Press "Drift N images" to select a range of images you want to move to the cursor position
 Press "Cascade drift" to move all images from the current image until the end of the stack.
 
 Use the **Linear Drift Corr** part if you want drift-correct a series of images by linear interpolating between the start and end layers of your choice. Select the start layer and press "Start" while having the cursor on the feature you use as reference. Select the end layer and set the cursor to the new position of your reference point. Press "Drift" and you're done. 
 
 ```{tip} 
-Linear drift correction is useful in linear drifts between layes that usually happen when there are monotonous temperature changes in the microscope
+Linear drift correction is useful when there is a monotonous moting between layers, usually as a result of increasing or decreasing  temperature of the sample.
 ```
 
 Press "Checkpoint" to save the state of the stack (N.B you cannot restore the original stack afterwards)
-Press "Restore stack" to revert all changes.
 
-Last, there is a fast drift correction option that can be enable by ticking "SHIFT+Click & drift". **You cannot enable this mode unless you have set a reference point first**. When the mode is enabled the reference point it is a red dot, it is small as we assume that most of the time you'd like to work in a small part of the image to be more precise. 
+Press "Restore" to revert all changes.
 
-Use:
+There is a fast drift correction option that can be enable by ticking "SHIFT+Click & drift". **You cannot enable this mode unless you have set a reference point first**. When the mode is enabled the reference point it is a red dot, it is small as we assume that most of the time you'd like to work in a small part of the image to be more precise. 
+
+Use (hover mouse over the checkpoin to a summary of instructions given below):
 
 * SHIFT + left mouse click on a point to drift the image. The reference point will be moved to the point you clicked, so try to follow your reference point with your mouse. After clicking the next layer will be displayed.
 * Use arrow keys or mousewheel to skip layers or go back to previous ones. 
@@ -256,3 +254,7 @@ Use:
 ```{caution} 
 If you have drift corrected your stack the changes are applied if you close the iDriftCorrection side-window. There is no backup to restore your stack to its original state. **If you want to discard any changes with you to press "Restore stack" before exiting.**
 ```
+
+**Inter-stack alignment:** You can use the interactive drift correction to align different stacks or images. Set the anchor to the point of reference and press "Save". When a global reference is saved, the "Show" button (draws the point of reference on the graph) and the "Drift wrt to global Ref." will be enabled. You can save a global reference many times, only the last one will be remembered. You have always set an anchor and then press "Save" under the _Global Ref. (anchor)_ to save it as your global reference (it's not the currnt cursor position).
+
+You can then use the "Drift wrt to global Ref." buttin with another stack or image to drift the stack using the cursor with respect to the global reference. Press "Show" to draw the previously saved reference. 

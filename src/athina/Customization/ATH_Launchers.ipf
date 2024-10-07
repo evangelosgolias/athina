@@ -218,19 +218,19 @@ static Function ImageStackAlignmentFullImage()
 	variable histEq = 2	
 	variable windowing = 0
 	variable algo = 1
-	variable normalise = 2
 	variable cutoff = 0
+	variable intPixels = 2
 	string msg = "Align " + imgNameTopGraphStr + " using the full image."
 	Prompt algo, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
 	Prompt layerN, "Reference layer"
-	Prompt normalise, "Normalise range [0, 1]?", popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt edgeAlgo, "Edge detection method", popup, "None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"
 	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
 	Prompt convMode, "Convergence (Registration only)", popup, "Gravity (fast); Marquardt (slow)"
 	Prompt windowing, "Windowing", popup, "None;Hanning;Hamming;Bartlett;Blackman"
-	Prompt cutoff, "Cutoff drift (pixels) "	
+	Prompt intPixels, "Sub-pixel drift (Registation)",  popup, "Yes;No" // Yes = 1, No = 2!	
+	Prompt cutoff, "Cutoff drift (pixels) "
 	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt msg, algo, layerN, normalise, edgeAlgo, histEq, convMode, windowing, cutoff, printMode
+	DoPrompt msg, algo, layerN, edgeAlgo, histEq, convMode, windowing, cutoff, intPixels, printMode
 	
 	if(V_flag) // User cancelled
 		return -1
@@ -238,10 +238,6 @@ static Function ImageStackAlignmentFullImage()
 	
 	string backupWavePathStr = ATH_DFR#BackupWaveInWaveDF(w3dref)
 	int switchWaveCopy = 0
-	if(normalise == 1)
-		ATH_ImgOp#ScalePlanesBetweenZeroAndOne(w3dRef)
-		switchWaveCopy = 1
-	endif
 
 	if(histEq == 1)
 		ImageHistModification/O/I w3dref
@@ -263,9 +259,10 @@ static Function ImageStackAlignmentFullImage()
 	if(algo == 1)
 		if(switchWaveCopy)
 			ATH_ImgAlign#ImgStackRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1,\
-			selfDrift = 0, cutoff = cutoff)
+			selfDrift = 0, cutoff = cutoff, intPixels = intPixels - 1)
 		else
-			ATH_ImgAlign#ImgStackRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1)
+			ATH_ImgAlign#ImgStackRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1,\
+			intPixels = intPixels - 1)
 		endif
 	elseif(algo == 2)
 		if(switchWaveCopy)
@@ -280,9 +277,9 @@ static Function ImageStackAlignmentFullImage()
 	//Restore the note
 	string copyNoteStr = note($backupWavePathStr)
 	string driftCorrectionNoteStr = "Drift correction using " + StringFromList(algo, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
-	driftCorrectionNoteStr += "Normalise range [0, 1]: " + StringFromList(normalise, "dummy;Yes;No") + "\n"
 	driftCorrectionNoteStr += "Apply histogram equalization: " + StringFromList(histEq, "dummy;Yes;No")+"\n"
 	driftCorrectionNoteStr += "Edge detection method: " + StringFromList(edgeAlgo, "dummy;None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei")+"\n"
+	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(intPixels, "dummy;Yes;No") + "\n"
 	driftCorrectionNoteStr += "Cutoff drift (pixels): " + num2str(cutoff)+"\n"
 	Note/K w3dref,driftCorrectionNoteStr
 	Note w3dref,copyNoteStr
@@ -305,7 +302,7 @@ static Function ImageStackAlignmentPartition()
 	variable filter = 1
 	variable filterN = 3	
 	variable nrTimes = 1
-	variable normalise = 2
+	variable intPixels = 2
 	variable cutoff = 0
 	string msg = "Align " + imgNameTopGraphStr + " using part of the image."
 	
@@ -314,13 +311,13 @@ static Function ImageStackAlignmentPartition()
 	Prompt filter, "Apply filter", popup, "None;gauss;avg;median;max;min" // gauss = 2
 	Prompt filterN, "Filter N = 3 ... 15 (odd N is better)"	
 	Prompt nrTimes, "Apply filter 1...5 times"	
-	Prompt normalise, "Normalise range [0, 1]?", popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
 	Prompt edgeAlgo, "Edge detection method", popup, "None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"
+	Prompt intPixels, "Sub-pixel drift (Registation)",  popup, "Yes;No" // Yes = 1, No = 2!	
 	Prompt cutoff, "Cutoff drift (pixels) "
 	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
 	
-	DoPrompt msg, method, layerN, filter, filterN, nrTimes, normalise, histEq, edgeAlgo, cutoff, printMode
+	DoPrompt msg, method, layerN, filter, filterN, nrTimes, histEq, edgeAlgo, intPixels, cutoff, printMode
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -354,10 +351,6 @@ static Function ImageStackAlignmentPartition()
 	if(histEq == 1)
 		ImageHistModification/O/I partitionWave
 	endif
-	
-	if(normalise == 1)
-		ATH_ImgOp#ScalePlanesBetweenZeroAndOne(partitionWave)
-	endif
 
 	// Edge detection is applied last
 	if(edgeAlgo > 1)
@@ -367,7 +360,7 @@ static Function ImageStackAlignmentPartition()
 	endif
 	
 	if(method == 1)
-		ATH_ImgAlign#ImgStackPartitionRegistration(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2, cutoff = cutoff)
+		ATH_ImgAlign#ImgStackPartitionRegistration(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2, cutoff = cutoff, intPixels = intPixels - 1)
 	elseif(method == 2)
 		ATH_ImgAlign#ImgStackPartitionCorrelation(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2, cutoff = cutoff)
 	else
@@ -377,9 +370,9 @@ static Function ImageStackAlignmentPartition()
 	string copyNoteStr = note($backupWavePathStr)
 	string driftCorrectionNoteStr = "Drift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
 	driftCorrectionNoteStr += "Apply filter:" + StringFromList(filter, "dummy;None;gauss;avg;median;max;min") + ", N = " + num2str(filterN) + ", repeated "+num2str(nrTimes)+" times\n"
-	driftCorrectionNoteStr += "Normalise range [0, 1]: " + StringFromList(normalise, "dummy;Yes;No") + "\n"
 	driftCorrectionNoteStr += "Apply histogram equalization: " + StringFromList(histEq, "dummy;Yes;No")+"\n"
 	driftCorrectionNoteStr += "Edge detection method: " + StringFromList(edgeAlgo, "dummy;None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei")+"\n"
+	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(intPixels, "dummy;Yes;No") + "\n"
 	driftCorrectionNoteStr += "Cutoff drift (pixels): " + num2str(cutoff)+"\n"
 	KillWaves partitionWave
 	Note/K w3dref,driftCorrectionNoteStr

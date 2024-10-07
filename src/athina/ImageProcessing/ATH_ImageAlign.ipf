@@ -74,7 +74,7 @@ static Function ImgRegistration(WAVE w1, WAVE w2)
 End
 
 static Function ImgStackRegistration(WAVE w3d, [variable layerN, 
-		 variable cutoff, int selfDrift, int printMode, int convMode])
+		 variable cutoff, int selfDrift, int printMode, int convMode, int intPixels])
 	/// Align a 3d wave using ImageRegistration. By default the function will
 	/// use the 0-th layer as a wave reference, uncless user chooses otherwise 
 	/// Only x, y translations are allowed.
@@ -84,11 +84,13 @@ static Function ImgStackRegistration(WAVE w3d, [variable layerN,
  	/// @param printMode int optional print drift of each layer
 	/// @param convMode int optional Select convergence method /CONV = 0, 1 for Gravity (fast) or Marquardt (slow), respectively.
 	/// @param selfDrift Drift original or a copy of the wave
+	/// @param intPixels Drift integer number of pixels
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then 0 is your choice
 	convMode = ParamIsDefault(convMode) ? 0: convMode // convMode = 0, 1 
 	printMode = ParamIsDefault(printMode) ? 0: printMode
 	cutoff = ParamIsDefault(cutoff) ? 0: cutoff
 	selfDrift = ParamIsDefault(selfDrift) ? 1 : 0 // Default: 1, drift-correct the original wave w3d (unprocessed).
+	intPixels = ParamIsDefault(intPixels) ? 1 : intPixels
 	
 	if(!(WaveType(w3d) & 0x02))
 		Redimension/S w3d
@@ -99,8 +101,13 @@ static Function ImgStackRegistration(WAVE w3d, [variable layerN,
 	ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0/CSNR=0/CONV=(convMode) refwave = refLayerWave, testwave = w3d	
 
 	WAVE M_RegOut, M_RegMaskOut, M_RegParams
-	MatrixOP/FREE dxL = row(M_RegParams, 0)
-	MatrixOP/FREE dyL = row(M_RegParams, 1)	
+	if(intPixels)
+		MatrixOP/FREE dxL = round(row(M_RegParams, 0))
+		MatrixOP/FREE dyL = round(row(M_RegParams, 1))
+	else
+		MatrixOP/FREE dxL = row(M_RegParams, 0)
+		MatrixOP/FREE dyL = row(M_RegParams, 1)		
+	endif
 	
 	if(cutoff) // Cutoff only if set, if 0 pass
 		dxL = (abs(dxL) > cutoff) ? 0 : dxL
@@ -281,7 +288,8 @@ static Function ImgStackCorrelation(WAVE w3d, [variable layerN, int printMode, v
 	return 0
 End
 
-static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [variable layerN, variable cutoff, variable printMode]) // Used in menu
+static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [variable layerN,
+				variable cutoff, variable intPixels, variable printMode]) // Used in menu
 	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave.
 	/// The partition 3d wave calls ATH_ImageStackAlignmentByFullRegistration
 	/// By default the function will  use the 0-th layer as a wave reference, uncless user chooses otherwise.
@@ -291,9 +299,13 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 	/// @layerN set the reference layer
 	/// @printMode if set x, y drifts are printed in a notebook
 	/// @cutoff if set max drift in pixels allowed
+	/// @intPixels Drift an integer number of pixels
+	
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then default is 0
 	printMode = ParamIsDefault(printMode) ? 0: printMode
 	cutoff = ParamIsDefault(cutoff) ? 0: abs(cutoff)
+	intPixels = ParamIsDefault(intPixels) ? 1 : intPixels
+	
 	if(!(WaveType(w3d) & 0x02))
 		Redimension/S w3d
 	endif
@@ -317,8 +329,13 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 	variable layers = DimSize(w3d, 2)
 	ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d
 	WAVE M_RegParams
-	MatrixOP/FREE dx = row(M_RegParams,0)
-	MatrixOP/FREE dy = row(M_RegParams,1)
+	if(intPixels)
+		MatrixOP/FREE dx = round(row(M_RegParams, 0))
+		MatrixOP/FREE dy = round(row(M_RegParams, 1))
+	else
+		MatrixOP/FREE dx = row(M_RegParams, 0)
+		MatrixOP/FREE dy = row(M_RegParams, 1)		
+	endif	
 	if(cutoff) // Cutoff only if set
 		dx = (abs(dx) > cutoff) ? 0 : dx
 		dy = (abs(dy) > cutoff) ? 0 : dy
@@ -329,7 +346,7 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 			MatrixOP/O $("getStacklayer_" + num2str(i)) = layer(w3d, i) // Scaled in pixels!
 		else
 			MatrixOP/O getLayer = layer(w3d, i) // Scaled in pixels!
-				ImageInterpolate/APRM={1,0,dx[i],0,1,dy[i],1,0}/DEST=$("getStacklayer_" + num2str(i)) Affine2D getLayer
+			ImageInterpolate/APRM={1,0,dx[i],0,1,dy[i],1,0}/DEST=$("getStacklayer_" + num2str(i)) Affine2D getLayer
 		endif
 		if(printMode)
 			if(dx[i] == 0 && dy[i] == 0)

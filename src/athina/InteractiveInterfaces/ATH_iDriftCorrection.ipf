@@ -113,7 +113,7 @@ static Function CreatePanel()
 	Button ToggleSubPixelMode,pos={10,20},size={150,20},proc=ATH_iDriftCorrection#ToggleSubPixelModeButton,win=$pnlNameStr
 	SetDrawLayer UserBack
 	DrawLine 15,50,150,50
-	Button SetAnchorCursor,pos={23.00,57},size={120.00,20.00},title="Anchor not set",fSize=12,fstyle=1,win=$pnlNameStr 
+	Button SetAnchorCursor,pos={23.00,57},size={120.00,20.00},title="Set anchor",fSize=12,fstyle=1,win=$pnlNameStr 
 	Button SetAnchorCursor,valueColor=(65535,0,0),fColor=(61166,61166,61166),proc=ATH_iDriftCorrection#SetAnchorCursorButton,win=$pnlNameStr
 	Button SetAnchorCursor fColor=(61166,61166,61166),help={"You have to set an anchor (reference) point to start drift correction."},win=$pnlNameStr
 	//All buttons, except RestoreWave and LDC, are disabled until the anchor is set
