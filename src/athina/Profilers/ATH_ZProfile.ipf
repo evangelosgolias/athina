@@ -209,9 +209,7 @@ static Function/DF InitialiseFolder()
 	if(!strlen(imgNameTopGraphStr)) // we do not have an image in top graph
 		Abort "No image in top graph. Start profile with an image stack in top window."
 	endif
-	
-	WMAppend3DImageSlider() // Everything ok now, add a slider to the 3d wave
-	
+		
 	// Initialise the Package folder
 	variable nlayers = DimSize(w3dref, 2)
 	variable dz = DimDelta(w3dref, 2)
@@ -437,7 +435,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 		case 8: // We have a Window modification event
 			string plotNameStr = GetUserData(s.winName, "", "ATH_LinkedWinImageZPP")
 			if(mouseTrackV < 0 && strlen(WinList(plotNameStr,";",""))) // mouse outside image stack area and profile plot exists
-				NVAR/Z glayer = root:Packages:WM3DImageSlider:$(WindowNameStr):gLayer
+				NVAR/Z glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(WindowNameStr):gLayer
 				variable linePos = DimOffset(profile, 0) + glayer * DimDelta(profile, 0)
 				DrawAction/W=$plotNameStr delete
 				SetDrawEnv/W=$plotNameStr xcoord= bottom, ycoord= prel,linefgc = (65535,0,0) //It should be after the draw action

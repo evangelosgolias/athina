@@ -31,8 +31,6 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
-
 static Function/S GetListOfNamedWindowHookFunctions([string winNameStr, string hookFuncNameStr])
 	// Copy from https://www.wavemetrics.com/code-snippet/get-list-named-window-hook-functions
     variable all
@@ -86,24 +84,24 @@ static Function GetCurrentPlaneWM3DAxis(string windowNameStr)
 	if(!strlen(windowNameStr))
 		windowNameStr = WinName(0, 1, 1) // top window
 	endif
-	ControlInfo/W=$windowNameStr WM3DAxis
+	ControlInfo/W=$windowNameStr ATH_W3DSlider
 	if( V_Flag != 0 )
-		DFREF WMdfr = $(WMkSliderDataFolderBase + windowNameStr)
-		NVAR/SDFR=WMdfr gLayer
+		DFREF dfr = $(skATH_W3DImageSliderParentDFR + windowNameStr)
+		NVAR/SDFR=dfr gLayer
 		return gLayer
 	else
 		return -1
 	endif
 End
 
-static Function IsWM3DAxisActiveQ(string windowNameStr)
-	/// Check whether WM3DAxis is active
+static Function IsW3DSliderActiveQ(string windowNameStr)
+	/// Check whether ATH_W3DSlider is active
 	// 0 - not active
 	// 1 - active
 		if(!strlen(windowNameStr))
 		windowNameStr = WinName(0, 1, 1) // top window
 	endif
-	ControlInfo/W=$windowNameStr WM3DAxis
+	ControlInfo/W=$windowNameStr ATH_W3DSlider
 	return V_flag
 End
 

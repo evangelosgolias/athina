@@ -90,10 +90,7 @@ static Function/DF InitialiseFolder()
 		NewImage/K=1/N=$winNameStr imgWaveRef
 		ModifyGraph/W=$winNameStr width={Plan,1,top,left}
 	endif
-	
-	if(WaveDims(imgWaveRef) == 3)
-		WMAppend3DImageSlider() // Everything ok now, add a slider to the 3d wave
-	endif
+
     DFREF rootDF = $("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:")
     string UniqueimgNameTopGraphStr = CreateDataObjectName(rootDF, imgNameTopGraphStr, 11, 0, 1)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:" + PossiblyQuoteName(UniqueimgNameTopGraphStr)) // Root folder here

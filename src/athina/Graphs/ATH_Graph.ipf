@@ -31,9 +31,6 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static StrConstant WMkSliderDataFolderBase = "root:Packages:WM3DImageSlider:"
-
-
 static Function DuplicateWaveAndDisplayOfTopImage()
 	/// Duplicate the graph of an image (2d, 3d wave) along with the wave at its
 	/// data folder (not cwd). 

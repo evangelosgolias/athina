@@ -30,7 +30,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static constant kCBOFFSET = 30 // height of WM plane slider in 3d waves
+static constant kCBOFFSET = 30 // height slider in 3d waves
 
 
 static Function/S GetActiveCursors([string grfName])
@@ -83,7 +83,7 @@ static Function MeasureDistanceUsingFreeCursors()
 	// if the hook is there you have already launch it!
 	GetWindow $winNameStr hook(ATH_MeasureDistanceCsrDCHook)
 	// if there is slider and MeasureDistanceUsingFreeCursors not launched	
-	if(ATH_Windows#IsWM3DAxisActiveQ(winNameStr) && !strlen(S_value))
+	if(ATH_Windows#IsW3DSliderActiveQ(winNameStr) && !strlen(S_value))
 		ControlBar lCBOFFSET + kCBOFFSET
 	elseif(!lCBOFFSET) // We have an 1D or 2D graph without ControlBar
 		ControlBar kCBOFFSET

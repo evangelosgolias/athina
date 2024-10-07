@@ -94,10 +94,6 @@ static Function/DF InitialiseFolder(string winNameStr)
 		ModifyGraph/W=$winNameStr width={Plan,1,top,left}
 	endif
 	
-	if(WaveDims(imgWaveRef) == 3)
-		WMAppend3DImageSlider() // Everything ok now, add a slider to the 3d wave
-	endif
-    
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iXPS:" + winNameStr) // Root folder here
 	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iXPS:DefaultSettings:") // Settings here
 
@@ -347,8 +343,8 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			break
 		case 8: // modifications, either move the slides or the cursors
 			// NB: s.cursorName gives "" in the switch but "-" outside for no cursor under cursor or CursorName (A,B,...J)
-			if(WaveDims(imgWaveRef) == 3 && DataFolderExists("root:Packages:WM3DImageSlider:" + WindowNameStr) && updateSelectedLayer && mouseTrackV < 0)
-				NVAR/Z glayer = root:Packages:WM3DImageSlider:$(WindowNameStr):gLayer
+			if(WaveDims(imgWaveRef) == 3 && DataFolderExists("root:Packages:ATH_DataFolder:W3DImageSlider:" + WindowNameStr) && updateSelectedLayer && mouseTrackV < 0)
+				NVAR/Z glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(WindowNameStr):gLayer
 				selectedLayer = glayer
 				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
@@ -739,8 +735,8 @@ static Function Layer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
 	NVAR/Z updateSelectedLayer = dfr:gATH_updateSelectedLayer
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
-	if(DataFolderExists("root:Packages:WM3DImageSlider:" + WindowNameStr))
-		NVAR/Z glayer = root:Packages:WM3DImageSlider:$(WindowNameStr):gLayer
+	if(DataFolderExists("ATH_Display#Append3DImageSlider" + WindowNameStr))
+		NVAR/Z glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(WindowNameStr):gLayer
 		if(NVAR_Exists(glayer))
 			selectedLayer = glayer
 		endif

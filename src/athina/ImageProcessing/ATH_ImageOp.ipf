@@ -266,7 +266,7 @@ static Function GetScaledZoominImageWindow()
 	P0 = min(P0, P1)
 	Q0 = min(Q0, Q1)	
 	if(WaveDims(wref) == 3)
-		NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(winNameStr):gLayer	
+		NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(winNameStr):gLayer	
 		if(NVAR_Exists(gLayer))
 			bufferStr = NameOfWave(wref) + "_layer_" + num2str(gLayer) + "_ZM"
 			wavenameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 5)
@@ -298,7 +298,7 @@ static Function GetLayerFromImageStack()
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	string msg
-	NVAR/Z gLayer = root:Packages:WM3DImageSlider:$(winNameStr):gLayer	
+	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(winNameStr):gLayer	
 	if(NVAR_Exists(gLayer) && WaveDims(w3dref) == 3)
 		string layerSaveStr = NameOfWave(w3dref) + "_layer_" + num2str(gLayer)
 		MatrixOP/O $layerSaveStr = layer(w3dref, gLayer)

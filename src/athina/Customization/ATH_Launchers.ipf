@@ -443,10 +443,10 @@ static Function LinearDriftCorrestionPlanesABCursors()
 	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P B $imgNameTopGraphStr 0.75, 0.5
 	variable slope, shift, x0, y0, x1, y1, startL, endL, nlayers
 
-	if(!ATH_Windows#IsWM3DAxisActiveQ(winNameStr))
+	if(!ATH_Windows#IsW3DSliderActiveQ(winNameStr))
 		ATH_Display#Append3DImageSlider()
 	endif
-	DFREF sliderDFR = $("root:Packages:WM3DImageSlider:" + winNameStr)
+	DFREF sliderDFR = $(skATH_W3DImageSliderParentDFR + winNameStr)
 	NVAR/SDFR=sliderDFR gLayer
 	startL = gLayer
 
@@ -635,8 +635,8 @@ static Function RemoveImagesFromImageStack()
 	endif	
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	variable startLayer, nrLayers, flag
-	if(WaveDims(w3dref) == 3 && DataFolderExists("root:Packages:WM3DImageSlider:" + winNameStr))
-		NVAR glayer = root:Packages:WM3DImageSlider:$(winNameStr):gLayer
+	if(WaveDims(w3dref) == 3 && DataFolderExists(skATH_W3DImageSliderParentDFR + winNameStr))
+		NVAR glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(winNameStr):gLayer
 		startLayer = glayer
 	else
 		return -1
@@ -678,8 +678,8 @@ static Function InsertImageToStack()
 	endif	
 	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 	variable layerN
-	if(WaveDims(w3dref) == 3 && DataFolderExists("root:Packages:WM3DImageSlider:" + winNameStr))
-		NVAR glayer = root:Packages:WM3DImageSlider:$(winNameStr):gLayer
+	if(WaveDims(w3dref) == 3 && DataFolderExists(skATH_W3DImageSliderParentDFR + winNameStr))
+		NVAR glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(winNameStr):gLayer
 		layerN = glayer
 	else
 		return -1
@@ -1247,7 +1247,7 @@ static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operat
 		return -1
 	endif
 	ATH_DFR#BackupWaveInWaveDFQ(wRef)
-	if(ATH_Windows#IsWM3DAxisActiveQ("")) // Do we have active axis in top window?
+	if(ATH_Windows#IsW3DSliderActiveQ("")) // Do we have active axis in top window?
 		variable layerN = ATH_Windows#GetCurrentPlaneWM3DAxis("")
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = layerN)
 	else
