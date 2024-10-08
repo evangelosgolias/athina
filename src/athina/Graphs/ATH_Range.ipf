@@ -206,56 +206,61 @@ Static Function pnl(String grfName)
 	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 	NewPanel/EXT=0/HOST=$targetWin/W=(0,0,PNLWIDTH*pntConv,PNLHEIGHT*pntConv)/N=$PNAME
 	String pnlName = targetWin + "#" + PNAME
-
+	
 	//	Controls
-	PopupMenu imageP title="image",pos={3,7},size={218,19},bodyWidth=180,fsize=13,win=$pnlName
+	PopupMenu imageP title="image",pos={3*pntConv,7*pntConv},size={218*pntConv,19*pntConv},win=$pnlName
+	PopupMenu imageP bodyWidth=180*pntConv,fsize=13*pntConv,win=$pnlName
 	
-	GroupBox zminG pos={4,30},size={128,141},title="first Z",fColor=(65280,32768,32768),fsize=13,win=$pnlName
+	GroupBox zminG pos={4*pntConv,30*pntConv},size={128*pntConv,141*pntConv},win=$pnlName
+	GroupBox zminG title="first Z",fColor=(65280,32768,32768),fsize=13*pntConv,win=$pnlName
 
-	CheckBox zminC      pos={9,53}, title="", win=$pnlName
-	CheckBox zminAutoC  pos={9,76}, title="auto", win=$pnlName
-	CheckBox zminSigmaC pos={9,99}, title="\u03bc +", win=$pnlName
-	CheckBox zminCutC   pos={9,122},title="cut", win=$pnlName
-	CheckBox zminLogsigmaC   pos={9,145}, title="log", win=$pnlName
+	CheckBox zminC      pos={9*pntConv,53*pntConv}, title="", win=$pnlName
+	CheckBox zminAutoC  pos={9*pntConv,76*pntConv}, title="auto", win=$pnlName
+	CheckBox zminSigmaC pos={9*pntConv,99*pntConv}, title="\u03bc +", win=$pnlName
+	CheckBox zminCutC   pos={9*pntConv,122*pntConv},title="cut", win=$pnlName
+	CheckBox zminLogsigmaC   pos={9*pntConv,145*pntConv}, title="log", win=$pnlName
 	
-	SetVariable zminV      pos={27,51},format="%g",win=$pnlName
-	SetVariable zminSigmaV pos={47,98},value=_NUM:-3,limits={-inf,inf,0.1},win=$pnlName
-	SetVariable zminCutV   pos={47,121},value=_NUM:0.5,limits={0,100,0.1},win=$pnlName
-	SetVariable zminLogsigmaV pos={47,144},value=_NUM:-3,limits={-inf,inf,0.1},win=$pnlName
+	SetVariable zminV      pos={27*pntConv,51*pntConv},format="%g",win=$pnlName
+	SetVariable zminSigmaV pos={47*pntConv,98*pntConv},value=_NUM:-3,limits={-inf,inf,0.1},win=$pnlName
+	SetVariable zminCutV   pos={47*pntConv,121*pntConv},value=_NUM:0.5,limits={0,100,0.1},win=$pnlName
+	SetVariable zminLogsigmaV pos={47*pntConv,144*pntConv},value=_NUM:-3,limits={-inf,inf,0.1},win=$pnlName
 	
-	TitleBox zminSigmaT pos={111,99}, title="\u03c3",win=$pnlName
-	TitleBox zminCutT   pos={111,122},title="%",win=$pnlName
-	TitleBox zminLogigmaT pos={111,145}, title="\u03c3",win=$pnlName
+	TitleBox zminSigmaT pos={111*pntConv,99*pntConv}, title="\u03c3",win=$pnlName
+	TitleBox zminCutT   pos={111*pntConv,122*pntConv},title="%",win=$pnlName
+	TitleBox zminLogigmaT pos={111*pntConv,145*pntConv}, title="\u03c3",win=$pnlName
 
-	GroupBox zmaxG pos={134,30},size={128,141},title="last Z",fColor=(32768,40704,65280),fsize=13,win=$pnlName
+	GroupBox zmaxG pos={134*pntConv,30*pntConv},size={128*pntConv,141*pntConv},win=$pnlName
+	GroupBox zmaxG title="last Z",fColor=(32768,40704,65280),fsize=13*pntConv,win=$pnlName
 
-	CheckBox zmaxC      pos={139,53}, title="", win=$pnlName
-	CheckBox zmaxAutoC  pos={139,76}, title="auto",win=$pnlName
-	CheckBox zmaxSigmaC pos={139,99}, title="\u03bc +",win=$pnlName
-	CheckBox zmaxCutC   pos={139,122}, title="cut", win=$pnlName
-	CheckBox zmaxLogsigmaC   pos={139,145}, title="log", win=$pnlName
+	CheckBox zmaxC      pos={139*pntConv,53*pntConv}, title="", win=$pnlName
+	CheckBox zmaxAutoC  pos={139*pntConv,76*pntConv}, title="auto",win=$pnlName
+	CheckBox zmaxSigmaC pos={139*pntConv,99*pntConv}, title="\u03bc +",win=$pnlName
+	CheckBox zmaxCutC   pos={139*pntConv,122*pntConv}, title="cut", win=$pnlName
+	CheckBox zmaxLogsigmaC   pos={139*pntConv,145*pntConv}, title="log", win=$pnlName
 
-	SetVariable zmaxV      pos={157,51},format="%g",win=$pnlName
-	SetVariable zmaxSigmaV pos={177,98},value=_NUM:3,limits={-inf,inf,0.1},win=$pnlName
-	SetVariable zmaxCutV   pos={177,121},value=_NUM:99.5,limits={0,100,0.1},win=$pnlName
-	SetVariable zmaxLogsigmaV pos={177,144},value=_NUM:3,limits={-inf,inf,0.1},win=$pnlName
+	SetVariable zmaxV      pos={157*pntConv,51*pntConv},format="%g",win=$pnlName
+	SetVariable zmaxSigmaV pos={177*pntConv,98*pntConv},value=_NUM:3,limits={-inf,inf,0.1},win=$pnlName
+	SetVariable zmaxCutV   pos={177*pntConv,121*pntConv},value=_NUM:99.5,limits={0,100,0.1},win=$pnlName
+	SetVariable zmaxLogsigmaV pos={177*pntConv,144*pntConv},value=_NUM:3,limits={-inf,inf,0.1},win=$pnlName
 	
-	TitleBox zmaxSigmaT pos={241,99},title="\u03c3",win=$pnlName
-	TitleBox zmaxCutT   pos={241,122},title="%",win=$pnlName
-	TitleBox zmaxLogigmaT pos={241,145},title="\u03c3",win=$pnlName
+	TitleBox zmaxSigmaT pos={241*pntConv,99*pntConv},title="\u03c3",win=$pnlName
+	TitleBox zmaxCutT   pos={241*pntConv,122*pntConv},title="%",win=$pnlName
+	TitleBox zmaxLogigmaT pos={241*pntConv,145*pntConv},title="\u03c3",win=$pnlName
 
-	TitleBox adjustT pos={5,CTRLHEIGHT-23},title="hist. range",fsize = 13,win=$pnlName
-	Button presentB pos={90,CTRLHEIGHT-25}, size={100,20}, title="first Z - last Z", win=$pnlName
-	Button fullB pos={200,CTRLHEIGHT-25}, size={45,20}, title="full", win=$pnlName
+	TitleBox adjustT pos={5*pntConv,(CTRLHEIGHT-23)*pntConv},title="hist. range",fsize = 13*pntConv,win=$pnlName
+	Button presentB pos={90*pntConv,(CTRLHEIGHT-25)*pntConv}, size={100*pntConv,20*pntConv}, title="first Z - last Z", win=$pnlName
+	Button fullB pos={200*pntConv,(CTRLHEIGHT-25)*pntConv}, size={45*pntConv,20*pntConv}, title="full", win=$pnlName
 	
-	Button doB pos={5,PNLHEIGHT-25}, size={65,20}, title="Apply", fcolor=(26205,52428,0), win=$pnlName
-	Button cancelB pos={PNLWIDTH-70,PNLHEIGHT-25}, size={65,20}, title="Cancel", fcolor=(65535,0,0), win=$pnlName
-	Button refreshB pos={PNLWIDTH-165,PNLHEIGHT-25},  title="Refresh", size={65,20}, fcolor=(65535,43690,0), win=$pnlName
-	Button reverseColorsB, pos={230,6},size={25,20},title="Rc",fsize=13,win=$pnlName
+	Button doB pos={5*pntConv,(PNLHEIGHT-25)*pntConv}, size={65*pntConv,20*pntConv}, title="Apply", fcolor=(26205,52428,0), win=$pnlName
+	Button cancelB pos={(PNLWIDTH-70)*pntConv,(PNLHEIGHT-25)*pntConv}, size={65*pntConv,20*pntConv},win=$pnlName
+	Button cancelB title="Cancel", fcolor=(65535,0,0),win=$pnlName
+	Button refreshB pos={(PNLWIDTH-165)*pntConv,(PNLHEIGHT-25)*pntConv},title="Refresh",win=$pnlName
+	Button refreshB size={65*pntConv,20*pntConv}, fcolor=(65535,43690,0),win=$pnlName
+	Button reverseColorsB, pos={230*pntConv,6*pntConv},size={25*pntConv,20*pntConv},title="Rc",fsize=13*pntConv,win=$pnlName
 	
-	ModifyControlList ControlNameList(pnlName,";","zm*C") mode=1, proc=ATH_Range#pnlCheck, fsize = 13, win=$pnlName
-	ModifyControlList ControlNameList(pnlName,";","zm*V") size={60,18}, bodyWidth=60, proc=ATH_Range#pnlSetVar,fsize = 13, win=$pnlName
-	ModifyControlList "zminV;zmaxV" size={100,18}, bodyWidth=100, win=$pnlName
+	ModifyControlList ControlNameList(pnlName,";","zm*C") mode=1, proc=ATH_Range#pnlCheck, fsize=13*pntConv, win=$pnlName
+	ModifyControlList ControlNameList(pnlName,";","zm*V") size={60*pntConv,18*pntConv}, bodyWidth=60*pntConv,proc=ATH_Range#pnlSetVar,fsize=13*pntConv,win=$pnlName
+	ModifyControlList "zminV;zmaxV" size={100*pntConv,18*pntConv}, bodyWidth=100*pntConv, win=$pnlName
 	ModifyControlList ControlNameList(pnlName,";","*T") frame=0,win=$pnlName
 	ModifyControlList ControlNameList(pnlName,";","*B") proc=ATH_Range#pnlButton,win=$pnlName
 	ModifyControlList ControlNameList(pnlName,";","*") focusRing=0, win=$pnlName
@@ -286,7 +291,7 @@ Static Function pnl(String grfName)
 	NewFreeAxis/B logAxis
 	ModifyFreeAxis/W=$subGrfName logAxis, master=bottom, hook=ATH_Range#pnlAxHook
 	
-	ModifyGraph/W=$subGrfName margin(top)=8, margin(right)=12, margin(bottom)=32, margin(left)=40, gfSize=12
+	ModifyGraph/W=$subGrfName margin(top)=8*pntConv, margin(right)=12*pntConv, margin(bottom)=32*pntConv, margin(left)=40*pntConv, gfSize=12*pntConv
 	ModifyGraph/W=$subGrfName tick=2, standoff=1, btlen=5, mirror=1, lblMargin=0, lblPosMode=1
 	ModifyGraph/W=$subGrfName mode=6, lstyle=1, rgb=(0,0,0)
 	ModifyGraph/W=$subGrfName prescaleExp(left)=2

@@ -68,20 +68,23 @@ static Function CreatePanel()
 	variable/G dfr:gATH_Angle = 0 // Not set
 	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 	NewPanel/K=1/EXT=0/N=iImageRotation/W=(0,0,300*pntConv,130*pntConv)/HOST=$winNameStr
-
-	SetDrawLayer/W=iImageRotation UserBack
-	SetDrawEnv/W=iImageRotation fsize= 13,fstyle= 1,textrgb= (1,12815,52428)
-	DrawText/W=iImageRotation 90, 20,"Image rotation (deg)"
-	Slider RotAngleSlider vert=0,limits={-180,180,0},pos={15,25},size={270,50},ticks=50, fSize=12
-	Slider RotAngleSlider variable=dfr:gATH_Angle,proc=ATH_iImgRotation#SliderProc
-	SetVariable RotAngle title="Set angle",fSize=14,size={120,20}, pos={90,70}, value = dfr:gATH_Angle, proc=ATH_iImgRotation#SetAngle
-	Button SaveImgB title="Save copy",size={80,20},pos={20,100},proc=ATH_iImgRotation#iRotButton
-	Button OverwiteImgB title="Overwite ",size={70,20}, pos={110,100},proc=ATH_iImgRotation#iRotButton
-	Button RestoreImageRotB title="Restore",size={80,20},pos={190,100},fColor=(3,52428,1),proc=ATH_iImgRotation#iRotButton
+	
+	string pnlName = winNameStr + "#iImageRotation"
+	SetDrawLayer/W=$pnlName UserBack
+	SetDrawEnv/W=$pnlName fsize= 13*pntConv,fstyle= 1,textrgb= (1,12815,52428)
+	DrawText/W=$pnlName 90*pntConv, 20*pntConv,"Image rotation (deg)"
+	Slider RotAngleSlider, vert=0,limits={-180,180,0},pos={15*pntConv,25*pntConv},size={270*pntConv,50*pntConv},win=$pnlName
+	Slider RotAngleSlider,ticks=50, fSize=12*pntConv,variable=dfr:gATH_Angle,proc=ATH_iImgRotation#SliderProc,win=$pnlName
+	SetVariable RotAngle, title="Set angle",fSize=14*pntConv,size={120*pntConv,20*pntConv},win=$pnlName
+	SetVariable RotAngle, pos={90*pntConv,70*pntConv}, value = dfr:gATH_Angle, proc=ATH_iImgRotation#SetAngle,win=$pnlName
+	Button SaveImgB, title="Save copy",size={80*pntConv,20*pntConv},pos={20*pntConv,100*pntConv},proc=ATH_iImgRotation#iRotButton,win=$pnlName
+	Button OverwiteImgB, title="Overwite ",size={70*pntConv,20*pntConv}, pos={110*pntConv,100*pntConv},proc=ATH_iImgRotation#iRotButton,win=$pnlName
+	Button RestoreImageRotB, title="Restore",size={80*pntConv,20*pntConv},pos={190*pntConv,100*pntConv},win=$pnlName
+	Button RestoreImageRotB, fColor=(3,52428,1),proc=ATH_iImgRotation#iRotButton
 		
-	SetWindow $winNameStr#iImageRotation hook(MyImageRotationPanelHook) = ATH_iImgRotation#PanelHookFunction
-	SetWindow $winNameStr#iImageRotation userdata(ATH_iRotateFolder) = "root:Packages:ATH_DataFolder:InteractiveImageRotation:" + winNameStr
-	SetWindow $winNameStr#iImageRotation userdata(ATH_iImageRotateParentWindow) = winNameStr
+	SetWindow $pnlName hook(MyImageRotationPanelHook) = ATH_iImgRotation#PanelHookFunction
+	SetWindow $pnlName userdata(ATH_iRotateFolder) = "root:Packages:ATH_DataFolder:InteractiveImageRotation:" + winNameStr
+	SetWindow $pnlName userdata(ATH_iImageRotateParentWindow) = winNameStr
 	
 	SetWindow $winNameStr hook(MyImageRotationParentGraphHook) = ATH_iImgRotation#GraphHookFunction
 	SetWindow $winNameStr userdata(ATH_iRotateFolder) = "root:Packages:ATH_DataFolder:InteractiveImageRotation:" + winNameStr
