@@ -407,7 +407,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				gATH_right  = xOff + gATH_aXlen * 0.5 + s.pointNumber * dx
 				gATH_top    = yOff + gATH_aYlen * 0.5 + s.yPointNumber * dy
 				gATH_bottom = yOff - gATH_aYlen * 0.5 + s.yPointNumber * dy
-				// What if the box goes out of the image?
+				// What if the box is out of the image?
 				rs = (gATH_left  < xOff)   ? 0  :  ScaleToIndex(w3d, gATH_left, 0)
 				re = (gATH_right > xLast) ? gATH_Nx :  ScaleToIndex(w3d, gATH_right, 0)
 				cs = (gATH_bottom < yOff)  ? 0  :  ScaleToIndex(w3d, gATH_bottom, 1)
@@ -440,6 +440,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				DrawAction/W=$plotNameStr delete
 				SetDrawEnv/W=$plotNameStr xcoord= bottom, ycoord= prel,linefgc = (65535,0,0) //It should be after the draw action
 				DrawLine/W=$plotNameStr linePos, 0, linePos, 1
+				TextBox/W=$plotNameStr/F=0/A=LT/C/N=zScaleProfileTag "\\Z12z\Bsc\M\Z12 = " + num2str(linepos)
 				hookresult = 1
 				break
 			endif
