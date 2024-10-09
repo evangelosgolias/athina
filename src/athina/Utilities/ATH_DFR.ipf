@@ -41,6 +41,11 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	
 	setDF = ParamIsDefault(setDF) ? 0 : setDF
 
+	// If you omit root, the function will add it.
+	if(cmpstr(ParsefilePath(0, fullpath, ":", 0, 0), "root"))
+		fullpath = "root:" + fullpath
+	endif
+	
 	// Sanitize path, liberal names
 	// It is not always needed, 
 	if(!ATH_String#isPathStringLegalQ(fullpath))

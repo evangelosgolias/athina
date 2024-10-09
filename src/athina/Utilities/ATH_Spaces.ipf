@@ -101,7 +101,7 @@ static Function MakePanel()
 	variable screenWidth, screenLength, listlength, listwidth
 	screenWidth = abs(screenRight - screenLeft)
 	screenLength = abs(screenBottom - screenTop)
-	panelLeft = screenWidth * 0.9
+	panelLeft = screenWidth * 0.85
 	panelRight = screenWidth
 	panelTop = screenLength * 0.2
 	panelBottom = screenLength * 0.8
