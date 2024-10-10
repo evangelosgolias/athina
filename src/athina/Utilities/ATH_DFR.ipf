@@ -40,7 +40,14 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	/// enclosing single quotes then the path is sanitised
 	
 	setDF = ParamIsDefault(setDF) ? 0 : setDF
-
+	
+	//We can accept relative paths
+	if(ATH_String#StartsWith(fullpath, ":"))
+		// GetDataFolder(1) ends with ":"
+		fullpath = GetDataFolder(1) + fullpath[1,inf]
+	endif
+	
+	
 	// If you omit root, the function will add it.
 	if(cmpstr(ParsefilePath(0, fullpath, ":", 0, 0), "root"))
 		fullpath = "root:" + fullpath
@@ -85,6 +92,17 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	return dfr
 End
 
+static Function/S SanitizePath(string path)
+	// Fix liberal relative pathnames in fullpath
+	variable steps = ItemsInlist(path, ":"), i
+	string spath = "", str
+	for(i = 0; i < steps ; i++) // i = 0 & steps return NULL string
+		str = StringFromList(i, path, ":")
+		spath += PossiblyQuoteName(str) + ":"
+	endfor
+	return spath
+End
+
 static Function ZapDataInFolderTree(string path) 
 	/// Kills the contents of a data folder and the contents of its 
 	/// children without killing any data folders and without attempting 
@@ -121,21 +139,6 @@ static Function ZapAllDataFoldersInPath(string path)
 	endfor
 
 	SetDataFolder saveDF 
-End
-
-static Function/S SanitizePath(string path)
-	// Fix liberal relative pathnames in fullpath
-	variable steps = ItemsInlist(path, ":"), i
-	string spath = "", str
-	for(i = 0; i < steps ; i++) // i = 0 & steps return NULL string
-		str = StringFromList(i, path, ":")
-		if(ATH_String#isLiberalQ(str))
-			spath += PossiblyQuoteName(str) + ":"
-		else
-			spath += str + ":"
-		endif
-	endfor
-	return spath
 End
 
 static Function PrintFoldersAndFiles(string pathName, string extension, variable recurse, variable level)
@@ -266,7 +269,8 @@ static Function FindBigWaves(variable minSizeInMB[,DFREF df,variable depth,varia
     wave /T/sdfr=packageDF waveNamesW
     wave /sdfr=packageDF waveSizesW
     variable points=numpnts(waveNamesW)
-    for(i=0;i<CountObjectsDFR(df,1);i+=1)
+    variable numWaves = CountObjectsDFR(df,1)
+    for(i=0;i<numWaves;i+=1)
         wave w=df:$getindexedobjnamedfr(df,1,i)
         variable size = ATH_WaveOp#sizeOfWave(w)
         if(size > minSizeInMB)

@@ -76,24 +76,31 @@ static Function GetPhotonEnergyFromFilename(string nameStr)
 End
 
 // Dev -- need testing
-static Function/S UniquifyStringList(string stringListStr, [string sep])	
+static Function/S UniquifyStringList(string stringListStr, string sep)	
 	// Remove duplicates from a sting list
-	if(ParamIsDefault(sep))
-		sep = ";"
-	else
-		sep = sep
-	endif
-	WAVE/T textW = WAVEStringListToTextWave(stringListStr, sep = sep)
-	//FindDuplicates
+	WAVE/T textW = StringListToTextWave(stringListStr, sep)
+	//Remove duplicates
+	FindDuplicates/FREE/RT=textWSet textW
+	return TextWaveTostring(textWSet, sep = sep)
 End
 
-static Function/WAVE WAVEStringListToTextWave(string stringListStr, [string sep])
+static Function/S TextWaveToString(WAVE/T textW, [string sep])
+	// Make a string from a textwave
+	// If you want to return a list, just set strsep=;
+	sep = SelectString(ParamIsDefault(sep) ? 0: 1, ";", sep)
+	
+	string concStr = ""
+	variable nitems = DimSize(textW, 0), i
+	
+	for(i = 0; i < nitems; i++)
+		concStr += textW[i] + sep
+	endfor
+	return concStr
+End
 
-	if(ParamIsDefault(sep))
-		sep = ";"
-	else
-		sep = sep
-	endif
+
+static Function/WAVE StringListToTextWave(string stringListStr, string sep)
+
 	variable numElem = ItemsInList(stringListStr, sep)
 	if(!numElem)
 		return $""
@@ -141,4 +148,20 @@ static Function/S ExtendPathStr(string str, string ext)
 	else
 		return str+ext
 	endif
+End
+
+static Function StartsWith(string str, string part)
+	
+	variable nStr = strlen(str)
+	variable nPart = strlen(part)	
+	if(nStr < nPart || !nstr || !nPart)
+		return -1
+	endif
+	variable i
+	for(i=0;i<nPart;i++)
+		if(cmpstr(part[i], str[i]))
+			return 0
+		endif
+	endfor
+	return 1
 End
