@@ -564,15 +564,29 @@ static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct)
 			string sval1, sval2, separatorStr
 			SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
 			variable val1 = str2num(sval1), val2 = str2num(sval2)
-			if(val1 < 0 || val1 > val2 || val2 > lastlayerN)
+			if(val1 < 0 || val1 > val2 || val2 > lastlayerN || (val1==0 && val2==lastlayerN))
 				return -1
 			endif
-			Duplicate/FREE/RMD=[][][0, val1-1] w3dRef, waveFree0
-			Duplicate/FREE/RMD=[][][val1, val2] w3dRef, waveFreeToAffine
-			Duplicate/FREE/RMD=[][][val2+1, lastlayerN] w3dRef, waveFree1
-			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D waveFreeToAffine
-			WAVE M_Affine
-			Concatenate/O/KILL/NP=2 {waveFree0, M_Affine, waveFree1}, $gATH_w3dPathName
+			if(val1==0)
+				Duplicate/FREE/RMD=[][][0, val2] w3dRef, waveFreeToAffine
+				Duplicate/FREE/RMD=[][][val2+1, lastlayerN] w3dRef, waveFree1
+				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D waveFreeToAffine
+				WAVE M_Affine
+				Concatenate/O/KILL/NP=2 {M_Affine, waveFree1}, $gATH_w3dPathName
+			elseif(val2==lastlayerN)
+				Duplicate/FREE/RMD=[][][0, val1-1] w3dRef, waveFree0
+				Duplicate/FREE/RMD=[][][val1, lastlayerN] w3dRef, waveFreeToAffine
+				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D waveFreeToAffine	
+				WAVE M_Affine
+				Concatenate/O/KILL/NP=2 {waveFree0, M_Affine}, $gATH_w3dPathName				
+			else
+				Duplicate/FREE/RMD=[][][0, val1-1] w3dRef, waveFree0
+				Duplicate/FREE/RMD=[][][val1, val2] w3dRef, waveFreeToAffine
+				Duplicate/FREE/RMD=[][][val2+1, lastlayerN] w3dRef, waveFree1
+				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D waveFreeToAffine
+				WAVE M_Affine
+				Concatenate/O/KILL/NP=2 {waveFree0, M_Affine, waveFree1}, $gATH_w3dPathName				
+			endif
 			hookresult =  1
 			break
 	endswitch

@@ -162,7 +162,7 @@ static Function Loadtiffs([int numImages, int displayImg, int stack3d])
 	return 0
 End
 
-// Here you can find functions that could be place in ImgOp module
+// It could be placed in ImgOp module...
 
 static Function/WAVE AverageStackedStacks(WAVE wRef, [int overwrite])
 	// Read wave notes
