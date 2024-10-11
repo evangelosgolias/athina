@@ -3,7 +3,7 @@
 #pragma IgorVersion= 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_iXMCD
-#pragma version = 1.01
+#pragma version = 1.1
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -78,12 +78,11 @@ static Function MenuLaunch()
 	endif	
 	
 	Duplicate/O $wave1NameStr, dfr:wImg1
-	Duplicate/O $wave2NameStr, dfr:wImg2, dfr:wImg2_undo,  dfr:wXMCD, dfr:wSum
+	Duplicate/O $wave2NameStr, dfr:wImg2, dfr:wImg2_undo, dfr:wXMCD
 	//Wave references
 	WAVE wImg1 = dfr:wImg1
 	WAVE wImg2 = dfr:wImg2	
 	WAVE wXMCD = dfr:wXMCD
-	WAVE wSum = dfr:wSum
 	// Set global variables
 	variable/G dfr:gATH_driftStep = 1
 	variable/G dfr:gATH_dx = 0	
@@ -91,17 +90,14 @@ static Function MenuLaunch()
 	string/G dfr:wName1Str = wave1NameStr
 	string/G dfr:wName2Str = wave2NameStr
 	wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
-	wSum = wImg1 + wImg2
-	CreateiXMCDPanel(wXMCD, wSum)
+
+	CreateiXMCDPanel(wXMCD)
 End
 
-static Function CreateiXMCDPanel(WAVE wXMCD, WAVE wSum)
+static Function CreateiXMCDPanel(WAVE wXMCD)
 	DFREF dfr = GetWavesDataFolderDFR(wXMCD) // Recover the dfr	
 	NVAR/SDFR=dfr gATH_driftStep
 
-	ATH_Display#NewImg(wSum)
-	string winiSumNameStr = WinName(0,1)
-	DoWindow/T $winiSumNameStr "iSum"	
 	ATH_Display#NewImg(wXMCD)
 	string winiXMCDNameStr = WinName(0,1)
 	DoWindow/T $winiXMCDNameStr "iXMC(L)D"		
@@ -119,7 +115,6 @@ static Function CreateiXMCDPanel(WAVE wXMCD, WAVE wSum)
 	string dfrStr = GetWavesDataFolder(wXMCD, 1)
 	SetWindow $winiXMCDNameStr userdata(ATH_iXMCDPath) = dfrStr
 	SetWindow $winiXMCDNameStr userdata(ATH_iXMCDWin) = winiXMCDNameStr
-	SetWindow $winiXMCDNameStr userdata(ATH_iSumWin) = winiSumNameStr
 	SetWindow $winiXMCDNameStr,hook(MyiXMCDWinHook) = ATH_iXMCD#iXMCDWindowHook // Set the hook
 	return 0
 End
@@ -133,7 +128,6 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	WAVE/SDFR=dfr wImg2
 	WAVE/SDFR=dfr wImg2_undo	
 	WAVE/SDFR=dfr wXMCD
-	WAVE/SDFR=dfr wSum
 	SVAR/SDFR=dfr wName2Str
 	
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
@@ -174,9 +168,8 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 		endswitch
 		if(hookResult)
 			CopyScales/I wimg1, wimg2 // Copy back the scale, M_Affine is pixel-scaled
-			// has to be first so wXMCD, wSum do not need rescaling
+			// has to be first so wXMCD, do not need rescaling
 			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
-			wSum = wImg1 + wImg2
 		endif
 	endif
 	
@@ -184,10 +177,6 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	// Window is about to be killed case 17. 
 	// Needed if you want more than one hook functions to be able to cleanup/close 
 	// windows linked a parent window.
-		string sumWinStr = GetUserData(s.winName, "", "ATH_iSumWin")
-		string killwincmd = "KillWindow/Z "+sumWinStr // keep Z in case you've killed the iSum
-		Execute/P/Q killWinCmd
-		WaveClear wImg1, wImg2, wXMCD, wSum, wImg2_undo // Note: Might not be needed
 		string killDFCmd = "KillDataFolder "+ GetDataFolder(1, dfr)
 		Execute/P/Q killDFCmd
 		hookresult = 1
@@ -202,14 +191,12 @@ static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 	WAVE/SDFR=dfr wImg2
 	WAVE/SDFR=dfr wXMCD
 	WAVE/SDFR=dfr wimg2_undo
-	WAVE/SDFR=dfr wSum
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			Duplicate/O wImg2_undo, wImg2
 			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
-			wSum = wImg1 + wImg2			
 			gATH_dx = 0; gATH_dy = 0
 			break
 	endswitch
