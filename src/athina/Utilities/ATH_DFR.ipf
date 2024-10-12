@@ -42,15 +42,6 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	setDF = ParamIsDefault(setDF) ? 0 : setDF
 
 	
-	// If the directory exists
-	if(DataFolderExists(fullpath)) // ":" at the end needed to function properly
-		DFREF dfr = $fullpath
-		if (setDF)
-			SetDataFolder dfr
-		endif
-		return dfr
-	endif
-	
 	//We can accept relative paths
 	if(ATH_String#StartsWith(fullpath, ":"))
 		fullpath = GetDataFolder(1) + fullpath[1,inf]
@@ -67,7 +58,16 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	if(!ATH_String#isPathStringLegalQ(fullpath))
 		fullpath = SanitizePath(fullpath)
 	endif
-
+	
+	// If the directory exists
+	if(DataFolderExists(fullpath)) // ":" at the end needed to function properly
+		DFREF dfr = $fullpath
+		if (setDF)
+			SetDataFolder dfr
+		endif
+		return dfr
+	endif
+	
 	/// Create a list of missing paths, parents first.
 	variable steps = ItemsInlist(ParseFilePath(2, fullpath, ":", 0, 0), ":"), i
 	string fldrs = "", fldrstr
