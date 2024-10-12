@@ -557,9 +557,10 @@ static Function ImgCorrelation(WAVE w1, WAVE w2, string alignedImageStr, [int pr
 End
 
 
-static Function LinearDriftStackABCursors(WAVE w3d, WAVE wx, WAVE wy)
+static Function LinearDriftStackABCursors(WAVE w3d, WAVE wx, WAVE wy, [int intPx])
 	/// Linear drift correction w3d using wx and wy displacements
-	
+
+	intPx = ParamIsDefault(intPx) ? 1 : intPx
 	if(!(WaveType(w3d) & 0x02))
 		Redimension/S w3d
 	endif
@@ -579,8 +580,8 @@ static Function LinearDriftStackABCursors(WAVE w3d, WAVE wx, WAVE wy)
 	MatrixOP/O getStacklayer_0 = layer(w3d, 0)
 	
 	for(i = 1; i < nlayers; i++)
-		dx = wx[i]
-		dy = wy[i]
+		dx = intPx ? round(wx[i]) : wx[i]
+		dy = intPx ? round(wy[i]) : wy[i]
 		MatrixOP/O/FREE targetLayer = layer(w3d, i)
 		ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i)) Affine2D targetLayer
 	endfor
@@ -594,20 +595,22 @@ static Function LinearDriftStackABCursors(WAVE w3d, WAVE wx, WAVE wy)
 	return 0
 End
 
-static Function LinearDriftPlanesABCursors(WAVE w3d, WAVE wx, WAVE wy, [variable startL, variable endL])
+static Function LinearDriftPlanesABCursors(WAVE w3d, WAVE wx, WAVE wy, [variable startL, variable endL, int intPx])
 	/// Linear drift correction w3d using wx and wy displacements
 	/// WAVE wx - x coordinates
 	/// WAVE wy - y coordinates
 	/// variable startL: start layer
 	/// variable endL: end layer
-	
+	/// variable endL: use integer pixel drifts
+	///
 	/// Note: wx, wy: in pixels, not scaled coordinates
 	/// We extract and restack all layers. Much faster 
 	/// compared to RemovePlaneZ/InsertPlaneZ  
 	variable nlayers = DimSize(w3d, 2)	
 	startL = ParamIsDefault(startL) ? 0 : startL
 	endL = (ParamIsDefault(endL) || endL >= nlayers)? (nlayers-1) : endL
-
+	intPx = ParamIsDefault(intPx) ? 1 : intPx
+	
 	if(startL >= endL)
 		return -1
 	endif
@@ -632,8 +635,8 @@ static Function LinearDriftPlanesABCursors(WAVE w3d, WAVE wx, WAVE wy, [variable
 	variable cnt = 0
 	for(i = 0; i < nlayers; i++)
 		if(i >= startL && i <= endL)
-			dx = wx[cnt]
-			dy = wy[cnt]
+			dx = intPx ? round(wx[cnt]) : wx[cnt]
+			dy = intPx ? round(wy[cnt]) : wy[cnt]
 			MatrixOP/O targetLayer = layer(w3d, i)
 			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i)) Affine2D targetLayer
 			cnt++

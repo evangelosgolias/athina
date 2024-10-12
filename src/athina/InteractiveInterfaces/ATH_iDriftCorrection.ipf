@@ -344,6 +344,7 @@ static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/SDFR=dfr gATH_CursorPositionY
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
+	NVAR/SDFR=dfr gATH_SubPixelMode	
 	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -352,6 +353,8 @@ static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 			gATH_CursorPositionY = vcsr(I, gATH_WindowNameStr)
 			variable dx = (gATH_AnchorPositionX - gATH_CursorPositionX)/gATH_dx
 			variable dy = (gATH_AnchorPositionY - gATH_CursorPositionY)/gATH_dy
+			dx = gATH_SubPixelMode ? dx : round(dx)
+			dy = gATH_SubPixelMode ? dy : round(dy)
 			if(gATH_w3dnlayers)
 				MatrixOP/O/FREE layerFREE = layer(w3dRef, gLayer)
 				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=dfr:M_Affine2D Affine2D layerFREE
@@ -483,6 +486,8 @@ static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/Z/SDFR=dfr	gATH_LDCendY
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
+	NVAR/SDFR=dfr gATH_SubPixelMode
+
 	variable x0, y0, x1, y1, slope, shift, nlayers
 	nlayers = gATH_LDCendL - gATH_LDCstartL + 1
 	switch(B_Struct.eventCode)	// numeric switch
@@ -498,7 +503,8 @@ static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 				wx -= gATH_LDCstartX ; wy -= gATH_LDCstartY
 				// ImageInterpolate needs pixels, multiply by -1 to have the proper behavior in /ARPM={...}
 				wx /= (-gATH_dx) ; wy /= (-gATH_dy)
-				ATH_ImgAlign#LinearDriftPlanesABCursors(w3dref, wx, wy, startL = gATH_LDCstartL, endL = gATH_LDCendL)
+				ATH_ImgAlign#LinearDriftPlanesABCursors(w3dref, wx, wy, startL = gATH_LDCstartL, \
+														endL = gATH_LDCendL, intPx = gATH_SubPixelMode)
 				hookresult =  1
 			endif
 			break
@@ -550,6 +556,7 @@ static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct)
 	NVAR/SDFR=dfr gATH_CursorPositionY
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
+	NVAR/SDFR=dfr gATH_SubPixelMode	
 	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -559,6 +566,8 @@ static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct)
 			gATH_CursorPositionY = vcsr(I, gATH_WindowNameStr)
 			variable dx = (gATH_AnchorPositionX - gATH_CursorPositionX)/gATH_dx
 			variable dy = (gATH_AnchorPositionY - gATH_CursorPositionY)/gATH_dy
+			dx = gATH_SubPixelMode ? dx : round(dx)
+			dy = gATH_SubPixelMode ? dy : round(dy)
 			variable lastlayerN = DimSize(w3dRef, 2) - 1
 			string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Set a range of layers to drift (e.g 4-12)", "Drift N layers")
 			string sval1, sval2, separatorStr
@@ -610,6 +619,7 @@ static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): Butto
 			NVAR/SDFR=dfr gATH_CursorPositionY
 			NVAR/SDFR=dfr gATH_dx
 			NVAR/SDFR=dfr gATH_dy
+			NVAR/SDFR=dfr gATH_SubPixelMode
 			NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:gLayer // Do not use /Z here.
 			SetDataFolder dfr
 			if(gATH_AnchorPositionX < 0 || gATH_AnchorPositionY < 0)
@@ -624,6 +634,8 @@ static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): Butto
 			gATH_CursorPositionY = vcsr(I, gATH_WindowNameStr)
 			variable dx = (gATH_AnchorPositionX - gATH_CursorPositionX)/gATH_dx
 			variable dy = (gATH_AnchorPositionY - gATH_CursorPositionY)/gATH_dy
+			dx = gATH_SubPixelMode ? dx : round(dx)
+			dy = gATH_SubPixelMode ? dy : round(dy)			
 			ImageTransform/P=(gLayer)/NP=(nlayers-gLayer) removeZplane w3dRef
 			WAVE M_ReducedWave
 			ImageTransform/O/P=0/NP=(gLayer) removeZplane w3dRef
@@ -721,6 +733,7 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 	NVAR/SDFR=dfr/Z gATH_AnchorPositionY	
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
+	NVAR/SDFR=dfr gATH_SubPixelMode
 	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordX
 	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordY
 	SVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordSource
@@ -757,6 +770,8 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 			[axisVx, axisVy] = ATH_Graph#RelToAxisVal2D(w3dRef, gATH_SavedRefRelCoordX, gATH_SavedRefRelCoordY)
 			variable dx = (axisVx - gATH_CursorPositionX)/gATH_dx
 			variable dy = (axisVy - gATH_CursorPositionY)/gATH_dy
+			dx = gATH_SubPixelMode ? dx : round(dx)
+			dy = gATH_SubPixelMode ? dy : round(dy)			
 			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=w3dRef Affine2D w3dBackupRef
 			hookresult =  1
 			break
