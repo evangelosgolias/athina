@@ -144,11 +144,6 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			endif
 			break
 		case 2: // kill
-			if(s.eventMod & 4) // Kill the wave and its backup when ALT is pressed
-				string wavePathStr = GetWavesDataFolder(w, 2)
-				Execute/P/Q/Z "KillWaves/Z " + wavePathStr
-				Execute/P/Q/Z "KillWaves/Z " + ATH_String#ExtendPathStr(wavePathStr, "_undo")
-			endif
 			KillDataFolder/Z dfrSld
 			break
 		case 13:	// renamed
