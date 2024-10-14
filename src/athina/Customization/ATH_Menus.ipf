@@ -54,6 +54,7 @@ Menu "athina"
 		"New image (stack) from saved ROI (TG, 2D, 3D)", /Q, ATH_Launch#MakeWaveFromSavedROI()
 		"Pixelate image (TG, 2D, 3D)", /Q, ATH_Launch#PixelateSingleImageOrStack()
 		"FFT (TG, 2D)", /Q, ATH_Launch#ImageFFTTransform()
+		"Histogram Equalisation (TG, 2D, 3D)", /Q, ATH_Launch#HistogramEqualisation()
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, ATH_Launch#ImageRotateAndScaleFromMetadata()
 		"Remove background (TG, 2D, 3D)", /Q, ATH_Launch#ImgRemoveBackground()
 		"Remove background flattening (TG, 2D, 3D)", /Q, ATH_Launch#FlattenImage()		

@@ -1332,3 +1332,14 @@ static Function SetAxesRangeAndCtabFromSaved([string grfName])
 	endif
 	return 0
 End
+
+static Function HistogramEqualisation()
+	WAVE wRef = ATH_Graph#TopImageToWaveRef()
+	if(WaveDims(wRef)==1 || WaveDims(wRef)==4)
+		return -1
+	endif
+	ATH_DFR#BackupWaveInWaveDF(wRef) // backup the wave, we will overwrite
+	ImageHistModification/O/I wRef
+	Note wRef, ("ImageHistModification/O/I " + NameOfWave(wRef))
+	return 0
+End
