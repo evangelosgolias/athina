@@ -43,7 +43,7 @@ End
 
 static Function Make3DWaveDataBrowserSelection([variable displayStack])
 	displayStack = ParamIsDefault(displayStack) ? 0: displayStack // Give any non-zero to display the stack
-	string wname3dStr = ATH_WaveOp#Make3DWaveDataBrowserSelection("ATH_stack", autoPath = 1) // stack in sourcedir if all waves in the same folder, otherwise in cwd
+	string wname3dStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection("ATH_stack", autoPath = 1) // stack in sourcedir if all waves in the same folder, otherwise in cwd
 	// Do you want to display the stack?
 	if(displayStack && strlen(wname3dStr)) // wname3dStr = "" when you select no or one wave
 		ATH_Display#NewImg($wname3dStr)

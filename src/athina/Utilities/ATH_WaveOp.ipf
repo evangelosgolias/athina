@@ -64,13 +64,18 @@ static Function Make3DWaveUsingPattern(string wname3dStr, string pattern)
 	return 0
 End
 
-static Function/S Make3DWaveDataBrowserSelection(string wname3dStr, [variable makeInSourceDFR, variable autoPath])
-
-	// Make a 3d wave using waves selected
-	// in the browser window. No check for selection
+static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [variable makeInSourceDFR, variable autoPath])
+	// Concatenate wave from data folder selection
+	// For 2D, 3D waves:
+	// Use it to stack 2D, 3D waves
+	// No check for selection
 	// type, so if you select a folder or variable you will get an error.
 	// Returns a string with the name of the created wave, as wname3dStr
 	// might be already taken
+	//
+	// For 1D waves:
+	// Use it to concatenate over columns
+	//
 	// makeInSourceDFR: Created stack in the cwd or in the sourceDir?
 	// autoPath: The program sets makeInSourceDFR. If all waves in the same
 	// folder the makeInSourceDFR = 1, otherwise makeInSourceDFR = 0
@@ -90,10 +95,8 @@ static Function/S Make3DWaveDataBrowserSelection(string wname3dStr, [variable ma
 	variable i = 0
 	do
 		buffer = GetBrowserSelection(i)
-		if(strlen(buffer))
-			if(WaveDims($buffer)==2 || WaveDims($buffer)==3)
-				listOfSelectedWaves += GetBrowserSelection(i) + ";" // Match stored at S_value
-			endif
+		if(WaveExists($buffer) && WaveDims($buffer) < 4)
+			listOfSelectedWaves += GetBrowserSelection(i) + ";" // Match stored at S_value
 		endif
 		i++
 	while (strlen(GetBrowserSelection(i)))
@@ -130,6 +133,11 @@ static Function/S Make3DWaveDataBrowserSelection(string wname3dStr, [variable ma
 	string folder = GetDataFolder(1)
 	wname3dStr = CreatedataObjectName(currDFR, "ATH_stack", 1, 0, 0)
 	
+	// Works for 1D waves because AllImagesEqualDimensionsQ
+	// returns true for 1D waves even when the DimSize is not
+	// equal. AllImagesEqualDimensionsQ calls Wave2DDimensionsEqualQ
+	// which returns 0 for 1D. Here ATH_WaveOp#AllImagesEqualDimensionsQ
+	// will always return 1 (true) for 1D waves.
 	if(ATH_WaveOp#AllImagesEqualDimensionsQ(waveListFree))
 		Concatenate/NP=2 {waveListFree}, $wname3dStr
 	else
@@ -401,6 +409,7 @@ static Function Wave2DDimensionsEqualQ(WAVE w1, WAVE w2)
 	if(WaveDims(w1) > 1 && WaveDims(w1) < 4 && WaveDims(w2) > 1 && WaveDims(w2) < 4)
 		return ((DimSize(w1, 0) == DimSize(w2, 0)) && (DimSize(w1, 1) == DimSize(w2, 1)) ? 1: 0)
 	endif
+	return 0 // Zero if w1, w2 are 1D or 4D waves!
 End
 
 static Function AllImagesEqualDimensionsQ(WAVE/WAVE wRefw)

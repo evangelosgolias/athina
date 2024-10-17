@@ -111,21 +111,13 @@ End
 Static Function PTInitPanel()
 	
 	// create new data folder for Periodic Table information
-	string cdf = GetDataFolder(1)
+	//string cdf = GetDataFolder(1)
+	DFREF saveDF = GetDataFolderDFR()
+	
 	variable newpanel = 0
 	
-	if (!DataFolderExists("root:Packages"))
-		NewDataFolder root:Packages
-	endif
-
-	if (!DataFolderExists("root:Packages:ATH_DataFolder"))
-		NewDataFolder root:Packages:ATH_DataFolder
-	endif
-
-	SetDataFolder("root:Packages:ATH_DataFolder")
-	
 	if (!DataFolderExists("root:Packages:ATH_DataFolder:PhotoionisationCrossSection"))
-		NewDataFolder/S PhotoionisationCrossSection
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PhotoionisationCrossSection", setDF=1)
 				
 		// create the globals and set them
 
@@ -181,7 +173,7 @@ Static Function PTInitPanel()
 
 		Make/N=(maxelem) ElemSelect, OldElemSelect
 		ElemSelect=0
-		OldElemSelect=0
+		OldElemSelect=-1
 		
 		make/N=(maxelem,3) Col
 		col[][0]=unmarkR
@@ -196,7 +188,7 @@ Static Function PTInitPanel()
 		newpanel = 1
 	endif
 
-	SetDataFolder cdf
+	SetDataFolder saveDF
 	
 	return newpanel
 End
@@ -217,13 +209,13 @@ Static Function PTDisplayPanel()
 	if (!gscf)
 		gscf = 2
 	endif
-	
+
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 	variable ptwidth, ptheight,left,top
-	variable bw=20*gscf,bh=15*gscf
-	variable ptddwidth=gscf*120,ptddheight=11*bh
+	variable bw=20*gscf*pntConv,bh=15*gscf*pntConv
+	variable ptddwidth=gscf*120*pntConv,ptddheight=11*bh*pntConv
 	
 	string gscfstr=ptpig.scfstr
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 	ptwidth=gscf*(ptpig.ptwidth+120)*pntConv
 	ptheight=gscf*ptpig.ptheight*pntConv
 	left=gscf*ptpig.left*pntConv
@@ -428,8 +420,7 @@ end
 
 
 //************************************************************
-static Function ShowButtonProc(ba) : ButtonControl
-	STRUCT WMButtonAction &ba
+static Function ShowButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 
 	switch( ba.eventCode )
 		case 2: // mouse up
@@ -439,7 +430,7 @@ static Function ShowButtonProc(ba) : ButtonControl
 			string str, graphName, elementStr, allSelectedElements
 			variable ii, iimax
 			string allGraphWindows = ""
-			allSelectedElements = GetSelectedElementsStr()
+			allSelectedElements = GetSelectedElementsStr(ElementSym, ElemSelect)
 			iimax =ItemsInList(allSelectedElements)
 			for (ii=0; ii<iimax;ii+=1)
 				elementStr = StringFromList(ii, allSelectedElements)
@@ -470,12 +461,15 @@ static Function ClearButtonProc(ba) : ButtonControl
 		case 2: // mouse up
 			wave Col= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:Col
 			wave ElemSelect= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:ElemSelect
+			wave OldElemSelect= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:OldElemSelect
 			wave/T ElementSym= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:ElementSym
-			string str, graphName, elementStr, allSelectedElements
+			string str, graphName, elementStr, allSelectedElements, oldSelectedElements
 			variable ii, iimax
 			
 			// Kill graphs
-			allSelectedElements = GetSelectedElementsStr()
+			allSelectedElements =  GetSelectedElementsStr(ElementSym, ElemSelect) 
+			allSelectedElements += GetSelectedElementsStr(ElementSym, OldElemSelect)
+			allSelectedElements = ATH_String#UniquifyStringList(allSelectedElements, ";")
 			iimax =ItemsInList(allSelectedElements)
 			for (ii=0; ii<iimax;ii+=1)
 				elementStr = StringFromList(ii, allSelectedElements)
@@ -505,8 +499,7 @@ End
 // Periodic Table Get State
 // this button procedure is called whenever an element button
 // is entered, left, or pushed
-static Function PTGetState(bs) : ButtonControl
-	STRUCT WMButtonAction &bs
+static Function PTGetState(STRUCT WMButtonAction &bs) : ButtonControl
 	
 	wave Col= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:Col
 	wave ElemSelect= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:ElemSelect
@@ -516,11 +509,10 @@ static Function PTGetState(bs) : ButtonControl
 	variable atomnr
 
 	switch(bs.eventCode)
-		case -1:  // being killed
-			return 0
-		case 1:  // mouse down
+		case 1:
+			OldElemSelect = ElemSelect
 			break
-		case	2: // mouse up
+		case 2: // mouse up
 			str=bs.ctrlname
 			str=removeending(str)
 			atomnr=GetAtNr(str)
@@ -539,64 +531,23 @@ static Function PTGetState(bs) : ButtonControl
 				col[atomnr][2]=unmarkB
 				Button $str,fColor=(unmarkR,unmarkG,unmarkB)
 			endif
-			OldElemSelect=ElemSelect
-			//SelectionActionProc()
-			
 			break
-		case 3: //Mouse up outside control
-			break
-		case 4: // mouse moved
-			//break
-		case 5: // mouse enter
-			str=bs.ctrlname
-			str=removeending(str)
-			atomnr=GetAtNr(str)
-			
-			if (PTcheckListChange()) // selection may not have changed, if mouse only moved
-				OldElemSelect=ElemSelect
-				//SelectionActionProc()
-			endif
-
-			return 0
-		case 6:  // mouse leave
-			return 0
 	endswitch
 
 	return 0
 end
 
-//************************************************************
-static Function PTcheckListChange()
-	wave ElemSelect= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:ElemSelect
-	wave OldElemSelect= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:OldElemSelect
-	
-	DFREF currDF = GetDataFolderDFR()
-	SetDataFolder root:Packages:ATH_DataFolder:PhotoionisationCrossSection:
-	matrixop/O chgwv=sum(equal(ElemSelect,OldElemSelect))
-
-	if (chgwv[0]==numpnts(ElemSelect))
-		SetDataFolder currDF
-		return 0
-	else
-		SetDataFolder currDF
-		return 1
-	endif
-end
-
-
 // DimLabels for the dataset
 
-static Function/S GetSelectedElementsStr()
+static Function/S GetSelectedElementsStr(WAVE/T symbolsW, WAVE selw)
 	// Return a string list with the elements currently selected, e.g "Si;Co;Ir;"
-	wave ElemSelect= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:ElemSelect
-	wave/T ElementSym= root:Packages:ATH_DataFolder:PhotoionisationCrossSection:ElementSym
 	string selectedElementsStr = ""
 
-	variable ElemMax = numpnts(ElemSelect), i
+	variable ElemMax = numpnts(selw), i
 	
 	for(i = 1; i < ElemMax; i++)
-		if(ElemSelect[i])
-			selectedElementsStr += ElementSym[i]
+		if(selw[i])
+			selectedElementsStr += symbolsW[i]
 			selectedElementsStr += ";"			
 		endif
 	endfor

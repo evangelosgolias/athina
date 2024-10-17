@@ -80,8 +80,13 @@ static Function/S UniquifyStringList(string stringListStr, string sep)
 	// Remove duplicates from a sting list
 	WAVE/T textW = StringListToTextWave(stringListStr, sep)
 	//Remove duplicates
-	FindDuplicates/FREE/RT=textWSet textW
-	return TextWaveTostring(textWSet, sep = sep)
+	if(DimSize(textW, 0) > 1)
+		FindDuplicates/FREE/RT=textWSet textW // Error if only one element
+		return TextWaveTostring(textWSet, sep = sep)
+	else
+		return stringListStr
+	endif
+	
 End
 
 static Function/S TextWaveToString(WAVE/T textW, [string sep])
