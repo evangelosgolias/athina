@@ -194,7 +194,7 @@ There you have the following options:
 * "Apply filter 1..5 times": How many times to apply the filter.
 * "Apply histogram equalization": Yes/No.
 * "Edge detection method": shen, kirsch, sobel, prewitt, canny, roberts, marr or frei.
-* "Sub-pixel drift (Registration)": Integer pixel corrections is default, enable sub-pixel corrections (applies to Registration only).
+* "Sub-pixel drift (Registration)": Enable sub-pixel corrections (applies to Registration only), by default the program corrects whole pixel numbers.
 * "Cutoff drift (pixels)": Threshold above which no drift correction applies.
 * "Print drift layer": Yes/No to show the drift calculated/applied per layer.
 
@@ -236,16 +236,16 @@ Press "Cascade drift" to move all images from the current image until the end of
 Use the **Linear Drift Corr** part if you want drift-correct a series of images by linear interpolating between the start and end layers of your choice. Select the start layer and press "Start" while having the cursor on the feature you use as reference. Select the end layer and set the cursor to the new position of your reference point. Press "Drift" and you're done. 
 
 ```{tip} 
-Linear drift correction is useful when there is a monotonous moting between layers, usually as a result of increasing or decreasing  temperature of the sample.
+Linear drift correction is useful when there is a lienar shift between layers, usually as a result of monotonous change of sample temperature.
 ```
 
-Press "Checkpoint" to save the state of the stack (N.B you cannot restore the original stack afterwards)
+Press "Checkpoint" to keep the state of the stack (N.B you cannot restore the original stack afterwards)
 
 Press "Restore" to revert all changes.
 
 There is a fast drift correction option that can be enable by ticking "SHIFT+Click & drift". **You cannot enable this mode unless you have set a reference point first**. When the mode is enabled the reference point it is a red dot, it is small as we assume that most of the time you'd like to work in a small part of the image to be more precise. 
 
-Use (hover mouse over the checkpoin to a summary of instructions given below):
+Use (hover mouse over the checkpoint to a summary of the following instructions):
 
 * SHIFT + left mouse click on a point to drift the image. The reference point will be moved to the point you clicked, so try to follow your reference point with your mouse. After clicking the next layer will be displayed.
 * Use arrow keys or mousewheel to skip layers or go back to previous ones. 

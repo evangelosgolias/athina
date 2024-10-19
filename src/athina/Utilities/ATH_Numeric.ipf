@@ -47,3 +47,15 @@ static Function NextPowerOfTwo(variable num)
 	while (result < num)
 	return result
 End
+
+static Function IsNumberInWaveRangeQ(WAVE w, variable n)
+	// Returns 1 if n between min(w) & max(w)
+	// or 0 otherwise
+	variable minV, maxV
+	[minV, maxV] = WaveMinAndMax(w)
+	
+	if(n < minV || n > maxV)
+		return 0
+	endif
+	return 1
+End

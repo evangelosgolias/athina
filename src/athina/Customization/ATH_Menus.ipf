@@ -102,8 +102,8 @@ Menu "athina"
 	Submenu "Utilities"
 		"Spaces",/Q, ATH_Spaces#MenuLaunch()
 		"Free space/8",/Q, ATH_Launch#DeleteBigWaves()
+		"XPS Reference Data",/Q, ATH_XPSData#XPSReferenceData()
 		"List HDF5 (.h5) entries...", /Q, ATH_HDF5#ListHDF5Groups()		
-		"Photoionisation CrossSection",/Q, ATH_PhCS#PhotoionisationCrossSection()
 	End
 //	Submenu "Beamtime"
 //		"Set experiment's root folder",/Q, ATH_Beamtime#SetOrResetBeamtimeRootFolder()
