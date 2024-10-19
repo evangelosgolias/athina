@@ -77,7 +77,7 @@ static Function GetLayerIndex(string grfName, [Wave/Z w])
 		return NaN
 	endif
 	
-	return NumberByKey("plane", ImageInfo(grfName, NameOfWave(w), 0), "=")
+	return NumberByKey("plane", ImageInfo(grfName, PossiblyQuoteName(NameOfWave(w)), 0), "=")
 End
 
 static Function AutoRangeTopImagePlane()
