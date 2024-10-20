@@ -15,7 +15,7 @@
 // Tested on Igor Pro 9.01
 // Comment out the line with comment "//IP9 only" and the program will work for IP6+
 // ---------------------
-// Copy of original 
+// Copy of original doc
 //
 // modified from: 
 // Periodic Table Menu by
@@ -518,6 +518,12 @@ static Function ShowButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 				endif
 			endif
 			//CL
+			if(!strlen(allSelectedElements)) // If there is no selection.
+				allSelectedElements  =  "H;He;Li;Be;B;C;N;O;F;Ne;Na;Mg;Al;Si;P;S;Cl;Ar;K;Ca;Sc;Ti;V;Cr;Mn;Fe;Co;"
+				allSelectedElements += "Ni;Cu;Zn;Ga;Ge;As;Se;Br;Kr;Rb;Sr;Y;Zr;Nb;Mo;Tc;Ru;Rh;Pd;Ag;Cd;In;Sn;Sb;Te;"
+				allSelectedElements += "I;Xe;Cs;Ba;La;Ce;Pr;Nd;Pm;Sm;Eu;Gd;Tb;Dy;Ho;Er;Tm;Yb;Lu;Hf;Ta;W;Re;Os;Ir;"
+				allSelectedElements += "Pt;Au;Hg;Tl;Pb;Bi;Po;At;Rn;Fr;Ra;Ac;Th;Pa;U"
+			endif			
 			if(gCL)
 				ShowNotebookCoreLevelsInEnergyRange(gElow, gEhigh, \
 				KE = gKE, hv = ghv, wf = gwf,elements = allSelectedElements)
@@ -744,8 +750,7 @@ End
 
 
 
-// XPS Part DEV
-Function CreateElemSelectCoreLevels([int KE, variable hv, variable wf]) // Works, we create the core levels table.
+Function CreateElemSelectCoreLevels([int KE, variable hv, variable wf])
 
 	if(1) // Here if you tick the core level mode
 		WAVE ElemSelect= root:Packages:ATH_DataFolder:XPSReferenceData:ElemSelect
@@ -896,7 +901,7 @@ Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 	if(Elow >= Ehigh)
 		return ""
 	endif
-
+	
 	for(i = 1; i < ii;i++) // Zeroth column is -, dummy elelment
 		elem = GetDimLabel(wRef,0,i)
 		if(FindListItem(elem, elements) < 0)
@@ -906,6 +911,7 @@ Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 		if(KE && hv > wf)
 			energyAuger0 = wRefA[%$elem][0]
 			energyAuger1 = wRefA[%$elem][1]
+			// Third condition has to change to the shell excitation
 			if(!(energyAuger0 < Elow || energyAuger0 > Ehigh || (hv <= (wf+energyAuger0))))
 				strBufferAuger += "{"+TrimString(wRefT[%$elem][0])+"} " + num2str(energyAuger0) + " eV"
 			endif
@@ -937,12 +943,14 @@ Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 		endif
 		if(strlen(strBufferAuger))
 			if(strlen(strBuffer))
-			report += ", "+strBufferAuger +".\n"
+				report += ", "+strBufferAuger +".\n"
 			else
-			report +=elem + ": "+strBufferAuger +".\n"
+				report +=elem + ": "+strBufferAuger +".\n"
 			endif
 		else
-			report += "\n"
+			if(strlen(strBuffer))
+				report += "\n"
+			endif
 		endif
 		strBuffer = ""
 		strBufferAuger = ""
@@ -958,10 +966,10 @@ static Function ShowNotebookCoreLevelsInEnergyRange(variable Elow, variable Ehig
 	endif
 	string infoStr, notebookText
 	if(KE && hv > wf)
-		infoStr = "Energy Scale -> KE (eV)," +  "Energy Range (eV) = ["+num2str(Elow)+","+num2str(Ehigh)+"], "
+		infoStr = "Energy Scale: KE (eV)," +  "Energy Range (eV) = ["+num2str(Elow)+","+num2str(Ehigh)+"], "
 		infoStr += "hv = " + num2str(hv) +" eV, Wf = " + num2str(wf) + "e V.\n\n"
 	else
-		infoStr = "Energy Scale -> BE (eV), Energy Range = ["+num2str(Elow)+","+num2str(Ehigh)+"].\n\n"
+		infoStr = "Energy Scale: BE (eV), Energy Range = ["+num2str(Elow)+","+num2str(Ehigh)+"].\n\n"
 	endif	
 		
 	notebookText = infoStr  + report
