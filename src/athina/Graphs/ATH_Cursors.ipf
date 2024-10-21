@@ -82,15 +82,12 @@ static Function MeasureDistanceUsingFreeCursors()
 	
 	// if the hook is there you have already launch it!
 	GetWindow $winNameStr hook(ATH_MeasureDistanceCsrDCHook)
-	// if there is slider and MeasureDistanceUsingFreeCursors not launched	
-	if(ATH_Windows#IsW3DSliderActiveQ(winNameStr) && !strlen(S_value))
-		ControlBar lCBOFFSET + kCBOFFSET
-	elseif(!lCBOFFSET) // We have an 1D or 2D graph without ControlBar
-		ControlBar kCBOFFSET
-	else
+	// if there is slider and MeasureDistanceUsingFreeCursors is on
+	if(strlen(S_Value))
 		return 1
-	endif
+	endif	
 	
+	ControlBar lCBOFFSET + kCBOFFSET		
 	
 	Button scaleB pos={10,4+lCBOFFSET}, size={65,20}, title="Scale", win=$winNameStr, help = {"Place cursots C, D and set scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
 	Button drawscaleB pos={85, 4+lCBOFFSET}, size={80,20}, title="Draw Scale", win=$winNameStr, help = {"Save current scale for future use"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
@@ -98,8 +95,6 @@ static Function MeasureDistanceUsingFreeCursors()
 	Button markB pos={265,4+lCBOFFSET}, title="Mark", size={65,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
 	Button closeB pos={340,4+lCBOFFSET}, title="Close", size={65,20}, fcolor=(65535,0,0), win=$winNameStr, help = {"Removes control bar"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton	
 	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrDCHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsHook
-
-	GetWindow $winNameStr hook(ATH_MeasureDistanceCsrDCHook)
 
 	string userdataStrQ = GetUserData(winNameStr, "", "ATH_SavedDistanceForScale")
 
