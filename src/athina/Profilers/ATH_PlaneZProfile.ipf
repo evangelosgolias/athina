@@ -148,13 +148,6 @@ static Function/DF InitialiseFolder()
 		variable/G dfr:gATH_Xfactor = 1
 	endif
 	
-	if(DimSize(imgWaveRef, 0) != DimSize(imgWaveRef, 1))
-	string alertStr = "Number of pixels in X, Y dimesions is not the same. \nThe program is not optimised/tested for these conditions."+\
-		"\nWe suggest to create a new 3d wave using ATH_MakeSquare3DWave(wavename).\n"+\
-		"If you want to continue use 1 px width and good luck."
-		DoAlert 0, alertStr
-	endif
-	
 	// Switches and indicators
 	variable/G dfr:gATH_PlotSwitch = 1
 	variable/G dfr:gATH_MarkLinesSwitch = 1
