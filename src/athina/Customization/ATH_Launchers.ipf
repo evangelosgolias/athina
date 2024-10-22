@@ -294,7 +294,7 @@ static Function ImageStackAlignmentPartition()
 		return -1
 	endif
 	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // ATH_ImageStackAlignmentByPartitionRegistration needs a wave reference
-	variable method = 1
+	variable method = 2
 	variable printMode = 2
 	variable layerN = 0
 	variable histEq = 2
