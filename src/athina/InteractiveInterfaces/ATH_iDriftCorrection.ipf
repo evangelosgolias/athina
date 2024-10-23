@@ -504,7 +504,7 @@ static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 				// ImageInterpolate needs pixels, multiply by -1 to have the proper behavior in /ARPM={...}
 				wx /= (-gATH_dx) ; wy /= (-gATH_dy)
 				ATH_ImgAlign#LinearDriftPlanesABCursors(w3dref, wx, wy, startL = gATH_LDCstartL, \
-														endL = gATH_LDCendL, intPx = gATH_SubPixelMode)
+														endL = gATH_LDCendL, intPx = 1 - gATH_SubPixelMode)
 				hookresult =  1
 			endif
 			break
