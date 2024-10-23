@@ -105,6 +105,9 @@ End
 
 static Function CalculateXMCDFromStack()
 	WAVE/Z w3d = ATH_Graph#TopImageToWaveRef()
+	if(!WaveExists(w3d))
+		return 1
+	endif
 	string basename = NameofWave(w3d) + "_xmcd"
 	DFREF dfr = GetWavesDataFolderDFR(w3d)
 	DFREF saveDF = GetDataFolderDFR()

@@ -90,9 +90,9 @@ static Function MeasureDistanceUsingFreeCursors()
 	ControlBar lCBOFFSET + kCBOFFSET		
 	
 	Button scaleB pos={10,4+lCBOFFSET}, size={65,20}, title="Scale", win=$winNameStr, help = {"Place cursots C, D and set scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button drawscaleB pos={85, 4+lCBOFFSET}, size={80,20}, title="Draw Scale", win=$winNameStr, help = {"Save current scale for future use"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button drawscaleB pos={85, 4+lCBOFFSET}, size={80,20}, title="Draw Scale", win=$winNameStr, help = {"Draw the saved scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
 	Button modeB pos={175,4+lCBOFFSET}, title="Direct", size={80,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button markB pos={265,4+lCBOFFSET}, title="Mark", size={65,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
+	Button markB pos={265,4+lCBOFFSET}, title="Mark", size={65,20}, win=$winNameStr, help = {"Mark distace (1D: with SHIFT pressed marks dv"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
 	Button closeB pos={340,4+lCBOFFSET}, title="Close", size={65,20}, fcolor=(65535,0,0), win=$winNameStr, help = {"Removes control bar"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton	
 	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrDCHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsHook
 
@@ -257,19 +257,33 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 				Button modeB, title = "Reciprocal", fcolor=(65535,65535,0), win=$s.win
 			endif
 			break
-		case "markB": // direct/reciprocal
+		case "markB":
 			if(!imgQ)  // Traces
 				SetDrawLayer/W=$s.win UserFront
 				if(!str2num(GetUserData(s.win, "", "ATH_CursorDistanceMode"))) // 0 - direct, 1 - reciprocal
-					SetDrawEnv/W=$s.win textrgb=(65535,0,0),xcoord =$axisX, ycoord = $axisY
-					DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, num2str(abs(x2-x1))
-					SetDrawEnv/W=$s.win linefgc=(65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY
-					DrawLine/W=$s.win x1, (y1+y2)/2, x2, (y1+y2)/2
+					if(s.eventMod & 2)
+						SetDrawEnv/W=$s.win textrgb=(65535,0,0),xcoord =$axisX, ycoord = $axisY, textrot= 90
+						DrawText/W=$s.win x2, (y1+y2)/2, ("D:"+num2str(abs(y2-y1)))
+						SetDrawEnv/W=$s.win linefgc=(65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY		
+						DrawLine/W=$s.win x2, y1, x2, y2
+					else
+						SetDrawEnv/W=$s.win textrgb=(65535,0,0),xcoord =$axisX, ycoord = $axisY
+						DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, ("D:"+num2str(abs(x2-x1)))
+						SetDrawEnv/W=$s.win linefgc=(65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY				
+						DrawLine/W=$s.win x1, (y1+y2)/2, x2, (y1+y2)/2
+					endif
 				else
-					SetDrawEnv/W=$s.win textrgb=(65535,0,0), xcoord=$axisX, ycoord = $axisY,  textrot= 90
-					DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, num2str(abs(y2-y1))
-					SetDrawEnv/W=$s.win linefgc= (65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY
-					DrawLine/W=$s.win (x1+x2)/2, y1, (x1+x2)/2, y2
+					if(s.eventMod & 2)
+						SetDrawEnv/W=$s.win textrgb=(65535,0,0),xcoord =$axisX, ycoord = $axisY, textrot= 90
+						DrawText/W=$s.win x2, (y1+y2)/2, ("R:"+num2str(1/abs(y2-y1)))
+						SetDrawEnv/W=$s.win linefgc=(65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY		
+						DrawLine/W=$s.win x2, y1, x2, y2
+					else
+						SetDrawEnv/W=$s.win textrgb=(65535,0,0),xcoord =$axisX, ycoord = $axisY
+						DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, ("R:"+num2str(1/abs(x2-x1)))
+						SetDrawEnv/W=$s.win linefgc=(65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY				
+						DrawLine/W=$s.win x1, (y1+y2)/2, x2, (y1+y2)/2
+					endif
 				endif
 			else  // Images
 				if(!str2num(GetUserData(s.win, "", "ATH_CursorDistanceMode"))) // 0 - direct, 1 - reciprocal
