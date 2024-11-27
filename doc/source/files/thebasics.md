@@ -34,8 +34,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **SHIFT + n** : duplicate source wave of TG and display it.
 - **SHIFT + r** : launch interactive image rotation.
 - **SHIFT + x** : launch interactive PES (XPS) extractor
-- **ALT + mousewheel** : zoom image centered at the cursor.
-- **CTRL (CMD) + Close Window**: Displayed wave (and its backup wave) will be deleted after the window is closed.
+- **SHIFT + mousewheel** : zoom image centered at the cursor.
 
 ## The data browser
 

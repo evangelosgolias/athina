@@ -8,11 +8,11 @@
 Function ATH_AthinaLauncher()
 	if(!strlen(FunctionList("CreateDataFolderGetDFREF",";","KIND:18,WIN:ATH_DFR.ipf")))
 		Execute/P "INSERTINCLUDE \"ATH_Func\""
+		Execute/P "INSERTINCLUDE \"ATH_CalcPad\""		
 		Execute/P "INSERTINCLUDE \"ATH_FuncFit\""
 		Execute/P "INSERTINCLUDE \"ATH_Magnetism\""
 		Execute/P "INSERTINCLUDE \"ATH_Transform\""
 		Execute/P "INSERTINCLUDE \"ATH_XPSBackgroundRemoval\""
-		Execute/P "INSERTINCLUDE \"ATH_VASP\""
 		Execute/P "INSERTINCLUDE \"ATH_Dialog\""
 		Execute/P "INSERTINCLUDE \"ATH_Launchers\""
 		Execute/P "INSERTINCLUDE \"ATH_Menus\""
@@ -53,11 +53,11 @@ Function ATH_AthinaLauncher()
 		Execute/P "COMPILEPROCEDURES "
 	else
 		Execute/P "DELETEINCLUDE \"ATH_Func\""
+		Execute/P "DELETEINCLUDE \"ATH_CalcPad\""		
 		Execute/P "DELETEINCLUDE \"ATH_FuncFit\""
 		Execute/P "DELETEINCLUDE \"ATH_Magnetism\""
 		Execute/P "DELETEINCLUDE \"ATH_Transform\""
 		Execute/P "DELETEINCLUDE \"ATH_XPSBackgroundRemoval\""
-		Execute/P "DELETEINCLUDE \"ATH_VASP\""
 		Execute/P "DELETEINCLUDE \"ATH_Dialog\""
 		Execute/P "DELETEINCLUDE \"ATH_Launchers\""
 		Execute/P "DELETEINCLUDE \"ATH_Menus\""
