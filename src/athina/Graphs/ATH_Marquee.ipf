@@ -103,13 +103,15 @@ static Function PartitionRegion([int evenNum, int tetragonal])
 	GetMarquee/W=$grfName/K $xaxis, $yaxis
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(grfName, ";"),";")
 	WAVE waveRef = ImageNameToWaveRef(grfName, imgNameTopGraphStr) // full path of wave
-	DFREF saveDF = GetDataFolderDFR()
-	string stacknameStr = CreateDataObjectName(saveDF, imgNameTopGraphStr + "_PART", 1, 0, 1)
-	if(!WaveExists(ATH_WaveOp#WavePartition(waveRef, stacknameStr, V_left, V_right, V_top, V_bottom, \
-	evenNum = evenNum, tetragonal = tetragonal))) // Wave does not exists, most probably wave cannot be produced
+	DFREF currDF = GetDataFolderDFR()
+	string stacknameStr = CreateDataObjectName(currDF, NameOfWave(waveRef) + "_PART", 1, 0, 1)
+	// Use NameOfWave(waveRef) instead of imgNameTopGraphStr as the ' ' will be replace by _!
+	ATH_WaveOp#WavePartition(waveRef, stacknameStr, V_left, V_right, V_top, V_bottom, \
+	evenNum = evenNum, tetragonal = tetragonal)
+	WAVE/Z wavePRT = $stacknameStr
+	if(!WaveExists(wavePRT)) // Wave does not exists, operation failed.
 		return 1
 	endif
-	WAVE wavePRT = $stacknameStr
 	CopyScales/P waveRef, wavePRT
 	return 0
 End

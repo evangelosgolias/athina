@@ -125,7 +125,6 @@ static Function/DF InitialiseFolder(string winNameStr)
 	variable/G dfr:gATH_MarkLinesSwitch = 1
 	variable/G dfr:gATH_updateSelectedLayer = 1	
 	variable/G dfr:gATH_colorcnt = 0
-	variable/G dfr:gATH_mouseTrackV
 	// Default settings
 	NVAR/Z/SDFR=dfr0 gATH_profileWidth0
 	if(!NVAR_Exists(gATH_profileWidth0)) // init only once and do not overwrite
@@ -215,7 +214,6 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
 	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z mouseTrackV = dfr:gATH_mouseTrackV
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
 	NVAR/Z updateSelectedLayer = dfr:gATH_updateSelectedLayer
@@ -251,9 +249,6 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 			KillDataFolder/Z dfr
 			hookresult = 0 // Prevent another case 17 somewhere to stop the window from being killed
 			break
-		case 4:
-			mouseTrackV = s.mouseLoc.v
-			break
        	case 5: // mouse up
        		C1x = hcsr(E) 
        		C1y = vcsr(E)
@@ -263,7 +258,7 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 			break
 		case 8: // modifications, either move the slides or the cursors
 			// NB: s.cursorName gives "" in the switch but "-" outside for no cursor under cursor or CursorName (A,B,...J)
-			if(WaveDims(imgWaveRef) == 3 && DataFolderExists(skATH_W3DImageSliderParentDFR + WindowNameStr) && updateSelectedLayer && mouseTrackV < 0)
+			if(WaveDims(imgWaveRef) == 3 && DataFolderExists(skATH_W3DImageSliderParentDFR + WindowNameStr) && updateSelectedLayer) // deleted && mouseTrackV < 0
 				NVAR/Z glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(WindowNameStr):gLayer
 				selectedLayer = glayer
 				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}

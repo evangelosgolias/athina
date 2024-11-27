@@ -35,13 +35,13 @@
 // ------------------------------------------------------- //
 
 
-static Function Loadtiff(string filepathStr, string waveNameStr, [int displayImg])
+static Function Loadtiff(string filepathStr, string waveNameStr, [int displayImg, int overwrite])
 	/// @param filepathStr string pathname. 
 	/// If "" a dialog opens to select the file.
 	/// @param waveNameStr name of the imported wave. 
 
 	displayImg = ParamIsDefault(displayImg) ? 0: displayImg	
-	
+	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
 	variable numRef
 	string separatorchar = ":"
 	string fileFilters = "TVIPS tiff File (*.tif):.tif;"
@@ -79,8 +79,11 @@ static Function Loadtiff(string filepathStr, string waveNameStr, [int displayImg
 		Abort "Path for datafile not specified (check ATH_TVIPS#LoadTVIPStiff)!"
 	endif
 	
-	
-	ImageLoad/T=tiff/N=$waveNameStr/Q filepathStr
+	if(overwrite)
+		ImageLoad/T=tiff/N=$waveNameStr/O/Q filepathStr	
+	else
+		ImageLoad/T=tiff/N=$waveNameStr/Q filepathStr
+	endif
 	Close numref
 	WAVE wRef = $StringFromList(0, S_waveNames)
 	//Guess the dimenions...

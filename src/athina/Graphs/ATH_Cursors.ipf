@@ -56,11 +56,7 @@ static Function GetDistanceFromCursors(string C1, string C2)
 	return sqrt((hcsr($C1) - hcsr($C2))^2 + (vcsr($C1) - vcsr($C2))^2)
 End
 
-static Function GetDistanceFromABCursors()
-	/// Returns the distance between cursors A & B.
-	return sqrt((hcsr(A) - hcsr(B))^2 + (vcsr(A) - vcsr(B))^2)
-End
-
+// Interactive functionality
 static Function MeasureDistanceUsingFreeCursors()
 	/// N.B: Cannot handle complicated ControlBar situations
 	
@@ -87,13 +83,20 @@ static Function MeasureDistanceUsingFreeCursors()
 		return 1
 	endif	
 	
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
+
 	ControlBar lCBOFFSET + kCBOFFSET		
 	
-	Button scaleB pos={10,4+lCBOFFSET}, size={65,20}, title="Scale", win=$winNameStr, help = {"Place cursots C, D and set scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button drawscaleB pos={85, 4+lCBOFFSET}, size={80,20}, title="Draw Scale", win=$winNameStr, help = {"Draw the saved scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button modeB pos={175,4+lCBOFFSET}, title="Direct", size={80,20}, win=$winNameStr, help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button markB pos={265,4+lCBOFFSET}, title="Mark", size={65,20}, win=$winNameStr, help = {"Mark distace (1D: with SHIFT pressed marks dv"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton
-	Button closeB pos={340,4+lCBOFFSET}, title="Close", size={65,20}, fcolor=(65535,0,0), win=$winNameStr, help = {"Removes control bar"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton	
+	Button scaleB pos={10*pntConv,(4+lCBOFFSET)*pntConv}, size={65*pntConv,20*pntConv}, title="Scale", win=$winNameStr
+	Button scaleB help = {"Place cursots C, D and set scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
+	Button drawscaleB pos={85*pntConv, (4+lCBOFFSET)*pntConv}, size={80*pntConv,20*pntConv}, title="Draw Scale",win=$winNameStr 
+	Button drawscaleB help = {"Draw the saved scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
+	Button modeB pos={175*pntConv,(4+lCBOFFSET)*pntConv}, title="Direct", size={80*pntConv,20*pntConv},win=$winNameStr
+	Button modeB help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
+	Button markB pos={265*pntConv,(4+lCBOFFSET)*pntConv}, title="Mark", size={65*pntConv,20*pntConv},win=$winNameStr
+	Button markB help = {"Mark distace (1D: with SHIFT pressed marks dv"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
+	Button closeB pos={340*pntConv,(4+lCBOFFSET)*pntConv}, title="Close", size={65*pntConv,20*pntConv},fcolor=(65535,0,0),win=$winNameStr
+	Button closeB help = {"Removes control bar"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton, win=$winNameStr
 	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrDCHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsHook
 
 	string userdataStrQ = GetUserData(winNameStr, "", "ATH_SavedDistanceForScale")
@@ -456,6 +459,9 @@ static Function ThreeCursorsToAngle(string Cursor1, string Cursor2, string Curso
 	return (deg == 0) ? angle : angle*180/pi
 End
 
+
+
+/// Beam fitting map
 /// Generic interaction using a cursor and a CallbackFunction
 
 static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef)
@@ -464,7 +470,6 @@ static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef)
 	//
 	// WAVE wSrc - 3D Wave with XMLD images for different angles
 	//
-	// Check if the wave is displayed
 	ATH_Display#NewImg(wRef)
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")

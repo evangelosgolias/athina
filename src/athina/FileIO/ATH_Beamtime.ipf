@@ -48,7 +48,7 @@ static Function/S SetOrResetBeamtimeRootFolder()
 End
 
 static Function LoadNewestFileInPathTreeAndDisplay(string extension)
-	//variable timerRefNum = StartMSTimer
+	/// variable timerRefNum = StartMSTimer
 	/// Load the last file found in the directory tree with root at pathName
 	string latestfile = ""
 	variable latestctime = 0

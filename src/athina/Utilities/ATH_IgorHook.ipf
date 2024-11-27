@@ -43,7 +43,7 @@ Function BeforeFileOpenHook(variable refNum, string fileNameStr, string pathName
         	// Added on the 17.03.2023 to deal with a corrupted file. 
         	print "!",fileNameStr, "metadataReadError"
         	variable err = GetRTError(1) // Clears the error
-        	WAVE wIn = ATH_Uview#wAVELoadSingleCorruptedDATFile(fileToOpen, "")
+        	WAVE wIn = ATH_Uview#WAVELoadSingleCorruptedDATFile(fileToOpen, "")
         	//Abort // Removed to stop the "Encoding window" from popping all the time.
         endtry
         ATH_Display#NewImg(wIn)

@@ -153,6 +153,79 @@ static Function [variable slope, variable shift] LineEquationFromTwoPoints(varia
 	return [slope, shift]
 End
 
+static Function/WAVE LineCoefficientsFromCursors(string csr0, string csr1, [int free, string grfName])
+	//
+	// Get a WAVE with the coefficients of a line defined by csr0 & csr1.
+	// N.B: Wave scaling is taken into account here!
+	// Use poly function to make the polynomial
+	//
+	
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	free = ParamIsDefault(free) ? 0 : free
+	
+	variable x0 = hcsr($csr0, grfName)
+	variable y0 = vcsr($csr0, grfName)
+	variable x1 = hcsr($csr1, grfName)
+	variable y1 = vcsr($csr1, grfName)
+	
+	if(free)
+		Make/FREE/N=2/D wRefFREE
+	else
+		DFREF cdfr = GetDataFolderDFR()
+		string waveNameStr = CreateDataObjectName(cdfr,"ath_lineCoefffW", 1, 0, 1)	
+		Make/O/D/N=2 $waveNameStr
+		WAVE wRefFREE = $waveNameStr
+		string noteStr = "Coefficients from " + grfName + " at (" + num2str(x0) + "," + num2str(y0) + ")"
+		noteStr += " and (" + num2str(x1) + "," + num2str(y1) + ").\n"
+		Note $waveNameStr, noteStr
+	endif
+		
+	variable slope = (y1 - y0) /(x1 - x0)
+	
+	if (x1 == x0)
+		wRefFREE[0] = inf
+		wRefFREE[1] = x0
+		return wRefFREE
+	endif
+	variable shift = y0 - slope * x0
+	wRefFREE[0] = shift
+	wRefFREE[1] = slope
+	return wRefFREE
+End
+
+static Function/WAVE GetLineFromCursors(string csr0, string csr1, [int free, string grfName])
+	//
+	// Get a WAVE with the coefficients of a line defined by csr0 & csr1.
+	// N.B: Wave scaling is taken into account here!
+	// Use poly function to make the polynomial
+	//
+	
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	free = ParamIsDefault(free) ? 0 : free
+	WAVE wRef = ATH_Traces#TopTraceToWaveRef(grfName=grfName)
+
+	variable x0 = hcsr($csr0, grfName)
+	variable y0 = vcsr($csr0, grfName)
+	variable x1 = hcsr($csr1, grfName)
+	variable y1 = vcsr($csr1, grfName)
+	
+	WAVE coeffW = ATH_Geometry#LineCoefficientsFromCursors(csr0, csr1, free = 1, grfName = grfName)
+	if(free)
+		Duplicate/FREE wRef, wRefFREE
+		wRefFREE = poly(coeffW, x)
+		return wRefFREE
+	else
+		string lineWaveName = NameOfWave(wRef) + "_fitline"
+		Duplicate/O wRef, $lineWaveName
+		WAVE lineW = $lineWaveName
+		lineW = poly(coeffW, x)
+		string noteStr = "Coefficients from " + grfName + " at (" + num2str(x0) + "," + num2str(y0) + ")"
+		noteStr += " and (" + num2str(x1) + "," + num2str(y1) + ").\n"
+		noteStr += "K0=" + num2str(coeffW[0])+", K1="+num2str(coeffW[1])+".\n"
+		return lineW
+	endif
+End
+
 static Function [WAVE wx, WAVE wy] XYWavesOfLineFromTwoPoints(variable x0, 
 								   variable y0, variable x1, variable y1, variable npts)
 	//

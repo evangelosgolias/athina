@@ -134,7 +134,6 @@ static Function/DF InitialiseFolder(string winNameStr)
 	variable/G dfr:gATH_UseBELineSwitch = 0
 	variable/G dfr:gATH_SelectLayer = 0
 	variable/G dfr:gATH_colorcnt = 0
-	variable/G dfr:gATH_mouseTrackV
 	variable/G dfr:gATH_CursorABSwitch = 0 // Have you set the cursors ?=
 	// Default settings
 	NVAR/Z/SDFR=dfr0 gATH_profileWidth0
@@ -215,7 +214,7 @@ static Function XPSPlot(DFREF dfr)
 	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_iXPS#PlotProfile, win=$profilePlotStr
 	CheckBox UseBE,pos={127.00,40.00},size={86.00,17.00},title="Show BE ",fSize=14,value=0,side=1,proc=ATH_iXPS#UseBE, win=$profilePlotStr
 	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=ATH_iXPS#Layer3D, win=$profilePlotStr
-	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(1,39321,19939),value=profileWidth,limits={0,inf,1},proc=ATH_iXPS#SetProfileWidth, win=$profilePlotStr
+	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(1,39321,19939),value=profileWidth,limits={0,inf,1},help={"sampling points: 2*width+1 pixels."},proc=ATH_iXPS#SetProfileWidth, win=$profilePlotStr
 	SetVariable setSTV,pos={20,72.00},size={100,20.00},title="STV", fSize=14,fColor=(0,0,65535),value=stv,limits={0,inf,1},proc=ATH_iXPS#SetSTV, win=$profilePlotStr
 	SetVariable sethv,pos={135,72.00},size={90,20.00},title="hv", fSize=14,fColor=(65535,0,0),value=hv,limits={0,inf,1},proc=ATH_iXPS#Sethv, win=$profilePlotStr
 	SetVariable setWf,pos={235,72.00},size={90,20.00},title="Wf", fSize=14,fColor=(1,39321,19939),value=Wf,limits={0,inf,0.1},proc=ATH_iXPS#SetWf, win=$profilePlotStr
@@ -268,7 +267,6 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z Wf = dfr:gATH_Wf
 	NVAR/Z hv = dfr:gATH_hv
 	NVAR/Z Eoffset = dfr:gATH_Eoffset
-	NVAR/Z mouseTrackV = dfr:gATH_mouseTrackV
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
 	NVAR/Z updateSelectedLayer = dfr:gATH_updateSelectedLayer
@@ -293,7 +291,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				SetDrawEnv/W=$s.winName Linefgc = (0,65535,0,65535), fillpat = 0, Linethick = 1, xcoord = top, ycoord = left
 				DrawLine/W=$s.winName C1x, C1y, C2x, C2y
 				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
-				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
 				// Activate window, e.g after pressing "Restore Settings"
 				if(stv)
 					linepx = sqrt(((Ax-Bx)/dx)^2+((Ay-By)/dy)^2) // Calculate it again.
@@ -316,9 +314,6 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			endif
 			KillDataFolder/Z dfr
 			hookresult = 1
-			break
-		case 4:
-			mouseTrackV = s.mouseLoc.v
 			break
 		case 5: // mouse up
 			C1x = hcsr(E)
@@ -343,11 +338,11 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			break
 		case 8: // modifications, either move the slides or the cursors
 			// NB: s.cursorName gives "" in the switch but "-" outside for no cursor under cursor or CursorName (A,B,...J)
-			if(WaveDims(imgWaveRef) == 3 && DataFolderExists("root:Packages:ATH_DataFolder:W3DImageSlider:" + WindowNameStr) && updateSelectedLayer && mouseTrackV < 0)
+			if(WaveDims(imgWaveRef) == 3 && DataFolderExists("root:Packages:ATH_DataFolder:W3DImageSlider:" + WindowNameStr) && updateSelectedLayer) // deleted  && mouseTrackV < 0
 				NVAR/Z glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(WindowNameStr):gLayer
 				selectedLayer = glayer
 				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
-				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
 				if(stv)
 					linepx = sqrt(((Ax-Bx)/dx)^2+((Ay-By)/dy)^2) // Calculate it again.
 					dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
@@ -364,24 +359,25 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 		case 7: // cursor moved
 			if(!cmpstr(s.cursorName, "E") || !cmpstr(s.cursorName, "F")) // It should work only with E, F you might have other cursors on the image
 				SetDrawLayer/W=$s.winName ProgFront
-				DrawAction/W=$s.winName delete
-				SetDrawEnv/W=$s.winName linefgc = (0,65535,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-				if(!cmpstr(s.cursorName, "E")) // if you move E
-					xc = hcsr(F)
-					yc = vcsr(F)
-					DrawLine/W=$s.winName s.pointNumber * dx, s.ypointNumber * dy, xc, yc
-					Make/O/FREE/N=2 xTrace={s.pointNumber * dx, xc}, yTrace = {s.ypointNumber * dy, yc}
-				elseif(!cmpstr(s.cursorName, "F")) // if you move F
-					xc = hcsr(E)
-					yc = vcsr(E)
-					DrawLine/W=$s.winName  xc, yc, s.pointNumber * dx, s.ypointNumber * dy
-					Make/O/FREE/N=2 xTrace={xc, s.pointNumber * dx}, yTrace = {yc, s.ypointNumber * dy}
-				endif
-				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
-				C1x = hcsr(E)
-				C1y = vcsr(E)
-				C2x = hcsr(F)
-				C2y = vcsr(F)
+			    DrawAction/W=$s.winName delete
+	   			SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+	   			if(!cmpstr(s.cursorName, "F")) // if you move F
+	   				C1x = hcsr(E)
+					C1y = vcsr(E)
+					C2x = hcsr(F)
+					C2y = vcsr(F)
+					DrawLine/W=$s.winName C1x , C1y, C2x, C2y
+	   				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
+	   			elseif(!cmpstr(s.cursorName, "E")) // if you move E
+					C1x = hcsr(E)
+					C1y = vcsr(E)					
+					C2x = hcsr(F)
+					C2y = vcsr(F)
+					DrawLine/W=$s.winName C1x , C1y, C2x, C2y
+	   				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
+	   			endif
+	   			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
+			endif
 				if(stv)
 					dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
 					linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
@@ -395,7 +391,6 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				endif
 				hookResult = 1
 				break
-			endif
 			hookresult = 0
 			break
 	endswitch
@@ -486,6 +481,9 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 				else
 					SetScale/P x, Eoffset, epp, savedfr:$saveWaveNameStr
 				endif
+			else
+				WAVE/SDFR=dfr W_ImageLineProfile
+				Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
 			endif
 			if(PlotSwitch)
 				if(WinType(targetGraphWin) == 1)
@@ -784,7 +782,7 @@ static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableCon
 	variable dAE, Eoffset, BE_Eoffset
 	switch(sv.eventCode)
 		case 6:
-			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2 * profileWidth
 			if(stv)
 				dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
 				linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
@@ -980,7 +978,7 @@ static Function GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
 	DFREF dfr = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
 	Make/O/N=2 xTrace={C1x0, C2x0}, yTrace = {C1y0, C2y0}
-	ImageLineProfile srcWave=wRef, xWave=xTrace, yWave=yTrace, width = profileWidth0
+	ImageLineProfile srcWave=wRef, xWave=xTrace, yWave=yTrace, width = 2 * profileWidth0
 	WAVE W_ImageLineProfile
 	string saveWaveBaseStr = NameOfWave(wRef) + "_prof"
 	string saveWaveNameStr = CreateDataObjectName(dfr, saveWaveBaseStr, 1, 0, 5)
@@ -992,12 +990,11 @@ static Function GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
 	if(stv)
 		variable dAE = sqrt(((C1x0 - Ax0)/dx)^2 + ((C1y0 - Ay0)/dy)^2)
 		variable Eoffset = stv - (linepx0/2 - dAE) * epp0
-		SetScale/P x, Eoffset, epp0, dfr:$saveWaveNameStr
 		if(hv > Wf0 && BEscaleQ)
 			variable BE_Eoffset = hv - Eoffset - Wf0
-			SetScale/P x, BE_Eoffset, -epp0, W_ImageLineProfile
+			SetScale/P x, BE_Eoffset, -epp0, dfr:$saveWaveNameStr
 		else
-			SetScale/P x, Eoffset, epp0, W_ImageLineProfile
+			SetScale/P x, Eoffset, epp0, dfr:$saveWaveNameStr
 		endif
 	endif
 	string recreateDrawStr

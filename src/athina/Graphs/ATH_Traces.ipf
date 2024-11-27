@@ -4,14 +4,14 @@
 #pragma ModuleName = ATH_Traces
 
 
-static Function/WAVE TopTraceToWaveRef([string graphName])
+static Function/WAVE TopTraceToWaveRef([string grfName])
 	// Return a wave reference from the top graph
 	
-	graphName = SelectString(ParamIsDefault(graphName) ? 0: 1, WinName(0, 1, 1), graphName) // Empty case will be handled below
-	string traceNameTopGraphStr = StringFromList(0, TraceNameList(graphName, ";", 4),";") // Omit hidden traces
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	string traceNameTopGraphStr = StringFromList(0, TraceNameList(grfName, ";", 5),";") // Omit hidden traces
 	// if there is no image in the top graph strlen(imgNameTopGraphStr) = 0
 	if(strlen(traceNameTopGraphStr))
-		WAVE wRef = TraceNameToWaveRef("", traceNameTopGraphStr) // full path of wave
+		WAVE wRef = TraceNameToWaveRef(grfName, traceNameTopGraphStr) // full path of wave
 		return wRef
 	else 
 		return $""
@@ -89,3 +89,41 @@ static Function OperationsOnGraphTracesWithMarquee(variable left, variable right
 	SetDataFolder currDFR
 End
 
+static Function AlignTracesDB() // Experimental
+	// Fix: For stitching to have sense as done here there should be 
+	// an overlap between regions, i.e. region width should be larger
+	// than the step between traces.
+	
+	// align traces, i.e match the last value of wave1d N-1
+	// to the first value of wave1d N
+	string buffer, listOfSelectedWaves= ""	
+	variable i = 0
+	do
+		buffer = GetBrowserSelection(i)
+		if(WaveExists($buffer) && WaveDims($buffer)==1)
+			listOfSelectedWaves += buffer + ";" // Match stored at S_value
+		endif
+		i++
+	while (strlen(GetBrowserSelection(i)))
+	
+	//Sort alphanumerically
+	
+	listOfSelectedWaves = SortList(listOfSelectedWaves,";", 16)
+	variable nrwaves = ItemsInList(listOfSelectedWaves)
+//	variable ntot = 0
+//	for(i=0;i<nrwaves;i++)
+//		WAVE wRef = $StringFromList(i, listOfSelectedWaves)
+//		ntot+=DimSize(wRef, 0)
+//	endfor
+	
+	//Make/N=(ntot) stitchWave
+	variable shift
+	for(i=1;i<nrwaves;i++)
+		WAVE beforeW = $StringFromList(i-1,listOfSelectedWaves)
+		WAVE afterW =  $StringFromList(i,listOfSelectedWaves)
+		shift = beforeW[DimSize(afterW, 0)-1] - afterW[0]
+		afterW += shift
+	endfor
+	WAVE wlistRef = ATH_WaveOp#WaveListStrToWaveRef(listOfSelectedWaves, isFREE=1)
+	Concatenate/NP=0/O {wlistRef}, ATH_stitch
+End

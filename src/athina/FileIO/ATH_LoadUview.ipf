@@ -86,7 +86,7 @@ EndStructure
 static constant kpixelsTVIPS = 1024 // Change here if needed. Used for corrupted files only.
 
 static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameStr 
-			  [,int skipmetadata, int autoScale, int readMarkups,int binX, int binY])
+			  [,int skipmetadata, int autoScale, int readMarkups,int binX, int binY, int overwrite])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
@@ -103,7 +103,8 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
 	readMarkups = ParamIsDefault(readMarkups) ? 0: readMarkups
 	binX = ParamIsDefault(binX) ? 1: binX
 	binY = ParamIsDefault(binY) ? 1: binY
-	
+	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
+
 	variable numRef
 	string separatorchar = ":"
 	string fileFilters = "dat File (*.dat):.dat;"
@@ -178,7 +179,12 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
 	variable ImageDataStart = ATHFileHeader.size + ImageHeaderSize + LEEMdataVersion
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
 	if(binX == 1 && binY == 1)
-		Make/W/U/O/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
+		if(overwrite)
+			Make/W/U/O/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
+		else
+			waveNameStr = CreateDataObjectName(GetDataFolderDFR(), waveNameStr, 1,0,1)
+			Make/W/U/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
+		endif
 		FSetPos numRef, ImageDataStart
 		FBinRead/F=2 numRef, datWave
 	else
@@ -186,9 +192,15 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
 		FSetPos numRef, ImageDataStart
 		FBinRead/F=2 numRef, datWaveFree
 		Redimension/S datWaveFree
-		ImageInterpolate/PXSZ={binX, binY}/DEST=$waveNameStr Pixelate datWaveFree		
-		WAVE datWave = $waveNameStr
+		ImageInterpolate/PXSZ={binX, binY}/DEST=$waveNameStr Pixelate datWaveFree
+		if(overwrite)
+			WAVE datWave = $waveNameStr
+		else
+			waveNameStr = CreateDataObjectName(GetDataFolderDFR(), waveNameStr, 1,0,1)
+			WAVE datWave = $waveNameStr
+		endif		
 	endif
+	
 	Close numRef
 	
 	string mdatastr = ""
@@ -225,7 +237,7 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
 End
 
 static Function LoadSingleDATFile(string filepathStr, string waveNameStr
-         [,int skipmetadata, int autoScale, int readMarkups, int binX, int binY])
+         [,int skipmetadata, int autoScale, int readMarkups, int binX, int binY, int overwrite])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string pathname. 
 	/// If "" a dialog opens to select the file.
@@ -241,6 +253,7 @@ static Function LoadSingleDATFile(string filepathStr, string waveNameStr
 	readMarkups = ParamIsDefault(readMarkups) ? 0: readMarkups	
 	binX = ParamIsDefault(binX) ? 1: binX
 	binY = ParamIsDefault(binY) ? 1: binY
+	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
 		
 	variable numRef
 	string separatorchar = ":"
@@ -310,8 +323,14 @@ static Function LoadSingleDATFile(string filepathStr, string waveNameStr
 	variable LEEMdataVersion = ATHImageHeader.LEEMdataVersion <= 2 ? 0: ATHImageHeader.LEEMdataVersion //NB: Added 23.05.2023
 	variable ImageDataStart = ATHFileHeader.size + ImageHeaderSize + LEEMdataVersion
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
+
 	if(binX == 1 && binY == 1)
-		Make/W/U/O/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
+		if(overwrite)
+			Make/W/U/O/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
+		else
+			waveNameStr = CreateDataObjectName(GetDataFolderDFR(), waveNameStr, 1,0,1)
+			Make/W/U/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) $waveNameStr /WAVE=datWave
+		endif
 		FSetPos numRef, ImageDataStart
 		FBinRead/F=2 numRef, datWave
 	else
@@ -319,8 +338,13 @@ static Function LoadSingleDATFile(string filepathStr, string waveNameStr
 		FSetPos numRef, ImageDataStart
 		FBinRead/F=2 numRef, datWaveFree
 		Redimension/S datWaveFree
-		ImageInterpolate/PXSZ={binX, binY}/DEST=$waveNameStr Pixelate datWaveFree		
-		WAVE datWave = $waveNameStr
+		ImageInterpolate/PXSZ={binX, binY}/DEST=$waveNameStr Pixelate datWaveFree
+		if(overwrite)
+			WAVE datWave = $waveNameStr
+		else
+			waveNameStr = CreateDataObjectName(GetDataFolderDFR(), waveNameStr, 1,0,1)
+			WAVE datWave = $waveNameStr
+		endif		
 	endif
 
 	Close numRef
@@ -1013,72 +1037,79 @@ static Function LoadMultiplyDATFiles([int skipmetadata, int autoscale, int stack
 	return 0
 End
 
-static Function/WAVE WAVELoadSingleCorruptedDATFile(string filepathStr, string waveNameStr)
+static Function/WAVE WAVELoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int overwrite])
 	///< Function to load a single Elmitec binary .dat file by skipping reading the metadata.
 	/// We assume here that the image starts at sizeOfFile - kpixelsTVIPS^2 * 16
-	/// @param filepathStr string filename (including) pathname. 
+	/// @param filepathStr string filename (including) pathname.
 	/// If "" a dialog opens to select the file.
-	/// @param waveNameStr name of the imported wave. 
+	/// @param waveNameStr name of the imported wave.
 	/// If "" the wave name is the filename without the path and extention.
 	/// @param skipmetadata int optional and if set to a non-zero value it skips metadata.
 	/// @return wave reference
-	
+	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
 	variable numRef
 	string separatorchar = ":"
 	string fileFilters = "dat File (*.dat):.dat;"
 	fileFilters += "All Files:.*;"
 	string message
-    if (!strlen(filepathStr) && !strlen(waveNameStr)) 
+	if (!strlen(filepathStr) && !strlen(waveNameStr))
 		message = "Select .dat file. \nFilename will be wave's name. (overwrite)\n "
-   		Open/F=fileFilters/M=message/D/R numref
-   		filepathStr = S_filename
-   		
-   		if(!strlen(filepathStr)) // user cancel?
-   			Abort
-   		endif
+		Open/F=fileFilters/M=message/D/R numref
+		filepathStr = S_filename
 
-   		Open/F=fileFilters/R numRef as filepathStr
+		if(!strlen(filepathStr)) // user cancel?
+			Abort
+		endif
+
+		Open/F=fileFilters/R numRef as filepathStr
 		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
-		
+
 	elseif (strlen(filepathStr) && !strlen(waveNameStr))
 		message = "Select .dat file. \nWave names are filenames /O.\n "
 		Open/F=fileFilters/R numRef as filepathStr
 		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
-		
+
 	elseif (strlen(filepathStr) && strlen(waveNameStr))
 		message = "Select .dat file. \n Destination wave will be overwritten.\n "
 		Open/F=fileFilters/R numRef as filepathStr
-		
+
 	elseif (!strlen(filepathStr) && strlen(waveNameStr))
 		message = "Select .dat file. \n Destination wave will be overwritten\n "
-   		Open/F=fileFilters/M=message/D/R numref
-   		filepathStr = S_filename
-   		
-   		if(!strlen(filepathStr)) // user cancel?
-   			Abort
-   		endif
-   		
+		Open/F=fileFilters/M=message/D/R numref
+		filepathStr = S_filename
+
+		if(!strlen(filepathStr)) // user cancel?
+			Abort
+		endif
+
 		message = "Select .dat file. \nWave names are filenames /O.\n "
 		Open/F=fileFilters/R numRef as filepathStr
 	else
 		Abort "Path for datafile not specified (check ATH_Uview#WAVELoadSingleDATFile)!"
 	endif
-		
+
 	FStatus numRef
 	// change here if needed
-	variable imgSizeinBytes = kpixelsTVIPS^2 * 2 
+	variable imgSizeinBytes = kpixelsTVIPS^2 * 2
 	variable ImageDataStart = V_logEOF - imgSizeinBytes
 	FSetPos numRef, ImageDataStart
-		
+
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
-	Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr /WAVE=datWave
+	if(overwrite)
+		Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr
+		WAVE datWave = $waveNameStr
+	else
+		waveNameStr = CreateDataObjectName(GetDataFolderDFR(), waveNameStr, 1,0,1)
+		Make/W/U/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr
+		WAVE datWave = $waveNameStr
+	endif
 	FBinRead/F=2 numRef, datWave
 	Close numRef
-	
+
 	return datwave
 End
 
-static Function LoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int waveDataType])
+static Function LoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int waveDataType, int overwrite])
 	///< Function to load a single Elmitec binary .dat file by skipping reading the metadata.
 	/// We assume here that the image starts at sizeOfFile - kpixelsTVIPS^2 * 2
 	/// @param filepathStr string filename (including) pathname. 
@@ -1091,6 +1122,7 @@ static Function LoadSingleCorruptedDATFile(string filepathStr, string waveNameSt
 	/// @return wave reference
 	
 	waveDataType = ParamIsDefault(waveDataType) ? 0: waveDataType
+	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
 
 	variable numRef
 	string separatorchar = ":"
@@ -1140,7 +1172,15 @@ static Function LoadSingleCorruptedDATFile(string filepathStr, string waveNameSt
 	FSetPos numRef, ImageDataStart
 		
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
-	Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr /WAVE=datWave
+	if(overwrite)
+		Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr
+		WAVE datWave = $waveNameStr
+	else
+		waveNameStr = CreateDataObjectName(GetDataFolderDFR(), waveNameStr, 1,0,1)
+		Make/W/U/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr
+		WAVE datWave = $waveNameStr
+	endif
+		
 	FBinRead/F=2 numRef, datWave
 	Close numRef
 	

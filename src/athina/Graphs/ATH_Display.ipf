@@ -93,7 +93,8 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	endif
 	int is3D = WaveDims(w)==3
 	if(is3D)
-		DFREF dfrSld = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_W3DImageSliderDFR"))
+		string dfrSldStr = GetUserData(s.winName, "", "ATH_W3DImageSliderDFR")
+		DFREF dfrSld = ATH_DFR#CreateDataFolderGetDFREF(dfrSldStr)
 		NVAR/Z/SDFR=dfrSld gLayer, gRightLim, gLeftLim, gOriginalHeight
 		SVAR/Z/SDFR=dfrSld imageName
 	endif
@@ -110,7 +111,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			// there is a leak in the fallhtrough and case 22 gets triggered!
 			// That's a patch until I find something more elegant
 		case 22:	//	mouseWheel
-			if (s.eventMod & 4)		// Magnify with ALT key pressed.
+			if (s.eventMod & 2)		// Magnify with SHIFT key pressed.
 				ATH_Display#Mangify(s)
 				return 0
 			endif
@@ -120,14 +121,14 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				int direction = ((s.wheelDx+s.wheelDy) > 0) ? 1 : -1
 				gLayer += direction
 				if(gLayer < 0)
-					if(s.eventMod & 2)
+					if(s.eventMod & 4)
 						gLayer = gRightLim
 					else
 						gLayer = 0
 					endif
 				endif
 				if(gLayer > gRightLim)
-					if(s.eventMod & 2)
+					if(s.eventMod & 4)
 						gLayer = 0
 					else
 						gLayer = gRightLim
@@ -136,7 +137,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				ModifyImage/W=$s.winName '' plane=gLayer
 				hookResult = 1
 			endif
-			break
+			//break
 		case 8: //ModifyImage/W=$grfName '' plane=XX
 			variable plane = ATH_ImgOp#GetLayerIndex(s.winName, w=w)
 			if (gLayer != plane)
@@ -144,7 +145,10 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			endif
 			break
 		case 2: // kill
-			KillDataFolder/Z dfrSld
+			// If you are not in a duplicate window
+			if(is3D && !cmpstr(s.winName, ParseFilePath(0, dfrSldStr, ":", 1, 0)))
+				KillDataFolder/Z dfrSld
+			endif
 			break
 		case 13:	// renamed
 			// Rename the data folder containing this package's globals.
@@ -157,19 +161,19 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			break
 		case 11:
 			switch(s.keycode)
-				case 66: // SHIFT + B
+				case 66: // B
 					if(s.eventMod & 2)
 						ATH_ImgOp#RestoreTopImageFromBackup(wname=NameOfWave(w))
 					endif
 					break
+				case 68: // D
+					if(s.eventMod & 2) // works with SHIFT + D only!
+						ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
+					endif
+					break					
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
 						ATH_Launch#ImageFFTTransform()
-					endif
-					break
-				case 78: // N
-					if(s.eventMod & 2) // works with SHIFT + N only!
-						ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
 					endif
 					break
 				case 82: // R
@@ -187,7 +191,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
 					endif
 					break
-				case 100: //d
+				case 100: // d - not capital here"
 					GetMarquee/W=$s.winName // Just check if there is Marquee, no axes.
 					if(V_flag)
 						ATH_Launch#ImageStackAlignmentPartition() // If marquee present launch partition dc
@@ -280,16 +284,24 @@ End
 
 Function NewImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 
-	if (sa.eventCode & 9)
+	if (sa.eventCode & 9) // Mouse moved or arrow key moved the slider & Value Set
 		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sa.win, "", "ATH_W3DImageSliderDFR"))
-		NVAR/SDFR=dfr gLayer	
-		gLayer = sa.curval
-		ModifyImage/W=$sa.win '' plane=gLayer
+		NVAR/Z/SDFR=dfr gLayer	// added a /Z flag here, risky?
+		if(NVAR_Exists(gLayer))
+			gLayer = sa.curval
+			ModifyImage/W=$sa.win '' plane=gLayer
+		else
+			ATH_Display#RestartWM3DImageSlider(grfName=sa.win)
+		endif
 	endif
 	
 	if(sa.eventCode==-1)
-		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sa.win, "", "ATH_W3DImageSliderDFR"))
-		KillDataFolder/Z dfr
+		string dfrSld = GetUserData(sa.win, "", "ATH_W3DImageSliderDFR")
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrSld)
+		// If you are not in a duplicate window
+		if(!cmpstr(sa.win, ParseFilePath(0, dfrSld, ":", 1, 0)))
+			KillDataFolder/Z dfr
+		endif
 	endif
 	return 0
 End
@@ -316,7 +328,7 @@ static function Mangify(STRUCT WMWinHookStruct &s)
 	// and edited to our taste.
 	//
 	// Settings 
-	variable ZoomSpeed = 70
+	variable ZoomSpeed = 70, expansion
 	int rev = 1 // SET: -1 to reverse mouseWheel zoom in direction
 	// 
 	string strAxes = AxisList(s.WinName), axis = "", type = ""
@@ -324,8 +336,14 @@ static function Mangify(STRUCT WMWinHookStruct &s)
 	Make /D/free/N=3 wAx // free wave to hold axis minimum, maximum, axis value for mouse location
 	numAxes = ItemsInList(strAxes)
 	
-	variable expansion = 1 - rev*s.wheelDy * ZoomSpeed/5000
-
+	if(s.wheelDx)
+		expansion = 1 - rev*s.wheelDx * ZoomSpeed/5000
+	elseif(s.wheelDy)
+		expansion = 1 - rev*s.wheelDy * ZoomSpeed/5000
+	else
+		// pass
+	endif
+	
 	for (i = 0; i < numAxes; i++)
 		axis = StringFromList(i, strAxes)
 		type = StringByKey("AXTYPE", AxisInfo(s.WinName, axis))
@@ -428,15 +446,17 @@ static Function SetImageRangeTo94Percent()
 	return 0
 End
 
-static Function RestartWM3DImageSlider(string winNameStr)
+static Function RestartWM3DImageSlider([string grfName])
 	// Kill and restart ATH_Display#Append3DImageSlider and restart in case 
 	// of changed in the source 3d wave.
-	DFREF dfr = $(skATH_W3DImageSliderParentDFR + winNameStr)
-	NVAR originalHeight = dfr:gOriginalHeight
-	
-	ControlBar originalHeight
-	KillControl/W=$winNameStr ATH_W3DSlider
-	KillControl/W=$winNameStr ATH_W3DSliderVar
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	DFREF dfr = $(skATH_W3DImageSliderParentDFR + grfName)
+	NVAR/Z originalHeight = dfr:gOriginalHeight
+	if(NVAR_Exists(originalHeight))
+		ControlBar originalHeight
+	endif
+	KillControl/W=$grfName ATH_W3DSlider
+	KillControl/W=$grfName ATH_W3DSliderVar
 	KillDataFolder/Z dfr
 	ATH_Display#Append3DImageSlider()
 	return 0

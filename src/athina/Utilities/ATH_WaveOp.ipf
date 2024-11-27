@@ -297,7 +297,6 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 		Note $partitionNameStr, ("Partition of " + GetWavesDataFolder(wRef, 2)+": ["+num2str(startX)+","+num2str(endX)+"]"+"["+num2str(startY)+","+num2str(endY)+"]")
 		return $partitionNameStr
 	endif
-	
 End
 
 static Function ZapNaNAndInfWithValue(WAVE waveRef, variable val)
@@ -586,4 +585,66 @@ static Function GetWaveType(WAVE wRef)
 			return 64
 	endswitch
 	return 0 // if nothing matches
+End
+
+static Function RemoveLineFromWave1D(WAVE wRef, [variable x0, variable x1])
+	
+	//
+	// Remove a line from a 1D wave. Line is defined from points x0 and x1.
+	// Here scaling is taken into account. The function is structured to give
+	// 
+	
+	if(WaveDims(wRef) > 1)
+		return -1
+	endif
+	
+	variable firstX = leftx(wRef)
+	variable lastX = pnt2x(wRef,numpnts(wRef)-1)
+	
+	x0 = ParamIsDefault(x0) ? firstX : x0
+	x1 = ParamIsDefault(x1) ? lastX : x1
+	
+	if(x0 >= x1 || x0 < firstX || x1 > lastX) // = catches also slope = inf
+		return -1
+	endif
+
+	variable slope = (wRef(x1) - wRef(x0))/(x1 - x0)
+	variable shift = wRef(x0) - slope * x0
+	Make/N=2/D/FREE coeffW = {shift, slope}
+	Duplicate/FREE wRef, lineW // keep scale, needed for poly below
+	lineW = poly(coeffW, x)
+	wRef -= lineW
+	return 0
+End
+
+static Function RemoveZLineWave3D(Wave wRef, [variable z0, variable z1])
+	// Remove a line defined by z0, z1 for every wRef beam
+	// we use the wave scaling along z, but it's not needed. 
+	// Unscaled wave will give the same results.
+	
+	if(WaveDims(wRef) != 3)
+		return -1
+	endif
+	
+	variable firstZ = DimOffSet(wRef, 2)
+	variable lastZ = DimOffSet(wRef, 2) +  (DimSize(wRef, 2) - 1) * DimDelta(wRef, 2)
+	
+	z0 = ParamIsDefault(z0) ? firstZ : Z0
+	z1 = ParamIsDefault(z1) ? lastZ : z1
+	
+	if(z0 >= z1 || z0 < firstZ || z1 > lastZ) // = catches also slope = inf
+		return -1
+	endif
+	
+	variable imax = DimSize(wRef, 0), jmax = DimSize(wRef, 0), i, j, shift, slope
+	MatrixOP/S/O/FREE beamFREE = beam(wRef, 0, 0) // Get a beam to scale it
+	SetScale/I x, firstZ, lastZ, beamFREE
+	
+	for(i=0;i<imax;i++)
+		for(j=0;j<jmax;j++)
+			MatrixOP/S/O/FREE beamFREE = beam(wRef, i, j)
+			ATH_WaveOP#RemoveLineFromWave1D(beamFREE, x0 = z0, x1 = z1)
+			wRef[i][j][] = beamFREE[r]
+		endfor
+	endfor
 End

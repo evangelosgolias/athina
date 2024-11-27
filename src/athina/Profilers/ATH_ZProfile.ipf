@@ -37,14 +37,6 @@ static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 	WAVE w3dref = ImageNameToWaveRef("", wnamestr) // full path of wave
 
 	if(WaveDims(w3dref) == 3) // if it is a 3d wave
-		// When plotting waves from calculations we might have NaNs or Infs.
-		// Remove them before starting and replace them with zeros
-		// Changed 11.06.2024 - We do not want to change the wave
-//		Wavestats/M=1/Q w3dref
-//		if(V_numNaNs || V_numInfs)
-//			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
-//			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
-//		endif
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
 		SetWindow $winNameStr hook(MyZprofileHook) = ATH_ZProfile#CursorHookFunction // Set the hook
@@ -89,14 +81,6 @@ static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 	WAVE w3dref = ImageNameToWaveRef("", wnamestr) // full path of wave
 
 	if(WaveDims(w3dref) == 3) // if it is a 3d wave
-		// When plotting waves from calculations we might have NaNs or Infs.
-		// Remove them before starting and replace them with zeros
-		// Changed 11.06.2024 - We do not want to change the wave
-//		Wavestats/M=1/Q w3dref
-//		if(V_numNaNs || V_numInfs)
-//			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
-//			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
-//		endif
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
 		DoWindow/F $winNameStr // You need to have your imange stack as a top window
@@ -151,14 +135,7 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 	NVAR/SDFR=dfrROI gATH_Sbottom
 	NVAR/SDFR=dfrROI gATH_SrectQ
 		
-	if(WaveDims(w3dref) == 3) // if it is a 3d wave
-		// When plotting waves from calculations we might have NaNs or Infs.
-		// Remove them before starting and replace them with zeros
-		Wavestats/M=1/Q w3dref
-		if(V_numNaNs || V_numInfs)
-			printf "Replaced %d NaNs and %d Infs in %s", V_numNaNs, V_numInfs, NameOfWave(w3dref)
-			w3dref = (numtype(w3dref)) ? 0 : w3dref // numtype = 1, 2 for NaNs, Infs
-		endif	
+	if(WaveDims(w3dref) == 3) // if it is a 3d wave	
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
 		DoWindow/F $winNameStr // You need to have your imange stack as a top window	
@@ -248,7 +225,6 @@ static Function/DF InitialiseFolder()
 	variable/G dfr:gATH_MarkAreasSwitch = 1
 	variable/G dfr:gATH_TwinPlotSwitch = 0	
 	variable/G dfr:gATH_colorcnt = 0
-	variable/G dfr:gATH_mouseTrackV
 	return dfr
 End	
 
@@ -341,7 +317,6 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/SDFR=dfr gATH_Nx
 	NVAR/SDFR=dfr gATH_Ny
 	NVAR/Z nLayers = dfr:nLayers
-	NVAR/Z mouseTrackV = dfr:gATH_mouseTrackV
 	NVAR/SDFR=dfr gATH_Rect
 	NVAR/SDFR=dfr gATH_aXlen
 	NVAR/SDFR=dfr gATH_aYlen
@@ -370,10 +345,6 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			KillDataFolder/Z dfr
 			KillWaves/Z M_ROIMask // Cleanup
 			hookresult = 1
-			break
-		case 4:
-			mouseTrackV = s.mouseLoc.v
-			hookresult = 0 // Here hookresult = 1, supresses Marquee
 			break
 		case 5: // mouse up
 			ImageGenerateROIMask/W=$WindowNameStr $w3dNameStrQ
@@ -434,7 +405,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			break
 		case 8: // We have a Window modification event
 			string plotNameStr = GetUserData(s.winName, "", "ATH_LinkedWinImageZPP")
-			if(mouseTrackV < 0 && strlen(WinList(plotNameStr,";",""))) // mouse outside image stack area and profile plot exists
+			if(strlen(WinList(plotNameStr,";",""))) // if profile plot exists (deleted mouseTrackV < 0 condition)
 				NVAR/Z glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(WindowNameStr):gLayer
 				variable linePos = DimOffset(profile, 0) + glayer * DimDelta(profile, 0)
 				DrawAction/W=$plotNameStr delete

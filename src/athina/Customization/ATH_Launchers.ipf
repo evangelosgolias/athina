@@ -508,12 +508,20 @@ static Function ImageBackupFromBrowserSelection()
 End
 
 static Function XPSProfileFromDefaultSettings()
-	string ATHImage = GetBrowserSelection(0)
-	if(WaveDims($ATHImage) != 2)
-		print "Operation needs an image"
-		return -1
+	// extract selected PES profiles for selected images in DB
+	string wname = GetBrowserSelection(0)
+	if(!strlen(wname) && !WaveExists($wname)) // no wave is selected
+		return 1
 	endif
-	ATH_iXPS#GetProfileUsingDefaults($ATHImage)
+	variable i = 0
+	do
+		wname = GetBrowserSelection(i)
+		WAVE/Z wRef = $wname
+		if(WaveExists(wRef) && WaveDims(wRef)==2)
+			ATH_iXPS#GetProfileUsingDefaults(wRef)
+		endif
+		i++
+	while(strlen(GetBrowserSelection(i)))
 	return 0
 End
 
@@ -641,7 +649,7 @@ static Function RemoveImagesFromImageStack()
 	DoPrompt "ATH_RemoveImagesFromImageStack", nrLayers
 	if(nrLayers > 0 && !V_flag) // TODO: Use negative for backward removal
 		ATH_ImgOp#RemoveImagesFromImageStack(w3dref, startLayer, nrLayers)
-		ATH_Display#RestartWM3DImageSlider(winNameStr)
+		ATH_Display#RestartWM3DImageSlider(grfName=winNameStr)
 	endif
 	return 0
 End
@@ -661,7 +669,7 @@ static Function StackImagesToImageStack()
 		return 1
 	endif
 	if(!ATH_ImgOp#AppendImagesToImageStack(w3dref, selectImagesStr))
-		ATH_Display#RestartWM3DImageSlider(winNameStr)
+		ATH_Display#RestartWM3DImageSlider(grfName=winNameStr)
 	endif	
 	return 0
 End
@@ -693,7 +701,7 @@ static Function InsertImageToStack()
 		ATH_WaveOp#MatchWaveTypes(w3dref, w2dref)
 		ATH_ImgOp#InsertImageToImageStack(w3dref, w2dref, layerN)
 	endif
-	ATH_Display#RestartWM3DImageSlider(winNameStr)
+	ATH_Display#RestartWM3DImageSlider(grfName=winNameStr)
 	return 0	
 End
 
@@ -717,6 +725,9 @@ static Function Rotate3DWaveAxes()
 	string modeStr = "XZY;ZXY;ZYX;YZX;YXZ"
 	Prompt num, "Select axes rotation", popup, modeStr 
 	DoPrompt "Rotate 3d wave axes",num
+	if(V_flag)
+		return 1
+	endif
 	string newwaveNameStr = NameOfWave(wRef) + "_" + StringFromList((num-1),modeStr)
 	if(WaveExists($newwaveNameStr))
 		print "Wave", newwaveNameStr, "already exists."
@@ -730,6 +741,7 @@ static Function Rotate3DWaveAxes()
 	string noteStr = "ImageTransform/G=" + num2str(num)+ " transposeVol " + wnameStr	
 	Rename M_VolumeTranspose, $newwaveNameStr
 	Note $newwaveNameStr, noteStr
+	return 0
 End
 
 static Function ImageRotateAndScaleFromMetadata()
@@ -1224,10 +1236,15 @@ static Function ScalePartialXPSSpectrum()
 	gATH_EnergyScale  = Escale
 End
 
-Function SetTopImageDF()
-	/// Set the current data folder to the parent dir of the top image
-	WAVE wRef = ATH_Graph#TopImageToWaveRef()
-	SetDataFolder GetWavesDataFolderDFR(wRef)
+static Function SetTopGraphDF()
+	// Sets the DF of the top image or top trace
+	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
+	if(WaveExists(wRef))
+		SetDataFolder GetWavesDataFolderDFR(wRef)
+	else
+		Wave wRef = ATH_Traces#TopTraceToWaveRef()
+		SetDataFolder GetWavesDataFolderDFR(wRef)
+	endif
 	return 0
 End
 
@@ -1345,4 +1362,19 @@ static Function HistogramEqualisation()
 	ImageHistModification/O/I wRef
 	Note wRef, ("ImageHistModification/O/I " + NameOfWave(wRef))
 	return 0
+End
+
+static Function CloseTopWindowAndDeleteSource()
+	// Close topwindow and delete the top image or trace
+	string grfName =  WinName(0, 1, 1)
+	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef(grfName = grfName)
+	if(WaveExists(wRef))
+		KillWindow/Z $grfName
+		Killwaves/Z wRef
+	else
+		WAVE/Z wRef = ATH_Graph#TopImageToWaveRef(grfName = grfName)
+		KillWindow $grfName
+		KillWaves/Z wRef
+	endif
+	
 End

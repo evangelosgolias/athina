@@ -103,6 +103,7 @@ Menu "athina"
 		"Spaces",/Q, ATH_Spaces#MenuLaunch()
 		"Free space/8",/Q, ATH_Launch#DeleteBigWaves()
 		"XPS Reference Data",/Q, ATH_XPSData#XPSReferenceData()
+		"Calculations Pad/9",/Q, ATH_CalcPad#CalcPad()
 		"List HDF5 (.h5) entries...", /Q, ATH_HDF5#ListHDF5Groups()		
 	End
 //	Submenu "Beamtime"
@@ -172,9 +173,10 @@ End
 
 Menu "GraphPopup" // Right click not on a trace or in the margin of an image
 	"ATH Text Annotation (TG)", /Q, ATH_Launch#QuickTextAnnotation()
-	"ATH SetDataFolder (TG)", /Q, ATH_Launch#SetTopImageDF()	
+	"ATH SetDataFolder (TG)", /Q, ATH_Launch#SetTopGraphDF()
 	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursors()
 End
-//Menu "AllTracesPopup" // Use SHIFT + right click
-//	//
-//End
+
+Menu "AllTracesPopup" // Use SHIFT + right click
+	"ATH Close and delete (TG)", /Q, ATH_Launch#CloseTopWindowAndDeleteSource()
+End
