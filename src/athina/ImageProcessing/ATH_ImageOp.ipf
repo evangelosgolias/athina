@@ -896,9 +896,9 @@ static Function PixelateImage(WAVE wRef, variable nx, variable ny, [variable i16
 	string wnameStr = NameofWave(wRef) + "_" + num2str(nx) + "x" + num2str(ny) + "_px"
 	ImageInterpolate/PXSZ={nx, ny}/DEST=saveDF:$wnameStr Pixelate wRef
 	string noteStr = "Source:" + GetWavesDataFolder(wRef, 2) + " . Dimensions:("+ num2str(DimSize(wRef,0))+ ", " + num2str(DimSize(wRef,1)) + ")" + \
-	".Pixelated factors:[" + num2str(nx) + ", " + num2str(ny) + "]"
+	".Pixelated factors:[" + num2str(nx) + ", " + num2str(ny) + "]/n" + note(wRef)
 	CopyScales/I wRef, saveDF:$wnameStr
-	Note/K saveDF:$wnameStr, noteStr
+	Note saveDF:$wnameStr, noteStr
 	return 0
 End
 
@@ -917,9 +917,9 @@ static Function PixelateImageStack(WAVE wRef, variable nx, variable ny, variable
 	string wnameStr = NameofWave(wRef) + "_" + num2str(nx) + "x" + num2str(ny) + "x" + num2str(nz)
 	ImageInterpolate/PXSZ={nx, ny, nz}/DEST=saveDF:$wnameStr Pixelate wRef
 	string noteStr = "Source:" + GetWavesDataFolder(wRef, 2) + ".Dimensions:("+ num2str(DimSize(wRef,0))+ ", " + num2str(DimSize(wRef,1)) + \
-	", " + num2str(DimSize(wRef,2)) + ")" +".Pixelated factors:[" + num2str(nx) + ", " + num2str(ny) + ", " + num2str(nz) + "]"
+	", " + num2str(DimSize(wRef,2)) + ")" +".Pixelated factors:[" + num2str(nx) + ", " + num2str(ny) + ", " + num2str(nz) + "]/n"+note(wRef)
 	CopyScales/I wRef, saveDF:$wnameStr
-	Note/K saveDF:$wnameStr, noteStr
+	Note saveDF:$wnameStr, noteStr
 	return 0
 End
 
