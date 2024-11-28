@@ -178,6 +178,7 @@ static Function CreatePlot(DFREF dfr)
 	CheckBox MarkLines,pos={127.00,40.00},size={86.00,17.00},title="Mark lines ",fSize=14,value=1,side=1,proc=ATH_LineProfile#CheckboxMarkLines
 	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,value=1,proc=ATH_LineProfile#ProfileLayer3D
 	SetVariable setWidth,pos={331.00,40.00},size={123.00,20.00},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1},proc=ATH_LineProfile#SetVariableWidth
+	SetVariable setWidth, help={"Sampling is 2 * (width + 0.5) points equidistant from the line"}
 	return 0
 End
 
@@ -224,7 +225,6 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z C2y0 = dfr0:gATH_C2y0
 	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
 	WAVE/Z imgWaveRef = $ImagePathname
-	variable xc, yc
 
 	switch(s.eventCode)
 		case 0: // Use activation to update the cursors if you request defaults
@@ -236,7 +236,7 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 				Cursor/I/C=(65535,0,0,30000)/S=1/N=1 F $ImageNameStr C2x0, C2y0
 				DrawLine/W=$s.winName C1x0, C1y0, C2x0, C2y0
 				Make/O/FREE/N=2 xTrace={C1x0, C2x0}, yTrace = {C1y0, C2y0}
-				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
 				updateCursorsPositions = 0
 			endif
 			break
@@ -261,8 +261,8 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 			if(WaveDims(imgWaveRef) == 3 && DataFolderExists(skATH_W3DImageSliderParentDFR + WindowNameStr) && updateSelectedLayer) // deleted && mouseTrackV < 0
 				NVAR/Z glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(WindowNameStr):gLayer
 				selectedLayer = glayer
-				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
-				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y} // profile from E to F
+				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
 			endif
 			hookResult = 1
 			break
@@ -271,26 +271,13 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 				SetDrawLayer/W=$s.winName ProgFront
 			    DrawAction/W=$s.winName delete
 	   			SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	   			if(!cmpstr(s.cursorName, "E")) // if you move E
-	   				xc = hcsr(F)
-					yc = vcsr(F)
-					C1x = xc
-					C1y = yc
-					C2x = hcsr(E)
-					C2y = vcsr(E)
-					DrawLine/W=$s.winName xOff + s.pointNumber * dx, yOff + s.ypointNumber * dy, xc, yc
-	   				Make/O/FREE/N=2 xTrace={xOff + s.pointNumber * dx, xc}, yTrace = {yOff + s.ypointNumber * dy, yc}
-	   			elseif(!cmpstr(s.cursorName, "F")) // if you move F
-	   				xc = hcsr(E)
-					yc = vcsr(E)
-					C1x = hcsr(F)
-					C1y = vcsr(F)					
-					C2x = xc
-					C2y = yc
-					DrawLine/W=$s.winName xc, yc, xoff + s.pointNumber * dx, yOff + s.ypointNumber * dy
-	   				Make/O/FREE/N=2 xTrace={xc, xOff + s.pointNumber * dx}, yTrace = {yc, yOff + s.ypointNumber * dy}
-	   			endif
-	   			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+	   			C1x = hcsr(E)
+				C1y = vcsr(E)
+				C2x = hcsr(F)
+				C2y = vcsr(F)	   			
+	   			DrawLine/W=$s.winName C1x, C1y, C2x, C2y
+	   			Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
+	   			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
 	   			hookResult = 1
 	   			break
 			endif
@@ -383,7 +370,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 			sprintf recreateDrawStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left;" + \
 			"DrawCmd:DrawLine %f, %f, %f, %f;ProfileCmd:Make/O/N=2 xTrace={%f, %f}, yTrace = {%f, %f}\nImageLineProfile/P=(%d) srcWave=%s," +\
 			"xWave=xTrace, yWave=yTrace, width = %f\nDisplay/K=1 W_ImageLineProfile vs W_LineProfileDisplacement" + \
-			"", wavenameStr, ImagePathname, red, green, blue, C1x, C1y, C2x, C2y, C1x, C2x, C1y, C2y, selectedLayer, ImagePathname, profileWidth
+			"", wavenameStr, ImagePathname, red, green, blue, C1x, C1y, C2x, C2y, C1x, C2x, C1y, C2y, selectedLayer, ImagePathname, 2*profileWidth
 			Note savedfr:$saveWaveNameStr, recreateDrawStr
 			break
 	endswitch
@@ -576,7 +563,7 @@ static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableCo
 			Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
 			SVAR/Z ImagePathname = dfr:gATH_ImagePathname
 			WAVE/Z imgWaveRef = $ImagePathname		
-			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = profileWidth
+			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
 			break
 	endswitch
 	SetDataFolder currdfr
