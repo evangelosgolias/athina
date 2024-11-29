@@ -87,15 +87,15 @@ static Function MeasureDistanceUsingFreeCursors()
 
 	ControlBar lCBOFFSET + kCBOFFSET		
 	
-	Button scaleB pos={10*pntConv,(4+lCBOFFSET)*pntConv}, size={65*pntConv,20*pntConv}, title="Scale", win=$winNameStr
+	Button scaleB pos={10*pntConv,(4+lCBOFFSET)*pntConv}, size={60*pntConv,20*pntConv}, title="Scale", win=$winNameStr
 	Button scaleB help = {"Place cursots C, D and set scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
-	Button drawscaleB pos={85*pntConv, (4+lCBOFFSET)*pntConv}, size={80*pntConv,20*pntConv}, title="Draw Scale",win=$winNameStr 
+	Button drawscaleB pos={80*pntConv, (4+lCBOFFSET)*pntConv}, size={80*pntConv,20*pntConv}, title="Draw Scale",win=$winNameStr 
 	Button drawscaleB help = {"Draw the saved scale"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
-	Button modeB pos={175*pntConv,(4+lCBOFFSET)*pntConv}, title="Direct", size={80*pntConv,20*pntConv},win=$winNameStr
+	Button modeB pos={170*pntConv,(4+lCBOFFSET)*pntConv}, title="Direct", size={80*pntConv,20*pntConv},win=$winNameStr
 	Button modeB help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
-	Button markB pos={265*pntConv,(4+lCBOFFSET)*pntConv}, title="Mark", size={65*pntConv,20*pntConv},win=$winNameStr
+	Button markB pos={260*pntConv,(4+lCBOFFSET)*pntConv}, title="Mark", size={55*pntConv,20*pntConv},win=$winNameStr
 	Button markB help = {"Mark distace (1D: with SHIFT pressed marks dv"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
-	Button closeB pos={340*pntConv,(4+lCBOFFSET)*pntConv}, title="Close", size={65*pntConv,20*pntConv},fcolor=(65535,0,0),win=$winNameStr
+	Button closeB pos={325*pntConv,(4+lCBOFFSET)*pntConv}, title="Close", size={50*pntConv,20*pntConv},fcolor=(65535,0,0),win=$winNameStr
 	Button closeB help = {"Removes control bar"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton, win=$winNameStr
 	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrDCHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsHook
 

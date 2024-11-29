@@ -47,7 +47,7 @@ You can take two line profiles (use the athina's [line profile](operations.md#li
 At the moment the photon energy (hv) is read from the filename of the image, if present (as hvXX, hv=XX, hnXX, hn=XX). If the program fails to read it you have to enter it. STV is read from the image metadata and the Wf is your sample's work function (arbitrary (reasonable) number is the default).
 ```
 
-The markers A & B should be set in order the program to find the middle of the DP (under normal conditions that should be the value of STV). To do so, place the markers exactly at the edges of the DP (you can zoom in and out) and press the button "Set Csr A & B" (will turn green).
+The markers G & H should be set in order the program to find the middle of the DP (under normal conditions that should be the value of STV). To do so, place the markers exactly at the edges of the DP (you can zoom in and out) and press the button "Set Csr G & H" (will turn green).
 
 ```{figure} media/setDPLineiXPS.png
 :alt: Set DP line in PES mode
@@ -55,7 +55,7 @@ The markers A & B should be set in order the program to find the middle of the D
 :align: center
 :name: setDPLine
 
-Set markers A, B at the edges of the SP and press "Press Csr A & B".
+Set markers G, H at the edges of the SP and press "Press Csr G & H".
 ```
 
 Now you can move the cursors E and F and see the profile interactively (see image below)

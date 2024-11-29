@@ -33,7 +33,7 @@
 
 
 /// NOTE: the program needs E to be at the lower part of the KE of the dispersion.
-/// Line profile is extracted from E -> F cursor. Also set the A - Low KE and B - High KE end.
+/// Line profile is extracted from E -> F cursor. Also set the G - Low KE and H - High KE end.
 /// With microscope settings for September 2024 high KE in on the bottomn right part of the image.
 
 static constant kATHEnergyPerPixel =   0.00558659 // energy per pixel - default setting 02.09.2024 [2K image]
@@ -57,8 +57,8 @@ static Function MainMenu()
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
 	// Cursors to set the scale
-	Cursor/I/C=(0,65535,0, 30000)/H=1/S=1/P/N=1 A $imgNameTopGraphStr round(0.4 * nrows/2), round(0.4 * ncols/2)	
-	Cursor/I/C=(0,65535,0, 65535)/H=1/S=1/P/N=1 B $imgNameTopGraphStr round(1.6 * nrows/2), round(1.6 * ncols/2)	
+	Cursor/I/C=(0,65535,0, 30000)/H=1/S=1/P/N=1 G $imgNameTopGraphStr round(0.4 * nrows/2), round(0.4 * ncols/2)	
+	Cursor/I/C=(0,65535,0, 65535)/H=1/S=1/P/N=1 H $imgNameTopGraphStr round(1.6 * nrows/2), round(1.6 * ncols/2)	
 	// Cursors to get the profile
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 E $imgNameTopGraphStr round(0.6 * nrows/2), round(0.6 * ncols/2)
 	Cursor/I/C=(1,16019,65535)/S=1/P/N=1 F $imgNameTopGraphStr round(1.4 * nrows/2), round(1.4 * ncols/2)	
@@ -119,10 +119,10 @@ static Function/DF InitialiseFolder(string winNameStr)
 	variable/G dfr:gATH_hv = ATH_String#GetPhotonEnergyFromFilename(imgNameTopGraphStr)
 	variable/G dfr:gATH_Wf = 4.27
 	variable/G dfr:gATH_epp = kATHEnergyPerPixel
-	variable/G dfr:gATH_Ax = 0
-	variable/G dfr:gATH_Ay = 0	
-	variable/G dfr:gATH_Bx = 0
-	variable/G dfr:gATH_By = 0
+	variable/G dfr:gATH_Gx = 0
+	variable/G dfr:gATH_Gy = 0	
+	variable/G dfr:gATH_Hx = 0
+	variable/G dfr:gATH_Hy = 0
 	variable stv_ = NumberByKey("STV(V)",note(imgWaveRef),":","\n" ) // Start voltage from metadata
 	variable/G dfr:gATH_STV = numtype(stv_) ? 0 : stv_
 	variable/G dfr:gATH_Eoffset = 0
@@ -134,7 +134,7 @@ static Function/DF InitialiseFolder(string winNameStr)
 	variable/G dfr:gATH_UseBELineSwitch = 0
 	variable/G dfr:gATH_SelectLayer = 0
 	variable/G dfr:gATH_colorcnt = 0
-	variable/G dfr:gATH_CursorABSwitch = 0 // Have you set the cursors ?=
+	variable/G dfr:gATH_CursorGHSwitch = 0 // Have you set the cursors ?=
 	// Default settings
 	NVAR/Z/SDFR=dfr0 gATH_profileWidth0
 	if(!NVAR_Exists(gATH_profileWidth0)) // init only once and do not overwrite
@@ -144,10 +144,10 @@ static Function/DF InitialiseFolder(string winNameStr)
 		variable/G dfr0:gATH_C2y0 = round(1.1 * ncols/2)
 		variable/G dfr0:gATH_profileWidth0 = 0
 		variable/G dfr0:gATH_linepx0 = 0		
-		variable/G dfr0:gATH_Ax0 = 0
-		variable/G dfr0:gATH_Ay0 = 0
-		variable/G dfr0:gATH_Bx0 = 0
-		variable/G dfr0:gATH_By0 = 0
+		variable/G dfr0:gATH_Gx0 = 0
+		variable/G dfr0:gATH_Gy0 = 0
+		variable/G dfr0:gATH_Hx0 = 0
+		variable/G dfr0:gATH_Hy0 = 0
 		variable/G dfr0:gATH_epp0 = 0
 		variable/G dfr0:gATH_Wf0 = 0
 	endif
@@ -175,7 +175,7 @@ static Function XPSPlot(DFREF dfr)
 	NVAR epp = dfr:gATH_epp
 	NVAR stv = dfr:gATH_STV
 	NVAR/Z UseBESwitch = dfr:gATH_UseBELineSwitch	
-	NVAR/Z CursorABSwitch = dfr:gATH_CursorABSwitch	
+	NVAR/Z CursorGHSwitch = dfr:gATH_CursorGHSwitch	
 	string profilePlotStr = "ATH_XPSProfPlot_" + gATH_WindowNameStr
 	Make/O/N=0  dfr:W_ImageLineProfile // Make a dummy wave to display 
 	variable pix = 72/ScreenResolution
@@ -210,7 +210,8 @@ static Function XPSPlot(DFREF dfr)
 	Button SaveCursorPositions,pos={118.00,8.00},size={95.00,20.00},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile width as defaults"},proc=ATH_iXPS#SaveDefaultSettings, win=$profilePlotStr
 	Button RestoreCursorPositions,pos={224.00,8.00},size={111.00,20.00},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_iXPS#RestoreDefaultSettings, win=$profilePlotStr
 	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344.00,8.00},size={111.00,20.00},title="Show width",help={"Shows width of integrated area while button is pressed"},proc=ATH_iXPS#ShowProfileWidth, win=$profilePlotStr
-	Button SetCursorsAB,valueColor=(1,12815,52428), pos={462,17},size={50,70.00},title="Set\nCsr\nA & B",fcolor=(65535,0,0),help={"Set cursors A (top right), B (lower left) and press button to calibrate the energy scale"},proc=ATH_iXPS#SetCursorsAB, win=$profilePlotStr
+	Button SetCursorsGH,valueColor=(1,12815,52428), pos={462,17},size={50,70.00},title="Set\nCsr\nG & H",fcolor=(65535,0,0),win=$profilePlotStr
+	Button SetCursorsGH,help={"Set cursors G (top right), H (lower left) and press button to calibrate the energy scale"},proc=ATH_iXPS#SetCursorsGH, win=$profilePlotStr
 	CheckBox PlotProfiles,pos={19.00,40.00},size={98.00,17.00},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_iXPS#PlotProfile, win=$profilePlotStr
 	CheckBox UseBE,pos={127.00,40.00},size={86.00,17.00},title="Show BE ",fSize=14,value=0,side=1,proc=ATH_iXPS#UseBE, win=$profilePlotStr
 	CheckBox ProfileLayer3D,pos={227.00,40.00},size={86.00,17.00},title="Stack layer ",fSize=14,side=1,proc=ATH_iXPS#Layer3D, win=$profilePlotStr
@@ -224,7 +225,7 @@ static Function XPSPlot(DFREF dfr)
 		Button RestoreCursorPositions, disable = 2, win=$profilePlotStr
 	endif
 	
-	if(!CursorABSwitch)
+	if(!CursorGHSwitch)
 		Button SaveCursorPositions, disable = 2, win=$profilePlotStr
 	endif
 	
@@ -257,10 +258,10 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z C1y = dfr:gATH_C1y
 	NVAR/Z C2x = dfr:gATH_C2x
 	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z Ax = dfr:gATH_Ax
-	NVAR/Z Ay = dfr:gATH_Ay
-	NVAR/Z Bx = dfr:gATH_Bx
-	NVAR/Z By = dfr:gATH_By
+	NVAR/Z Gx = dfr:gATH_Gx
+	NVAR/Z Gy = dfr:gATH_Gy
+	NVAR/Z Hx = dfr:gATH_Hx
+	NVAR/Z Hy = dfr:gATH_Hy
 	NVAR/Z linepx = dfr:gATH_linepx
 	NVAR/Z epp = dfr:gATH_epp
 	NVAR/Z stv = dfr:gATH_stv
@@ -279,7 +280,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
 	WAVE/Z imgWaveRef = $ImagePathname
 	WAVE/Z/SDFR=dfr W_ImageLineProfile
-	variable xc, yc, dAE, BE_Eoffset
+	variable xc, yc, dGE, BE_Eoffset
 	switch(s.eventCode)
 		case 0: // Use activation to update the cursors if you request defaults		
 			if(updateCursorsPositions)
@@ -294,9 +295,9 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
 				// Activate window, e.g after pressing "Restore Settings"
 				if(stv)
-					linepx = sqrt(((Ax-Bx)/dx)^2+((Ay-By)/dy)^2) // Calculate it again.
-					dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
-					Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+					linepx = sqrt(((Gx-Hx)/dx)^2+((Gy-Hy)/dy)^2) // Calculate it again.
+					dGE    = sqrt(((C1x - Gx)/dx)^2 + ((C1y - Gy)/dy)^2)
+					Eoffset = stv - (linepx/2 - dGE) * epp // offset in eV from the bottom right energy (lowest KE)
 					if(UseBESwitch)
 						BE_Eoffset = hv - Eoffset - Wf
 						SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
@@ -323,10 +324,10 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			/// Note: E is at the low KE part (higher BE)
 			/// N.B Line profile is taken from E to F
 			if(stv)
-				dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
-				linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
+				dGE    = sqrt(((C1x - Gx)/dx)^2 + ((C1y - Gy)/dy)^2)
+				linepx = sqrt(((Gx - Hx)/dx)^2+((Gy - Hy)/dy)^2)
 				// offset in eV from the top right energy (lowest KE)
-				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom left energy (lowest KE)
+				Eoffset = stv - (linepx/2 - dGE) * epp // offset in eV from the bottom left energy (lowest KE)
 				if(UseBESwitch)
 					BE_Eoffset = hv - Eoffset - Wf
 					SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
@@ -344,9 +345,9 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
 				if(stv)
-					linepx = sqrt(((Ax-Bx)/dx)^2+((Ay-By)/dy)^2) // Calculate it again.
-					dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
-					Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+					linepx = sqrt(((Gx-Hx)/dx)^2+((Gy-Hy)/dy)^2) // Calculate it again.
+					dGE    = sqrt(((C1x - Gx)/dx)^2 + ((C1y - Gy)/dy)^2)
+					Eoffset = stv - (linepx/2 - dGE) * epp // offset in eV from the bottom right energy (lowest KE)
 					if(UseBESwitch)
 						BE_Eoffset = hv - Eoffset - Wf
 						SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
@@ -370,9 +371,9 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	   			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
 			endif
 				if(stv)
-					dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
-					linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
-					Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+					dGE    = sqrt(((C1x - Gx)/dx)^2 + ((C1y - Gy)/dy)^2)
+					linepx = sqrt(((Gx - Hx)/dx)^2+((Gy - Hy)/dy)^2)
+					Eoffset = stv - (linepx/2 - dGE) * epp // offset in eV from the bottom right energy (lowest KE)
 					if(UseBESwitch)
 						BE_Eoffset = hv - Eoffset - Wf
 						SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
@@ -402,8 +403,8 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			if(WinType(GetUserData(parentGraphWin, "", "ATH_targetGraphWin")) == 1)
 				DoWindow/C/W=$(GetUserData(s.winName, "", "ATH_targetGraphWin")) $UniqueName("XPSProf_unlnk_",6,0) // Change name of profile graph
 			endif
-			Cursor/W=$parentGraphWin/K A
-			Cursor/W=$parentGraphWin/K B
+			Cursor/W=$parentGraphWin/K G
+			Cursor/W=$parentGraphWin/K H
 			Cursor/W=$parentGraphWin/K E
 			Cursor/W=$parentGraphWin/K F
 			SetDrawLayer/W=$parentGraphWin ProgFront
@@ -436,10 +437,10 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	NVAR/Z C2y = dfr:gATH_C2y
 	NVAR/Z colorcnt = dfr:gATH_colorcnt
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	NVAR/Z Ax = dfr:gATH_Ax
-	NVAR/Z Ay = dfr:gATH_Ay
-	NVAR/Z Bx = dfr:gATH_Bx
-	NVAR/Z By = dfr:gATH_By
+	NVAR/Z Gx = dfr:gATH_Gx
+	NVAR/Z Gy = dfr:gATH_Gy
+	NVAR/Z Hx = dfr:gATH_Hx
+	NVAR/Z Hy = dfr:gATH_Hy
 	NVAR/Z dx = dfr:gATH_dx
 	NVAR/Z dy = dfr:gATH_dy
 	NVAR/Z Eoffset = dfr:gATH_Eoffset
@@ -452,7 +453,7 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	string recreateDrawStr
 	DFREF savedfr = GetDataFolderDFR()
 
-	variable postfix = 0, dAE
+	variable postfix = 0, dGE
 	variable red, green, blue
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
@@ -460,9 +461,9 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 			string saveWaveNameStr = CreateDataObjectName(savedfr, saveWaveBaseStr, 1, 0, 5)
 			// It has to come first, it is used to scale to BE
 			if(stv)
-				dAE = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
-				linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
-				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+				dGE = sqrt(((C1x - Gx)/dx)^2 + ((C1y - Gy)/dy)^2)
+				linepx = sqrt(((Gx - Hx)/dx)^2+((Gy - Hy)/dy)^2)
+				Eoffset = stv - (linepx/2 - dGE) * epp // offset in eV from the bottom right energy (lowest KE)
 				// Duplicate the wave
 				WAVE/SDFR=dfr W_ImageLineProfile
 				Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
@@ -495,8 +496,8 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 				endif
 			endif
 
-			sprintf recreateDrawStr, "pathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%.2f\n" + \
-			"hv(eV):%.2f\nWf(eV):%.2f\nEPP(eV/px):%.8f", ImagePathname,  Ax, Ay, Bx, By, C1x, C1y, C2x, C2y, profileWidth, stv, hv, Wf, epp
+			sprintf recreateDrawStr, "pathName:%s\nCursor G:%d,%d\nCursor H:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%.2f\n" + \
+			"hv(eV):%.2f\nWf(eV):%.2f\nEPP(eV/px):%.8f", ImagePathname,  Gx, Gy, Hx, Hy, C1x, C1y, C2x, C2y, profileWidth, stv, hv, Wf, epp
 			Note savedfr:$saveWaveNameStr, recreateDrawStr
 			// Add metadata
 			break
@@ -512,10 +513,10 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 	NVAR/Z C2x = dfr:gATH_C2x
 	NVAR/Z C2y = dfr:gATH_C2y
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	NVAR/Z Ax = dfr:gATH_Ax
-	NVAR/Z Ay = dfr:gATH_Ay
-	NVAR/Z Bx = dfr:gATH_Bx
-	NVAR/Z By = dfr:gATH_By
+	NVAR/Z Gx = dfr:gATH_Gx
+	NVAR/Z Gy = dfr:gATH_Gy
+	NVAR/Z Hx = dfr:gATH_Hx
+	NVAR/Z Hy = dfr:gATH_Hy
 	NVAR/Z dx = dfr:gATH_dx
 	NVAR/Z dy = dfr:gATH_dy
 	NVAR/Z linepx = dfr:gATH_linepx
@@ -528,20 +529,20 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 	NVAR/Z C2y0 = dfr0:gATH_C2y0
 	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
 	NVAR/Z linepx0 = dfr0:gATH_linepx0
-	NVAR/Z Ax0 = dfr0:gATH_Ax0
-	NVAR/Z Ay0 = dfr0:gATH_Ay0
-	NVAR/Z Bx0 = dfr0:gATH_Bx0
-	NVAR/Z By0 = dfr0:gATH_By0
+	NVAR/Z Gx0 = dfr0:gATH_Gx0
+	NVAR/Z Gy0 = dfr0:gATH_Gy0
+	NVAR/Z Hx0 = dfr0:gATH_Hx0
+	NVAR/Z Hy0 = dfr0:gATH_Hy0
 	NVAR/Z Wf0 = dfr0:gATH_Wf0
 	NVAR/Z epp0 = dfr0:gATH_epp0
-	NVAR/Z CursorABSwitch = dfr:gATH_CursorABSwitch
+	NVAR/Z CursorGHSwitch = dfr:gATH_CursorGHSwitch
 	
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			ControlInfo/W=$B_Struct.win RestoreCursorPositions
-			if(CursorABSwitch)
+			if(CursorGHSwitch)
 				string msg = "Save (Overwite) current state as default?"
-				DoAlert/T="MAXPEEM would like to ask you" 1, msg
+				DoAlert/T="athina would like to ask you" 1, msg
 				if(V_flag == 1)
 					C1x0 = C1x
 					C1y0 = C1y
@@ -549,10 +550,10 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 					C2y0 = C2y
 					profileWidth0 = profileWidth
 					linepx0 = linepx
-					Ax0 = Ax
-					Ay0 = Ay
-					Bx0 = Bx
-					By0 = By
+					Gx0 = Gx
+					Gy0 = Gy
+					Hx0 = Hx
+					Hy0 = Hy
 					epp0 = epp
 					Wf0 = Wf
 					Button SaveCursorPositions, fColor=(2,39321,1), win=$B_Struct.win
@@ -579,17 +580,17 @@ static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonC
 	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
 	NVAR/Z updateCursorsPositions = dfr:gATH_updateCursorsPositions
 
-	NVAR/Z Ax0 = dfr0:gATH_Ax0
-	NVAR/Z Ay0 = dfr0:gATH_Ay0	
-	NVAR/Z Bx0 = dfr0:gATH_Bx0
-	NVAR/Z By0 = dfr0:gATH_By0
+	NVAR/Z Gx0 = dfr0:gATH_Gx0
+	NVAR/Z Gy0 = dfr0:gATH_Gy0	
+	NVAR/Z Hx0 = dfr0:gATH_Hx0
+	NVAR/Z Hy0 = dfr0:gATH_Hy0
 	NVAR/Z Wf0 = dfr0:gATH_Wf0
 	NVAR/Z epp0 = dfr0:gATH_epp0
 	
-	NVAR/Z Ax = dfr:gATH_Ax
-	NVAR/Z Ay = dfr:gATH_Ay	
-	NVAR/Z Bx = dfr:gATH_Bx
-	NVAR/Z By = dfr:gATH_By
+	NVAR/Z Gx = dfr:gATH_Gx
+	NVAR/Z Gy = dfr:gATH_Gy	
+	NVAR/Z Hx = dfr:gATH_Hx
+	NVAR/Z Hy = dfr:gATH_Hy
 	NVAR/Z dx = dfr:gATH_dx
 	NVAR/Z dy = dfr:gATH_dy
 	NVAR/Z linepx = dfr:gATH_linepx
@@ -597,7 +598,7 @@ static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonC
 	NVAR/Z stv = dfr:gATH_stv
 	WAVE/Z/SDFR=dfr W_ImageLineProfile
 
-	NVAR/Z CursorABSwitch = dfr:gATH_CursorABSwitch
+	NVAR/Z CursorGHSwitch = dfr:gATH_CursorGHSwitch
 	
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
@@ -606,39 +607,39 @@ static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonC
 			C2x = C2x0
 			C2y = C2y0
 			profileWidth = profileWidth0
-			Ax = Ax0
-			Ay = Ay0
-			Bx = Bx0
-			By = By0
+			Gx = Gx0
+			Gy = Gy0
+			Hx = Hx0
+			Hy = Hy0
 			epp = epp0
-			Cursor/K/W=$parentWindow A
-			Cursor/K/W=$parentWindow B
-			Button SetCursorsAB fcolor=(0,65535,0), win=$B_Struct.win
-			ControlUpdate/W=$B_Struct.win SetCursorsAB
+			Cursor/K/W=$parentWindow G
+			Cursor/K/W=$parentWindow H
+			Button SetCursorsGH fcolor=(0,65535,0), win=$B_Struct.win
+			ControlUpdate/W=$B_Struct.win SetCursorsGH
 			SetDrawLayer/W=$parentWindow Overlay
 			DrawAction/W=$parentWindow delete
 			SetDrawEnv/W=$parentWindow linefgc = (0, 65535, 0, 32767), fillpat = 0, linethick = 0.5, dash= 3, xcoord= top, ycoord= left
-			DrawLine/W=$parentWindow Ax, Ay, Bx, By
+			DrawLine/W=$parentWindow Gx, Gy, Hx, Hy
 			SetDrawEnv/W=$parentWindow linefgc = (0, 65535, 0, 32767), fillfgc= (0,65535,0, 32767), fillpat = 1, linethick = 1, dash= 1, xcoord= top, ycoord= left
-			DrawOval/W=$parentWindow (Ax + Bx)/2 + 3 * dx, (Ay + By)/2 + 3 * dy, (Ax + Bx)/2 - 3 * dx, (Ay + By)/2 - 3 * dy
-			variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(Ax, Ay, Bx, By)
-			variable Ax1, Ay1, Ax2, Ay2
-			[Ax1, Ay1, Ax2, Ay2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Ax, Ay, -1/slope, 200*dx)
+			DrawOval/W=$parentWindow (Gx + Hx)/2 + 3 * dx, (Gy + Hy)/2 + 3 * dy, (Gx + Hx)/2 - 3 * dx, (Gy + Hy)/2 - 3 * dy
+			variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(Gx, Gy, Hx, Hy)
+			variable Dx1, Dy1, Dx2, Dy2
+			[Dx1, Dy1, Dx2, Dy2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Gx, Gy, -1/slope, 200*dx)
 			SetDrawLayer/W=$parentWindow Overlay
 			SetDrawEnv/W=$parentWindow linefgc = (65535,0,0), fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
-			DrawLine/W=$parentWindow Ax1, Ay1, Ax2, Ay2
+			DrawLine/W=$parentWindow Dx1, Dy1, Dx2, Dy2
 			// Use the same local variables for the second line
-			[Ax1, Ay1, Ax2, Ay2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Bx, By, -1/slope, 200*dx) // B is the bottom point
+			[Dx1, Dy1, Dx2, Dy2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Hx, Hy, -1/slope, 200*dx) // B is the bottom point
 			SetDrawLayer/W=$parentWindow Overlay
 			SetDrawEnv/W=$parentWindow linefgc = (1,16019,65535),  fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
-			DrawLine/W=$parentWindow Ax1, Ay1, Ax2, Ay2
+			DrawLine/W=$parentWindow Dx1, Dy1, Dx2, Dy2
 			// Draw the midpoint using the same lcoal variable
-			[Ax1, Ay1, Ax2, Ay2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(0.5*(Ax+Bx), 0.5*(Ay+By), -1/slope, 200*dx) // B is the bottom point
+			[Dx1, Dy1, Dx2, Dy2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(0.5*(Gx+Hx), 0.5*(Gy+Hy), -1/slope, 200*dx) // B is the bottom point
 			SetDrawLayer/W=$parentWindow Overlay
 			SetDrawEnv/W=$parentWindow linefgc = (16386,65535,16385), fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
-			DrawLine/W=$parentWindow Ax1, Ay1, Ax2, Ay2
+			DrawLine/W=$parentWindow Dx1, Dy1, Dx2, Dy2
 			SetDrawLayer/W=$parentWindow ProgFront
-			CursorABSwitch = 1
+			CursorGHSwitch = 1
 			updateCursorsPositions = 1
 			DoWindow/F $parentWindow
 			break
@@ -753,10 +754,10 @@ static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableCon
 	NVAR/Z C2y = dfr:gATH_C2y
 	NVAR/Z profileWidth = dfr:gATH_profileWidth
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
-	NVAR/Z Ax = dfr:gATH_Ax
-	NVAR/Z Ay = dfr:gATH_Ay
-	NVAR/Z Bx = dfr:gATH_Bx
-	NVAR/Z By = dfr:gATH_By	
+	NVAR/Z Gx = dfr:gATH_Gx
+	NVAR/Z Gy = dfr:gATH_Gy
+	NVAR/Z Hx = dfr:gATH_Hx
+	NVAR/Z Hy = dfr:gATH_Hy	
 	NVAR/Z dx = dfr:gATH_dx
 	NVAR/Z dy = dfr:gATH_dy
 	NVAR/Z stv = dfr:gATH_stv
@@ -770,14 +771,14 @@ static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableCon
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
 	WAVE/Z imgWaveRef = $ImagePathname
 	WAVE/Z/SDFR=dfr W_ImageLineProfile
-	variable dAE, Eoffset, BE_Eoffset
+	variable dGE, Eoffset, BE_Eoffset
 	switch(sv.eventCode)
 		case 6:
 			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2 * profileWidth
 			if(stv)
-				dAE    = sqrt(((C1x - Ax)/dx)^2 + ((C1y - Ay)/dy)^2)
-				linepx = sqrt(((Ax - Bx)/dx)^2+((Ay - By)/dy)^2)
-				Eoffset = stv - (linepx/2 - dAE) * epp // offset in eV from the bottom right energy (lowest KE)
+				dGE    = sqrt(((C1x - Gx)/dx)^2 + ((C1y - Gy)/dy)^2)
+				linepx = sqrt(((Gx - Hx)/dx)^2+((Gy - Hy)/dy)^2)
+				Eoffset = stv - (linepx/2 - dGE) * epp // offset in eV from the bottom right energy (lowest KE)
 				if(UseBESwitch)
 					BE_Eoffset = hv - Eoffset - Wf
 					SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
@@ -792,72 +793,72 @@ static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableCon
 End
 
 
-static Function SetCursorsAB(STRUCT WMButtonAction &B_Struct): ButtonControl)
+static Function SetCursorsGH(STRUCT WMButtonAction &B_Struct): ButtonControl)
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	string parentWindow = GetUserData(B_Struct.win, "", "ATH_parentGraphWin")
-	NVAR/Z Ax = dfr:gATH_Ax
-	NVAR/Z Ay = dfr:gATH_Ay	
-	NVAR/Z Bx = dfr:gATH_Bx
-	NVAR/Z By = dfr:gATH_By
+	NVAR/Z Gx = dfr:gATH_Gx
+	NVAR/Z Gy = dfr:gATH_Gy	
+	NVAR/Z Hx = dfr:gATH_Hx
+	NVAR/Z Hy = dfr:gATH_Hy
 	NVAR/Z stv = dfr:gATH_STV
 	NVAR/Z dx = dfr:gATH_dx
 	NVAR/Z dy = dfr:gATH_dy
 	NVAR/Z linepx = dfr:gATH_linepx
-	NVAR/Z CursorABSwitch = dfr:gATH_CursorABSwitch
+	NVAR/Z CursorGHSwitch = dfr:gATH_CursorGHSwitch
 	
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(parentWindow, ";"),";")
 	
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			if(!CursorABSwitch) // if not yet set -> CursorABSwitch = 0
+			if(!CursorGHSwitch) // if not yet set -> CursorGHSwitch = 0
 				SetAxis/W=$parentWindow/A/R left // Auto-scale in case of zoomed in!
-				Ax = hcsr(A, parentWindow)
-				Ay = vcsr(A, parentWindow)
-				Bx = hcsr(B, parentWindow)
-				By = vcsr(B, parentWindow)
-				linepx = sqrt(((Ax-Bx)/dx)^2 + ((Ay-By)/dy)^2)
+				Gx = hcsr(G, parentWindow)
+				Gy = vcsr(G, parentWindow)
+				Hx = hcsr(H, parentWindow)
+				Hy = vcsr(H, parentWindow)
+				linepx = sqrt(((Gx-Hx)/dx)^2 + ((Gy-Hy)/dy)^2)
 				// 
-				Cursor/K/W=$parentWindow A
-				Cursor/K/W=$parentWindow B
-				Button SetCursorsAB fcolor=(0,65535,0)
-				ControlUpdate/W=$B_Struct.win SetCursorsAB
+				Cursor/K/W=$parentWindow G
+				Cursor/K/W=$parentWindow H
+				Button SetCursorsGH fcolor=(0,65535,0)
+				ControlUpdate/W=$B_Struct.win SetCursorsGH
 				SetDrawLayer/W=$parentWindow Overlay 
 				SetDrawEnv/W=$parentWindow linefgc = (65535,65535,0), fillpat = 0, linethick = 3, dash= 3, xcoord= top, ycoord= left
-				DrawLine/W=$parentWindow Ax, Ay, Bx, By
+				DrawLine/W=$parentWindow Gx, Gy, Hx, Hy
 				SetDrawEnv/W=$parentWindow linefgc = (65535,65535,0), fillfgc= (65535,65535,0), fillpat = 1, linethick = 3, dash= 1, xcoord= top, ycoord= left
-				DrawOval/W=$parentWindow (Ax + Bx)/2 + 3 * dx, (Ay + By)/2 + 3 * dy, (Ax + Bx)/2 - 3 * dx, (Ay + By)/2 - 3 * dy
+				DrawOval/W=$parentWindow (Gx + Hx)/2 + 3 * dx, (Gy + Hy)/2 + 3 * dy, (Gx + Hx)/2 - 3 * dx, (Gy + Hy)/2 - 3 * dy
 				SetDrawLayer/W=$parentWindow Overlay 
 				SetDrawEnv/W=$parentWindow linefgc = (1,39321,19939, 32767), fillfgc= (0,65535,0, 32767), fillpat = 1, linethick = 1, dash= 1, xcoord= top, ycoord= left	
-				variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(Ax, Ay, Bx, By)
-				variable Ax1, Ay1, Ax2, Ay2
-				[Ax1, Ay1, Ax2, Ay2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Ax, Ay, -1/slope, 200*dx)
+				variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(Gx, Gy, Hx, Hy)
+				variable Dx1, Dy1, Dx2, Dy2
+				[Dx1, Dy1, Dx2, Dy2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Gx, Gy, -1/slope, 200*dx)
 				SetDrawLayer/W=$parentWindow Overlay 
 				SetDrawEnv/W=$parentWindow linefgc = (65535,0,0), fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
-				DrawLine/W=$parentWindow Ax1, Ay1, Ax2, Ay2
+				DrawLine/W=$parentWindow Dx1, Dy1, Dx2, Dy2
 				// Use the same local variables for the second line
-				[Ax1, Ay1, Ax2, Ay2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Bx, By, -1/slope, 200*dx) // B is the bottom point
+				[Dx1, Dy1, Dx2, Dy2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Hx, Hy, -1/slope, 200*dx) // B is the bottom point
 				SetDrawLayer/W=$parentWindow Overlay 
 				SetDrawEnv/W=$parentWindow linefgc = (1,16019,65535),  fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
-				DrawLine/W=$parentWindow Ax1, Ay1, Ax2, Ay2
+				DrawLine/W=$parentWindow Dx1, Dy1, Dx2, Dy2
 				// Draw the midpoint using the same lcoal variable
-				[Ax1, Ay1, Ax2, Ay2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(0.5*(Ax+Bx), 0.5*(Ay+By), -1/slope, 200*dx) // B is the bottom point
+				[Dx1, Dy1, Dx2, Dy2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(0.5*(Gx+Hx), 0.5*(Gy+Hy), -1/slope, 200*dx) // B is the bottom point
 				SetDrawLayer/W=$parentWindow Overlay 
 				SetDrawEnv/W=$parentWindow linefgc = (16386,65535,16385), fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
-				DrawLine/W=$parentWindow Ax1, Ay1, Ax2, Ay2
+				DrawLine/W=$parentWindow Dx1, Dy1, Dx2, Dy2
 				SetDrawLayer/W=$parentWindow ProgFront
 				Button SaveCursorPositions, disable = 0, win=$B_Struct.win				
-				CursorABSwitch = 1
+				CursorGHSwitch = 1
 			else
-				Cursor/W=$parentWindow/I/C=(0,65535,0, 30000)/H=1/P/N=1 A $imgNameTopGraphStr Ax, Ay
-				Cursor/W=$parentWindow/I/C=(0,65535,0, 65535)/H=1/P/N=1 B $imgNameTopGraphStr Bx, By
+				Cursor/W=$parentWindow/I/C=(0,65535,0, 30000)/H=1/P/N=1 A $imgNameTopGraphStr Gx, Gy
+				Cursor/W=$parentWindow/I/C=(0,65535,0, 65535)/H=1/P/N=1 B $imgNameTopGraphStr Hx, Hy
 				SetDrawLayer/W=$parentWindow Overlay
 				DrawAction/W=$parentWindow delete
-				Button SetCursorsAB fcolor=(65535,0,0)
-				ControlUpdate/W=$B_Struct.win SetCursorsAB
+				Button SetCursorsGH fcolor=(65535,0,0)
+				ControlUpdate/W=$B_Struct.win SetCursorsGH
 				SetDrawLayer/W=$parentWindow ProgFront
 				Button SaveCursorPositions, disable = 2, win=$B_Struct.win				
-				CursorABSwitch = 0
+				CursorGHSwitch = 0
 			endif
 			break
 	endswitch
@@ -953,14 +954,14 @@ static Function GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
 	NVAR/Z C2x0 = dfr0:gATH_C2x0
 	NVAR/Z C2y0 = dfr0:gATH_C2y0
 	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
-	NVAR/Z Ax0 = dfr0:gATH_Ax0
-	NVAR/Z Ay0 = dfr0:gATH_Ay0
-	NVAR/Z Bx0 = dfr0:gATH_Bx0
-	NVAR/Z By0 = dfr0:gATH_By0
+	NVAR/Z Gx0 = dfr0:gATH_Gx0
+	NVAR/Z Gy0 = dfr0:gATH_Gy0
+	NVAR/Z Hx0 = dfr0:gATH_Hx0
+	NVAR/Z Hy0 = dfr0:gATH_Hy0
 	NVAR/Z Wf0 = dfr0:gATH_Wf0
 	NVAR/Z epp0 = dfr0:gATH_epp0
 	NVAR/Z linepx0 = dfr0:gATH_linepx0
-	if(!NVAR_Exists(Ax0))
+	if(!NVAR_Exists(Gx0))
 		return 1
 	endif
 	variable dx = DimDelta(wRef,0)
@@ -979,8 +980,8 @@ static Function GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
 	variable stv_ = NumberByKey("STV(V)",note(wRef),":","\n" )
 	variable stv = numtype(stv_) ? 0 : stv_
 	if(stv)
-		variable dAE = sqrt(((C1x0 - Ax0)/dx)^2 + ((C1y0 - Ay0)/dy)^2)
-		variable Eoffset = stv - (linepx0/2 - dAE) * epp0
+		variable dGE = sqrt(((C1x0 - Gx0)/dx)^2 + ((C1y0 - Gy0)/dy)^2)
+		variable Eoffset = stv - (linepx0/2 - dGE) * epp0
 		if(hv > Wf0 && BEscaleQ)
 			variable BE_Eoffset = hv - Eoffset - Wf0
 			SetScale/P x, BE_Eoffset, -epp0, dfr:$saveWaveNameStr
@@ -989,8 +990,8 @@ static Function GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
 		endif
 	endif
 	string recreateDrawStr
-	sprintf recreateDrawStr, "XPS profile using saved settings.\npathName:%s\nCursor A:%d,%d\nCursor B:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%.2f\n" + \
-	"hv(eV):%.2f\nWf(eV):%.2f\nEPP(eV/px):%.8f", GetWavesDataFolder(wRef, 2), C1x0, C1y0, C2x0, C2y0, Ax0, Ay0, Bx0, By0, profileWidth0, stv, hv, Wf0, epp0
+	sprintf recreateDrawStr, "XPS profile using saved settings.\npathName:%s\nCursor G:%d,%d\nCursor H:%d,%d\nCursor E:%d,%d\nCursor F:%d,%d\nWidth(px):%d\nSTV(V):%.2f\n" + \
+	"hv(eV):%.2f\nWf(eV):%.2f\nEPP(eV/px):%.8f", GetWavesDataFolder(wRef, 2), C1x0, C1y0, C2x0, C2y0, Gx0, Gy0, Hx0, Hy0, profileWidth0, stv, hv, Wf0, epp0
 	Note dfr:$saveWaveNameStr, recreateDrawStr
 	return 0
 End
