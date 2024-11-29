@@ -84,7 +84,6 @@ static Function MeasureDistanceUsingFreeCursors()
 	endif	
 	
 	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-
 	ControlBar lCBOFFSET + kCBOFFSET		
 	
 	Button scaleB pos={10*pntConv,(4+lCBOFFSET)*pntConv}, size={60*pntConv,20*pntConv}, title="Scale", win=$winNameStr
@@ -95,19 +94,23 @@ static Function MeasureDistanceUsingFreeCursors()
 	Button modeB help = {"Change between direct and reciprocal mode"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
 	Button markB pos={260*pntConv,(4+lCBOFFSET)*pntConv}, title="Mark", size={55*pntConv,20*pntConv},win=$winNameStr
 	Button markB help = {"Mark distace (1D: with SHIFT pressed marks dv"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
-	Button closeB pos={325*pntConv,(4+lCBOFFSET)*pntConv}, title="Close", size={50*pntConv,20*pntConv},fcolor=(65535,0,0),win=$winNameStr
+	Button dLogB pos={325*pntConv,(4+lCBOFFSET)*pntConv}, title="DLog", fcolor=(65535,0,0),size={55*pntConv,20*pntConv},win=$winNameStr
+	Button dLogB help = {"Average distance (traces only)"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr	
+	Button closeB pos={390*pntConv,(4+lCBOFFSET)*pntConv}, title="Close", size={50*pntConv,20*pntConv},fcolor=(0,0,65535),win=$winNameStr
 	Button closeB help = {"Removes control bar"}, win=$winNameStr,proc=ATH_Cursors#MeasureDistanceButton, win=$winNameStr
 	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrDCHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsHook
 
 	string userdataStrQ = GetUserData(winNameStr, "", "ATH_SavedDistanceForScale")
-
+	
+	// TODO: Move relevant metadata to controls
+	
 	if(!strlen(userdataStrQ)) // If data were saved previously used them
 		SetWindow $winNameStr userdata(ATH_DistanceForScale) = "1"
 		SetWindow $winNameStr userdata(ATH_SetScale) = "1"
 		SetWindow $winNameStr userdata(ATH_CursorDistanceMode) = "0"
 		SetWindow $winNameStr userdata(ATH_SavedDistanceForScale) = ""
 	endif
-
+	
 	if(!str2num(GetUserData(winNameStr, "", "ATH_CursorDistanceMode"))) // 0 - direct, 1 - reciprocal
 		Button modeB, title = "Direct", fcolor=(65535,43690,0), win=$winNameStr
 	else
@@ -115,71 +118,121 @@ static Function MeasureDistanceUsingFreeCursors()
 	endif
 	if(strlen(GetUserData(winNameStr, "", "ATH_SavedDistanceForScale"))) // 1 -- default scale, set the button green
 		Button scaleB, fcolor=(0,65535,0), win=$winNameStr
-	endif	
+	endif
+	
+		
+	// interactive distance mode currently only in 1D waves
+	WAVE/Z wRef = ATH_Traces#TopTraceToWaveRef(grfName=winNameStr)
+	if(WaveDims(wRef) == 1)
+		SetDrawLayer/W=$winNameStr UserFront
+		DrawAction/W=$winNameStr delete
+		Button dLogB, disable=0, win=$winNameStr
+	else 
+		Button dLogB, disable=2, win=$winNameStr
+	endif
+	
 End
 
 static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 	/// Hook function for ATH_MeasureDistanceUsingFreeCursorsCD()
 	variable hookResult = 0
-	variable x1, x2, y1, y2, z1, z2, distance, vbuffer, inverseD, imgQ
-	variable sscale = str2num(GetUserData(s.winName, "", "ATH_SetScale"))
-	variable sdist = str2num(GetUserData(s.winName, "", "ATH_DistanceForScale"))
-	variable factor = sscale / sdist
-	x1 = hcsr(C, s.WinName);x2 = hcsr(D, s.WinName);y1 = vcsr(C, s.WinName);y2 = vcsr(D, s.WinName);z1 = zcsr(C, s.WinName);z2 = zcsr(D, s.WinName)
-	distance = sqrt((x1-x2)^2 + (y1-y2)^2)
-	string baseTextStr, cmdStr, notXStr, notYStr, notDStr, notscDStr, notZStr, axisX, axisY, scaleDrawCmd, sdamp
-	if(abs(x1-x2) < 1e-4)
-		notXStr = "%.3e"
-	else
-		notXStr = "%.4f"
-	endif
-	if(abs(y1-y2) < 1e-4)
-		notYStr = "%.3e"
-	else
-		notYStr = "%.4f"
-	endif
-	if(abs(z1-z2) < 1e-4)
-		notZStr = "%.3e"
-	else
-		notZStr = "%.4f"
-	endif
-	if(distance < 1e-4)
-		notDStr = "%.3e"
-	else
-		notDStr = "%.4f"
-	endif
-	if(factor * distance < 1e-4)
-		notscDStr = "%.3e"
-	else
-		notscDStr = "%.4f"
-	endif
-	//variable imgSwitch = 0
-	//string topTraceNameStr = StringFromList(0, TraceNameList(s.WinName,";",1))
-	inverseD = str2num(GetUserData(s.winName, "", "ATH_CursorDistanceMode")) // 0 - normal, 1 - inverse
-	imgQ = !strlen(StringFromList(0, TraceNameList(s.WinName,";",1))) // 0 - trace, 1 - image
-
-	if(!imgQ) // If you have a trace
-		if(inverseD)
-			baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " + notXStr + "\n1/d\Bv\M\Z12  = "+ notYStr +"\""
-			sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2)
-		else
-			baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
-			notXStr + "\nd\Bv\M\Z12 = "+ notYStr +"\""
-		endif
-	else // if you have an image
-		if(inverseD)
-			baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " +\
-			notXStr + "\n1/d\Bv\M\Z12 = "+ notYStr + "\n1/d\B\M\Z12 = "+ notDStr + "\n1/d\Bsc\M\Z12 = " +\
-			notscDStr +"\nΔz\BCD\M\Z12 = "+ notZStr +"\""
-		else
-			baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
-			notXStr + "\nd\Bv\M\Z12 = "+ notYStr + "\nd\B\M\Z12 = " + notDStr + "\nd\Bsc\M\Z12 = " + notscDStr +\
-			"\nΔz\BCD\M\Z12 = " + notZStr + "\""
-		endif
-	endif
-	
+	string axisX, axisY, baseTextStr, cmdStr
+	[axisX, axisY] = ATH_Graph#GetAxes(grfName=s.winName)
+	variable xVal, yVal
 	switch(s.eventCode)
+		case 4:
+			if(strlen(GetUserData(s.winName, "dLogB", "CursorDistancedLogMode")))
+				SetDrawLayer/W=$s.winName ProgFront
+				DrawAction/W=$s.winName delete
+				SetDrawEnv/W=$s.winName linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = $axisX, ycoord = axrel			
+				SetDrawEnv/W=$s.winName xcoord= $axisX,ycoord= axrel
+				xVal = AxisValFromPixel(s.winName, axisX, s.mouseLoc.h)
+				DrawLine xVal, 0, xVal, 1
+//				SetDrawEnv/W=$s.winName xcoord= axrel,ycoord= $axisY
+//				yVal = AxisValFromPixel(s.winName, axisY, s.mouseLoc.v)
+//				DrawLine 0, yVal, 1, yVal				
+				SetDrawLayer/W=$s.winName UserFront
+			endif
+			break
+		case 5: // Dev here
+			if(strlen(GetUserData(s.winName, "dLogB", "CursorDistancedLogMode")))
+
+				// Will hardcode the folder
+				DFREF dLogDF = $("root:Packages:ATH_DataFolder:iDistanceLogger:" + s.winName)
+				WAVE dLogW = dLogDF:DistanceLogger
+				xVal = AxisValFromPixel(s.winName, axisX, s.mouseLoc.h)
+//				yVal = AxisValFromPixel(s.winName, axisY, s.mouseLoc.v)
+				variable imax = DimSize(dLogW,0), i = 0
+				for(;i<imax;i++)
+					if(numtype(dLogW[i]))  // NaN here
+						dLogW[i] = xVal
+						SetDrawLayer/W=$s.winName UserFront
+						SetDrawEnv/W=$s.winName xcoord= $axisX,ycoord= axrel
+						DrawLine xVal, 0, xVal, 1
+						baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=dLogAvgDist \"\\Z12d\Bavg\M\Z12 =%.4f\""
+						sprintf cmdStr, baseTextStr, ATH_Num#RunningMeanAbsDifference(dLogW, first=0, last=i)	 
+						Execute/Q/Z cmdStr
+						break
+					endif
+				endfor
+			endif
+			break
 		case 7:
+			variable x1, x2, y1, y2, z1, z2, distance, vbuffer, inverseD, imgQ
+			variable sscale = str2num(GetUserData(s.winName, "", "ATH_SetScale"))
+			variable sdist = str2num(GetUserData(s.winName, "", "ATH_DistanceForScale"))
+			variable factor = sscale / sdist
+			inverseD = str2num(GetUserData(s.winName, "", "ATH_CursorDistanceMode")) // 0 - normal, 1 - inverse
+			imgQ = !strlen(StringFromList(0, TraceNameList(s.WinName,";",1))) // 0 - trace, 1 - image
+			x1 = hcsr(C, s.WinName);x2 = hcsr(D, s.WinName);y1 = vcsr(C, s.WinName);y2 = vcsr(D, s.WinName);z1 = zcsr(C, s.WinName);z2 = zcsr(D, s.WinName)
+			distance = sqrt((x1-x2)^2 + (y1-y2)^2)
+			string notXStr, notYStr, notDStr, notscDStr, notZStr, scaleDrawCmd, sdamp
+			
+			if(abs(x1-x2) < 1e-4)
+				notXStr = "%.3e"
+			else
+				notXStr = "%.4f"
+			endif
+			if(abs(y1-y2) < 1e-4)
+				notYStr = "%.3e"
+			else
+				notYStr = "%.4f"
+			endif
+			if(abs(z1-z2) < 1e-4)
+				notZStr = "%.3e"
+			else
+				notZStr = "%.4f"
+			endif
+			if(distance < 1e-4)
+				notDStr = "%.3e"
+			else
+				notDStr = "%.4f"
+			endif
+			if(factor * distance < 1e-4)
+				notscDStr = "%.3e"
+			else
+				notscDStr = "%.4f"
+			endif
+
+			if(!imgQ) // If you have a trace
+				if(inverseD)
+					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " + notXStr + "\n1/d\Bv\M\Z12  = "+ notYStr +"\""
+					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2)
+				else
+					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
+					notXStr + "\nd\Bv\M\Z12 = "+ notYStr +"\""
+				endif
+			else // if you have an image
+				if(inverseD)
+					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " +\
+					notXStr + "\n1/d\Bv\M\Z12 = "+ notYStr + "\n1/d\B\M\Z12 = "+ notDStr + "\n1/d\Bsc\M\Z12 = " +\
+					notscDStr +"\nΔz\BCD\M\Z12 = "+ notZStr +"\""
+				else
+					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
+					notXStr + "\nd\Bv\M\Z12 = "+ notYStr + "\nd\B\M\Z12 = " + notDStr + "\nd\Bsc\M\Z12 = " + notscDStr +\
+					"\nΔz\BCD\M\Z12 = " + notZStr + "\""
+				endif
+			endif
 			if(imgQ)
 				if(inverseD)
 					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2), 1/distance, sscale * sdist/distance, (zcsr(D) - zcsr(C))
@@ -312,17 +365,39 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 				endif
 			endif
 			break
+		case "dLogB":
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iDistanceLogger:" + s.win)
+			string dLoggerWinNameStr = s.win + "_DistanceLogger"	
+			if(strlen(GetUserData(s.win, "dLogB", "CursorDistancedLogMode")))
+				Button dLogB, fcolor=(65535,0,0), userData(CursorDistancedLogMode) = ""
+				KillWindow/Z $dLoggerWinNameStr
+				KillDataFolder/Z dfr
+			else
+				Button dLogB, fcolor=(0,65535,26586), userData(CursorDistancedLogMode) = "1"		
+				Make/O/N=32 dfr:DistanceLogger; 
+				WAVE dLogW = dfr:DistanceLogger; dLogW = NaN
+				if(!WinType(dLoggerWinNameStr))
+					Edit/K=1/N=$dLoggerWinNameStr dfr:DistanceLogger.ld
+				endif
+			endif
+			break
 		case "closeB":
 			TextBox/W=$s.win/K/N=DistanceCD
 			TextBox/W=$s.win/K/N=DistanceCDInfo
 			SetWindow $s.win, hook(ATH_MeasureDistanceCsrDCHook) = $""
 			Cursor/W=$s.win/K C
 			Cursor/W=$s.win/K D
+			SetDrawLayer/W=$s.win ProgFront // Clear the interactive line
+			DrawAction/W=$s.win delete
+			SetDrawLayer/W=$s.win UserFront
+			KillWindow/Z $(s.win + "_DistanceLogger")
+			KillDataFolder/Z $("root:Packages:ATH_DataFolder:iDistanceLogger:" + s.win)
 			KillControl/W=$s.win scaleB
 			KillControl/W=$s.win drawscaleB
 			KillControl/W=$s.win modeB
 			KillControl/W=$s.win markB
 			KillControl/W=$s.win closeB
+			KillControl/W=$s.win dLogB
 			ControlInfo/W=$s.win kwControlBar
 			ControlBar V_Height - kCBOFFSET
 			break
