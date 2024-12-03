@@ -60,18 +60,12 @@ static Function IsNumberInWaveRangeQ(WAVE w, variable n)
 	return 1
 End
 
-static Function RunningMeanAbsDifference(WAVE w, [int first, int last])
-	first = ParamIsDefault(first) ? 0 : first
-	last = ParamIsDefault(last) ? DimSize(w,0) - 2 : last
-	
-	if(first > DimSize(w,0) - 2 || last > DimSize(w,0) - 1 || first >= last || first < 0)
-		return NaN
-	endif
-	
-	int i, sumV = 0
-	for(i = first; i < last; i++)
-		sumV += abs(w[i] - w[i+1])
-	endfor
-	
-	return sumV/(last-first)
+static Function RunningMeanDifference(WAVE w)
+	// Finds the mean value of differences for
+	// of elements (i+1) - i.
+	MatrixOP/FREE wc= zapNaNs(w)
+	Duplicate/FREE/R=[1,*] wc, wOffFirst // Remove first element
+	Duplicate/FREE/R=[0,DimSize(wc,0)-2] wc, wOffLast // Remove last element
+	MatrixOP/FREE diff = mean(wOffFirst-wOffLast) 
+	return diff[0]
 End

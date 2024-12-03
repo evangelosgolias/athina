@@ -138,10 +138,13 @@ static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 	variable hookResult = 0
 	string axisX, axisY, baseTextStr, cmdStr
 	[axisX, axisY] = ATH_Graph#GetAxes(grfName=s.winName)
-	variable xVal, yVal
+	variable xVal, yVal, dimWStr
 	switch(s.eventCode)
 		case 4:
+			// currently button is disabled for wavedims != 1
 			if(strlen(GetUserData(s.winName, "dLogB", "CursorDistancedLogMode")))
+				dimWStr = str2num(GetUserData(s.winName, "dLogB", "CursorDistancedLogMode"))
+				if(dimWStr==1)
 				SetDrawLayer/W=$s.winName ProgFront
 				DrawAction/W=$s.winName delete
 				SetDrawEnv/W=$s.winName linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = $axisX, ycoord = axrel			
@@ -152,29 +155,36 @@ static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 //				yVal = AxisValFromPixel(s.winName, axisY, s.mouseLoc.v)
 //				DrawLine 0, yVal, 1, yVal				
 				SetDrawLayer/W=$s.winName UserFront
+				else
+					//pass
+				endif
 			endif
 			break
 		case 5: // Dev here
 			if(strlen(GetUserData(s.winName, "dLogB", "CursorDistancedLogMode")))
-
-				// Will hardcode the folder
-				DFREF dLogDF = $("root:Packages:ATH_DataFolder:iDistanceLogger:" + s.winName)
-				WAVE dLogW = dLogDF:DistanceLogger
-				xVal = AxisValFromPixel(s.winName, axisX, s.mouseLoc.h)
-//				yVal = AxisValFromPixel(s.winName, axisY, s.mouseLoc.v)
-				variable imax = DimSize(dLogW,0), i = 0
-				for(;i<imax;i++)
-					if(numtype(dLogW[i]))  // NaN here
-						dLogW[i] = xVal
-						SetDrawLayer/W=$s.winName UserFront
-						SetDrawEnv/W=$s.winName xcoord= $axisX,ycoord= axrel
-						DrawLine xVal, 0, xVal, 1
-						baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=dLogAvgDist \"\\Z12d\Bavg\M\Z12 =%.4f\""
-						sprintf cmdStr, baseTextStr, ATH_Num#RunningMeanAbsDifference(dLogW, first=0, last=i)	 
-						Execute/Q/Z cmdStr
-						break
-					endif
-				endfor
+				dimWStr = str2num(GetUserData(s.winName, "dLogB", "CursorDistancedLogMode"))
+				if(dimWStr==1)
+					// Hardcode the folder
+					DFREF dLogDF = $("root:Packages:ATH_DataFolder:iDistanceLogger:" + s.winName)
+					WAVE dLogW = dLogDF:DistanceLogger
+					xVal = AxisValFromPixel(s.winName, axisX, s.mouseLoc.h)
+					//				yVal = AxisValFromPixel(s.winName, axisY, s.mouseLoc.v)
+					variable imax = DimSize(dLogW,0), i
+					for(i = 0;i < imax; i++)
+						if(numtype(dLogW[i]))  // NaN here
+							dLogW[i] = xVal
+							SetDrawLayer/W=$s.winName UserFront
+							SetDrawEnv/W=$s.winName xcoord= $axisX,ycoord= axrel
+							DrawLine xVal, 0, xVal, 1
+							baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=distMeanLog/X=80/Y=-2.5 \"\\Z12d\Bavg\M\Z12 = " + "%.4f\""
+							sprintf cmdStr, baseTextStr, ATH_Num#RunningMeanDifference(dLogW)
+							Execute/Q/Z cmdStr
+							break
+						endif
+					endfor
+				else
+					//pass
+				endif
 			endif
 			break
 		case 7:
@@ -373,9 +383,14 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 				KillWindow/Z $dLoggerWinNameStr
 				KillDataFolder/Z dfr
 			else
-				Button dLogB, fcolor=(0,65535,26586), userData(CursorDistancedLogMode) = "1"		
+				Button dLogB, fcolor=(0,65535,26586), userData(CursorDistancedLogMode) = \
+				num2str(WaveDims(ATH_Graph#TopGraphToWaveRef(grfName=s.win)))		
+				//Make/O/N=(32,2) dfr:DistanceLogger; 
+				//TextBox/K/N=distMeanLog // Kill textbox?
 				Make/O/N=32 dfr:DistanceLogger; 
 				WAVE dLogW = dfr:DistanceLogger; dLogW = NaN
+				//SetDimLabel 1, 0, Position, dLogW
+				//SetDimLabel 1, 1, Difference, dLogW
 				if(!WinType(dLoggerWinNameStr))
 					Edit/K=1/N=$dLoggerWinNameStr dfr:DistanceLogger.ld
 				endif

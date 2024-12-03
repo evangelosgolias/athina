@@ -255,3 +255,16 @@ Function/S TopImageName([string grfName])
 		return ""
 	endif
 end
+
+static Function/WAVE TopGraphToWaveRef([string grfName])
+	// Return a wave reference from the top graph
+	
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(grfName, ";"),";")
+	if(strlen(imgNameTopGraphStr)) // We have an image
+		WAVE wRef = ImageNameToWaveRef(grfName, imgNameTopGraphStr) // full path of wave
+		return wRef
+	else 
+		ATH_Traces#TopTraceToWaveRef(grfName=grfName) // Trace or nothing, the latter will be handled in ATH_Traces#TopTraceToWaveRef
+	endif
+End
