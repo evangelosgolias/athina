@@ -263,8 +263,8 @@ static Function/WAVE TopGraphToWaveRef([string grfName])
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(grfName, ";"),";")
 	if(strlen(imgNameTopGraphStr)) // We have an image
 		WAVE wRef = ImageNameToWaveRef(grfName, imgNameTopGraphStr) // full path of wave
-		return wRef
 	else 
-		ATH_Traces#TopTraceToWaveRef(grfName=grfName) // Trace or nothing, the latter will be handled in ATH_Traces#TopTraceToWaveRef
+		WAVE wRef = ATH_Traces#TopTraceToWaveRef(grfName=grfName) // Trace or nothing, the latter will be handled in ATH_Traces#TopTraceToWaveRef
 	endif
+	return wRef
 End

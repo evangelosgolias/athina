@@ -60,12 +60,75 @@ static Function IsNumberInWaveRangeQ(WAVE w, variable n)
 	return 1
 End
 
-static Function RunningMeanDifference(WAVE w)
+static Function RunningMeanDifferenceZapNaN(WAVE wRef, [variable dim, variable rowN, variable colN])
 	// Finds the mean value of differences for
 	// of elements (i+1) - i.
+	// dim, int are used when you want to pick up a specific row, col or beam
+	switch(dim)
+		case 0:
+			MatrixOP/FREE w = row(wRef, rowN)
+			break
+		case 1:
+			MatrixOP/FREE w = col(wRef, colN)
+			break
+		case 2:
+			MatrixOP/FREE w = beam(wRef, rowN, colN)		
+			break
+		default:
+			MatrixOP/FREE w = wRef // Do not change anything
+			break
+	endswitch
+	
 	MatrixOP/FREE wc= zapNaNs(w)
-	Duplicate/FREE/R=[1,*] wc, wOffFirst // Remove first element
-	Duplicate/FREE/R=[0,DimSize(wc,0)-2] wc, wOffLast // Remove last element
-	MatrixOP/FREE diff = mean(wOffFirst-wOffLast) 
-	return diff[0]
+	variable npts = numpnts(wc)
+	
+	switch(npts)
+		case 0:
+			return 0
+		case 1:
+			return wc[0]
+		case 2:
+			return wc[1] - wc[0]
+		default:
+			Duplicate/FREE/R=[1,*] wc, wOffFirst // Remove first element
+			Duplicate/FREE/R=[0,DimSize(wc,0)-2] wc, wOffLast // Remove last element
+			MatrixOP/FREE diff = mean(wOffFirst-wOffLast)
+			return diff[0]
+	endswitch
+End
+
+static Function WaveBeamMeanZapNaN(WAVE wRef, [variable dim, variable rowN, variable colN, int recQ])
+	// Finds the mean value of a beam along any dimension
+	// set recQ to non zero value to find mean of inverse (reciprocals)
+	switch(dim)
+		case 0:
+			MatrixOP/FREE w = row(wRef, rowN)
+			break
+		case 1:
+			MatrixOP/FREE w = col(wRef, colN)
+			break
+		case 2:
+			MatrixOP/FREE w = beam(wRef, rowN, colN)		
+			break
+		default:
+			MatrixOP/FREE w = wRef // Do not change anything
+			break
+	endswitch
+	MatrixOP/FREE wc= zapNaNs(w)
+	variable npts = numpnts(wc)
+	switch(npts)
+		case 0:
+			return 0
+		case 1:
+			return wc[0]
+		default:
+			if(!recQ)
+				MatrixOP/FREE meanW = mean(wc)
+				return meanW[0]
+			else
+				MatrixOP/FREE invW = rec(wc)
+				MatrixOP/FREE meanW = mean(invW)
+				return meanW[0]
+			endif
+	endswitch
 End
