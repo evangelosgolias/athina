@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_Cursors
-#pragma version = 1.1
+#pragma version = 1.2
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -30,8 +30,12 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static constant kCBOFFSET = 30 // height slider in 3d waves
 
+/// 06.12.2024: When you plot a trace and you launch MeasureDistanceUsingFreeCursors
+/// without any interaction with the window, the buttons do not work. You have to move
+/// the window to enable the buttons. 
+
+static constant kCBOFFSET = 30 // height slider in 3d waves
 
 static Function/S GetActiveCursors([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName), grfName, WinName(0,1,1))
@@ -96,18 +100,18 @@ static Function MeasureDistanceUsingFreeCursors()
 	Button dLogB help = {"Measure distances, press SHIFT+Click to register a point."},proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr	
 	Button closeB pos={390*pntConv,(4+lCBOFFSET)*pntConv}, title="Close", size={50*pntConv,20*pntConv},fcolor=(0,0,65535),win=$winNameStr
 	Button closeB help = {"Removes control bar"},proc=ATH_Cursors#MeasureDistanceButton, win=$winNameStr
-	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrIJHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsHook
-	
 	// Add metadata
 	Button scaleB, win=$winNameStr, userdata(ATH_SetScale) = "1", userdata(ATH_SavedDistanceForScale) = "", userdata(ATH_DistanceForScale) = "1"
 	Button modeB, win=$winNameStr, userdata(ATH_CursorDistanceMode) = "0"
-
 	
 	if(!str2num(GetUserData(winNameStr, "modeB", "ATH_CursorDistanceMode"))) // 0 - direct, 1 - reciprocal
 		Button modeB, title = "Direct", fcolor=(65535,43690,0), win=$winNameStr
 	else
 		Button modeB, title = "Reciprocal", fcolor=(0,65535,26586), win=$winNameStr
 	endif
+	// Set the main hook.			
+	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrIJHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsHook
+
 End
 
 static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
@@ -118,6 +122,8 @@ static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 	variable xVal, yVal, dimWStr, dmode, dist
 	DFREF dLogDF = $("root:Packages:ATH_DataFolder:iDistanceLogger:" + s.winName)
 	NVAR/SDFR=dLogDF/Z ath_ClickRegisterSwitch; NVAR/SDFR=dLogDF/Z ath_gposX; NVAR/SDFR=dLogDF/Z ath_gposY
+	WAVE dLogW = dLogDF:DistanceLogger
+	variable imax = DimSize(dLogW,0), i
 	switch(s.eventCode)
 		case 4:
 			// currently button is disabled for wavedims != 1
@@ -137,10 +143,18 @@ static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 				else
 					SetDrawLayer/W=$s.winName ProgFront
 					DrawAction/W=$s.winName delete
-					if(ath_ClickRegisterSwitch)
+					if(ath_ClickRegisterSwitch && (s.eventMod & 2))
 						SetDrawLayer/W=$s.winName ProgFront
 						SetDrawEnv/W=$s.winName linefgc = (0,0,0,65535), fillpat = 0, linethick = 1, xcoord = $axisX, ycoord = $axisY
 						DrawLine/W=$s.winName ath_gposX, ath_gposY, AxisValFromPixel(s.winName, axisX, s.mouseLoc.h), AxisValFromPixel(s.winName, axisY, s.mouseLoc.v)
+					elseif(ath_ClickRegisterSwitch)
+						for(i = 0;i < imax; i++)
+							if(!numtype(dLogW[i][0]) && numtype(dLogW[i][3])) // if only the first point is registered
+								dLogW[i][] = NaN
+								ath_ClickRegisterSwitch = 0
+								break
+							endif
+						endfor
 					endif
 				endif
 			endif
@@ -148,8 +162,6 @@ static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 		case 5:
 			if(strlen(GetUserData(s.winName, "dLogB", "CursorDistanceLogMode")) && (s.eventMod & 2))
 				dimWStr = str2num(GetUserData(s.winName, "dLogB", "CursorDistanceLogMode"))
-				WAVE dLogW = dLogDF:DistanceLogger
-				variable imax = DimSize(dLogW,0), i
 				if(dimWStr==1)					
 					xVal = AxisValFromPixel(s.winName, axisX, s.mouseLoc.h)
 					for(i = 0;i < imax; i++)
