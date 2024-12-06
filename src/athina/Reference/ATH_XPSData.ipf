@@ -967,9 +967,9 @@ static Function ShowNotebookCoreLevelsInEnergyRange(variable Elow, variable Ehig
 	string infoStr, notebookText
 	if(KE && hv > wf)
 		infoStr = "Energy Scale: KE (eV)," +  "Energy Range (eV) = ["+num2str(Elow)+","+num2str(Ehigh)+"], "
-		infoStr += "hv = " + num2str(hv) +" eV, Wf = " + num2str(wf) + "e V.\n\n"
+		infoStr += "hv = " + num2str(hv) +" eV, Wf = " + num2str(wf) + " eV.\n\n"
 	else
-		infoStr = "Energy Scale: BE (eV), Energy Range = ["+num2str(Elow)+","+num2str(Ehigh)+"].\n\n"
+		infoStr = "Energy Scale: BE (eV), Energy Range = ["+num2str(Elow)+", "+num2str(Ehigh)+"].\n\n"
 	endif	
 		
 	notebookText = infoStr  + report

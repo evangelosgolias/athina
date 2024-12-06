@@ -59,7 +59,7 @@ End
 // Interactive functionality
 static Function MeasureDistanceUsingFreeCursors()	
 	/// Use Cursors I, J (Free) to measure distances in a graph
-	/// Uses ATH_MeasureDistanceUsingFreeCursorsCDHook.
+	/// Uses ATH_MeasureDistanceUsingFreeCursorsIJHook.
 	string winNameStr = WinName(0, 1, 1) //Top graph
 	string topTraceNameStr = StringFromList(0, TraceNameList(winNameStr,";",1))
 	if(strlen(topTraceNameStr)) // If you have a trace
@@ -75,7 +75,7 @@ static Function MeasureDistanceUsingFreeCursors()
 	lCBOFFSET = V_height
 	
 	// if the hook is there you have already launch it!
-	GetWindow $winNameStr hook(ATH_MeasureDistanceCsrDCHook)
+	GetWindow $winNameStr hook(ATH_MeasureDistanceCsrIJHook)
 	// if there is slider and MeasureDistanceUsingFreeCursors is on
 	if(strlen(S_Value))
 		return 1
@@ -93,10 +93,10 @@ static Function MeasureDistanceUsingFreeCursors()
 	Button markB pos={260*pntConv,(4+lCBOFFSET)*pntConv}, title="Mark", size={55*pntConv,20*pntConv},win=$winNameStr
 	Button markB help = {"Mark distace (1D: with SHIFT pressed marks dv"},proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
 	Button dLogB pos={325*pntConv,(4+lCBOFFSET)*pntConv}, title="DLog", fcolor=(65535,0,0),size={55*pntConv,20*pntConv},win=$winNameStr
-	Button dLogB help = {"Measure distance stats"},proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr	
+	Button dLogB help = {"Measure distances, press SHIFT+Click to register a point."},proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr	
 	Button closeB pos={390*pntConv,(4+lCBOFFSET)*pntConv}, title="Close", size={50*pntConv,20*pntConv},fcolor=(0,0,65535),win=$winNameStr
 	Button closeB help = {"Removes control bar"},proc=ATH_Cursors#MeasureDistanceButton, win=$winNameStr
-	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrDCHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsHook
+	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrIJHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsHook
 	
 	// Add metadata
 	Button scaleB, win=$winNameStr, userdata(ATH_SetScale) = "1", userdata(ATH_SavedDistanceForScale) = "", userdata(ATH_DistanceForScale) = "1"
@@ -111,7 +111,7 @@ static Function MeasureDistanceUsingFreeCursors()
 End
 
 static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
-	/// Hook function for ATH_MeasureDistanceUsingFreeCursorsCD()
+	/// Hook function for ATH_MeasureDistanceUsingFreeCursorsIJ()
 	variable hookResult = 0
 	string axisX, axisY, baseTextStr, cmdStr
 	[axisX, axisY] = ATH_Graph#GetAxes(grfName=s.winName)
@@ -246,21 +246,21 @@ static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 
 			if(!imgQ) // If you have a trace
 				if(inverseD)
-					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " + notXStr + "\n1/d\Bv\M\Z12  = "+ notYStr +"\""
+					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceIJ \"\\Z121/d\Bh\M\Z12 = " + notXStr + "\n1/d\Bv\M\Z12  = "+ notYStr +"\""
 					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2)
 				else
-					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
+					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceIJ \"\\Z12d\Bh\M\Z12 = " +\
 					notXStr + "\nd\Bv\M\Z12 = "+ notYStr +"\""
 				endif
 			else // if you have an image
 				if(inverseD)
-					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z121/d\Bh\M\Z12 = " +\
+					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceIJ \"\\Z121/d\Bh\M\Z12 = " +\
 					notXStr + "\n1/d\Bv\M\Z12 = "+ notYStr + "\n1/d\B\M\Z12 = "+ notDStr + "\n1/d\Bsc\M\Z12 = " +\
-					notscDStr +"\nΔz\BCD\M\Z12 = "+ notZStr +"\""
+					notscDStr +"\nΔz\BIJ\M\Z12 = "+ notZStr +"\""
 				else
-					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceCD \"\\Z12d\Bh\M\Z12 = " +\
+					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceIJ \"\\Z12d\Bh\M\Z12 = " +\
 					notXStr + "\nd\Bv\M\Z12 = "+ notYStr + "\nd\B\M\Z12 = " + notDStr + "\nd\Bsc\M\Z12 = " + notscDStr +\
-					"\nΔz\BCD\M\Z12 = " + notZStr + "\""
+					"\nΔz\BIJ\M\Z12 = " + notZStr + "\""
 				endif
 			endif
 			if(imgQ)
@@ -421,7 +421,7 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 				Button dLogB, fcolor=(0,65535,26586), userData(CursorDistanceLogMode) = num2str(dimW)
 				Cursor/K/W=$s.win I
 				Cursor/K/W=$s.win J
-				TextBox/W=$s.win/K/N=DistanceCD
+				TextBox/W=$s.win/K/N=DistanceIJ
 				variable/G dfr:ath_ClickRegisterSwitch
 				variable/G dfr:ath_gposX
 				variable/G dfr:ath_gposY
@@ -448,8 +448,8 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 			endif
 			break
 		case "closeB":
-			TextBox/W=$s.win/K/N=DistanceCD
-			SetWindow $s.win, hook(ATH_MeasureDistanceCsrDCHook) = $""
+			TextBox/W=$s.win/K/N=DistanceIJ
+			SetWindow $s.win, hook(ATH_MeasureDistanceCsrIJHook) = $""
 			Cursor/W=$s.win/K I
 			Cursor/W=$s.win/K J
 			SetDrawLayer/W=$s.win ProgFront // Clear the interactive line
