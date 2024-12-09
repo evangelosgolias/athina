@@ -790,7 +790,7 @@ static Function ImageFFTTransform([int noPlot])
 			// N.B. ATH_WaveOp#WavePartition returns pixel scaled image
 			CopyScales/P wRef, wPart
 			WAVE wFFT = ATH_Transform#FFT2D(wPart) // WPart is a FREE wave
-			// We have to do it here as ATH_Transform#FFT2D will return  free wave witn name _free__FFT whatever.
+			// We have to do it here as ATH_Transform#FFT2D will return  free wave witn name _free__FFT.
 			string destWaveNameStr = CreatedataObjectName(dfr, NameOfWave(wRef)+"_FFT", 1, 0, 1)
 			Rename wFFT, $destWaveNameStr
 		else

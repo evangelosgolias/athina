@@ -75,6 +75,9 @@ End
 
 static Function ImgStackRegistration(WAVE w3d, [variable layerN, 
 		 variable cutoff, int selfDrift, int printMode, int convMode, int intPixels])
+	/// 
+	/// *** Use full image, translations and rotation ***
+	///
 	/// Align a 3d wave using ImageRegistration. By default the function will
 	/// use the 0-th layer as a wave reference, uncless user chooses otherwise 
 	/// Only x, y translations are allowed.
@@ -97,9 +100,12 @@ static Function ImgStackRegistration(WAVE w3d, [variable layerN,
 	endif
 	
 	MatrixOP/FREE refLayerWave = layer(w3d, layerN) 
-
-	ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0/CSNR=0/CONV=(convMode) refwave = refLayerWave, testwave = w3d	
-
+		
+	if(!convMode) // /CONV = 0, translations only
+		ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0/CSNR=0/CONV=(convMode) refwave = refLayerWave, testwave = w3d	
+	else	
+		ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/SKEW={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0/CSNR=0/CONV=(convMode) refwave = refLayerWave, testwave = w3d	
+	endif
 	WAVE M_RegOut, M_RegMaskOut, M_RegParams
 	if(intPixels)
 		MatrixOP/FREE dxL = round(row(M_RegParams, 0))
