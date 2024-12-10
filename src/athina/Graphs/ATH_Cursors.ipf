@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_Cursors
-#pragma version = 1.2
+#pragma version = 1.3
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -90,20 +90,20 @@ static Function MeasureDistanceUsingFreeCursors()
 	
 	Button scaleB pos={10*pntConv,(4+lCBOFFSET)*pntConv}, size={60*pntConv,20*pntConv}, title="Scale", win=$winNameStr
 	Button scaleB help = {"Place cursots C, D and set scale"},fcolor=(65535,0,0),proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
-	Button drawscaleB pos={80*pntConv, (4+lCBOFFSET)*pntConv}, size={80*pntConv,20*pntConv}, title="Draw Scale",win=$winNameStr 
-	Button drawscaleB help = {"Draw the saved scale"}, disable=2,proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
-	Button modeB pos={170*pntConv,(4+lCBOFFSET)*pntConv}, title="Direct", size={80*pntConv,20*pntConv},win=$winNameStr
+	Button modeB pos={75*pntConv,(4+lCBOFFSET)*pntConv}, title="Direct", size={80*pntConv,20*pntConv},win=$winNameStr
 	Button modeB help = {"Change between direct and reciprocal mode"}, proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
-	Button markB pos={260*pntConv,(4+lCBOFFSET)*pntConv}, title="Mark", size={55*pntConv,20*pntConv},win=$winNameStr
-	Button markB help = {"Mark distace (1D: with SHIFT pressed marks dv"},proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
-	Button dLogB pos={325*pntConv,(4+lCBOFFSET)*pntConv}, title="DLog", fcolor=(65535,0,0),size={55*pntConv,20*pntConv},win=$winNameStr
+	Button markB pos={160*pntConv,(4+lCBOFFSET)*pntConv}, title="Mark", size={55*pntConv,20*pntConv},win=$winNameStr
+	Button markB help = {"Mark distace (1D: with SHIFT pressed marks dv (1-D) or scale in 2D"},proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
+	Button dLogB pos={220*pntConv,(4+lCBOFFSET)*pntConv}, title="DLog", fcolor=(65535,0,0),size={55*pntConv,20*pntConv},win=$winNameStr
 	Button dLogB help = {"Measure distances, press SHIFT+Click to register a point."},proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr	
-	Button closeB pos={390*pntConv,(4+lCBOFFSET)*pntConv}, title="Close", size={50*pntConv,20*pntConv},fcolor=(0,0,65535),win=$winNameStr
+	Button angleB pos={280*pntConv,(4+lCBOFFSET)*pntConv}, title="Angle",size={55*pntConv,20*pntConv},win=$winNameStr
+	Button angleB help = {"Measure angle with apex at cursor F."},proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr		
+	Button closeB pos={340*pntConv,(4+lCBOFFSET)*pntConv}, title="Close", size={50*pntConv,20*pntConv},fcolor=(0,0,65535),win=$winNameStr
 	Button closeB help = {"Removes control bar"},proc=ATH_Cursors#MeasureDistanceButton, win=$winNameStr
 	// Add metadata
 	Button scaleB, win=$winNameStr, userdata(ATH_SetScale) = "1", userdata(ATH_SavedDistanceForScale) = "", userdata(ATH_DistanceForScale) = "1"
 	Button modeB, win=$winNameStr, userdata(ATH_CursorDistanceMode) = "0"
-	
+	Button angleB, win=$winNameStr, userdata(ATH_MeasureAngle) = ""
 	if(!str2num(GetUserData(winNameStr, "modeB", "ATH_CursorDistanceMode"))) // 0 - direct, 1 - reciprocal
 		Button modeB, title = "Direct", fcolor=(65535,43690,0), win=$winNameStr
 	else
@@ -268,18 +268,34 @@ static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 				if(inverseD)
 					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceIJ \"\\Z121/d\Bh\M\Z12 = " +\
 					notXStr + "\n1/d\Bv\M\Z12 = "+ notYStr + "\n1/d\B\M\Z12 = "+ notDStr + "\n1/d\Bsc\M\Z12 = " +\
-					notscDStr +"\nΔz\BIJ\M\Z12 = "+ notZStr +"\""
+					notscDStr +"\nΔz\BIJ\M\Z12 = "+ notZStr// +"\"", check below
 				else
 					baseTextStr = "TextBox/W="+PossiblyQuoteName(s.WinName)+"/C/N=DistanceIJ \"\\Z12d\Bh\M\Z12 = " +\
 					notXStr + "\nd\Bv\M\Z12 = "+ notYStr + "\nd\B\M\Z12 = " + notDStr + "\nd\Bsc\M\Z12 = " + notscDStr +\
-					"\nΔz\BIJ\M\Z12 = " + notZStr + "\""
+					"\nΔz\BIJ\M\Z12 = " + notZStr// + "\"", check below
 				endif
+			
+			// Do we have angleB, here we add the missing "\""
+			if(strlen(GetUserData(s.winName, "angleB", "ATH_MeasureAngle")))
+				baseTextStr += "\ntheta = %.2f" + "\""
+			else
+				baseTextStr += "\""
+			endif
+							
 			endif
 			if(imgQ)
 				if(inverseD)
-					sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2), 1/distance, sscale * sdist/distance, (zcsr(J) - zcsr(I))
+					if(strlen(GetUserData(s.winName, "angleB", "ATH_MeasureAngle")))
+						sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2), 1/distance, sscale * sdist/distance, (zcsr(J) - zcsr(I)), ATH_Cursors#ThreeCursorsToAngle("I", "F", "J", deg = 1)
+					else
+						sprintf cmdStr, baseTextStr, 1/abs(x1-x2), 1/abs(y1-y2), 1/distance, sscale * sdist/distance, (zcsr(J) - zcsr(I))
+					endif
 				else
-					sprintf cmdStr, baseTextStr, abs(x1-x2), abs(y1-y2), distance, factor * distance, (zcsr(J) - zcsr(I))
+					if(strlen(GetUserData(s.winName, "angleB", "ATH_MeasureAngle")))
+						sprintf cmdStr, baseTextStr, abs(x1-x2), abs(y1-y2), distance, factor * distance, (zcsr(J) - zcsr(I)), ATH_Cursors#ThreeCursorsToAngle("I", "F", "J", deg = 1)
+					else
+						sprintf cmdStr, baseTextStr, abs(x1-x2), abs(y1-y2), distance, factor * distance, (zcsr(J) - zcsr(I))
+					endif
 				endif
 			else
 				if(inverseD)
@@ -289,6 +305,7 @@ static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 				endif
 
 			endif
+			
 			Execute/Q/Z cmdStr
 			hookResult = 1
 			break
@@ -325,7 +342,7 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 					return 1
 				endif
 				x1 = hcsr(I, s.win);x2 = hcsr(J, s.win);y1 = vcsr(I, s.win);y2 = vcsr(J, s.win);z1 = zcsr(I, s.win);z2 = zcsr(J, s.win)
-				distance = sqrt((x1-x2)^2 + (y1-y2)^2)		
+				distance = sqrt((x1-x2)^2 + (y1-y2)^2)
 				Button scaleB, win=$s.win, userdata(ATH_SetScale) = num2str(vbuffer)
 				Button scaleB, win=$s.win, userdata(ATH_DistanceForScale) = num2str(distance)
 				scaleDrawCmd = "DrawLine/W=" + s.win + "  " + num2str(x1)+"," + num2str(y1) +"," + num2str(x2) +"," + num2str(y2)
@@ -336,16 +353,15 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 				endif
 			endif
 			break
-		case "drawscaleB":
-			scaleDrawCmd = GetUserData(s.win, "scaleB", "ATH_SavedDistanceForScale")
-			if(strlen(scaleDrawCmd)) // If a scale is saved
-				sscanf scaleDrawCmd, ("DrawLine/W=%s %f,%f,%f,%f"), sdamp, x1s, y1s, x2s, y2s // Restored the saved positions
-				SetDrawLayer/W=$s.win UserFront
-				SetDrawEnv/W=$s.win textrgb= (0,0,65535), xcoord =$axisX, ycoord = $axisY, textrot = -(atan((y2s-y1s)/(x2s-x1s))*180/pi)
-				DrawText/W=$s.win (x1s+x2s)/2, (y1s+y2s)/2, "Ss: "+ num2str(sscale)
-				SetDrawEnv/W=$s.win arrow = 3, linefgc= (65535,0,0), xcoord =$axisX, ycoord = $axisY
-				Execute/Q/Z scaleDrawCmd
+		case "angleB":
+			if(!strlen(GetUserData(s.win, "angleB", "ATH_MeasureAngle")) && imgQ)
+				Button angleB, win=$s.win, fcolor=(0,65535,26586), userdata(ATH_MeasureAngle) = "A"
+				Cursor/I/A=1/F/H=1/S=1/C=(0,65535,26586)/N=1/P F $ATH_Graph#TopImageName(grfName=s.win) 0.5, 0.5
+			else
+				Button angleB, win=$s.win, fcolor=(0,0,0), userdata(ATH_MeasureAngle) = ""
+				Cursor/K/W=$s.win F
 			endif
+			
 			break
 		case "modeB": // direct/reciprocal
 			Button modeB, win=$s.win, userdata(ATH_CursorDistanceMode) = num2str(!inverseD)
@@ -357,54 +373,66 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 			break
 		case "markB":
 			x1 = hcsr(I, s.win);x2 = hcsr(J, s.win);y1 = vcsr(I, s.win);y2 = vcsr(J, s.win);z1 = zcsr(I, s.win);z2 = zcsr(J, s.win)
-			distance = sqrt((x1-x2)^2 + (y1-y2)^2)				
+			distance = sqrt((x1-x2)^2 + (y1-y2)^2)
 			if(!imgQ)  // Traces
 				SetDrawLayer/W=$s.win UserFront
 				if(!str2num(GetUserData(s.win, "modeB", "ATH_CursorDistanceMode"))) // 0 - direct, 1 - reciprocal
 					if(s.eventMod & 2)
 						SetDrawEnv/W=$s.win textrgb=(65535,0,0),xcoord =$axisX, ycoord = $axisY, textrot= 90
 						DrawText/W=$s.win x2, (y1+y2)/2, ("D:"+num2str(abs(y2-y1)))
-						SetDrawEnv/W=$s.win linefgc=(65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY		
+						SetDrawEnv/W=$s.win linefgc=(65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY
 						DrawLine/W=$s.win x2, y1, x2, y2
 					else
 						SetDrawEnv/W=$s.win textrgb=(65535,0,0),xcoord =$axisX, ycoord = $axisY
 						DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, ("D:"+num2str(abs(x2-x1)))
-						SetDrawEnv/W=$s.win linefgc=(65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY				
+						SetDrawEnv/W=$s.win linefgc=(65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY
 						DrawLine/W=$s.win x1, (y1+y2)/2, x2, (y1+y2)/2
 					endif
 				else
 					if(s.eventMod & 2)
 						SetDrawEnv/W=$s.win textrgb=(65535,0,0),xcoord =$axisX, ycoord = $axisY, textrot= 90
 						DrawText/W=$s.win x2, (y1+y2)/2, ("R:"+num2str(1/abs(y2-y1)))
-						SetDrawEnv/W=$s.win linefgc=(65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY		
+						SetDrawEnv/W=$s.win linefgc=(65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY
 						DrawLine/W=$s.win x2, y1, x2, y2
 					else
 						SetDrawEnv/W=$s.win textrgb=(65535,0,0),xcoord =$axisX, ycoord = $axisY
 						DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, ("R:"+num2str(1/abs(x2-x1)))
-						SetDrawEnv/W=$s.win linefgc=(65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY				
+						SetDrawEnv/W=$s.win linefgc=(65535,0,0), arrow = 3, xcoord =$axisX, ycoord = $axisY
 						DrawLine/W=$s.win x1, (y1+y2)/2, x2, (y1+y2)/2
 					endif
 				endif
 			else  // Images
-				if(!str2num(GetUserData(s.win, "modeB", "ATH_CursorDistanceMode"))) // 0 - direct, 1 - reciprocal
-					SetDrawLayer/W=$s.win UserFront
-					SetDrawEnv/W=$s.win linefgc= (0,0,65535), arrow = 3, xcoord =$axisX, ycoord = $axisY
-					DrawLine/W=$s.win x1, y1, x2, y2
-					SetDrawEnv/W=$s.win textrgb= (0,0,65535), xcoord =$axisX, ycoord = $axisY, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
-					if(strlen(GetUserData(s.win, "scaleB", "ATH_SavedDistanceForScale")))
-						DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, "sD:"+num2str(factor * distance)
-					else
-						DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, "D:"+num2str(distance)
+				if(s.eventMod & 2)
+					scaleDrawCmd = GetUserData(s.win, "scaleB", "ATH_SavedDistanceForScale")
+					if(strlen(scaleDrawCmd)) // If a scale is saved
+						sscanf scaleDrawCmd, ("DrawLine/W=%s %f,%f,%f,%f"), sdamp, x1s, y1s, x2s, y2s // Restored the saved positions
+						SetDrawLayer/W=$s.win UserFront
+						SetDrawEnv/W=$s.win textrgb= (0,0,65535), xcoord =$axisX, ycoord = $axisY, textrot = -(atan((y2s-y1s)/(x2s-x1s))*180/pi)
+						DrawText/W=$s.win (x1s+x2s)/2, (y1s+y2s)/2, "Ss: "+ num2str(sscale)
+						SetDrawEnv/W=$s.win arrow = 3, linefgc= (65535,0,0), xcoord =$axisX, ycoord = $axisY
+						Execute/Q/Z scaleDrawCmd
 					endif
 				else
-					SetDrawLayer/W=$s.win UserFront
-					SetDrawEnv/W=$s.win linefgc= (0,0,65535),arrow = 3,xcoord =$axisX, ycoord = $axisY
-					DrawLine/W=$s.win x1, y1, x2, y2
-					SetDrawEnv/W=$s.win textrgb=(0,0,65535), xcoord =$axisX, ycoord = $axisY, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
-					if(strlen(GetUserData(s.win, "scaleB", "ATH_SavedDistanceForScale")))
-						DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, "sR:"+num2str(sscale * sdist/distance)
+					if(!str2num(GetUserData(s.win, "modeB", "ATH_CursorDistanceMode"))) // 0 - direct, 1 - reciprocal
+						SetDrawLayer/W=$s.win UserFront
+						SetDrawEnv/W=$s.win linefgc= (0,0,65535), arrow = 3, xcoord =$axisX, ycoord = $axisY
+						DrawLine/W=$s.win x1, y1, x2, y2
+						SetDrawEnv/W=$s.win textrgb= (0,0,65535), xcoord =$axisX, ycoord = $axisY, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
+						if(strlen(GetUserData(s.win, "scaleB", "ATH_SavedDistanceForScale")))
+							DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, "sD:"+num2str(factor * distance)
+						else
+							DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, "D:"+num2str(distance)
+						endif
 					else
-						DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, "R:"+num2str(1/distance)
+						SetDrawLayer/W=$s.win UserFront
+						SetDrawEnv/W=$s.win linefgc= (0,0,65535),arrow = 3,xcoord =$axisX, ycoord = $axisY
+						DrawLine/W=$s.win x1, y1, x2, y2
+						SetDrawEnv/W=$s.win textrgb=(0,0,65535), xcoord =$axisX, ycoord = $axisY, textrot = -(atan((y2-y1)/(x2-x1))*180/pi)
+						if(strlen(GetUserData(s.win, "scaleB", "ATH_SavedDistanceForScale")))
+							DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, "sR:"+num2str(sscale * sdist/distance)
+						else
+							DrawText/W=$s.win (x1+x2)/2, (y1+y2)/2, "R:"+num2str(1/distance)
+						endif
 					endif
 				endif
 			endif
@@ -464,6 +492,9 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 			SetWindow $s.win, hook(ATH_MeasureDistanceCsrIJHook) = $""
 			Cursor/W=$s.win/K I
 			Cursor/W=$s.win/K J
+			if(strlen(GetUserData(s.win, "angleB", "ATH_MeasureAngle")))
+				Cursor/W=$s.win/K F
+			endif
 			SetDrawLayer/W=$s.win ProgFront // Clear the interactive line
 			DrawAction/W=$s.win delete
 			SetDrawLayer/W=$s.win UserFront
@@ -473,6 +504,7 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 			KillControl/W=$s.win markB
 			KillControl/W=$s.win closeB
 			KillControl/W=$s.win dLogB
+			KillControl/W=$s.win angleB
 			ControlInfo/W=$s.win kwControlBar
 			ControlBar V_Height - kCBOFFSET
 			break
