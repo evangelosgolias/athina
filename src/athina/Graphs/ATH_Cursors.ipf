@@ -349,7 +349,6 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 				Button scaleB, win=$s.win, userdata(ATH_SavedDistanceForScale) = scaleDrawCmd
 				if(str2num(GetUserData(s.win, "scaleB", "ATH_SetScale")))
 					Button scaleB, fcolor=(0,65535,26586), win=$s.win
-					Button drawscaleB, disable = 0, win=$s.win
 				endif
 			endif
 			break
@@ -509,7 +508,6 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 			DrawAction/W=$s.win delete
 			SetDrawLayer/W=$s.win UserFront
 			KillControl/W=$s.win scaleB
-			KillControl/W=$s.win drawscaleB
 			KillControl/W=$s.win modeB
 			KillControl/W=$s.win markB
 			KillControl/W=$s.win closeB

@@ -26,6 +26,7 @@ name: toc
 Installation <files/installation.md>
 The basics <files/thebasics.md>
 Operations <files/operations.md>
+Useful features <files/other_operations.md>
 How-to guides <files/howto.md>
 Best practices <files/best_practices.md>
 ```
