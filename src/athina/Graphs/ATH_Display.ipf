@@ -169,7 +169,8 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break
 				case 68: // D
 					if(s.eventMod & 2) // works with SHIFT + D only!
-						ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
+						// ATH_Graph#DuplicateTopImage() // TODO: Duplicate Graph, share source and style
+						// see WinRecreation(" ", 0)
 					endif
 					break					
 				case 70: // F
@@ -177,6 +178,11 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_Launch#ImageFFTTransform()
 					endif
 					break
+				case 78: // N
+					if(s.eventMod & 2) // works with SHIFT + D only!
+						ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
+					endif
+					break				
 				case 82: // R
 					if(s.eventMod & 2) // works with SHIFT + R only!
 						ATH_iImgRotation#CreatePanel()

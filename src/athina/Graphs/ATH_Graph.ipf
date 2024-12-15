@@ -31,16 +31,16 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static Function DuplicateWaveAndDisplayOfTopImage()
+static Function DuplicateWaveAndDisplayOfTopImage([string grfName])
 	/// Duplicate the graph of an image (2d, 3d wave) along with the wave at its
 	/// data folder (not cwd). 
-	string winNameStr = WinName(0, 1)
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)	
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	DFREF cdfr = GetDataFolderDFR()
-    string duplicateWinNameStr = UniqueName(winNameStr + "_", 6, 1, winNameStr)
+    string duplicateWinNameStr = UniqueName(grfName + "_", 6, 1, grfName)
     string waveNameStr = CreateDataObjectName(cdfr, NameOfWave(wRef) + "_", 1, 0, 5)
     Duplicate wRef, cdfr:$waveNameStr // Copy the wave to the working dir
-    ControlInfo/W=$winNameStr ATH_W3DSlider
+    ControlInfo/W=$grfName ATH_W3DSlider
     if(!V_flag && WaveDims(wRef) == 3) // If there is no 3d axis, there should be a reason.
     	NewImage/G=1/K=1 cdfr:$waveNameStr
     else    	
