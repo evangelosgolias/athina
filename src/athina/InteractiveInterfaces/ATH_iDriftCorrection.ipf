@@ -205,7 +205,7 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 	endif
 	
 	if(gATH_FastMode && s.specialKeyCode)
-		if((s.specialKeyCode == 101 || s.specialKeyCode == 102) && gLayer < gATH_w3dnlayers) // right or up
+		if((s.specialKeyCode == 203 ||s.specialKeyCode == 101 || s.specialKeyCode == 102) && gLayer < gATH_w3dnlayers) // backtab (shift + tab) right or up
 			gLayer+=1
 		elseif((s.specialKeyCode == 100 || s.specialKeyCode == 103) && gLayer) // left or down
 			gLayer-=1

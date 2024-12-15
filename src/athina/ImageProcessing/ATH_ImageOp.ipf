@@ -431,7 +431,7 @@ End
 //End
 
 static Function ImageBackupRotateAndScale(WAVE wRef, variable angle, [variable flipY])
-	/// Backup and rotate image. Create backup in the sourcewave folder.
+	/// Backup and rotate image. Create backup in the source wave folder.
 	/// Math: If the side of the image is a, then the rotated image
 	/// will have side a_rot = a * (cos(angle) + sin(angle))
 	/// @param wRef: 2d or 3d wave	
