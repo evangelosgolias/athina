@@ -649,7 +649,7 @@ static Function RemoveImagesFromImageStack()
 	DoPrompt "ATH_RemoveImagesFromImageStack", nrLayers
 	if(nrLayers > 0 && !V_flag) // TODO: Use negative for backward removal
 		ATH_ImgOp#RemoveImagesFromImageStack(w3dref, startLayer, nrLayers)
-		ATH_Display#RestartWM3DImageSlider(grfName=winNameStr)
+		ATH_Display#RestartW3DImageSlider(grfName=winNameStr)
 	endif
 	return 0
 End
@@ -669,7 +669,7 @@ static Function StackImagesToImageStack()
 		return 1
 	endif
 	if(!ATH_ImgOp#AppendImagesToImageStack(w3dref, selectImagesStr))
-		ATH_Display#RestartWM3DImageSlider(grfName=winNameStr)
+		ATH_Display#RestartW3DImageSlider(grfName=winNameStr)
 	endif	
 	return 0
 End
@@ -701,7 +701,7 @@ static Function InsertImageToStack()
 		ATH_WaveOp#MatchWaveTypes(w3dref, w2dref)
 		ATH_ImgOp#InsertImageToImageStack(w3dref, w2dref, layerN)
 	endif
-	ATH_Display#RestartWM3DImageSlider(grfName=winNameStr)
+	ATH_Display#RestartW3DImageSlider(grfName=winNameStr)
 	return 0	
 End
 

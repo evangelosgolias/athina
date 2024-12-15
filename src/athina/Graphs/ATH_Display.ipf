@@ -98,6 +98,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 		NVAR/Z/SDFR=dfrSld gLayer, gRightLim, gLeftLim, gOriginalHeight
 		SVAR/Z/SDFR=dfrSld imageName
 	endif
+	
 	switch (s.eventCode)
 		case 6:
 			if(is3D)
@@ -191,7 +192,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
 					endif
 					break
-				case 100: // d - not capital here"
+				case 100: // d - not capital here
 					GetMarquee/W=$s.winName // Just check if there is Marquee, no axes.
 					if(V_flag)
 						ATH_Launch#ImageStackAlignmentPartition() // If marquee present launch partition dc
@@ -291,7 +292,7 @@ Function NewImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 			gLayer = sa.curval
 			ModifyImage/W=$sa.win '' plane=gLayer
 		else
-			ATH_Display#RestartWM3DImageSlider(grfName=sa.win)
+			ATH_Display#RestartW3DImageSlider(grfName=sa.win)
 		endif
 	endif
 	
@@ -446,9 +447,9 @@ static Function SetImageRangeTo94Percent()
 	return 0
 End
 
-static Function RestartWM3DImageSlider([string grfName])
+static Function RestartW3DImageSlider([string grfName])
 	// Kill and restart ATH_Display#Append3DImageSlider and restart in case 
-	// of changed in the source 3d wave.
+	// of changes in the source 3d wave.
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	DFREF dfr = $(skATH_W3DImageSliderParentDFR + grfName)
 	NVAR/Z originalHeight = dfr:gOriginalHeight

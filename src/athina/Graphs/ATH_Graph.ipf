@@ -40,7 +40,7 @@ static Function DuplicateWaveAndDisplayOfTopImage()
     string duplicateWinNameStr = UniqueName(winNameStr + "_", 6, 1, winNameStr)
     string waveNameStr = CreateDataObjectName(cdfr, NameOfWave(wRef) + "_", 1, 0, 5)
     Duplicate wRef, cdfr:$waveNameStr // Copy the wave to the working dir
-    ControlInfo/W=$winNameStr WM3DAxis
+    ControlInfo/W=$winNameStr ATH_W3DSlider
     if(!V_flag && WaveDims(wRef) == 3) // If there is no 3d axis, there should be a reason.
     	NewImage/G=1/K=1 cdfr:$waveNameStr
     else    	
