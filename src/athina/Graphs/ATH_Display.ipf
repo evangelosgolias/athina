@@ -169,7 +169,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break
 				case 68: // D
 					if(s.eventMod & 2) // works with SHIFT + D only!
-						// ATH_Graph#DuplicateTopImage() // TODO: Duplicate Graph, share source and style
+						ATH_Graph#DuplicateTopImage() // TODO: Duplicate Graph, shares source and style (not metadata)
 						// see WinRecreation(" ", 0)
 					endif
 					break					
