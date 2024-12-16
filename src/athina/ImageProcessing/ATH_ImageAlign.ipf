@@ -253,17 +253,17 @@ static Function ImgStackCorrelation(WAVE w3d, [variable layerN, int printMode, v
 			if(!selfDrift)
 				if(dx||dy)
 					MatrixOP/O freeLayer = layer(wRefCopy, i)
-					ImageTransform/IOFF={dx, dy, 0} offsetImage freeLayer
-					WAVE M_OffsetImage
-					Rename M_OffsetImage, $("getStacklayer_" + num2str(i))
+					ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D freeLayer
+					WAVE M_Affine
+					Rename M_Affine, $("getStacklayer_" + num2str(i))
 				else
 					MatrixOP/O $("getStacklayer_" + num2str(i)) = layer(wRefCopy, i)
 				endif
 			else
 				if(dx||dy)
-					ImageTransform/IOFF={dx, dy, 0} offsetImage freeLayer
-					WAVE M_OffsetImage
-					Rename M_OffsetImage, $("getStacklayer_" + num2str(i))
+					ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D freeLayer
+					WAVE M_Affine
+					Rename M_Affine, $("getStacklayer_" + num2str(i))
 				else
 					Duplicate freeLayer, $("getStacklayer_" + num2str(i))
 				endif
@@ -446,9 +446,12 @@ static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [varia
 			MatrixOP/O $("getStacklayer_" + num2str(i)) = layer(w3d, i)
 		else
 			MatrixOP/O/FREE getfreelayer = layer(w3d, i)
-			ImageTransform/IOFF={dp[i], dq[i], 0} offsetImage getfreelayer
-			WAVE M_OffsetImage
-			Rename M_OffsetImage, $("getStacklayer_" + num2str(i))
+			ImageInterpolate/APRM={1,0,dp[i],0,1,dq[i],1,0} Affine2D getfreelayer
+			WAVE M_Affine
+			Rename M_Affine, $("getStacklayer_" + num2str(i))
+			//ImageTransform/IOFF={dp[i], dq[i], 0} offsetImage getfreelayer
+			//WAVE M_OffsetImage
+			//Rename M_OffsetImage, $("getStacklayer_" + num2str(i))
 		endif
 
 		if(printMode)
@@ -508,13 +511,13 @@ static Function/WAVE WAVEImgStackPartitionCorrelation(WAVE w1, WAVE w2, [variabl
 	variable dx = x1 - x0
 	variable dy = y1 - y0
 	Duplicate/FREE w1, driftCorrW
-	ImageTransform/IOFF={-dx, -dy, 0} offsetImage driftCorrW
-	WAVE M_OffsetImage
+	ImageInterpolate/APRM={1,0,-dx,0,1,-dy,1,0} Affine2D driftCorrW
+	WAVE M_Affine
 	if(printMode)
 		print "dx=", dx,",dy=", dy
 	endif
-	Duplicate/FREE M_OffsetImage waveRef
-	KillWaves M_OffsetImage
+	Duplicate/FREE M_Affine waveRef
+	KillWaves M_Affine
 	return waveRef
 End
 
@@ -552,13 +555,13 @@ static Function ImgCorrelation(WAVE w1, WAVE w2, string alignedImageStr, [int pr
 	variable dx = x1 - x0
 	variable dy = y1 - y0
 	Duplicate/FREE w1, driftCorrW
-	ImageTransform/IOFF={-dx, -dy, 0} offsetImage driftCorrW
-	WAVE M_OffsetImage
-	Duplicate/O M_OffsetImage, $alignedImageStr
+	ImageInterpolate/APRM={1,0,-dx,0,1,-dy,1,0} Affine2D driftCorrW
+	WAVE M_Affine
+	Duplicate/O M_Affine, $alignedImageStr
 	if(printMode)
 		print "dx=", dx,",dy=", dy
 	endif
-	KillWaves M_OffsetImage
+	KillWaves M_Affine
 	return 0
 End
 

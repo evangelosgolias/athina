@@ -207,7 +207,10 @@ static Function CalculationXMCD3D()
 	return 0
 End
 
-static Function ImageStackAlignmentFullImage()
+static Function ImageStackAlignmentFullImage([int backupWave])
+	///
+	backupWave = ParamIsDefault(backupWave) ? 1 : backupWave
+	///
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	if(!strlen(imgNameTopGraphStr))
@@ -238,8 +241,9 @@ static Function ImageStackAlignmentFullImage()
 	if(V_flag) // User cancelled
 		return -1
 	endif
-	
-	string backupWavePathStr = ATH_DFR#BackupWaveInWaveDF(w3dref)
+	if(backupWave)
+		ATH_DFR#BackupWaveInWaveDF(w3dref)
+	endif
 	int switchWaveCopy = 0
 
 	if(histEq == 1)
@@ -278,18 +282,18 @@ static Function ImageStackAlignmentFullImage()
 		Abort "Please check ImageStackAlignmentFullImage(), method error."
 	endif
 	//Restore the note
-	string copyNoteStr = note($backupWavePathStr)
 	string driftCorrectionNoteStr = "Drift correction using " + StringFromList(algo, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
 	driftCorrectionNoteStr += "Apply histogram equalization: " + StringFromList(histEq, "dummy;Yes;No")+"\n"
 	driftCorrectionNoteStr += "Edge detection method: " + StringFromList(edgeAlgo, "dummy;None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei")+"\n"
 	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(intPixels, "dummy;Yes;No") + "\n"
 	driftCorrectionNoteStr += "Cutoff drift (pixels): " + num2str(cutoff)+"\n"
-	Note/K w3dref,driftCorrectionNoteStr
-	Note w3dref,copyNoteStr
+	Note w3dref,driftCorrectionNoteStr
 End
 
 
-static Function ImageStackAlignmentPartition()
+static Function ImageStackAlignmentPartition([int backupWave])
+	///
+	backupWave = ParamIsDefault(backupWave) ? 1 : backupWave
 	///
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -325,7 +329,9 @@ static Function ImageStackAlignmentPartition()
 		return -1
 	endif
 	
-	string backupWavePathStr = ATH_DFR#BackupWaveInWaveDF(w3dref)
+	if(backupWave)
+		ATH_DFR#BackupWaveInWaveDF(w3dref)
+	endif
 
 	variable left, right, top, bottom
 
@@ -370,7 +376,7 @@ static Function ImageStackAlignmentPartition()
 		Abort "Please check ImageStackAlignmentUsingAFeature(), method error."
 	endif
 	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
-	string copyNoteStr = note($backupWavePathStr)
+	
 	string driftCorrectionNoteStr = "Drift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
 	driftCorrectionNoteStr += "Apply filter:" + StringFromList(filter, "dummy;None;gauss;avg;median;max;min") + ", N = " + num2str(filterN) + ", repeated "+num2str(nrTimes)+" times\n"
 	driftCorrectionNoteStr += "Apply histogram equalization: " + StringFromList(histEq, "dummy;Yes;No")+"\n"
@@ -378,8 +384,7 @@ static Function ImageStackAlignmentPartition()
 	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(intPixels, "dummy;Yes;No") + "\n"
 	driftCorrectionNoteStr += "Cutoff drift (pixels): " + num2str(cutoff)+"\n"
 	KillWaves partitionWave
-	Note/K w3dref,driftCorrectionNoteStr
-	Note w3dref,copyNoteStr
+	Note w3dref,driftCorrectionNoteStr
 End
 
 static Function LinearDriftCorrestionStackABCursors()

@@ -201,7 +201,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				case 100: // d - not capital here
 					GetMarquee/W=$s.winName // Just check if there is Marquee, no axes.
 					if(V_flag)
-						ATH_Launch#ImageStackAlignmentPartition() // If marquee present launch partition dc
+						ATH_Launch#ImageStackAlignmentPartition(backupWave=0) // If marquee present launch partition dc
 					else
 						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
 					endif
