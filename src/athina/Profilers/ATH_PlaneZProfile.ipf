@@ -197,7 +197,7 @@ static Function CreatePanel(DFREF dfr)
 	// Fix it? ATH_Display#NewImg(dfr:M_ExtractedSurface, grfname = grfname)
 	SetAxis/A left
 	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-	ModifyGraph/W=$grfname width = 340 * pntConv, height = 470 * pntConv
+	ModifyGraph/W=$grfname width = 350 * pntConv, height = 470 * pntConv
 	Execute/P/Q "ModifyGraph width=0,height=0"
 	ModifyGraph/Z cbRGB=(65535,65534,49151)
 
@@ -219,10 +219,12 @@ static Function CreatePanel(DFREF dfr)
 	CheckBox OverrideNx,pos={10*pntConv,35*pntConv},size={86.00*pntConv,17.00*pntConv},title="Override: N\\Bx",fSize=13,fColor=(65535,0,0),value=OverrideNx,side=1,proc=ATH_PlaneZProfile#OverrideNx,win=$grfName	
 	CheckBox OverrideNy,pos={110*pntConv,35*pntConv},size={86.00*pntConv,17.00*pntConv},title="N\\By",fSize=13,fColor=(65535,0,0),value=OverrideNy,side=1,proc=ATH_PlaneZProfile#OverrideNy,win=$grfName	
 
-	ValDisplay GcoordX title="G\\Bx:",pos={155*pntConv,35*pntConv},size={100*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled X value of the G cursor"},win=$grfName
-	ValDisplay GcoordY title="G\\By:",pos={255*pntConv,35*pntConv},size={100*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled Y value of the G cursor"},win=$grfName	
-	ValDisplay HcoordX title="H\\Bx:",pos={155*pntConv,55*pntConv},size={100*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled X value of the H cursor"},win=$grfName
-	ValDisplay HcoordY title="H\\By:",pos={255*pntConv,55*pntConv},size={100*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled Y value of the H cursor"},win=$grfName		
+	ValDisplay GcoordX title="G\\Bx:",pos={150*pntConv,35*pntConv},size={80*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled X value of the G cursor"},win=$grfName
+	ValDisplay GcoordY title="G\\By:",pos={230*pntConv,35*pntConv},size={80*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled Y value of the G cursor"},win=$grfName	
+	ValDisplay HcoordX title="H\\Bx:",pos={150*pntConv,55*pntConv},size={80*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled X value of the H cursor"},win=$grfName
+	ValDisplay HcoordY title="H\\By:",pos={230*pntConv,55*pntConv},size={80*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled Y value of the H cursor"},win=$grfName		
+	ValDisplay normGH title="",pos={320*pntConv,45*pntConv},size={50*pntConv,10*pntConv},format="%.2f",value=_NUM:NaN,fSize=13,help={"GH norm"},win=$grfName		
+
 	return 0
 End
 
@@ -308,6 +310,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			ValDisplay GcoordY, value=_NUM:(y0 + C1y*dy),win=$PlaneProfileWin
 			ValDisplay HcoordX, value=_NUM:(x0 + C2x*dx),win=$PlaneProfileWin 
 			ValDisplay HcoordY, value=_NUM:(y0 + C2y*dy),win=$PlaneProfileWin				 
+			ValDisplay normGH, value=_NUM:sqrt( ((C2x-C1x)*dx)^2 + ((C2y-C1y)*dy)^2 ),win=$PlaneProfileWin				 			
 			hookResult = 1
 			break
 		case 5:
@@ -386,7 +389,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 				saveImageStr = CreatedataObjectName(savedfr, targetGraphWin + "_s", 1, 0, 5)
 				ATH_Display#NewImg(savedfr:$saveWaveNameStr, grfName = saveImageStr)
 				variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-				ModifyGraph/W=$saveImageStr width = 330*pntConv, height = 470*pntConv
+				ModifyGraph/W=$saveImageStr width = 350*pntConv, height = 470*pntConv
 				SetAxis/A left
 				Execute/P/Q "ModifyGraph/W=$\""+saveImageStr+"\" width=0,height=0"			
 				colorcnt += 1
