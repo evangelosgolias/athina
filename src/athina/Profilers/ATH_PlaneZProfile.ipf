@@ -3,7 +3,7 @@
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 #pragma IgorVersion  = 9
 #pragma ModuleName = ATH_PlaneZProfile
-#pragma version = 1.01
+#pragma version = 1.1
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -153,8 +153,6 @@ static Function/DF InitialiseFolder()
 	variable/G dfr:gATH_MarkLinesSwitch = 1
 	variable/G dfr:gATH_OverrideNx = 0
 	variable/G dfr:gATH_OverrideNy = 0
-	// Profile width
-	variable/G dfr:gATH_profileWidth = 1
 	// Misc
 	variable/G dfr:gATH_colorcnt = 0
 	return dfr
@@ -188,7 +186,6 @@ static Function CreatePanel(DFREF dfr)
 	NVAR/Z MarkLinesSwitch = dfr:gATH_MarkLinesSwitch
 	NVAR/Z OverrideNx = dfr:gATH_OverrideNx
 	NVAR/Z OverrideNy = dfr:gATH_OverrideNy
-	NVAR/Z profileWidth = dfr:gATH_profileWidth	
 	string grfname = "ATH_ImagePlaneZProf_" + gATH_WindowNameStr
 	WAVE wRef = $gATH_ImagePathname
 	DFREF cdfr = GetDataFolderDFR()
@@ -204,7 +201,7 @@ static Function CreatePanel(DFREF dfr)
 	Execute/P/Q "ModifyGraph width=0,height=0"
 	ModifyGraph/Z cbRGB=(65535,65534,49151)
 
-	ControlBar/W=$grfname 50	
+	ControlBar/W=$grfname 80	
 	AutoPositionWindow/E/M=0/R=$gATH_WindowNameStr
 		
 	SetWindow $grfname userdata(ATH_rootdfrStr) = rootFolderStr // pass the dfr to the button controls
@@ -212,17 +209,20 @@ static Function CreatePanel(DFREF dfr)
 	SetWindow $grfname userdata(ATH_LinkedWinImageSource) = gATH_WindowNameStr 	
 	SetWindow $grfname, hook(MyImagePlaneProfileZHook) = ATH_PlaneZProfile#GraphHookFunction// Set the hook
 
-	SetVariable setNx,pos={10,5},size={85,20.00},title="N\\Bx", fSize=14,fColor=(65535,0,0),value=Nx,limits={1,inf,1},proc=ATH_PlaneZProfile#SetVariableNx
-	SetVariable setNy,pos={97,5},size={70,20.00},title="N\\By", fSize=14,fColor=(65535,0,0),value=Ny,limits={1,inf,1},proc=ATH_PlaneZProfile#SetVariableNy
-	SetVariable profileWidth,pos={135,30.00},size={105,30.00},title="Width (px)", fSize=12,fColor=(65535,0,0),value=profileWidth,limits={1,51,1},proc=ATH_PlaneZProfile#SetVariableProfileWidth
+	SetVariable setNx,pos={10*pntConv,5*pntConv},size={85*pntConv,20.00*pntConv},title="N\\Bx", fSize=14,fColor=(65535,0,0),value=Nx,limits={1,inf,1},proc=ATH_PlaneZProfile#SetVariableNx,win=$grfName	
+	SetVariable setNy,pos={97*pntConv,5*pntConv},size={70*pntConv,20.00*pntConv},title="N\\By", fSize=14,fColor=(65535,0,0),value=Ny,limits={1,inf,1},proc=ATH_PlaneZProfile#SetVariableNy,win=$grfName	
 
-	Button SetScaleButton,pos={180,6},size={70.00,20.00},title="Set Scale",valueColor=(1,12815,52428),help={"Scale X, Y coordinates. "+\
-	"Place markers and press button. Then set X and Y scales as intervals (Xmin, Xmax)"},proc=ATH_PlaneZProfile#SetScaleButton
-	Button SaveProfileButton,pos={260.00,6},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed image profile"},proc=ATH_PlaneZProfile#SaveProfileButton
-	CheckBox DisplayProfiles,pos={250,30.0},size={98.00,17.00},title="Display profiles",fSize=12,value=PlotSwitch,side=1,proc=ATH_PlaneZProfile#CheckboxPlotProfile
-	CheckBox OverrideNx,pos={8,30.00},size={86.00,17.00},title="Override N\\Bx",fSize=12,fColor=(65535,0,0),value=OverrideNx,side=1,proc=ATH_PlaneZProfile#OverrideNx
-	CheckBox OverrideNy,pos={100,30.00},size={86.00,17.00},title="N\\By",fSize=12,fColor=(65535,0,0),value=OverrideNy,side=1,proc=ATH_PlaneZProfile#OverrideNy
-	
+	Button SetScaleButton,pos={180*pntConv,6*pntConv},size={70.00*pntConv,20.00*pntConv},title="Set Scale",valueColor=(1,12815,52428),help={"Scale X, Y coordinates. "+\
+	"Place markers and press button. Then set X and Y scales as intervals (Xmin, Xmax)"},proc=ATH_PlaneZProfile#SetScaleButton,win=$grfName	
+	Button SaveProfileButton,pos={260.00*pntConv,6*pntConv},size={90.00*pntConv,20.00*pntConv},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed image profile"},proc=ATH_PlaneZProfile#SaveProfileButton,win=$grfName	
+	CheckBox DisplayProfiles,pos={10*pntConv,55*pntConv},size={98.00*pntConv,17.00*pntConv},title="Display Profiles",fSize=13,value=PlotSwitch,side=1,proc=ATH_PlaneZProfile#CheckboxPlotProfile,win=$grfName	
+	CheckBox OverrideNx,pos={10*pntConv,35*pntConv},size={86.00*pntConv,17.00*pntConv},title="Override: N\\Bx",fSize=13,fColor=(65535,0,0),value=OverrideNx,side=1,proc=ATH_PlaneZProfile#OverrideNx,win=$grfName	
+	CheckBox OverrideNy,pos={110*pntConv,35*pntConv},size={86.00*pntConv,17.00*pntConv},title="N\\By",fSize=13,fColor=(65535,0,0),value=OverrideNy,side=1,proc=ATH_PlaneZProfile#OverrideNy,win=$grfName	
+
+	ValDisplay GcoordX title="G\\Bx:",pos={155*pntConv,35*pntConv},size={100*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled X value of the G cursor"},win=$grfName
+	ValDisplay GcoordY title="G\\By:",pos={255*pntConv,35*pntConv},size={100*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled Y value of the G cursor"},win=$grfName	
+	ValDisplay HcoordX title="H\\Bx:",pos={155*pntConv,55*pntConv},size={100*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled X value of the H cursor"},win=$grfName
+	ValDisplay HcoordY title="H\\By:",pos={255*pntConv,55*pntConv},size={100*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled Y value of the H cursor"},win=$grfName		
 	return 0
 End
 
@@ -240,6 +240,10 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z C2y = dfr:gATH_C2y
 	NVAR/Z Nx = dfr:gATH_Nx
 	NVAR/Z Ny = dfr:gATH_Ny
+	NVAR/Z x0 = dfr:gATH_x0 
+	NVAR/Z dx = dfr:gATH_dx
+	NVAR/Z y0 = dfr:gATH_y0
+	NVAR/Z dy = dfr:gATH_dy
 	NVAR/Z nLayers =  dfr:gATH_nLayers
 	NVAR/Z OverrideNx = dfr:gATH_OverrideNx
 	NVAR/Z OverrideNy = dfr:gATH_OverrideNy
@@ -247,11 +251,9 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z Xfactor = dfr:gATH_Xfactor
 	NVAR/Z Ystart = dfr:gATH_Ystart
 	NVAR/Z Yend = dfr:gATH_Yend
-	NVAR/Z profileWidth = dfr:gATH_profileWidth
 	variable normGHCursors
-	variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys, slp, i
-	variable makeWaveSwitch = 1
 	variable hookResult = 0
+	string PlaneProfileWin = GetUserData(s.winName, "", "ATH_LinkedWinImagePPZ")
 	SetdataFolder dfr
 	switch(s.eventCode)
 		case 2: // Kill the window
@@ -266,7 +268,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			SetScale/P y, gATH_y0, gATH_dy, w3dRef
 			SetScale/P z, gATH_z0, gATH_dz, w3dRef
 			// Kill window and folder
-			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedWinImagePPZ"))
+			KillWindow/Z $PlaneProfileWin
 			KillDataFolder/Z dfr
 			hookresult = 1
 			break
@@ -283,68 +285,11 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				if(C1x == C2x && C1y == C2y) // Cursors G, H cannot overlap
 					break
 				endif
+			else 
+				break
 			endif
 			WAVE/Z M_ExtractedSurface, ATH_WaveSumProfiles
-			if(profileWidth == 1)
-				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
-			else
-				slp = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
-				if(slp == 0)
-					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-						x1 = C1x
-						x2 = C2x
-						y1 = C1y + i // assume dx = dy = 1
-						y2 = C2y + i
-						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
-						if(makeWaveSwitch)
-							Duplicate/O M_ExtractedSurface, ATH_WaveSumProfiles
-							makeWaveSwitch = 0
-						else
-							ATH_WaveSumProfiles += M_ExtractedSurface
-						endif
-					endfor
-					ATH_WaveSumProfiles /= profileWidth
-				endif
-
-				if(slp == inf)
-					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-						x1 = C1x + i // assume dx = dy = 1
-						x2 = C2x + i
-						y1 = C1y
-						y2 = C2y
-						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
-						if(makeWaveSwitch)
-							Duplicate/O M_ExtractedSurface, ATH_WaveSumProfiles
-							makeWaveSwitch = 0
-						else
-							ATH_WaveSumProfiles += M_ExtractedSurface
-						endif
-					endfor
-					ATH_WaveSumProfiles /= profileWidth
-				endif
-
-				// If s is not 0 or inf do the work here
-				if(slp != 0 && slp != inf)
-					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-						[x1, y1] = ATH_Geometry#GetSinglePointWithDistanceFromLine(C1x, C1y, slp, i)
-						[x2, y2] = ATH_Geometry#GetSinglePointWithDistanceFromLine(C2x, C2y, slp, i)
-						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
-						if(makeWaveSwitch)
-							Duplicate/O M_ExtractedSurface, ATH_WaveSumProfiles
-							makeWaveSwitch = 0
-						else
-							ATH_WaveSumProfiles += M_ExtractedSurface
-						endif
-						// Debug
-						// print x1,y1,x2,y2, "(",C1x, C1y, C2x, C2y,")", "√ ",sqrt((C1x-x1)^2 + (C1y-y1)^2), " | ", sqrt((C2x-x2)^2 + (C2y-y2)^2)
-						// print "Slope: ", slp, "Calc: ", (y2-y1)/(x2-x1), " x", slp * (y2-y1)/(x2-x1)
-						// print i, ":", (y2-y1)/(x2-x1)
-					endfor
-				endif
-				ATH_WaveSumProfiles /= profileWidth
-				Duplicate/O ATH_WaveSumProfiles, M_ExtractedSurface
-			endif
-
+			ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 			normGHCursors = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 			if(!OverrideNx) // Do not override
 				Nx = normGHCursors
@@ -359,6 +304,10 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			endif
 			SetScale/I y, Ystart, Yend, M_ExtractedSurface
 			SetDrawLayer/W=$s.winName UserFront
+			ValDisplay GcoordX, value=_NUM:(x0 + C1x*dx),win=$PlaneProfileWin 
+			ValDisplay GcoordY, value=_NUM:(y0 + C1y*dy),win=$PlaneProfileWin
+			ValDisplay HcoordX, value=_NUM:(x0 + C2x*dx),win=$PlaneProfileWin 
+			ValDisplay HcoordY, value=_NUM:(y0 + C2y*dy),win=$PlaneProfileWin				 
 			hookResult = 1
 			break
 		case 5:
@@ -366,41 +315,6 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			DrawAction/W=$s.winName delete
 			SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 			DrawLine/W=$s.winName C1x, C1y, C2x, C2y
-			slp = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
-			if(slp == 0)
-				x1 = C1x
-				x2 = C1x
-				x3 = C2x
-				x4 = C2x
-				y1 = C1y + 0.5 * profileWidth
-				y2 = C1y - 0.5 * profileWidth
-				y3 = C2y - 0.5 * profileWidth
-				y4 = C2y + 0.5 * profileWidth
-			elseif(slp == inf)
-				print "inf"
-				y1 = C1y
-				y2 = C1y
-				y3 = C2y
-				y4 = C2y
-				x1 = C1x + 0.5 * profileWidth
-				x2 = C1x - 0.5 * profileWidth
-				x3 = C2x - 0.5 * profileWidth
-				x4 = C2x + 0.5 * profileWidth
-			else
-				[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(profileWidth * 0.5, slp)
-				x1 = C1x + xs
-				x2 = C1x - xs
-				x3 = C2x - xs
-				x4 = C2x + xs
-				y1 = C1y + ys
-				y2 = C1y - ys
-				y3 = C2y - ys
-				y4 = C2y + ys
-			endif
-			SetDrawEnv/W=$s.winName gstart, gname=lineProfileWidth
-			SetDrawEnv/W=$s.winName linefgc = (65535,16385,16385,32767), fillbgc= (65535,16385,16385,32767), fillpat = -1, linethick = 0, xcoord = top, ycoord = left
-			DrawPoly/W=$s.winName x1, y1, 1, 1, {x1, y1, x2, y2, x3, y3, x4, y4}
-			SetDrawEnv/W=$s.winName gstop
 			SetDrawLayer/W=$s.winName UserFront
 			hookResult = 1
 			break
@@ -654,136 +568,6 @@ static Function SetVariableNy(STRUCT WMSetVariableAction& sv) : SetVariableContr
 			else
 		      	Ny = nLayers
 		    endif	 
-       	break
-	endswitch
-	SetDataFolder currdfr
-	return 0
-End
-
-static Function SetVariableProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
-	
-	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z Nx = dfr:gATH_Nx
-	NVAR/Z Ny = dfr:gATH_Ny
-	NVAR/Z nLayers =  dfr:gATH_nLayers
-	NVAR/Z Ystart = dfr:gATH_Ystart
-	NVAR/Z Yend = dfr:gATH_Yend
-	NVAR/Z Xfactor = dfr:gATH_Xfactor
-	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
-	SVAR/Z WindowsNameStr = dfr:gATH_WindowNameStr
-	WAVE/Z w3dRef = $ImagePathname
-	variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys,slp, i
-	
-	variable makeWaveSwitch = 1
-
-	SetDataFolder dfr
-	WAVE/Z M_ExtractedSurface
-	switch(sv.eventCode)
-		case 6:
-			profileWidth = sv.dval
-			if(profileWidth == 1)
-				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
-			else
-				slp = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
-				if(slp == 0)
-					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-						x1 = C1x
-						x2 = C2x
-						y1 = C1y + i // assume dx = dy = 1
-						y2 = C2y + i
-						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
-						if(makeWaveSwitch)
-							Duplicate/O M_ExtractedSurface, ATH_WaveSumProfiles
-							makeWaveSwitch = 0
-						else
-							ATH_WaveSumProfiles += M_ExtractedSurface
-						endif
-					endfor
-					ATH_WaveSumProfiles /= profileWidth
-				endif				
-				if(slp == inf)
-					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-						y1 = C1y
-						y2 = C2y
-						x1 = C1x + i // assume dx = dy = 1
-						x2 = C2x + i
-						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
-						if(makeWaveSwitch)
-							Duplicate/O M_ExtractedSurface, ATH_WaveSumProfiles
-							makeWaveSwitch = 0
-						else
-							ATH_WaveSumProfiles += M_ExtractedSurface
-						endif
-					endfor
-					ATH_WaveSumProfiles /= profileWidth
-				endif
-				
-				// If s is not 0 or inf do the work here	
-				if(slp != 0 && slp != inf)			
-					for(i = -(profileWidth/2 -0.5);i < profileWidth/2;i++)
-						[x1, y1] = ATH_Geometry#GetSinglePointWithDistanceFromLine(C1x, C1y, slp, i)
-						[x2, y2] = ATH_Geometry#GetSinglePointWithDistanceFromLine(C2x, C2y, slp, i)
-						ImageTransform/X={Nx, Ny, x1, y1, 0, x2, y2, 0, x2, y2, nLayers} extractSurface w3dRef
-						if(makeWaveSwitch)
-							Duplicate/O M_ExtractedSurface, ATH_WaveSumProfiles
-							makeWaveSwitch = 0
-						else
-							ATH_WaveSumProfiles += M_ExtractedSurface
-						endif
-					endfor
-				endif
-				ATH_WaveSumProfiles /= profileWidth
-				Duplicate/O ATH_WaveSumProfiles, M_ExtractedSurface
-				//KillWaves/Z waveSumProfiles
-			endif
-			SetDrawLayer/W=$WindowsNameStr ProgFront
-			DrawAction/W=$WindowsNameStr delete
-	   		SetDrawEnv/W=$WindowsNameStr linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left			
-			DrawLine/W=$WindowsNameStr C1x, C1y, C2x, C2y
-			slp = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
-			if(slp == 0)
-				x1 = C1x
-				x2 = C1x
-				x3 = C2x
-				x4 = C2x
-				y1 = C1y + 0.5 * profileWidth
-				y2 = C1y - 0.5 * profileWidth
-				y3 = C2y - 0.5 * profileWidth
-				y4 = C2y + 0.5 * profileWidth 
-			elseif(slp == inf)
-			print "inf"
-				y1 = C1y
-				y2 = C1y
-				y3 = C2y
-				y4 = C2y
-				x1 = C1x + 0.5 * profileWidth
-				x2 = C1x - 0.5 * profileWidth
-				x3 = C2x - 0.5 * profileWidth
-				x4 = C2x + 0.5 * profileWidth
-			else
-				[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(profileWidth * 0.5, slp)
-				x1 = C1x + xs
-				x2 = C1x - xs
-				x3 = C2x - xs
-				x4 = C2x + xs
-				y1 = C1y + ys
-				y2 = C1y - ys
-				y3 = C2y - ys
-				y4 = C2y + ys
-			endif
-			SetDrawEnv/W=$WindowsNameStr gstart, gname=lineProfileWidth
-			SetDrawEnv/W=$WindowsNameStr linefgc = (65535,16385,16385,32767), fillbgc= (65535,16385,16385,32767), fillpat = -1, linethick = 0, xcoord = top, ycoord = left
-			DrawPoly/W=$WindowsNameStr x1, y1, 1, 1, {x1, y1, x2, y2, x3, y3, x4, y4}
-			SetDrawEnv/W=$WindowsNameStr gstop
-			SetDrawLayer/W=$WindowsNameStr UserFront
-			SetScale/I y, Ystart, Yend, M_ExtractedSurface
-			SetScale/I x, 0, (round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2)) * Xfactor), M_ExtractedSurface
        	break
 	endswitch
 	SetDataFolder currdfr
