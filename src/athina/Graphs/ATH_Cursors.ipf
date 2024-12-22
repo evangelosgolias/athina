@@ -460,6 +460,7 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 					Cursor/A=1/F/H=1/S=1/C=(65535,43690,0)/N=1/P J $imgNameTopGraphStr 0.5, 0.5
 				endif
 				Button dLogB, fcolor=(65535,0,0), userData(CursorDistanceLogMode) = ""
+				Button markB, disable = 0, win=$s.win
 				SetDrawLayer/W=$s.win UserFront
 				DrawAction/W=$s.win delete
 				TextBox/K/N=distMeanLog
@@ -474,6 +475,8 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 				variable/G dfr:ath_ClickRegisterSwitch
 				variable/G dfr:ath_gposX
 				variable/G dfr:ath_gposY
+				// Disable button
+				Button markB, disable = 2, win=$s.win
 				if(!WaveExists(dfr:DistanceLogger))
 					if(dimW == 1)
 						Make/O/N=(64,2) dfr:DistanceLogger
