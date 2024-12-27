@@ -341,8 +341,8 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			Cursor/W=$parentGraphWin/K H			
 			SetDrawLayer/W=$parentGraphWin ProgFront
 			DrawAction/W=$parentGraphWin delete
-			SVAR/Z ImagePathname = dfr:gATH_ImagePathname
-			WAVE/Z w3dRef = $ImagePathname	
+			// Better use the top graph, in case you've moved the wave
+			WAVE/Z w3dRef = ATH_Graph#TopImageToWaveRef(grfName=s.winName)
 			NVAR/SDFR=dfr gATH_x0
 			NVAR/SDFR=dfr gATH_dx
 			NVAR/SDFR=dfr gATH_y0
@@ -352,6 +352,7 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			SetScale/P x, gATH_x0, gATH_dx, w3dRef
 			SetScale/P y, gATH_y0, gATH_dy, w3dRef
 			SetScale/P z, gATH_z0, gATH_dz, w3dRef
+			Execute/P/Q "KillDataFolder/Z " + GetUserData(s.winName, "", "ATH_rootdfrStr")
 			break
 	endswitch
 End
