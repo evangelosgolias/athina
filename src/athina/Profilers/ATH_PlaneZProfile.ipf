@@ -341,8 +341,8 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			Cursor/W=$parentGraphWin/K H			
 			SetDrawLayer/W=$parentGraphWin ProgFront
 			DrawAction/W=$parentGraphWin delete
-			// Better use the top graph, in case you've moved the wave
-			WAVE/Z w3dRef = ATH_Graph#TopImageToWaveRef(grfName=s.winName)
+			SVAR/Z ImagePathname = dfr:gATH_ImagePathname
+			WAVE/Z w3dRef = $ImagePathname				
 			NVAR/SDFR=dfr gATH_x0
 			NVAR/SDFR=dfr gATH_dx
 			NVAR/SDFR=dfr gATH_y0
