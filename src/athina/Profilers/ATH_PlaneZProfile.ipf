@@ -231,7 +231,6 @@ End
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	/// The line profile is drawn from G to H
-	DFREF currdfr = GetDataFolderDFR()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
 	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
 	WAVE/Z w3dRef = $ImagePathname
@@ -246,6 +245,8 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z dx = dfr:gATH_dx
 	NVAR/Z y0 = dfr:gATH_y0
 	NVAR/Z dy = dfr:gATH_dy
+	NVAR/Z z0 = dfr:gATH_z0
+	NVAR/Z dz = dfr:gATH_dz	
 	NVAR/Z nLayers =  dfr:gATH_nLayers
 	NVAR/Z OverrideNx = dfr:gATH_OverrideNx
 	NVAR/Z OverrideNy = dfr:gATH_OverrideNy
@@ -256,7 +257,6 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	variable normGHCursors
 	variable hookResult = 0
 	string PlaneProfileWin = GetUserData(s.winName, "", "ATH_LinkedWinImagePPZ")
-	SetdataFolder dfr
 	switch(s.eventCode)
 		case 2: // Kill the window
 			// Restore original wave scaling
@@ -274,6 +274,14 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			KillDataFolder/Z dfr
 			hookresult = 1
 			break
+		case 5:
+			SetDrawLayer/W=$s.winName ProgFront
+			DrawAction/W=$s.winName delete
+			SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+			DrawLine/W=$s.winName C1x, C1y, C2x, C2y
+			SetDrawLayer/W=$s.winName UserFront
+			hookResult = 1
+			break			
 		case 7:
 			if(!cmpstr(s.cursorName, "G") || !cmpstr(s.cursorName, "H")) // It should work only with G, H you might have other cursors on the image
 				SetDrawLayer/W=$s.winName ProgFront
@@ -290,7 +298,9 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			else 
 				break
 			endif
-			WAVE/Z M_ExtractedSurface, ATH_WaveSumProfiles
+			DFREF currdfr = GetDataFolderDFR()
+			SetdataFolder dfr
+			WAVE/Z M_ExtractedSurface // it is in dfr!
 			ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 			normGHCursors = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 			if(!OverrideNx) // Do not override
@@ -312,17 +322,26 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			ValDisplay HcoordY, value=_NUM:(y0 + C2y*dy),win=$PlaneProfileWin				 
 			ValDisplay normGH, value=_NUM:sqrt( ((C2x-C1x)*dx)^2 + ((C2y-C1y)*dy)^2 ),win=$PlaneProfileWin				 			
 			hookResult = 1
+			SetdataFolder currdfr
 			break
-		case 5:
-			SetDrawLayer/W=$s.winName ProgFront
-			DrawAction/W=$s.winName delete
-			SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-			DrawLine/W=$s.winName C1x, C1y, C2x, C2y
-			SetDrawLayer/W=$s.winName UserFront
-			hookResult = 1
+		case 8: // We have a Window modification event
+			if(strlen(PlaneProfileWin)) // if profile plot exists (deleted mouseTrackV < 0 condition)
+				NVAR/Z glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(s.winName):gLayer
+				//SetDrawLayer/W=$PlaneProfileWin ProgFront
+				DrawAction/W=$PlaneProfileWin delete
+				SetDrawEnv/W=$PlaneProfileWin xcoord=prel, ycoord=left,linefgc = (65535,0,0) //It should be after the draw action
+				variable zPos = z0 + glayer * dz
+				WAVE/Z extSurfaceW = dfr:M_ExtractedSurface
+				variable yExtSurfPos = DimOffset(extSurfaceW, 1) + gLayer * DimDelta(extSurfaceW, 1)
+				DrawLine/W=$PlaneProfileWin 0, yExtSurfPos, 1, yExtSurfPos
+				TextBox/W=$PlaneProfileWin/F=0/A=LT/C/N=zScaleProfileTag "\\Z12z\Bsc\M\Z12 = " + num2str(yExtSurfPos)
+				hookresult = 1
+				break
+			endif
+			hookresult = 0
 			break
 	endswitch
-	SetdataFolder currdfr
+	
 	return hookResult       // 0 if nothing done, else 1
 End
 
