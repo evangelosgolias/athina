@@ -190,7 +190,7 @@ static Function CreatePanel(DFREF dfr)
 	WAVE wRef = $gATH_ImagePathname
 	DFREF cdfr = GetDataFolderDFR()
 	SetDataFolder dfr
-	ImageTransform/X={ Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface wRef
+	ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface wRef
 	SetDataFolder cdfr 
 	ATH_Display#NewImg(dfr:M_ExtractedSurface, grfname = grfname)
 	// Not good idea to use it now as long as the "i" options interferes with the ControlBar of the profilert
@@ -287,6 +287,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				SetDrawLayer/W=$s.winName ProgFront
 				DrawAction/W=$s.winName delete
 				SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+				// Scale here is p, q
 				C1x = hcsr(G)
 				C1y = vcsr(G)
 				C2x = hcsr(H)
@@ -312,15 +313,21 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			if(OverrideNx)
 				SetScale/I x, 0, (normGHCursors * Xfactor), M_ExtractedSurface
 			else
-				SetScale/I x, 0, (Nx * Xfactor), M_ExtractedSurface
+				if(!strlen(GetUserData(PlaneProfileWin, "SetScaleButton", "SetScalePlaneZProfile")))
+					variable originalScale = sqrt( ((C2x-C1x)*dx)^2 + ((C2y-C1y)*dy)^2 )
+					SetScale/I x, 0, originalScale,  M_ExtractedSurface
+				else
+					SetScale/I x, 0, (Nx * Xfactor), M_ExtractedSurface
+				endif
 			endif
 			SetScale/I y, Ystart, Yend, M_ExtractedSurface
 			SetDrawLayer/W=$s.winName UserFront
 			ValDisplay GcoordX, value=_NUM:(x0 + C1x*dx),win=$PlaneProfileWin 
 			ValDisplay GcoordY, value=_NUM:(y0 + C1y*dy),win=$PlaneProfileWin
 			ValDisplay HcoordX, value=_NUM:(x0 + C2x*dx),win=$PlaneProfileWin 
-			ValDisplay HcoordY, value=_NUM:(y0 + C2y*dy),win=$PlaneProfileWin				 
-			ValDisplay normGH, value=_NUM:sqrt( ((C2x-C1x)*dx)^2 + ((C2y-C1y)*dy)^2 ),win=$PlaneProfileWin				 			
+			ValDisplay HcoordY, value=_NUM:(y0 + C2y*dy),win=$PlaneProfileWin
+			originalScale = sqrt( ((C2x-C1x)*dx)^2 + ((C2y-C1y)*dy)^2 )			 
+			ValDisplay normGH, value=_NUM:originalScale,win=$PlaneProfileWin				 			
 			hookResult = 1
 			SetdataFolder currdfr
 			break
@@ -442,7 +449,7 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable Xstart_l, Xend_l, Ystart_l, Yend_l, Xscale
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			Prompt Xscale, "X-scale: set cursors and enter the calibrating value \n(0: pixel scale, X-scale < 0 : do nothing)"
+			Prompt Xscale, "X-scale: set cursors and enter the calibrating value \n(0: pixel scale,  > 0: user scale,  < 0 : original scale)"
 			Prompt Ystart_l, "Y top value"			
 			Prompt Yend_l, "Y bottom value (Y_bottom < Y_top)"
 			DoPrompt "Set X, Y scale (Zero removes scale)", Xscale, Ystart_l, Yend_l
@@ -455,8 +462,15 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 				Ystart = Yend_l
 				Yend = Ystart_l
 			endif			
-			if(Xfactor >= 0)
+			if(Xfactor == 0)
 				Xfactor = Xscale / sqrt((C1x - C2x)^2 + (C1y - C2y)^2)
+				Button SetScaleButton, userdata(SetScalePlaneZProfile) = "0", win=$B_Struct.win // pixel scale
+			elseif(Xfactor > 0)
+				Xfactor = Xscale / sqrt((C1x - C2x)^2 + (C1y - C2y)^2)
+				Button SetScaleButton, userdata(SetScalePlaneZProfile) = "1", win=$B_Struct.win // user scale
+			else // give a negative number
+				Xfactor = 1
+				Button SetScaleButton, userdata(SetScalePlaneZProfile) = "", win=$B_Struct.win // original scale
 			endif
 		break
 	endswitch
