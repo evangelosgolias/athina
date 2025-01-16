@@ -414,35 +414,32 @@ static Function/WAVE WAVEImageEdgeDetectionToStack(WAVE w3dref, string method)
 	return wRefFREE
 End
 
-//static Function ImageRotateAndScale(WAVE wRef, variable angle)
-//	/// Rotate the wave wRef (2d or 3d) and scale it to 
-//	/// conserve on image distances.
-//	/// Math: If the side of the image is a, then the rotated image
-//	/// will have side a_rot = a * (cos(angle) + sin(angle))
-//	/// @param wRef: 2d or 3d wave
-//	/// @param angle: clockwise rotation in degrees
-//	string rotWaveNameStr = NameOfWave(wRef) + "_rot"
-//	Duplicate/O wRef, $rotWaveNameStr
-//	WAVE wRefRot = $rotWaveNameStr
-//	ImageRotate/O/E=0/A=(angle) wRefRot
-//	string noteStr = NameOfWave(wRef) + " rotated by " + num2str(angle) + " deg"
-//	Note/K wRefRot, noteStr
-//	CopyScales/P wRef, wRefRot // /P needed here to prevent on image distances.	
-//End
 
-static Function ImageBackupRotateAndScale(WAVE wRef, variable angle, [variable flipY])
+static Function ImageRotateAndScale(WAVE wRef, variable angle, [variable backup, variable flipY])
 	/// Backup and rotate image. Create backup in the source wave folder.
 	/// Math: If the side of the image is a, then the rotated image
 	/// will have side a_rot = a * (cos(angle) + sin(angle))
 	/// @param wRef: 2d or 3d wave	
 	/// @param angle: clockwise rotation in degrees
+	/// @param backup: backup wave before rotation
 	/// @param fliY: flip cols
-
+	
+	/// flipY = 1 when Mirror in ON
+	backup = ParamIsDefault(backup) ? 0 : backup
 	flipY = ParamIsDefault(flipY) ? 0 : flipY
-	string backupWaveNameStr = NameOfWave(wRef) + "_undo"
-	DFREF wDFR = GetWavesDataFolderDFR(wRef)
-	Duplicate/O wRef, wDFR:$backupWaveNameStr
-	WAVE wRefbck = wDFR:$backupWaveNameStr	
+	if(backup)
+		string backupWaveNameStr = NameOfWave(wRef) + "_undo"
+		DFREF wDFR = GetWavesDataFolderDFR(wRef)
+		Duplicate/O wRef, wDFR:$backupWaveNameStr
+		WAVE wRefbck = wDFR:$backupWaveNameStr
+	else
+		variable x0 = DimOffset(wRef, 0)
+		variable y0 = DimOffset(wRef, 1)	
+		variable z0 = DimOffset(wRef, 2)			
+		variable dx = DimDelta(wRef, 0)
+		variable dy = DimDelta(wRef, 1)
+		variable dz = DimDelta(wRef, 2)				
+	endif
 	string noteStr = ""
 	if(flipY)
 		ImageTransform flipCols wRef // flip the y-axis
@@ -451,7 +448,13 @@ static Function ImageBackupRotateAndScale(WAVE wRef, variable angle, [variable f
 	ImageRotate/O/E=0/A=(angle) wRef
 	noteStr +="Image rotated by " + num2str(angle) + " deg\n"
 	Note/K wRef, noteStr
-	CopyScales/P wRefbck, wRef // /P needed here to prevent on image distances.	
+	if(backup)
+		CopyScales/P wRefbck, wRef // /P needed here to prevent on image distances.	
+	else
+		SetScale/P x, x0, dx, wRef
+		SetScale/P y, y0, dy, wRef
+		SetScale/P z, z0, dz, wRef				
+	endif
 End
 
 static Function BackupTopImage()

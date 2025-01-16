@@ -197,7 +197,7 @@ Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 			string backupwNameStr = CreatedataObjectName(dfr, gATH_wNameStr + "_rt", 1, 0, 1)
 			Duplicate/O wRef, dfr:$backupwNameStr /WAVE =wCopyRef
 			Note wCopyRef, noteStr
-			ATH_Display#NewImg(wCopyRef)			//*** FALLTHROUGH ***
+			ATH_Display#NewImg(wCopyRef)
 			break
 		case "OverwiteImgB":
 			DoAlert 1, "Do want to ovewrite the source image? You cannot undo the operation"
