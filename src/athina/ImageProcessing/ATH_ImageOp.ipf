@@ -1039,8 +1039,9 @@ static Function ShiftWaveUsingCursors(string graphStr)
 	return 0 	
 End
 
-//static Function MagnifyAndRestoreDims(WAVE wREF, variable factor)
-//	// Magnify an image by a factor (percentage) and return an 
-//	// image with the original size. 
-//	// If the image is magnified we crop.
-//End
+static Function AffineTransformationThreePoint(WAVE src, WAVE dest, WAVE srcP, WAVE destP, WAVE coeff)
+	variable a11, a12, tx, a21, a22, ty
+	WAVE w  = ATH_Transform#GetAffine2DMapping(srcP, destP)
+	ImageInterpolate/APRM={w[0],w[1],w[2],w[3],w[4],w[5],1,0}/DEST=dest Affine2D src
+	return 0
+End

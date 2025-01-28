@@ -1383,3 +1383,13 @@ static Function CloseTopWindowAndDeleteSource()
 	endif
 	
 End
+
+static Function AffineTransformationThreePoints()
+	// Launch a panel and select two images, src and dest
+	// Use cursors A, B & C to mark three points
+	// Use the affine transform to the dest wrt src image
+	// *_affine2d in created.
+	
+	// Completet the function
+	
+End
