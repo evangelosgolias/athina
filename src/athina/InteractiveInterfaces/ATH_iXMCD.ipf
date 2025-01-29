@@ -43,7 +43,7 @@ static Function MenuLaunch()
 	string wave1NameStr = StringFromList(0, selectedWavesStr)
 	string wave2NameStr = StringFromList(1, selectedWavesStr)
 	if(nrSelectedWaves != 2 || WaveDims($wave1NameStr) != 2 || WaveDims($wave2NameStr) != 2)
-		DoAlert/T="MAXPEEM would like you to know that you have to ..." 1, "Please " +\
+		DoAlert/T="athina would like you to know that you have to ..." 1, "Please " +\
 				  "select two images, i.e two 2d waves, non-RGB. \n" + \
 				  "Do you want a another chance with the browser selection?"
 		if(V_flag == 1)
@@ -61,9 +61,6 @@ static Function MenuLaunch()
 		return -1
 	endif
 	
-	if(!cmpstr(wave1NameStr, wave2NameStr))
-		print "Ok, you are subtracting a wave from itself! I hope you know what you are doing."
-	endif
 	// Create variables for the Panel. NB; Data Folders for panels can be overwritten
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveXMCD:") 
 	string folderNameStr = CreateDataObjectName(dfr, "iXMCD_DF",11, 0, 0)
