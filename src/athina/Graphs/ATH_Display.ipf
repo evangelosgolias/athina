@@ -138,7 +138,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				ModifyImage/W=$s.winName '' plane=gLayer
 				hookResult = 1
 			endif
-			//break
+			break
 		case 8: //ModifyImage/W=$grfName '' plane=XX
 			variable plane = ATH_ImgOp#GetLayerIndex(s.winName, w=w)
 			if (gLayer != plane)
