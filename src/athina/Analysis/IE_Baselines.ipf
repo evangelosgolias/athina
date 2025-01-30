@@ -2,7 +2,7 @@
 #pragma rtGlobals=3
 #pragma version=5.13
 #pragma IgorVersion=7
-#pragma ModuleName=baselines
+#pragma ModuleName=Baselines
 #pragma DefaultTab={3,20,4}
 #pragma hide=1
 
@@ -194,9 +194,9 @@ static constant    kPrefsVersion   = 120
 //end
 
 #if IgorVersion() >= 9
-menu "DataBrowserObjectsPopup"
-	"Start Baseline Correction", /Q, Baselines#BrowserInit()
-end
+//menu "DataBrowserObjectsPopup"
+//	"Start Baseline Correction", /Q, Baselines#BrowserInit()
+//end
 
 static function BrowserInit()
 	int i
