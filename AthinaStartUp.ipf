@@ -3,7 +3,7 @@
 #pragma IgorVersion=9.0
 
 //******************************************************************************
-//	Start MAXPEEM
+//	Start athina
 //******************************************************************************
 Function ATH_AthinaLauncher()
 	if(!strlen(FunctionList("CreateDataFolderGetDFREF",";","KIND:18,WIN:ATH_DFR.ipf")))
@@ -49,7 +49,9 @@ Function ATH_AthinaLauncher()
 		Execute/P "INSERTINCLUDE \"ATH_String\""
 		Execute/P "INSERTINCLUDE \"ATH_TextWaves\""
 		Execute/P "INSERTINCLUDE \"ATH_WaveOp\""
-		Execute/P "INSERTINCLUDE \"ATH_Export\""				
+		Execute/P "INSERTINCLUDE \"ATH_Export\""
+		Execute/P "INSERTINCLUDE \"IE_Baselines\""
+		Execute/P "INSERTINCLUDE \"IE_FastFitting\""								
 		Execute/P "COMPILEPROCEDURES "
 	else
 		Execute/P "DELETEINCLUDE \"ATH_Func\""
@@ -94,7 +96,9 @@ Function ATH_AthinaLauncher()
 		Execute/P "DELETEINCLUDE \"ATH_String\""
 		Execute/P "DELETEINCLUDE \"ATH_TextWaves\""
 		Execute/P "DELETEINCLUDE \"ATH_WaveOp\""
-		Execute/P "DELETEINCLUDE \"ATH_Export\""						
+		Execute/P "DELETEINCLUDE \"ATH_Export\""
+		Execute/P "DELETEINCLUDE \"IE_Baselines\""
+		Execute/P "DELETEINCLUDE \"IE_FastFitting\""								
 		Execute/P "COMPILEPROCEDURES "
 	endif
 	return 0
@@ -104,6 +108,6 @@ End
 //	Menu item in MACROS
 //******************************************************************************
 Menu "Macros", dynamic
-	//	Nothing is displayed after MAXPEEM is started
+	//	Nothing is displayed after athina is started
 	SelectString(strlen(FunctionList("CreateDataFolderGetDFREF",";","KIND:18,WIN:ATH_DFR.ipf")), "Launch athina", "Unload athina"), /Q, ATH_AthinaLauncher()
 End
