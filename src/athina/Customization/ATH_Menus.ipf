@@ -94,11 +94,15 @@ Menu "athina"
 	End	
 		
 	Submenu "Analysis"
-		"Fast Fitting (1D, 2D, 3D)", /Q, FastFit#Initialise()
-		"Remove Baselines (1D)", /Q, Baselines#Initialise()
-		"Extract XPS profile from image (TG, 2D)", /Q, ATH_iXPS#MainMenu()
-		"Extract XPS profile from saved settings (DB, 2D)", /Q, ATH_Launch#XPSProfileFromDefaultSettings()
-		"Subtract background(TG, 1D) ", /Q, BackgroundSubtractGUI()
+		Submenu "Fitting"
+			"Fast Fitting (1D, 2D, 3D)", /Q, FastFit#Initialise()
+			"Remove Baselines (1D)", /Q, Baselines#Initialise()
+		End
+		Submenu "XPS"
+			"Extract XPS profile from image (TG, 2D)", /Q, ATH_iXPS#MainMenu()
+			"Extract XPS profile from saved settings (DB, 2D)", /Q, ATH_Launch#XPSProfileFromDefaultSettings()
+			"Subtract background(TG, 1D) ", /Q, BackgroundSubtractGUI()
+		End
 	End	
 	
 	Submenu "Utilities"
