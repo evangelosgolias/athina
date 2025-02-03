@@ -5780,21 +5780,21 @@ static function/wave AkimaIota(wave knotX, wave knotY)
 		return $""
 	endif
  	 
-	Make/D/N=(numKnots)/free kX, kY
-	kX = knotX
-	kY = knotY
+	Make/D/N=(numKnots)/free kXF, kYF
+	kXF = knotX
+	kYF = knotY
  
 	// Handle end-point extrapolation
 	Make/D/N=5/free endX, endY
 	
 	// RHS: end points are last three in dataset
-	endX[0,2] = kX[p+numKnots-3]
-	endY[0,2] = kY[p+numKnots-3]
+	endX[0,2] = kXF[p+numKnots-3]
+	endY[0,2] = kYF[p+numKnots-3]
  
 	AkimaEndPoints(endX, endY)
  	
- 	kX[numpnts(kX)] = {endX[3],endX[4]}
- 	kY[numpnts(kY)] = {endY[3],endY[4]}
+ 	kXF[numpnts(kXF)] = {endX[3],endX[4]}
+ 	kYF[numpnts(kYF)] = {endY[3],endY[4]}
 
 	// LHS: end points are first three in dataset, but reversed in ordering
 	// (i.e. point 3 in Akima's notation == index 0)
@@ -5806,14 +5806,14 @@ static function/wave AkimaIota(wave knotX, wave knotY)
  
 	AkimaEndPoints(endX, endY)
 	
-	InsertPoints 0, 2, kX, kY
-	kX[0,1] = endX[4-p]
-	kY[0,1] = endY[4-p]
+	InsertPoints 0, 2, kXF, kYF
+	kXF[0,1] = endX[4-p]
+	kYF[0,1] = endY[4-p]
  
 	// kX, kY are now properly populated, including extrapolated endpoints
  
 	Make/D/FREE/N=(numKnots + 4 - 1) mK
-	mK = (kY[p+1]-kY)/(kX[p+1]-kX)
+	mK = (kYF[p+1]-kYF)/(kXF[p+1]-kXF)
  
 	Make/free/N=(numKnots) w_Iota
 	w_Iota = ( abs(mK[p+3]-mK[p+2])*mK[p+1] + abs(mK[p+1]-mK[p])*mK[p+2] ) / (abs(mK[p+3]-mK[p+2])+abs(mK[p+1]-mK))
@@ -5824,21 +5824,21 @@ end
 // Given: 5-point knot wave knotX, knotY, with i=[0,2] representing the last three
 // knot locations from data, compute end knots i=[3,4] appropriately.
 // kX and kY hold node X, Y coordinates, respectively
-threadsafe static function AkimaEndPoints(wave kX, wave kY)
+threadsafe static function AkimaEndPoints(wave kXW, wave kYW)
  
 	// compute X locations of knots, eq. 8 of Akima 1970:
-	kX[3] = kX[1] + kX[2] - kX[0]
-	kX[4] = 2*kX[2] - kX[0]
+	kXW[3] = kXW[1] + kXW[2] - kXW[0]
+	kXW[4] = 2*kXW[2] - kXW[0]
  
 	// eq. (12)-(14), determine gradient on [0,1]
 	Make/N=4/free mi
-	mi = (kY[p+1]-kY)/(kX[p+1]-kX)
+	mi = (kYW[p+1]-kYW)/(kXW[p+1]-kXW)
  
 	// Determine remainder of quantities by applying solutions of eq (9)
-	kY[3] = (2*mi[1] - mi[0])*(kX[3] - kX[2]) + kY[2]
-	mi[2] = (kY[3] - kY[2]) / (kX[3] - kX[2])
+	kYW[3] = (2*mi[1] - mi[0])*(kXW[3] - kXW[2]) + kYW[2]
+	mi[2] = (kYW[3] - kYW[2]) / (kXW[3] - kXW[2])
  
-	kY[4] = (2*mi[2] - mi[1])*(kX[4] - kX[3]) + kY[3]
+	kYW[4] = (2*mi[2] - mi[1])*(kXW[4] - kXW[3]) + kYW[3]
 	// not sure why the next line was included
 	//mi[3] = (kY[4] - kY[3]) / (kX[4] - kX[3])
 end
