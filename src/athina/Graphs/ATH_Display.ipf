@@ -143,6 +143,13 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			variable plane = ATH_ImgOp#GetLayerIndex(s.winName, w=w)
 			if (gLayer != plane)
 				gLayer = plane
+			else // For example, zoom-in using the marquee
+				if(is3D)
+					winWidth = s.winRect.right - s.winRect.left
+					pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
+					Slider ATH_W3DSlider,size={winWidth*0.8*pntConv,15},win=$s.winName
+					SetVariable ATH_W3DSliderVar,pos={winWidth*0.835*pntConv, gOriginalHeight+5},win=$s.winName
+				endif
 			endif
 			break
 		case 2: // kill
