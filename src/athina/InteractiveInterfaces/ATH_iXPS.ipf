@@ -481,12 +481,12 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 				if(WinType(targetGraphWin) == 1)
 					AppendToGraph/W=$targetGraphWin savedfr:$saveWaveNameStr
 					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
-					Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
+					Modifygraph/W=$targetGraphWin rgb($PossiblyQuoteName(saveWaveNameStr)) = (red, green, blue)
 					colorcnt += 1 // i++ does not work with globals?
 				else
 					Display/N=$targetGraphWin savedfr:$saveWaveNameStr // Do not kill the graph windows, user might want to save the profiles
 					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
-					Modifygraph/W=$targetGraphWin rgb($saveWaveNameStr) = (red, green, blue)
+					Modifygraph/W=$targetGraphWin rgb($PossiblyQuoteName(saveWaveNameStr)) = (red, green, blue)
 					AutopositionWindow/R=$B_Struct.win $targetGraphWin
 					DoWindow/F $targetGraphWin
 					colorcnt += 1

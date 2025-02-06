@@ -248,10 +248,17 @@ static Function ProjectedBandStructure(WAVE wRef, WAVE wProj, [string tracename,
 	else
 		ATH_VASP#PlotBandStructure(wRef, grfName = grfName, tracename = tracename)
 	endif
-	ModifyGraph/W=$grfName mode=3,marker=8
 	
 	bsPlotNameStr = PossiblyQuoteName(bsPlotNameStr)
 	string dfrStr = GetWavesDataFolder(wProj, 1)
+	
+	//
+	// *** IF YOU WANT MARKERS ***
+	//
+	// START
+	
+	// ModifyGraph/W=$grfName mode=3,marker=8
+
 	// Run the zeroth wave - ill defined
 	sprintf cmd, "ModifyGraph/W="+grfName+" mode("+bsPlotNameStr+")=3,marker("+bsPlotNameStr+")=8, rgb("+bsPlotNameStr+")=(%d,%d,%d)", red, green, blue
 	Execute cmd	
@@ -260,13 +267,31 @@ static Function ProjectedBandStructure(WAVE wRef, WAVE wProj, [string tracename,
 	
 	// Modify the rest
 	for (i = 1; i< nbands;i+=1)
-		// Uncomment to use false-color map
-		//	sprintf cmd, "ModifyGraph/W="+winNameStr+" zColor(Eigenvals"+spincmpStr+"#%d)={"+projWaveNameStr+"[%d][*],0," + num2str(cmapMax)+",Rainbow,0}", i, i
-		//	Execute cmd
-		// Use markers, edit here to change appearence
 		sprintf cmd, "ModifyGraph/W="+grfName+" mode("+bsPlotNameStr+"#%d)=3,marker("+bsPlotNameStr+"#%d)=8, rgb("+bsPlotNameStr+"#%d)=(%d,%d,%d)", i, i, i, red, green, blue
 		Execute cmd
 		sprintf cmd, "ModifyGraph/W="+grfName+" zmrkSize("+bsPlotNameStr+"#%d)={"+(dfrStr+projWaveNameStr)+"[%d][*],*,*,0,5}", i, i
 		Execute cmd
 	endfor
+
+	// 
+	// END
+	//
+	
+	// -----------------------------------
+	//
+	// *** IF YOU WANT COLORMAP ***
+	//
+	//
+	// START
+	//
+//	string cmap = "BrownViolet"
+//	sprintf cmd, "ModifyGraph/W="+grfName+" zColor(eigenvalues)={"+projWaveNameStr+"[0][*],0,1,"+cmap+",0}"
+//	Execute cmd
+//	for (i = 1; i< nbands;i+=1)
+//		sprintf cmd, "ModifyGraph/W="+grfName+" zColor(eigenvalues"+"#%d)={"+projWaveNameStr+"[%d][*],0,1,"+cmap+",0}", i, i
+//		Execute cmd
+//	endfor
+	// 
+	// END
+	//	
 End
