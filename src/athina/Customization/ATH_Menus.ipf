@@ -184,5 +184,5 @@ Menu "GraphPopup" // Right click not on a trace or in the margin of an image
 End
 
 Menu "AllTracesPopup" // Use SHIFT + right click
-	"ATH Close and delete (TG)", /Q, ATH_Launch#CloseTopWindowAndDeleteSource()
+	"ATH Close and delete (TG)", /Q, ATH_Launch#CloseTopWindowAndDeleteSource(deleteBackUp=1)
 End

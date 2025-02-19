@@ -139,12 +139,10 @@ static Function/DF InitialiseFolder()
 	if(dx!=1 && dy!=1)
 		variable/G dfr:gATH_Ystart = z0
 		variable/G dfr:gATH_Yend = z0 + (nlayers - 1) * dz
-		variable/G dfr:gATH_XScale = normGHCursors
-		variable/G dfr:gATH_Xfactor = normGHCursors/NxGH
+		variable/G dfr:gATH_Xfactor = normGHCursors/NxGH // assume homogenous kx, ky
 	else
 		variable/G dfr:gATH_Ystart = 0
 		variable/G dfr:gATH_Yend = 0
-		variable/G dfr:gATH_XScale = 0
 		variable/G dfr:gATH_Xfactor = 1
 	endif
 	
@@ -241,12 +239,12 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z C2y = dfr:gATH_C2y
 	NVAR/Z Nx = dfr:gATH_Nx
 	NVAR/Z Ny = dfr:gATH_Ny
-	NVAR/Z x0 = dfr:gATH_x0 
+	NVAR/Z x0 = dfr:gATH_x0
 	NVAR/Z dx = dfr:gATH_dx
 	NVAR/Z y0 = dfr:gATH_y0
 	NVAR/Z dy = dfr:gATH_dy
 	NVAR/Z z0 = dfr:gATH_z0
-	NVAR/Z dz = dfr:gATH_dz	
+	NVAR/Z dz = dfr:gATH_dz
 	NVAR/Z nLayers =  dfr:gATH_nLayers
 	NVAR/Z OverrideNx = dfr:gATH_OverrideNx
 	NVAR/Z OverrideNy = dfr:gATH_OverrideNy
@@ -254,7 +252,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	NVAR/Z Xfactor = dfr:gATH_Xfactor
 	NVAR/Z Ystart = dfr:gATH_Ystart
 	NVAR/Z Yend = dfr:gATH_Yend
-	variable normGHCursors
+	variable normGHCursors, NxScale
 	variable hookResult = 0
 	string PlaneProfileWin = GetUserData(s.winName, "", "ATH_LinkedWinImagePPZ")
 	switch(s.eventCode)
@@ -281,7 +279,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			DrawLine/W=$s.winName C1x, C1y, C2x, C2y
 			SetDrawLayer/W=$s.winName UserFront
 			hookResult = 1
-			break			
+			break
 		case 7:
 			if(!cmpstr(s.cursorName, "G") || !cmpstr(s.cursorName, "H")) // It should work only with G, H you might have other cursors on the image
 				SetDrawLayer/W=$s.winName ProgFront
@@ -296,7 +294,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				if(C1x == C2x && C1y == C2y) // Cursors G, H cannot overlap
 					break
 				endif
-			else 
+			else
 				break
 			endif
 			DFREF currdfr = GetDataFolderDFR()
@@ -322,12 +320,12 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			endif
 			SetScale/I y, Ystart, Yend, M_ExtractedSurface
 			SetDrawLayer/W=$s.winName UserFront
-			ValDisplay GcoordX, value=_NUM:(x0 + C1x*dx),win=$PlaneProfileWin 
+			ValDisplay GcoordX, value=_NUM:(x0 + C1x*dx),win=$PlaneProfileWin
 			ValDisplay GcoordY, value=_NUM:(y0 + C1y*dy),win=$PlaneProfileWin
-			ValDisplay HcoordX, value=_NUM:(x0 + C2x*dx),win=$PlaneProfileWin 
+			ValDisplay HcoordX, value=_NUM:(x0 + C2x*dx),win=$PlaneProfileWin
 			ValDisplay HcoordY, value=_NUM:(y0 + C2y*dy),win=$PlaneProfileWin
-			originalScale = sqrt( ((C2x-C1x)*dx)^2 + ((C2y-C1y)*dy)^2 )			 
-			ValDisplay normGH, value=_NUM:originalScale,win=$PlaneProfileWin				 			
+			originalScale = sqrt( ((C2x-C1x)*dx)^2 + ((C2y-C1y)*dy)^2 )
+			ValDisplay normGH, value=_NUM:originalScale,win=$PlaneProfileWin
 			hookResult = 1
 			SetdataFolder currdfr
 			break
@@ -348,7 +346,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			hookresult = 0
 			break
 	endswitch
-	
+
 	return hookResult       // 0 if nothing done, else 1
 End
 
@@ -462,10 +460,10 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 				Ystart = Yend_l
 				Yend = Ystart_l
 			endif			
-			if(Xfactor == 0)
-				Xfactor = Xscale / sqrt((C1x - C2x)^2 + (C1y - C2y)^2)
+			if(Xscale == 0)
+				Xfactor = 1
 				Button SetScaleButton, userdata(SetScalePlaneZProfile) = "0", win=$B_Struct.win // pixel scale
-			elseif(Xfactor > 0)
+			elseif(Xscale > 0)
 				Xfactor = Xscale / sqrt((C1x - C2x)^2 + (C1y - C2y)^2)
 				Button SetScaleButton, userdata(SetScalePlaneZProfile) = "1", win=$B_Struct.win // user scale
 			else // give a negative number
@@ -476,6 +474,7 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	endswitch
 	return 0
 End
+
 static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
@@ -564,7 +563,7 @@ static Function SetVariableNx(STRUCT WMSetVariableAction& sv) : SetVariableContr
 				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
 				WAVE ww = M_ExtractedSurface
 				SetScale/I x, 0, (normGHCursors * Xfactor), ww
-				SetScale/I y, Ystart, Yend, ww
+				//SetScale/I y, Ystart, Yend, ww
 			else
 		       	Nx = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 		    endif
@@ -601,7 +600,7 @@ static Function SetVariableNy(STRUCT WMSetVariableAction& sv) : SetVariableContr
 				WAVE ww = M_ExtractedSurface
 				normGHCursors = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
 				SetScale/I y, Ystart, Yend, ww
-				SetScale/I x, 0, (normGHCursors * Xfactor), ww
+				//SetScale/I x, 0, (normGHCursors * Xfactor), ww
 			else
 		      	Ny = nLayers
 		    endif	 

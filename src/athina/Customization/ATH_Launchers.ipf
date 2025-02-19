@@ -1369,19 +1369,30 @@ static Function HistogramEqualisation()
 	return 0
 End
 
-static Function CloseTopWindowAndDeleteSource()
+static Function CloseTopWindowAndDeleteSource([int deleteBackUp])
 	// Close topwindow and delete the top image or trace
+	deleteBackUp = ParamIsDefault(deleteBackUp) ? 0 : deleteBackUp		
 	string grfName =  WinName(0, 1, 1)
 	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef(grfName = grfName)
-	if(WaveExists(wRef))
-		KillWindow/Z $grfName
-		Killwaves/Z wRef
+	if(!WaveExists(wRef))
+		return -1
 	else
-		WAVE/Z wRef = ATH_Graph#TopImageToWaveRef(grfName = grfName)
-		KillWindow $grfName
-		KillWaves/Z wRef
-	endif
-	
+		KillWindow/Z $grfName
+	endif	
+	if(deleteBackUp) // Check first and then delete the wRef!!
+		DFREF saveDF = GetDataFolderDFR()
+		SetDataFolder $GetWavesDataFolder(wRef, 1)
+		WAVE/Z wRefBck = $(NameOfWave(wRef) + "_undo")
+		if(WaveExists(wRefBck))
+			Killwaves/Z wRefBck, wRef
+			SetDataFolder saveDF
+		else
+			Killwaves/Z wRef
+			SetDataFolder saveDF
+		endif
+	endif	
+
+	return 0
 End
 
 // TODO: FIXME

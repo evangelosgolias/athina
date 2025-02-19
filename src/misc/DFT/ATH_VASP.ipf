@@ -262,14 +262,14 @@ static Function ProjectedBandStructure(WAVE wRef, WAVE wProj, [string tracename,
 	// Run the zeroth wave - ill defined
 	sprintf cmd, "ModifyGraph/W="+grfName+" mode("+bsPlotNameStr+")=3,marker("+bsPlotNameStr+")=8, rgb("+bsPlotNameStr+")=(%d,%d,%d)", red, green, blue
 	Execute cmd	
-	sprintf cmd, "ModifyGraph/W="+grfName+" zmrkSize("+bsPlotNameStr+")={"+(dfrStr+projWaveNameStr)+"[0][*],*,*,0,5}"
+	sprintf cmd, "ModifyGraph/W="+grfName+" zmrkSize("+bsPlotNameStr+")={"+(dfrStr+projWaveNameStr)+"[0][*],0,1,0,10}"
 	Execute cmd	
 	
 	// Modify the rest
 	for (i = 1; i< nbands;i+=1)
 		sprintf cmd, "ModifyGraph/W="+grfName+" mode("+bsPlotNameStr+"#%d)=3,marker("+bsPlotNameStr+"#%d)=8, rgb("+bsPlotNameStr+"#%d)=(%d,%d,%d)", i, i, i, red, green, blue
 		Execute cmd
-		sprintf cmd, "ModifyGraph/W="+grfName+" zmrkSize("+bsPlotNameStr+"#%d)={"+(dfrStr+projWaveNameStr)+"[%d][*],*,*,0,5}", i, i
+		sprintf cmd, "ModifyGraph/W="+grfName+" zmrkSize("+bsPlotNameStr+"#%d)={"+(dfrStr+projWaveNameStr)+"[%d][*],0,1,0,10}", i, i
 		Execute cmd
 	endfor
 
