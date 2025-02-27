@@ -871,6 +871,20 @@ static Function SumImagePlanes()
 	return 0
 End
 
+static Function FlipStackPlanes()
+
+	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
+	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
+		print "SumImagePlanes() needs an image stack in top graph."
+		return -1
+	endif
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder GetWavesDataFolderDFR(wRef)
+	ImageTransform flipPlanes wRef
+	SetDataFolder saveDF
+	return 0
+End
+
 static Function AverageImageStack()
 	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
 	variable nlayers = DimSize(wRef,2)	
