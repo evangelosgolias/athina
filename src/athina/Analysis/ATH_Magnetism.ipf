@@ -199,7 +199,7 @@ End
 //	Function to calculate an XMLD map. The function ATH_FuncFit#XMLDIntensity is fitted to 
 //  all beams of a 3D wave containing data from XMLD images obtained with different inclination
 //  angles (direction of the E-field of x-rays). Model assumets that XMLD singal follows the 
-//  relationship I = A + B * sin(x + φ)^2, where A, B and φ are the fitting parameters.
+//  relationship I = A + B * cos(2*x + φ)^2, where A, B and φ are the fitting parameters.
 //
 //	## Parameters
 //	wRef : WAVE
@@ -241,7 +241,7 @@ static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angle
 	// V_FitError = 0 // Set it to zero before the fit
 	// FuncFit/Q/ODR=1 ...
 	// if(V_FitError)
-	//     // deal with the erroe
+	//     // deal with the error
 	//     continue
 	// endif
 	//	
@@ -281,13 +281,13 @@ static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angle
 	WAVE woff = $(mapNameStr+"_Off")
 	WAVE wfact = $(mapNameStr+"_y0")
 	// Get the fitting stuff ready
-	// K0 + K1 * sin(x + K2)^2
+	// K0 + K1 * sin(2*x + K2)
 	Make/FREE/D/N=3 ATH_Coef
 	Make/FREE/T/N=3 ATH_Constraints = {"K1 > 1.0e-5", "K2 > -pi/2", "K2 <= pi/2"}
 	Make/FREE/N=(layers) freeData
 	SetScale/P x, lowAngleDeg , angleStepRad, freeData // Careful here
 	variable V_chisq
-	Make/FREE seedW = {0, 0.5, -0.5, 1, -1, 2, -2} // EDIT HERE: Add your initial guesses
+	Make/FREE seedW = {0.1, 0.4, -0.45} // EDIT HERE: Add your initial guesses ... run a few of these
 	variable numSeeds = DimSize(seedW, 0)
 	Make/O/D/N=(numSeeds, 4, 1024, 1024) ATH_FitCoeff
 	for(i = 0; i < rows; i++)
@@ -297,7 +297,7 @@ static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angle
 			MatrixOP/O/S freeData = beam(wRef, i, j)
 			cnt = 0
 			for(cnt = 0;cnt < numSeeds; cnt++)
-				ATH_Coef = {1, 1, seedW[cnt]} // Initialise
+				ATH_Coef = {0.003, 0.01, seedW[cnt]} // Initialise
 				FuncFit/Q ATH_FuncFit#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints	
 				ATH_FitCoeff[cnt][,][i][j] = {{ATH_Coef[0]}, {ATH_Coef[1]}, {ATH_Coef[2]}, {V_chisq}} // Fill in ATH_FitCoeff
 			endfor
@@ -315,4 +315,91 @@ static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angle
 		endfor
 	endfor
 	KillWaves/Z W_sigma, fit__free_ // Cleanup the garbage
+End
+
+/// Helping functions moved from ATH_Cursors
+/// Beam fitting map
+/// Generic interaction using a cursor and a CallbackFunction
+
+static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef)
+	/// Interactive operation using a callback function
+	/// ATH_Cursors#CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
+	//
+	// WAVE wSrc - 3D Wave with XMLD images for different angles
+	//
+	ATH_Display#NewImg(wRef)
+	string winNameStr = WinName(0, 1, 1)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	// Use cursor C
+	variable nrows = DimSize(wRef, 0)
+	variable ncols = DimSize(wRef, 1)	
+	Cursor/I/C=(65535,0,0)/S=1/P/N=1 J $imgNameTopGraphStr nrows/2, ncols/2
+	// Make folder in database
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr) // Root folder here
+	// Store globals
+	string/G dfr:gATH_wRefPath = GetWavesDataFolder(wRef, 2)
+	string/G dfr:gATH_wSrcPath = GetWavesDataFolder(wSrc, 2)
+	// Hook and metadata
+	SetWindow $winNameStr, hook(MyiCursorActionHook) = ATH_Magnetism#iCursorUsingCallbackHookFunction // Set the hook
+	SetWindow $winNameStr, userdata(MyiCursorWin) = winNameStr
+	SetWindow $winNameStr, userdata(ATH_iCursorDFR) = "root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr
+	Display/N=$(winNameStr + "_iFitPlot")/K=1
+	DoWindow/F $winNameStr
+	SetWindow $winNameStr, userdata(MyiplotWin) = winNameStr + "_iFitPlot"
+	return 0
+End
+
+static Function iCursorUsingCallbackHookFunction(STRUCT WMWinHookStruct &s)
+	variable hookResult = 0
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr)
+	string plotNameStr = GetUserData(s.winName, "", "MyiplotWin")
+	SVAR/SDFR=dfr gATH_wRefPath, gATH_wSrcPath
+	WAVE/Z wRef = $gATH_wRefPath
+	WAVE/Z wSrc = $gATH_wSrcPath
+	switch(s.eventCode)
+		case 2:
+			KillWindow/Z $plotNameStr
+			KillDataFolder/Z dfr
+			break
+		case 7: // cursor moved
+			if(!cmpstr(s.cursorName, "J")) // It should work only with E, F you might have other cursors on the image
+				CursorCallBack(wSrc, wRef, s.pointNumber, s.ypointNumber) // Function using row, column
+				//CursorCallBack3(wRef, s.pointNumber, s.ypointNumber) // Function using row, column
+			endif
+			hookResult = 1
+			break
+			hookresult = 1
+			break
+		case 11: // Keyboard event
+			if(s.keycode == 27) //  Esc
+				SetWindow $s.winName, hook(MyiCursorActionHook) = $""
+				Cursor/K/W=$s.winName B
+				KillDataFolder/Z dfr
+			endif
+	endswitch
+	return hookResult       // 0 if nothing done, else 1
+End
+
+static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
+	
+	DFREF dfr = $GetUserData("", "", "ATH_iCursorDFR")
+	DFREF wdfr = GetWavesDataFolderDFR(wRef)
+	string winNameStr = GetUserData("", "", "MyiCursorWin")
+	string plotNameStr = GetUserData("", "", "MyiplotWin")	
+	MatrixOP/O dfr:cursorBeamProfile = beam(wSrc, p0, q0)
+	WAVE wOff = wdfr:$(NameOfWave(wRef)+"_Off")
+	WAVE wy0 = wdfr:$(NameOfWave(wRef)+"_y0")
+	Make/O dfr:fitPlotW /WAVE=wsin
+	SetScale/I x, -pi/2, pi/2, wsin, dfr:cursorBeamProfile // EDIT HERE
+	variable xOff = wOff[p0][q0]
+	variable xy0 = wy0[p0][q0]
+	variable phase = wRef[p0][q0]*pi/180 // sin() needs rad
+	wsin = xOff + xy0 * sin(x + phase)^2
+	RemoveFromGraph/W=$plotNameStr/ALL
+	AppendToGraph/W=$plotNameStr dfr:cursorBeamProfile
+	ModifyGraph/W=$plotNameStr mode(cursorBeamProfile)=3,marker(cursorBeamProfile)=19,msize(cursorBeamProfile)=4
+	AppendToGraph/W=$plotNameStr wsin 
+	ModifyGraph/W=$plotNameStr lsize(fitPlotW)=2,rgb(fitPlotW)=(1,16019,65535)
+	return 0
 End

@@ -1369,10 +1369,10 @@ static Function HistogramEqualisation()
 	return 0
 End
 
-static Function CloseTopWindowAndDeleteSource([int deleteBackUp])
+static Function CloseTopWindowAndDeleteSource([int deleteBackUp, string grfName])
 	// Close topwindow and delete the top image or trace
-	deleteBackUp = ParamIsDefault(deleteBackUp) ? 0 : deleteBackUp		
-	string grfName =  WinName(0, 1, 1)
+	deleteBackUp = ParamIsDefault(deleteBackUp) ? 0 : deleteBackUp
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef(grfName = grfName)
 	if(!WaveExists(wRef))
 		return -1

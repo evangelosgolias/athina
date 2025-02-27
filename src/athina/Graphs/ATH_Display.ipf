@@ -171,7 +171,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			switch(s.keycode)
 				case 66: // B
 					if(s.eventMod & 2)
-						ATH_ImgOp#RestoreTopImageFromBackup(wname=NameOfWave(w))
+						ATH_ImgOp#RestoreTopImageFromBackup()
 					endif
 					break
 				case 68: // D

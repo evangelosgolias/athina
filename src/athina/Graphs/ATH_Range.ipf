@@ -4,7 +4,7 @@
 #pragma IgorVersion = 9
 #pragma version = 1.1
 
-/// *** The present code is an adapted copy from SIDAM project
+/// *** The present code is a modified version of SIDAM project
 /// see https://github.com/yuksk/SIDAM ***
 
 // ------------------------------------------------------- //

@@ -116,9 +116,9 @@ static Function FitFermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : Fit
 End
 
 // All-at-once
-static Function FitXMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+static Function XMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
-	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(x + yw[2])^2
+	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(x + yw[2])
 	//CurveFitDialog/ 	
 	//CurveFitDialog/ Independent Variables 1
 	//CurveFitDialog/ E	
@@ -129,7 +129,7 @@ static Function FitXMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	yw = pw[0] + pw[1] * sin(xw - pw[2])^2
 End
 
-static Function FitXMLDIntensityWtGradient(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+static Function XMLDIntensityWtGradient(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(x + yw[2])^2
 	//CurveFitDialog/ 	
@@ -142,7 +142,7 @@ static Function FitXMLDIntensityWtGradient(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	yw = pw[0] + pw[1] * xw + pw[2] * sin(xw + pw[2])^2
 End
 
-static Function FitGaussian2D(WAVE pw, WAVE yw, WAVE wx, WAVE wy) : Fitfunc
+static Function Gaussian2D(WAVE pw, WAVE yw, WAVE wx, WAVE wy) : Fitfunc
 
 	//pw[0]: const bck
 	//pw[1]: Amplitude
@@ -167,7 +167,7 @@ static Function FitGaussian2D(WAVE pw, WAVE yw, WAVE wx, WAVE wy) : Fitfunc
 	
 End 
 
-static Function FitFocusSTV(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+static Function FocusSTV(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ f(STV) = f0 + a * sqrt(STV)
 	//CurveFitDialog/ 

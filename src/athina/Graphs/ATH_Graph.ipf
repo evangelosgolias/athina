@@ -59,6 +59,10 @@ Function DuplicateTopImage([string grfName])
 	// N.B Only style commmands are used for the duplicate
 	// window, no metadata or hooks.
 	//
+	
+	// TODO FIX: When duplicating with and /EXT window on you
+	// get a string of commands for the /EXT window, which is not there
+	// so there are errors. Try to filter out these commands.
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	string recCmd = WinRecreation(grfName, 0)
@@ -68,7 +72,7 @@ Function DuplicateTopImage([string grfName])
 	matchStr += ListMatch(recCmd, "*ModifyGraph*", "\r")	
 	matchStr += ListMatch(recCmd, "*SetAxis*", "\r")	
 	matchStr = ReplaceString("\r\t", matchStr, ";")
-	Execute/P/Q matchStr
+	Execute/P/Q/Z matchStr
 End
 
 static Function TextAnnotationOnTopGraph(string text, [variable fSize, string color])
