@@ -195,6 +195,8 @@ static Function XMCDStack4L(WAVE wRef, [string order, int overwrite, string outW
 	return 0
 End
 
+/// -------------------------------------- XMLD Map --------------------------------------------//
+
 //@
 //	Function to calculate an XMLD map. The function ATH_FuncFit#XMLDIntensity is fitted to 
 //  all beams of a 3D wave containing data from XMLD images obtained with different inclination
@@ -234,7 +236,7 @@ End
 //
 
 static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angleStepDeg)
-
+	
 	// In FuncFit if you want to use Trust-region Levenberg-Marquardt ordinary least-squares method
 	// Do the folowing
 	// variable V_FitError
@@ -281,40 +283,30 @@ static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angle
 	WAVE woff = $(mapNameStr+"_Off")
 	WAVE wfact = $(mapNameStr+"_y0")
 	// Get the fitting stuff ready
-	// K0 + K1 * sin(2*x + K2)
+	// K0 + K1 * sin(x + K2)^2
 	Make/FREE/D/N=3 ATH_Coef
-	Make/FREE/T/N=3 ATH_Constraints = {"K1 > 1.0e-5", "K2 > -pi/2", "K2 <= pi/2"}
+	Make/FREE/T/N=2 ATH_Constraints = {"K2 > -1.5708", "K2 <= 1.5708"}
 	Make/FREE/N=(layers) freeData
-	SetScale/P x, lowAngleDeg , angleStepRad, freeData // Careful here
-	variable V_chisq
-	Make/FREE seedW = {0.1, 0.4, -0.45} // EDIT HERE: Add your initial guesses ... run a few of these
-	variable numSeeds = DimSize(seedW, 0)
-	Make/O/D/N=(numSeeds, 4, 1024, 1024) ATH_FitCoeff
+	SetScale/P x, lowAngleRad , angleStepRad, freeData // Careful here
+	Make/O/D/N=(rows, cols, 3) ATH_FitCoeff
 	for(i = 0; i < rows; i++)
 		for(j = 0; j < cols; j++)
 			// /S keeps scaling.
-			// NOTE: If you add /FREE here the scaling will be lost!!!
-			MatrixOP/O/S freeData = beam(wRef, i, j)
-			cnt = 0
-			for(cnt = 0;cnt < numSeeds; cnt++)
-				ATH_Coef = {0.003, 0.01, seedW[cnt]} // Initialise
-				FuncFit/Q ATH_FuncFit#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints	
-				ATH_FitCoeff[cnt][,][i][j] = {{ATH_Coef[0]}, {ATH_Coef[1]}, {ATH_Coef[2]}, {V_chisq}} // Fill in ATH_FitCoeff
-			endfor
+			MatrixOP/O/S freeData = beam(wRef, i, j) // N.B. If you add /FREE here the scaling will be lost!!!
+			WaveStats/M=1/Q freeData // Makes it slower, but initial guess is better. Is it helpful?
+			ATH_Coef = {V_avg, V_max-V_min, V_maxloc/pi} // Initialise, with something reasonable
+			FuncFit/Q ATH_Magnetism#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints	
+			ATH_FitCoeff[i][j][] = ATH_Coef[r] // Fill in ATH_FitCoeff			
 		endfor
 	endfor
-	WaveStats/M=1/PCST ATH_FitCoeff
-	WAVE M_WaveStats
 	for(i = 0; i < rows; i++)
 		for(j = 0; j < cols; j++)
-			cnt = M_WaveStats[%minLoc][3][i][j] // Min V_chisq
-			// Fill in the 2D waves with y0, A, and φ.
-			woff[i][j] =  ATH_FitCoeff[cnt][0][i][j]
-			wfact[i][j] = ATH_FitCoeff[cnt][1][i][j]
-			wphase[i][j] = ATH_FitCoeff[cnt][2][i][j]*180/pi
+			woff[i][j] =  ATH_FitCoeff[i][j][0]
+			wfact[i][j] = ATH_FitCoeff[i][j][1]
+			wphase[i][j] = ATH_FitCoeff[i][j][2]*180/pi
 		endfor
 	endfor
-	KillWaves/Z W_sigma, fit__free_ // Cleanup the garbage
+	KillWaves/Z W_sigma, ATH_FitCoeff, fit__free_ // Cleanup the garbage
 End
 
 /// Helping functions moved from ATH_Cursors
@@ -402,4 +394,17 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	AppendToGraph/W=$plotNameStr wsin 
 	ModifyGraph/W=$plotNameStr lsize(fitPlotW)=2,rgb(fitPlotW)=(1,16019,65535)
 	return 0
+End
+
+static Function XMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+	//CurveFitDialog/ Equation:
+	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(x + yw[2])
+	//CurveFitDialog/ 	
+	//CurveFitDialog/ Independent Variables 1
+	//CurveFitDialog/ E	
+	//CurveFitDialog/ Coefficients 6
+	//CurveFitDialog/ w[0] = baseline
+	//CurveFitDialog/ w[1] = Amplitute
+	//CurveFitDialog/ w[2] = phase
+	yw = pw[0] + pw[1] * sin(xw + pw[2])^2
 End
