@@ -285,7 +285,7 @@ static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angle
 	// Get the fitting stuff ready
 	// K0 + K1 * sin(x + K2)^2
 	Make/FREE/D/N=3 ATH_Coef
-	Make/FREE/T/N=2 ATH_Constraints = {"K2 > -1.5708", "K2 <= 1.5708"}
+	Make/FREE/T/N=2 ATH_Constraints = {"K2 > -1.55334", "K2 <= 1.5708"}
 	Make/FREE/N=(layers) freeData
 	SetScale/P x, lowAngleRad , angleStepRad, freeData // Careful here
 	Make/O/D/N=(rows, cols, 3) ATH_FitCoeff
@@ -294,7 +294,9 @@ static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angle
 			// /S keeps scaling.
 			MatrixOP/O/S freeData = beam(wRef, i, j) // N.B. If you add /FREE here the scaling will be lost!!!
 			WaveStats/M=1/Q freeData // Makes it slower, but initial guess is better. Is it helpful?
-			ATH_Coef = {V_avg, V_max-V_min, V_maxloc/pi} // Initialise, with something reasonable
+			// Initialise, with something reasonable
+			// Note sin(x+pw[2])^2, that why -V_maxloc/pi
+			ATH_Coef = {V_avg, V_max-V_min, -V_maxloc/pi} 
 			FuncFit/Q ATH_Magnetism#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints	
 			ATH_FitCoeff[i][j][] = ATH_Coef[r] // Fill in ATH_FitCoeff			
 		endfor
