@@ -767,9 +767,9 @@ static Function ImageRotateAndScaleFromMetadata()
 		return -1
 	endif	
 	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave	
-	variable angle = (-1) * NumberByKey("FOVRot(deg)", note(wRef), ":", "\n")
+	variable angle = NumberByKey("FOVRot(deg)", note(wRef), ":", "\n")
 	string noteStr = note(wRef)
-	ATH_ImgOp#ImageRotateAndScale(wRef, angle, backup=1) // Flip rows and rotate
+	ATH_ImgOp#ImageRotateAndScale(wRef, -angle, backup=1) // Flip rows and rotate
 	Note wRef, noteStr
 End
 

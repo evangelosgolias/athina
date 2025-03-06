@@ -66,7 +66,7 @@ static Function CreatePanel()
 	string/G dfr:gATH_wNameStr = NameOfWave(wRef)
 	string/G dfr:gATH_wBackupPathNameStr = GetWavesDataFolder(dfr:$backupNameStr, 2)
 	variable/G dfr:gATH_Angle = 0 // Not set
-	variable/G dfr:gATH_FlipCols = 0
+	variable/G dfr:gATH_FlipRows = 0
 	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 	NewPanel/K=1/EXT=0/N=iImageRotation/W=(0,0,300*pntConv,130*pntConv)/HOST=$winNameStr
 	
@@ -78,8 +78,8 @@ static Function CreatePanel()
 	Slider RotAngleSlider,ticks=50, fSize=12*pntConv,variable=dfr:gATH_Angle,proc=ATH_iImgRotation#SliderProc,win=$pnlName
 	SetVariable RotAngle, title="Set angle",fSize=14*pntConv,size={120*pntConv,20*pntConv},win=$pnlName
 	SetVariable RotAngle, pos={40*pntConv,70*pntConv}, value = dfr:gATH_Angle, proc=ATH_iImgRotation#SetAngle,win=$pnlName
-	CheckBox FlipColsCB,pos={180*pntConv,70.00*pntConv},size={98.00*pntConv,17.00*pntConv},win=$pnlName
-	CheckBox FlipColsCB,fcolor=(65535,0,0),title="Flip y-axis",fSize=14,value=0,side=1,win=$pnlName,proc=ATH_iImgRotation#FlipColsCheckBox
+	CheckBox FlipRowsCB,pos={180*pntConv,70.00*pntConv},size={98.00*pntConv,17.00*pntConv},win=$pnlName
+	CheckBox FlipRowsCB,fcolor=(65535,0,0),title="Flip y-axis",fSize=14,value=0,side=1,win=$pnlName,proc=ATH_iImgRotation#FlipRowsCheckBox
 	Button SaveImgB, title="Save copy",size={80*pntConv,20*pntConv},pos={20*pntConv,100*pntConv},proc=ATH_iImgRotation#iRotButton,win=$pnlName,win=$pnlName
 	Button OverwiteImgB, title="Overwite ",size={70*pntConv,20*pntConv}, pos={110*pntConv,100*pntConv},proc=ATH_iImgRotation#iRotButton,win=$pnlName
 	Button RestoreImageRotB, title="Restore",size={80*pntConv,20*pntConv},pos={190*pntConv,100*pntConv},win=$pnlName
@@ -94,9 +94,9 @@ static Function CreatePanel()
 	return 0
 End
 
-static Function FlipColsCheckBox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
+static Function FlipRowsCheckBox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_iRotateFolder"))
-	NVAR/SDFR=dfr gATH_FlipCols
+	NVAR/SDFR=dfr gATH_FlipRows
 	SVAR/SDFR=dfr gATH_wPathname
 	WAVE wRef = $gATH_wPathname
 	SVAR/SDFR=dfr gATH_wBackupPathNameStr	
@@ -104,15 +104,15 @@ static Function FlipColsCheckBox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 		
 	switch(cb.checked)
 		case 1:
-			gATH_FlipCols = 1
-			CheckBox FlipColsCB fColor=(2,39321,1)
-			MatrixOP/O wRefFREE = reverseCols(wRef)
+			gATH_FlipRows = 1
+			CheckBox FlipRowsCB fColor=(2,39321,1), win=$cb.win
+			MatrixOP/O wRefFREE = reverseRows(wRef)
 			Duplicate/O wRefFREE, wRef
 			break
 		case 0:
-			gATH_FlipCols = 0
-			CheckBox FlipColsCB,fcolor=(65535,0,0)
-			MatrixOP/O wRefFREE = reverseCols(wRef)
+			gATH_FlipRows = 0
+			CheckBox FlipRowsCB,fcolor=(65535,0,0), win=$cb.win
+			MatrixOP/O wRefFREE = reverseRows(wRef)
 			Duplicate/O wRefFREE, wRef
 			break
 	endswitch
@@ -217,13 +217,13 @@ Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 	NVAR/SDFR=dfr gATH_Angle
 	WAVE wRef = $gATH_wPathname
 	WAVE wRefbck = $gATH_wBackupPathNameStr
-	NVAR/SDFR=dfr gATH_FlipCols	
+	NVAR/SDFR=dfr gATH_FlipRows	
 	string noteStr
 	strswitch (ba.ctrlName)
 		case "SaveImgB":
 			DFREF dfr = GetWavesDataFolderDFR(wRef)
 			noteStr = gATH_wPathname + " rotated by " + num2str(gATH_Angle) + " deg "
-			if(gATH_FlipCols)
+			if(gATH_FlipRows)
 				noteStr += "[Flipped y-axis (ImageTransform flipCols w)]."
 			endif			
 			string backupwNameStr = CreatedataObjectName(dfr, gATH_wNameStr + "_rot", 1, 0, 1)
@@ -235,7 +235,7 @@ Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 			DoAlert 1, "Do want to ovewrite the source image? You cannot undo the operation"
 			if(V_Flag == 1)
 				noteStr = gATH_wPathname + " rotated by " + num2str(gATH_Angle) + " deg "
-				if(gATH_FlipCols)
+				if(gATH_FlipRows)
 					noteStr += "[Flipped y-axis (ImageTransform flipCols w)]."
 				endif
 				Note wRef, noteStr
@@ -246,8 +246,8 @@ Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 			break
 		case "RestoreImageRotB":
 			Duplicate/O wRefbck, wRef
-			gATH_FlipCols = 0
-			CheckBox FlipColsCB,fcolor=(65535,0,0),value=0,win=$ba.win
+			gATH_FlipRows = 0
+			CheckBox FlipRowsCB,fcolor=(65535,0,0),value=0,win=$ba.win
 			gATH_Angle = 0 // Set angle to zero
 			break
 	endswitch
@@ -258,7 +258,7 @@ End
 static Function ImageRestoreAndRotate(WAVE source, WAVE dest, variable angle)
 	/// Rotate dest, restore source
 	Duplicate/O source, dest
-	ImageRotate/Q/O/A=(angle)/E=0 dest
+	ImageRotate/Q/O/A=(-angle)/E=0 dest
 	return 0
 End
 
