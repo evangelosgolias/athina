@@ -106,13 +106,13 @@ static Function FlipRowsCheckBox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 		case 1:
 			gATH_FlipRows = 1
 			CheckBox FlipRowsCB fColor=(2,39321,1), win=$cb.win
-			MatrixOP/O wRefFREE = reverseRows(wRef)
+			MatrixOP/FREE wRefFREE = reverseRows(wRef)
 			Duplicate/O wRefFREE, wRef
 			break
 		case 0:
 			gATH_FlipRows = 0
 			CheckBox FlipRowsCB,fcolor=(65535,0,0), win=$cb.win
-			MatrixOP/O wRefFREE = reverseRows(wRef)
+			MatrixOP/FREE wRefFREE = reverseRows(wRef)
 			Duplicate/O wRefFREE, wRef
 			break
 	endswitch

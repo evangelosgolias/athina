@@ -161,7 +161,7 @@ static Function CalculationXMCD()
 	WAVE w2d2 = $wave2Str
 	DFREF currDFR = GetDataFolderDFR()
 	string saveWaveName = CreatedataObjectName(currDFR, "XMCD", 1, 0, 1)
-	ATH_Magnetism#XMCD(w2d1, w2d2, outWave = saveWaveName)
+	ATH_Magnetism#CalculateXMCD(w2d1, w2d2, outWave = saveWaveName)
 	string noteStr = "ATH_Magnetism#XMCD("+ wave1Str + ","+\
 	wave2Str+", outWave=" + saveWaveName + ")"
 	Note $saveWaveName, noteStr
@@ -203,7 +203,7 @@ static Function CalculationXMCD3D()
 	endif
 	WAVE w3d1 = $wave1Str
 	WAVE w3d2 = $wave2Str
-	ATH_Magnetism#XMCD3D(w3d1, w3d2)
+	ATH_Magnetism#CalculateXMCD3D(w3d1, w3d2)
 	return 0
 End
 
@@ -999,10 +999,10 @@ static Function XMCDCombinations()
 						+ "layers. \nDo you want to continue?"
 		DoAlert/T="Too many layers will be created ...", 1, alertStr
 		if(V_flag == 1)
-			ATH_Magnetism#XMCDComb(w3d)
+			ATH_Magnetism#CalculateXMCDComb(w3d)
 		endif	
 	else 
-		ATH_Magnetism#XMCDComb(w3d)
+		ATH_Magnetism#CalculateXMCDComb(w3d)
 	endif
 	return 0
 End
