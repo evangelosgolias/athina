@@ -5,6 +5,18 @@
 #pragma ModuleName = ATH_XPSData
 #pragma version = 1.01
 
+/// 10.03.2025
+/// Note for Auger energy levels.
+/// I used the Handbook of X-ray Photoelectron spectroscopy to compile the database
+/// used in athina. To derive the kinetic energies I used the reference:
+/// Lascovich, J.C.; Giorgi, R.; Scaglione, S. 
+/// Evaluation of the sp2/sp3 ratio in amorphous carbon structure by XPS and XAES. 
+/// Appl. Surf. Sci. 1991, 47, 17–21
+/// for the kinetic energy of C Auger peak in graphite at 269 eV using Al Ka: 1486.6 eV.
+/// So, as KVV in the handook is at 1223 eV BE, we calculate a work function of 5.4 eV
+/// based on which all the kinetic energies will be calculated.
+
+
 // Adapted with major modifications from:
 // Evangelos Golias (22.02.2023)
 // Photoionisation cross-section datasets in the 2d wave were downloaded from
@@ -159,7 +171,7 @@ Static Function PTInitPanel()
 		gATH_OrbitalOrder+= "Md4p_CS;Md5d_E;Md5d_CS;Md5f_E;Md5f_CS;Md5p_E;Md5p_CS;Md5s_E;Md5s_CS;Md6d_E;Md6d_CS;Md6p_E;Md6p_CS;Md6s_E;Md6s_CS;No4d_E;No4d_CS;No4f_E;No4f_CS;No4p_E;No4p_CS;No5d_E;No5d_CS;No5f_E;No5f_CS;No5p_E;No5p_CS;No5s_E;No5s_CS;No6d_E;No6d_CS;No6p_E;No6p_CS;No6s_E;No6s_CS;Lr4d_E;Lr4d_CS;Lr4f_E;Lr4f_CS;Lr4p_E;"
 		gATH_OrbitalOrder+= "Lr4p_CS;Lr5d_E;Lr5d_CS;Lr5f_E;Lr5f_CS;Lr5p_E;Lr5p_CS;Lr5s_E;Lr5s_CS;Lr6d_E;Lr6d_CS;Lr6p_E;Lr6p_CS;Lr6s_E;Lr6s_CS;"
 		
-		variable/G scf=defaultscale, kill=1, scfpN = 1, ghv = 150, gwf = 4.5, gKE = 1, gPhCs = 1, gCL = 0, gEhigh = 300, gElow = 20
+		variable/G scf=defaultscale, kill=1, scfpN = 1, ghv = 150, gwf = 4.5, gKE = 1, gPhCs = 0, gCL = 0, gAuger = 0, gEhigh = 300, gElow = 20
 		variable/G ptleft=0, pttop=0
 		
 		make/N=(maxelem) AtNr
@@ -210,6 +222,7 @@ Static Function PTDisplayPanel()
 	NVAR gwf = root:Packages:ATH_DataFolder:XPSReferenceData:gwf
 	NVAR gkE = root:Packages:ATH_DataFolder:XPSReferenceData:gKE
 	NVAR gCL = root:Packages:ATH_DataFolder:XPSReferenceData:gCL
+	NVAR gAuger = root:Packages:ATH_DataFolder:XPSReferenceData:gAuger
 	NVAR gPhCs = root:Packages:ATH_DataFolder:XPSReferenceData:gPhCs	
 	wave Col= root:Packages:ATH_DataFolder:XPSReferenceData:Col
 	
@@ -238,12 +251,18 @@ Static Function PTDisplayPanel()
 
 	DefaultGUIControls/W=XPSReferenceDataPanel native
 
-
 	string cl2edge  = "\nCore level to absorption edge\n\n"
 	cl2edge += "K 1s\n\n"+"L1 2s\n"+"L2 2p1/2\n"+"L3 2P3/2\n\n"+"M1 3s\n"+"M2 3p1/2\n"+"M3 3p3/2\n"
 	cl2edge += "M4 3d3/2\n"+"M5 3d5/2\n\n"+"N1 4s\n"+"N2 4p1/2\n"+"N3 4p3/2\n"+"N4 4d3/2\n"
 	cl2edge += "N5 4d5/2\n"+"N6 4f5/2\n"+"N7 457/2\n\n"+"01 5s\n"+"02 5p1/2\n"+"03 5p3/2\n\n"+"P1 6s\n" 
 	cl2edge += "P2 6p1/2\n"+"P3 6p3/2\n"
+	
+	string energyModeStr
+	if(gkE)
+		energyModeStr = "KE"
+	else 
+		energyModeStr = "BE"
+	endif
 	
 	SetDrawLayer UserBack
 	
@@ -379,19 +398,21 @@ Static Function PTDisplayPanel()
 	Button ShowButton0, fsize=gscf*dfs, fColor=(57346,65535,49151)
 	Button ClearButton0, pos={left+bw, top+7.5*bh},size={32.00*gscf,25.00*gscf},proc=ATH_XPSData#ClearButtonProc,title="Clear"
 	Button ClearButton0, fsize=gscf*dfs, fColor=(65535,49151,55704)
-
-	CheckBox CoreLevelsButton0, pos={left+5*bw, top-0.25*bh},size={32.00*gscf,25.00*gscf}, title="Core Levels"
-	CheckBox CoreLevelsButton0, fsize=gscf*dfs, fColor=(49151,65535,49151), variable=gCL,value = 1, help={cl2edge}	
-	CheckBox PhCrossSectionsButton0, pos={left+12.5*bw, top-0.25*bh},size={32.00*gscf,25.00*gscf}, title="Ph. Cross Sections"
-	CheckBox PhCrossSectionsButton0, fsize=gscf*dfs, fColor=(49151,49152,65535), variable=gPhCs,value = 1
-	CheckBox KEButton0, pos={left+9*bw, top-0.25*bh},size={32.00*gscf,25.00*gscf}, title="KE"
-	CheckBox KEButton0, fsize=gscf*dfs, variable=gKE, value = 0, fColor=(65535,65535,65535)	
+	Button KEButton0, pos={left+9.1*bw, top-0.25*bh},fColor=(49151,65535,49151), size={32.00*gscf,10.00*gscf}, title=energyModeStr
+	Button KEButton0, fsize=gscf*dfs, fColor=(65535,54611,49151), help={"Toggle Kinetic or Binding Energy"}, proc=ATH_XPSData#KEButtonProc
+	
+	CheckBox CoreLevelsButton0, pos={left+4.5*bw, top-0.25*bh},size={32.00*gscf,25.00*gscf}, title="Photo"
+	CheckBox CoreLevelsButton0, fsize=gscf*dfs,fColor=(49151,65535,49151),variable=gCL,value = 0, help={cl2edge}
+	CheckBox AugerPeaksButton0, pos={left+6.5*bw, top-0.25*bh},fColor=(49151,65535,49151),size={32.00*gscf,25.00*gscf}, title="Auger"
+	CheckBox AugerPeaksButton0, fsize=gscf*dfs, fColor=(49151,65535,49151),variable=gAuger,value = 1, help={"Show Auger peaks"}		
+	CheckBox PhCrossSectionsButton0, pos={left+12.5*bw, top-0.25*bh},size={32.00*gscf,25.00*gscf}, title="Cross Sections"
+	CheckBox PhCrossSectionsButton0, fsize=gscf*dfs, fColor=(49151,49152,65535), variable=gPhCs,value = 0
 
 	SetVariable hvSetVariable0, pos={left+8.5*bw, top+0.7*bh},size={50*gscf,25.00*gscf}, title="hv"
-	SetVariable hvSetVariable0, fsize=gscf*dfs,value=ghv,fColor=(49151,60031,65535), proc=ATH_XPSData#SetVariableFunction
+	SetVariable hvSetVariable0, fsize=gscf*dfs,value=ghv,fColor=(65535,0,0), proc=ATH_XPSData#SetVariableFunction
 
 	SetVariable wfSetVariable0, pos={left+8.5*bw, top+1.8*bh},size={50*gscf,25.00*gscf}, title="wf"
-	SetVariable wfSetVariable0, fsize=gscf*dfs,value=gwf,fColor=(49151,60031,65535), proc=ATH_XPSData#SetVariableFunction
+	SetVariable wfSetVariable0, fsize=gscf*dfs,value=gwf,fColor=(2,39321,1), proc=ATH_XPSData#SetVariableFunction
 
 	SetVariable ElowSetVariable0, pos={left+5*bw, top+0.7*bh},size={50*gscf,25.00*gscf}, title="E\\Bmin"
 	SetVariable ElowSetVariable0, fsize=gscf*dfs,value=gElow,fColor=(49151,60031,65535), proc=ATH_XPSData#SetVariableFunction
@@ -495,6 +516,7 @@ static Function ShowButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 			NVAR gwf = root:Packages:ATH_DataFolder:XPSReferenceData:gwf
 			NVAR gkE = root:Packages:ATH_DataFolder:XPSReferenceData:gKE
 			NVAR gCL = root:Packages:ATH_DataFolder:XPSReferenceData:gCL
+			NVAR gAuger = root:Packages:ATH_DataFolder:XPSReferenceData:gAuger
 			NVAR gPhCs = root:Packages:ATH_DataFolder:XPSReferenceData:gPhCs
 			//PhCs
 			string str, graphName, elementStr, allSelectedElements
@@ -524,9 +546,9 @@ static Function ShowButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 				allSelectedElements += "I;Xe;Cs;Ba;La;Ce;Pr;Nd;Pm;Sm;Eu;Gd;Tb;Dy;Ho;Er;Tm;Yb;Lu;Hf;Ta;W;Re;Os;Ir;"
 				allSelectedElements += "Pt;Au;Hg;Tl;Pb;Bi;Po;At;Rn;Fr;Ra;Ac;Th;Pa;U"
 			endif			
-			if(gCL)
-				ShowNotebookCoreLevelsInEnergyRange(gElow, gEhigh, \
-				KE = gKE, hv = ghv, wf = gwf,elements = allSelectedElements)
+			if(gCL || gAuger)
+				ShowNotebookCoreLevelsInEnergyRange(gElow, gEhigh, KE = gKE, hv = ghv, wf = gwf,\
+				elements = allSelectedElements, core = gCL, auger = gAuger)
 			endif
 			break
 		case -1: // control being killed
@@ -578,7 +600,24 @@ static Function ClearButtonProc(ba) : ButtonControl
 	return 0
 End
 
+static Function KEButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
+	NVAR gkE = root:Packages:ATH_DataFolder:XPSReferenceData:gKE
+	
+	switch( ba.eventCode )
+		case 2: // mouse up
+			gkE = !gkE
+			if(gkE)
+				Button KEButton0, fColor=(65535,54611,49151),title = "KE", win=$ba.win
+			else
+				Button KEButton0, fColor=(49151,60031,65535),title = "BE", win=$ba.win
+			endif
+			break
+		case -1: // control being killed
+			break
+	endswitch
 
+	return 0
+End
 //************************************************************
 // Periodic Table Get State
 // this button procedure is called whenever an element button
@@ -886,7 +925,7 @@ Function soRSF(string orbital)
 End
 
 Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
-	[int KE, variable hv, variable wf, string elements])
+	[int KE, variable hv, variable wf, string elements, variable core, variable auger])
 	//
 	WAVE wRef = root:Packages:ATH_DataFolder:XPSReferenceData:ATH_ElectronBindingEnergies
 	WAVE wRefA = root:Packages:ATH_DataFolder:XPSReferenceData:ATH_Auger_KE
@@ -896,49 +935,51 @@ Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 	variable ii = DimSize(wRef, 0), i
 	variable jj = DimSize(wRef, 1), j
 	string elem, orbital, strBufferAuger = "", strBuffer = ""
-	variable energy, buffer, energyAuger0, energyAuger1
+	variable energy, buffer, energyAuger, kkmax,kk
 
 	if(Elow >= Ehigh)
 		return ""
 	endif
-	
+
 	for(i = 1; i < ii;i++) // Zeroth column is -, dummy elelment
 		elem = GetDimLabel(wRef,0,i)
 		if(FindListItem(elem, elements) < 0)
 			continue
 		endif
 		// Auger
-		if(KE && hv > wf)
-			energyAuger0 = wRefA[%$elem][0]
-			energyAuger1 = wRefA[%$elem][1]
-			// Third condition has to change to the shell excitation
-			if(!(energyAuger0 < Elow || energyAuger0 > Ehigh || (hv <= (wf+energyAuger0))))
-				strBufferAuger += "{"+TrimString(wRefT[%$elem][0])+"} " + num2str(energyAuger0) + " eV"
-			endif
-			if(!(energyAuger1 < Elow || energyAuger1 > Ehigh || (hv < (wf+energyAuger1))))
-				if(strlen(strBufferAuger))
-					strBufferAuger += ", {"+TrimString(wRefT[%$elem][1])+"} " + num2str(energyAuger1) + " eV"
-				else
-					strBufferAuger += "{"+TrimString(wRefT[%$elem][1])+"} " + num2str(energyAuger1) + " eV"
+		if(hv > wf && auger)
+			kkmax = DimSize(wRefA, 1)
+			for(kk=0;kk<kkmax;kk++)
+				energyAuger = wRefA[%$elem][kk]
+				if(!KE) // Auger in BE
+					energyAuger = hv - energyAuger - wf
 				endif
-			endif
+				if(energyAuger && !(energyAuger < Elow || energyAuger > Ehigh || (hv <= (wf+energyAuger))))
+					strBufferAuger += "{"+TrimString(wRefT[%$elem][kk])+"} " + num2str(energyAuger) + " eV, "
+				else
+					strBufferAuger = RemoveEnding(strBufferAuger, ", ")
+					break
+				endif
+			endfor
 		endif
 		// Core levels
-		for(j = 0; j < jj;j++)
-			orbital = GetDimLabel(wRef,1,j)
-			energy = wRef[%$elem][%$orbital]
-			if(!energy) // there is no core level, just 0 to fill the table
-				continue
-			endif
-			if(KE && hv > wf)
-				buffer = hv - energy - wf
-				energy = buffer
-			endif
-			if(!(energy < Elow || energy > Ehigh))
-				strBuffer += "("+orbital+") "+ num2str(energy)+" eV, "
-			endif
-		endfor
-		if(strlen(strBuffer))
+		if(core)
+			for(j = 0; j < jj;j++)
+				orbital = GetDimLabel(wRef,1,j)
+				energy = wRef[%$elem][%$orbital]
+				if(!energy) // there is no core level, just 0 to fill the table
+					continue
+				endif
+				if(KE && hv > wf)
+					buffer = hv - energy - wf
+					energy = buffer
+				endif
+				if(!(energy < Elow || energy > Ehigh))
+					strBuffer += "("+orbital+") "+ num2str(energy)+" eV, "
+				endif
+			endfor
+		endif
+		if(strlen(strBuffer) || strlen(strBufferAuger))
 			report += elem + " (Z="+num2str(i)+"): " + RemoveEnding(strBuffer,", ")
 		endif
 		if(strlen(strBufferAuger))
@@ -959,23 +1000,22 @@ Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 End
 
 static Function ShowNotebookCoreLevelsInEnergyRange(variable Elow, variable Ehigh,
-	[int KE, variable hv, variable wf, string elements])
-	string report = CoreLevelsInEnergyRange(Elow, Ehigh, KE = KE, hv = hv, wf = wf,elements=elements)
+	[int KE, variable hv, variable wf, string elements, variable core, variable auger])
+	string report = CoreLevelsInEnergyRange(Elow, Ehigh, KE = KE, hv = hv, wf = wf,elements=elements, core = core, auger = auger)
 	if(!strlen(report))
 		return -1
 	endif
 	string infoStr, notebookText
 	if(KE && hv > wf)
 		infoStr = "Energy Scale: KE (eV)," +  "Energy Range (eV) = ["+num2str(Elow)+","+num2str(Ehigh)+"], "
-		infoStr += "hv = " + num2str(hv) +" eV, Wf = " + num2str(wf) + " eV.\n\n"
+		infoStr += "hv = " + num2str(hv) +" eV, Wf = " + num2str(wf) + " eV.\n"
 	else
-		infoStr = "Energy Scale: BE (eV), Energy Range = ["+num2str(Elow)+", "+num2str(Ehigh)+"].\n\n"
+		infoStr = "Energy Scale: BE (eV), Energy Range = ["+num2str(Elow)+", "+num2str(Ehigh)+"].\n"
 	endif	
-		
+	infoStr += "(): Photoemission peak, {}: Auger Peak.\n\n"
 	notebookText = infoStr  + report
 	
 	KillWindow/Z ATH_xraydata
 	NewNotebook/F=0/K=1/N=ATH_xraydata as "athina x-ray data"
 	Notebook ATH_xraydata, fSize = 14, text = notebookText
-
 End
