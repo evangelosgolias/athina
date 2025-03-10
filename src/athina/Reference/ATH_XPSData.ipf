@@ -435,16 +435,16 @@ static Function SetVariableFunction(STRUCT WMSetVariableAction& sv) : SetVariabl
 		case 6:
 		strswitch(sv.ctrlName)
 			case "hvSetVariable0":
-				ghv = sv.dval
+				ghv = sv.dval > 0 ? sv.dval : 0
 				break
 			case "wfSetVariable0":
-				gwf = sv.dval
+				gwf = sv.dval > 0 ? sv.dval : 0
 				break
 			case "EhighSetVariable0":
-				gEhigh = sv.dval
+				gEhigh = sv.dval > 0 ? sv.dval : 0
 				break
 			case "ElowSetVariable0":
-				gElow = sv.dval
+				gElow = sv.dval > 0 ? sv.dval : 0
 				break								
 		endswitch
 			break
@@ -935,7 +935,7 @@ Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 	variable ii = DimSize(wRef, 0), i
 	variable jj = DimSize(wRef, 1), j
 	string elem, orbital, strBufferAuger = "", strBuffer = ""
-	variable energy, buffer, energyAuger, kkmax,kk
+	variable energy, energyAuger, kkmax,kk
 
 	if(Elow >= Ehigh)
 		return ""
@@ -951,8 +951,8 @@ Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 			kkmax = DimSize(wRefA, 1)
 			for(kk=0;kk<kkmax;kk++)
 				energyAuger = wRefA[%$elem][kk]
-				if(!KE) // Auger in BE
-					energyAuger = hv - energyAuger - wf
+				if(!KE) // Auger data are in KE
+					energyAuger = (hv - energyAuger - wf) > 0 ? (hv - energyAuger - wf) : 0
 				endif
 				if(energyAuger && !(energyAuger < Elow || energyAuger > Ehigh || (hv <= (wf+energyAuger))))
 					strBufferAuger += "{"+TrimString(wRefT[%$elem][kk])+"} " + num2str(energyAuger) + " eV, "
@@ -967,14 +967,13 @@ Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 			for(j = 0; j < jj;j++)
 				orbital = GetDimLabel(wRef,1,j)
 				energy = wRef[%$elem][%$orbital]
-				if(!energy) // there is no core level, just 0 to fill the table
+				if(!energy) // when 0 there is no core level there
 					continue
 				endif
-				if(KE && hv > wf)
-					buffer = hv - energy - wf
-					energy = buffer
+				if(KE && hv > wf) // dataset are in BE
+					energy = (hv - energy - wf) > 0 ? (hv - energy - wf) : 0
 				endif
-				if(!(energy < Elow || energy > Ehigh))
+				if(!(energy < Elow || energy > Ehigh || hv <= (wf+energy)))
 					strBuffer += "("+orbital+") "+ num2str(energy)+" eV, "
 				endif
 			endfor
@@ -1001,6 +1000,7 @@ End
 
 static Function ShowNotebookCoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 	[int KE, variable hv, variable wf, string elements, variable core, variable auger])
+	KillWindow/Z ATH_xraydata
 	string report = CoreLevelsInEnergyRange(Elow, Ehigh, KE = KE, hv = hv, wf = wf,elements=elements, core = core, auger = auger)
 	if(!strlen(report))
 		return -1
@@ -1014,8 +1014,6 @@ static Function ShowNotebookCoreLevelsInEnergyRange(variable Elow, variable Ehig
 	endif	
 	infoStr += "(): Photoemission peak, {}: Auger Peak.\n\n"
 	notebookText = infoStr  + report
-	
-	KillWindow/Z ATH_xraydata
 	NewNotebook/F=0/K=1/N=ATH_xraydata as "athina x-ray data"
 	Notebook ATH_xraydata, fSize = 14, text = notebookText
 End
