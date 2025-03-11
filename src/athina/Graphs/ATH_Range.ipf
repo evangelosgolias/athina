@@ -305,7 +305,7 @@ Static Function pnl(String grfName)
 	//	Hook functions
 	//	These must come after displaying the cursors because the hook function gives an error
 	//	if the cursors are not shown
-	SetWindow $grfName hook(ATHRange)=ATH_Range#pnlHookParent
+	SetWindow $grfName hook(ATH_RangeHook)=ATH_Range#pnlHookParent
 	SetWindow $pnlName hook(self)=ATH_Range#pnlHook
 	SetWindow $pnlName userData(grf)=grfName
 	SetWindow $pnlName userData(dfTmp)=dfTmp
@@ -658,7 +658,7 @@ Static Function pnlButton(STRUCT WMButtonAction &s)
 	endif
 
 	strswitch (s.ctrlName)
-		case "doB":
+		case "doB": // Apply
 			SetWindow $s.win userData(norevert)="1"
 			//*** FALLTHROUGH ***
 		case "cancelB":
@@ -1571,10 +1571,10 @@ End
 ///	@param dfr	datafolder
 ///	@return	1 for dfr is invalid, otherwise 0
 //******************************************************************************
-static Function SIDAMKillDataFolder(DFREF dfr)
+static Function SIDAMKillDataFolder(DFREF dfr) // Recursion here
 	if (!DataFolderRefStatus(dfr))
 		return 0
-	elseif (DataFolderRefsEqual(dfr,root:))
+	elseif (DataFolderRefsEqual(dfr,root:Packages:ATH_DataFolder:)) // EG 11.03.2025: just stop and do not delete the root:Packages:ATH_DataFolder
 		return 1
 	endif
 
