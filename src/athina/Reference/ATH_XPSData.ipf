@@ -171,7 +171,7 @@ Static Function PTInitPanel()
 		gATH_OrbitalOrder+= "Md4p_CS;Md5d_E;Md5d_CS;Md5f_E;Md5f_CS;Md5p_E;Md5p_CS;Md5s_E;Md5s_CS;Md6d_E;Md6d_CS;Md6p_E;Md6p_CS;Md6s_E;Md6s_CS;No4d_E;No4d_CS;No4f_E;No4f_CS;No4p_E;No4p_CS;No5d_E;No5d_CS;No5f_E;No5f_CS;No5p_E;No5p_CS;No5s_E;No5s_CS;No6d_E;No6d_CS;No6p_E;No6p_CS;No6s_E;No6s_CS;Lr4d_E;Lr4d_CS;Lr4f_E;Lr4f_CS;Lr4p_E;"
 		gATH_OrbitalOrder+= "Lr4p_CS;Lr5d_E;Lr5d_CS;Lr5f_E;Lr5f_CS;Lr5p_E;Lr5p_CS;Lr5s_E;Lr5s_CS;Lr6d_E;Lr6d_CS;Lr6p_E;Lr6p_CS;Lr6s_E;Lr6s_CS;"
 		
-		variable/G scf=defaultscale, kill=1, scfpN = 1, ghv = 150, gwf = 4.5, gKE = 1, gPhCs = 0, gCL = 0, gAuger = 0, gEhigh = 300, gElow = 20
+		variable/G scf=defaultscale, kill=1, scfpN = 1, ghv = 150, gwf = 4.5, gKE = 1, gPhCs = 0, gCL = 1, gAuger = 1, gEhigh = 300, gElow = 20
 		variable/G ptleft=0, pttop=0
 		
 		make/N=(maxelem) AtNr
@@ -256,13 +256,6 @@ Static Function PTDisplayPanel()
 	cl2edge += "M4 3d3/2\n"+"M5 3d5/2\n\n"+"N1 4s\n"+"N2 4p1/2\n"+"N3 4p3/2\n"+"N4 4d3/2\n"
 	cl2edge += "N5 4d5/2\n"+"N6 4f5/2\n"+"N7 457/2\n\n"+"01 5s\n"+"02 5p1/2\n"+"03 5p3/2\n\n"+"P1 6s\n" 
 	cl2edge += "P2 6p1/2\n"+"P3 6p3/2\n"
-	
-	string energyModeStr
-	if(gkE)
-		energyModeStr = "KE"
-	else 
-		energyModeStr = "BE"
-	endif
 	
 	SetDrawLayer UserBack
 	
@@ -398,11 +391,18 @@ Static Function PTDisplayPanel()
 	Button ShowButton0, fsize=gscf*dfs, fColor=(57346,65535,49151)
 	Button ClearButton0, pos={left+bw, top+7.5*bh},size={32.00*gscf,25.00*gscf},proc=ATH_XPSData#ClearButtonProc,title="Clear"
 	Button ClearButton0, fsize=gscf*dfs, fColor=(65535,49151,55704)
-	Button KEButton0, pos={left+9.1*bw, top-0.25*bh},fColor=(49151,65535,49151), size={32.00*gscf,10.00*gscf}, title=energyModeStr
-	Button KEButton0, fsize=gscf*dfs, fColor=(65535,54611,49151), help={"Toggle Kinetic or Binding Energy"}, proc=ATH_XPSData#KEButtonProc
+
+	Button KEButton0, pos={left+9.1*bw, top-0.25*bh},size={32.00*gscf,10.00*gscf}, proc=ATH_XPSData#KEButtonProc
+	Button KEButton0, fsize=gscf*dfs, fColor=(65535,54611,49151), help={"Toggle Kinetic or Binding Energy"}
 	
+	if(gkE)
+		Button KEButton0, fColor=(65535,54611,49151),title = "KE"
+	else 
+		Button KEButton0, fColor=(49151,60031,65535),title = "BE"
+	endif				
+
 	CheckBox CoreLevelsButton0, pos={left+4.5*bw, top-0.25*bh},size={32.00*gscf,25.00*gscf}, title="Photo"
-	CheckBox CoreLevelsButton0, fsize=gscf*dfs,fColor=(49151,65535,49151),variable=gCL,value = 0, help={cl2edge}
+	CheckBox CoreLevelsButton0, fsize=gscf*dfs,fColor=(49151,65535,49151),variable=gCL,value = 1, help={cl2edge}
 	CheckBox AugerPeaksButton0, pos={left+6.5*bw, top-0.25*bh},fColor=(49151,65535,49151),size={32.00*gscf,25.00*gscf}, title="Auger"
 	CheckBox AugerPeaksButton0, fsize=gscf*dfs, fColor=(49151,65535,49151),variable=gAuger,value = 1, help={"Show Auger peaks"}		
 	CheckBox PhCrossSectionsButton0, pos={left+12.5*bw, top-0.25*bh},size={32.00*gscf,25.00*gscf}, title="Cross Sections"
@@ -427,7 +427,7 @@ End
 //
 static Function SetVariableFunction(STRUCT WMSetVariableAction& sv) : SetVariableControl
 
-	NVAR ghv = root:Packages:ATH_DataFolder:XPSReferenceData:ghv
+		NVAR ghv = root:Packages:ATH_DataFolder:XPSReferenceData:ghv
 	NVAR gwf = root:Packages:ATH_DataFolder:XPSReferenceData:gwf	
 	NVAR gElow = root:Packages:ATH_DataFolder:XPSReferenceData:gElow
 	NVAR gEhigh = root:Packages:ATH_DataFolder:XPSReferenceData:gEhigh	
@@ -969,6 +969,9 @@ Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 				energy = wRef[%$elem][%$orbital]
 				if(!energy) // when 0 there is no core level there
 					continue
+				elseif(!KE && hv <= wf) // Just get all core levels, regardless of hv in BE only
+					strBuffer += "("+orbital+") "+ num2str(energy)+" eV, "
+					continue
 				endif
 				if(KE && hv > wf) // dataset are in BE
 					energy = (hv - energy - wf) > 0 ? (hv - energy - wf) : 0
@@ -978,19 +981,18 @@ Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 				endif
 			endfor
 		endif
-		if(strlen(strBuffer) || strlen(strBufferAuger))
-			report += elem + " (Z="+num2str(i)+"): " + RemoveEnding(strBuffer,", ")
+		if(strlen(strBuffer))
+			report += elem + " [Z="+num2str(i)+"] (Core levels): " + RemoveEnding(strBuffer,", ")
 		endif
 		if(strlen(strBufferAuger))
 			if(strlen(strBuffer))
-				report += ", "+strBufferAuger +".\n"
+				report += "\n"+elem + " [Z="+num2str(i)+"] {Auger peaks}: " + RemoveEnding(strBufferAuger,", ")
 			else
-				report +=elem + ": "+strBufferAuger +".\n"
+				report +=elem + " [Z="+num2str(i)+"] {Auger peaks}: " + RemoveEnding(strBufferAuger,", ")
 			endif
-		else
-			if(strlen(strBuffer))
-				report += "\n"
-			endif
+		endif
+		if(strlen(strBuffer) || strlen(strBufferAuger))
+			report += "\n\n"
 		endif
 		strBuffer = ""
 		strBufferAuger = ""
@@ -1008,11 +1010,13 @@ static Function ShowNotebookCoreLevelsInEnergyRange(variable Elow, variable Ehig
 	string infoStr, notebookText
 	if(KE && hv > wf)
 		infoStr = "Energy Scale: KE (eV)," +  "Energy Range (eV) = ["+num2str(Elow)+","+num2str(Ehigh)+"], "
-		infoStr += "hv = " + num2str(hv) +" eV, Wf = " + num2str(wf) + " eV.\n"
+		infoStr += "hv = " + num2str(hv) +" eV, Wf = " + num2str(wf) + " eV.\n\n"
+	elseif(!KE && hv > wf)
+		infoStr = "Energy Scale: BE (eV), Full Energy Range.\n\n"
 	else
-		infoStr = "Energy Scale: BE (eV), Energy Range = ["+num2str(Elow)+", "+num2str(Ehigh)+"].\n"
+		infoStr = "Energy Scale: BE (eV), Energy Range = ["+num2str(Elow)+", "+num2str(Ehigh)+"].\n\n"
 	endif	
-	infoStr += "(): Photoemission peak, {}: Auger Peak.\n\n"
+	//infoStr += "(): Photoemission peak, {}: Auger Peak.\n\n"
 	notebookText = infoStr  + report
 	NewNotebook/F=0/K=1/N=ATH_xraydata as "athina x-ray data"
 	Notebook ATH_xraydata, fSize = 14, text = notebookText
