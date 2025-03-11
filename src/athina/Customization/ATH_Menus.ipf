@@ -109,7 +109,7 @@ Menu "athina"
 	Submenu "Utilities"
 		"Spaces",/Q, ATH_Spaces#MenuLaunch()
 		"Free space/8",/Q, ATH_Launch#DeleteBigWaves()
-		"XPS Reference Data",/Q, ATH_XPSData#XPSReferenceData()
+		"Photoemission database",/Q, ATH_XPSData#XPSReferenceData()
 		"Calculations Pad/9",/Q, ATH_CalcPad#CalcPad()
 		"List HDF5 (.h5) entries...", /Q, ATH_HDF5#ListHDF5Groups()		
 	End
