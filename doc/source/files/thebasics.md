@@ -30,9 +30,9 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
 - **z** : launch z profiler *if marquee is present on the graph*.
 - **SHIFT + b** : restore image from backup if it exists.
-- **SHIFT + d** : duplicate graph (source wave is shared, no window metadata or hooks are copied)
+- **SHIFT + d** : a copy of the wave in TG is created and displayed.
 - **SHIFT + f** : FFT (if there is marquee, calculate only the enclosed part)
-- **SHIFT + n** : duplicate source wave of TG and display.
+- **SHIFT + n** : 
 - **SHIFT + r** : launch interactive image rotation.
 - **SHIFT + x** : launch interactive PES (XPS) extractor
 - **SHIFT + mousewheel** : zoom image centered at the cursor.

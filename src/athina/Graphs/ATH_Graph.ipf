@@ -52,28 +52,28 @@ static Function DuplicateWaveAndDisplayOfTopImage([string grfName])
 	return 0
 End
 
-Function DuplicateTopImage([string grfName])
-	//
-	// Duplicate the top graph using the same source
-	// while copying the style of the parent window.
-	// N.B Only style commmands are used for the duplicate
-	// window, no metadata or hooks.
-	//
-	
-	// TODO FIX: When duplicating with and /EXT window on you
-	// get a string of commands for the /EXT window, which is not there
-	// so there are errors. Try to filter out these commands.
-	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
-	WAVE wRef = ATH_Graph#TopImageToWaveRef()
-	string recCmd = WinRecreation(grfName, 0)
-	ATH_Display#NewImg(wRef)
-	string matchStr = ""
-	matchStr += ListMatch(recCmd, "*ModifyImage*", "\r")
-	matchStr += ListMatch(recCmd, "*ModifyGraph*", "\r")	
-	matchStr += ListMatch(recCmd, "*SetAxis*", "\r")	
-	matchStr = ReplaceString("\r\t", matchStr, ";")
-	Execute/P/Q/Z matchStr
-End
+//Function DuplicateTopImage([string grfName])
+//	//
+//	// Duplicate the top graph using the same source
+//	// while copying the style of the parent window.
+//	// N.B Only style commmands are used for the duplicate
+//	// window, no metadata or hooks.
+//	//
+//	
+//	// TODO FIX: When duplicating with and /EXT window on you
+//	// get a string of commands for the /EXT window, which is not there
+//	// so there are errors. Try to filter out these commands.
+//	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+//	WAVE wRef = ATH_Graph#TopImageToWaveRef()
+//	string recCmd = WinRecreation(grfName, 0)
+//	ATH_Display#NewImg(wRef)
+//	string matchStr = ""
+//	matchStr += ListMatch(recCmd, "*ModifyImage*", "\r")
+//	matchStr += ListMatch(recCmd, "*ModifyGraph*", "\r")	
+//	matchStr += ListMatch(recCmd, "*SetAxis*", "\r")	
+//	matchStr = ReplaceString("\r\t", matchStr, ";")
+//	Execute/P/Q/Z matchStr
+//End
 
 static Function TextAnnotationOnTopGraph(string text, [variable fSize, string color])
 	/// Add text on the top graph. Optionally you can set fSize and text color.
