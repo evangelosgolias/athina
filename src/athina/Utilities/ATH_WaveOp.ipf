@@ -68,8 +68,6 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	// Concatenate wave from data folder selection
 	// For 2D, 3D waves:
 	// Use it to stack 2D, 3D waves
-	// No check for selection
-	// type, so if you select a folder or variable you will get an error.
 	// Returns a string with the name of the created wave, as wname3dStr
 	// might be already taken
 	//
@@ -95,7 +93,7 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	variable i = 0
 	do
 		buffer = GetBrowserSelection(i)
-		if(WaveExists($buffer) && WaveDims($buffer) < 4)
+		if(WaveExists($buffer) && WaveDims($buffer) > 1 && WaveDims($buffer) < 4)
 			listOfSelectedWaves += GetBrowserSelection(i) + ";" // Match stored at S_value
 		endif
 		i++
@@ -151,7 +149,8 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	// will still match for the points they have in common
 	//CopyScales t2dwred, w3dref 
 	// Add a note about the stacked waves
-	Note/K $wname3dStr, ReplaceString(";", listOfSelectedWaves, "\n")
+	Note/K $wname3dStr, "----- Stacked waves -----\n" + \
+	ReplaceString(";", listOfSelectedWaves, "\n") + "---------------------------\n"
 	// Go back to the cwd
 	if(makeInSourceDFR)
 		SetDataFolder saveDF
@@ -204,7 +203,8 @@ static Function/WAVE AverageImageStack(WAVE wRef, [string outWaveStr])
 	outWaveStr = SelectString(ParamIsDefault(outWaveStr) ? 0: 1, CreatedataObjectName(dfr, basenameStr, 1, 0, 1), outWaveStr)
 	variable nlayers = DimSize(wRef, 2)
 	MatrixOP/O $outWaveStr = sumBeams(wRef)/nlayers
-	string waveNoteStr = GetWavesDataFolder(wRef, 2) + " layer average (" +num2str(nlayers) + ")"
+	string waveNoteStr = note(wRef)
+	waveNoteStr += GetWavesDataFolder(wRef, 2) + " layer average (" +num2str(nlayers) + ")"
 	CopyScales wRef, $outWaveStr 
 	Note/K $outWaveStr waveNoteStr
 	return $outWaveStr

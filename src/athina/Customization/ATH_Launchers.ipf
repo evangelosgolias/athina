@@ -116,8 +116,9 @@ static Function CalculateXMCDFromStack()
 	if(ATH_Magnetism#StackToXMCD(w3d, wnameStr=xmcdWaveStr))
 		return 1 // return if you have more than two layers
 	endif
-	string noteStr = "Source: " + GetWavesDataFolder(w3d, 2)
-	Note/K $xmcdWaveStr, noteStr
+	string noteStr = "Source: " + GetWavesDataFolder(w3d, 2) + "\n"
+	noteStr += note(w3d)
+	Note $xmcdWaveStr, noteStr
 	CopyScales w3d, $xmcdWaveStr 
 	ATH_Display#NewImg($xmcdWaveStr)
 	SetDataFolder saveDF
@@ -241,6 +242,7 @@ static Function ImageStackAlignmentFullImage([int backupWave])
 	if(V_flag) // User cancelled
 		return -1
 	endif
+	string driftCorrectionNoteStr = note(w3dRef) // Grab early the original wave note
 	if(backupWave)
 		ATH_DFR#BackupWaveInWaveDF(w3dref)
 	endif
@@ -282,7 +284,7 @@ static Function ImageStackAlignmentFullImage([int backupWave])
 		Abort "Please check ImageStackAlignmentFullImage(), method error."
 	endif
 	//Restore the note
-	string driftCorrectionNoteStr = "Drift correction using " + StringFromList(algo, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
+	driftCorrectionNoteStr += "Drift correction using " + StringFromList(algo, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
 	driftCorrectionNoteStr += "Apply histogram equalization: " + StringFromList(histEq, "dummy;Yes;No")+"\n"
 	driftCorrectionNoteStr += "Edge detection method: " + StringFromList(edgeAlgo, "dummy;None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei")+"\n"
 	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(intPixels, "dummy;Yes;No") + "\n"
@@ -332,7 +334,7 @@ static Function ImageStackAlignmentPartition([int backupWave])
 	if(backupWave)
 		ATH_DFR#BackupWaveInWaveDF(w3dref)
 	endif
-
+	string driftCorrectionNoteStr = note(w3dRef) // Grab early the original wave note
 	variable left, right, top, bottom
 
 	STRUCT sUserMarqueePositions s
@@ -376,8 +378,7 @@ static Function ImageStackAlignmentPartition([int backupWave])
 		Abort "Please check ImageStackAlignmentUsingAFeature(), method error."
 	endif
 	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
-	
-	string driftCorrectionNoteStr = "Drift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
+	driftCorrectionNoteStr += "Drift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
 	driftCorrectionNoteStr += "Apply filter:" + StringFromList(filter, "dummy;None;gauss;avg;median;max;min") + ", N = " + num2str(filterN) + ", repeated "+num2str(nrTimes)+" times\n"
 	driftCorrectionNoteStr += "Apply histogram equalization: " + StringFromList(histEq, "dummy;Yes;No")+"\n"
 	driftCorrectionNoteStr += "Edge detection method: " + StringFromList(edgeAlgo, "dummy;None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei")+"\n"
