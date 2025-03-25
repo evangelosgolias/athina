@@ -969,13 +969,18 @@ Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 				energy = wRef[%$elem][%$orbital]
 				if(!energy) // when 0 there is no core level there
 					continue
-				elseif(!KE && hv <= wf) // Just get all core levels, regardless of hv in BE only
+				// Just get all core levels, regardless of hv in BE mode only when hv<=wf
+				elseif(!KE && hv <= wf) 
 					strBuffer += "("+orbital+") "+ num2str(energy)+" eV, "
 					continue
+				// dataset uses BE, so change to KE here.
+				elseif(KE && hv > wf)
+					// if there is a core level convert it to KE, otherwise
+					// set it to -1 (not to 0!!!) because of the filter below
+					// that selects the energies in the selected energy window.
+					energy = (hv - energy - wf) > 0 ? (hv - energy - wf) : -1
 				endif
-				if(KE && hv > wf) // dataset are in BE
-					energy = (hv - energy - wf) > 0 ? (hv - energy - wf) : 0
-				endif
+				// energy filtering for any mode
 				if(!(energy < Elow || energy > Ehigh || hv <= (wf+energy)))
 					strBuffer += "("+orbital+") "+ num2str(energy)+" eV, "
 				endif
