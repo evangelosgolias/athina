@@ -7,7 +7,7 @@
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
-// Contact: evangelos.golias@gmail.com
+// Contact: egolias@protonmail.com
 //	
 //	Permission is hereby granted, free of charge, to any person
 //	obtaining a copy of this software and associated documentation
@@ -47,7 +47,7 @@ static Function MarqueeToMask()
 		string noteToMaskStr 
 		sprintf noteToMaskStr, "V_left, V_top, V_right, V_bottom: %s, %s, %s, %s", num2str(V_left), num2str(V_top), num2str(V_right), num2str(V_right)
 		WAVE M_ROIMask
-		Note/K M_ROIMask, noteToMaskStr
+		Note M_ROIMask, noteToMaskStr
 	else
 		print "Operation needs an image with left and top axes"
 	endif

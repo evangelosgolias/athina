@@ -29,6 +29,30 @@ static Function DeleteWavesInTextWave(WAVE/T textW)
 	return 0
 End
 
+static Function/S TextWaveToString(WAVE/T textW, [string sep])
+	// Make a string from a textwave
+	// If you want to return a list, just set strsep=;
+	sep = SelectString(ParamIsDefault(sep) ? 0: 1, ";", sep)
+	
+	string concStr = ""
+	variable nitems = DimSize(textW, 0), i
+	
+	for(i = 0; i < nitems; i++)
+		concStr += textW[i] + sep
+	endfor
+	return concStr
+End
+
+static Function/WAVE StringListToTextWave(string stringListStr, string sep)
+
+	variable numElem = ItemsInList(stringListStr, sep)
+	if(!numElem)
+		return $""
+	else
+		return ListToTextWave(stringListStr, sep)		
+	endif
+End
+
 // Dev -- need testing
 static Function TWaveRemoveEntriesFromStringList(WAVE/T textW, string stringListStr, [WAVE otherW])
 	// Remove entries from textW in stringListStr

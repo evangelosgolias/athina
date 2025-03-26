@@ -7,7 +7,7 @@
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
-// Contact: evangelos.golias@gmail.com
+// Contact: egolias@protonmail.com
 //	
 //	Permission is hereby granted, free of charge, to any person
 //	obtaining a copy of this software and associated documentation
@@ -75,43 +75,18 @@ static Function GetPhotonEnergyFromFilename(string nameStr)
 	return 0
 End
 
-// Dev -- need testing
+// Dev -- needs testing
 static Function/S UniquifyStringList(string stringListStr, string sep)	
 	// Remove duplicates from a sting list
-	WAVE/T textW = StringListToTextWave(stringListStr, sep)
+	WAVE/T textW = ATH_TWave#StringListToTextWave(stringListStr, sep)
 	//Remove duplicates
 	if(DimSize(textW, 0) > 1)
 		FindDuplicates/FREE/RT=textWSet textW // Error if only one element
-		return TextWaveTostring(textWSet, sep = sep)
+		return ATH_TWave#TextWaveTostring(textWSet, sep = sep)
 	else
 		return stringListStr
 	endif
 	
-End
-
-static Function/S TextWaveToString(WAVE/T textW, [string sep])
-	// Make a string from a textwave
-	// If you want to return a list, just set strsep=;
-	sep = SelectString(ParamIsDefault(sep) ? 0: 1, ";", sep)
-	
-	string concStr = ""
-	variable nitems = DimSize(textW, 0), i
-	
-	for(i = 0; i < nitems; i++)
-		concStr += textW[i] + sep
-	endfor
-	return concStr
-End
-
-
-static Function/WAVE StringListToTextWave(string stringListStr, string sep)
-
-	variable numElem = ItemsInList(stringListStr, sep)
-	if(!numElem)
-		return $""
-	else
-		return ListToTextWave(stringListStr, sep)		
-	endif
 End
 
 static Function isLiberalQ(string str)
@@ -169,4 +144,15 @@ static Function StartsWith(string str, string part)
 		endif
 	endfor
 	return 1
+End
+
+static Function WaveLogging(Wave wRef, string msg, [int prepend])
+	// Add str to the note of wRef.
+	// Use prepend = 1 to add string at the start.
+	if(prepend)
+		Note wRef, msg + Note(wRef)
+	else
+		Note wRef, msg
+	endif
+	return 0
 End
