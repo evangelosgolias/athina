@@ -181,7 +181,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break					
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
-						ATH_Launch#ImageFFTTransform()
+						ATH_Launch#ImageFFTTransform(sourceDF=1)
 					endif
 					break
 //				case 78: // N

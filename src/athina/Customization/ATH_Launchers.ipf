@@ -775,16 +775,21 @@ static Function ImageRotateAndScaleFromMetadata()
 End
 
 
-static Function ImageFFTTransform([int noPlot])
+static Function ImageFFTTransform([int noPlot, int sourceDF])
 	// FFT of the top image. If Marquee is present
 	// the transform happends at the marked region
 	// ATH_Transform#FFT2D creates the FFT wave in wRef DF.
 	
 	// FFT wave in the cwd
 	noPlot = ParamIsDefault(noPlot) ? 0 : noPlot
+	sourceDF = ParamIsDefault(sourceDF) ? 0 : sourceDF // Create the FFT in the source DF
 	string grfName = WinName(0, 1, 1), noteStr
 	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
 	if(WaveExists(wRef))
+		if(sourceDF)
+			DFREF saveDF = GetDataFolderDFR()
+			SetDataFolder $GetWavesDataFolder(wRef, 1)
+		endif
 		GetMarquee/W=$grfName
 		if(V_flag) // if there is a Marquee a free wave will be used.
 			string xaxis, yaxis
@@ -808,6 +813,9 @@ static Function ImageFFTTransform([int noPlot])
 		Note wFFT, noteStr
 		if(!noPlot)
 			ATH_Display#NewImg(wFFT)
+		endif
+		if(sourceDF)
+			SetDataFolder saveDF
 		endif
 	endif
 	return 0
@@ -1109,7 +1117,7 @@ static Function PixelateSingleImageOrStack()
 		endif
 		if(!ATH_Num#IntegerQ(nz))
 			print "Truncate nz: ", num2str(trunc(nz))			
-		endif		
+		endif
 		ATH_ImgOp#PixelateImageStack(wRef, nx, ny, nz)
 	elseif(WaveDims(wRef) == 2)
 		Prompt nx, "Pixelate X:"

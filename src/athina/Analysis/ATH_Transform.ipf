@@ -18,6 +18,13 @@ Function/WAVE GetAffine2DMapping(WAVE src, WAVE dest)
 	// src : (x1,y1,x2,y2,x3,y3)
 	// dest: (X1,Y1,X2,Y2,X3,Y3)
 	//
+	// res: a7 = a8 = 0 & a9 = 1
+	//
+	//      | a1 a2 a3 |
+	//  A = | a4 a5 a6 |
+    //  	| a7 a8 a9 |	
+	//
+	// https://stackoverflow.com/questions/1114257/transform-a-triangle-to-another-triangle
 	Make/FREE srcM = {src[0],src[2],src[4],src[1],src[3],src[5]}
 	Make/FREE destM = {{dest[0],dest[2],dest[4],0,0,0},{dest[1],dest[3],dest[5],0,0,0},{1,1,1,0,0,0},\
 					   {0,0,0,dest[0],dest[2],dest[4]},{0,0,0,dest[1],dest[3],dest[5]},{0,0,0,1,1,1}}
