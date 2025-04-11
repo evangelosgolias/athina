@@ -363,8 +363,6 @@ static Function iCursorUsingCallbackHookFunction(STRUCT WMWinHookStruct &s)
 			endif
 			hookResult = 1
 			break
-			hookresult = 1
-			break
 		case 11: // Keyboard event
 			if(s.keycode == 27) //  Esc
 				SetWindow $s.winName, hook(MyiCursorActionHook) = $""

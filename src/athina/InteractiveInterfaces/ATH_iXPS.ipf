@@ -282,7 +282,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	WAVE/Z/SDFR=dfr W_ImageLineProfile
 	variable xc, yc, dGE, BE_Eoffset
 	switch(s.eventCode)
-		case 0: // Use activation to update the cursors if you request defaults		
+		case 0: // Use activation to update the cursors if you request defaults
 			if(updateCursorsPositions)
 				SetDrawLayer/W=$s.winName ProgFront
 				DrawAction/W=$s.winName delete
@@ -360,29 +360,27 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 		case 7: // cursor moved
 			if(!cmpstr(s.cursorName, "E") || !cmpstr(s.cursorName, "F")) // It should work only with E, F you might have other cursors on the image
 				SetDrawLayer/W=$s.winName ProgFront
-			    DrawAction/W=$s.winName delete
-	   			SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+				DrawAction/W=$s.winName delete
+				SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 				C1x = hcsr(E)
 				C1y = vcsr(E)
 				C2x = hcsr(F)
-				C2y = vcsr(F)	   			
+				C2y = vcsr(F)
 				DrawLine/W=$s.winName C1x , C1y, C2x, C2y
-	   			Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}  // profile from E to F
-	   			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
+				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}  // profile from E to F
+				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
 			endif
-				if(stv)
-					dGE    = sqrt(((C1x - Gx)/dx)^2 + ((C1y - Gy)/dy)^2)
-					linepx = sqrt(((Gx - Hx)/dx)^2+((Gy - Hy)/dy)^2)
-					Eoffset = stv - (linepx/2 - dGE) * epp // offset in eV from the bottom right energy (lowest KE)
-					if(UseBESwitch)
-						BE_Eoffset = hv - Eoffset - Wf
-						SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
-					else
-						SetScale/P x, Eoffset, epp, W_ImageLineProfile
-					endif
+			if(stv)
+				dGE    = sqrt(((C1x - Gx)/dx)^2 + ((C1y - Gy)/dy)^2)
+				linepx = sqrt(((Gx - Hx)/dx)^2+((Gy - Hy)/dy)^2)
+				Eoffset = stv - (linepx/2 - dGE) * epp // offset in eV from the bottom right energy (lowest KE)
+				if(UseBESwitch)
+					BE_Eoffset = hv - Eoffset - Wf
+					SetScale/P x, BE_Eoffset, -epp, W_ImageLineProfile
+				else
+					SetScale/P x, Eoffset, epp, W_ImageLineProfile
 				endif
-				hookResult = 1
-				break
+			endif
 			hookresult = 0
 			break
 	endswitch
