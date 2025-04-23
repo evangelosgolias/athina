@@ -250,10 +250,10 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 			hookresult = 0 // Prevent another case 17 somewhere to stop the window from being killed
 			break
        	case 5: // mouse up
-       		C1x = hcsr(E) 
-       		C1y = vcsr(E)
-       		C2x = hcsr(F)
-       		C2y = vcsr(F)
+       		C1x = hcsr(E,s.winName) 
+       		C1y = vcsr(E,s.winName)
+       		C2x = hcsr(F,s.winName)
+       		C2y = vcsr(F,s.winName)
        		hookResult = 1
 			break
 		case 8: // modifications, either move the slides or the cursors
@@ -271,10 +271,10 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 				SetDrawLayer/W=$s.winName ProgFront
 			    DrawAction/W=$s.winName delete
 	   			SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-	   			C1x = hcsr(E)
-				C1y = vcsr(E)
-				C2x = hcsr(F)
-				C2y = vcsr(F)	   			
+	   			C1x = hcsr(E,s.winName)
+				C1y = vcsr(E,s.winName)
+				C2x = hcsr(F,s.winName)
+				C2y = vcsr(F,s.winName)	   			
 	   			DrawLine/W=$s.winName C1x, C1y, C2x, C2y
 	   			Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
 	   			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth

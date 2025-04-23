@@ -658,12 +658,14 @@ static Function HistogramShiftToGaussianCenter(WAVE w2d, [variable overwrite])
 	if(overwrite)
 		w2d -= x0
 	else
+		string wRefNoteStr = note(w2d)
 		string baseWaveNameStr = NameofWave(w2d) + "_GaussCen"
 		string saveWaveNameStr = CreatedataObjectName(currDF, baseWaveNameStr, 1, 0, 0)	
 		Duplicate w2d, currDF:$saveWaveNameStr
 		WAVE wref = currDF:$saveWaveNameStr
 		wref -= x0
-		CopyScales w2d, wref
+		CopyScales w2d, wRef
+		Note wRef, wRefNoteStr
 	endif
 	SetDataFolder currDF
 	return 0
@@ -696,7 +698,8 @@ static Function HistogramShiftToGaussianCenterStack(WAVE w3d, [variable overwrit
 	WAVE M_Stack
 	CopyScales w3d, M_Stack
 	// Add note to stack
-	string noteStr = "Gaussian centered histogram per layer of " + GetWavesDataFolder(w3d, 2)
+	string noteStr = note(w3d)
+	noteStr += "Gaussian centered histogram per layer of " + GetWavesDataFolder(w3d, 2)
 	Note M_Stack , noteStr
 	if(overwrite)
 		Duplicate/O M_Stack, w3d

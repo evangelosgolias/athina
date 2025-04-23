@@ -27,12 +27,12 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **p** : launch plane z profiler.
 - **r** : show range panel (contrast).
 - **s** : Toggle square image on/off.
+- **w** : Image warping
 - **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
 - **z** : launch z profiler *if marquee is present on the graph*.
 - **SHIFT + b** : restore image from backup if it exists.
 - **SHIFT + d** : a copy of the wave in TG is created and displayed.
 - **SHIFT + f** : FFT (if there is marquee, calculate only the enclosed part)
-- **SHIFT + n** : 
 - **SHIFT + r** : launch interactive image rotation.
 - **SHIFT + x** : launch interactive PES (XPS) extractor
 - **SHIFT + mousewheel** : zoom image centered at the cursor.

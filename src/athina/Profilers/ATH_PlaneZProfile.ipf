@@ -286,10 +286,10 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				DrawAction/W=$s.winName delete
 				SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 				// Scale here is p, q
-				C1x = hcsr(G)
-				C1y = vcsr(G)
-				C2x = hcsr(H)
-				C2y = vcsr(H)
+				C1x = hcsr(G,s.winName)
+				C1y = vcsr(G,s.winName)
+				C2x = hcsr(H,s.winName)
+				C2y = vcsr(H,s.winName)
 				DrawLine/W=$s.winName C1x, C1y, C2x, C2y
 				if(C1x == C2x && C1y == C2y) // Cursors G, H cannot overlap
 					break

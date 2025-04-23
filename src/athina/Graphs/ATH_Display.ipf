@@ -236,6 +236,9 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ModifyGraph width={Plan,1,top,left}
 					endif
 					break
+				case 119: // w, warp
+					ATH_Warp#WarpControl()
+					break					
 				case 120: // x, calculate xmcd
 					if(is3d && DimSize(w, 2)==2)
 						ATH_Launch#CalculateXMCDFromStack()
@@ -250,7 +253,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					endif
 					break
 			endswitch
-			hookResult = 1
+			hookResult = 0 // if 1 then arrows for example do not work
 			//Do not return anything here, you will block any other case 11.
 	endswitch
 	return hookResult

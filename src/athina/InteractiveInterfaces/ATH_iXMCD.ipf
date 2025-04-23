@@ -99,20 +99,22 @@ static Function CreateiXMCDPanel(WAVE wXMCD)
 	string winiXMCDNameStr = WinName(0,1)
 	DoWindow/T $winiXMCDNameStr "iXMC(L)D"		
 	ControlBar/W=$winiXMCDNameStr 40	
-	
-	SetVariable setDriftStep,win=$winiXMCDNameStr,pos={130,10},size={160,20.00},title="Drift step (px)"
+
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
+
+	SetVariable setDriftStep,win=$winiXMCDNameStr,pos={130*pntConv,10*pntConv},size={160*pntConv,20*pntConv},title="Drift step (px)"
 	SetVariable setDriftStep,win=$winiXMCDNameStr,value=gATH_driftStep,help={"Set drift value for img2"}
 	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,32,1},live=1,proc=ATH_iXMCD#SetDriftStepVar	
 
-	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20.00,10.00},size={90.00,20.00},proc=ATH_iXMCD#SaveXMCDImageButton
+	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20*pntConv,10*pntConv},size={90*pntConv,20*pntConv},proc=ATH_iXMCD#SaveXMCDImageButton
 	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save XMCD", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
-	Button RestoreImgs title="Restore",fColor=(3,52428,1),size={70,20},pos={300.00,10.00},valueColor=(0,0,0),proc=ATH_iXMCD#RestoreImagesButton
+	Button RestoreImgs title="Restore",fColor=(3,52428,1),size={70*pntConv,20*pntConv},pos={300*pntConv,10*pntConv},valueColor=(0,0,0),proc=ATH_iXMCD#RestoreImagesButton
 	
 	// Set the path to all windows
 	string dfrStr = GetWavesDataFolder(wXMCD, 1)
 	SetWindow $winiXMCDNameStr userdata(ATH_iXMCDPath) = dfrStr
 	SetWindow $winiXMCDNameStr userdata(ATH_iXMCDWin) = winiXMCDNameStr
-	SetWindow $winiXMCDNameStr,hook(MyiXMCDWinHook) = ATH_iXMCD#iXMCDWindowHook // Set the hook
+	SetWindow $winiXMCDNameStr hook(MyiXMCDWinHook) = ATH_iXMCD#iXMCDWindowHook // Set the hook
 	return 0
 End
 

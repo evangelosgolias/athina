@@ -29,7 +29,7 @@ Function/WAVE GetAffine2DMapping(WAVE src, WAVE dest)
 	Make/FREE destM = {{dest[0],dest[2],dest[4],0,0,0},{dest[1],dest[3],dest[5],0,0,0},{1,1,1,0,0,0},\
 					   {0,0,0,dest[0],dest[2],dest[4]},{0,0,0,dest[1],dest[3],dest[5]},{0,0,0,1,1,1}}
 	MatrixOP/FREE res = inv(destM) x srcM
-	
+	print res
 	return res
 	
 End
