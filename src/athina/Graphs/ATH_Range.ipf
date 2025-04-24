@@ -248,21 +248,21 @@ Static Function pnl(String grfName)
 	TitleBox zmaxLogigmaT pos={241*pntConv,145*pntConv},title="\u03c3",win=$pnlName
 
 	TitleBox adjustT pos={5*pntConv,(CTRLHEIGHT-23)*pntConv},title="hist. range",fsize = 13*pntConv,win=$pnlName
-	Button presentB pos={90*pntConv,(CTRLHEIGHT-25)*pntConv}, size={100*pntConv,20*pntConv}, title="first Z - last Z", win=$pnlName
-	Button fullB pos={200*pntConv,(CTRLHEIGHT-25)*pntConv}, size={45*pntConv,20*pntConv}, title="full", win=$pnlName
+	Button presentRngB pos={90*pntConv,(CTRLHEIGHT-25)*pntConv}, size={100*pntConv,20*pntConv}, title="first Z - last Z", win=$pnlName
+	Button fullRngB pos={200*pntConv,(CTRLHEIGHT-25)*pntConv}, size={45*pntConv,20*pntConv}, title="full", win=$pnlName
 	
-	Button doB pos={5*pntConv,(PNLHEIGHT-25)*pntConv}, size={65*pntConv,20*pntConv}, title="Apply", fcolor=(26205,52428,0), win=$pnlName
-	Button cancelB pos={(PNLWIDTH-70)*pntConv,(PNLHEIGHT-25)*pntConv}, size={65*pntConv,20*pntConv},win=$pnlName
-	Button cancelB title="Cancel", fcolor=(65535,0,0),win=$pnlName
-	Button refreshB pos={(PNLWIDTH-165)*pntConv,(PNLHEIGHT-25)*pntConv},title="Refresh",win=$pnlName
-	Button refreshB size={65*pntConv,20*pntConv}, fcolor=(65535,43690,0),win=$pnlName
-	Button reverseColorsB, pos={230*pntConv,6*pntConv},size={25*pntConv,20*pntConv},title="Rc",fsize=13*pntConv,win=$pnlName
+	Button doRngB pos={5*pntConv,(PNLHEIGHT-25)*pntConv}, size={65*pntConv,20*pntConv}, title="Apply", fcolor=(26205,52428,0), win=$pnlName
+	Button cancelRngB pos={(PNLWIDTH-70)*pntConv,(PNLHEIGHT-25)*pntConv}, size={65*pntConv,20*pntConv},win=$pnlName
+	Button cancelRngB title="Cancel", fcolor=(65535,0,0),win=$pnlName
+	Button refreshRngB pos={(PNLWIDTH-165)*pntConv,(PNLHEIGHT-25)*pntConv},title="Refresh",win=$pnlName
+	Button refreshRngB size={65*pntConv,20*pntConv}, fcolor=(65535,43690,0),win=$pnlName
+	Button reverseColorsRngB, pos={230*pntConv,6*pntConv},size={25*pntConv,20*pntConv},title="Rc",fsize=13*pntConv,win=$pnlName
 	
 	ModifyControlList ControlNameList(pnlName,";","zm*C") mode=1, proc=ATH_Range#pnlCheck, fsize=13*pntConv, win=$pnlName
 	ModifyControlList ControlNameList(pnlName,";","zm*V") size={60*pntConv,18*pntConv}, bodyWidth=60*pntConv,proc=ATH_Range#pnlSetVar,fsize=13*pntConv,win=$pnlName
 	ModifyControlList "zminV;zmaxV" size={100*pntConv,18*pntConv}, bodyWidth=100*pntConv, win=$pnlName
 	ModifyControlList ControlNameList(pnlName,";","*T") frame=0,win=$pnlName
-	ModifyControlList ControlNameList(pnlName,";","*B") proc=ATH_Range#pnlButton,win=$pnlName
+	ModifyControlList ControlNameList(pnlName,";","*RngB") proc=ATH_Range#pnlButton,win=$pnlName
 	ModifyControlList ControlNameList(pnlName,";","*") focusRing=0, win=$pnlName
 
 	// add some color to indicate a Reversed ColorMap
@@ -271,9 +271,9 @@ Static Function pnl(String grfName)
 	SplitString/E=matchPattern StringByKey("RECREATION",Imageinfo(targetWin,imgName,0)), dump, cmapSwitchStr
 	
 	if(str2num(cmapSwitchStr))
-		Button reverseColorsB, fcolor=(0,65535,0),win=$pnlName
+		Button reverseColorsRngB, fcolor=(0,65535,0),win=$pnlName
 	else
-		Button reverseColorsB, fcolor=(65535,0,0),win=$pnlName
+		Button reverseColorsRngB, fcolor=(65535,0,0),win=$pnlName
 	endif
 	//
 	
@@ -658,13 +658,13 @@ Static Function pnlButton(STRUCT WMButtonAction &s)
 	endif
 
 	strswitch (s.ctrlName)
-		case "doB": // Apply
+		case "doRngB": // Apply
 			SetWindow $s.win userData(norevert)="1"
 			//*** FALLTHROUGH ***
-		case "cancelB":
+		case "cancelRngB":
 			KillWindow $s.win
 			break
-		case "refreshB":
+		case "refreshRngB":
 			// ------ EG ---- //
 			updateZmode(s.win)
 			updateZRange(GetUserData(s.win,"","grf"), pause=1)
@@ -673,13 +673,13 @@ Static Function pnlButton(STRUCT WMButtonAction &s)
 			updatePnlColor(s.win)
 			updatePnlPresentValues(s.win)
 			break
-		case "presentB":
-		case "fullB":
-			updatePnlHistogram(s.win, NumberByKey(s.ctrlName, "presentB:0;fullB:1"))
+		case "presentRngB":
+		case "fullRngB":
+			updatePnlHistogram(s.win, NumberByKey(s.ctrlName, "presentRngB:0;fullRngB:1"))
 			updatePnlCursorsPos(s.win)
 			updatePnlColor(s.win)
 			break
-		case "reverseColorsB":
+		case "reverseColorsRngB":
 			string matchPattern = "(.)([0-9])}$", dump, cmapSwitchStr
 			ControlInfo/W=$s.win imageP
 			string imgNameStr = S_Value
@@ -687,9 +687,9 @@ Static Function pnlButton(STRUCT WMButtonAction &s)
 			variable RcmapQ = !str2num(cmapSwitchStr) // Flip it here
 			ModifyImage/W=$GetUserData(s.win,"","grf") $imgNameStr ctab={,,,RcmapQ}	
 			if(RcmapQ)
-				Button reverseColorsB,fcolor=(0,65535,0),win=$s.win
+				Button reverseColorsRngB,fcolor=(0,65535,0),win=$s.win
 			else
-				Button reverseColorsB,fcolor=(65535,0,0),win=$s.win
+				Button reverseColorsRngB,fcolor=(65535,0,0),win=$s.win
 			endif			
 				break
 			endswitch

@@ -31,6 +31,8 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+static constant kCBOFFSET = 55 // Warp panel
+
 static Function WarpControl()
 
 	string destGraphStr = WinName(0, 1, 1) // Graph with ControlBar	
@@ -76,22 +78,25 @@ static Function WarpControl()
 	endif
 		
 	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-	ControlBar/W=$destGraphStr 55	
+	variable lCBOFFSET 
+	ControlInfo kwControlBar
+	lCBOFFSET = V_height
+	ControlBar/W=$destGraphStr lCBOFFSET + kCBOFFSET	
 
-	SetVariable svRows,win=$destGraphStr,pos={90*pntConv,5*pntConv},size={90*pntConv,20*pntConv},title="Rows"
+	SetVariable svRows,win=$destGraphStr,pos={90*pntConv,(5+lCBOFFSET)*pntConv},size={90*pntConv,20*pntConv},title="Rows"
 	SetVariable svRows,win=$destGraphStr,value=gATH_gridRows,fSize=14,limits={2,5,1},live=1
-	SetVariable svCols,win=$destGraphStr,pos={90,28},size={90,20.00},title="Cols"
+	SetVariable svCols,win=$destGraphStr,pos={90*pntConv,(28+lCBOFFSET)*pntConv},size={90*pntConv,20.00*pntConv},title="Cols"
 	SetVariable svCols,win=$destGraphStr,value=gATH_gridCols,fSize=14,limits={2,5,1},live=1
 	
-	Button SelectSourceImageB,win=$destGraphStr,title="Ref ?",pos={5*pntConv,7*pntConv},size={75*pntConv,40*pntConv},help={"Select source image"}, fColor=(65535,0,0)	
-	Button SetGridsB,win=$destGraphStr,title="(Re)Set grid",pos={190*pntConv,5*pntConv},size={90*pntConv,20*pntConv},help={"Set or reset grids on source/destination images"}, valueColor=(1,12815,52428)	
-	Button WarpImageB,win=$destGraphStr,title="Warp",pos={190*pntConv,28*pntConv},size={90*pntConv,20*pntConv},help={"Warped destination image"}, valueColor=(1,12815,52428)	
-	Button RestoreImgsB,win=$destGraphStr,title="Restore",size={70*pntConv,20*pntConv},pos={295*pntConv,28*pntConv},valueColor=(0,0,0)
-	Button DoneB,win=$destGraphStr,title="Done",fColor=(49163,65535,32768),size={44*pntConv,40*pntConv},pos={375*pntConv,8*pntConv},fColor=(32768,54615,65535),valueColor=(0,0,0)
+	Button SelectSourceImageWarpB,win=$destGraphStr,title="Ref ?",pos={5*pntConv,(7+lCBOFFSET)*pntConv},size={75*pntConv,40*pntConv},help={"Select source image"}, fColor=(65535,0,0)	
+	Button SetGridsWarpB,win=$destGraphStr,title="(Re)Set grid",pos={190*pntConv,(5+lCBOFFSET)*pntConv},size={90*pntConv,20*pntConv},help={"Set or reset grids on source/destination images"}, valueColor=(1,12815,52428)	
+	Button WarpImageWarpB,win=$destGraphStr,title="Warp",pos={190*pntConv,(28+lCBOFFSET)*pntConv},size={90*pntConv,20*pntConv},help={"Warped destination image"}, valueColor=(1,12815,52428)	
+	Button RestoreImgsWarpB,win=$destGraphStr,title="Restore",size={70*pntConv,20*pntConv},pos={295*pntConv,(28+lCBOFFSET)*pntConv},valueColor=(0,0,0)
+	Button DoneWarpB,win=$destGraphStr,title="Done",fColor=(49163,65535,32768),size={44*pntConv,40*pntConv},pos={375*pntConv,(8+lCBOFFSET)*pntConv},fColor=(32768,54615,65535),valueColor=(0,0,0)
 
-	ModifyControlList ControlNameList(destGraphStr,";","*B"), proc=ATH_Warp#WarpButton, fsize=14*pntConv, win=$destGraphStr
+	ModifyControlList ControlNameList(destGraphStr,";","*WarpB"), proc=ATH_Warp#WarpButton, fsize=14*pntConv, win=$destGraphStr
 
-	PopupMenu methodL,win=$destGraphStr,value="smooth;linear;fast", pos={295*pntConv,5*pntConv},size={70*pntConv,20*pntConv},help={"Select interpolation method"}
+	PopupMenu methodL,win=$destGraphStr,value="smooth;linear;fast", pos={295*pntConv,(5+lCBOFFSET)*pntConv},size={70*pntConv,20*pntConv},help={"Select interpolation method"}
 	PopupMenu methodL,fsize=14*pntConv,valueColor=(1,12815,52428)
 
 	SetWindow $destGraphStr hook(WarpGridHook) = ATH_Warp#WarpGridHook
@@ -104,8 +109,8 @@ static Function WarpGridHook(STRUCT WMWinHookStruct &s)
 
 	variable hookResult = 0, curX,curY,flags, px,py
 	DFREF dfr = $GetUserData(s.winName, "", "WarpDFStr")
-	NVAR/SDFR=dfr setGrid, lastIndex, dx0,dy0,ddx,ddy,sx0,sy0,sdx,sdy
-	SVAR/SDFR=dfr gATH_srcWinStr, gATH_srcWStr, gATH_destStr, gATH_srcWStr
+	NVAR/Z/SDFR=dfr setGrid, lastIndex, dx0,dy0,ddx,ddy,sx0,sy0,sdx,sdy
+	SVAR/Z/SDFR=dfr gATH_srcWinStr, gATH_srcWStr, gATH_destStr, gATH_srcWStr
 	switch(s.eventCode)
 		case 17: // not 2,
 			if(!cmpstr(s.winName, gATH_srcWinStr)) // Set Info to the window and kill the other window
@@ -137,7 +142,10 @@ static Function WarpGridHook(STRUCT WMWinHookStruct &s)
 			lastIndex = -1
 			break
 		case 4:
-			if((s.eventMod & 1) && setGrid )
+			if((s.eventMod & 1) && setGrid)
+				if(s.eventMod & 2)
+					print "Event 4 & SHIFT pressed"
+				endif
 				px = s.mouseLoc.h
 				py = s.mouseLoc.v
 				curX=AxisValFromPixel(s.winName, "top", px)
@@ -188,13 +196,13 @@ static Function WarpButton(STRUCT WMButtonAction &B_Struct)
 		return 0
 	endif
 	DFREF dfr = $GetUserData(B_Struct.win, "", "WarpDFStr")
-	NVAR/SDFR=dfr gATH_gridRows, gATH_gridCols, setGrid,  dx0,dy0,ddx,ddy,sx0,sy0,sdx,sdy
-	SVAR/SDFR=dfr gATH_srcStr, gATH_destStr, gATH_srcWinStr
+	NVAR/Z/SDFR=dfr gATH_gridRows, gATH_gridCols, setGrid,  dx0,dy0,ddx,ddy,sx0,sy0,sdx,sdy
+	SVAR/Z/SDFR=dfr gATH_srcStr, gATH_destStr, gATH_srcWinStr
 	WAVE/Z srcW = $gATH_srcStr
 	WAVE/Z destW = $gATH_destStr
-	WAVE/SDFR=dfr backupWave
+	WAVE/Z/SDFR=dfr backupWave
 	strswitch (B_Struct.ctrlName)
-		case "SelectSourceImageB":
+		case "SelectSourceImageWarpB":
 			string buffer0, buffer1
 			[buffer0, buffer1] = ATH_Warp#SelectSourceWave(destW,B_Struct.win)
 			gATH_srcStr = buffer0
@@ -202,7 +210,7 @@ static Function WarpButton(STRUCT WMButtonAction &B_Struct)
 			SetWindow $gATH_srcWinStr hook(WarpGridHook) = ATH_Warp#WarpGridHook
 			SetWindow $gATH_srcWinStr userdata(WarpDFStr) = GetUserData(B_Struct.win, "", "WarpDFStr")
 			break
-		case "SetGridsB":
+		case "SetGridsWarpB":
 			if(!strlen(gATH_srcStr))
 				print "You need to set the reference (source) image"
 				return 0
@@ -232,7 +240,7 @@ static Function WarpButton(STRUCT WMButtonAction &B_Struct)
 			SetDataFolder currDFR
 			setGrid = 1
 			break
-		case "WarpImageB":
+		case "WarpImageWarpB":
 			if(setGrid)
 			WAVE/SDFR=dfr xs, ys, xd, yd, backUpWave
 			ControlInfo/W=$B_Struct.win methodL
@@ -242,10 +250,10 @@ static Function WarpButton(STRUCT WMButtonAction &B_Struct)
 			KillWaves M_InterpolatedImage
 			endif
 			break
-		case "RestoreImgsB":
+		case "RestoreImgsWarpB":
 			Duplicate/O dfr:backUpWave, destW
 			break
-		case "DoneB":
+		case "DoneWarpB":
 			SetWindow $B_Struct.win hook(WarpGridHook) = $""
 			SetWindow $gATH_srcWinStr hook(WarpGridHook) = $""
 			RemoveFromGraph/W=$B_Struct.win/Z yd
@@ -253,14 +261,17 @@ static Function WarpButton(STRUCT WMButtonAction &B_Struct)
 			KillWindow/Z $gATH_srcWinStr
 			KillControl/W=$B_Struct.win svRows
 			KillControl/W=$B_Struct.win svCols
-			KillControl/W=$B_Struct.win SelectSourceImageB
-			KillControl/W=$B_Struct.win SetGridsB
-			KillControl/W=$B_Struct.win WarpImageB
+			KillControl/W=$B_Struct.win SelectSourceImageWarpB
+			KillControl/W=$B_Struct.win SetGridsWarpB
+			KillControl/W=$B_Struct.win WarpImageWarpB
 			KillControl/W=$B_Struct.win methodL
-			KillControl/W=$B_Struct.win RestoreImgsB
-			KillControl/W=$B_Struct.win DoneB
-			ControlBar/W=$B_Struct.win 0
-			SetScale/P x, sx0, sdx, srcW; SetScale/P y, sy0, sdy, srcW	
+			KillControl/W=$B_Struct.win RestoreImgsWarpB
+			KillControl/W=$B_Struct.win DoneWarpB
+			ControlInfo/W=$B_Struct.win kwControlBar
+			ControlBar/W=$B_Struct.win V_Height - kCBOFFSET		
+			if(WaveExists(srcW))
+				SetScale/P x, sx0, sdx, srcW; SetScale/P y, sy0, sdy, srcW	
+			endif
 			SetScale/P x, dx0, ddx, destW; SetScale/P y, dy0, ddy, destW					
 			KillDataFolder/Z dfr				
 			break
@@ -289,7 +300,7 @@ static Function [string srcWStr, string srcGraphStr] SelectSourceWave(WAVE destW
 	variable/G dfr:sdy = DimDelta(srcW,1)
 	string/G dfr:gATH_srcWStr = srcWStr
 	SetScale/P x, 0, 1, srcW; 	SetScale/P y, 0, 1, srcW // Change scale
-	Button SelectSourceImageB, fColor=(49163,65535,32768), title="Ref Set", help={srcWStr},win=$grfName
+	Button SelectSourceImageWarpB, fColor=(49163,65535,32768), title="Ref Set", help={srcWStr},win=$grfName
 	ATH_Display#NewImg(srcW)
 	srcGraphStr = WinName(0, 1, 1)
 	DoWindow/T $srcGraphStr, ("Source: "+ NameOfWave(srcW))
