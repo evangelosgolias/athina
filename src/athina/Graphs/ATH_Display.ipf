@@ -235,10 +235,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						SetWindow $s.winName, userdata(ATH_isPlanQ) = "1"
 						ModifyGraph width={Plan,1,top,left}
 					endif
-					break
-				case 119: // w, warp
-					ATH_Warp#WarpControl()
-					break					
+					break			
 				case 120: // x, calculate xmcd
 					if(is3d && DimSize(w, 2)==2)
 						ATH_Launch#CalculateXMCDFromStack()

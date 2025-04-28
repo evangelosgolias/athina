@@ -50,6 +50,11 @@ static Function WarpControl()
 	// Set global variables
 	variable/G dfr:lastIndex = 0
 	variable/G dfr:setGrid = 0
+
+	//variable/G dfr:flag = 0
+	variable/G dfr:gATH_driftStep = 1
+	variable/G dfr:gATH_dx = 0	
+	variable/G dfr:gATH_dy = 0	
 		
 	variable/G dfr:gATH_gridRows = 2 // minimum allowed
 	variable/G dfr:gATH_gridCols = 2
@@ -71,7 +76,7 @@ static Function WarpControl()
 	SetScale/P x, 0, 1, destW; 	SetScale/P y, 0, 1, destW // Change scale
 
 	// Make a copy of the original wave
-	Duplicate destW, dfr:backUpWave
+	Duplicate destW, dfr:backUpWave, dfr:ath_diff
 		
 	if(WaveType(destW) & 0x10) // If WORD (int16)
 		Redimension/S destW
@@ -109,7 +114,7 @@ static Function WarpGridHook(STRUCT WMWinHookStruct &s)
 
 	variable hookResult = 0, curX,curY,flags, px,py
 	DFREF dfr = $GetUserData(s.winName, "", "WarpDFStr")
-	NVAR/Z/SDFR=dfr setGrid, lastIndex, dx0,dy0,ddx,ddy,sx0,sy0,sdx,sdy
+	NVAR/Z/SDFR=dfr setGrid, lastIndex, dx0,dy0,ddx,ddy,sx0,sy0,sdx,sdy, flag // test
 	SVAR/Z/SDFR=dfr gATH_srcWinStr, gATH_srcWStr, gATH_destStr, gATH_srcWStr
 	switch(s.eventCode)
 		case 17: // not 2,
@@ -118,12 +123,12 @@ static Function WarpGridHook(STRUCT WMWinHookStruct &s)
 				KillWindow/Z $gATH_srcWinStr
 				KillControl/W=$otherWinStr svRows
 				KillControl/W=$otherWinStr svCols
-				KillControl/W=$otherWinStr SelectSourceImageB
-				KillControl/W=$otherWinStr SetGridsB
-				KillControl/W=$otherWinStr WarpImageB
+				KillControl/W=$otherWinStr SelectSourceImageWarpB
+				KillControl/W=$otherWinStr SetGridsWarpB
+				KillControl/W=$otherWinStr WarpImageWarpB
 				KillControl/W=$otherWinStr methodL
-				KillControl/W=$otherWinStr RestoreImgsB
-				KillControl/W=$otherWinStr DoneB
+				KillControl/W=$otherWinStr RestoreImgsWarpB
+				KillControl/W=$otherWinStr DoneWarpB
 				ControlBar/W=$otherWinStr 0
 				RemoveFromGraph/W=$otherWinStr/Z yd
 				SetWindow $otherWinStr hook(WarpGridHook) = ATH_Warp#WarpGridHook				
@@ -143,9 +148,6 @@ static Function WarpGridHook(STRUCT WMWinHookStruct &s)
 			break
 		case 4:
 			if((s.eventMod & 1) && setGrid)
-				if(s.eventMod & 2)
-					print "Event 4 & SHIFT pressed"
-				endif
 				px = s.mouseLoc.h
 				py = s.mouseLoc.v
 				curX=AxisValFromPixel(s.winName, "top", px)
@@ -164,6 +166,7 @@ static Function WarpGridHook(STRUCT WMWinHookStruct &s)
 					col = trunc(lastIndex/rows)
 					yw[row][col] = curY
 					xw[row][col] = curX
+					//flag = 1 // Test
 				else
 					string info=TraceFromPixel(px,py,"")
 					if(strlen(info)>0)
@@ -172,6 +175,7 @@ static Function WarpGridHook(STRUCT WMWinHookStruct &s)
 						col = trunc(lastIndex/rows)
 						yw[row][col] = curY
 						xw[row][col] = curX
+						//flag = 1 // Test 			
 					else
 						lastIndex = -1
 					endif
@@ -182,11 +186,74 @@ static Function WarpGridHook(STRUCT WMWinHookStruct &s)
 			else
 				hookResult = 0
 			endif
+			// Continuous mode by pressing //SHIFT
+			if(s.eventMod & 2 && cmpstr(s.winName, gATH_srcWinStr))
+				WAVE/Z destW = $gATH_destStr
+				WAVE/Z srcW = $gATH_srcWStr
+				WAVE/SDFR=dfr xs, ys, xd, yd, backUpWave, ath_diff
+				ControlInfo/W=$s.winName methodL
+				ImageInterpolate/wm=(4-V_Value)/sgrx=xs/sgry=ys/dgrx=xd/dgry=yd warp backUpWave
+				WAVE M_InterpolatedImage
+				Duplicate/O M_InterpolatedImage, destW
+				ath_diff = srcW - destW
+			endif			
 			break
 		case 5:
+			if(flag && cmpstr(s.winName, gATH_srcWinStr))
+				WAVE/Z destW = $gATH_destStr
+				WAVE/Z srcW = $gATH_srcWStr
+				WAVE/SDFR=dfr xs, ys, xd, yd, backUpWave, ath_diff				
+				ControlInfo/W=$s.winName methodL
+				ImageInterpolate/wm=(4-V_Value)/sgrx=xs/sgry=ys/dgrx=xd/dgry=yd warp backUpWave
+				WAVE M_InterpolatedImage
+				Duplicate/O M_InterpolatedImage, destW
+				ath_diff = srcW-destW
+			endif
+			flag = 0
+			///
 			lastIndex = -1
 			break
 	endswitch
+
+
+	if(s.specialKeyCode)
+		NVAR/SDFR=dfr gATH_driftStep, gATH_dx, gATH_dy
+		WAVE/Z destW = $gATH_destStr
+		switch(s.specialKeyCode)
+			case 100: //left arrow
+				gATH_dx -= gATH_driftStep
+				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=M_InterpolatedImage Affine2D destW
+				Duplicate/O M_InterpolatedImage, destW
+				hookResult = 1
+				break
+			case 101: //right arrow
+				gATH_dx += gATH_driftStep
+				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=M_InterpolatedImage Affine2D destW
+				Duplicate/O M_InterpolatedImage, destW
+				hookResult = 1
+				break
+			case 102: // up arrow
+				gATH_dy -= gATH_driftStep
+				ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=M_InterpolatedImage Affine2D destW
+				Duplicate/O M_InterpolatedImage, destW
+				hookResult = 1
+				break
+			case 103: // down arrow
+				gATH_dy += gATH_driftStep
+				ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=M_InterpolatedImage Affine2D destW
+				Duplicate/O M_InterpolatedImage, destW
+				hookResult = 1
+				break
+			default:
+				break
+		endswitch
+		if(hookResult)
+			// has to be first so wXMCD, do not need rescaling
+			ath_diff = srcW-destW
+		endif
+	endif
+	
+		
 	return hookResult		// 0 if nothing done, else 1
 End
 
@@ -242,12 +309,12 @@ static Function WarpButton(STRUCT WMButtonAction &B_Struct)
 			break
 		case "WarpImageWarpB":
 			if(setGrid)
-			WAVE/SDFR=dfr xs, ys, xd, yd, backUpWave
-			ControlInfo/W=$B_Struct.win methodL
-			ImageInterpolate/wm=(4-V_Value)/sgrx=xs/sgry=ys/dgrx=xd/dgry=yd warp destW
-			WAVE M_InterpolatedImage
-			Duplicate/O M_InterpolatedImage, destW
-			KillWaves M_InterpolatedImage
+				WAVE/SDFR=dfr xs, ys, xd, yd, backUpWave
+				ControlInfo/W=$B_Struct.win methodL
+				ImageInterpolate/wm=(4-V_Value)/sgrx=xs/sgry=ys/dgrx=xd/dgry=yd warp destW
+				WAVE M_InterpolatedImage
+				Duplicate/O M_InterpolatedImage, destW
+				KillWaves M_InterpolatedImage
 			endif
 			break
 		case "RestoreImgsWarpB":
@@ -301,8 +368,11 @@ static Function [string srcWStr, string srcGraphStr] SelectSourceWave(WAVE destW
 	string/G dfr:gATH_srcWStr = srcWStr
 	SetScale/P x, 0, 1, srcW; 	SetScale/P y, 0, 1, srcW // Change scale
 	Button SelectSourceImageWarpB, fColor=(49163,65535,32768), title="Ref Set", help={srcWStr},win=$grfName
+	ATH_Display#NewImg(dfr:ath_diff)
+	// Linked 
 	ATH_Display#NewImg(srcW)
 	srcGraphStr = WinName(0, 1, 1)
+	// Linked .
 	DoWindow/T $srcGraphStr, ("Source: "+ NameOfWave(srcW))
 	return [srcWStr, srcGraphStr]
 End
