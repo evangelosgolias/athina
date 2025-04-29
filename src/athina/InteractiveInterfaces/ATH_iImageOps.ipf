@@ -253,9 +253,6 @@ static Function RegisterImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 				ImageInterpolate/PXSZ={px,py} Pixelate w2
 				Duplicate/FREE M_PixelatedImage, wtestp
 			endif
-			//ImageRegistration/USER=W_RegParams/TSTM=0 testWave=w1
-			// Error handling in case axes are different
-
 
 			if(!marqueeQ)
 				ImageRegistration/Q/CONV=1/PRDL=1/TRNS={1,1,1}/ISOS/TSTM=0/BVAL=0 testwave=wtestp, refwave=wRefp
@@ -273,8 +270,8 @@ static Function RegisterImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 
 			WAVE M_RegOut, W_RegParams
 
-			W_RegParams[0] *= px
-			W_RegParams[1] *= py
+			W_RegParams[0] *= px==0 ? 1 : px
+			W_RegParams[1] *= py==0 ? 1 : py
 
 			ImageRegistration/Q/USER=W_RegParams/TSTM=0/BVAL=0 testwave=w2
 

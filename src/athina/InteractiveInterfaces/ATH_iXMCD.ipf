@@ -230,7 +230,7 @@ static Function RegisterImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 			//SetDataFolder GetWavesDataFolderDFR(wimg2_undo)
 			ControlInfo/W=$B_Struct.win DownScaleFactor
 			variable scaleFactor = str2num(S_Value)
-			variable px = 0; variable py = 0
+			variable px = 1; variable py = 1
 
 			string axisX, axisY
 			[axisX, axisY] = ATH_Graph#GetAxes(grfName = B_Struct.win)
@@ -269,8 +269,8 @@ static Function RegisterImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 
 			WAVE M_RegOut, W_RegParams
 
-			W_RegParams[0] *= px
-			W_RegParams[1] *= py
+			W_RegParams[0] *= px==0 ? 1 : px
+			W_RegParams[1] *= py==0 ? 1 : py
 
 			ImageRegistration/Q/USER=W_RegParams/TSTM=0/BVAL=0 testwave=wImg2
 
