@@ -156,3 +156,17 @@ static Function WaveLogging(Wave wRef, string msg, [int prepend])
 	endif
 	return 0
 End
+
+static Function/S WaveToString(WAVE w, [string sep])
+	// Make a string from a textwave
+	// If you want to return a list, just set strsep=;
+	sep = SelectString(ParamIsDefault(sep) ? 0: 1, ";", sep)
+	
+	string concStr = ""
+	variable nitems = DimSize(w, 0), i
+	
+	for(i = 0; i < nitems; i++)
+		concStr += num2str(w[i]) + sep
+	endfor
+	return concStr
+End

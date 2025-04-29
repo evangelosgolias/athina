@@ -27,7 +27,6 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **p** : launch plane z profiler.
 - **r** : show range panel (contrast).
 - **s** : Toggle square image on/off.
-- **w** : Image warping
 - **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
 - **z** : launch z profiler *if marquee is present on the graph*.
 - **SHIFT + b** : restore image from backup if it exists.

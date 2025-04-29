@@ -93,7 +93,7 @@ End
 
 static Function AverageStackToImageFromBrowserMenu()
 	string bufferStr, wavenameStr
-	if(ATH_Dialog#CountSelectedWavesInDataBrowser(waveDimemsions = 3) == 1\
+	if(ATH_Dialog#CountSelectedWavesInDataBrowser(wDims = 3) == 1\
 	 && ATH_Dialog#CountSelectedWavesInDataBrowser() == 1) // If we selected a single 3D wave
 		string selected3DWaveStr = GetBrowserSelection(0)
 		WAVE wRef = $selected3DWaveStr	
@@ -535,7 +535,7 @@ End
 
 static Function NormalisationImageStackWithImage()
 		
-	if(ATH_Dialog#CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
+	if(ATH_Dialog#CountSelectedWavesInDataBrowser(wDims=3) != 1)
 		Abort "Please select an image stack (3d wave)"
 	endif
 	string wave3dStr = StringFromList(0, GetBrowserSelection(0))
@@ -558,7 +558,7 @@ End
 
 static Function NormalisationImageStackWithProfile()
 	
-	if(ATH_Dialog#CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
+	if(ATH_Dialog#CountSelectedWavesInDataBrowser(wDims=3) != 1)
 		Abort "Please select an image stack (3d wave)"
 	endif
 	string wave3dStr = StringFromList(0, GetBrowserSelection(0))
@@ -584,7 +584,7 @@ End
 
 static Function NormalisationImageStackWithImageStack()
 
-	if(ATH_Dialog#CountSelectedWavesInDataBrowser(waveDimemsions=3) != 1)
+	if(ATH_Dialog#CountSelectedWavesInDataBrowser(wDims=3) != 1)
 		Abort "Please select an image stack (3d wave)"
 	endif
 	string wave3d1Str = StringFromList(0, GetBrowserSelection(0))
