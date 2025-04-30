@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion= 9
 #pragma ModuleName = ATH_iImgOps
-#pragma version = 2.0
+#pragma version = 1.1
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -35,24 +35,16 @@ static Function MainMenu()
 	/// static Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
 	
-	
-	variable waveN = ATH_Dialog#CountSelectedWavesInDataBrowser(wDims=2)
-	if(waveN==2) // If you have selected two waves only then procceed without New Browser Selection.
-		string wave1NameStr = GetBrowserSelection(0)
-		string wave2NameStr = GetBrowserSelection(1)
-		string selectedWavesStr = wave1NameStr + ";" + wave2NameStr
-	else
-		string msg = "Select two 2D waves to calculate f(w1, w2). Use Ctrl (Windows) or Cmd (Mac)."		
-		string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
-		// S_fileName is a carriage-return-separated list of full paths to one or more files.
-		waveN = ItemsInList(selectedWavesInBrowserStr)
-		selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)
-		wave1NameStr = StringFromList(0, selectedWavesStr)
-		wave2NameStr = StringFromList(1, selectedWavesStr)
-	endif
+	string msg = "Select two 2D waves to calculate f(w1, w2). Use Ctrl (Windows) or Cmd (Mac)."
+	string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
+	// S_fileName is a carriage-return-separated list of full paths to one or more files.
+	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
+	string selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)
+	string wave1NameStr = StringFromList(0, selectedWavesStr)
+	string wave2NameStr = StringFromList(1, selectedWavesStr)
 	WAVE w1 = $wave1NameStr
 	WAVE w2 = $wave2NameStr	
-	if(waveN != 2 || !ATH_WaveOp#WaveDimensionsEqualQ(w1, w2) \
+	if(nrSelectedWaves != 2 || !ATH_WaveOp#WaveDimensionsEqualQ(w1, w2) \
 	   || WaveDims(w1) != 2 || WaveDims(w2) != 2)
 		DoAlert/T="Please select only two 2d waves with equal dimensions sizes." 1,  ""+\
 				  "Do you want a another chance with the browser selection?"
@@ -89,7 +81,7 @@ static Function MainMenu()
 	endif	
 	
 	Duplicate/O $wave1NameStr, dfr:w1
-	Duplicate/O $wave2NameStr, dfr:w2, dfr:w2_undo,  dfr:w2_orig, dfr:wOpResult, dfr:wSecOpResult
+	Duplicate/O $wave2NameStr, dfr:w2, dfr:w2_undo,  dfr:wOpResult, dfr:wSecOpResult
 	//Wave references
 	WAVE w1 = dfr:w1
 	WAVE w2 = dfr:w2	
@@ -111,31 +103,19 @@ static Function CreateiOpsImgsCalculationPanel(WAVE wOpResult)
 	ATH_Display#NewImg(wOpResult)
 	string winNameStr = WinName(0,1)
 	DoWindow/T $winNameStr "iOperation"
-	ControlBar/W=$winNameStr 90
+	ControlBar/W=$winNameStr 60	
 	string OpStr = "w1 - w2"
 	string SecOpStr = "w1 + w2"
-	
-	string pixelationList = "\""+"1;" + num2str(DimSize(wOpResult,0)/16) + ";" + num2str(DimSize(wOpResult,0)/8)
-	pixelationList += ";" + num2str(DimSize(wOpResult,0)/4) + ";" + num2str(DimSize(wOpResult,0)/2) + ";" + "\""
-		
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution	
-	Button SaveOpResult,win=$winNameStr,pos={20*pntConv,8*pntConv},size={90*pntConv,20*pntConv},proc=ATH_iImgOps#SaveOpResultButton
-	Button SaveOpResult,win=$winNameStr,title="Save Result", help={"Save result in WaveDir"}, valueColor=(1,12815,52428)
-	
-	Button RegistreImgs title="Register",win=$winNameStr,fColor=(32768,54615,65535),size={90*pntConv,20*pntConv},pos={20*pntConv,62*pntConv},valueColor=(0,0,0)
-	Button RegistreImgs help={"Align the image before registration, use marquee to register using a specific region."},win=$winNameStr,proc=ATH_iImgOps#RegisterImageButton
-	PopupMenu DownScaleFactor,win=$winNameStr,mode=1,fSize=14,title="Pixelate:",pos={180*pntConv,62*pntConv}
-	PopupMenu DownScaleFactor,win=$winNameStr,help={"Pixelate image to the selected size for ImageRegistration. If set to 1 use native size."}
-	PopupMenu DownScaleFactor,win=$winNameStr,value=#pixelationList,proc=ATH_iXMCD#DownScaleFactorPopup
-		
-	Button RestoreImgs,win=$winNameStr,title="Restore",pos={20*pntConv,35*pntConv},size={90*pntConv,20*pntConv},fColor=(3,52428,1),proc=ATH_iImgOps#RestoreImagesButton	
-	SetVariable setDriftStep,win=$winNameStr,pos={130*pntConv,8*pntConv},size={120*pntConv,20*pntConv},title="Pixel step"
+	Button SaveOpResult,win=$winNameStr,pos={20.00,8},size={90.00,18},proc=ATH_iImgOps#SaveOpResultButton
+	Button SaveOpResult,win=$winNameStr,title="Save Result", help={"Save result in CWD"}, valueColor=(1,12815,52428)	
+	Button RestoreImgs,win=$winNameStr,title="Restore",pos={20.00,35},size={90.00,20.00},fColor=(3,52428,1),proc=ATH_iImgOps#RestoreImagesButton	
+	SetVariable setDriftStep,win=$winNameStr,pos={130,8},size={120,20.00},title="Pixel step"
 	SetVariable setDriftStep,win=$winNameStr,value=gATH_driftStep,help={"Set drift value for w2"}
 	SetVariable setDriftStep,win=$winNameStr,fSize=14,limits={0,32,1},live=1,proc=ATH_iImgOps#SetDriftStepVar		
-	SetVariable SetOpFormula,win=$winNameStr,fSize=14,pos={260*pntConv,8*pntConv},size={160*pntConv,20*pntConv},title="f(w1, w2)",value=_STR:OpStr
+	SetVariable SetOpFormula,win=$winNameStr,fSize=14,pos={260,8},size={160,20.00},title="f(w1, w2)",value=_STR:OpStr
 	SetVariable SetOpFormula,proc=ATH_iImgOps#SetOpFormula
-	CheckBox SecOp, pos={130*pntConv,35*pntConv}, side=1, size={120*pntConv,20*pntConv}, proc=ATH_iImgOps#CheckBoxSecOp,title="Enable Sec. Op.", fSize=14, value= 0
-	SetVariable SetSecOpFormula,win=$winNameStr,fSize=14,pos={260*pntConv,35*pntConv},size={160*pntConv,20*pntConv},title="secOp",value=_STR:SecOpStr, proc=ATH_iImgOps#SetSecOpFormula
+	CheckBox SecOp, pos={130,35}, side=1, size={120.00,20}, proc=ATH_iImgOps#CheckBoxSecOp,title="Enable Sec. Op.", fSize=14, value= 0
+	SetVariable SetSecOpFormula,win=$winNameStr,fSize=14,pos={260,35},size={160,20.00},title="secOp",value=_STR:SecOpStr, proc=ATH_iImgOps#SetSecOpFormula
 	string dfrStr = GetWavesDataFolder(wOpResult, 1)
 	SetWindow $winNameStr userdata(ATH_iImgOpsDFPath) = dfrStr
 	SetWindow $winNameStr userdata(ATH_iImgOpsWin) = winNameStr
@@ -221,74 +201,9 @@ static Function WindowHook(STRUCT WMWinHookStruct &s)
 	return hookResult	// If non-zero, we handled event and Igor will ignore it.
 End
 
-static Function RegisterImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgOpsDFPath"))
-	WAVE/SDFR=dfr w1
-	WAVE/SDFR=dfr w2
-	WAVE/SDFR=dfr wOpResult
-	WAVE/SDFR=dfr w2_undo
-	NVAR/SDFR=dfr gATH_dx, gATH_dy	
-	switch(B_Struct.eventCode)	// numeric switch
-		case 2:	// "mouse up after mouse down"
-			DFREF saveDF = GetDataFolderDFR() 
-			SetDataFolder dfr
-			ControlInfo/W=$B_Struct.win DownScaleFactor
-			variable scaleFactor = str2num(S_Value)
-			variable px = 0; variable py = 0
-
-			string axisX, axisY
-			[axisX, axisY] = ATH_Graph#GetAxes(grfName = B_Struct.win)
-			GetMarquee/W=$B_Struct.win/Z/K $axisX, $axisY; // Generalise here.
-			variable marqueeQ = V_flag			
-						
-			if(scaleFactor==1 || marqueeQ)
-				WAVE wRefp = w1
-				WAVE wtestp = w2
-			else
-				px = DimSize(w2_undo, 0)/scaleFactor
-				py = DimSize(w2_undo, 1)/scaleFactor
-				ImageInterpolate/PXSZ={px,py} Pixelate w1
-				WAVE M_PixelatedImage
-				Duplicate/FREE M_PixelatedImage, wRefp
-				ImageInterpolate/PXSZ={px,py} Pixelate w2
-				Duplicate/FREE M_PixelatedImage, wtestp
-			endif
-
-			if(!marqueeQ)
-				ImageRegistration/Q/CONV=1/PRDL=1/TRNS={1,1,1}/ISOS/TSTM=0/BVAL=0 testwave=wtestp, refwave=wRefp
-			else
-				ATH_Marquee#CoordinatesToROIMask(V_left, V_top, V_right, V_bottom, interior = 0, exterior = 1, spW = 1)
-				WAVE M_ROIMask
-				if(px*py)					
-					ImageInterpolate/PXSZ={px,py} Pixelate M_ROIMask
-					WAVE refM = M_PixelatedImage
-				else
-					WAVE refM = M_ROIMask
-				endif
-				ImageRegistration/Q/CONV=1/PRDL=1/ISOS/TRNS={1,1,1}/BVAL=0 refMask=refM, testwave=wtestp, refwave=wRefp
-			endif
-
-			WAVE M_RegOut, W_RegParams
-
-			W_RegParams[0] *= px==0 ? 1 : px
-			W_RegParams[1] *= py==0 ? 1 : py
-
-			ImageRegistration/Q/USER=W_RegParams/TSTM=0/BVAL=0 testwave=w2
-
-			Duplicate/O M_RegOut, w2_undo // Overwire the undo that is translated
-
-			ControlInfo/W=$B_Struct.win SetOpFormula
-			string cmdStr = "MatrixOP/O wOpResult = " + S_value
-			Execute/Q/Z ReplaceString("w2",cmdStr,"w2_undo")
-			gATH_dx = 0; gATH_dy = 0
-			SetDataFolder saveDF
-			break
-	endswitch
-	return 0
-End
-
 static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgOpsDFPath"))
+	DFREF saveDFR = GetDataFolderDFR()
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
 	WAVE/SDFR=dfr w1
@@ -298,11 +213,8 @@ static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 	NVAR/Z/SDFR=dfr gATH_secOp
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
-			DFREF saveDF = GetDataFolderDFR() 
-			SetDataFolder dfr	
-			Duplicate/O dfr:w2_orig, dfr:w2
-			Duplicate/O dfr:w2_orig, dfr:w2_undo
-			KillWaves/Z dfr:W_RegParams		
+			SetDataFolder dfr
+			Duplicate/O w2_undo, w2
 			gATH_dx = 0; gATH_dy = 0
 			ControlInfo/W=$B_Struct.win SetOpFormula
 			Execute/Q/Z ("MatrixOP/O wOpResult = " + S_value)
@@ -310,9 +222,9 @@ static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 				ControlInfo/W=$B_Struct.win SetSecOpFormula
 				Execute/Q/Z ("MatrixOP/O wSecOpResult = " + S_value)
 			endif
-			SetDataFolder saveDF
 			break
 	endswitch
+	SetDataFolder saveDFR
 	return 0
 End
 
@@ -337,12 +249,6 @@ static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonContr
 			+ " dy:" + num2str(gATH_dy) +"\n"
 			note2WaveStr += "Copy to command line: \nImageInterpolate/APRM={1,0,"+num2str(gATH_dx)+",0,1,"+num2str(gATH_dy)+\
 			",1,0} Affine2D " + wName2Str
-			if(WaveExists(dfr:W_RegParams))
-				string imgRegStr = ATH_String#WaveToString(dfr:W_RegParams,sep=",")
-				note2WaveStr += "\nMake/N=22 W_RegParams = {" + RemoveEnding(imgRegStr) +"};"
-				note2WaveStr += "ImageRegistration/USER=W_RegParams/TSTM=0/BVAL=0 testwave="+wName2Str
-				note2WaveStr += "\nNote:After the Affine/Registration drift correction might be needed for alignmemt"
-			endif			
 			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)		
 			string saveOpResWaveStr = CreatedataObjectName(sourceDF, "iOp", 1, 0, 1)
 			Duplicate wOpResult, sourceDF:$saveOpResWaveStr
@@ -432,19 +338,5 @@ static Function CheckBoxSecOp(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 			gATH_secOp = 0			
 			break
 	endswitch
-	return 0
-End
-
-static Function DownScaleFactorPopup (STRUCT WMPopupAction &PU_Struct) : PopupMenuControl
-	string dfrStr = GetUserData(PU_Struct.win, "", "ATH_iImgOpsDFPath")
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
-	switch (PU_Struct.eventCode)
-		case 2:
-			PopupMenu DownScaleFactor, win=$PU_Struct.win, popvalue=PU_Struct.popStr
-			break
-		case -1: 							// Control being killed
-			break
-	endswitch
-
 	return 0
 End
