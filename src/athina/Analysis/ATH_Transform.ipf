@@ -48,3 +48,10 @@ static Function/WAVE FFT2D(WAVE wRef)
 	FFT/OUT=3/DEST=$destWaveNameStr wRefFree // dfr:$destWaveNameStr doesn't work
 	return $destWaveNameStr
 End
+
+Function HighAndLowScale(WAVE wRef, variable low, variable high)
+    // Find min and max values of the wave
+    string waveNormStr = NameOfWave(wRef)+"_scaled"
+   	MatrixOP $waveNormStr = scale(wRef, low , high)
+    return 0
+End

@@ -1278,7 +1278,7 @@ End
 
 // Remove background
 
-static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operation
+static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is an Igor operation
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	variable order = 1
 	Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
@@ -1288,6 +1288,10 @@ static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operat
 		return -1
 	endif
 	ATH_DFR#BackupWaveInWaveDFQ(wRef)
+	if(w3d)
+		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, w3d=1)
+		return 0
+	endif
 	if(ATH_Windows#IsW3DSliderActiveQ("")) // Do we have active axis in top window?
 		variable layerN = ATH_Windows#GetgLayerValue("")
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = layerN)
@@ -1295,6 +1299,7 @@ static Function ImgRemoveBackground() // ImageRemoveBackground is an Igor operat
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order)
 	endif
 	Note wRef, "\nImageRemoveBackground/P=" + num2str(order)
+	return 0
 End
 
 // Flatten Image

@@ -283,9 +283,9 @@ static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angle
 	WAVE woff = $(mapNameStr+"_Off")
 	WAVE wfact = $(mapNameStr+"_y0")
 	// Get the fitting stuff ready
-	// K0 + K1 * sin(x + K2)^2
+	// K0 + K1 * cos(2*x + K2)
 	Make/FREE/D/N=3 ATH_Coef
-	Make/FREE/T/N=2 ATH_Constraints = {"K2 > -1.55334", "K2 <= 1.5708"}
+	Make/FREE/T/N=3 ATH_Constraints = {"K2 > -1.57079633", "K2 <= 1.57079633"}
 	Make/FREE/N=(layers) freeData
 	SetScale/P x, lowAngleRad , angleStepRad, freeData // Careful here
 	Make/O/D/N=(rows, cols, 3) ATH_FitCoeff
@@ -296,7 +296,8 @@ static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angle
 			WaveStats/M=1/Q freeData // Makes it slower, but initial guess is better. Is it helpful?
 			// Initialise, with something reasonable
 			// Note sin(x+pw[2])^2, that why -V_maxloc/pi
-			ATH_Coef = {V_avg, V_max-V_min, -V_maxloc/pi} 
+			//freeData -= V_avg // subtract average
+			ATH_Coef = {V_avg, 0.5*(V_max-V_min), -V_maxloc/pi} 
 			FuncFit/Q ATH_Magnetism#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints	
 			ATH_FitCoeff[i][j][] = ATH_Coef[r] // Fill in ATH_FitCoeff			
 		endfor
@@ -387,18 +388,18 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	variable xOff = wOff[p0][q0]
 	variable xy0 = wy0[p0][q0]
 	variable phase = wRef[p0][q0]*pi/180 // sin() needs rad
-	wsin = xOff + xy0 * sin(x + phase)^2
+	wsin = xOff + xy0 * cos(2*x + phase)
 	RemoveFromGraph/W=$plotNameStr/ALL
 	AppendToGraph/W=$plotNameStr dfr:cursorBeamProfile
 	ModifyGraph/W=$plotNameStr mode(cursorBeamProfile)=3,marker(cursorBeamProfile)=19,msize(cursorBeamProfile)=4
-	AppendToGraph/W=$plotNameStr wsin 
+	AppendToGraph/W=$plotNameStr/R wsin 
 	ModifyGraph/W=$plotNameStr lsize(fitPlotW)=2,rgb(fitPlotW)=(1,16019,65535)
 	return 0
 End
 
 static Function XMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
-	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(x + yw[2])
+	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(2*x + yw[2])
 	//CurveFitDialog/ 	
 	//CurveFitDialog/ Independent Variables 1
 	//CurveFitDialog/ E	
@@ -406,5 +407,5 @@ static Function XMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ w[0] = baseline
 	//CurveFitDialog/ w[1] = Amplitute
 	//CurveFitDialog/ w[2] = phase
-	yw = pw[0] + pw[1] * sin(xw + pw[2])^2
+	yw = pw[0] + pw[1] * cos(2*xw + pw[2])
 End

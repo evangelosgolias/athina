@@ -777,29 +777,50 @@ static Function FlattenImage(WAVE wRef, string method, variable kernelN, variabl
 	return 0
 End
 
-static Function ImgRemoveBackground(WAVE wRef, [variable order, WAVE wMask, variable layerN])
+static Function ImgRemoveBackground(WAVE wRef, [variable order, WAVE wMask, variable layerN, variable w3d])
 	// Remove background of an image (default 1st order)
 	// Use order = n, n > 1 for higher order polynomial
 	// Use overwite = 1 to overwite the original wave
 	order = ParamIsDefault(order) ? 1: order
 	layerN = ParamIsDefault(layerN) ? 0: layerN
+	w3d = ParamIsDefault(w3d) ? 0: w3d
+
 	variable nrows, ncols
 	nrows = DimSize(wRef,0)
 	ncols = DimSize(wRef,1)
-	
+
 	if(ParamIsDefault(wMask)) // Reserved for arbitrary masks
 		Make/O/FREE/N=(nrows,ncols)/B/U maskWFree = 1
 	endif
-	
+
 	if(WaveType(wRef) & 0x02) // We need a 32-bit float for better results
 		Redimension/S wRef
 	endif
 	if(WaveDims(wRef) == 3)
-		// Code to replace plane in 3d wave
-		MatrixOP/FREE getLayer = layer(wRef, layerN)
-		ImageRemoveBackground/O/R=maskWFree/P=(order) getLayer
-		ImageTransform/O/P=(layerN) removeZplane wRef
-		ImageTransform/O/INSW=getLayer/P=(layerN) insertZplane wRef
+		if(w3d)
+			variable nlayers = DimSize(wRef, 2), i
+			DFREF saveDF = GetDataFolderDFR()
+			SetDataFolder NewFreeDataFolder()
+			string buffer = "layer_", waveNameStr
+			for(i = 0; i < nlayers; i++)
+				waveNameStr = buffer + num2str(i)
+				MatrixOP/O $waveNameStr = layer(wRef, i)
+				WAVE w = $waveNameStr
+				ImageRemoveBackground/O/R=maskWFree/P=(order) w
+			endfor
+			ImageTransform/NP=(nlayers) stackImages $"layer_0"
+			WAVE M_Stack
+			// Restore scale here
+			CopyScales wRef, M_Stack
+			Duplicate/O M_Stack, wRef
+			SetDataFolder saveDF
+		else
+			// Code to replace plane in 3d wave
+			MatrixOP/FREE getLayer = layer(wRef, layerN)
+			ImageRemoveBackground/O/R=maskWFree/P=(order) getLayer
+			ImageTransform/O/P=(layerN) removeZplane wRef
+			ImageTransform/O/INSW=getLayer/P=(layerN) insertZplane wRef
+		endif
 	elseif(WaveDims(wRef) == 2)
 		ImageRemoveBackground/O/R=maskWFree/P=(order) wRef
 		return 0
