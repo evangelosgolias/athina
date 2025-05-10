@@ -1281,14 +1281,21 @@ End
 static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is an Igor operation
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	variable order = 1
-	Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
-	DoPrompt "Background subtraction ", order
+	variable do3D = 1
+	if(WaveDims(wRef) == 3)
+		Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
+		Prompt do3D, "Apply to all layers?", popup "No;Yes"
+		DoPrompt "Background subtraction ", order, do3D
+	else
+		Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
+	endif
+	
 	order = trunc(order)
 	if(V_flag || order < 1 || order > 12)
 		return -1
 	endif
 	ATH_DFR#BackupWaveInWaveDFQ(wRef)
-	if(w3d)
+	if(do3D==2)
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, w3d=1)
 		return 0
 	endif
