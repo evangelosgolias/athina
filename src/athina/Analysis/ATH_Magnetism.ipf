@@ -108,7 +108,7 @@ static Function CalculateXMCD3D(WAVE w3d1, WAVE w3d2)
 	DFREF currDFR = GetDataFolderDFR()
 	string saveWaveName = CreatedataObjectName(currDFR, "XMCD_3d", 1, 0, 1)
 	MatrixOP $saveWaveName = (w3d1 - w3d2)/(w3d1 + w3d2)
-	string noteStr = "XMC(L)D = (w1 - w2)/(w1 + w2)\nw1: " + NameOfWave(w3d1) + "\nw2: " + NameOfWave(w3d2)
+	string noteStr = "XMC(L)D = (w1 - w2)/(w1 + w2)\nw1: " + GetWavesDataFolder(w3d1,2) + "\nw2: " + GetWavesDataFolder(w3d2,2)
 	CopyScales w3d1, $saveWaveName
 	Note $saveWaveName, noteStr
 	return 0

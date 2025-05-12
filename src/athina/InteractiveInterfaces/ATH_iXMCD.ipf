@@ -49,7 +49,10 @@ static Function MenuLaunch()
 		wave2NameStr = StringFromList(1, selectedWavesStr)
 	endif
 	
-	if(waveN != 2 || WaveDims($wave1NameStr) != 2 || WaveDims($wave2NameStr) != 2)
+	WAVE w1 = $wave1NameStr
+	WAVE w2 = $wave2NameStr
+	if(waveN != 2 || !ATH_WaveOp#WaveDimensionsEqualQ(w1, w2) \
+	   || WaveDims(w1) != 2 || WaveDims(w2) != 2)
 		DoAlert/T="athina would like you to know that you have to ..." 1, "Please " +\
 				  "select two images, i.e two 2d waves, non-RGB. \n" + \
 				  "Do you want a another chance with the browser selection?"

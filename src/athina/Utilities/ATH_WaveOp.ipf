@@ -149,7 +149,7 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	// will still match for the points they have in common
 	//CopyScales t2dwred, w3dref 
 	// Add a note about the stacked waves
-	Note $wname3dStr, "----- Stacked waves -----\n" + \
+	Note/K $wname3dStr, "----- Stacked waves -----\n" + \
 	ReplaceString(";", listOfSelectedWaves, "\n") + "---------------------------\n"
 	// Go back to the cwd
 	if(makeInSourceDFR)

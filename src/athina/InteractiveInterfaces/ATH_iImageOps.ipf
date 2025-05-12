@@ -34,17 +34,24 @@
 static Function MainMenu()
 	/// static Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
-	
-	string msg = "Select two 2D waves to calculate f(w1, w2). Use Ctrl (Windows) or Cmd (Mac)."
-	string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
-	// S_fileName is a carriage-return-separated list of full paths to one or more files.
-	variable nrSelectedWaves = ItemsInList(selectedWavesInBrowserStr)
-	string selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)
-	string wave1NameStr = StringFromList(0, selectedWavesStr)
-	string wave2NameStr = StringFromList(1, selectedWavesStr)
+
+	variable waveN = ATH_Dialog#CountSelectedWavesInDataBrowser(wDims=2)
+	if(waveN==2) // If you have selected two waves only then procceed without New Browser Selection.
+		string wave1NameStr = GetBrowserSelection(0)
+		string wave2NameStr = GetBrowserSelection(1)
+		string selectedWavesStr = wave1NameStr + ";" + wave2NameStr
+	else
+		string msg = "Select two waves for custom interactive calculation. Use Ctrl (Windows) or Cmd (Mac)."
+		string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
+		// S_fileName is a carriage-return-separated list of full paths to one or more files.
+		waveN = ItemsInList(selectedWavesInBrowserStr)
+		selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)
+		wave1NameStr = StringFromList(0, selectedWavesStr)
+		wave2NameStr = StringFromList(1, selectedWavesStr)
+	endif
 	WAVE w1 = $wave1NameStr
-	WAVE w2 = $wave2NameStr	
-	if(nrSelectedWaves != 2 || !ATH_WaveOp#WaveDimensionsEqualQ(w1, w2) \
+	WAVE w2 = $wave2NameStr
+	if(waveN != 2 || !ATH_WaveOp#WaveDimensionsEqualQ(w1, w2) \
 	   || WaveDims(w1) != 2 || WaveDims(w2) != 2)
 		DoAlert/T="Please select only two 2d waves with equal dimensions sizes." 1,  ""+\
 				  "Do you want a another chance with the browser selection?"

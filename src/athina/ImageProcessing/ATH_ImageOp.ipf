@@ -197,7 +197,7 @@ static Function/S NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
 	return normWaveStr
 End
 
-static Function GetScaledZoominImageWindow()
+static Function GetScaledZoominImageWindow([variable w3d])
 	// Get a the current window view as a new image with appropriate scaling.
 	// Works for 2D/3D waves
 	// CAUTION: If axes have different configuration the function will not work properly. 
@@ -268,12 +268,23 @@ static Function GetScaledZoominImageWindow()
 	if(WaveDims(wref) == 3)
 		NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(winNameStr):gLayer	
 		if(NVAR_Exists(gLayer))
-			bufferStr = NameOfWave(wref) + "_layer_" + num2str(gLayer) + "_ZM"
-			wavenameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 5)
-			Make/N=(nrows, ncols) $wavenameStr /WAVE = wReftmp
-			SetScale/I x, 0, newTopAxisLen, wReftmp
-			SetScale/I y, 0, newLeftAxisLen, wReftmp
-			wReftmp = wref[P0 + p][Q0 + q][gLayer]
+			// Added om 12.05.2025
+			if(w3d)
+				bufferStr = NameOfWave(wref) + "_PART"
+				wavenameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 5)			
+				Make/N=(nrows, ncols, DimSize(wref,2)) $wavenameStr /WAVE = wReftmp
+				SetScale/I x, 0, newTopAxisLen, wReftmp
+				SetScale/I y, 0, newLeftAxisLen, wReftmp
+				SetScale/P z, DimOffSet(wRef,2), DimDelta(wRef, 2), wReftmp		
+				wReftmp = wref[P0 + p][Q0 + q][r]
+			else
+				bufferStr = NameOfWave(wref) + "_layer_" + num2str(gLayer) + "_ZM"
+				wavenameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 5)
+				Make/N=(nrows, ncols) $wavenameStr /WAVE = wReftmp
+				SetScale/I x, 0, newTopAxisLen, wReftmp
+				SetScale/I y, 0, newLeftAxisLen, wReftmp			
+				wReftmp = wref[P0 + p][Q0 + q][gLayer]
+			endif
 			sprintf msg, "Part(R/C) of %s: (%d, %d, %d, %d) layer%d", NameOfWave(wref), P0, P1, Q0, Q1, gLayer
 		else
 			Abort "Add a slider in your image stack (3d wave), I cannot guess the layer you want me to act on!"
@@ -722,6 +733,7 @@ static Function GrayToRGBImage(WAVE wRef)
 	KillWaves/Z M_Colors
 	string newnameStr = NameOfWave(wRef) + "_RGB"
 	Rename M_RGBOut, $newnameStr
+	return 0	
 End
 
 static Function RGB2Gray8Image(WAVE wRef)
@@ -741,6 +753,10 @@ static Function RGB2Gray16Image(WAVE wRef)
 	//The RGB values are converted into the luminance Y of the YIQ standard using:
 	// Y = 0.299R + 0.587G + 0.114B
 	
+	
+	// Y = 0.299*R + 0.587*G + 0.114*B  /B/U
+	// I = 0.596*R – 0.275*G – 0.321*B  /B
+	// Q = 0.212*R – 0.523*G + 0.311*B	/B
 	if(WaveDims(wRef) != 3)
 		return -1
 	endif

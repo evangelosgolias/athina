@@ -242,7 +242,7 @@ static Function ImageStackAlignmentFullImage([int backupWave])
 	if(V_flag) // User cancelled
 		return -1
 	endif
-	string driftCorrectionNoteStr = note(w3dRef) // Grab early the original wave note
+	string driftCorrectionOriginalNoteStr = note(w3dRef), driftCorrectionNoteStr // Grab early the original wave note
 	if(backupWave)
 		ATH_DFR#BackupWaveInWaveDF(w3dref)
 	endif
@@ -284,11 +284,11 @@ static Function ImageStackAlignmentFullImage([int backupWave])
 		Abort "Please check ImageStackAlignmentFullImage(), method error."
 	endif
 	//Restore the note
-	driftCorrectionNoteStr += "Drift correction using " + StringFromList(algo, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
+	driftCorrectionNoteStr = "Drift correction using " + StringFromList(algo, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
 	driftCorrectionNoteStr += "Apply histogram equalization: " + StringFromList(histEq, "dummy;Yes;No")+"\n"
 	driftCorrectionNoteStr += "Edge detection method: " + StringFromList(edgeAlgo, "dummy;None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei")+"\n"
 	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(intPixels, "dummy;Yes;No") + "\n"
-	driftCorrectionNoteStr += "Cutoff drift (pixels): " + num2str(cutoff)+"\n"
+	driftCorrectionNoteStr += "Cutoff drift (pixels): " + num2str(cutoff)+"\n\n" + driftCorrectionOriginalNoteStr
 	Note w3dref,driftCorrectionNoteStr
 End
 
@@ -334,7 +334,7 @@ static Function ImageStackAlignmentPartition([int backupWave])
 	if(backupWave)
 		ATH_DFR#BackupWaveInWaveDF(w3dref)
 	endif
-	string driftCorrectionNoteStr = note(w3dRef) // Grab early the original wave note
+	string driftCorrectionOriginalNoteStr = note(w3dRef), driftCorrectionNoteStr // Grab early the original wave note
 	variable left, right, top, bottom
 
 	STRUCT sUserMarqueePositions s
@@ -378,12 +378,13 @@ static Function ImageStackAlignmentPartition([int backupWave])
 		Abort "Please check ImageStackAlignmentUsingAFeature(), method error."
 	endif
 	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
-	driftCorrectionNoteStr += "Drift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
+
+	driftCorrectionNoteStr = "Drift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
 	driftCorrectionNoteStr += "Apply filter:" + StringFromList(filter, "dummy;None;gauss;avg;median;max;min") + ", N = " + num2str(filterN) + ", repeated "+num2str(nrTimes)+" times\n"
 	driftCorrectionNoteStr += "Apply histogram equalization: " + StringFromList(histEq, "dummy;Yes;No")+"\n"
 	driftCorrectionNoteStr += "Edge detection method: " + StringFromList(edgeAlgo, "dummy;None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei")+"\n"
 	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(intPixels, "dummy;Yes;No") + "\n"
-	driftCorrectionNoteStr += "Cutoff drift (pixels): " + num2str(cutoff)+"\n"
+	driftCorrectionNoteStr += "Cutoff drift (pixels): " + num2str(cutoff)+"\n\n" + driftCorrectionOriginalNoteStr
 	KillWaves partitionWave
 	Note w3dref,driftCorrectionNoteStr
 End
@@ -1295,6 +1296,7 @@ static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is 
 		return -1
 	endif
 	ATH_DFR#BackupWaveInWaveDFQ(wRef)
+	string noteStr = note(wRef)
 	if(do3D==2)
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, w3d=1)
 		return 0
@@ -1305,7 +1307,7 @@ static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is 
 	else
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order)
 	endif
-	Note wRef, "\nImageRemoveBackground/P=" + num2str(order)
+	Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + noteStr
 	return 0
 End
 
