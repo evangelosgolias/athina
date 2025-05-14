@@ -163,20 +163,17 @@ Menu "DataBrowserObjectsPopup"
 End
 
 Menu "TracePopup"
-	"ATH (µ, 3σ) Image Range (2D, 3D)", /Q, ATH_ImgOp#RangeMeanSigmaTopImage()
-	"ATH [min, max] Image Range (2D, 3D)", /Q, ATH_ImgOp#AutoRangeTopImagePlane()
-	"ATH Z-profiler: Use saved ROI  (3D)", /Q, ATH_ZProfile#TracePopupLaunchSavedROI()		
+	"ATH Save Axes\Color Range (TG, 2D, 3D)",/Q, ATH_Launch#SaveAxesRangeAndCtab()
+	"ATH Restore Axes\Color Range (TG, 2D, 3D)",/Q, ATH_Launch#SetAxesRangeAndCtabFromSaved()	
 	"ATH Save layer (TG, 3D)", /Q, ATH_ImgOp#GetLayerFromImageStack()
 	"ATH Save current view (TG, 2D, 3D)", /Q, ATH_ImgOp#GetScaledZoominImageWindow()
 	"ATH Partition current view (3D)", /Q, ATH_ImgOp#GetScaledZoominImageWindow(w3d=1)	
-	"ATH Save Axes\Color Range (TG, 2D, 3D)",/Q, ATH_Launch#SaveAxesRangeAndCtab()
-	"ATH Restore Axes\Color Range (TG, 2D, 3D)",/Q, ATH_Launch#SetAxesRangeAndCtabFromSaved()	
+	"ATH Z-profiler: Use saved ROI  (3D)", /Q, ATH_ZProfile#TracePopupLaunchSavedROI()	
 	"ATH Scale Image stack (TG, 3D)", /Q, ATH_ImgOp#SetZScaleOfImageStack()
 	"ATH Select image and copy scales (2D, 3D)", /Q, ATH_ImgOp#ImageSelectToCopyScale()
 	"ATH Backup Image (2D, 3D)", /Q, ATH_ImgOp#BackupTopImage()	
 	"ATH Restore image (2D, 3D)", /Q, ATH_ImgOp#RestoreTopImageFromBackup()
 	"ATH Clear UserFront layer" ,/Q, ATH_ZProfile#ClearROIMarkingsUserFront("")	
-	"ATH Calculate XMC(L)D (3D[2])", /Q, ATH_Launch#CalculateXMCDFromStack()
 End
 
 Menu "GraphPopup" // Right click not on a trace or in the margin of an image

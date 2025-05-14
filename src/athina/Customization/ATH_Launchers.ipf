@@ -1299,6 +1299,7 @@ static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is 
 	string noteStr = note(wRef)
 	if(do3D==2)
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, w3d=1)
+		Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + noteStr		
 		return 0
 	endif
 	if(ATH_Windows#IsW3DSliderActiveQ("")) // Do we have active axis in top window?

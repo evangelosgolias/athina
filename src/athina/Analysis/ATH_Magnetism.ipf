@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_Magnetism
-#pragma version = 1.1
+#pragma version = 1.2
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: egolias@protonmail.com
@@ -201,42 +201,43 @@ End
 //	Function to calculate an XMLD map. The function ATH_FuncFit#XMLDIntensity is fitted to 
 //  all beams of a 3D wave containing data from XMLD images obtained with different inclination
 //  angles (direction of the E-field of x-rays). Model assumets that XMLD singal follows the 
-//  relationship I = A + B * cos(2*x + φ)^2, where A, B and φ are the fitting parameters.
+//  relationship I = A + B * cos(2*x + φ), where A, B and φ are the fitting parameters.
 //
 //	## Parameters
 //	wRef : WAVE
 //		A 3D wave that contains the data of all inclination angles in ascending order.
-//		The codes assumes that all angles from -90 to 90 are included. Note that -90 and 90
-//		refer to the same angle.
+//      A full XMLD map contains angles in [0, pi) range.
 //
-//		!!! Here the angle 90 should be the last layer of the stack. For example if you have
-//			taken the full map (-80, 90) with angular step of 10° then your first stack is for
-//		-80 degrees angle and the last at 90 (18 layers in total)
+//		firstAngle : optinal variable (default 0 deg)
 //
-//		lowAngleDeg : variable
-// 		Lowest angle for XMLD map in **degrees** (expected -90 or -80 deg)
+//	angleStep : optional variable
+// 		Angular step along the z-direction in **degrees**, default 10 deg
 //
-//	angleStep : variable
-// 		Angular step along the z-direction in **degrees**.
-//
+// angleOffset: optional varible
+//      Anglular offset for the fit. Why? Because LH light usually does not coincide with x-axis!
 //	## Returns
 //	variable
 //		A unique 2D wave NameOfWave(wRef) + "_XMLDMap" is created (+num2str(N)))
 //		0 - map calculations completed
 //		1 - input wave was not a 3D wave
 //@
+//
 
-// The main challenge here is the initial conditions as we have a non-linear fit.
-// Function CalculateXMLDMap tries different initial conditions for the phase shift
-// and picks up the solution for the minimum of the cost function. Of course this increases
-// the time needed to complete the operation by N, where N is the number of phase tries.
-//
-//
+
 // NOTE: The program is not yet fully tested and optimised. 
 //
 
-static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angleStepDeg)
-	
+static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, variable angleOffset])
+
+	// /ODR=0 Levenberg-Marquardt least-squares method using old code.
+	// /ODR=1 Trust-region Levenberg-Marquardt ordinary least-squares method implemented using ODRPACK95 code.
+	// /ODR=2 Trust-region Levenberg-Marquardt least orthogonal distance method implemented using ODRPACK95 code.
+	// /ODR=3 Implicit fit. No dependent variable is specified; instead fitting attempts to adjust the fit 
+	// coefficients such that the fit function returns zero for all dependent variables.
+	// FuncFit/Q/ODR=0 ATH_Magnetism#XMLDIntensity, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
+	//
+	//
+	//
 	// In FuncFit if you want to use Trust-region Levenberg-Marquardt ordinary least-squares method
 	// Do the folowing
 	// variable V_FitError
@@ -246,7 +247,7 @@ static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angle
 	//     // deal with the error
 	//     continue
 	// endif
-	//	
+	//
 	// For more info:
 	//
 	// DisplayHelpTopic "Special Variables for Curve Fitting"
@@ -255,23 +256,27 @@ static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angle
 	//
 	// -------------------------------------------------------------------------------------
 	// Bit 1: Robust Fitting
-	// You can get a form of robust fitting where the sum of the absolute deviations is 
-	// minimized rather than the squares of the deviations, which tends to de-emphasize 
+	// You can get a form of robust fitting where the sum of the absolute deviations is
+	// minimized rather than the squares of the deviations, which tends to de-emphasize
 	// outlier values. To do this, create V_FitOptions and set bit 1 (variable V_fitOptions=2).
-	// Warning 1: No attempt to adjust the results returned for the estimated errors or 
+	// Warning 1: No attempt to adjust the results returned for the estimated errors or
 	// for the correlation matrix has been made. You are on your own.
 	// Warning 2: Don't set this bit and then forget about it.
 	// Warning 3: Setting Bit 1 has no effect on line, poly or poly2D fits.
 	// -------------------------------------------------------------------------------------
 	//
-	// So after the fir set V_fitOptions=0
+	// So after the fit set V_fitOptions=0
 	//
 	//
-	variable angleStepRad = angleStepDeg * pi/180
-	variable lowAngleRad = lowAngleDeg * pi/180
+	
+	variable firstAngleRad = ParamIsDefault(firstAngle) ? 0: firstAngle * pi/180
+	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180: angleStep * pi/180
+	variable angleOffsetRad = ParamIsDefault(angleOffset) ? 0: angleOffset * pi/180
+	
 	variable rows = DimSize(wRef, 0)
 	variable cols = DimSize(wRef, 1)
 	variable layers = DimSize(wRef, 2)
+
 	if(!layers)
 		return 1
 	endif
@@ -282,33 +287,45 @@ static Function CalculateXMLDMap(WAVE wRef, variable lowAngleDeg, variable angle
 	WAVE wphase = $mapNameStr
 	WAVE woff = $(mapNameStr+"_Off")
 	WAVE wfact = $(mapNameStr+"_y0")
-	// Get the fitting stuff ready
-	// K0 + K1 * cos(2*x + K2)
+	// Make the fitting waves:  K0 + K1 * cos(2*x + K2)
 	Make/FREE/D/N=3 ATH_Coef
-	Make/FREE/T/N=3 ATH_Constraints = {"K2 > -1.57079633", "K2 <= 1.57079633"}
+	// Fit is very sensitive to the selection of K1
+	// Do not set K1 >= 0 as approaching zero will give us a constant funtion
+	// and the factor K2 cannot converge (no dependence on K2 as K1 -> 0).
+	//
+	// Here  189° = 3.29867 rad, do not be too tight with contrains otherwise
+	// the fit will fail.
+	//
+	// ********************YOU NEED TO TUNE HERE************************
+	Make/FREE/T ATH_Constraints = {"K1 > 1e-5","K2 >= 0", "K2 < 3.29867"} 
+	// *****************************************************************
 	Make/FREE/N=(layers) freeData
-	SetScale/P x, lowAngleRad , angleStepRad, freeData // Careful here
-	Make/O/D/N=(rows, cols, 3) ATH_FitCoeff
+	SetScale/P x, firstAngleRad , angleStepRad, freeData // Set the scale!
+	Make/O/D/N=(rows, cols, 3) ATH_FitCoeff // Fit coefficients per pixel
+	variable V_FitError
+	variable errorCnt = 0
 	for(i = 0; i < rows; i++)
 		for(j = 0; j < cols; j++)
-			// /S keeps scaling.
-			MatrixOP/O/S freeData = beam(wRef, i, j) // N.B. If you add /FREE here the scaling will be lost!!!
+			// /S keeps scaling in MatrixOP
+			// N.B. If you add /FREE here the scaling will be lost!!!
+			MatrixOP/O/S freeData = beam(wRef, i, j)
 			WaveStats/M=1/Q freeData // Makes it slower, but initial guess is better. Is it helpful?
-			// Initialise, with something reasonable
-			// Note sin(x+pw[2])^2, that why -V_maxloc/pi
-			//freeData -= V_avg // subtract average
-			ATH_Coef = {V_avg, 0.5*(V_max-V_min), -V_maxloc/pi} 
-			FuncFit/Q ATH_Magnetism#XMLDIntensity, ATH_Coef, freeData /D /C=ATH_Constraints	
-			ATH_FitCoeff[i][j][] = ATH_Coef[r] // Fill in ATH_FitCoeff			
+			// Initialise, with a reasonable guess
+			ATH_Coef = {V_avg, 0.5*(V_max-V_min),V_maxloc}
+			V_FitError = 0 // Set it to zero before the fit
+			FuncFit/Q ATH_FuncFit#XMLDIntensity, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
+			if(V_FitError)
+				// Deal with error here....
+				errorCnt++
+			endif			
+			ATH_FitCoeff[i][j][] = ATH_Coef[r]
 		endfor
 	endfor
-	for(i = 0; i < rows; i++)
-		for(j = 0; j < cols; j++)
-			woff[i][j] =  ATH_FitCoeff[i][j][0]
-			wfact[i][j] = ATH_FitCoeff[i][j][1]
-			wphase[i][j] = ATH_FitCoeff[i][j][2]*180/pi
-		endfor
-	endfor
+	// Write the coefficients to waves
+	woff[][] =  ATH_FitCoeff[p][q][0]
+	wfact[][] = ATH_FitCoeff[p][q][1]
+	wphase[][] = ATH_FitCoeff[p][q][2]*57.29577951 // From rad to deg
+	print "Total fit errors ", errorCnt
 	KillWaves/Z W_sigma, ATH_FitCoeff, fit__free_ // Cleanup the garbage
 End
 
@@ -321,11 +338,11 @@ static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef)
 	/// ATH_Cursors#CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	//
 	// WAVE wSrc - 3D Wave with XMLD images for different angles
+	// WAVE wRef - Wave calculated using CalculateXMLDMap
 	//
 	ATH_Display#NewImg(wRef)
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	// Use cursor C
 	variable nrows = DimSize(wRef, 0)
 	variable ncols = DimSize(wRef, 1)	
 	Cursor/I/C=(65535,0,0)/S=1/P/N=1 J $imgNameTopGraphStr nrows/2, ncols/2
@@ -384,28 +401,18 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	WAVE wOff = wdfr:$(NameOfWave(wRef)+"_Off")
 	WAVE wy0 = wdfr:$(NameOfWave(wRef)+"_y0")
 	Make/O dfr:fitPlotW /WAVE=wsin
-	SetScale/I x, -pi/2, pi/2, wsin, dfr:cursorBeamProfile // EDIT HERE
+	SetScale/I x, 0, pi, wsin, dfr:cursorBeamProfile
 	variable xOff = wOff[p0][q0]
 	variable xy0 = wy0[p0][q0]
-	variable phase = wRef[p0][q0]*pi/180 // sin() needs rad
+	variable phase = wRef[p0][q0]*0.01745329 // Phase to rad
 	wsin = xOff + xy0 * cos(2*x + phase)
 	RemoveFromGraph/W=$plotNameStr/ALL
 	AppendToGraph/W=$plotNameStr dfr:cursorBeamProfile
 	ModifyGraph/W=$plotNameStr mode(cursorBeamProfile)=3,marker(cursorBeamProfile)=19,msize(cursorBeamProfile)=4
-	AppendToGraph/W=$plotNameStr/R wsin 
+	AppendToGraph/W=$plotNameStr wsin 
 	ModifyGraph/W=$plotNameStr lsize(fitPlotW)=2,rgb(fitPlotW)=(1,16019,65535)
+	string baseTextStr = "TextBox/W="+PossiblyQuoteName(plotNameStr)+"/C/N=ValueLog\"" + "A = %.4f, φ = %.4f\"", cmdStr
+	sprintf cmdStr, baseTextStr, xy0, phase*180/pi
+	Execute/Q/Z cmdStr		
 	return 0
-End
-
-static Function XMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
-	//CurveFitDialog/ Equation:
-	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(2*x + yw[2])
-	//CurveFitDialog/ 	
-	//CurveFitDialog/ Independent Variables 1
-	//CurveFitDialog/ E	
-	//CurveFitDialog/ Coefficients 6
-	//CurveFitDialog/ w[0] = baseline
-	//CurveFitDialog/ w[1] = Amplitute
-	//CurveFitDialog/ w[2] = phase
-	yw = pw[0] + pw[1] * cos(2*xw + pw[2])
 End

@@ -2,7 +2,7 @@
 #pragma rtGlobals = 3
 #pragma ModuleName = ATH_Range
 #pragma IgorVersion = 9
-#pragma version = 1.1
+#pragma version = 1.2
 
 /// *** The present code is a modified version of SIDAM project
 /// see https://github.com/yuksk/SIDAM ***
@@ -33,6 +33,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+// v1.2 Igor Pro 10 ready
 #include <WMImageInfo>
 
 StrConstant PRESTR_CMD = "•"			//	prefix character for regular commands in the history window
@@ -296,6 +297,8 @@ Static Function pnl(String grfName)
 	ModifyGraph/W=$subGrfName mode=6, lstyle=1, rgb=(0,0,0)
 	ModifyGraph/W=$subGrfName prescaleExp(left)=2
 	ModifyGraph/W=$subGrfName freePos(logAxis)={0,kwFraction}, log(logAxis)=1
+	// JW WaveMetrics suppress any UI mouse clicks except the cursor clicks
+	ModifyGraph/W=$subGrfName UIControl=(1+4+8+16+32+64+128+256+512+1024+2048)		// Leaves out 2 for the bit that disables clicks on the cursors
 	Label/W=$subGrfName left "Intensity (arb. u.)"
 	Label/W=$subGrfName bottom "z (\u\M)"
 	Label/W=$subGrfName logAxis "z (\u\M)"
@@ -517,9 +520,10 @@ Static Function pnlHook(STRUCT WMWinHookStruct &s)
 			pnlHookClose(s.winName)
 			break
 
-		case 3:	//	mousedown
-			//	suppress any click in the panel except dragging the cursors
-			return 1
+// JW WaveMetrics As of Igor 10, this prevents mouse clicks on the cursors, too
+//		case 3:	//	mousedown
+//			//	suppress any click in the panel except dragging the cursors
+//			return 1
 
 		case 7:	//	cursor moved
 			//	This is supposed to work when a cursor is moved by a user,
@@ -946,7 +950,7 @@ Static Function/WAVE updateZRange_getValues(String grfName, String imgName,
 	int m0, Variable v0, int m1, Variable v1)
 	//EG edit to work with Marquee
 	variable plane, flag, left, right, top, bottom, minV, maxV
-	[flag, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex(grfName=grfName)
+	[flag, left, right, top, bottom] = GetMarqueeToIndex(grfName=grfName)
 	if (m0 >= 2 || m1 >= 2)		//	sigma, cut, logsigma
 		//EG edit to work with Marquee. Wave is partitioned here if zoomed!!
 		Wave tw = SIDAMImageNameToWaveRef(grfName, imgName=imgName, displayed=1)
@@ -1448,7 +1452,7 @@ static Function/WAVE SIDAMHistogram(Wave/Z w, [variable startz, variable endz,
 	// Wave/Z s.w = w
 	// Also remove the optional argument from all calls of the function in file
 	variable plane, flag, left, right, top, bottom
-	[flag, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex(grfName=grfName)
+	[flag, left, right, top, bottom] = GetMarqueeToIndex(grfName=grfName)
 	
 	if(flag)
 		if(WaveDims(w)==3)
@@ -1924,4 +1928,39 @@ Static Function removeImageTraceHelper(DFREF dfr, String grfName)
 			endif
 		endfor
 	endfor
+End
+
+
+static Function [variable flag, variable leftR, variable rightR, variable topR, variable bottomR] GetMarqueeToIndex([string grfName, string axisX, string axisY])
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	axisX = SelectString(ParamIsDefault(axisX) ? 0: 1,"left", axisX)
+	axisY = SelectString(ParamIsDefault(axisY) ? 0: 1,"top", axisY)
+	variable errCode
+	
+	WAVE wRef = TopImageToWaveRef(grfName=grfName)
+	GetMarquee/W=$grfName $axisX, $axisY; errCode = GetRTError(1);
+	flag = V_flag
+	if(errCode)
+		print GetErrMessage(errCode)
+		return [flag, -1, -1, -1, -1]
+	endif
+	leftR = ScaleToIndex(wRef, V_left, 0)
+	rightR = ScaleToIndex(wRef, V_right, 0)
+	topR = ScaleToIndex(wRef, V_top, 1)
+	bottomR = ScaleToIndex(wRef, V_bottom, 1)
+	return [flag, leftR, rightR, topR, bottomR]
+End
+
+static Function/WAVE TopImageToWaveRef([string grfName])
+	// Return a wave reference from the top graph
+	
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(grfName, ";"),";")
+	// if there is no image in the top graph strlen(imgNameTopGraphStr) = 0
+	if(strlen(imgNameTopGraphStr))
+		WAVE wRef = ImageNameToWaveRef(grfName, imgNameTopGraphStr) // full path of wave
+		return wRef
+	else 
+		return $""
+	endif
 End
