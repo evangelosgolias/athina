@@ -195,40 +195,38 @@ static Function XMCDStack4L(WAVE wRef, [string order, int overwrite, string outW
 	return 0
 End
 
-/// -------------------------------------- XMLD Map --------------------------------------------//
-
-//@
-//	Function to calculate an XMLD map. The function ATH_FuncFit#XMLDIntensity is fitted to 
-//  all beams of a 3D wave containing data from XMLD images obtained with different inclination
-//  angles (direction of the E-field of x-rays). Model assumets that XMLD singal follows the 
-//  relationship I = A + B * cos(2*x + φ), where A, B and φ are the fitting parameters.
-//
-//	## Parameters
-//	wRef : WAVE
-//		A 3D wave that contains the data of all inclination angles in ascending order.
-//      A full XMLD map contains angles in [0, pi) range.
-//
-//		firstAngle : optinal variable (default 0 deg)
-//
-//	angleStep : optional variable
-// 		Angular step along the z-direction in **degrees**, default 10 deg
-//
-// angleOffset: optional varible
-//      Anglular offset for the fit. Why? Because LH light usually does not coincide with x-axis!
-//	## Returns
-//	variable
-//		A unique 2D wave NameOfWave(wRef) + "_XMLDMap" is created (+num2str(N)))
-//		0 - map calculations completed
-//		1 - input wave was not a 3D wave
-//@
-//
-
-
-// NOTE: The program is not yet fully tested and optimised. 
-//
 
 static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, variable angleOffset])
 
+	/// -------------------------------------- XMLD Map --------------------------------------------//
+	
+	//@
+	//	Function to calculate an XMLD map. The function ATH_FuncFit#XMLDIntensity is fitted to 
+	//  all beams of a 3D wave containing data from XMLD images obtained with different inclination
+	//  angles (direction of the E-field of x-rays). Model assumets that XMLD singal follows the 
+	//  relationship I = A + B * cos(2*x + φ), where A, B and φ are the fitting parameters.
+	//
+	//	## Parameters
+	//	wRef : WAVE
+	//		A 3D wave that contains the data of all inclination angles in ascending order.
+	//      A full XMLD map contains angles in [0, pi) range.
+	//
+	//		firstAngle : optinal variable (default 0 deg)
+	//
+	//	angleStep : optional variable
+	// 		Angular step along the z-direction in **degrees**, default 10 deg
+	//
+	// angleOffset: optional varible
+	//      Anglular offset for the fit. Why? Because LH light usually does not coincide with x-axis!
+	//	## Returns
+	//	variable
+	//		A unique 2D wave NameOfWave(wRef) + "_XMLDMap" is created (+num2str(N)))
+	//		0 - map calculations completed
+	//		1 - input wave was not a 3D wave
+	//@
+	//
+	
+	// Technical details, not necessarily used but can be tried.
 	// /ODR=0 Levenberg-Marquardt least-squares method using old code.
 	// /ODR=1 Trust-region Levenberg-Marquardt ordinary least-squares method implemented using ODRPACK95 code.
 	// /ODR=2 Trust-region Levenberg-Marquardt least orthogonal distance method implemented using ODRPACK95 code.
@@ -296,6 +294,8 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	// Here  189° = 3.29867 rad, do not be too tight with contrains otherwise
 	// the fit will fail.
 	//
+	// Afterwards it is suggested to parse your output map and set any angles
+	// higher than 3.29867 to 0 and any pixels in a
 	// ********************YOU NEED TO TUNE HERE************************
 	Make/FREE/T ATH_Constraints = {"K1 > 1e-5","K2 >= 0", "K2 < 3.29867"} 
 	// *****************************************************************
