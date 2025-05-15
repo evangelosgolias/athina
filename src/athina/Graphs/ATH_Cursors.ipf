@@ -652,3 +652,41 @@ static Function ThreeCursorsToAngle(string Cursor1, string Cursor2, string Curso
 		
 	return (deg == 0) ? angle : angle*180/pi
 End
+
+
+// Experimental
+static Function MirrorCursorPositionToWaveValues(WAVE wRef)
+	// Add a textbox with values from two graphs in the same cursor position
+	string grfName = WinName(0,1,1)
+	string textbuffer =  "TextBox/W="+grfName+"/C/N=ATH_CursorMirroGraphValues \"\\Z12 %g \\n %g\""
+	string athTopImg = ATH_Graph#TopImageName()
+	Cursor/I/C=(65535,0,0)/S=2/N=1/A=0 J $athTopImg 0.5,0.5
+	SetWindow $grfName hook(ATH_MirrorCursorHook) = ATH_Cursors#SyncCursorsInGraphsHook
+	SetWindow $grfName userdata(ATH_textbuffer) = textbuffer
+	SetWindow $grfName userdata(ATH_LinkedWaveToMirrorValues) = GetWavesDataFolder(wRef,2)
+	
+End
+
+static Function SyncCursorsInGraphsHook(STRUCT WMWinHookStruct &s)
+	
+	variable hookResult
+	string mirrorWaveStr = GetUserData(s.winName, "", "ATH_LinkedWaveToMirrorValues")
+	string textbuffer = GetUserData(s.winName, "", "ATH_textbuffer"), cmdStr
+	switch(s.eventCode)
+			case 7:
+				if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor
+					WAVE mirrorW = $mirrorWaveStr
+					WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName = s.winName)
+					sprintf cmdStr, textbuffer, wRef[s.pointnumber][s.ypointnumber], mirrorW[s.pointnumber][s.ypointnumber]
+					Execute/Q/Z cmdStr
+				endif
+			case 11:
+				if(s.specialKeyCode == 204) // if you press escape
+					SetWindow $s.winName hook(ATH_MirrorCursorHook) = $""
+					Cursor/K/W=$s.winName J
+					TextBox/K/N=ATH_CursorMirroGraphValues
+				endif
+			break
+	endswitch
+	return hookResult
+End

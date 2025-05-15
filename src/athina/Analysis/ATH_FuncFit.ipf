@@ -116,9 +116,9 @@ static Function FitFermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : Fit
 End
 
 // All-at-once
-static Function XMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+static Function XMLDCosSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
-	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(2*x + yw[2])
+	//CurveFitDialog/ I(E) =pw[0] + pw[1] * cos(x + yw[2])^2
 	//CurveFitDialog/ 	
 	//CurveFitDialog/ Independent Variables 1
 	//CurveFitDialog/ x	
@@ -126,7 +126,20 @@ static Function XMLDIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ w[0] = baseline
 	//CurveFitDialog/ w[1] = amplitute
 	//CurveFitDialog/ w[2] = phase
-	yw = pw[0] + pw[1] * cos(2*xw + pw[2])
+	yw = pw[0] + pw[1] * cos((xw + pw[2]))^2
+End
+
+static Function XMLDSinSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+	//CurveFitDialog/ Equation:
+	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(x + yw[2])^2
+	//CurveFitDialog/ 	
+	//CurveFitDialog/ Independent Variables 1
+	//CurveFitDialog/ x	
+	//CurveFitDialog/ Coefficients 3
+	//CurveFitDialog/ w[0] = baseline
+	//CurveFitDialog/ w[1] = amplitute
+	//CurveFitDialog/ w[2] = phase
+	yw = pw[0] + pw[1] * sin((xw + pw[2]))^2
 End
 
 
@@ -141,7 +154,7 @@ static Function XMLDIntensityWtGradient(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ w[0] = gradient	
 	//CurveFitDialog/ w[2] = amplitute
 	//CurveFitDialog/ w[3] = phase
-	yw = pw[0] + pw[1] * xw + pw[2] * sin(xw + pw[3])^2
+	yw = pw[0] + pw[1] * xw + pw[2] * cos(xw + pw[3])^2
 End
 
 static Function Gaussian2D(WAVE pw, WAVE yw, WAVE wx, WAVE wy) : Fitfunc

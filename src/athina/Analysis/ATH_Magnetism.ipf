@@ -195,8 +195,7 @@ static Function XMCDStack4L(WAVE wRef, [string order, int overwrite, string outW
 	return 0
 End
 
-
-static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, variable angleOffset])
+static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, variable FoVRot])
 
 	/// -------------------------------------- XMLD Map --------------------------------------------//
 	
@@ -204,72 +203,49 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	//	Function to calculate an XMLD map. The function ATH_FuncFit#XMLDIntensity is fitted to 
 	//  all beams of a 3D wave containing data from XMLD images obtained with different inclination
 	//  angles (direction of the E-field of x-rays). Model assumets that XMLD singal follows the 
-	//  relationship I = A + B * cos(2*x + φ), where A, B and φ are the fitting parameters.
+	//  relationship I = A + B * sin(x + φ)^2, where A, B and φ are the fitting parameters.
 	//
 	//	## Parameters
 	//	wRef : WAVE
 	//		A 3D wave that contains the data of all inclination angles in ascending order.
-	//      A full XMLD map contains angles in [0, pi) range.
+	//      A full XMLD map contains angles in [-90, 90] range.
 	//
-	//		firstAngle : optinal variable (default 0 deg)
+	//		firstAngle : optional variable (default -90 deg)
 	//
-	//	angleStep : optional variable
+	//	angleStep : optional variable in deg
 	// 		Angular step along the z-direction in **degrees**, default 10 deg
 	//
-	// angleOffset: optional varible
+	// FoVRot: optional variable in deg
 	//      Anglular offset for the fit. Why? Because LH light usually does not coincide with x-axis!
+	//
+	// About FoVRot:
+	//
+	// In PEEM the magnetic objective rotates the image wrt to lab reference frame. The x-ray beam polarization
+	// refers to the lab frame, LH is paralled to the floor (x-axis of the lab frame) and LV is perpendicular to
+	// the floor (y-axis of the lab frame). The preset of the microscope (written in metadata) gives an angle for
+	// the rotation you have to do in order to align the image with the lab reference. Prior to this rotation, the 
+	// y-axis should be flipped (mirror reflextion over the x-axis) in order the image to correspond to the x-ray 
+	// beam view of the sample. Therefore *FoVRot* has to be set so that the program can calculate the starting angle
+	// correctly. *FoVRot* contained in the metadata!
+	// Here the first angle is set so that the LH light has theta = 0, i.e parallel to x-axis. 
+	//
+	//
 	//	## Returns
 	//	variable
 	//		A unique 2D wave NameOfWave(wRef) + "_XMLDMap" is created (+num2str(N)))
 	//		0 - map calculations completed
 	//		1 - input wave was not a 3D wave
-	//@
+	//--------------------------------------------------------------------------------------------------------------
 	//
-	
-	// Technical details, not necessarily used but can be tried.
-	// /ODR=0 Levenberg-Marquardt least-squares method using old code.
-	// /ODR=1 Trust-region Levenberg-Marquardt ordinary least-squares method implemented using ODRPACK95 code.
-	// /ODR=2 Trust-region Levenberg-Marquardt least orthogonal distance method implemented using ODRPACK95 code.
-	// /ODR=3 Implicit fit. No dependent variable is specified; instead fitting attempts to adjust the fit 
-	// coefficients such that the fit function returns zero for all dependent variables.
-	// FuncFit/Q/ODR=0 ATH_Magnetism#XMLDIntensity, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
-	//
-	//
-	//
-	// In FuncFit if you want to use Trust-region Levenberg-Marquardt ordinary least-squares method
-	// Do the folowing
-	// variable V_FitError
-	// V_FitError = 0 // Set it to zero before the fit
-	// FuncFit/Q/ODR=1 ...
-	// if(V_FitError)
-	//     // deal with the error
-	//     continue
-	// endif
-	//
-	// For more info:
+	// Advanced curve fitting
 	//
 	// DisplayHelpTopic "Special Variables for Curve Fitting"
-	//
-	//
-	//
-	// -------------------------------------------------------------------------------------
-	// Bit 1: Robust Fitting
-	// You can get a form of robust fitting where the sum of the absolute deviations is
-	// minimized rather than the squares of the deviations, which tends to de-emphasize
-	// outlier values. To do this, create V_FitOptions and set bit 1 (variable V_fitOptions=2).
-	// Warning 1: No attempt to adjust the results returned for the estimated errors or
-	// for the correlation matrix has been made. You are on your own.
-	// Warning 2: Don't set this bit and then forget about it.
-	// Warning 3: Setting Bit 1 has no effect on line, poly or poly2D fits.
-	// -------------------------------------------------------------------------------------
-	//
-	// So after the fit set V_fitOptions=0
-	//
-	//
 	
-	variable firstAngleRad = ParamIsDefault(firstAngle) ? 0: firstAngle * pi/180
-	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180: angleStep * pi/180
-	variable angleOffsetRad = ParamIsDefault(angleOffset) ? 0: angleOffset * pi/180
+	variable firstAngleRad = ParamIsDefault(firstAngle) ? -90 * pi/180 : firstAngle * pi/180
+	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180 : angleStep * pi/180
+	variable FoVRotRad = ParamIsDefault(FoVRot) ? 0 : FoVRot * pi/180
+	
+	// Calculate the angular offset, rotate by -FoVRotRad and apply mirror operation over x-axis
 	
 	variable rows = DimSize(wRef, 0)
 	variable cols = DimSize(wRef, 1)
@@ -279,41 +255,38 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 		return 1
 	endif
 	variable i, j, cnt
-	string mapBaseNameStr = NameofWave(wRef) + "_XMLDMap"
+	string mapBaseNameStr = NameofWave(wRef) + "_map"
 	string mapNameStr = CreateDataObjectName(dfr, mapBaseNameStr, 1, 0 ,1)
-	Make/N=(rows, cols) $mapNameStr, $(mapNameStr+"_Off"), $(mapNameStr+"_y0")
+	Make/N=(rows, cols) $mapNameStr, $(mapNameStr+"_offset"), $(mapNameStr+"_amplitude")
 	WAVE wphase = $mapNameStr
-	WAVE woff = $(mapNameStr+"_Off")
-	WAVE wfact = $(mapNameStr+"_y0")
-	// Make the fitting waves:  K0 + K1 * cos(2*x + K2)
+	WAVE woff = $(mapNameStr+"_offset")
+	WAVE wfact = $(mapNameStr+"_amplitude")
+	// Make the fitting waves:  K0 + K1 * sin(x + K2)^2
 	Make/FREE/D/N=3 ATH_Coef
-	// Fit is very sensitive to the selection of K1
-	// Do not set K1 >= 0 as approaching zero will give us a constant funtion
-	// and the factor K2 cannot converge (no dependence on K2 as K1 -> 0).
-	//
-	// Here  189° = 3.29867 rad, do not be too tight with contrains otherwise
-	// the fit will fail.
-	//
-	// Afterwards it is suggested to parse your output map and set any angles
-	// higher than 3.29867 to 0 and any pixels in a
+	// Fit can be very sensity to contrains! Read the manual!
 	// ********************YOU NEED TO TUNE HERE************************
-	Make/FREE/T ATH_Constraints = {"K1 > 1e-5","K2 >= 0", "K2 < 3.29867"} 
+	//
+	// Choose carefully the parameter K1, if it's zero then a lot of errors will occur
+	// as K1->0 reduces the functional dependency to a constant function!
+	// We will assume of K1 hits the lowest value then K2 == 0!
+	//
+	Make/FREE/T ATH_Constraints = {"K1>1e-3","K2 > -1.5708", "K2 <= 1.5708"} 
 	// *****************************************************************
 	Make/FREE/N=(layers) freeData
-	SetScale/P x, firstAngleRad , angleStepRad, freeData // Set the scale!
+	SetScale/P x, (firstAngleRad+FoVRotRad) , angleStepRad, freeData // Set the scale!
 	Make/O/D/N=(rows, cols, 3) ATH_FitCoeff // Fit coefficients per pixel
 	variable V_FitError
 	variable errorCnt = 0
+	variable V_FitOptions = 0
 	for(i = 0; i < rows; i++)
 		for(j = 0; j < cols; j++)
 			// /S keeps scaling in MatrixOP
 			// N.B. If you add /FREE here the scaling will be lost!!!
 			MatrixOP/O/S freeData = beam(wRef, i, j)
 			WaveStats/M=1/Q freeData // Makes it slower, but initial guess is better. Is it helpful?
-			// Initialise, with a reasonable guess
-			ATH_Coef = {V_avg, 0.5*(V_max-V_min),V_maxloc}
 			V_FitError = 0 // Set it to zero before the fit
-			FuncFit/Q ATH_FuncFit#XMLDIntensity, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
+			ATH_Coef = {V_avg, 0.5*(V_max-V_min),0.1} // N.B!! You might need to play a bit with the initial guess
+			FuncFit/Q ATH_FuncFit#XMLDSinSqIntensity, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
 			if(V_FitError)
 				// Deal with error here....
 				errorCnt++
@@ -382,7 +355,7 @@ static Function iCursorUsingCallbackHookFunction(STRUCT WMWinHookStruct &s)
 			hookResult = 1
 			break
 		case 11: // Keyboard event
-			if(s.keycode == 27) //  Esc
+			if(s.specialKeyCode == 204) //  Esc
 				SetWindow $s.winName, hook(MyiCursorActionHook) = $""
 				Cursor/K/W=$s.winName B
 				KillDataFolder/Z dfr
@@ -398,21 +371,18 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	string winNameStr = GetUserData("", "", "MyiCursorWin")
 	string plotNameStr = GetUserData("", "", "MyiplotWin")	
 	MatrixOP/O dfr:cursorBeamProfile = beam(wSrc, p0, q0)
-	WAVE wOff = wdfr:$(NameOfWave(wRef)+"_Off")
-	WAVE wy0 = wdfr:$(NameOfWave(wRef)+"_y0")
+	WAVE wOff = wdfr:$(NameOfWave(wRef)+"_offset")
+	WAVE wA = wdfr:$(NameOfWave(wRef)+"_amplitude")
 	Make/O dfr:fitPlotW /WAVE=wsin
-	SetScale/I x, 0, pi, wsin, dfr:cursorBeamProfile
-	variable xOff = wOff[p0][q0]
-	variable xy0 = wy0[p0][q0]
+	SetScale/I x, -pi/2, pi/2, wsin, dfr:cursorBeamProfile
+	variable x0 = wOff[p0][q0]
+	variable A = wA[p0][q0]
 	variable phase = wRef[p0][q0]*0.01745329 // Phase to rad
-	wsin = xOff + xy0 * cos(2*x + phase)
+	wsin = x0 + A * sin(x + phase)^2
 	RemoveFromGraph/W=$plotNameStr/ALL
 	AppendToGraph/W=$plotNameStr dfr:cursorBeamProfile
 	ModifyGraph/W=$plotNameStr mode(cursorBeamProfile)=3,marker(cursorBeamProfile)=19,msize(cursorBeamProfile)=4
 	AppendToGraph/W=$plotNameStr wsin 
 	ModifyGraph/W=$plotNameStr lsize(fitPlotW)=2,rgb(fitPlotW)=(1,16019,65535)
-	string baseTextStr = "TextBox/W="+PossiblyQuoteName(plotNameStr)+"/C/N=ValueLog\"" + "A = %.4f, φ = %.4f\"", cmdStr
-	sprintf cmdStr, baseTextStr, xy0, phase*180/pi
-	Execute/Q/Z cmdStr		
 	return 0
 End

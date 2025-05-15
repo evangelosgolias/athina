@@ -427,15 +427,14 @@ End
 
 
 static Function ImageRotateAndScale(WAVE wRef, variable angle, [variable backup, variable flipY])
-	/// Backup and rotate image. Create backup in the source wave folder.
 	/// Math: If the side of the image is a, then the rotated image
 	/// will have side a_rot = a * (cos(angle) + sin(angle))
 	/// @param wRef: 2d or 3d wave	
-	/// @param angle: clockwise rotation in degrees
+	/// @param angle: counter clockwise rotation in degrees
 	/// @param backup: backup wave before rotation
 	/// @param fliY: flip cols
 	
-	/// flipY = 1 when Mirror in ON
+	/// flipY = 0 when Mirror in ON ? 
 	backup = ParamIsDefault(backup) ? 0 : backup
 	flipY = ParamIsDefault(flipY) ? 0 : flipY
 	if(backup)
@@ -456,7 +455,7 @@ static Function ImageRotateAndScale(WAVE wRef, variable angle, [variable backup,
 		ImageTransform flipCols wRef // flip the y-axis, MatrixOP reverseRows is equivalent!
 		noteStr += "Flipped  y-axis (rows)\n"
 	endif
-	ImageRotate/O/E=0/A=(angle) wRef
+	ImageRotate/O/E=0/A=(angle)/W wRef // Use /W for counter clock-wise.
 	noteStr +="Image rotated by " + num2str(angle) + " deg\n"
 	Note/K wRef, noteStr
 	if(backup)
