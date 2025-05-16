@@ -24,7 +24,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **i** : measure distance on images using cursors.
 - **l** : launch image line profiler.
 - **n** : Toggle square image on/off.
-- **p** : launch plane z profiler.
+- **p** : launch plane z profiler...
 - **r** : show range panel (contrast).
 - **s** : set saved axes range. 
 - **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
@@ -32,6 +32,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **SHIFT + b** : restore image from backup if it exists.
 - **SHIFT + d** : a copy of the wave in TG is created and displayed.
 - **SHIFT + f** : FFT (if there is marquee, calculate only the enclosed part)
+- **SHIFT + m** : launch mirror cursor values
 - **SHIFT + n** : add text annotation.
 - **SHIFT + r** : launch interactive image rotation.
 - **SHIFT + s** : Save current axes range and ctab.

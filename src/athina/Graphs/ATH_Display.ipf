@@ -184,6 +184,11 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_Launch#ImageFFTTransform(sourceDF=1)
 					endif
 					break
+				case 77: // M
+					if(s.eventMod & 2) // works with SHIFT + M only!
+						ATH_Launch#LaunchMirrorPositionToWaveValues()
+					endif
+					break					
 				case 78: // N
 					if(s.eventMod & 2) // works with SHIFT + N only!
 						ATH_Launch#QuickTextAnnotation()

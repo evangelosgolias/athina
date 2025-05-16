@@ -49,13 +49,14 @@ static Function MainMenu()
 	DFREF dfr = InitialiseFolder(winNameStr)
 	variable nrows = DimSize(imgWaveRef,0)
 	variable ncols = DimSize(imgWaveRef,1)
-	
+	string axisX, axisY
+	[axisX, axisY] = ATH_Graph#GetAxes(grfName=winNameStr)
 	string cmdStr, axisStr, dumpStr, val1Str, val2Str
-	string axisTopRangeStr = StringByKey("SETAXISCMD", AxisInfo("", "top"))
+	string axisTopRangeStr = StringByKey("SETAXISCMD", AxisInfo("", axisX))
 	SplitString/E="\s*([A-Z,a-z,^a-zA-Z0-9]*)\s*([A-Z,a-z]*)\s*([-]?[0-9]*[.]?[0-9]+)\s*(,)\s*([-]?[0-9]*[.]?[0-9]+)\s*"\
 	axisTopRangeStr, cmdStr, axisStr, val1Str, dumpStr, val2Str
 	variable midOfImageX = 0.5 * (str2num(val1Str) + str2num(val2Str))
-	string axisLeftRangeStr = StringByKey("SETAXISCMD", AxisInfo("", "left"))
+	string axisLeftRangeStr = StringByKey("SETAXISCMD", AxisInfo("", axisY))
 	SplitString/E="\s*([A-Z,a-z,^a-zA-Z0-9]*)\s*([A-Z,a-z]*)\s*([-]?[0-9]*[.]?[0-9]+)\s*(,)\s*([-]?[0-9]*[.]?[0-9]+)\s*"\
 	axisLeftRangeStr, cmdStr, axisStr, val1Str, dumpStr, val2Str
 	variable midOfImageY = 0.5 * (str2num(val1Str) + str2num(val2Str))

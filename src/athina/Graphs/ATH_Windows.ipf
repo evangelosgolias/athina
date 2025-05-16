@@ -90,19 +90,8 @@ static Function GetgLayerValue(string windowNameStr)
 		NVAR/SDFR=dfr gLayer
 		return gLayer
 	else
-		return -1
+		return -1 // There is no active slider
 	endif
-End
-
-static Function IsW3DSliderActiveQ(string windowNameStr)
-	/// Check whether ATH_W3DSlider is active
-	// 0 - not active
-	// 1 - active
-		if(!strlen(windowNameStr))
-		windowNameStr = WinName(0, 1, 1) // top window
-	endif
-	ControlInfo/W=$windowNameStr ATH_W3DSlider
-	return V_flag
 End
 
 // Dev -- need testing

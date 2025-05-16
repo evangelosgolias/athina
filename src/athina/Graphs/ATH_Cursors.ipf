@@ -654,38 +654,56 @@ static Function ThreeCursorsToAngle(string Cursor1, string Cursor2, string Curso
 End
 
 
-// Experimental
 static Function MirrorCursorPositionToWaveValues(WAVE wRef)
 	// Add a textbox with values from two graphs in the same cursor position
 	string grfName = WinName(0,1,1)
-	string textbuffer =  "TextBox/W="+grfName+"/C/N=ATH_CursorMirroGraphValues \"\\Z12 %g \\n %g\""
+	string textbuffer =  "TextBox/W="+grfName+"/C/N=ATH_CursorMirroGraphValues \"\\Z12Local: %g\\nMirror: %g\""
 	string athTopImg = ATH_Graph#TopImageName()
-	Cursor/I/C=(65535,0,0)/S=2/N=1/A=0 J $athTopImg 0.5,0.5
+
+	string axisX, axisY
+	[axisX, axisY] = ATH_Graph#GetAxes(grfName=grfName)
+	string dumpStr, val1Str, val2Str
+	string axisXRangeStr = StringByKey("SETAXISCMD", AxisInfo("", axisX))
+	SplitString/E="\s*([-]?[0-9]*[.]?[0-9]+)\s*(,)\s*([-]?[0-9]*[.]?[0-9]+)\s*" axisXRangeStr, val1Str, dumpStr, val2Str
+	variable midOfImageX = 0.5 * (str2num(val1Str) + str2num(val2Str))
+	string axisYRangeStr = StringByKey("SETAXISCMD", AxisInfo("", axisY))
+	SplitString/E="\s*([-]?[0-9]*[.]?[0-9]+)\s*(,)\s*([-]?[0-9]*[.]?[0-9]+)\s*" axisYRangeStr,val1Str, dumpStr, val2Str
+	variable midOfImageY = 0.5 * (str2num(val1Str) + str2num(val2Str))
+		
+	Cursor/I/C=(65535,0,0)/N=0/S=0/A=0/H=1 J $athTopImg midOfImageX,midOfImageY
 	SetWindow $grfName hook(ATH_MirrorCursorHook) = ATH_Cursors#SyncCursorsInGraphsHook
 	SetWindow $grfName userdata(ATH_textbuffer) = textbuffer
 	SetWindow $grfName userdata(ATH_LinkedWaveToMirrorValues) = GetWavesDataFolder(wRef,2)
-	
+	return 0
 End
 
 static Function SyncCursorsInGraphsHook(STRUCT WMWinHookStruct &s)
-	
-	variable hookResult
+
+	variable hookResult, layerN
 	string mirrorWaveStr = GetUserData(s.winName, "", "ATH_LinkedWaveToMirrorValues")
 	string textbuffer = GetUserData(s.winName, "", "ATH_textbuffer"), cmdStr
 	switch(s.eventCode)
-			case 7:
-				if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor
-					WAVE mirrorW = $mirrorWaveStr
-					WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName = s.winName)
+		case 7:
+			if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor
+				WAVE mirrorW = $mirrorWaveStr
+				WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName = s.winName)
+				layerN = ATH_Windows#GetgLayerValue(s.winName)
+				if(layerN==-1)
 					sprintf cmdStr, textbuffer, wRef[s.pointnumber][s.ypointnumber], mirrorW[s.pointnumber][s.ypointnumber]
-					Execute/Q/Z cmdStr
+				else
+					sprintf cmdStr, textbuffer, wRef[s.pointnumber][s.ypointnumber], mirrorW[s.pointnumber][s.ypointnumber][layerN]
 				endif
-			case 11:
-				if(s.specialKeyCode == 204) // if you press escape
-					SetWindow $s.winName hook(ATH_MirrorCursorHook) = $""
-					Cursor/K/W=$s.winName J
-					TextBox/K/N=ATH_CursorMirroGraphValues
-				endif
+				Execute/Q/Z cmdStr
+			endif
+			break
+		case 11:
+			if(s.specialKeyCode == 204) // if you press ESC
+				SetWindow $s.winName hook(ATH_MirrorCursorHook) = $""
+				Cursor/K/W=$s.winName J
+				TextBox/K/N=ATH_CursorMirroGraphValues
+				SetWindow $s.winName userdata(ATH_textbuffer) = ""
+				SetWindow $s.winName userdata(ATH_LinkedWaveToMirrorValues) = ""
+			endif
 			break
 	endswitch
 	return hookResult

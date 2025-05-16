@@ -107,7 +107,7 @@ static Function/S SelectWavesInModalDataBrowser(string msg)
 	ModifyBrowser/M showModalBrowser
 	
 	if(!V_flag) // user cancelled
-		Abort
+		return ""
 	endif
 	
 	return S_BrowserList
