@@ -386,3 +386,15 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	ModifyGraph/W=$plotNameStr lsize(fitPlotW)=2,rgb(fitPlotW)=(1,16019,65535)
 	return 0
 End
+
+Function ApplyXMCDMaskToXMLDMap(WAVE xmld, WAVE xmcd)
+
+	if(!ATH_WaveOp#WavedimensionsEqualQ(xmld, xmcd))
+		return -1
+	endif
+	MatrixOP/FREE mask = (sgn(xmcd)-1)*90 // negative values are shift by π
+	Duplicate xmcd, mask
+	string maskedWaveStr = NameOfWave(xmld) + "_masked"
+	MatrixOP $maskedWaveStr = xmld+mask
+	return 0
+End

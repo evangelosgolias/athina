@@ -956,14 +956,6 @@ static Function TwoTraceCalcs()
 	return 0
 End
 
-static Function TraceNormalisationWithValue()
-	// Todo
-	// Normalise a trace (or a list of traces OR all) using a value or maxwave, minwave ....whatever
-	string winNameStr = WinName(0, 1, 1)
-	string traceNameListStr = TraceNameList(winNameStr, ";", 1 + 4)
-	print "Not Yet implemented"
-	return 0
-End
 static Function QuickTextAnnotation()
 	string textStr = "" 
 	string color ="black"
@@ -1374,7 +1366,7 @@ static Function SaveAxesRangeAndCtab([string grfName])
 	return 0
 End
 
-static Function SetAxesRangeAndCtabFromSaved([string grfName])
+static Function SetAxesRangeAndCtabFromSaved([string grfName, variable setCtab])
 	//
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedAxesRangeCtab" ) // Root folder here
@@ -1390,8 +1382,10 @@ static Function SetAxesRangeAndCtabFromSaved([string grfName])
 		SVAR/Z/SDFR=dfr gATH_AxisY		
 		SVAR/Z/SDFR=dfr gATH_GraphCtabStr
 		SetAxis/W=$grfName $gATH_AxisX gATH_AxisMinX, gATH_AxisMaxX
-		SetAxis/W=$grfName $gATH_AxisY gATH_AxisMinY, gATH_AxisMaxY
-		ATH_Graph#SetGraphCtabStr(gATH_GraphCtabStr, grfName = grfName)
+		SetAxis/R/W=$grfName $gATH_AxisY gATH_AxisMinY, gATH_AxisMaxY
+		if(setCtab)
+			ATH_Graph#SetGraphCtabStr(gATH_GraphCtabStr, grfName = grfName)
+		endif
 	endif
 	return 0
 End

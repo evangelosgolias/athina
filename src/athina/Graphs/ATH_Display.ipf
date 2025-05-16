@@ -184,16 +184,21 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_Launch#ImageFFTTransform(sourceDF=1)
 					endif
 					break
-//				case 78: // N
-//					if(s.eventMod & 2) // works with SHIFT + N only!
-//						// Function here
-//					endif
-//					break				
+				case 78: // N
+					if(s.eventMod & 2) // works with SHIFT + N only!
+						ATH_Launch#QuickTextAnnotation()
+					endif
+					break				
 				case 82: // R
 					if(s.eventMod & 2) // works with SHIFT + R only!
 						ATH_iImgRotation#CreatePanel()
 					endif
 					break
+				case 83: // S
+					if(s.eventMod & 2) // works with SHIFT + S only!
+						ATH_Launch#SaveAxesRangeAndCtab()
+					endif
+					break					
 				case 88: // X
 					if(s.eventMod & 2) // works with SHIFT + X only!
 						ATH_iXPS#MainMenu()
@@ -219,7 +224,13 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					ATH_LineProfile#MainMenu()
 					break
 				case 110: // n
-					ATH_Launch#QuickTextAnnotation()
+					if(str2num(GetUserData(s.winName, "", "ATH_isPlanQ")))
+						SetWindow $s.winName, userdata(ATH_isPlanQ) = "0"
+						ModifyGraph width = 0, height = 0
+					else
+						SetWindow $s.winName, userdata(ATH_isPlanQ) = "1"
+						ModifyGraph width={Plan,1,top,left}
+					endif				
 					break
 				case 112: // p
 					ATH_PlaneZProfile#MainMenu()
@@ -228,13 +239,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					ATH_Range#pnl(s.winName)
 					break
 				case 115: // s
-					if(str2num(GetUserData(s.winName, "", "ATH_isPlanQ")))
-						SetWindow $s.winName, userdata(ATH_isPlanQ) = "0"
-						ModifyGraph width = 0, height = 0
-					else
-						SetWindow $s.winName, userdata(ATH_isPlanQ) = "1"
-						ModifyGraph width={Plan,1,top,left}
-					endif
+					ATH_Launch#SetAxesRangeAndCtabFromSaved()				
 					break			
 				case 120: // x, calculate xmcd
 					if(is3d && DimSize(w, 2)==2)

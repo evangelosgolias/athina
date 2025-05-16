@@ -126,8 +126,6 @@ End
 // -------------------------------------------------------
 
 Menu "GraphMarquee"
-	"ATH (µ, 3σ) Image Range (2D, 3D)", /Q, ATH_ImgOp#RangeMeanSigmaTopImage()
-	"ATH Image range 94% of ROI (2D, 3D)", /Q, ATH_Display#SetImageRangeTo94Percent()
 	"ATH Z-profiler: Set rectangular ROI  (3D)", /Q, ATH_ZProfile#GraphMarqueeLaunchRectangle()	
 	"ATH Z-profiler: Set oval ROI  (3D)", /Q, ATH_ZProfile#GraphMarqueeLaunchOval()	
 	"ATH Save Rect ROI (2D, 3D)", /Q, ATH_Marquee#SaveROICoordinatesToDatabase(rect = 1)		
@@ -143,7 +141,6 @@ Menu "GraphMarquee"
 		"ATH Normalize to one", /Q, ATH_Traces#MarqueeToTraceOperation(1)
 		"ATH Pull to zero", /Q, ATH_Traces#MarqueeToTraceOperation(0)
 		"ATH Maximum to one", /Q, ATH_Traces#MarqueeToTraceOperation(2)
-//		"ATH Use a value ...", /Q, ATH_Launch#TraceNormalisationWithValue()
 		"ATH Custom calculation ...", /Q, ATH_Launch#TwoTraceCalcs()
 	End	
 End
@@ -164,7 +161,8 @@ End
 
 Menu "TracePopup"
 	"ATH Save Axes\Color Range (TG, 2D, 3D)",/Q, ATH_Launch#SaveAxesRangeAndCtab()
-	"ATH Restore Axes\Color Range (TG, 2D, 3D)",/Q, ATH_Launch#SetAxesRangeAndCtabFromSaved()	
+	"ATH Set Saved Axes Range and Ctab (TG, 2D, 3D)",/Q, ATH_Launch#SetAxesRangeAndCtabFromSaved(setCtab=1)
+	"ATH Set Saved Axes Range (TG, 2D, 3D)",/Q, ATH_Launch#SetAxesRangeAndCtabFromSaved()		
 	"ATH Save layer (TG, 3D)", /Q, ATH_ImgOp#GetLayerFromImageStack()
 	"ATH Save current view (TG, 2D, 3D)", /Q, ATH_ImgOp#GetScaledZoominImageWindow()
 	"ATH Partition current view (3D)", /Q, ATH_ImgOp#GetScaledZoominImageWindow(w3d=1)	

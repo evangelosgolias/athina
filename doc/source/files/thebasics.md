@@ -23,16 +23,18 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **d** : *if marquee is present* launch automatic drift correction, if not launch interactive drift correction.
 - **i** : measure distance on images using cursors.
 - **l** : launch image line profiler.
-- **n** : annotate image.
+- **n** : Toggle square image on/off.
 - **p** : launch plane z profiler.
 - **r** : show range panel (contrast).
-- **s** : Toggle square image on/off.
+- **s** : set saved axes range. 
 - **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
 - **z** : launch z profiler *if marquee is present on the graph*.
 - **SHIFT + b** : restore image from backup if it exists.
 - **SHIFT + d** : a copy of the wave in TG is created and displayed.
 - **SHIFT + f** : FFT (if there is marquee, calculate only the enclosed part)
+- **SHIFT + n** : add text annotation.
 - **SHIFT + r** : launch interactive image rotation.
+- **SHIFT + s** : Save current axes range and ctab.
 - **SHIFT + x** : launch interactive PES (XPS) extractor
 - **SHIFT + mousewheel** : zoom image centered at the cursor.
 
