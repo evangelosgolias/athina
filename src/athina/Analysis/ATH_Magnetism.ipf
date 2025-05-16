@@ -299,6 +299,12 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	wfact[][] = ATH_FitCoeff[p][q][1]
 	wphase[][] = ATH_FitCoeff[p][q][2]*57.29577951 // From rad to deg
 	print "Total fit errors ", errorCnt
+	string metadata = "Fitting variables: firstAngle="+num2str(firstangle)+" ,angleStep="+num2str(angleStep)
+	metadata += ", FoVRot="+num2str(FoVRot)+"\n"+"Total fit errors: "+num2str(errorCnt)+"\n"
+	metadata += "Fitting constrains: {"+RemoveEnding(ATH_TWave#TextWaveToString(ATH_Constraints, sep=","))+"}\n"
+	Note wphase, metadata
+	Note wfact, metadata
+	Note woff, metadata
 	KillWaves/Z W_sigma, ATH_FitCoeff, fit__free_ // Cleanup the garbage
 End
 
@@ -306,7 +312,7 @@ End
 /// Beam fitting map
 /// Generic interaction using a cursor and a CallbackFunction
 
-static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef)
+static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef, [variable FoVRot])
 	/// Interactive operation using a callback function
 	/// ATH_Cursors#CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	//
@@ -327,6 +333,7 @@ static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef)
 	// Hook and metadata
 	SetWindow $winNameStr, hook(MyiCursorActionHook) = ATH_Magnetism#iCursorUsingCallbackHookFunction // Set the hook
 	SetWindow $winNameStr, userdata(MyiCursorWin) = winNameStr
+	SetWindow $winNameStr, userdata(FoVRotRad) = num2str(FoVRot*0.01745329)
 	SetWindow $winNameStr, userdata(ATH_iCursorDFR) = "root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr
 	Display/N=$(winNameStr + "_iFitPlot")/K=1
 	DoWindow/F $winNameStr
@@ -369,12 +376,14 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	DFREF dfr = $GetUserData("", "", "ATH_iCursorDFR")
 	DFREF wdfr = GetWavesDataFolderDFR(wRef)
 	string winNameStr = GetUserData("", "", "MyiCursorWin")
-	string plotNameStr = GetUserData("", "", "MyiplotWin")	
+	string plotNameStr = GetUserData("", "", "MyiplotWin")
+	variable FoVRotRad = str2num(GetUserData("", "", "FoVRotRad"))
+
 	MatrixOP/O dfr:cursorBeamProfile = beam(wSrc, p0, q0)
 	WAVE wOff = wdfr:$(NameOfWave(wRef)+"_offset")
 	WAVE wA = wdfr:$(NameOfWave(wRef)+"_amplitude")
 	Make/O dfr:fitPlotW /WAVE=wsin
-	SetScale/I x, -pi/2, pi/2, wsin, dfr:cursorBeamProfile
+	SetScale/I x, -pi/2+FoVRotRad, pi/2+FoVRotRad, wsin, dfr:cursorBeamProfile
 	variable x0 = wOff[p0][q0]
 	variable A = wA[p0][q0]
 	variable phase = wRef[p0][q0]*0.01745329 // Phase to rad
@@ -384,17 +393,5 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	ModifyGraph/W=$plotNameStr mode(cursorBeamProfile)=3,marker(cursorBeamProfile)=19,msize(cursorBeamProfile)=4
 	AppendToGraph/W=$plotNameStr wsin 
 	ModifyGraph/W=$plotNameStr lsize(fitPlotW)=2,rgb(fitPlotW)=(1,16019,65535)
-	return 0
-End
-
-Function ApplyXMCDMaskToXMLDMap(WAVE xmld, WAVE xmcd)
-
-	if(!ATH_WaveOp#WavedimensionsEqualQ(xmld, xmcd))
-		return -1
-	endif
-	MatrixOP/FREE mask = (sgn(xmcd)-1)*90 // negative values are shift by π
-	Duplicate xmcd, mask
-	string maskedWaveStr = NameOfWave(xmld) + "_masked"
-	MatrixOP $maskedWaveStr = xmld+mask
 	return 0
 End
