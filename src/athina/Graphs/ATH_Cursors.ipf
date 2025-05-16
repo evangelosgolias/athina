@@ -670,7 +670,7 @@ static Function MirrorCursorPositionToWaveValues(WAVE wRef)
 	SplitString/E="\s*([-]?[0-9]*[.]?[0-9]+)\s*(,)\s*([-]?[0-9]*[.]?[0-9]+)\s*" axisYRangeStr,val1Str, dumpStr, val2Str
 	variable midOfImageY = 0.5 * (str2num(val1Str) + str2num(val2Str))
 		
-	Cursor/I/C=(65535,0,0)/N=0/S=0/A=0/H=1 J $athTopImg midOfImageX,midOfImageY
+	Cursor/I/C=(65535,0,0)/N=1/S=0/A=0/H=1 J $athTopImg midOfImageX,midOfImageY
 	SetWindow $grfName hook(ATH_MirrorCursorHook) = ATH_Cursors#SyncCursorsInGraphsHook
 	SetWindow $grfName userdata(ATH_textbuffer) = textbuffer
 	SetWindow $grfName userdata(ATH_LinkedWaveToMirrorValues) = GetWavesDataFolder(wRef,2)
