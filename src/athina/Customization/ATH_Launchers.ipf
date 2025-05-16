@@ -1281,6 +1281,7 @@ static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is 
 		DoPrompt "Background subtraction ", order, do3D
 	else
 		Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
+		DoPrompt "Background subtraction ", order
 	endif
 	
 	order = trunc(order)
