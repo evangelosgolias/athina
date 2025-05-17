@@ -591,10 +591,10 @@ static Function ExtractLayerRangeToStack(WAVE w3d, variable NP0, variable NP1)
 	CopyScales w3d, M_Stack
 	variable dz = DimDelta(w3d,2)
 	variable offset = DimOffset(w3d,2) + NP0*dz	
-	SetScale/P z, offset, dz, M_Stack
 	string basenameStr = NameOfWave(w3d) + "_stkL_" + num2str(NP0) + "_" + num2str(NP1)
 	string saveStackNameStr = CreatedataObjectName(saveDF,basenameStr , 1, 0, 1)
 	Duplicate/O M_Stack, saveDF:$saveStackNameStr
+	SetScale/P z, offset, dz, saveDF:$saveStackNameStr
 	SetDataFolder saveDF
 	return 0
 End

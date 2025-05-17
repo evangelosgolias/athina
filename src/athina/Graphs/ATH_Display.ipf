@@ -174,11 +174,6 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_ImgOp#RestoreTopImageFromBackup()
 					endif
 					break
-				case 68: // D
-					if(s.eventMod & 2) // works with SHIFT + D only!
-						ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
-					endif
-					break					
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
 						ATH_Launch#ImageFFTTransform(sourceDF=1)
@@ -193,7 +188,12 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					if(s.eventMod & 2) // works with SHIFT + N only!
 						ATH_Launch#QuickTextAnnotation()
 					endif
-					break				
+					break
+				case 79: // O
+					if(s.eventMod & 2) // works with SHIFT + D only!
+						ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
+					endif
+					break					
 				case 82: // R
 					if(s.eventMod & 2) // works with SHIFT + R only!
 						ATH_iImgRotation#CreatePanel()
