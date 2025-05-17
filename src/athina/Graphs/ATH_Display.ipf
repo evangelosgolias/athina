@@ -202,6 +202,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				case 83: // S
 					if(s.eventMod & 2) // works with SHIFT + S only!
 						ATH_Launch#SaveAxesRangeAndCtab()
+						hookResult = 1											
 					endif
 					break					
 				case 88: // X
