@@ -221,6 +221,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					else
 						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
 					endif
+					hookResult = 1					
 					break
 				case 105: // i
 					ATH_Cursors#MeasureDistanceUsingFreeCursors()
@@ -235,7 +236,8 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					else
 						SetWindow $s.winName, userdata(ATH_isPlanQ) = "1"
 						ModifyGraph width={Plan,1,top,left}
-					endif				
+					endif
+					hookResult = 1								
 					break
 				case 112: // p
 					ATH_PlaneZProfile#MainMenu()
@@ -245,6 +247,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break
 				case 115: // s
 					ATH_Launch#SetAxesRangeAndCtabFromSaved()				
+					hookResult = 1					
 					break			
 				case 120: // x, calculate xmcd
 					if(is3d && DimSize(w, 2)==2)
@@ -259,8 +262,11 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						endif
 					endif
 					break
+				default:
+					hookResult = 0 // if 1 then arrows for example do not work				
+					break
 			endswitch
-			hookResult = 0 // if 1 then arrows for example do not work
+			
 			//Do not return anything here, you will block any other case 11.
 	endswitch
 	return hookResult
