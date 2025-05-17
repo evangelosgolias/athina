@@ -172,31 +172,38 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				case 66: // B
 					if(s.eventMod & 2)
 						ATH_ImgOp#RestoreTopImageFromBackup()
+						hookResult = 1										
 					endif
+					hookResult = 1										
 					break
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
 						ATH_Launch#ImageFFTTransform(sourceDF=1)
+						hookResult = 1										
 					endif
 					break
 				case 77: // M
 					if(s.eventMod & 2) // works with SHIFT + M only!
 						ATH_Launch#LaunchMirrorPositionToWaveValues()
+						hookResult = 1										
 					endif
 					break					
 				case 78: // N
 					if(s.eventMod & 2) // works with SHIFT + N only!
 						ATH_Launch#QuickTextAnnotation()
+						hookResult = 1										
 					endif
 					break
 				case 79: // O
 					if(s.eventMod & 2) // works with SHIFT + D only!
 						ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
+						hookResult = 1										
 					endif
 					break					
 				case 82: // R
 					if(s.eventMod & 2) // works with SHIFT + R only!
 						ATH_iImgRotation#CreatePanel()
+						hookResult = 1										
 					endif
 					break
 				case 83: // S
@@ -208,11 +215,13 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				case 88: // X
 					if(s.eventMod & 2) // works with SHIFT + X only!
 						ATH_iXPS#MainMenu()
+						hookResult = 1										
 					endif
 					break
 				case 97: // a - average if you have a 3d wave
 					if(is3d)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
+						hookResult = 1										
 					endif
 					break
 				case 100: // d - not capital here
@@ -226,9 +235,11 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break
 				case 105: // i
 					ATH_Cursors#MeasureDistanceUsingFreeCursors()
+					hookResult = 1										
 					break
 				case 108: //l
 					ATH_LineProfile#MainMenu()
+					hookResult = 1										
 					break
 				case 110: // n
 					if(str2num(GetUserData(s.winName, "", "ATH_isPlanQ")))
@@ -242,9 +253,11 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break
 				case 112: // p
 					ATH_PlaneZProfile#MainMenu()
+					hookResult = 1										
 					break
 				case 114: // r
 					ATH_Range#pnl(s.winName)
+					hookResult = 1										
 					break
 				case 115: // s
 					ATH_Launch#SetAxesRangeAndCtabFromSaved()				
@@ -262,6 +275,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 							Execute/P/Q "ATH_ZProfile#GraphMarqueeLaunchRectangle()"
 						endif
 					endif
+					hookResult = 1										
 					break
 				default:
 					hookResult = 0 // if 1 then arrows for example do not work				
