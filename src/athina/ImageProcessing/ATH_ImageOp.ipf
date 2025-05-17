@@ -575,10 +575,10 @@ static Function ScalePlanesBetweenZeroAndOne(WAVE w3d, [variable f64])
 End
 
 static Function ExtractLayerRangeToStack(WAVE w3d, variable NP0, variable NP1)
-	/// Average image range NP0-NP1, including endpoints
+	// Extract layers to a new stack
 	variable  nlayers = DimSize(w3d, 2), i
-	if(NP1 > nlayers - 1 || NP1 < NP0 || WaveDims(w3d) != 3)
-		Abort "Dimension mismatch."
+	if(NP1 > nlayers - 1 || NP1 < NP0 || NP0 < 0 || WaveDims(w3d) != 3)
+		Abort "Cannot do it, check ATH_ImgOp#ExtractLayerRangeToStack"
 	endif
 	variable imax = NP1 - NP0 + 1// include endpoints
 	DFREF saveDF = GetDataFolderDFR()
@@ -589,7 +589,9 @@ static Function ExtractLayerRangeToStack(WAVE w3d, variable NP0, variable NP1)
 	ImageTransform/NP=(imax) stackImages $"getLayer_0"
 	WAVE M_Stack
 	CopyScales w3d, M_Stack
-	SetScale/P z, 0, 1, M_Stack
+	variable dz = DimDelta(w3d,2)
+	variable offset = DimOffset(w3d,2) + NP0*dz	
+	SetScale/P z, offset, dz, M_Stack
 	string basenameStr = NameOfWave(w3d) + "_stkL_" + num2str(NP0) + "_" + num2str(NP1)
 	string saveStackNameStr = CreatedataObjectName(saveDF,basenameStr , 1, 0, 1)
 	Duplicate/O M_Stack, saveDF:$saveStackNameStr
