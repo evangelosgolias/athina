@@ -31,6 +31,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **z** : launch z profiler *if marquee is present on the graph*.
 - **SHIFT + b** : restore image from backup if it exists.
 - **SHIFT + f** : FFT (if there is marquee, calculate only the enclosed part)
+- **SHIFT + l** : link/unlink graph sliders (select graph from popup)
 - **SHIFT + m** : launch mirror cursor values
 - **SHIFT + n** : add text annotation.
 - **SHIFT + o** : a copy of the wave in TG is created and displayed.

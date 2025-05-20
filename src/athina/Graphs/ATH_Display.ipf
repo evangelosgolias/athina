@@ -182,6 +182,12 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						hookResult = 1										
 					endif
 					break
+				case 76: // L, link/unlink sliders
+					if(s.eventMod & 2) // works with SHIFT + M only!
+						ATH_Graph#LinkGraphSliders()
+						hookResult = 1										
+					endif
+					break						
 				case 77: // M
 					if(s.eventMod & 2) // works with SHIFT + M only!
 						ATH_Launch#LaunchMirrorPositionToWaveValues()

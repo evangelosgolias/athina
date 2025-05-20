@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_Graph
-#pragma version = 1.01
+#pragma version = 1.1
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -290,4 +290,58 @@ static Function/WAVE TopGraphToWaveRef([string grfName])
 		WAVE wRef = ATH_Traces#TopTraceToWaveRef(grfName=grfName) // Trace or nothing, the latter will be handled in ATH_Traces#TopTraceToWaveRef
 	endif
 	return wRef
+End
+
+static Function LinkGraphSliders([string parentGrf])
+	// Link the sliders of two graphs
+	parentGrf = SelectString(ParamIsDefault(parentGrf) ? 0: 1, WinName(0, 1, 1), parentGrf) // Empty case will be handled below
+	variable parentLayer = ATH_Windows#GetgLayerValue(parentGrf)
+	if(parentLayer == -1)
+		return -1
+	endif
+	// Have you already set a link between graph sliders
+	if(strlen(GetUserData(parentGrf, "", "ATH_W3DLinkedGraphStr")))
+		Slider ATH_W3DSlider, win=$parentGrf,thumbColor=(0,65535,0), proc=ATH_Display#NewImgSliderHook
+		Slider ATH_W3DSlider, win=$GetUserData(parentGrf, "", "ATH_W3DLinkedGraphStr"),thumbColor=(0,65535,0)
+		SetWindow $parentGrf userdata(ATH_W3DLinkedGraphStr) = ""
+		return 0
+	endif
+	string wnList = WinList("*",";","WIN:1"), grfName
+	wnList = RemoveFromList(parentGrf, wnList,";")
+	Prompt grfName, "Select window to link sliders", popup, wnList
+	DoPrompt "Graph ", grfName
+	if(V_flag)
+		return 0
+	endif
+	variable grfNameLayer = ATH_Windows#GetgLayerValue(grfName)
+	if(grfNameLayer == -1)
+		return -1
+	endif
+	SetWindow $parentGrf userdata(ATH_W3DLinkedGraphStr) = grfName
+	Slider ATH_W3DSlider, win=$parentGrf,thumbColor=(65535,0,0), proc=ATH_Graph#LinkedImgSliderHook
+	Slider ATH_W3DSlider, win=$grfName,thumbColor=(65535,0,0)
+End
+
+Function LinkedImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
+	//
+	if (sa.eventCode & 9) // Mouse moved or arrow key moved the slider & Value Set
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sa.win, "", "ATH_W3DImageSliderDFR"))		
+		NVAR/Z/SDFR=dfr gLayer	// added a /Z flag here, risky?
+		if(NVAR_Exists(gLayer))
+			gLayer = sa.curval
+			ModifyImage/W=$sa.win '' plane=gLayer
+			ModifyImage/W=$GetUserData(sa.win, "", "ATH_W3DLinkedGraphStr") '' plane=gLayer
+		else
+			ATH_Display#RestartW3DImageSlider(grfName=sa.win)
+		endif
+	endif
+	
+	if(sa.eventCode==-1)
+		string grfName = GetUserData(sa.win, "", "ATH_W3DLinkedGraphStr")
+		ModifyImage/W=$grfName '' plane=gLayer
+		SetWindow $sa.win userdata(ATH_W3DLinkedGraphStr) = ""
+		Slider ATH_W3DSlider, win=$sa.win,thumbColor=(0,65535,0), proc=ATH_Display#NewImgSliderHook
+		Slider ATH_W3DSlider, win=$grfName,thumbColor=(0,65535,0)
+	endif
+	return 0
 End

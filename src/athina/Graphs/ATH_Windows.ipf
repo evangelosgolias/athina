@@ -65,28 +65,28 @@ static Function/S GetListOfNamedWindowHookFunctions([string winNameStr, string h
     return hookFuncNameStr 
 End
 
-static Function SetNamedHookFunctionToWindow(string hookFuncNameStr, string hookFuncStr, [string winNameStr])
+static Function SetNamedHookFunctionToWindow(string hookFuncNameStr, string hookFuncStr, [string grfName])
 	// Set the the named hook function hookFuncStr as hook(hookFuncNameStr) 
-	// at winNameStr (TG if default)
-	if (ParamIsDefault(winNameStr))
-        winNameStr = WinName(0,1)
-        if (strlen(winNameStr)==0)
+	// at grfName (TG if default)
+	if (ParamIsDefault(grfName))
+        grfName = WinName(0,1)
+        if (strlen(grfName)==0)
             return 1
         endif
     endif
 
-    SetWindow $winNameStr, hook($hookFuncNameStr) = $hookFuncStr
+    SetWindow $grfName, hook($hookFuncNameStr) = $hookFuncStr
 	return 0
 End
 
-static Function GetgLayerValue(string windowNameStr)
+static Function GetgLayerValue(string grfName)
 	// Returns the /P=num plane displayed in windowNameStr
-	if(!strlen(windowNameStr))
-		windowNameStr = WinName(0, 1, 1) // top window
+	if(!strlen(grfName))
+		grfName = WinName(0, 1, 1) // top window
 	endif
-	ControlInfo/W=$windowNameStr ATH_W3DSlider
+	ControlInfo/W=$grfName ATH_W3DSlider
 	if( V_Flag != 0 )
-		DFREF dfr = $(skATH_W3DImageSliderParentDFR + windowNameStr)
+		DFREF dfr = $(skATH_W3DImageSliderParentDFR + grfName)
 		NVAR/SDFR=dfr gLayer
 		return gLayer
 	else
