@@ -300,10 +300,10 @@ static Function LinkGraphSliders([string parentGrf])
 		return -1
 	endif
 	// Have you already set a link between graph sliders
-	if(strlen(GetUserData(parentGrf, "", "ATH_W3DLinkedGraphStr")))
+	if(strlen(GetUserData(parentGrf, "", "ATH_W3DLinkedSliderGraphStr")))
 		Slider ATH_W3DSlider, win=$parentGrf,thumbColor=(0,65535,0), proc=ATH_Display#NewImgSliderHook
-		Slider ATH_W3DSlider, win=$GetUserData(parentGrf, "", "ATH_W3DLinkedGraphStr"),thumbColor=(0,65535,0)
-		SetWindow $parentGrf userdata(ATH_W3DLinkedGraphStr) = ""
+		Slider ATH_W3DSlider, win=$GetUserData(parentGrf, "", "ATH_W3DLinkedSliderGraphStr"),thumbColor=(0,65535,0)
+		SetWindow $parentGrf userdata(ATH_W3DLinkedSliderGraphStr) = ""
 		return 0
 	endif
 	string wnList = WinList("*",";","WIN:1"), grfName
@@ -317,9 +317,10 @@ static Function LinkGraphSliders([string parentGrf])
 	if(grfNameLayer == -1)
 		return -1
 	endif
-	SetWindow $parentGrf userdata(ATH_W3DLinkedGraphStr) = grfName
+	SetWindow $parentGrf userdata(ATH_W3DLinkedSliderGraphStr) = grfName
+	SetWindow $grfName userdata(ATH_W3DLinkedSliderGraphStr) = parentGrf
 	Slider ATH_W3DSlider, win=$parentGrf,thumbColor=(65535,0,0), proc=ATH_Graph#LinkedImgSliderHook
-	Slider ATH_W3DSlider, win=$grfName,thumbColor=(65535,0,0)
+	Slider ATH_W3DSlider, win=$grfName,thumbColor=(65535,0,0), proc=ATH_Graph#LinkedImgSliderHook
 End
 
 Function LinkedImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
@@ -330,18 +331,18 @@ Function LinkedImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 		if(NVAR_Exists(gLayer))
 			gLayer = sa.curval
 			ModifyImage/W=$sa.win '' plane=gLayer
-			ModifyImage/W=$GetUserData(sa.win, "", "ATH_W3DLinkedGraphStr") '' plane=gLayer
+			ModifyImage/W=$GetUserData(sa.win, "", "ATH_W3DLinkedSliderGraphStr") '' plane=gLayer
 		else
 			ATH_Display#RestartW3DImageSlider(grfName=sa.win)
 		endif
 	endif
 	
 	if(sa.eventCode==-1)
-		string grfName = GetUserData(sa.win, "", "ATH_W3DLinkedGraphStr")
+		string grfName = GetUserData(sa.win, "", "ATH_W3DLinkedSliderGraphStr")
 		ModifyImage/W=$grfName '' plane=gLayer
-		SetWindow $sa.win userdata(ATH_W3DLinkedGraphStr) = ""
-		Slider ATH_W3DSlider, win=$sa.win,thumbColor=(0,65535,0), proc=ATH_Display#NewImgSliderHook
-		Slider ATH_W3DSlider, win=$grfName,thumbColor=(0,65535,0)
+		SetWindow $grfName userdata(ATH_W3DLinkedSliderGraphStr) = ""
+		Slider ATH_W3DSlider, win=$grfName,thumbColor=(0,65535,0), proc=ATH_Display#NewImgSliderHook
 	endif
 	return 0
 End
+
