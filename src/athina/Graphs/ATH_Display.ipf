@@ -64,8 +64,7 @@ static Function NewImg(WAVE wRef, [string grfname])
 	variable cmapSwitch
 	sscanf StringByKey("RECREATION",Imageinfo("",NameOfWave(wRef),0)), matchPattern, colorScaleStr, cmapSwitch
 	WaveStats/Q wRef //$GetWavesDataFolder(wRef, 2)
-	variable ImgAvg = V_avg
-	variable ImgStd = V_sdev
+	variable ImgAvg = V_avg, ImgStd = V_sdev
 	ModifyImage/W=$grfname $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3, ctab= {ImgAvg - 3 * ImgStd, ImgAvg + 3 * ImgStd,$colorScaleStr,cmapSwitch} // Autoscale per plane / visible area Image
 	ModifyGraph/W=$grfname fSize=12
 	SetWindow $grfname, hook(AthinaDisplayHook) = ATH_Display#DisplayHookFunction // Set the hook
@@ -431,70 +430,70 @@ End
 
 //*******************************************************************************************************
 
-static Function SetImageRangeTo94Percent()
-
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	DFREF saveDF = GetDataFolderDFR()
-	SetDataFolder NewFreeDataFolder()
-	
-	variable planeN
-	
-	if(WaveDims(imgWaveRef) == 3)
-		string sss = ImageInfo(winNameStr, imgNameTopGraphStr, 0)
-		planeN  = numberbykey("plane", sss, "=")
-	elseif(WaveDims(imgWaveRef) == 2)
-		planeN = - 1
-	else
-		return -1
-	endif
-	// Error handling in case axes are different
-	GetMarquee/Z/K left, top; variable errorCode = GetRTError(1) // Same line, supressed even when debugger on
-	
-	if(errorCode)
-		print "AthinaError: " + GetErrMessage(errorCode, 3)
-		SetDataFolder saveDF
-		return -1
-	endif
-	
-	if(!V_flag)
-		return 0
-	endif
-	ATH_Marquee#CoordinatesToROIMask(V_left, V_top, V_right, V_bottom, interior = 0, exterior = 1) // Needed by ImageHistogram
-	WAVE M_ROIMask
-
-	if(planeN < 0)
-		// adding /I Calculates a histogram with 65536 bins, does not work well for 8-bit images
-		ImageHistogram/R=M_ROIMask imgWaveRef
-	else
-		ImageHistogram/P=(planeN)/R=M_ROIMask imgWaveRef
-	endif
-	
-	variable nzmin, nzmax
-	WAVE W_ImageHist
-	variable npts= numpnts(W_ImageHist)
-	variable tot = sum(W_ImageHist, pnt2x(W_ImageHist,0 ), pnt2x(W_ImageHist,npts-1 ))
-
-	variable s=0,i=0
-	do
-		s += W_ImageHist[i]
-		i+=1
-	while( (s/tot) < 0.03 )
-	nzmin= LeftX(W_ImageHist)+deltax(W_ImageHist)*i
-	
-	s=0;i=npts-1
-	do
-		s += W_ImageHist[i]
-		i-=1
-	while( (s/tot) < 0.03 )
-	nzmax= LeftX(W_ImageHist)+deltax(W_ImageHist)*i
-	
-	ModifyImage/W=$winNameStr $PossiblyQuoteName(nameOfWave(imgWaveRef)) ctab= {nzmin,nzmax,}
-	
-	SetDataFolder saveDF
-	return 0
-End
+//static Function SetImageRangeTo94Percent()
+//
+//	string winNameStr = WinName(0, 1, 1)
+//	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+//	WAVE imgWaveRef = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+//	DFREF saveDF = GetDataFolderDFR()
+//	SetDataFolder NewFreeDataFolder()
+//	
+//	variable planeN
+//	
+//	if(WaveDims(imgWaveRef) == 3)
+//		string sss = ImageInfo(winNameStr, imgNameTopGraphStr, 0)
+//		planeN  = numberbykey("plane", sss, "=")
+//	elseif(WaveDims(imgWaveRef) == 2)
+//		planeN = - 1
+//	else
+//		return -1
+//	endif
+//	// Error handling in case axes are different
+//	GetMarquee/Z/K left, top; variable errorCode = GetRTError(1) // Same line, supressed even when debugger on
+//	
+//	if(errorCode)
+//		print "AthinaError: " + GetErrMessage(errorCode, 3)
+//		SetDataFolder saveDF
+//		return -1
+//	endif
+//	
+//	if(!V_flag)
+//		return 0
+//	endif
+//	ATH_Marquee#CoordinatesToROIMask(V_left, V_top, V_right, V_bottom, interior = 0, exterior = 1) // Needed by ImageHistogram
+//	WAVE M_ROIMask
+//
+//	if(planeN < 0)
+//		// adding /I Calculates a histogram with 65536 bins, does not work well for 8-bit images
+//		ImageHistogram/R=M_ROIMask imgWaveRef
+//	else
+//		ImageHistogram/P=(planeN)/R=M_ROIMask imgWaveRef
+//	endif
+//	
+//	variable nzmin, nzmax
+//	WAVE W_ImageHist
+//	variable npts= numpnts(W_ImageHist)
+//	variable tot = sum(W_ImageHist, pnt2x(W_ImageHist,0 ), pnt2x(W_ImageHist,npts-1 ))
+//
+//	variable s=0,i=0
+//	do
+//		s += W_ImageHist[i]
+//		i+=1
+//	while( (s/tot) < 0.03 )
+//	nzmin= LeftX(W_ImageHist)+deltax(W_ImageHist)*i
+//	
+//	s=0;i=npts-1
+//	do
+//		s += W_ImageHist[i]
+//		i-=1
+//	while( (s/tot) < 0.03 )
+//	nzmax= LeftX(W_ImageHist)+deltax(W_ImageHist)*i
+//	
+//	ModifyImage/W=$winNameStr $PossiblyQuoteName(nameOfWave(imgWaveRef)) ctab= {nzmin,nzmax,}
+//	
+//	SetDataFolder saveDF
+//	return 0
+//End
 
 static Function RestartW3DImageSlider([string grfName])
 	// Kill and restart ATH_Display#Append3DImageSlider and restart in case 

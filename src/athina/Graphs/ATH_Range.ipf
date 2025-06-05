@@ -1359,7 +1359,7 @@ static Function/WAVE SIDAMImageNameToWaveRef(String grfName, [String imgName, in
 	if (isCmplx)
 		switch (mode)
 			case 0:	//	magnitude
-				MatrixOP/FREE tw1 = mag(tw0)
+				MatrixOP/FREE tw1 = mag(tw0) // Default with /C and NewImg
 				break
 			case 1:	//	real
 				MatrixOP/FREE tw1 = real(tw0)

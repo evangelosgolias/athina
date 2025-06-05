@@ -347,9 +347,9 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			hookresult = 1
 			break
 		case 5: // mouse up
-			ImageGenerateROIMask/W=$WindowNameStr $w3dNameStrQ
-			WAVE/Z M_ROIMask
-			if(!gATH_Rect && WaveExists(M_ROIMask))
+			if(!gATH_Rect)
+				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStrQ
+				WAVE/Z M_ROIMask
 				rs = (gATH_left  < xOff)   ? 0  :  ScaleToIndex(w3d, gATH_left, 0)
 				re = (gATH_right > xLast) ? gATH_Nx :  ScaleToIndex(w3d, gATH_right, 0)
 				cs = (gATH_bottom < yOff)  ? 0  :  ScaleToIndex(w3d, gATH_bottom, 1)
@@ -357,9 +357,9 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				MatrixOP/O/FREE partitionMask = subrange(M_ROIMask, rs, re, cs, ce)
 				MatrixOP/O/NTHR=0 profile = sum(subrange(w3d, rs, re, cs, ce) * partitionMask)
 				Redimension/E=1/N=(nLayers) profile
+				KillWaves/Z M_ROIMask				
 				hookresult = 1
 			endif
-			KillWaves/Z M_ROIMask
 			break
 		case 7: // cursor moved
 			if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor

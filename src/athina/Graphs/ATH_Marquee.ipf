@@ -81,16 +81,18 @@ static Function CoordinatesToROIMask(variable left, variable top, variable right
 	return 0
 End
 
-static Function/WAVE WAVECoordinatesToROIMask(variable left, variable top, variable right, variable bottom)
-	/// Generate a SP Mask from Marquee and return a WAVE reference
-	/// The graph should have left, top axes
+static Function/WAVE WAVECoordinatesToROIMask(variable left, variable top, variable right, 
+											  variable bottom, [variable interior, variable exterior])
+	/// Creates the wave M_ROIMask
+	interior = ParamIsDefault(interior) ? 1: interior // if set do not read metadata
+	exterior = ParamIsDefault(exterior) ? 0: exterior // if set do not read metadata
 	string winNameStr = WinName(0, 1, 1)
 	string wnamestr = ATH_Graph#TopImageName(grfName=winNameStr)
 	DoWindow/F $winNameStr // You need to have your imange stack as a top window
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv linefgc = (65535,16385,16385), fillpat = 0, linethick = 0.5, xcoord = top, ycoord = left
 	DrawRect/W=$winNameStr left, top, right, bottom
-	ImageGenerateROIMask $wnamestr
+	ImageGenerateROIMask/i=(interior)/e=(exterior) $wnamestr
 	DrawAction  delete
 	SetDrawLayer UserFront
 	WAVE M_ROIMask

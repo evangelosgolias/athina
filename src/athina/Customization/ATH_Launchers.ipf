@@ -825,15 +825,9 @@ End
 
 static Function ScalePlanesBetweenZeroAndOne()
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
-	// If you have 2D do it fast here and return
-	if(WaveDims(wRef) == 2)
-		MatrixOP/FREE wFree = wRef-minVal(wRef)
-		MatrixOP/O wFree = wFree/maxVal(wFree)
-		Duplicate/O wFree, wRef
-		return 0
-	endif
-	ATH_ImgOp#ScalePlanesBetweenZeroAndOne(wRef)
-	print NameOfWave(wRef) + " scaled to [0, 1]"
+	MatrixOP/FREE wFree = scale(wRef, 0, 1)
+	CopyScales/P wRef, wFree
+	Duplicate/O wFree, wRef
 	ATH_ImgOp#AutoRangeTopImagePlane() // Autoscale the image
 	return 0
 End

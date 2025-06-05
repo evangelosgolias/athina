@@ -39,28 +39,18 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	/// N.B If the folder contains paths with liberal names without 
 	/// enclosing single quotes then the path is sanitised
 	
-	setDF = ParamIsDefault(setDF) ? 0 : setDF
 
-	
 	//We can accept relative paths
 	if(ATH_String#StartsWith(fullpath, ":"))
 		fullpath = GetDataFolder(1) + fullpath[1,inf]
 	endif
-	
-	
-	// If you omit root, the function will add it.
-	if(cmpstr(ParsefilePath(0, fullpath, ":", 0, 0), "root"))
-		fullpath = "root:" + fullpath
-	endif
-	
+
 	// Sanitize path, liberal names
 	// It is not always needed, 
-	if(!ATH_String#isPathStringLegalQ(fullpath))
-		fullpath = SanitizePath(fullpath)
-	endif
-	
+	fullpath = SanitizePath(fullpath)
+
 	// If the directory exists
-	if(DataFolderExists(fullpath)) // ":" at the end needed to function properly
+	if(DataFolderExists(fullpath))
 		DFREF dfr = $fullpath
 		if (setDF)
 			SetDataFolder dfr
@@ -79,8 +69,8 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	variable fldrnum = ItemsInList(fldrs)
 	for(i = 0; i < fldrnum; i++)
 		fldrstr = StringFromList(i, fldrs)
-		if(!DataFolderExists(fldrstr)) // ":" at the end needed to function properly - No! (08.01.23)
-			NewDataFolder/O $RemoveEnding(fldrstr, ":") // Here the last ":" pops an error
+		if(!DataFolderExists(fldrstr))
+			NewDataFolder/O $RemoveEnding(fldrstr, ":") // ":" at the end pops an error
 		endif
 	endfor
 

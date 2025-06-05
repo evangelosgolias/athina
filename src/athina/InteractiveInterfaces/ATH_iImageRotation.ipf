@@ -204,7 +204,7 @@ static Function SetAngle(STRUCT WMSetVariableAction &sva) : SetVariableControl
 	return 0
 End
 
-Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
+static Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 
 	if (ba.eventCode != 2)
 		return 0

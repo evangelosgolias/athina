@@ -455,7 +455,7 @@ static Function ImageRotateAndScale(WAVE wRef, variable angle, [variable backup,
 		ImageTransform flipCols wRef // flip the y-axis, MatrixOP reverseRows is equivalent!
 		noteStr += "Flipped  y-axis (rows)\n"
 	endif
-	ImageRotate/O/E=0/A=(angle)/W wRef // Use /W for counter clock-wise.
+	ImageRotate/O/E=0/A=(-angle) wRef
 	noteStr +="Image rotated by " + num2str(angle) + " deg\n"
 	Note/K wRef, noteStr
 	if(backup)
@@ -545,29 +545,6 @@ static Function ScalePlanesByMaxRange(WAVE w3d, [variable f64])
 		Redimension/D w3d
 	endif
 	MatrixOP/FREE zRangeFree = 1/maxVal(w3d)
-	ImageTransform/BEAM={0, 0} getBeam zRangeFree
-	WAVE W_Beam
-	ImageTransform/O/D=W_Beam scalePlanes w3d
-	KillWaves W_Beam
-End
-
-static Function ScalePlanesBetweenZeroAndOne(WAVE w3d, [variable f64])
-	// Each plane is normalised between [0, 1]
-	// f64: Return a float64 wave. 
-	// By default return a float32, unless w3d is float64
-	// 
-	f64 = ParamIsDefault(f64) ? 0: 1 //
-	
-	if((!ATH_Num#IsFloat32Q(w3d) && !ATH_Num#IsFloat64Q(w3d)))
-		Redimension/S w3d
-	elseif(f64 && !ATH_Num#IsFloat64Q(w3d))
-		Redimension/D w3d
-	endif
-	
-	MatrixOP/FREE minValsZ = minVal(w3d)
-	MatrixOP/FREE maxValsZ = maxVal(w3d)
-	w3d -= minValsZ[0][0][r]
-	MatrixOP/FREE zRangeFree = 1/(maxValsZ - minValsZ)
 	ImageTransform/BEAM={0, 0} getBeam zRangeFree
 	WAVE W_Beam
 	ImageTransform/O/D=W_Beam scalePlanes w3d

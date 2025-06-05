@@ -19,6 +19,7 @@ static Function/WAVE FFT2D(WAVE wRef)
 	return $destWaveNameStr
 End
 
+
 Function HighAndLowScale(WAVE wRef, variable low, variable high)
     // Find min and max values of the wave
     string waveNormStr = NameOfWave(wRef)+"_scaled"
