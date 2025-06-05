@@ -848,8 +848,8 @@ static Function SetCursorsGH(STRUCT WMButtonAction &B_Struct): ButtonControl)
 				Button SaveCursorPositions, disable = 0, win=$B_Struct.win				
 				CursorGHSwitch = 1
 			else
-				Cursor/W=$parentWindow/I/C=(0,65535,0, 30000)/H=1/P/N=1 A $imgNameTopGraphStr Gx, Gy
-				Cursor/W=$parentWindow/I/C=(0,65535,0, 65535)/H=1/P/N=1 B $imgNameTopGraphStr Hx, Hy
+				Cursor/W=$parentWindow/I/C=(0,65535,0, 30000)/H=1/P/N=1 G $imgNameTopGraphStr Gx, Gy
+				Cursor/W=$parentWindow/I/C=(0,65535,0, 65535)/H=1/P/N=1 H $imgNameTopGraphStr Hx, Hy
 				SetDrawLayer/W=$parentWindow Overlay
 				DrawAction/W=$parentWindow delete
 				Button SetCursorsGH fcolor=(65535,0,0)
