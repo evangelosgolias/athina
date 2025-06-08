@@ -551,27 +551,41 @@ static Function ScalePlanesByMaxRange(WAVE w3d, [variable f64])
 	KillWaves W_Beam
 End
 
-static Function ExtractLayerRangeToStack(WAVE w3d, variable NP0, variable NP1)
+static Function ExtractLayerRange(WAVE w3d, [variable startL, variable endL, variable doStack])
 	// Extract layers to a new stack
 	variable  nlayers = DimSize(w3d, 2), i
-	if(NP1 > nlayers - 1 || NP1 < NP0 || NP0 < 0 || WaveDims(w3d) != 3)
+	startL = ParamIsDefault(startL) ? 0 : startL
+	endL = ParamIsDefault(endL) ? nlayers - 1 : endL	
+	
+	if(endL > nlayers - 1 || endL < startL || startL < 0 || WaveDims(w3d) != 3)
 		Abort "Cannot do it, check ATH_ImgOp#ExtractLayerRangeToStack"
 	endif
-	variable imax = NP1 - NP0 + 1// include endpoints
+	variable imax = endL - startL + 1// include endpoints
 	DFREF saveDF = GetDataFolderDFR()
-	SetDataFolder NewFreeDataFolder()
-	for(i = 0; i < imax; i++)
-		MatrixOP/O $("getLayer_" + num2str(i)) = layer(w3d, NP0 + i)
-	endfor
-	ImageTransform/NP=(imax) stackImages $"getLayer_0"
-	WAVE M_Stack
-	CopyScales w3d, M_Stack
-	variable dz = DimDelta(w3d,2)
-	variable offset = DimOffset(w3d,2) + NP0*dz	
-	string basenameStr = NameOfWave(w3d) + "_stkL_" + num2str(NP0) + "_" + num2str(NP1)
-	string saveStackNameStr = CreatedataObjectName(saveDF,basenameStr , 1, 0, 1)
-	Duplicate/O M_Stack, saveDF:$saveStackNameStr
-	SetScale/P z, offset, dz, saveDF:$saveStackNameStr
+	if(!doStack)
+		string folder = CreateDataObjectName(saveDF, NameOfWave(w3d) + " layers", 11, 0, 1)
+		NewDataFolder/S $folder
+		imax = DimSize(w3d, 2)
+		for(i = 0; i < imax; i++)
+			MatrixOP/O $("layer" + num2str(i)) = layer(w3d, i)
+			WAVE wRef = $("layer" + num2str(i))
+			CopyScales/P w3d, wRef
+		endfor
+	else
+		SetDataFolder NewFreeDataFolder()
+		for(i = 0; i < imax; i++)
+			MatrixOP/O $("getLayer_" + num2str(i)) = layer(w3d, startL + i)
+		endfor
+		ImageTransform/NP=(imax) stackImages $"getLayer_0"
+		WAVE M_Stack
+		CopyScales w3d, M_Stack
+		variable dz = DimDelta(w3d,2)
+		variable offset = DimOffset(w3d,2) + startL*dz
+		string basenameStr = NameOfWave(w3d) + "_stkL_" + num2str(startL) + "_" + num2str(endL)
+		string saveStackNameStr = CreatedataObjectName(saveDF,basenameStr , 1, 0, 1)
+		Duplicate/O M_Stack, saveDF:$saveStackNameStr
+		SetScale/P z, offset, dz, saveDF:$saveStackNameStr
+	endif
 	SetDataFolder saveDF
 	return 0
 End

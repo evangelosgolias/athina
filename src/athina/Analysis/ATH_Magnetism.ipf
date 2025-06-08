@@ -244,7 +244,6 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	variable firstAngleRad = ParamIsDefault(firstAngle) ? -90 * pi/180 : firstAngle * pi/180
 	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180 : angleStep * pi/180
 	variable FoVRotRad = ParamIsDefault(FoVRot) ? 0 : FoVRot * pi/180
-	
 	// Calculate the angular offset, rotate by -FoVRotRad and apply mirror operation over x-axis
 	
 	variable rows = DimSize(wRef, 0)
@@ -387,7 +386,7 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	variable x0 = wOff[p0][q0]
 	variable A = wA[p0][q0]
 	variable phase = wRef[p0][q0]*0.01745329 // Phase to rad
-	wsin = x0 + A * sin(x + phase)^2
+	wsin = x0 + A * sin(x - phase)^2
 	RemoveFromGraph/W=$plotNameStr/ALL
 	AppendToGraph/W=$plotNameStr dfr:cursorBeamProfile
 	ModifyGraph/W=$plotNameStr mode(cursorBeamProfile)=3,marker(cursorBeamProfile)=19,msize(cursorBeamProfile)=4

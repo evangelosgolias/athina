@@ -118,7 +118,7 @@ End
 // All-at-once
 static Function XMLDCosSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
-	//CurveFitDialog/ I(E) =pw[0] + pw[1] * cos(x + yw[2])^2
+	//CurveFitDialog/ I(E) =pw[0] + pw[1] * cos(x - yw[2])^2
 	//CurveFitDialog/ 	
 	//CurveFitDialog/ Independent Variables 1
 	//CurveFitDialog/ x	
@@ -126,7 +126,7 @@ static Function XMLDCosSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ w[0] = baseline
 	//CurveFitDialog/ w[1] = amplitute
 	//CurveFitDialog/ w[2] = phase
-	yw = pw[0] + pw[1] * cos((xw + pw[2]))^2
+	yw = pw[0] + pw[1] * cos(xw + pw[2])^2
 End
 
 static Function XMLDSinSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
@@ -139,13 +139,13 @@ static Function XMLDSinSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ w[0] = baseline
 	//CurveFitDialog/ w[1] = amplitute
 	//CurveFitDialog/ w[2] = phase
-	yw = pw[0] + pw[1] * sin((xw + pw[2]))^2
+	yw = pw[0] + pw[1] * sin(xw + pw[2])^2
 End
 
 
 static Function XMLDIntensityWtGradient(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
-	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(x + yw[2])^2
+	//CurveFitDialog/ I(E) = pw[0] + pw[1] * sin(x + yw[2])^2
 	//CurveFitDialog/ 	
 	//CurveFitDialog/ Independent Variables 1
 	//CurveFitDialog/ E	

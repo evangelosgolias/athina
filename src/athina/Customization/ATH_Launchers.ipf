@@ -854,7 +854,7 @@ static Function ExtractLayerRangeToStack()
 	string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Enter a range as 3-7 or 3,7. Zero-based indexing.", "Extract image range from stack")
 	string sval1, sval2, separatorStr
 	SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
-	ATH_ImgOp#ExtractLayerRangeToStack(wRef, str2num(sval1), str2num(sval2))
+	ATH_ImgOp#ExtractLayerRange(wRef, startL=str2num(sval1), endL=str2num(sval2), doStack=1)
 End
 
 static Function SumImagePlanes()
