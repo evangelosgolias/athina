@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 #pragma ModuleName = ATH_ZProfile
-#pragma version = 1.5
+#pragma version = 1.6
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: egolias@protonmail.com
@@ -53,19 +53,13 @@ static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 		KillWindow $winNameStr
 		ATH_Display#NewImg(w3dref)
 	endif
-	NVAR/SDFR=dfr gATH_left
-	NVAR/SDFR=dfr gATH_right
-	NVAR/SDFR=dfr gATH_top
-	NVAR/SDFR=dfr gATH_bottom
+	NVAR/SDFR=dfr gATH_left, gATH_right, gATH_top, gATH_bottom, gATH_aXlen, gATH_aYlen, gATH_Rect
 	gATH_left = V_left
 	gATH_right = V_right
 	gATH_top = V_top
 	gATH_bottom = V_bottom
-	NVAR/SDFR=dfr gATH_aXlen
-	NVAR/SDFR=dfr gATH_aYlen
 	gATH_aXlen = abs(V_left-V_right)
 	gATH_aYlen = abs(V_top-V_bottom)		
-	NVAR/SDFR=dfr gATH_Rect
 	gATH_Rect = 0
 	SetDrawLayer/W=$winNameStr ProgFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv/W=$winNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
@@ -97,19 +91,13 @@ static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 		KillWindow $winNameStr
 		ATH_Display#NewImg(w3dref)
 	endif
-	NVAR/SDFR=dfr gATH_left
-	NVAR/SDFR=dfr gATH_right
-	NVAR/SDFR=dfr gATH_top
-	NVAR/SDFR=dfr gATH_bottom
+	NVAR/SDFR=dfr gATH_left, gATH_right, gATH_top, gATH_bottom, gATH_aXlen, gATH_aYlen, gATH_Rect
 	gATH_left = V_left
 	gATH_right = V_right
 	gATH_top = V_top
 	gATH_bottom = V_bottom
-	NVAR/SDFR=dfr gATH_aXlen
-	NVAR/SDFR=dfr gATH_aYlen
 	gATH_aXlen = abs(V_left-V_right)
 	gATH_aYlen = abs(V_top-V_bottom)		
-	NVAR/SDFR=dfr gATH_Rect
 	gATH_Rect = 1
 	SetDrawLayer/W=$winNameStr ProgFront // ImageGenerateROIMask needs ProgFront layer
 	SetDrawEnv/W=$winNameStr linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
@@ -130,11 +118,8 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 		print "Cannot find a saved ROI"
 		return -1
 	endif
-	NVAR/SDFR=dfrROI gATH_Sright
-	NVAR/SDFR=dfrROI gATH_Stop
-	NVAR/SDFR=dfrROI gATH_Sbottom
-	NVAR/SDFR=dfrROI gATH_SrectQ
-		
+	NVAR/SDFR=dfrROI gATH_Sright, gATH_Stop, gATH_Sbottom, gATH_SrectQ
+			
 	if(WaveDims(w3dref) == 3) // if it is a 3d wave	
 		DFREF dfr = InitialiseFolder()
 		InitialiseGraph(dfr)
@@ -146,15 +131,9 @@ static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 	else
 		Abort "z-profile needs a 3d wave"
 	endif	
-	NVAR/SDFR=dfr gATH_left	
-	NVAR/SDFR=dfr gATH_right
-	NVAR/SDFR=dfr gATH_top
-	NVAR/SDFR=dfr gATH_bottom
-	NVAR/SDFR=dfr gATH_aXlen
-	NVAR/SDFR=dfr gATH_aYlen
+	NVAR/SDFR=dfr gATH_left, gATH_right, gATH_top, gATH_bottom, gATH_aXlen, gATH_aYlen, gATH_Rect
 	gATH_aXlen = abs(gATH_Sleft-gATH_Sright)
 	gATH_aYlen = abs(gATH_Stop-gATH_Sbottom)		
-	NVAR/SDFR=dfr gATH_Rect
 	gATH_Rect = gATH_SrectQ
 	gATH_left = gATH_Sleft
 	gATH_right = gATH_Sright
@@ -182,7 +161,7 @@ static Function/DF InitialiseFolder()
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
 
-	string msg // Error reporting
+	string msg, xAxis, yAxis
 	if(!strlen(imgNameTopGraphStr)) // we do not have an image in top graph
 		Abort "No image in top graph. Start profile with an image stack in top window."
 	endif
@@ -197,14 +176,18 @@ static Function/DF InitialiseFolder()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:" + winNameStr) // Root folder here
 	Make/O/N=(nlayers) dfr:wZLineProfileWave /Wave = profile // Store the line profile 
 	SetScale/P x, z0, dz, profile
+	[xAxis, yAxis] = ATH_Graph#GetAxes(grfName=winNameStr)
 	string/G dfr:gATH_imgNameTopWindowStr = imgNameTopGraphStr
 	string/G dfr:gATH_WindowNameStr = winNameStr
 	string/G dfr:gATH_LineProfileWaveStr = "wZLineProfileWave" // image profile wave
 	string/G dfr:gATH_LineProfileTwinWaveStr = "wZLineProfileWave" + "_Twin"// image profile wave	
 	string/G dfr:gATH_w3dPathname = GetWavesDataFolder(w3dref, 2)
 	string/G dfr:gATH_w3dPath = GetWavesDataFolder(w3dref, 1)
+	print GetWavesDataFolder(w3dref, 1)
 	string/G dfr:gATH_w3dNameStr = NameOfWave(w3dref)
 	string/G dfr:gATH_TwinWavePath = ""
+	string/G dfr:gATH_xAxis = xAxis
+	string/G dfr:gATH_yAxis = yAxis
 	variable/G dfr:gATH_dx = DimDelta(w3dref, 0)
 	variable/G dfr:gATH_dy = DimDelta(w3dref, 1)
 	variable/G dfr:gATH_Nx = DimSize(w3dref, 0) - 1 // Last element's index X
@@ -304,38 +287,15 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	variable hookResult = 0, i
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_ZProfileDFR"))
-	NVAR/SDFR=dfr gATH_left
-	NVAR/SDFR=dfr gATH_right
-	NVAR/SDFR=dfr gATH_top
-	NVAR/SDFR=dfr gATH_bottom
-	NVAR/Z dx = dfr:gATH_dx
-	NVAR/Z dy = dfr:gATH_dy
-	NVAR/Z xOff = dfr:gATH_xOff
-	NVAR/Z yOff = dfr:gATH_yOff
-	NVAR/Z xLast = dfr:gATH_xLast
-	NVAR/Z yLast = dfr:gATH_yLast
-	NVAR/SDFR=dfr gATH_Nx
-	NVAR/SDFR=dfr gATH_Ny
-	NVAR/Z nLayers = dfr:nLayers
-	NVAR/SDFR=dfr gATH_Rect
-	NVAR/SDFR=dfr gATH_aXlen
-	NVAR/SDFR=dfr gATH_aYlen
-	NVAR/SDFR=dfr gATH_TwinPlotSwitch
-	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
-	SVAR/Z w3dNameStr = dfr:gATH_w3dNameStr
-	SVAR/Z w3dPath = dfr:gATH_w3dPath
-	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
-	SVAR/Z/SDFR=dfr gATH_TwinWavePath
+	NVAR/SDFR=dfr gATH_left, gATH_right, gATH_top, gATH_bottom, gATH_dx, gATH_dy, gATH_xOff, gATH_yOff, gATH_TwinPlotSwitch
+	NVAR/SDFR=dfr gATH_Nx, gATH_Ny, gATH_xLast, gATH_yLast, nLayers, gATH_Rect, gATH_aXlen, gATH_aYlen
+	SVAR/Z/SDFR=dfr gATH_TwinWavePath, gATH_LineProfileWaveStr, gATH_LineProfileTwinWaveStr, gATH_xAxis, gATH_yAxis
+	SVAR/Z/SDFR=dfr	gATH_WindowNameStr, gATH_w3dPath, gATH_w3dNameStr
 	WAVE/Z twinWRef = $gATH_TwinWavePath // twin wave
-	DFREF wrk3dwave = $w3dPath
-	Wave/SDFR=wrk3dwave w3d = $w3dNameStr
-	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
-	SVAR/Z/SDFR=dfr gATH_LineProfileTwinWaveStr		
+	Wave/SDFR=$gATH_w3dPath w3d = $gATH_w3dNameStr
+	Wave/SDFR=dfr profile = $gATH_LineProfileWaveStr // full path to wave
 	Wave/Z/SDFR=dfr profileTwin = $gATH_LineProfileTwinWaveStr	
-	string w3dNameStrQ = PossiblyQuoteName(w3dNameStr) // Dealing with name1#name2 waves names
-	SetDrawLayer/W=$WindowNameStr ProgFront // We need it for ImageGenerateROIMask
-	variable rs, re, cs, ce // MatrixOP
-	variable nlayersTW = DimSize(twinWRef, 2)
+	string w3dNameStrQ = PossiblyQuoteName(gATH_w3dNameStr) // Dealing with name1#name2 waves names
 	switch(s.eventCode)
 		case 2: // Kill the window
 			KillWindow/Z $(GetUserData(s.winName, "", "ATH_LinkedWinImageZPP"))
@@ -348,56 +308,55 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			break
 		case 5: // mouse up
 			if(!gATH_Rect)
-				ImageGenerateROIMask/W=$WindowNameStr $w3dNameStrQ
+				variable rs, re, cs, ce 
+				SetDrawLayer/W=$gATH_WindowNameStr ProgFront // We need it for ImageGenerateROIMask			
+				ImageGenerateROIMask/W=$gATH_WindowNameStr $w3dNameStrQ
 				WAVE/Z M_ROIMask
-				rs = (gATH_left  < xOff)   ? 0  :  ScaleToIndex(w3d, gATH_left, 0)
-				re = (gATH_right > xLast) ? gATH_Nx :  ScaleToIndex(w3d, gATH_right, 0)
-				cs = (gATH_bottom < yOff)  ? 0  :  ScaleToIndex(w3d, gATH_bottom, 1)
-				ce = (gATH_top > yLast)   ? gATH_Ny :  ScaleToIndex(w3d, gATH_top, 1)
+				rs = (gATH_left  < gATH_xOff)   ? 0  :  ScaleToIndex(w3d, gATH_left, 0)
+				re = (gATH_right > gATH_xLast) ? gATH_Nx :  ScaleToIndex(w3d, gATH_right, 0)
+				cs = (gATH_bottom < gATH_yOff)  ? 0  :  ScaleToIndex(w3d, gATH_bottom, 1)
+				ce = (gATH_top > gATH_yLast)   ? gATH_Ny :  ScaleToIndex(w3d, gATH_top, 1)
 				MatrixOP/O/FREE partitionMask = subrange(M_ROIMask, rs, re, cs, ce)
 				MatrixOP/O/NTHR=0 profile = sum(subrange(w3d, rs, re, cs, ce) * partitionMask)
 				Redimension/E=1/N=(nLayers) profile
+				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
+					variable nlayersTW = DimSize(twinWRef, 2)
+					MatrixOP/O/FREE partitionMask = subrange(M_ROIMask, rs, re, cs, ce)
+					MatrixOP/O/NTHR=0 profile = sum(subrange(w3d, rs, re, cs, ce) * partitionMask)
+					Redimension/E=1/N=(nlayersTW) profileTwin
+				endif				
 				KillWaves/Z M_ROIMask				
 				hookresult = 1
 			endif
 			break
 		case 7: // cursor moved
 			if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor
-				DrawAction/W=$s.winName delete
-				SetDrawEnv/W=$s.winName linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
-				if(gATH_Rect)
-					DrawRect/W=$s.winName xOff - gATH_aXlen * 0.5 + s.pointNumber * dx, yOff + gATH_aYlen * 0.5 + s.yPointNumber * dy, \
-					xOff + gATH_aXlen * 0.5 + s.pointNumber * dx,  yOff - (gATH_aYlen * 0.5) + s.yPointNumber * dy
-
-				else
-					DrawOval/W=$WindowNameStr xOff - gATH_aXlen * 0.5 + s.pointNumber * dx, yOff + gATH_aYlen * 0.5 + s.yPointNumber * dy, \
-					xOff + gATH_aXlen * 0.5 + s.pointNumber * dx,  yOff - (gATH_aYlen * 0.5) + s.yPointNumber * dy
-				endif
-				Cursor/W=$WindowNameStr/I/C=(65535,0,0)/S=2/N=1/A=0 J $w3dNameStrQ, xOff + s.pointNumber * dx, yOff + s.yPointNumber * dy
-				gATH_left   = xOff - gATH_aXlen * 0.5 + s.pointNumber * dx
-				gATH_right  = xOff + gATH_aXlen * 0.5 + s.pointNumber * dx
-				gATH_top    = yOff + gATH_aYlen * 0.5 + s.yPointNumber * dy
-				gATH_bottom = yOff - gATH_aYlen * 0.5 + s.yPointNumber * dy
-				// What if the box is out of the image?
-				rs = (gATH_left  < xOff)   ? 0  :  ScaleToIndex(w3d, gATH_left, 0)
-				re = (gATH_right > xLast) ? gATH_Nx :  ScaleToIndex(w3d, gATH_right, 0)
-				cs = (gATH_bottom < yOff)  ? 0  :  ScaleToIndex(w3d, gATH_bottom, 1)
-				ce = (gATH_top > yLast)   ? gATH_Ny :  ScaleToIndex(w3d, gATH_top, 1)
-				MatrixOP/S/O/NTHR=0 profile = sum(subrange(w3d, rs, re, cs, ce))
+				gATH_left   = gATH_xOff - gATH_aXlen * 0.5 + s.pointNumber * gATH_dx
+				gATH_right  = gATH_xOff + gATH_aXlen * 0.5 + s.pointNumber * gATH_dx
+				gATH_top    = gATH_yOff + gATH_aYlen * 0.5 + s.yPointNumber * gATH_dy
+				gATH_bottom = gATH_yOff - gATH_aYlen * 0.5 + s.yPointNumber * gATH_dy
+				gATH_left = gATH_left < gATH_xOff ? gATH_xOff : gATH_left
+				gATH_right = gATH_right > gATH_xLast ? gATH_xLast : gATH_right
+				gATH_bottom = gATH_bottom < gATH_yOff ? gATH_yOff : gATH_bottom
+				gATH_top = gATH_top > gATH_yLast ? gATH_yLast : gATH_top
+				Duplicate/FREE/R=(gATH_left, gATH_right)(gATH_top, gATH_bottom)() w3d, freePartitionW 
+				MatrixOP/S/O/NTHR=0 profile = sum(freePartitionW)
 				Redimension/E=1/N=(nLayers) profile
-				//	Debug:
-				//		    		print "Left:", gATH_left, ",Right:",gATH_right, ",Top:", gATH_top, ",Bottom:", gATH_bottom
-				//		    		print "HookPointX:",(s.pointNumber * dx),",HookPointY:",(s.ypointNumber * dy), ",CursorX:", hcsr(J), ",CursorY:",vcsr(J)
-				//		    		print "l+r/2:", (gATH_left + gATH_right)/2, ",t+b/2:", (gATH_top + gATH_bottom)/2
-				//    			print "leftP:",(gATH_left/dx),",rightP:",(gATH_right/dx),"topQ:",(gATH_top/dy),",bottomQ:",(gATH_bottom/dy)
-				//		    		print "------"
-				//		    		print rs,re,cs,ce
-				// ---
-				// twin graph
 				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
-					MatrixOP/S/O/NTHR=0 profileTwin = sum(subrange(twinWRef, rs, re, cs, ce))
+					nlayersTW = DimSize(twinWRef, 2)
+					Duplicate/FREE/R=(gATH_left, gATH_right)(gATH_top, gATH_bottom)() w3d, freePartitionWTwin 
+					MatrixOP/S/O/NTHR=0 profile = sum(freePartitionWTwin)
 					Redimension/E=1/N=(nlayersTW) profileTwin
 				endif
+				// Redraw ROI
+				DrawAction/W=$s.winName delete
+				SetDrawLayer/W=$s.winName ProgFront		
+				SetDrawEnv/W=$s.winName linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = $gATH_xAxis, ycoord = $gATH_yAxis			
+				if(gATH_Rect)
+					DrawRect/W=$s.winName gATH_left, gATH_top, gATH_right, gATH_bottom
+				else
+					DrawOval/W=$s.winName gATH_left, gATH_top, gATH_right, gATH_bottom
+				endif				
 				hookresult = 1
 				break
 			endif
@@ -406,7 +365,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 		case 8: // We have a Window modification event
 			string plotNameStr = GetUserData(s.winName, "", "ATH_LinkedWinImageZPP")
 			if(strlen(WinList(plotNameStr,";",""))) // if profile plot exists (deleted mouseTrackV < 0 condition)
-				NVAR/Z glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(WindowNameStr):gLayer
+				NVAR/Z glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
 				variable linePos = DimOffset(profile, 0) + glayer * DimDelta(profile, 0)
 				DrawAction/W=$plotNameStr delete
 				SetDrawEnv/W=$plotNameStr xcoord= bottom, ycoord= prel,linefgc = (65535,0,0) //It should be after the draw action
@@ -445,7 +404,7 @@ End
 static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr"))
-	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
+	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin"), recreateDrawStr
 	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 	SVAR/Z w3dNameStr = dfr:gATH_w3dNameStr
@@ -454,12 +413,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 	NVAR/Z DoPlotSwitch = dfr:gATH_DoPlotSwitch
 	NVAR/Z MarkAreasSwitch = dfr:gATH_MarkAreasSwitch
 	NVAR/Z colorcnt = dfr:gATH_colorcnt
-	NVAR/SDFR=dfr gATH_left
-	NVAR/SDFR=dfr gATH_right
-	NVAR/SDFR=dfr gATH_top
-	NVAR/SDFR=dfr gATH_bottom
-	NVAR/SDFR=dfr gATH_Rect
-	string recreateDrawStr
+	NVAR/SDFR=dfr gATH_left, gATH_right, gATH_top, gATH_bottom, gATH_Rect
 	DFREF savedfr = GetDataFolderDFR() // ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:SavedZProfiles")
 	variable red, green, blue
 	switch(B_Struct.eventCode)	// numeric switch
