@@ -305,7 +305,6 @@ static Function LinkGraphSliders([string grfName])
 		Slider ATH_W3DSlider, win=$linkedGraph,thumbColor=(0,65535,0), proc=ATH_Display#NewImgSliderHook		
 		SetWindow $grfName userdata(ATH_W3DLinkedSliderGraphStr) = ""
 		SetWindow $linkedGraph userdata(ATH_W3DLinkedSliderGraphStr) = ""
-		print linkedGraph, grfName
 		return 0
 	endif
 	string wnList = WinList("*",";","WIN:1")
@@ -325,7 +324,7 @@ static Function LinkGraphSliders([string grfName])
 	Slider ATH_W3DSlider, win=$grfName,thumbColor=(65535,0,0), proc=ATH_Graph#LinkedImgSliderHook
 End
 
-Function LinkedImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
+static Function LinkedImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 	//
 	if (sa.eventCode & 9) // Mouse moved or arrow key moved the slider & Value Set
 		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sa.win, "", "ATH_W3DImageSliderDFR"))		

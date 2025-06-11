@@ -189,7 +189,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break						
 				case 77: // M
 					if(s.eventMod & 2) // works with SHIFT + M only!
-						ATH_Launch#LaunchMirrorPositionToWaveValues()
+						ATH_Launch#MirrorPositionToWaveValues()
 						hookResult = 1										
 					endif
 					break					

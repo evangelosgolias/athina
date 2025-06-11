@@ -1423,7 +1423,7 @@ static Function CloseTopWindowAndDeleteSource([int deleteBackUp, string grfName]
 End
 
 
-static Function LaunchMirrorPositionToWaveValues()
+static Function MirrorPositionToWaveValues()
 
 	string msg = "Select a wave to mirror the cursor values." 
 	string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
@@ -1439,4 +1439,19 @@ static Function LaunchMirrorPositionToWaveValues()
 	string logmsg = "Mirror value display for "+GetWavesDataFolder(wRef, 2)
 	logmsg += " in "+WinName(0,1,1)+" titled "+S_value+". ** Press ESC to exit **."
 	print logmsg
+End
+
+static Function DrawSavedROIOnGraph(string grfName, WAVE wRef, [variable bypass])
+	/// Draw the ROI saved in wRef on grfName
+	/// set bypass to draw ROI on any graph
+	DoWindow/F grfName	
+	SetDrawLayer/W=$grfName UserFront
+	// Do we mathch saved ROI reference and wave displayed in grfName?
+	WAVE/Z w1 = $StringByKey("WavePath", note(wRef), ":", "\n")
+	WAVE w2 = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
+	if(!WaveRefsEqual(w1,w2) && !bypass)
+		Execute/Q/Z/P StringByKey("DrawEnv", note(wRef), ":", "\n")
+		Execute/Q/Z/P StringByKey("DrawCmd", note(wRef), ":", "\n")
+	endif
+	return 0
 End

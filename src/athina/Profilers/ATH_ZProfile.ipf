@@ -447,18 +447,18 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 				endif
 			endif
 			if(gATH_Rect)
-				sprintf recreateDrawStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
+				sprintf recreateDrawStr, "WaveName:%s\nWavePath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
 				"DrawCmd:DrawRect %f, %f, %f, %f", gATH_w3dNameStr, gATH_w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
 				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
-					sprintf recreateDrawTwinStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
+					sprintf recreateDrawTwinStr, "WaveName:%s\nWavePath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
 					"DrawCmd:DrawRect %f, %f, %f, %f", ParseFilePath(0, gATH_TwinWavePath, ":", 1, 0) , gATH_TwinWavePath, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
 					 Note twdfr:$saveTwinWaveNameStr, recreateDrawTwinStr 
 				endif
 			else
-				sprintf recreateDrawStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
+				sprintf recreateDrawStr, "WaveName:%s\nWavePath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
 				"DrawCmd:DrawOval %f, %f, %f, %f", gATH_w3dNameStr, gATH_w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
 				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
-					sprintf recreateDrawTwinStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
+					sprintf recreateDrawTwinStr, "WaveName:%s\nWavePath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
 					"DrawCmd:DrawOval %f, %f, %f, %f", PossiblyQuoteName(NameOfWave(twinWRef)), gATH_TwinWavePath, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
 					Note twdfr:$saveTwinWaveNameStr, recreateDrawTwinStr 
 				endif				
