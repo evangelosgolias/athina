@@ -183,7 +183,6 @@ static Function/DF InitialiseFolder()
 	string/G dfr:gATH_LineProfileTwinWaveStr = "wZLineProfileWave" + "_Twin"// image profile wave	
 	string/G dfr:gATH_w3dPathname = GetWavesDataFolder(w3dref, 2)
 	string/G dfr:gATH_w3dPath = GetWavesDataFolder(w3dref, 1)
-	print GetWavesDataFolder(w3dref, 1)
 	string/G dfr:gATH_w3dNameStr = NameOfWave(w3dref)
 	string/G dfr:gATH_TwinWavePath = ""
 	string/G dfr:gATH_xAxis = xAxis
