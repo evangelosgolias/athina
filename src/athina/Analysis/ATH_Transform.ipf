@@ -15,7 +15,7 @@ static Function/WAVE FFT2D(WAVE wRef)
 	string  basenameStr = NameOfWave(wRef) + "_FFT"
 	string destWaveNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 1)
 	//ImageFilter/N=3/P=2 gauss wRefFree
-	FFT/OUT=3/DEST=$destWaveNameStr wRefFree // dfr:$destWaveNameStr doesn't work
+	FFT/DEST=$destWaveNameStr wRefFree // dfr:$destWaveNameStr doesn't work
 	return $destWaveNameStr
 End
 
