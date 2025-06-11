@@ -1448,7 +1448,7 @@ static Function DrawSavedROIOnGraph(string grfName, WAVE wRef, [variable bypass]
 	SetDrawLayer/W=$grfName UserFront
 	// Do we mathch saved ROI reference and wave displayed in grfName?
 	WAVE/Z w1 = $StringByKey("WavePath", note(wRef), ":", "\n")
-	WAVE w2 = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
+	WAVE/Z w2 = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
 	if(!WaveRefsEqual(w1,w2) && !bypass)
 		Execute/Q/Z/P StringByKey("DrawEnv", note(wRef), ":", "\n")
 		Execute/Q/Z/P StringByKey("DrawCmd", note(wRef), ":", "\n")
