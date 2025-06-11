@@ -292,34 +292,36 @@ static Function/WAVE TopGraphToWaveRef([string grfName])
 	return wRef
 End
 
-static Function LinkGraphSliders([string parentGrf])
+static Function LinkGraphSliders([string grfName])
 	// Link the sliders of two graphs
-	parentGrf = SelectString(ParamIsDefault(parentGrf) ? 0: 1, WinName(0, 1, 1), parentGrf) // Empty case will be handled below
-	variable parentLayer = ATH_Windows#GetgLayerValue(parentGrf)
-	if(parentLayer == -1)
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	if(ATH_Windows#GetgLayerValue(grfName) == -1) // if you have no slider
 		return -1
 	endif
 	// Have you already set a link between graph sliders
-	if(strlen(GetUserData(parentGrf, "", "ATH_W3DLinkedSliderGraphStr")))
-		Slider ATH_W3DSlider, win=$parentGrf,thumbColor=(0,65535,0), proc=ATH_Display#NewImgSliderHook
-		Slider ATH_W3DSlider, win=$GetUserData(parentGrf, "", "ATH_W3DLinkedSliderGraphStr"),thumbColor=(0,65535,0)
-		SetWindow $parentGrf userdata(ATH_W3DLinkedSliderGraphStr) = ""
+	string linkedGraph = GetUserData(grfName, "", "ATH_W3DLinkedSliderGraphStr")
+	if(strlen(linkedGraph))
+		Slider ATH_W3DSlider, win=$grfName,thumbColor=(0,65535,0), proc=ATH_Display#NewImgSliderHook
+		Slider ATH_W3DSlider, win=$linkedGraph,thumbColor=(0,65535,0), proc=ATH_Display#NewImgSliderHook		
+		SetWindow $grfName userdata(ATH_W3DLinkedSliderGraphStr) = ""
+		SetWindow $linkedGraph userdata(ATH_W3DLinkedSliderGraphStr) = ""
+		print linkedGraph, grfName
 		return 0
 	endif
-	string wnList = WinList("*",";","WIN:1"), grfName
-	wnList = RemoveFromList(parentGrf, wnList,";")
-	Prompt grfName, "Select window to link sliders", popup, wnList
-	DoPrompt "Graph ", grfName
+	string wnList = WinList("*",";","WIN:1")
+	wnList = RemoveFromList(grfName, wnList,";")
+	Prompt linkedGraph, "Select window to link sliders", popup, wnList
+	DoPrompt "Graph ", linkedGraph
 	if(V_flag)
 		return 0
 	endif
-	variable grfNameLayer = ATH_Windows#GetgLayerValue(grfName)
+	variable grfNameLayer = ATH_Windows#GetgLayerValue(linkedGraph)
 	if(grfNameLayer == -1)
 		return -1
 	endif
-	SetWindow $parentGrf userdata(ATH_W3DLinkedSliderGraphStr) = grfName
-	SetWindow $grfName userdata(ATH_W3DLinkedSliderGraphStr) = parentGrf
-	Slider ATH_W3DSlider, win=$parentGrf,thumbColor=(65535,0,0), proc=ATH_Graph#LinkedImgSliderHook
+	SetWindow $grfName userdata(ATH_W3DLinkedSliderGraphStr) = linkedGraph
+	SetWindow $linkedGraph userdata(ATH_W3DLinkedSliderGraphStr) = grfName
+	Slider ATH_W3DSlider, win=$linkedGraph,thumbColor=(65535,0,0), proc=ATH_Graph#LinkedImgSliderHook
 	Slider ATH_W3DSlider, win=$grfName,thumbColor=(65535,0,0), proc=ATH_Graph#LinkedImgSliderHook
 End
 
@@ -338,6 +340,7 @@ Function LinkedImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 	endif
 	
 	if(sa.eventCode==-1)
+		// Remove metadata from the linked graph
 		string grfName = GetUserData(sa.win, "", "ATH_W3DLinkedSliderGraphStr")
 		ModifyImage/W=$grfName '' plane=gLayer
 		SetWindow $grfName userdata(ATH_W3DLinkedSliderGraphStr) = ""

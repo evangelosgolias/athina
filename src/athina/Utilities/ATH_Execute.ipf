@@ -99,3 +99,11 @@ static Function HandleSimpleError(string funName)
 	endif
 	return 0
 End
+
+static Function GetAndExecuteNoteEntry(WAVE wRef, string entry, [string sep, string listsep])
+	/// Retrieve string entry from wRef note (use sep)
+	sep = SelectString(ParamIsDefault(sep) ? 0: 1, ":", sep)		
+	listsep = SelectString(ParamIsDefault(listsep) ? 0: 1, "\n", listsep)		
+	string cmd = StringByKey(entry, note(wRef), sep, listsep)
+	Execute/P/Q/Z cmd
+End

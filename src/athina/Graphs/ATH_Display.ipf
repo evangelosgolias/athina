@@ -183,7 +183,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break
 				case 76: // L, link/unlink sliders
 					if(s.eventMod & 2) // works with SHIFT + M only!
-						ATH_Graph#LinkGraphSliders()
+						ATH_Graph#LinkGraphSliders(grfName=s.winName)
 						hookResult = 1										
 					endif
 					break						

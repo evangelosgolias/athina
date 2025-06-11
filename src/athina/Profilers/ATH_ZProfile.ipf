@@ -239,7 +239,7 @@ End
 static Function InitialiseGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
 	string rootFolderStr = GetDataFolder(1, dfr)
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(rootFolderStr)
+	DFREF dfr = $(rootFolderStr)
 	SVAR/SDFR=dfr gATH_LineProfileWaveStr
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	SVAR/SDFR=dfr gATH_imgNameTopWindowStr
@@ -286,15 +286,15 @@ End
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	variable hookResult = 0, i
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_ZProfileDFR"))
+	DFREF dfr = $(GetUserData(s.winName, "", "ATH_ZProfileDFR"))
 	NVAR/SDFR=dfr gATH_left, gATH_right, gATH_top, gATH_bottom, gATH_dx, gATH_dy, gATH_xOff, gATH_yOff, gATH_TwinPlotSwitch
 	NVAR/SDFR=dfr gATH_Nx, gATH_Ny, gATH_xLast, gATH_yLast, nLayers, gATH_Rect, gATH_aXlen, gATH_aYlen
 	SVAR/Z/SDFR=dfr gATH_TwinWavePath, gATH_LineProfileWaveStr, gATH_LineProfileTwinWaveStr, gATH_xAxis, gATH_yAxis
 	SVAR/Z/SDFR=dfr	gATH_WindowNameStr, gATH_w3dPath, gATH_w3dNameStr
 	WAVE/Z twinWRef = $gATH_TwinWavePath // twin wave
-	Wave/SDFR=$gATH_w3dPath w3d = $gATH_w3dNameStr
-	Wave/SDFR=dfr profile = $gATH_LineProfileWaveStr // full path to wave
-	Wave/Z/SDFR=dfr profileTwin = $gATH_LineProfileTwinWaveStr	
+	WAVE/SDFR=$gATH_w3dPath w3d = $gATH_w3dNameStr
+	WAVE/SDFR=dfr profile = $gATH_LineProfileWaveStr // full path to wave
+	WAVE/Z/SDFR=dfr profileTwin = $gATH_LineProfileTwinWaveStr	
 	string w3dNameStrQ = PossiblyQuoteName(gATH_w3dNameStr) // Dealing with name1#name2 waves names
 	switch(s.eventCode)
 		case 2: // Kill the window
@@ -322,7 +322,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
 					variable nlayersTW = DimSize(twinWRef, 2)
 					MatrixOP/O/FREE partitionMask = subrange(M_ROIMask, rs, re, cs, ce)
-					MatrixOP/O/NTHR=0 profile = sum(subrange(w3d, rs, re, cs, ce) * partitionMask)
+					MatrixOP/O profile = sum(subrange(twinWRef, rs, re, cs, ce) * partitionMask) // Removed /NTHR=0
 					Redimension/E=1/N=(nlayersTW) profileTwin
 				endif				
 				KillWaves/Z M_ROIMask				
@@ -335,17 +335,15 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				gATH_right  = gATH_xOff + gATH_aXlen * 0.5 + s.pointNumber * gATH_dx
 				gATH_top    = gATH_yOff + gATH_aYlen * 0.5 + s.yPointNumber * gATH_dy
 				gATH_bottom = gATH_yOff - gATH_aYlen * 0.5 + s.yPointNumber * gATH_dy
-				gATH_left = gATH_left < gATH_xOff ? gATH_xOff : gATH_left
-				gATH_right = gATH_right > gATH_xLast ? gATH_xLast : gATH_right
-				gATH_bottom = gATH_bottom < gATH_yOff ? gATH_yOff : gATH_bottom
-				gATH_top = gATH_top > gATH_yLast ? gATH_yLast : gATH_top
-				Duplicate/FREE/R=(gATH_left, gATH_right)(gATH_top, gATH_bottom)() w3d, freePartitionW 
-				MatrixOP/S/O/NTHR=0 profile = sum(freePartitionW)
+				rs = (gATH_left  < gATH_xOff)   ? 0  :  ScaleToIndex(w3d, gATH_left, 0)
+				re = (gATH_right > gATH_xLast) ? gATH_Nx :  ScaleToIndex(w3d, gATH_right, 0)
+				cs = (gATH_bottom < gATH_yOff)  ? 0  :  ScaleToIndex(w3d, gATH_bottom, 1)
+				ce = (gATH_top > gATH_yLast)   ? gATH_Ny :  ScaleToIndex(w3d, gATH_top, 1)
+				MatrixOP/S/O profile =sum(subrange(w3d, rs, re, cs, ce)) // Removed /NTHR=0
 				Redimension/E=1/N=(nLayers) profile
 				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
 					nlayersTW = DimSize(twinWRef, 2)
-					Duplicate/FREE/R=(gATH_left, gATH_right)(gATH_top, gATH_bottom)() w3d, freePartitionWTwin 
-					MatrixOP/S/O/NTHR=0 profile = sum(freePartitionWTwin)
+					MatrixOP/S/O profileTwin =sum(subrange(twinWRef, rs, re, cs, ce)) // Removed /NTHR=0
 					Redimension/E=1/N=(nlayersTW) profileTwin
 				endif
 				// Redraw ROI
@@ -403,56 +401,68 @@ End
 
 static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr"))
-	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin"), recreateDrawStr
-	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
-	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
-	SVAR/Z w3dNameStr = dfr:gATH_w3dNameStr
-	SVAR/Z w3dPathName = dfr:gATH_w3dPathName
-	Wave/SDFR=dfr profile = $LineProfileWaveStr // full path to wave
-	NVAR/Z DoPlotSwitch = dfr:gATH_DoPlotSwitch
-	NVAR/Z MarkAreasSwitch = dfr:gATH_MarkAreasSwitch
-	NVAR/Z colorcnt = dfr:gATH_colorcnt
-	NVAR/SDFR=dfr gATH_left, gATH_right, gATH_top, gATH_bottom, gATH_Rect
-	DFREF savedfr = GetDataFolderDFR() // ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ZBeamProfiles:SavedZProfiles")
-	variable red, green, blue
+	DFREF dfr = $(GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr"))
+	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin"), recreateDrawStr, recreateDrawTwinStr
+	NVAR/SDFR=dfr gATH_left, gATH_right, gATH_top, gATH_bottom, gATH_Rect, gATH_TwinPlotSwitch, gATH_colorcnt, gATH_MarkAreasSwitch, gATH_DoPlotSwitch	
+	SVAR/SDFR=dfr gATH_w3dNameStr, gATH_w3dPathName, gATH_LineProfileWaveStr, gATH_WindowNameStr, gATH_LineProfileTwinWaveStr, gATH_TwinWavePath, gATH_xAxis, gATH_yAxis
+	WAVE/Z twinWRef = $gATH_TwinWavePath // twin wave	
+	WAVE/SDFR=dfr profile = $gATH_LineProfileWaveStr // full path to wave
+	Wave/Z/SDFR=dfr profileTwin = $gATH_LineProfileTwinWaveStr	
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down" // FIX THIS
-			string saveWaveBaseNameStr = w3dNameStr + "_Zprof"
+			DFREF savedfr = GetDataFolderDFR()
+			variable red, green, blue
+			string saveWaveBaseNameStr = gATH_w3dNameStr + "_Zprof"
 			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 5)
-			Duplicate dfr:$LineProfileWaveStr, savedfr:$saveWaveNameStr // here waveRef is needed instead of $saveWaveNameStr
-			if(DoPlotSwitch)
+			Duplicate dfr:$gATH_LineProfileWaveStr, savedfr:$saveWaveNameStr // here waveRef is needed instead of $saveWaveNameStr
+			if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
+				DFREF twdfr= GetWavesDataFolderDFR($gATH_TwinWavePath)
+				string saveTwinWaveBaseNameStr = NameOfWave(twinWRef) + "_Zprof"
+				string saveTwinWaveNameStr = CreatedataObjectName(twdfr, saveTwinWaveBaseNameStr, 1, 0, 5)
+				Duplicate dfr:$gATH_LineProfileTwinWaveStr, twdfr:$saveTwinWaveNameStr // here waveRef is needed instead of $saveWaveNameStr
+			endif
+			if(gATH_DoPlotSwitch)
 				if(WinType(targetGraphWin) == 1)
 					AppendToGraph/W=$targetGraphWin savedfr:$saveWaveNameStr
-					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
+					[red, green, blue] = ATH_Graph#GetColor(gATH_colorcnt)
 					Modifygraph/W=$targetGraphWin rgb($PossiblyQuoteName(saveWaveNameStr)) = (red, green, blue)
-					colorcnt += 1 // i++ does not work with globals?
+					gATH_colorcnt += 1
 				else
 					Display/N=$targetGraphWin savedfr:$saveWaveNameStr // Do not kill the graph windows, user might want to save the profiles
-					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
+					[red, green, blue] = ATH_Graph#GetColor(gATH_colorcnt)
 					Modifygraph/W=$targetGraphWin rgb($PossiblyQuoteName(saveWaveNameStr)) = (red, green, blue)
 					AutopositionWindow/M=1/R=$B_Struct.win $targetGraphWin
 					DoWindow/F $targetGraphWin
-					colorcnt += 1
+					gATH_colorcnt += 1
 				endif
 			endif
-			if(MarkAreasSwitch)
-				if(!DoPlotSwitch)
-					[red, green, blue] = ATH_Graph#GetColor(colorcnt)
-					colorcnt += 1
+			if(gATH_MarkAreasSwitch)
+				if(!gATH_DoPlotSwitch)
+					[red, green, blue] = ATH_Graph#GetColor(gATH_colorcnt)
+					gATH_colorcnt += 1
 				endif
 				if(gATH_Rect)
-					DrawRectImageROI(WindowNameStr, gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+					DrawRectImageROI(gATH_WindowNameStr, gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
 				else
-					DrawOvalImageROI(WindowNameStr, gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
+					DrawOvalImageROI(gATH_WindowNameStr, gATH_left, gATH_top, gATH_right, gATH_bottom, red, green, blue) // Draw on UserFront and return to ProgFront
 				endif
 			endif
 			if(gATH_Rect)
-				sprintf recreateDrawStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
-				"DrawCmd:DrawRect %f, %f, %f, %f", w3dNameStr, w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
+				sprintf recreateDrawStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
+				"DrawCmd:DrawRect %f, %f, %f, %f", gATH_w3dNameStr, gATH_w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
+				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
+					sprintf recreateDrawTwinStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
+					"DrawCmd:DrawRect %f, %f, %f, %f", ParseFilePath(0, gATH_TwinWavePath, ":", 1, 0) , gATH_TwinWavePath, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
+					 Note twdfr:$saveTwinWaveNameStr, recreateDrawTwinStr 
+				endif
 			else
-				sprintf recreateDrawStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= top, ycoord= left;" + \
-				"DrawCmd:DrawOval %f, %f, %f, %f", w3dNameStr, w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
+				sprintf recreateDrawStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
+				"DrawCmd:DrawOval %f, %f, %f, %f", gATH_w3dNameStr, gATH_w3dPathName, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
+				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
+					sprintf recreateDrawTwinStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
+					"DrawCmd:DrawOval %f, %f, %f, %f", PossiblyQuoteName(NameOfWave(twinWRef)), gATH_TwinWavePath, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
+					Note twdfr:$saveTwinWaveNameStr, recreateDrawTwinStr 
+				endif				
 			endif
 			Note savedfr:$saveWaveNameStr, recreateDrawStr
 			break
@@ -461,7 +471,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 End
 
 static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr"))
+	DFREF dfr = $(GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr"))
 	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
 	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
 	// Twin wave
@@ -515,7 +525,7 @@ End
 
 static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrZProfileStr"))
+	DFREF dfr = $(GetUserData(cb.win, "", "ATH_rootdfrZProfileStr"))
 	NVAR/Z DoPlotSwitch = dfr:gATH_DoPlotSwitch
 	switch(cb.checked)
 		case 1:		// Mouse up
@@ -530,7 +540,7 @@ End
 
 static Function CheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrZProfileStr"))
+	DFREF dfr = $(GetUserData(cb.win, "", "ATH_rootdfrZProfileStr"))
 	NVAR/Z MarkAreasSwitch = dfr:gATH_MarkAreasSwitch
 	switch(cb.checked)
 		case 1:		// Mouse up
@@ -545,7 +555,7 @@ End
 
 static Function CheckBoxTwinPlot(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrZProfileStr"))
+	DFREF dfr = $(GetUserData(cb.win, "", "ATH_rootdfrZProfileStr"))
 	NVAR/Z TwinPlotSwitch = dfr:gATH_TwinPlotSwitch
 	SVAR/Z/SDFR=dfr gATH_TwinWavePath
 	WAVE/Z twinWRef = $gATH_TwinWavePath // twin wave
@@ -590,7 +600,7 @@ End
 
 static Function SetTwinWavePath(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_rootdfrZProfileStr"))
+	DFREF dfr = $(GetUserData(sva.win, "", "ATH_rootdfrZProfileStr"))
 	NVAR/Z TwinPlotSwitch = dfr:gATH_TwinPlotSwitch
 	NVAR/Z/SDFR=dfr gATH_Nx
 	NVAR/Z/SDFR=dfr gATH_Ny // gATH_Nx, gATH_Ny are the last dim indices, so npts = lastidx + 1
