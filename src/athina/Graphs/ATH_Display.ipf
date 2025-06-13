@@ -34,9 +34,9 @@
 // Visible everywhere, global constant.
 strConstant skATH_W3DImageSliderParentDFR = "root:Packages:ATH_DataFolder:W3DImageSlider:" // Ends with semicolon
 
-static Function NewImg(WAVE wRef, [string grfname])
+static Function/S NewImg(WAVE wRef, [string grfname])
 	if(!WaveExists(wRef))
-		return -1
+		return ""
 	endif
 
 	// End of slider structure
@@ -74,7 +74,7 @@ static Function NewImg(WAVE wRef, [string grfname])
 	else
 		SetWindow $grfname, userdata(ATH_isPlanQ) = "0"
 	endif
-	return 0
+	return grfname
 End
 
 

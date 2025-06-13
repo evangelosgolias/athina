@@ -107,8 +107,7 @@ End
 static Function CreateiOpsImgsCalculationPanel(WAVE wOpResult)
 	DFREF dfr = GetWavesDataFolderDFR(wOpResult) // Recover the dfr	
 	NVAR/SDFR=dfr gATH_driftStep
-	ATH_Display#NewImg(wOpResult)
-	string winNameStr = WinName(0,1)
+	string winNameStr = ATH_Display#NewImg(wOpResult)
 	DoWindow/T $winNameStr "iOperation"
 	ControlBar/W=$winNameStr 60	
 	string OpStr = "w1 - w2"

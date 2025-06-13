@@ -105,8 +105,7 @@ static Function CreateiXMCDPanel(WAVE wXMCD)
 	DFREF dfr = GetWavesDataFolderDFR(wXMCD) // Recover the dfr	
 	NVAR/SDFR=dfr gATH_driftStep
 
-	ATH_Display#NewImg(wXMCD)
-	string winiXMCDNameStr = WinName(0,1)
+	string winiXMCDNameStr = ATH_Display#NewImg(wXMCD)
 	DoWindow/T $winiXMCDNameStr "iXMC(L)D"		
 	ControlBar/W=$winiXMCDNameStr 40	
 

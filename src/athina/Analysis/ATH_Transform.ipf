@@ -10,17 +10,15 @@ static Function/WAVE FFT2D(WAVE wRef)
 	/// FFT of a 2D wave
 	///
 	DFREF dfr = GetWavesDataFolderDFR(wRef)
-	Duplicate/FREE wref, wRefFree
-	Redimension/C wRefFree 
 	string  basenameStr = NameOfWave(wRef) + "_FFT"
 	string destWaveNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 1)
-	//ImageFilter/N=3/P=2 gauss wRefFree
-	FFT/DEST=$destWaveNameStr wRefFree // dfr:$destWaveNameStr doesn't work
+	// FFT - power spectrum (magnitude)
+	FFT/OUT=3/DEST=$destWaveNameStr wRef // dfr:$destWaveNameStr doesn't work
 	return $destWaveNameStr
 End
 
 
-Function HighAndLowScale(WAVE wRef, variable low, variable high)
+Function HighLowScale(WAVE wRef, variable low, variable high)
     // Find min and max values of the wave
     string waveNormStr = NameOfWave(wRef)+"_scaled"
    	MatrixOP $waveNormStr = scale(wRef, low , high)

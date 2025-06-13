@@ -31,8 +31,9 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+static constant kCBOFFSET = 30 // height slider in 3d waves
 
-static Function ThresholdImageRangeToMask([string grfName, variable minV, variable maxV])
+static Function/WAVE ThresholdImageRangeToMask([string grfName, variable minV, variable maxV, int complexM])
 	// Apply custom ImageThreshold to top image based on current ctab values
 	// Mask created with 0 and 1 values. The operation is applied on mag, real, imag or phase
 	// space depending on the mode the complex FFT wave is displayed.
@@ -40,8 +41,8 @@ static Function ThresholdImageRangeToMask([string grfName, variable minV, variab
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
 	//DFREF dfr = GetWavesDataFolderDFR(wRef)
-	//string makeWaveName = CreateDataObjectName(dfr, NameOfWave(wRef)+"_Mask" , 1, 0, 5)
-	string makeWaveName = NameOfWave(wRef)+"_Mask"
+	//string makeWaveName = CreateDataObjectName(dfr, NameOfWave(wRef)+"_Mask" , 1, 0, 1)
+	//string makeWaveName = NameOfWave(wRef)+"_Mask"
 	string infoStr = ImageInfo(grfName, StringFromList(0,ImageNameList(grfName, ";"),";"), 0)	
 	string ctabStr = StringByKey("RECREATION",infoStr)
 	variable minCTV, maxCTV, reverseCmap, valMin, valMax; string cmap
@@ -81,11 +82,153 @@ static Function ThresholdImageRangeToMask([string grfName, variable minV, variab
 	else
 		Wave tw1 = tw0
 	endif
-	MatrixOP/S/O $makeWaveName = within(tw1, valMin, valMax)
-	Redimension/S $makeWaveName	
-	CopyScales wRef, $makeWaveName
-	string wnote = "ATH_ImgFilter#ThresholdImageCTabToMask(grfName="+grfName+",minV="+num2str(valMin)+",maxV="+num2str(valMax)+")"
-	Note $makeWaveName, wnote
+	variable low = min(valMin, valMax)
+	variable high = max(valMin, valMax)
+	MatrixOP/FREE athThresholdMask = within(tw1, low, high)
+	CopyScales wRef, athThresholdMask
+	if(complexM)
+		Redimension/S/C athThresholdMask
+	endif
+	return athThresholdMask
 End
 
+//// -----------------------------------------------------------------
+//// iFFTFilter Panel
+
+static Function iFFTImgFilter(WAVE wRef)
+	DFREF saveDF = GetDataFolderDFR()
+	string winNameStr = ATH_Display#NewImg(wRef)
+	KillWindow $winNameStr
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iImgFFTFilter:"+winNameStr, setDF=1)
+	Duplicate/O wRef, wSrc, wSrc_undo
+	ATH_Display#NewImg(wSrc,grfName=winNameStr) // Restart using the same winName
+	FFT/DEST=wSrc_fft wSrc	// FFT simple										
+	Duplicate/O wSrc_fft, wSrc_fft_undo
+	SetDataFolder saveDF
+	//Note wRef_fft, "FFT " + GetWavesDataFolder(wRef,2)												
+	string fftWinNameStr = ATH_Display#NewImg(wSrc_fft) // Display the FFT transfomed image
+	ModifyImage/W=$fftWinNameStr wSrc_fft minRGB=(65535,16385,16385),maxRGB=(65535,0,0)
+	//Set globals
+	variable/G dfr:gATH_Gx = 0
+	variable/G dfr:gATH_Gy = 0
+	string/G dfr:gATH_meta = ""
+	// End of globals
+	DoWindow/T $fftWinNameStr, "FFT -" +  NameOfWave(wRef)
+	AutopositionWindow/M=0/R=$winNameStr $fftWinNameStr
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
+	variable lCBOFFSET 
+	ControlInfo kwControlBar
+	lCBOFFSET = V_height	
+	ControlBar lCBOFFSET + kCBOFFSET
+	NVAR/SDFR=dfr gATH_Gx, gATH_Gy
+	variable maxFrequency = 1 / (2 * DimDelta(wRef, 1))
+	// Add two SetVariables for Gx, Gy
+	SetVariable IFsetGxSV, title ="Gx", pos={10*pntConv,(4+lCBOFFSET)*pntConv},help={"σ_x of Guassian"},value = gATH_Gx
+	SetVariable IFsetGySV,  title ="Gy", pos={90*pntConv,(4+lCBOFFSET)*pntConv},help={"σ_y of Guassian"},value = gATH_Gy
+	Button ifDenoiseB pos={170*pntConv,(4+lCBOFFSET)*pntConv}, size={60*pntConv,20*pntConv}, title="Denoise"
+	Button ifDenoiseB help = {"Filter image, IFFT of the Fourier image."}
+	Button ifMaskB pos={240*pntConv,(4+lCBOFFSET)*pntConv}, size={50*pntConv,20*pntConv}, title="Mask"
+	Button ifMaskB help = {"Apply threshold (Range panel) or Gaussian windowing (Gx, Gy)"}
+	Button ifrestoreB pos={300*pntConv,(4+lCBOFFSET)*pntConv}, title="Restore", size={60*pntConv,20*pntConv},help = {"Restore image and FFT"}
+	Button ifsaveB pos={370*pntConv,(4+lCBOFFSET)*pntConv}, title="Save", size={50*pntConv,20*pntConv},help = {"Save filtered image"}
+	// Modifications
+	ModifyControlList ControlNameList(fftWinNameStr,";","if*B") mode=1, proc=ATH_ImgFilter#iImgFilterButton, fsize=13*pntConv, win=$fftWinNameStr
+	ModifyControlList ControlNameList(fftWinNameStr,";","IF*SV") size={75*pntConv,20*pntConv}, limits={0,maxFrequency,0}
+	ModifyControlList ControlNameList(fftWinNameStr,";","IF*SV") proc=ATH_ImgFilter#iImgFilterSetGValues, fsize=13*pntConv, win=$fftWinNameStr
+	SetWindow $fftWinNameStr userdata(iImgFilterDFREF) = "root:Packages:ATH_DataFolder:iImgFFTFilter:"+winNameStr
+	SetWindow $fftWinNameStr userdata(iImgFilterSourceImagePath) = GetWavesDataFolder(wRef, 2)
+	SetWindow $fftWinNameStr userdata(iImgFilterSourceImgWindow) = winNameStr
+	SetWindow $fftWinNameStr hook(iImgFilterHookFunction) = ATH_ImgFilter#iImgFilterHookFunction
+End
+
+Function iImgFilterHookFunction(STRUCT WMWinHookStruct &s)
+		
+	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
 	
+	switch(s.eventCode)
+		case 2:	// Keyboard event
+			DFREF dfr = $GetUserData(s.winName,"","iImgFilterDFREF")
+			KillWindow/Z $GetUserData(s.winName,"","iImgFilterSourceImgWindow")
+			Execute/Q/Z/P ("KillDataFolder/Z " + GetUserData(s.winName,"","iImgFilterDFREF"))
+			break
+	endswitch
+	return hookResult		// If non-zero, we handled event and Igor will ignore it.
+End
+
+static Function iImgFilterButton(STRUCT WMButtonAction &ba) : ButtonControl
+	if (ba.eventCode != 2)
+		return 0
+	endif
+	DFREF dfr = $GetUserData(ba.win,"","iImgFilterDFREF")
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder dfr
+	WAVE wSrc_fft, wSrc, WSrc_undo, wSrc_fft_undo
+	WAVE/Z athThresholdMask
+	NVAR gATH_Gx, gATH_Gy
+	SVAR gATH_meta
+	strswitch (ba.ctrlName)
+		case "ifDenoiseB":
+			Duplicate/O wSrc_fft, wSrc
+			IFFT wSrc
+			break
+		case "ifMaskB":
+			if(WinType(ba.win+"#ATH_Range") == 7)
+				WAVE tMask = ATH_ImgFilter#ThresholdImageRangeToMask(grfName=ba.win,complexM=1)
+				MatrixOP/O wSrc_fft= wSrc_fft*tMask
+			endif
+			if(gATH_Gx*gATH_Gy) // Both have to be non-zero
+				Make/FREE/N=(DimSize(wSrc_fft,0),DimSize(wSrc_fft,1)) gaussWindow
+				Copyscales wSrc_fft,gaussWindow
+				gaussWindow = gauss(x,0,gATH_Gx,y,0,gATH_Gy)
+				MatrixOP/O wSrc_fft= wSrc_fft*gaussWindow
+			endif
+			variable minCTV, maxCTV, reverseCmap, valMin, valMax
+			string infoStr = ImageInfo(ba.win, StringFromList(0,ImageNameList(ba.win, ";"),";"), 0), cmap
+			string ctabStr = StringByKey("RECREATION",infoStr)
+			sscanf ctabStr, "ctab= {%g,%g,%[^,],%g}", minCTV, maxCTV, cmap, reverseCmap			
+			gATH_meta="ATH_ImgFilter#ThresholdImageCTabToMask(minV="+num2str(minCTV)+",maxV="+num2str(maxCTV)+",complexM=1) " 
+			gATH_meta +="of the result from •FFT " + GetUserData(ba.win,"","iImgFilterSourceImagePath") + ", " 
+			gATH_meta +="after gaussian windowing with σx="+num2str(gATH_Gx)+" and σy="+num2str(gATH_Gy)
+			break
+		case "ifrestoreB":
+			gATH_Gx = 0; gATH_Gy = 0
+			Duplicate/O wSrc_undo, wSrc
+			Duplicate/O wSrc_fft_undo, wSrc_fft
+			break
+		case "ifsaveB":
+			string srcImgName = ParseFilePath(0, GetUserData(ba.win,"","iImgFilterSourceImagePath"), ":", 1, 0)
+			DFREF srcDF = $ParseFilePath(1, GetUserData(ba.win,"","iImgFilterSourceImagePath"), ":", 1, 0)
+			string saveNameStr = CreateDataObjectName(srcDF, srcImgName + "_iFFTFilter", 1, 0, 1)
+			Duplicate dfr:wSrc, srcDF:$saveNameStr
+			Note srcDF:$saveNameStr, gATH_meta
+			break
+	endswitch
+	SetDataFolder saveDF
+	return 0
+End
+
+static Function iImgFilterSetGValues(STRUCT WMSetVariableAction &sva) : SetVariableControl
+	DFREF dfr = $GetUserData(sva.win,"","iImgFilterDFREF")
+	NVAR/SDFR=dfr gATH_Gx, gATH_Gy	
+	switch (sva.eventCode)
+		case 1:
+		case 2:
+		case 3: 							// Live update
+	strswitch (sva.ctrlName)
+		case "IFsetGxSV":
+			gATH_Gx = sva.dval
+			break
+		case "IFsetGySV":
+			gATH_Gy = sva.dval
+			break
+		endswitch			
+			break
+		case -1: 							// Control being killed
+			break
+	endswitch
+	return 0
+End
+	
+End
+//// -----------------------------------------------------------------
+//// End of  iFFTFilter Panel 

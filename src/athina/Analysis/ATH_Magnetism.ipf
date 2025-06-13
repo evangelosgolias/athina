@@ -318,8 +318,7 @@ static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef, [variable FoV
 	// WAVE wSrc - 3D Wave with XMLD images for different angles
 	// WAVE wRef - Wave calculated using CalculateXMLDMap
 	//
-	ATH_Display#NewImg(wRef)
-	string winNameStr = WinName(0, 1, 1)
+	string winNameStr = ATH_Display#NewImg(wRef)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	variable nrows = DimSize(wRef, 0)
 	variable ncols = DimSize(wRef, 1)	
