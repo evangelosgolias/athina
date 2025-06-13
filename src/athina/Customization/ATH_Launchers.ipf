@@ -776,7 +776,7 @@ static Function ImageRotateAndScaleFromMetadata()
 End
 
 
-static Function ImageFFTTransform([int noPlot, int sourceDF])
+static Function ImageFFTTransform([int noPlot, int sourceDF, int mode])
 	// FFT of the top image. If Marquee is present
 	// the transform happends at the marked region
 	// ATH_Transform#FFT2D creates the FFT wave in wRef DF.
@@ -801,12 +801,12 @@ static Function ImageFFTTransform([int noPlot, int sourceDF])
 	evenNum = 1, WaveFREE = 1) // FREE WAVE
 			// N.B. ATH_WaveOp#WavePartition returns pixel scaled image
 			CopyScales/P wRef, wPart
-			WAVE wFFT = ATH_Transform#FFT2D(wPart) // WPart is a FREE wave
+			WAVE wFFT = ATH_Transform#FFT2D(wPart,mode=3) // WPart is a FREE wave
 			// We have to do it here as ATH_Transform#FFT2D will return  free wave witn name _free__FFT.
 			string destWaveNameStr = CreatedataObjectName(dfr, NameOfWave(wRef)+"_FFT", 1, 0, 1)
 			Rename wFFT, $destWaveNameStr
 		else
-			WAVE wFFT = ATH_Transform#FFT2D(wRef)
+			WAVE wFFT = ATH_Transform#FFT2D(wRef,mode=3)
 		endif
 		noteStr = "FFT of " + GetWavesDataFolder(wRef, 2) + "\n"
 		noteStr += "Marquee: " + num2str(V_left)+","+ num2str(V_right)
@@ -1453,5 +1453,11 @@ static Function DrawSavedROIOnGraph(string grfName, WAVE wRef, [variable bypass]
 		Execute/Q/Z/P StringByKey("DrawEnv", note(wRef), ":", "\n")
 		Execute/Q/Z/P StringByKey("DrawCmd", note(wRef), ":", "\n")
 	endif
+	return 0
+End
+
+static Function iImgFFTFilter([string grfName])
+	WAVE wref = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
+	ATH_ImgFilter#iFFTImgFilter(wref)
 	return 0
 End

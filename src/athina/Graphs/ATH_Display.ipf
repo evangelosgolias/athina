@@ -169,7 +169,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 		case 11:
 			switch(s.keycode)
 				case 66: // B
-					if(s.eventMod & 2)
+					if(s.eventMod & 2) // works with SHIFT + B only!
 						ATH_ImgOp#RestoreTopImageFromBackup()
 						hookResult = 1										
 					endif
@@ -177,12 +177,12 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
-						ATH_Launch#ImageFFTTransform(sourceDF=1)
+						ATH_Launch#iImgFFTFilter(grfName=s.winName)
 						hookResult = 1										
 					endif
 					break
 				case 76: // L, link/unlink sliders
-					if(s.eventMod & 2) // works with SHIFT + M only!
+					if(s.eventMod & 2) // works with SHIFT + L only!
 						ATH_Graph#LinkGraphSliders(grfName=s.winName)
 						hookResult = 1										
 					endif
@@ -238,6 +238,13 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					endif
 					hookResult = 1					
 					break
+				case 102: // f
+					if(s.eventMod & 2) // works with SHIFT + F only!
+						ATH_Launch#ImageFFTTransform(sourceDF=1)
+						hookResult = 1										
+					endif
+					hookResult = 1					
+					break										
 				case 105: // i
 					ATH_Cursors#MeasureDistanceUsingFreeCursors()
 					hookResult = 1										
