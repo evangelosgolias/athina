@@ -847,14 +847,19 @@ End
 static Function ExtractLayerRangeToStack()
 
 	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
-	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
+	if(WaveDims(wRef) != 3 || WaveExists(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
 		print "ExtractLayersToStack() needs an image stack in top graph."
 		return -1
 	endif
-	string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Enter a range as 3-7 or 3,7. Zero-based indexing.", "Extract image range from stack")
+	string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Enter a range as 3-7 or 3,7. Zero-based indexing.\nLeave empty to extract all layer to a folder",\
+	 "Extract image range from stack")
 	string sval1, sval2, separatorStr
-	SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
-	ATH_ImgOp#ExtractLayerRange(wRef, startL=str2num(sval1), endL=str2num(sval2), doStack=1)
+	if(!strlen(rangeStr)) // empty
+		ATH_ImgOp#ExtractLayerRange(wRef,doStack=0)
+	else
+		SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
+		ATH_ImgOp#ExtractLayerRange(wRef, startL=str2num(sval1), endL=str2num(sval2), doStack=1)
+	endif
 End
 
 static Function SumImagePlanes()

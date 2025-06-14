@@ -348,3 +348,53 @@ static Function LinkedImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 	return 0
 End
 
+// ----- Link Axes range
+static Function LinkGraphRanges([string grfName])
+	// 
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+
+	// Have you already set a link between graph sliders
+	string linkedGraph = GetUserData(grfName, "", "ATH_LinkedGraphAxesRangesStr")
+	print linkedGraph
+	if(strlen(linkedGraph))
+		SetWindow $linkedGraph userdata(ATH_LinkedGraphAxesRangesStr) = ""
+		SetWindow $grfName userdata(ATH_LinkedGraphAxesRangesStr) = ""		
+		SetWindow $grfName hook(LinkedGraphAxesRangeHook) = $""
+		SetWindow $linkedGraph hook(LinkedGraphAxesRangeHook) = $""
+		return 0
+	endif
+	string wnList = WinList("*",";","WIN:1")
+	wnList = RemoveFromList(grfName, wnList,";")
+	Prompt linkedGraph, "Select window to link sliders", popup, wnList
+	DoPrompt "Graph ", linkedGraph
+	if(V_flag)
+		return 0
+	endif
+	SetWindow $linkedGraph userdata(ATH_LinkedGraphAxesRangesStr) = grfName
+	SetWindow $grfName userdata(ATH_LinkedGraphAxesRangesStr) = linkedGraph		
+	SetWindow $grfName hook(ATH_LinkedGraphAxesRangeHook) = ATH_Graph#LinkedGraphAxesRangeHook
+	SetWindow $linkedGraph hook(ATH_LinkedGraphAxesRangeHook) = ATH_Graph#LinkedGraphAxesRangeHook
+End
+
+// FIX: Problematic piece of code, IP (intel mac) hangs!
+static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
+	variable hookResult
+	switch (s.eventCode)
+		case 2:
+			SetWindow $GetUserData(s.winName, "", "ATH_LinkedGraphAxesRangesStr") userdata(ATH_LinkedGraphAxesRangesStr) = ""
+			SetWindow $GetUserData(s.winName, "", "ATH_LinkedGraphAxesRangesStr") hook(ATH_LinkedGraphAxesRangeHook) = $""			
+			break
+		case 8:
+			string linkedGraph = GetUserData(s.winName, "", "ATH_LinkedGraphAxesRangesStr"), axisX, axisY
+			variable minX, maxX, minY, maxY
+			[axisX,minX,maxX, axisY,minY,maxY] = ATH_Graph#GetAxesRange(grfName=s.winName)
+			print axisX,minX,maxX, axisY,minY,maxY
+			//Execute/Z/Q ("SetAxis/W=$"+linkedGraph +" "+axisX + num2str(minX) +"," + num2str(maxX))
+			//Execute/Z/Q ("SetAxis/W=$"+linkedGraph +" "+axisY + num2str(minY) +"," + num2str(maxY))
+			//SetAxis/W=$linkedGraph $axisX, minX, maxX
+			//SetAxis/R/W=$linkedGraph $axisY, minY, maxY
+			hookResult = 1
+		break
+	endswitch
+	return hookResult
+End

@@ -310,6 +310,7 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 				SetDrawLayer/W=$parentImageWinStr ProgFront
 				DrawAction/W=$parentImageWinStr delete	
 			endif
+			Execute/P/Q/Z ("KillDataFolder/Z " + GetUserData(s.winName, "","ATH_LineProfRootDF"))
 			break
 	endswitch
 End
