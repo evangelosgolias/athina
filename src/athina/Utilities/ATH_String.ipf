@@ -100,6 +100,25 @@ static Function isLiberalQ(string str)
 	endif
 End
 
+static Function/S StringToNonLiberal(string str)
+	if(ATH_String#IsLiberalQ(str))
+		variable imax = strlen(str), i
+		string regex = "[^a-zA-Z0-9_]", regex0 = "[^a-zA-Z]", nlstr=""
+		if(GrepString(str[0], regex0))
+			nlstr+="w"
+		endif
+		for(i=0; i<imax; i++)
+			if(GrepString(str[i], regex))
+				nlstr+="_"
+			else
+				nlstr+=str[i]
+			endif
+		endfor
+		return nlstr
+	endif
+	return str
+End
+
 static Function isEXTWindow(string str)
 	// Is s the same of an EXT window, GraphXX#ExtWindowName
 	return strsearch(str, "#", 0) != -1

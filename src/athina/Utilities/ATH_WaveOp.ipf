@@ -94,14 +94,16 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	do
 		buffer = GetBrowserSelection(i)
 		if(WaveExists($buffer) && WaveDims($buffer) > 1 && WaveDims($buffer) < 4)
-			listOfSelectedWaves += GetBrowserSelection(i) + ";" // Match stored at S_value
+			listOfSelectedWaves += buffer + ";" // Match stored at S_value
 		endif
 		i++
 	while (strlen(GetBrowserSelection(i)))
 	
-	//Sort alphanumerically
+	// Sort alphanumerically
+	// NOTE: w705 goes after w709.8 because w709.8 becomes 'w709.8'
 
-	listOfSelectedWaves = SortList(listOfSelectedWaves,";", 16)
+	// Comment out to sort as seen in DB
+	//listOfSelectedWaves = SortList(listOfSelectedWaves,";", 16)
 	
 	variable nrwaves = ItemsInList(listOfSelectedWaves)
 	if (nrwaves < 2)
@@ -127,7 +129,7 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	else
 		DFREF currDFR = GetDataFolderDFR()	
 	endif
-	// Here get the path wheret the wave will be created
+	// Here get the path where the wave will be created
 	string folder = GetDataFolder(1)
 	wname3dStr = CreatedataObjectName(currDFR, "ATH_stack", 1, 0, 0)
 	
