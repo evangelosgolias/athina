@@ -197,110 +197,49 @@ static Function/S NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
 	return normWaveStr
 End
 
-static Function GetScaledZoominImageWindow([variable w3d])
+static Function GetScaledZoominImageWindow([string grfName, variable w3d])
 	// Get a the current window view as a new image with appropriate scaling.
 	// Works for 2D/3D waves
-	// CAUTION: If axes have different configuration the function will not work properly. 
-	// You should have left and top axis with the origin at the too left corner so 
-	// GetAxis/Q/W=$winNameStr left // MAXPEEM images V_min > V_max
-	// and
-	// GetAxis/Q/W=$winNameStr top // MAXPEEM images V_min < V_max
-
-
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	WAVE wref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	string msg, wavenameStr, bufferStr
-	variable newLeftAxisLen, newTopAxisLen, P0, Q0, P1, Q1, PMax, QMax, dx, dy, nrows, ncols
-	//Left axis
-	GetAxis/Q/W=$winNameStr top // MAXPEEM images V_min < V_max, see P0, P1
-	if(V_flag)
-		return -1
-	endif
-	dx = DimDelta(wref, 0)
-	P0 = ScaleToIndex(wref, V_min, 0)
-	P1 = ScaleToIndex(wref, V_max, 0)
-	PMax = DimSize(wref, 0) 
-	
-	if(P0 < 0)
-		P0 = 0
-	endif
-			
-	if(P1 > Pmax)
-		P1 = PMax
-	endif
-	
-	if((P0 < 0 && P1 < 0) || (P0 > PMax && P1 > PMax))
-		return -1
-	endif
-	
-	nrows = abs(P0-P1)
-	newTopAxisLen = (nrows - 1) * dx
-	//Top axis
-	GetAxis/Q/W=$winNameStr left // MAXPEEM images V_min > V_max, see Q0, Q1
-	if(V_flag)
-		return -1
-	endif
-	dy = DimDelta(wref, 1)
-	Q0 = ScaleToIndex(wref, V_max, 1)
-	Q1 = ScaleToIndex(wref, V_min, 1)	
-	QMax = DimSize(wref, 1)
-	if(Q0 < 0)
-		Q0 = 0
-	endif
-		
-	if(Q1 > Qmax)
-		Q1 = QMax
-	endif
-	
-	ncols = abs(Q0-Q1)
-	newLeftAxisLen = (ncols - 1)* dy
-		
-	if((Q0 < 0 && Q1 < 0) || (Q0 > QMax && Q1 > QMax))
-		return -1
-	endif
-	
+	string axisX, axisY, noteStr, wavenameStr
+	variable minX, maxX, minY, maxY
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(grfName, ";"),";")
+	WAVE wref = ImageNameToWaveRef(grfName, imgNameTopGraphStr) // full path of wave
+	[axisX, minX, maxX, axisY, minY, maxY]  = ATH_Graph#GetAxesRange(grfName = grfName)
 	DFREF cdfr = GetDataFolderDFR()
-	
-	// Reset now P0, Q0 use them as offsets
-	P0 = min(P0, P1)
-	Q0 = min(Q0, Q1)	
 	if(WaveDims(wref) == 3)
-		NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(winNameStr):gLayer	
+		NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(grfName):gLayer
 		if(NVAR_Exists(gLayer))
 			// Added om 12.05.2025
 			if(w3d)
-				bufferStr = NameOfWave(wref) + "_PART"
-				wavenameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 5)			
-				Make/N=(nrows, ncols, DimSize(wref,2)) $wavenameStr /WAVE = wReftmp
-				SetScale/I x, 0, newTopAxisLen, wReftmp
-				SetScale/I y, 0, newLeftAxisLen, wReftmp
-				SetScale/P z, DimOffSet(wRef,2), DimDelta(wRef, 2), wReftmp		
-				wReftmp = wref[P0 + p][Q0 + q][r]
+				wavenameStr = NameOfWave(wref) + "_PART"
+				wavenameStr = CreateDataObjectName(cdfr, wavenameStr, 1, 0, 5)
+				Duplicate/R=(minX, maxX)(minY, maxY) wRef, $wavenameStr
+				CopyScales/P wRef, $wavenameStr
+				noteStr = NameOfWave(wref) + "_layer_" + num2str(gLayer) + "_ZM"
+				sprintf noteStr, "CmdToZM:Duplicate/R=(%.4f, %.4f)(%.4f, %.4f) %s", minX, maxX, minY, maxY, GetWavesDataFolder(wRef,2)
 			else
-				bufferStr = NameOfWave(wref) + "_layer_" + num2str(gLayer) + "_ZM"
-				wavenameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 5)
-				Make/N=(nrows, ncols) $wavenameStr /WAVE = wReftmp
-				SetScale/I x, 0, newTopAxisLen, wReftmp
-				SetScale/I y, 0, newLeftAxisLen, wReftmp			
-				wReftmp = wref[P0 + p][Q0 + q][gLayer]
+				wavenameStr = NameOfWave(wref) + "_ZM"
+				wavenameStr = CreateDataObjectName(cdfr, wavenameStr, 1, 0, 5)
+				Duplicate/R=(minX, maxX)(minY, maxY)[gLayer,gLayer] wRef, $wavenameStr
+				CopyScales/P wRef, $wavenameStr
+				sprintf noteStr, "CmdToZM:Duplicate/R=(%.4f, %.4f)(%.4f, %.4f)[%d,%d] %s ", minX, maxX, minY, maxY ,gLayer,gLayer, GetWavesDataFolder(wRef,2)
 			endif
-			sprintf msg, "Part(R/C) of %s: (%d, %d, %d, %d) layer%d", NameOfWave(wref), P0, P1, Q0, Q1, gLayer
 		else
-			Abort "Add a slider in your image stack (3d wave), I cannot guess the layer you want me to act on!"
+			print "Add a slider in your image stack (3d wave), I cannot guess the layer you want me to act on!"
+			return -1
 		endif
 	elseif(WaveDims(wref) == 2)
-		bufferStr = NameOfWave(wref) + "_ZM"
-		wavenameStr = CreateDataObjectName(cdfr, bufferStr, 1, 0, 4)
-		Make/N=(nrows, ncols) $wavenameStr /WAVE = wReftmp
-		SetScale/I x, 0, newTopAxisLen, wReftmp
-		SetScale/I y, 0, newLeftAxisLen, wReftmp
-		wReftmp = wref[P0 + p][Q0 + q]
-		sprintf msg, "Part(R/C) of %s: (%d, %d, %d, %d)", NameOfWave(wref), P0, P1, Q0, Q1
+		wavenameStr = NameOfWave(wref) + "_ZM"
+		wavenameStr = CreateDataObjectName(cdfr, wavenameStr, 1, 0, 5)
+		Duplicate/R=(minX, maxX)(minY, maxY) wRef, $wavenameStr
+		CopyScales/P wRef, $wavenameStr
+		sprintf noteStr, "CmdToZM:Duplicate/R=(%.4f, %.4f)(%.4f, %.4f) %s ", minX, maxX, minY, maxY, GetWavesDataFolder(wRef,2)
 	else
-		Abort "Operation needs a image or image stack (2d/3d wave)"
+		print "Operation needs a image or image stack (2d/3d wave)"
+		return -1
 	endif
-	Note wReftmp, msg
+	Note $wavenameStr, noteStr
 End
 
 static Function GetLayerFromImageStack()
