@@ -181,9 +181,10 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						hookResult = 1										
 					endif
 					break
-				case 76: // L, link/unlink sliders
+				case 76: // L, link/unlink sliders and ranges
 					if(s.eventMod & 2) // works with SHIFT + L only!
 						ATH_Graph#LinkGraphSliders(grfName=s.winName)
+						ATH_Graph#LinkGraphRanges(grfName=s.winName)
 						hookResult = 1										
 					endif
 					break						
@@ -239,10 +240,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					hookResult = 1					
 					break
 				case 102: // f
-					if(s.eventMod & 2) // works with SHIFT + F only!
-						ATH_Launch#ImageFFTTransform(sourceDF=1)
-						hookResult = 1										
-					endif
+					ATH_Launch#ImageFFTTransform(sourceDF=1)
 					hookResult = 1					
 					break										
 				case 105: // i

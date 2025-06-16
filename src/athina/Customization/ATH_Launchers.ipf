@@ -786,31 +786,52 @@ static Function ImageFFTTransform([int noPlot, int sourceDF, int mode])
 	sourceDF = ParamIsDefault(sourceDF) ? 0 : sourceDF // Create the FFT in the source DF
 	string grfName = WinName(0, 1, 1), noteStr
 	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
+	variable plane = ATH_ImgOp#GetLayerIndex(grfName)
+	string marqueeNoteStr = ""
 	if(WaveExists(wRef))
 		if(sourceDF)
 			DFREF saveDF = GetDataFolderDFR()
 			SetDataFolder $GetWavesDataFolder(wRef, 1)
 		endif
-		GetMarquee/W=$grfName
-		if(V_flag) // if there is a Marquee a free wave will be used.
-			string xaxis, yaxis
-			DFREF dfr = GetDataFolderDFR()
-			[xaxis, yaxis] = ATH_Graph#GetAxes(grfName=grfName)
-			GetMarquee/W=$grfName/K $xaxis, $yaxis
-			WAVE wPart = ATH_WaveOp#WavePartition(wRef, "", V_left, V_right, V_top, V_bottom, \
-	evenNum = 1, WaveFREE = 1) // FREE WAVE
+		string xaxis, yaxis				
+		[xaxis, yaxis] = ATH_Graph#GetAxes(grfName=grfName)				
+		GetMarquee/W=$grfName/K $xaxis, $yaxis
+		if(V_flag) // if there is a Marquee
+			marqueeNoteStr += "Marquee: " + num2str(V_left)+","+ num2str(V_right)
+			marqueeNoteStr += "," + num2str(V_top) + "," + num2str(V_bottom)		
+			DFREF dfr = GetDataFolderDFR()			
+			if(numtype(plane)==0)
+				MatrixOP/FREE getLayerFREE = layer(wRef, plane)
+				WAVE wPlanePart = ATH_WaveOp#WavePartition(getLayerFREE, "", V_left, V_right, V_top, V_bottom, \
+				evenNum = 1, WaveFREE = 1)		
+				WAVE wPart = ATH_Transform#FFT2D(wPlanePart,mode=3)
+			else
+				WAVE wPart = ATH_WaveOp#WavePartition(wRef, "", V_left, V_right, V_top, V_bottom, \
+				evenNum = 1, WaveFREE = 1) // FREE WAVE
+			endif			
 			// N.B. ATH_WaveOp#WavePartition returns pixel scaled image
 			CopyScales/P wRef, wPart
 			WAVE wFFT = ATH_Transform#FFT2D(wPart,mode=3) // WPart is a FREE wave
 			// We have to do it here as ATH_Transform#FFT2D will return  free wave witn name _free__FFT.
-			string destWaveNameStr = CreatedataObjectName(dfr, NameOfWave(wRef)+"_FFT", 1, 0, 1)
-			Rename wFFT, $destWaveNameStr
 		else
-			WAVE wFFT = ATH_Transform#FFT2D(wRef,mode=3)
+			if(numtype(plane)==0)
+				MatrixOP/FREE getLayerFREE = layer(wRef, plane)
+				WAVE wFFT = ATH_Transform#FFT2D(getLayerFREE,mode=3)
+			else
+				WAVE wFFT = ATH_Transform#FFT2D(wRef,mode=3)
+			endif
 		endif
-		noteStr = "FFT of " + GetWavesDataFolder(wRef, 2) + "\n"
-		noteStr += "Marquee: " + num2str(V_left)+","+ num2str(V_right)
-		noteStr += "," + num2str(V_top) + "," + num2str(V_bottom)
+		string destWaveNameStr = CreatedataObjectName(dfr, NameOfWave(wRef)+"_FFT", 1, 0, 1)
+		Rename wFFT, $destWaveNameStr		
+		noteStr = "FFT of " + GetWavesDataFolder(wRef, 2)
+		if(numtype(plane)==0)
+			noteStr += " (plane " + num2str(plane) + ").\n"
+		else
+			noteStr += ".\n" 
+		endif
+		if(strlen(marqueeNoteStr))
+			noteStr += marqueeNoteStr
+		endif
 		Note wFFT, noteStr
 		if(!noPlot)
 			ATH_Display#NewImg(wFFT)

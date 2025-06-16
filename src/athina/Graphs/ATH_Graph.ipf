@@ -355,12 +355,18 @@ static Function LinkGraphRanges([string grfName])
 
 	// Have you already set a link between graph sliders
 	string linkedGraph = GetUserData(grfName, "", "ATH_LinkedGraphAxesRangesStr")
-	print linkedGraph
 	if(strlen(linkedGraph))
 		SetWindow $linkedGraph userdata(ATH_LinkedGraphAxesRangesStr) = ""
 		SetWindow $grfName userdata(ATH_LinkedGraphAxesRangesStr) = ""		
 		SetWindow $grfName hook(LinkedGraphAxesRangeHook) = $""
 		SetWindow $linkedGraph hook(LinkedGraphAxesRangeHook) = $""
+		string axisX, axisY
+		[axisX, axisY] = ATH_Graph#GetAxes(grfName=grfName)
+		ModifyGraph/W=$grfName axRGB($axisX)=(0,0,0),tlblRGB($axisX)=(0,0,0)
+		ModifyGraph/W=$grfName axRGB($axisY)=(0,0,0),tlblRGB($axisY)=(0,0,0)				
+		[axisX, axisY] = ATH_Graph#GetAxes(grfName=linkedGraph)		
+		ModifyGraph/W=$linkedGraph axRGB($axisX)=(0,0,0),tlblRGB($axisX)=(0,0,0)
+		ModifyGraph/W=$linkedGraph axRGB($axisY)=(0,0,0),tlblRGB($axisY)=(0,0,0)		
 		return 0
 	endif
 	string wnList = WinList("*",";","WIN:1")
@@ -369,31 +375,51 @@ static Function LinkGraphRanges([string grfName])
 	DoPrompt "Graph ", linkedGraph
 	if(V_flag)
 		return 0
-	endif
+	endif	
 	SetWindow $linkedGraph userdata(ATH_LinkedGraphAxesRangesStr) = grfName
 	SetWindow $grfName userdata(ATH_LinkedGraphAxesRangesStr) = linkedGraph		
 	SetWindow $grfName hook(ATH_LinkedGraphAxesRangeHook) = ATH_Graph#LinkedGraphAxesRangeHook
 	SetWindow $linkedGraph hook(ATH_LinkedGraphAxesRangeHook) = ATH_Graph#LinkedGraphAxesRangeHook
+	[axisX, axisY] = ATH_Graph#GetAxes(grfName=grfName)	
+	ModifyGraph/W=$grfName axRGB($axisX)=(65535,0,0),tlblRGB($axisX)=(65535,0,0)
+	ModifyGraph/W=$grfName axRGB($axisY)=(65535,0,0),tlblRGB($axisY)=(65535,0,0)	
+	[axisX, axisY] = ATH_Graph#GetAxes(grfName=linkedGraph)	
+	ModifyGraph/W=$linkedGraph axRGB($axisX)=(65535,0,0),tlblRGB($axisX)=(65535,0,0)
+	ModifyGraph/W=$linkedGraph axRGB($axisY)=(65535,0,0),tlblRGB($axisY)=(65535,0,0)	
 End
 
-// FIX: Problematic piece of code, IP (intel mac) hangs!
 static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 	variable hookResult
 	switch (s.eventCode)
 		case 2:
-			SetWindow $GetUserData(s.winName, "", "ATH_LinkedGraphAxesRangesStr") userdata(ATH_LinkedGraphAxesRangesStr) = ""
-			SetWindow $GetUserData(s.winName, "", "ATH_LinkedGraphAxesRangesStr") hook(ATH_LinkedGraphAxesRangeHook) = $""			
+			string linkedGraph = GetUserData(s.winName, "", "ATH_LinkedGraphAxesRangesStr"), axisX, axisY
+			SetWindow $linkedGraph userdata(ATH_LinkedGraphAxesRangesStr) = ""
+			SetWindow $linkedGraph hook(ATH_LinkedGraphAxesRangeHook) = $""
+			[axisX, axisY] = ATH_Graph#GetAxes(grfName=linkedGraph)		
+			ModifyGraph/W=$linkedGraph axRGB($axisX)=(0,0,0),tlblRGB($axisX)=(0,0,0)
+			ModifyGraph/W=$linkedGraph axRGB($axisY)=(0,0,0),tlblRGB($axisY)=(0,0,0)			
 			break
 		case 8:
-			string linkedGraph = GetUserData(s.winName, "", "ATH_LinkedGraphAxesRangesStr"), axisX, axisY
+			linkedGraph = GetUserData(s.winName, "", "ATH_LinkedGraphAxesRangesStr")
 			variable minX, maxX, minY, maxY
 			[axisX,minX,maxX, axisY,minY,maxY] = ATH_Graph#GetAxesRange(grfName=s.winName)
-			print axisX,minX,maxX, axisY,minY,maxY
-			//Execute/Z/Q ("SetAxis/W=$"+linkedGraph +" "+axisX + num2str(minX) +"," + num2str(maxX))
-			//Execute/Z/Q ("SetAxis/W=$"+linkedGraph +" "+axisY + num2str(minY) +"," + num2str(maxY))
-			//SetAxis/W=$linkedGraph $axisX, minX, maxX
-			//SetAxis/R/W=$linkedGraph $axisY, minY, maxY
-			hookResult = 1
+			GetAxis/Q/W=$linkedGraph $axisY
+			variable axisLength = abs(V_max - V_min)
+			if(abs(minY - V_min) > 1e-3 * axisLength)
+				SetAxis/W=$linkedGraph $axisX, minX, maxX
+				SetAxis/R/W=$linkedGraph $axisY, minY, maxY
+				hookResult = 0
+				break
+			endif
+			//Catch vertical expansion
+			GetAxis/Q/W=$linkedGraph $axisX
+			axisLength = abs(V_max - V_min)
+			if(abs(minX - V_min) > 1e-3 * axisLength)
+				SetAxis/W=$linkedGraph $axisX, minX, maxX
+				SetAxis/R/W=$linkedGraph $axisY, minY, maxY
+				hookResult = 0
+				break
+			endif			
 		break
 	endswitch
 	return hookResult
