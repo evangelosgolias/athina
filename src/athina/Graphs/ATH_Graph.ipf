@@ -356,9 +356,9 @@ static Function LinkGraphRanges([string grfName])
 	// Have you already set a link between graph sliders
 	string linkedGraph = GetUserData(grfName, "", "ATH_LinkedGraphAxesRangesStr")
 	if(strlen(linkedGraph))
-		SetWindow $linkedGraph userdata(ATH_LinkedGraphAxesRangesStr) = ""
 		SetWindow $grfName userdata(ATH_LinkedGraphAxesRangesStr) = ""		
 		SetWindow $grfName hook(LinkedGraphAxesRangeHook) = $""
+		SetWindow $linkedGraph userdata(ATH_LinkedGraphAxesRangesStr) = ""		
 		SetWindow $linkedGraph hook(LinkedGraphAxesRangeHook) = $""
 		string axisX, axisY
 		[axisX, axisY] = ATH_Graph#GetAxes(grfName=grfName)
@@ -376,9 +376,9 @@ static Function LinkGraphRanges([string grfName])
 	if(V_flag)
 		return 0
 	endif	
-	SetWindow $linkedGraph userdata(ATH_LinkedGraphAxesRangesStr) = grfName
 	SetWindow $grfName userdata(ATH_LinkedGraphAxesRangesStr) = linkedGraph		
 	SetWindow $grfName hook(ATH_LinkedGraphAxesRangeHook) = ATH_Graph#LinkedGraphAxesRangeHook
+	SetWindow $linkedGraph userdata(ATH_LinkedGraphAxesRangesStr) = grfName	
 	SetWindow $linkedGraph hook(ATH_LinkedGraphAxesRangeHook) = ATH_Graph#LinkedGraphAxesRangeHook
 	[axisX, axisY] = ATH_Graph#GetAxes(grfName=grfName)	
 	ModifyGraph/W=$grfName axRGB($axisX)=(65535,0,0),tlblRGB($axisX)=(65535,0,0)

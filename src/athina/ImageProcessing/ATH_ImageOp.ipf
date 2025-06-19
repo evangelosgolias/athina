@@ -265,6 +265,8 @@ static Function RemoveImagesFromImageStack(WAVE w3dref, variable startLayer, var
 	variable nL = DimSize(w3dref, 2)
 	if(nl < 2 || startLayer > nL)
 		return -1
+	elseif(startLayer + nrLayers > nL)
+		nrLayers = nL - startLayer
 	endif
 	ImageTransform/O/P=(startLayer)/NP=(nrLayers) removeZplane w3dRef
 	return 0
