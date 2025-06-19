@@ -186,15 +186,16 @@ End
 
 static Function UnpackLayersToSources(WAVE wRef)
 	// Unpack
-	string getNote = StringByKey("---* Stacked waves *---",note(wRef), "\n","*--------------------------*"), wnoteStr
-	string wavePaths = ReplaceString("\n", getNote, ";") // Wavepaths in list
+	string regex = "(---\* Stacked waves \*---\n)((.|\n)*)(\*--------------------------\*)", s0, waveListStr, s1
+	SplitString/E=regex note(wRef), s0, waveListStr, s1
+	string wavePaths = ReplaceString("\n", waveListStr, ";") // Wavepaths in list
 	WAVE/WAVE wlist = ATH_WaveOp#WaveListStrToWaveRef(wavePaths, isFree = 1)
 	variable nlayers = DimSize(wRef,2)
 	if(DimSize(wlist,0) != nlayers) // it will work only for 2d waves
 		return -1
 	endif
+	string wnoteStr
 	variable i = 0
-	
 	for(i=0; i < nlayers; i++)
 		MatrixOP/FREE getLayer = layer(wRef, i)
 		WAVE w = wlist[i]
@@ -342,24 +343,24 @@ static Function NormaliseWaveWithWave(WAVE wRef1, WAVE wRef2)
 	return 0
 End
 
-static Function NormaliseWaveToUnitRange(WAVE waveRef)
-	/// Normalise wave in unit range [0, 1]
-	/// Works with waves of any dimensionality.
-	MatrixOP/O/FREE minvalsFreeW = minval(waveRef)
-	MatrixOP/O/FREE maxvalsFreeW = maxval(waveRef)
-	Duplicate/O/FREE waveRef, waveRefFREE
-	
-	string normWaveNameStr = NameOfWave(waveRef) + "_n1"
-	variable numvals = numpnts(minvalsFreeW), i, layerMin
-	
-	for(i = 0; i < numvals; i++)
-		layerMin = minvalsFreeW[i]
-		waveRefFREE[][][i] -= layerMin
-	endfor
-	
-	MatrixOP/O $normWaveNameStr = waveRefFREE/maxvalsFreeW
-	CopyScales waveRef, $normWaveNameStr
-End
+//static Function NormaliseWaveToUnitRange(WAVE waveRef)
+//	/// Normalise wave in unit range [0, 1]
+//	/// Works with waves of any dimensionality.
+//	MatrixOP/O/FREE minvalsFreeW = minval(waveRef)
+//	MatrixOP/O/FREE maxvalsFreeW = maxval(waveRef)
+//	Duplicate/O/FREE waveRef, waveRefFREE
+//	
+//	string normWaveNameStr = NameOfWave(waveRef) + "_n1"
+//	variable numvals = numpnts(minvalsFreeW), i, layerMin
+//	
+//	for(i = 0; i < numvals; i++)
+//		layerMin = minvalsFreeW[i]
+//		waveRefFREE[][][i] -= layerMin
+//	endfor
+//	
+//	MatrixOP/O $normWaveNameStr = waveRefFREE/maxvalsFreeW
+//	CopyScales waveRef, $normWaveNameStr
+//End
 
 static Function [variable x0, variable y0, variable z0, variable dx, variable dy, variable dz] GetScalesP(WAVE wRef)
 	// Get the scales of waves per point. 
