@@ -50,6 +50,7 @@ Menu "athina"
 		"Insert image at slider position  (TG, 3D)", /Q, ATH_Launch#InsertImageToStack()
 		"Extract layers to stack (TG, 3D)", /Q, ATH_Launch#ExtractLayerRangeToStack()
 		"Remove layers from stack (TG, 3D)", /Q, ATH_Launch#RemoveImagesFromImageStack()
+		"Unpack layers to source waves (TG, 3D)",/Q, ATH_Launch#UnpackStackToSources()
 		"Sum image stack(TG, 3D)", /Q, ATH_Launch#SumImagePlanes()
 		"Flip stack planes (TG, 3D)", /Q, ATH_Launch#FlipStackPlanes()			
 		"New image (stack) from saved ROI (TG, 2D, 3D)", /Q, ATH_Launch#MakeWaveFromSavedROI()

@@ -185,7 +185,8 @@ static Function/WAVE WaveListStrToWaveRef(string wavelistStr, [int isFree])
 End
 
 static Function UnpackLayersToSources(WAVE wRef)
-	// Unpack
+	// Unpack layers to destination waves
+	// as grabbed from wave note.
 	string regex = "(---\* Stacked waves \*---\n)((.|\n)*)(\*--------------------------\*)", s0, waveListStr, s1
 	SplitString/E=regex note(wRef), s0, waveListStr, s1
 	string wavePaths = ReplaceString("\n", waveListStr, ";") // Wavepaths in list
@@ -204,7 +205,6 @@ static Function UnpackLayersToSources(WAVE wRef)
 		Note getLayer, "Unpacked layer "+num2str(i)+" from "+GetWavesDataFolder(wRef,2)+"\n"+wnoteStr
 		Duplicate/O getLayer, w
 	endfor
-	
 End
 
 static Function MakeSquare3DWave(WAVE w3d, [variable size])

@@ -1487,3 +1487,16 @@ static Function iImgFFTFilter([string grfName])
 	ATH_ImgFilter#iFFTImgFilter(wref)
 	return 0
 End
+
+static Function UnpackStackToSources()
+	WAVE wRef = ATH_Graph#TopGraphToWaveRef()
+	if(WaveDims(wRef)!=3)
+		return -1
+	endif
+	string msg = "You are about to overwrite the source waves listd in the wave note.\nI hope you know what you are doing."
+	DoAlert/T="athina want to unpack stack to source waves", 1, msg
+	if(V_flag == 1) // Click yes
+		ATH_WaveOp#UnpackLayersToSources(wRef)
+	endif
+	
+End
