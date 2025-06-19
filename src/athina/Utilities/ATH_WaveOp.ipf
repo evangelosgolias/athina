@@ -131,7 +131,8 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	endif
 	// Here get the path where the wave will be created
 	string folder = GetDataFolder(1)
-	wname3dStr = CreatedataObjectName(currDFR, "ATH_stack", 1, 0, 0)
+	
+	wname3dStr = CreatedataObjectName(currDFR, wname3dStr, 1, 0, 0)
 	
 	// Works for 1D waves because AllImagesEqualDimensionsQ
 	// returns true for 1D waves even when the DimSize is not
@@ -151,8 +152,10 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	// will still match for the points they have in common
 	//CopyScales t2dwred, w3dref 
 	// Add a note about the stacked waves
-	Note/K $wname3dStr, "----- Stacked waves -----\n" + \
-	ReplaceString(";", listOfSelectedWaves, "\n") + "---------------------------\n"
+	
+	// Kill note, as the stacked wave strings will be used as key/values
+	Note/K $wname3dStr, "---* Stacked waves *---\n" + \
+	ReplaceString(";", listOfSelectedWaves, "\n") + "*--------------------------*"
 	// Go back to the cwd
 	if(makeInSourceDFR)
 		SetDataFolder saveDF
@@ -179,6 +182,28 @@ static Function/WAVE WaveListStrToWaveRef(string wavelistStr, [int isFree])
 		wRefw[i] = $(StringFromList(i, wavelistStr))
 	endfor
 	return wRefw
+End
+
+static Function UnpackLayersToSources(WAVE wRef)
+	// Unpack
+	string getNote = StringByKey("---* Stacked waves *---",note(wRef), "\n","*--------------------------*"), wnoteStr
+	string wavePaths = ReplaceString("\n", getNote, ";") // Wavepaths in list
+	WAVE/WAVE wlist = ATH_WaveOp#WaveListStrToWaveRef(wavePaths, isFree = 1)
+	variable nlayers = DimSize(wRef,2)
+	if(DimSize(wlist,0) != nlayers) // it will work only for 2d waves
+		return -1
+	endif
+	variable i = 0
+	
+	for(i=0; i < nlayers; i++)
+		MatrixOP/FREE getLayer = layer(wRef, i)
+		WAVE w = wlist[i]
+		wnoteStr = note(wlist[i])
+		CopyScales w, getLayer
+		Note getLayer, "Unpacked layer "+num2str(i)+" from "+GetWavesDataFolder(wRef,2)+"\n"+wnoteStr
+		Duplicate/O getLayer, w
+	endfor
+	
 End
 
 static Function MakeSquare3DWave(WAVE w3d, [variable size])
