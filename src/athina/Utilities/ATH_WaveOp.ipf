@@ -155,7 +155,7 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	
 	// Kill note, as the stacked wave strings will be used as key/values
 	Note/K $wname3dStr, "---* Stacked waves *---\n" + \
-	ReplaceString(";", listOfSelectedWaves, "\n") + "*--------------------------*"
+	ReplaceString(";", listOfSelectedWaves, "\n") + "*--------------------------*\n"
 	// Go back to the cwd
 	if(makeInSourceDFR)
 		SetDataFolder saveDF
