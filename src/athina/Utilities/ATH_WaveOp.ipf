@@ -238,10 +238,10 @@ static Function/WAVE AverageImageStack(WAVE wRef, [string outWaveStr])
 	return $outWaveStr
 End
 
-static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable aX, variable zX, 
-					 variable aY, variable zY, [int evenNum, int square, int WaveFREE])
-	///				 
-	/// N.B Assume that startX, endX, startY and endY are scaled coordinates, not points (we usually work with scaled images)				 
+static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable aX, variable zX,
+	variable aY, variable zY, [int evenNum, int square, int WaveFREE])
+	///
+	/// N.B Assume that startX, endX, startY and endY are scaled coordinates, not points (we usually work with scaled images)
 	///
 	/// Partition a 3D to get an orthorhombic 3d wave
 	/// @param startP int
@@ -253,36 +253,45 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 	/// @param free int optional - generate and return a free wave
 
 	evenNum = ParamIsDefault(evenNum) ? 0: evenNum
-	square = ParamIsDefault(square) ? 0: square 
+	square = ParamIsDefault(square) ? 0: square
 	WaveFREE = ParamIsDefault(WaveFREE) ? 0 : WaveFREE
-	
-	variable nRows, nCols, minSide
-	
+
+	variable nRows, nCols, nLayers, minSide
+
 	//N.B. Square is always even!!!
 	if(square)
 		evenNum = 0
 	endif
-	
+
 	if(WaveFREE)
 		Duplicate/FREE/RMD=(aX, zX)(aY, zY) wRef, wFreeRef
 		nRows = DimSize(wFreeRef,0)
 		nCols = DimSize(wFreeRef,1)
+		nlayers = DimSize(wFreeRef,1)
 		if(square)
 			minSide = min(nRows, nCols)
 			if(mod(minSide,2))
 				minSide -= 1
-			endif			
-			Redimension/N=(minSide, minSide) wFreeRef
-		endif		
+			endif
+			if(nlayers)
+				Redimension/N=(minSide, minSide, nlayers) wFreeRef
+			else
+				Redimension/N=(minSide, minSide) wFreeRef
+			endif
+		endif
 		if(evenNum)
 			if(mod(nRows,2))
 				nRows -= 1
 			endif
 			if(mod(nCols,2))
-				nCols -= 1	
+				nCols -= 1
 			endif
-		Redimension/N=(nRows, nCols) wFreeRef
-		endif		
+			if(nlayers)
+				Redimension/N=(minSide, minSide, nlayers) wFreeRef
+			else
+				Redimension/N=(minSide, minSide) wFreeRef
+			endif
+		endif
 		return wFreeRef
 	else
 		Duplicate/RMD=(aX, zX)(aY, zY) wRef, $partitionNameStr
@@ -293,21 +302,28 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 			minSide = min(nRows, nCols)
 			if(mod(minSide,2))
 				minSide -= 1
-			endif			
-			Redimension/N=(minSide, minSide) partWRef
-		endif		
+			endif
+			if(nlayers)
+				Redimension/N=(minSide, minSide, nlayers) partWRef
+			else
+				Redimension/N=(minSide, minSide) partWRef
+			endif
+		endif
 		if(evenNum)
 			if(mod(nRows,2))
 				nRows -= 1
 			endif
 			if(mod(nCols,2))
-				nCols -= 1	
+				nCols -= 1
 			endif
-		Redimension/N=(nRows, nCols) partWRef
+			if(nlayers)
+				Redimension/N=(minSide, minSide, nlayers) partWRef
+			else
+				Redimension/N=(minSide, minSide) partWRef
+			endif
 		endif
 		variable lastX = ATH_WaveOp#LastDimVal(partWRef,0)
 		variable lastY = ATH_WaveOp#LastDimVal(partWRef,1)
-		
 		Note partWRef, ("Redimension/RMD=("+num2str(DimOffSet(partWRef,0))+","+num2str(lastX)+")"+"("+num2str(DimOffSet(partWRef,1))\
 		+","+num2str(lastY)+") "+GetWavesDataFolder(wRef, 2)+" .EvenNum="+num2str(evenNum)+",Square="+num2str(square)+".\n")
 		return partWRef
