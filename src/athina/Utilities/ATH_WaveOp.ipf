@@ -267,7 +267,7 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 		Duplicate/FREE/RMD=(aX, zX)(aY, zY) wRef, wFreeRef
 		nRows = DimSize(wFreeRef,0)
 		nCols = DimSize(wFreeRef,1)
-		nlayers = DimSize(wFreeRef,1)
+		nlayers = DimSize(wFreeRef,2)
 		if(square)
 			minSide = min(nRows, nCols)
 			if(mod(minSide,2))
@@ -298,6 +298,7 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 		WAVE partWRef = $partitionNameStr
 		nRows = DimSize(partWRef,0)
 		nCols = DimSize(partWRef,1)
+		nlayers = DimSize(partWRef,2)		
 		if(square)
 			minSide = min(nRows, nCols)
 			if(mod(minSide,2))
