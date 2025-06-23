@@ -287,9 +287,9 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 				nCols -= 1
 			endif
 			if(nlayers)
-				Redimension/N=(minSide, minSide, nlayers) wFreeRef
+				Redimension/N=(nRows, nCols, nlayers) wFreeRef
 			else
-				Redimension/N=(minSide, minSide) wFreeRef
+				Redimension/N=(nRows, nCols) wFreeRef
 			endif
 		endif
 		return wFreeRef
@@ -318,9 +318,9 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 				nCols -= 1
 			endif
 			if(nlayers)
-				Redimension/N=(minSide, minSide, nlayers) partWRef
+				Redimension/N=(nRows, nCols, nlayers) partWRef
 			else
-				Redimension/N=(minSide, minSide) partWRef
+				Redimension/N=(nRows, nCols) partWRef
 			endif
 		endif
 		variable lastX = ATH_WaveOp#LastDimVal(partWRef,0)

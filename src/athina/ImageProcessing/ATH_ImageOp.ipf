@@ -893,7 +893,7 @@ static Function PixelateImageStack(WAVE wRef, variable nx, variable ny, variable
 	string wnameStr = NameofWave(wRef) + "_" + num2str(nx) + "x" + num2str(ny) + "x" + num2str(nz)
 	ImageInterpolate/PXSZ={nx, ny, nz}/DEST=saveDF:$wnameStr Pixelate wRef
 	string noteStr = "Source:" + GetWavesDataFolder(wRef, 2) + ".Dimensions:("+ num2str(DimSize(wRef,0))+ ", " + num2str(DimSize(wRef,1)) + \
-	", " + num2str(DimSize(wRef,2)) + ")" +".Pixelated factors:[" + num2str(nx) + ", " + num2str(ny) + ", " + num2str(nz) + "]/n"+note(wRef)
+	", " + num2str(DimSize(wRef,2)) + ")" +".Pixelated factors:[" + num2str(nx) + ", " + num2str(ny) + ", " + num2str(nz) + "]\n"+note(wRef)
 	CopyScales/I wRef, saveDF:$wnameStr
 	Note saveDF:$wnameStr, noteStr
 	return 0
