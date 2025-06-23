@@ -215,14 +215,14 @@ static Function GetScaledZoominImageWindow([string grfName, variable w3d])
 				wavenameStr = NameOfWave(wref) + "_PART"
 				wavenameStr = CreateDataObjectName(cdfr, wavenameStr, 1, 0, 5)
 				Duplicate/R=(minX, maxX)(minY, maxY) wRef, $wavenameStr
-				CopyScales/P wRef, $wavenameStr
+				//CopyScales/P wRef, $wavenameStr
 				noteStr = NameOfWave(wref) + "_layer_" + num2str(gLayer) + "_ZM"
 				sprintf noteStr, "CmdToZM:Duplicate/R=(%.4f, %.4f)(%.4f, %.4f) %s", minX, maxX, minY, maxY, GetWavesDataFolder(wRef,2)
 			else
 				wavenameStr = NameOfWave(wref) + "_ZM"
 				wavenameStr = CreateDataObjectName(cdfr, wavenameStr, 1, 0, 5)
 				Duplicate/R=(minX, maxX)(minY, maxY)[gLayer,gLayer] wRef, $wavenameStr
-				CopyScales/P wRef, $wavenameStr
+				//CopyScales/P wRef, $wavenameStr
 				sprintf noteStr, "CmdToZM:Duplicate/R=(%.4f, %.4f)(%.4f, %.4f)[%d,%d] %s ", minX, maxX, minY, maxY ,gLayer,gLayer, GetWavesDataFolder(wRef,2)
 			endif
 		else
