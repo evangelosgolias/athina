@@ -102,9 +102,9 @@ static Function/WAVE WAVECoordinatesToROIMask(variable left, variable top, varia
 	return ATH_ROIMask
 End
 
-static Function PartitionRegion([int evenNum, int tetragonal])
+static Function PartitionRegion([int evenNum, int square])
 	evenNum = ParamIsDefault(evenNum) ? 1 : evenNum
-	tetragonal = ParamIsDefault(tetragonal) ? 0 : tetragonal
+	square = ParamIsDefault(square) ? 0 : square
 	string grfName = WinName(0, 1, 1)
 	string xaxis, yaxis
 	[xaxis, yaxis] = ATH_Graph#GetAxes(grfName=grfName) // Use top graph
@@ -115,12 +115,12 @@ static Function PartitionRegion([int evenNum, int tetragonal])
 	string stacknameStr = CreateDataObjectName(currDF, NameOfWave(waveRef) + "_PART", 1, 0, 1)
 	// Use NameOfWave(waveRef) instead of imgNameTopGraphStr as the ' ' will be replace by _!
 	ATH_WaveOp#WavePartition(waveRef, stacknameStr, V_left, V_right, V_top, V_bottom, \
-	evenNum = evenNum, tetragonal = tetragonal)
+	evenNum = evenNum, square = square)
 	WAVE/Z wavePRT = $stacknameStr
 	if(!WaveExists(wavePRT)) // Wave does not exists, operation failed.
 		return 1
 	endif
-	CopyScales/P waveRef, wavePRT
+	//CopyScales/P waveRef, wavePRT // Change, keep the original x, y offsets
 	return 0
 End
 

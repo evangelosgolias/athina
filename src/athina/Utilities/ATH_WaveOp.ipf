@@ -238,9 +238,8 @@ static Function/WAVE AverageImageStack(WAVE wRef, [string outWaveStr])
 	return $outWaveStr
 End
 
-// TODO: Revise code in the future
-static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable startX, variable endX, 
-					 variable startY, variable endY, [int evenNum, int tetragonal, int WaveFREE])
+static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable aX, variable zX, 
+					 variable aY, variable zY, [int evenNum, int square, int WaveFREE])
 	///				 
 	/// N.B Assume that startX, endX, startY and endY are scaled coordinates, not points (we usually work with scaled images)				 
 	///
@@ -250,80 +249,68 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 	/// @param startQ int
 	/// @param endQ
 	/// @param evenNum int optional set rows, cols to the closest even number
-	/// @param tetragonal int optional When set the number of rows and columns of the partition equals max(rows, cols).
+	/// @param square int optional When set the number of rows and columns of the partition equals min(rows, cols) and even!
 	/// @param free int optional - generate and return a free wave
 
 	evenNum = ParamIsDefault(evenNum) ? 0: evenNum
-	tetragonal = ParamIsDefault(tetragonal) ? 0: tetragonal 
+	square = ParamIsDefault(square) ? 0: square 
 	WaveFREE = ParamIsDefault(WaveFREE) ? 0 : WaveFREE
-	variable nrows = DimSize(wRef, 0)
-	variable ncols = DimSize(wRef, 1)
-	variable rowsOff = DimOffset(wRef, 0)
-	variable colsOff = DimOffset(wRef, 1)
 	
-	variable xmin = rowsOff
-	variable ymin = colsOff
-	variable xmax = rowsOff + (nrows - 1) * DimDelta(wRef, 0)
-	variable ymax = colsOff + (ncols - 1) * DimDelta(wRef, 1)
+	variable nRows, nCols, minSide
 	
-	// Sanity checks
-	if(startX < xmin)
-		startX = xmin
+	//N.B. Square is always even!!!
+	if(square)
+		evenNum = 0
 	endif
 	
-	if(endX > xmax)
-		endX = xmax
-	endif
-	
-	if(startY < ymin)
-		startY = ymin
-	endif
-	
-	if(endY > ymax)
-		endY = ymax
-	endif	
-	
-	if (!(startX < endX && startY < endY && startX >= xmin && startY >= ymin \
-		&& endX <= xmax && endY <= ymax))
-		Abort "Error: Out of bounds p, q values or X_min >= X_max."
-	endif
-	// end of sanity checks
-	
-	variable startP, endP, startQ, endQ
-	// P, Q values might come from scaled images
-	startP = ScaleToIndex(wRef, startX, 0)
-	endP   = ScaleToIndex(wRef, endX, 0)
-	startQ = ScaleToIndex(wRef, startY, 1)
-	endQ   = ScaleToIndex(wRef, endY, 1)
-	
-	variable nWaveRows = endP-startP
-	variable nWaveCols = endQ-startQ
-	
-	// subrange (MatrixOP) io /RMD (Duplicate) include start and end index.
-	// to get an evenNum you need to have odd nWaveRow & nWaveCols
-	if(evenNum)	 
-		if(!mod(nWaveRows, 2))
-			nWaveRows += 1
-		endif
-		if(!mod(nWaveCols, 2))
-			nWaveCols += 1
-		endif
-	endif
-
-	if(tetragonal) // should follow evenNum, so no need to add extra conditions here
-		nWaveRows = max(nWaveRows, nWaveCols)
-		nWaveCols = nWaveRows
-		if(nWaveRows > nrows || nWaveCols > ncols)
-			return $""
-		endif
-	endif
 	if(WaveFREE)
-		MatrixOP/FREE wFreeRef = subrange(wRef, startP, startP + nWaveRows, startQ, startQ + nWaveCols)
+		Duplicate/FREE/RMD=(aX, zX)(aY, zY) wRef, wFreeRef
+		nRows = DimSize(wFreeRef,0)
+		nCols = DimSize(wFreeRef,1)
+		if(square)
+			minSide = min(nRows, nCols)
+			if(mod(minSide,2))
+				minSide -= 1
+			endif			
+			Redimension/N=(minSide, minSide) wFreeRef
+		endif		
+		if(evenNum)
+			if(mod(nRows,2))
+				nRows -= 1
+			endif
+			if(mod(nCols,2))
+				nCols -= 1	
+			endif
+		Redimension/N=(nRows, nCols) wFreeRef
+		endif		
 		return wFreeRef
 	else
-		MatrixOP $partitionNameStr = subrange(wRef, startP, startP + nWaveRows, startQ, startQ + nWaveCols)
-		Note $partitionNameStr, ("Partition of " + GetWavesDataFolder(wRef, 2)+": ["+num2str(startX)+","+num2str(endX)+"]"+"["+num2str(startY)+","+num2str(endY)+"]")
-		return $partitionNameStr
+		Duplicate/RMD=(aX, zX)(aY, zY) wRef, $partitionNameStr
+		WAVE partWRef = $partitionNameStr
+		nRows = DimSize(partWRef,0)
+		nCols = DimSize(partWRef,1)
+		if(square)
+			minSide = min(nRows, nCols)
+			if(mod(minSide,2))
+				minSide -= 1
+			endif			
+			Redimension/N=(minSide, minSide) partWRef
+		endif		
+		if(evenNum)
+			if(mod(nRows,2))
+				nRows -= 1
+			endif
+			if(mod(nCols,2))
+				nCols -= 1	
+			endif
+		Redimension/N=(nRows, nCols) partWRef
+		endif
+		variable lastX = ATH_WaveOp#LastDimVal(partWRef,0)
+		variable lastY = ATH_WaveOp#LastDimVal(partWRef,1)
+		
+		Note partWRef, ("Redimension/RMD=("+num2str(DimOffSet(partWRef,0))+","+num2str(lastX)+")"+"("+num2str(DimOffSet(partWRef,1))\
+		+","+num2str(lastY)+") "+GetWavesDataFolder(wRef, 2)+" .EvenNum="+num2str(evenNum)+",Square="+num2str(square)+".\n")
+		return partWRef
 	endif
 End
 
