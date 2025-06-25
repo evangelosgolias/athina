@@ -30,7 +30,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static Function/WAVE CalculateXMCD(WAVE w1, WAVE w2, [string outWave, WAVE wRef])
+static Function/WAVE CalculateXMCDWAVE(WAVE w1, WAVE w2, [string outWave, WAVE wRef])
 	/// Calculate XMCD/XMLD of two images and save it to 
 	/// @param w1 WAVE Wave 1
 	/// @param w2 WAVE Wave 2
@@ -57,6 +57,23 @@ static Function/WAVE CalculateXMCD(WAVE w1, WAVE w2, [string outWave, WAVE wRef]
 	endif
 End
 
+static Function CalculateXMCD(WAVE w1, WAVE w2)
+	/// Calculate XMCD/XMLD of two images and save it to 
+	/// @param w1 WAVE Wave 1
+	/// @param w2 WAVE Wave 2
+	/// NB: You have to provife either outWave or wRef
+	if(ATH_WaveOp#WaveDimensionsEqualQ(w1,w2))
+		return -1
+	endif
+	DFREF currDFR = GetDataFolderDFR()
+	string saveWaveName = CreatedataObjectName(currDFR, "xmcd_", 1, 0, 5)
+	Duplicate w1, $saveWaveName
+	MatrixOP/S $saveWaveName = (w1 - w2)/(w1 + w2)
+	string noteStr = "ATH_Magnetism#CalculateXMCD("+ GetWavesDataFolder(w1,2) + ","+\
+	GetWavesDataFolder(w1,2) +"\n"
+	Note $saveWaveName, noteStr
+	return 0
+End
 
 static Function StackToXMCD(WAVE w3d, [string wnameStr])
 	/// Calculate XMCD/XMLD of two images
@@ -77,7 +94,7 @@ static Function StackToXMCD(WAVE w3d, [string wnameStr])
 	return 0
 End
 
-static Function StackToWaveSum(WAVE w3d, WAVE wSum)
+static Function StackToAverage(WAVE w3d, WAVE wSum)
 	
 	if(DimSize(w3d, 2) != 2)
 		return -1
@@ -131,7 +148,7 @@ static Function CalculateXMCDComb(WAVE w3d)
 		for(j = 0; j < i; j++)
 			MatrixOP/FREE jLayer = layer(w3d, j)
 			buffer = "ATHWaveToStack_idx_" + num2str(cnt)
-			CalculateXMCD(iLayer, jLayer, outWave = buffer)
+			CalculateXMCDWAVE(iLayer, jLayer, outWave = buffer)
 			noteStr += num2str(cnt) + ": (" + num2str(IndexToScale(w3d, i, 2)) \
 					+", "+ num2str(IndexToScale(w3d, j, 2))+")\n"
 			cnt += 1
@@ -176,8 +193,8 @@ static Function XMCDStack4L(WAVE wRef, [string order, int overwrite, string outW
 	MatrixOP/FREE w2 = layer(wRef, l2)
 	MatrixOP/FREE w3 = layer(wRef, l3)
 	Duplicate/FREE w0, xmcd0, xmcd1, wDest
-	CalculateXMCD(w0, w1, wRef=xmcd0)
-	CalculateXMCD(w2, w3, wRef=xmcd1)
+	CalculateXMCDWAVE(w0, w1, wRef=xmcd0)
+	CalculateXMCDWAVE(w2, w3, wRef=xmcd1)
 	variable errCode, flag
 	if(overwrite)
 		Duplicate/O w0, $outWave; errCode = GetRTError(1);
@@ -195,7 +212,7 @@ static Function XMCDStack4L(WAVE wRef, [string order, int overwrite, string outW
 	return 0
 End
 
-static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, variable FoVRot])
+static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep])
 
 	/// -------------------------------------- XMLD Map --------------------------------------------//
 	
@@ -215,21 +232,6 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	//	angleStep : optional variable in deg
 	// 		Angular step along the z-direction in **degrees**, default 10 deg
 	//
-	// FoVRot: optional variable in deg
-	//      Anglular offset for the fit. Why? Because LH light usually does not coincide with x-axis!
-	//
-	// About FoVRot:
-	//
-	// In PEEM the magnetic objective rotates the image wrt to lab reference frame. The x-ray beam polarization
-	// refers to the lab frame, LH is paralled to the floor (x-axis of the lab frame) and LV is perpendicular to
-	// the floor (y-axis of the lab frame). The preset of the microscope (written in metadata) gives an angle for
-	// the rotation you have to do in order to align the image with the lab reference. Prior to this rotation, the 
-	// y-axis should be flipped (mirror reflextion over the x-axis) in order the image to correspond to the x-ray 
-	// beam view of the sample. Therefore *FoVRot* has to be set so that the program can calculate the starting angle
-	// correctly. *FoVRot* contained in the metadata!
-	// Here the first angle is set so that the LH light has theta = 0, i.e parallel to x-axis. 
-	//
-	//
 	//	## Returns
 	//	variable
 	//		A unique 2D wave NameOfWave(wRef) + "_XMLDMap" is created (+num2str(N)))
@@ -243,7 +245,7 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	
 	variable firstAngleRad = ParamIsDefault(firstAngle) ? -90 * pi/180 : firstAngle * pi/180
 	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180 : angleStep * pi/180
-	variable FoVRotRad = ParamIsDefault(FoVRot) ? 0 : FoVRot * pi/180
+	
 	// Calculate the angular offset, rotate by -FoVRotRad and apply mirror operation over x-axis
 	
 	variable rows = DimSize(wRef, 0)
@@ -260,7 +262,7 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	WAVE wphase = $mapNameStr
 	WAVE woff = $(mapNameStr+"_offset")
 	WAVE wfact = $(mapNameStr+"_amplitude")
-	// Make the fitting waves:  K0 + K1 * sin(x + K2)^2
+	// Make the fitting waves:  K0 + K1 * Cos(2*(x + K2))
 	Make/FREE/D/N=3 ATH_Coef
 	// Fit can be very sensity to contrains! Read the manual!
 	// ********************YOU NEED TO TUNE HERE************************
@@ -269,10 +271,12 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	// as K1->0 reduces the functional dependency to a constant function!
 	// We will assume of K1 hits the lowest value then K2 == 0!
 	//
-	Make/FREE/T ATH_Constraints = {"K1>1e-3","K2 > -1.5708", "K2 <= 1.5708"} 
+	// Amplitude should be positive, otherwise a phase shift could be added.
+	// Sin2x and Sin^x have periodicity of pi
+	Make/FREE/T ATH_Constraints = {"K1>1e-3","K2 > -pi/2", "K2 <= pi/2"} // N.B: Set here constrains
 	// *****************************************************************
 	Make/FREE/N=(layers) freeData
-	SetScale/P x, (firstAngleRad+FoVRotRad) , angleStepRad, freeData // Set the scale!
+	SetScale/P x, firstAngleRad, angleStepRad, freeData // Set the scale, and FoVRot
 	Make/O/D/N=(rows, cols, 3) ATH_FitCoeff // Fit coefficients per pixel
 	variable V_FitError
 	variable errorCnt = 0
@@ -285,7 +289,7 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 			WaveStats/M=1/Q freeData // Makes it slower, but initial guess is better. Is it helpful?
 			V_FitError = 0 // Set it to zero before the fit
 			ATH_Coef = {V_avg, 0.5*(V_max-V_min),0.1} // N.B!! You might need to play a bit with the initial guess
-			FuncFit/Q ATH_FuncFit#XMLDSinSqIntensity, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
+			FuncFit/Q ATH_FuncFit#XMLDCos2xIntensity, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
 			if(V_FitError)
 				// Deal with error here....
 				errorCnt++
@@ -299,8 +303,8 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	wphase[][] = ATH_FitCoeff[p][q][2]*57.29577951 // From rad to deg
 	print "Total fit errors ", errorCnt
 	string metadata = "Fitting variables: firstAngle="+num2str(firstangle)+" ,angleStep="+num2str(angleStep)
-	metadata += ", FoVRot="+num2str(FoVRot)+"\n"+"Total fit errors: "+num2str(errorCnt)+"\n"
-	metadata += "Fitting constrains: {"+RemoveEnding(ATH_TWave#TextWaveToString(ATH_Constraints, sep=","))+"}\n"
+	metadata += ". Fitting constrains: {"+RemoveEnding(ATH_TWave#TextWaveToString(ATH_Constraints, sep=","))+"}"
+	metadata += ". Total fit errors: "+num2str(errorCnt)	
 	Note wphase, metadata
 	Note wfact, metadata
 	Note woff, metadata
@@ -380,16 +384,16 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	MatrixOP/O dfr:cursorBeamProfile = beam(wSrc, p0, q0)
 	WAVE wOff = wdfr:$(NameOfWave(wRef)+"_offset")
 	WAVE wA = wdfr:$(NameOfWave(wRef)+"_amplitude")
-	Make/O dfr:fitPlotW /WAVE=wsin
-	SetScale/I x, -pi/2+FoVRotRad, pi/2+FoVRotRad, wsin, dfr:cursorBeamProfile
+	Make/O dfr:fitPlotW /WAVE=wcos
+	SetScale/I x, -pi/2, pi/2, wcos, dfr:cursorBeamProfile
 	variable x0 = wOff[p0][q0]
 	variable A = wA[p0][q0]
 	variable phase = wRef[p0][q0]*0.01745329 // Phase to rad
-	wsin = x0 + A * sin(x + phase)^2
+	wcos = x0 + A * cos(2*(x + phase))
 	RemoveFromGraph/W=$plotNameStr/ALL
 	AppendToGraph/W=$plotNameStr dfr:cursorBeamProfile
 	ModifyGraph/W=$plotNameStr mode(cursorBeamProfile)=3,marker(cursorBeamProfile)=19,msize(cursorBeamProfile)=4
-	AppendToGraph/W=$plotNameStr wsin 
+	AppendToGraph/W=$plotNameStr wcos 
 	ModifyGraph/W=$plotNameStr lsize(fitPlotW)=2,rgb(fitPlotW)=(1,16019,65535)
 	return 0
 End

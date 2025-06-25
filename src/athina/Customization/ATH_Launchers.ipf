@@ -162,7 +162,7 @@ static Function CalculationXMCD()
 	WAVE w2d2 = $wave2Str
 	DFREF currDFR = GetDataFolderDFR()
 	string saveWaveName = CreatedataObjectName(currDFR, "XMCD", 1, 0, 1)
-	ATH_Magnetism#CalculateXMCD(w2d1, w2d2, outWave = saveWaveName)
+	ATH_Magnetism#CalculateXMCDWAVE(w2d1, w2d2, outWave = saveWaveName)
 	string noteStr = "ATH_Magnetism#XMCD("+ wave1Str + ","+\
 	wave2Str+", outWave=" + saveWaveName + ")"
 	Note $saveWaveName, noteStr
