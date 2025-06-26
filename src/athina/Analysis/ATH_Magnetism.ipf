@@ -280,6 +280,7 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	Make/O/D/N=(rows, cols, 3) ATH_FitCoeff // Fit coefficients per pixel
 	variable V_FitError
 	variable errorCnt = 0
+	string fitFuncStr = "ATH_FuncFit#XMLDCos2xIntensity"
 	variable V_FitOptions = 0
 	for(i = 0; i < rows; i++)
 		for(j = 0; j < cols; j++)
@@ -289,7 +290,7 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 			WaveStats/M=1/Q freeData // Makes it slower, but initial guess is better. Is it helpful?
 			V_FitError = 0 // Set it to zero before the fit
 			ATH_Coef = {V_avg, 0.5*(V_max-V_min),0.1} // N.B!! You might need to play a bit with the initial guess
-			FuncFit/Q ATH_FuncFit#XMLDCos2xIntensity, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
+			FuncFit/Q $fitFuncStr, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
 			if(V_FitError)
 				// Deal with error here....
 				errorCnt++
@@ -302,8 +303,9 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	wfact[][] = ATH_FitCoeff[p][q][1]
 	wphase[][] = ATH_FitCoeff[p][q][2]*57.29577951 // From rad to deg
 	print "Total fit errors ", errorCnt
-	string metadata = "Fitting variables: firstAngle="+num2str(firstangle)+" ,angleStep="+num2str(angleStep)
-	metadata += ". Fitting constrains: {"+RemoveEnding(ATH_TWave#TextWaveToString(ATH_Constraints, sep=","))+"}"
+	string metadata = "FuncFit: "+ fitFuncStr + "."
+	metadata += "Fitting constrains: {"+RemoveEnding(ATH_TWave#TextWaveToString(ATH_Constraints, sep=","))+"}."
+	metadata += "Function parameters: firstAngle="+num2str(firstangle)+" ,angleStep="+num2str(angleStep)
 	metadata += ". Total fit errors: "+num2str(errorCnt)	
 	Note wphase, metadata
 	Note wfact, metadata
