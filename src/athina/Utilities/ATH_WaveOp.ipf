@@ -680,3 +680,27 @@ static Function RemoveZLineWave3D(Wave wRef, [variable z0, variable z1])
 		endfor
 	endfor
 End
+
+static Function GetWaveMinPos(WAVE wRef)
+	// Return the position of the maximun value of wave
+	variable items = numpnts(WRef), i, imim
+	imim = wRef[0]
+	for(i=1;i<items;i++)
+		if(wRef[i] < imim)
+			imim = wRef[i]
+		endif
+	endfor
+	return imim
+End
+
+static Function GetWaveMaxPos(WAVE wRef)
+	// Return the position of the maximun value of wave
+	variable items = numpnts(WRef), i, imax
+	imax = wRef[0]
+	for(i=1;i<items;i++)
+		if(wRef[i] > imax)
+			imax = wRef[i]
+		endif
+	endfor
+	return imax
+End

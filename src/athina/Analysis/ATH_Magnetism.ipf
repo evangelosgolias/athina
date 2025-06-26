@@ -212,37 +212,35 @@ static Function XMCDStack4L(WAVE wRef, [string order, int overwrite, string outW
 	return 0
 End
 
-static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep])
+static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, int fastFit])
+	
+	/// -------------------------------------------  XMLD Map  --------------------------------------------
+	///
+	/// Calculates an XMLD-intensity map by fitting **ATH_FuncFit#XMLDIntensity** to every beam
+	/// (pixel) along the *z*-axis of a 3-D wave containing XMLD images acquired at different x-ray
+	/// inclination angles.
+	///
+	/// The model assumes that the XMLD signal follows:
+	///
+	///     I(x) = A + B·cos(2(x + φ))
+	///
+	/// with *A*, *B*, and *φ* as the fitting parameters.
+	///
+	/// ### Parameters
+	/// | Name           | Type     | Default| Description                                                                                           |
+	/// |-------------   |----------|--------|-------------------------------------------------------------------------------------------------------|
+	/// | **wRef**       | WAVE     | —      | 3-D wave whose *z* dimension lists the inclination angles in ascending order (typically −90° to +90°) |
+	/// | **firstAngle** | variable | −90 °  | Inclination (degrees) corresponding to the first plane                                                |
+	/// | **angleStep**  | variable | 10 °   | Angular increment (degrees) between successive *z* planes                                             |
+	/// | **fastFit**    | variable | 0      | If non-zero, tests several phase values and keeps the one with the lowest χ² (≈ N × slower)         |
+	///
+	/// ---
+	/// **Advanced curve-fitting tip**  
+	/// To weight individual angles, create a sigma wave of length `DimSize(wRef,2)` and pass it to
+	/// **FuncFit** via the `/W=<sigmaWave>` flag.
+	///
+	/// *See also*: *DisplayHelpTopic* “Special Variables for Curve Fitting”.
 
-	/// -------------------------------------- XMLD Map --------------------------------------------//
-	
-	//@
-	//	Function to calculate an XMLD map. The function ATH_FuncFit#XMLDIntensity is fitted to 
-	//  all beams of a 3D wave containing data from XMLD images obtained with different inclination
-	//  angles (direction of the E-field of x-rays). Model assumets that XMLD singal follows the 
-	//  relationship I = A + B * sin(x + φ)^2, where A, B and φ are the fitting parameters.
-	//
-	//	## Parameters
-	//	wRef : WAVE
-	//		A 3D wave that contains the data of all inclination angles in ascending order.
-	//      A full XMLD map contains angles in [-90, 90] range.
-	//
-	//		firstAngle : optional variable (default -90 deg)
-	//
-	//	angleStep : optional variable in deg
-	// 		Angular step along the z-direction in **degrees**, default 10 deg
-	//
-	//	## Returns
-	//	variable
-	//		A unique 2D wave NameOfWave(wRef) + "_XMLDMap" is created (+num2str(N)))
-	//		0 - map calculations completed
-	//		1 - input wave was not a 3D wave
-	//--------------------------------------------------------------------------------------------------------------
-	//
-	// Advanced curve fitting
-	//
-	// DisplayHelpTopic "Special Variables for Curve Fitting"
-	
 	variable firstAngleRad = ParamIsDefault(firstAngle) ? -90 * pi/180 : firstAngle * pi/180
 	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180 : angleStep * pi/180
 	
@@ -255,7 +253,7 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	if(!layers)
 		return 1
 	endif
-	variable i, j, cnt
+	variable i, j, k, cnt
 	string mapBaseNameStr = NameofWave(wRef) + "_map"
 	string mapNameStr = CreateDataObjectName(dfr, mapBaseNameStr, 1, 0 ,1)
 	Make/N=(rows, cols) $mapNameStr, $(mapNameStr+"_offset"), $(mapNameStr+"_amplitude")
@@ -271,33 +269,64 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	// as K1->0 reduces the functional dependency to a constant function!
 	// We will assume of K1 hits the lowest value then K2 == 0!
 	//
-	// Amplitude should be positive, otherwise a phase shift could be added.
-	// Sin2x and Sin^x have periodicity of pi
-	Make/FREE/T ATH_Constraints = {"K1>1e-3","K2 > -pi/2", "K2 <= pi/2"} // N.B: Set here constrains
-	// *****************************************************************
-	Make/FREE/N=(layers) freeData
+	Make/FREE/N=(layers) freeData // Get data per beam to fit
 	SetScale/P x, firstAngleRad, angleStepRad, freeData // Set the scale, and FoVRot
 	Make/O/D/N=(rows, cols, 3) ATH_FitCoeff // Fit coefficients per pixel
 	variable V_FitError
 	variable errorCnt = 0
+	// Which model do you like to fit? Check functions in the module ATH_FuncFit
 	string fitFuncStr = "ATH_FuncFit#XMLDCos2xIntensity"
-	variable V_FitOptions = 0
-	for(i = 0; i < rows; i++)
-		for(j = 0; j < cols; j++)
-			// /S keeps scaling in MatrixOP
-			// N.B. If you add /FREE here the scaling will be lost!!!
-			MatrixOP/O/S freeData = beam(wRef, i, j)
-			WaveStats/M=1/Q freeData // Makes it slower, but initial guess is better. Is it helpful?
-			V_FitError = 0 // Set it to zero before the fit
-			ATH_Coef = {V_avg, 0.5*(V_max-V_min),0.1} // N.B!! You might need to play a bit with the initial guess
-			FuncFit/Q $fitFuncStr, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
-			if(V_FitError)
-				// Deal with error here....
-				errorCnt++
-			endif			
-			ATH_FitCoeff[i][j][] = ATH_Coef[r]
+	// *****************************************************************	
+	Make/FREE/T ATH_Constraints = {"K1>1e-3","K2 > -pi/2", "K2 <= pi/2"} // N.B: Set here constrains
+	// Let's fit all pixels in the image
+	if(fastFit)
+		for(i = 0; i < rows; i++)
+			for(j = 0; j < cols; j++)
+				// /S keeps scaling in MatrixOP
+				// N.B. If you add /FREE here the scaling will be lost!!!
+				MatrixOP/O/S freeData = beam(wRef, i, j)
+				WaveStats/M=1/Q freeData // Makes it slower, but initial guess is better. Is it helpful?
+				V_FitError = 0 // Set it to zero before the fit
+				ATH_Coef = {V_avg, 0.5*(V_max-V_min),0.1} // N.B!! You might need to play a bit with the initial guess
+				FuncFit/Q $fitFuncStr, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
+				if(V_FitError)
+					// Deal with error here....
+					errorCnt++
+				endif
+				ATH_FitCoeff[i][j][] = ATH_Coef[r]
+			endfor
 		endfor
-	endfor
+	else
+		// *****************************************************************
+		// How many initial guesses for phase do you want to try?
+		// Enter the values in curly brackets.
+		// ******************************************************
+		Make/FREE initialGuessPhaseW = {-pi/4,0,pi/4}; // <<<<<<<
+		// ******************************************************
+		variable kmax = numpnts(initialGuessPhaseW)
+		Make/FREE/N=(kmax) chisqList
+		Make/FREE/N=(kmax,3) coeffW
+		for(i = 0; i < rows; i++)
+			for(j = 0; j < cols; j++)
+				// /S keeps scaling in MatrixOP
+				// N.B. If you add /FREE here the scaling will be lost!!!
+				MatrixOP/O/S freeData = beam(wRef, i, j)
+				WaveStats/M=1/Q freeData // Makes it slower, but initial guess is better.
+				V_FitError = 0 // Set it to zero before the fit
+				for(k=0;k<kmax;k++)
+					ATH_Coef = {V_avg, 0.5*(V_max-V_min),initialGuessPhaseW[k]} // N.B!! You might need to play a bit with the initial guess
+					FuncFit/Q $fitFuncStr, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
+					coeffW[k][] = ATH_Coef[q]
+					chisqList[k] = V_chisq // Goodness of fit
+				endfor
+				if(V_FitError)
+					// Deal with error here....
+					errorCnt++
+				endif
+				ATH_FitCoeff[i][j][] = coeffW[ATH_WaveOp#GetWaveMinPos(chisqList)][r] // Get the fitted coeff with the lower V_chisq
+			endfor
+		endfor
+	endif
 	// Write the coefficients to waves
 	woff[][] =  ATH_FitCoeff[p][q][0]
 	wfact[][] = ATH_FitCoeff[p][q][1]
@@ -306,7 +335,7 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	string metadata = "FuncFit: "+ fitFuncStr + "."
 	metadata += "Fitting constrains: {"+RemoveEnding(ATH_TWave#TextWaveToString(ATH_Constraints, sep=","))+"}."
 	metadata += "Function parameters: firstAngle="+num2str(firstangle)+" ,angleStep="+num2str(angleStep)
-	metadata += ". Total fit errors: "+num2str(errorCnt)	
+	metadata += ", fastFit="+num2str(fastFit)+". Total fit errors: "+num2str(errorCnt)	
 	Note wphase, metadata
 	Note wfact, metadata
 	Note woff, metadata
@@ -318,7 +347,7 @@ End
 /// Beam fitting map
 /// Generic interaction using a cursor and a CallbackFunction
 
-static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef, [variable FoVRot])
+static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef)
 	/// Interactive operation using a callback function
 	/// ATH_Cursors#CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	//
@@ -338,7 +367,6 @@ static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef, [variable FoV
 	// Hook and metadata
 	SetWindow $winNameStr, hook(MyiCursorActionHook) = ATH_Magnetism#iCursorUsingCallbackHookFunction // Set the hook
 	SetWindow $winNameStr, userdata(MyiCursorWin) = winNameStr
-	SetWindow $winNameStr, userdata(FoVRotRad) = num2str(FoVRot*0.01745329)
 	SetWindow $winNameStr, userdata(ATH_iCursorDFR) = "root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr
 	Display/N=$(winNameStr + "_iFitPlot")/K=1
 	DoWindow/F $winNameStr
@@ -382,7 +410,6 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	DFREF wdfr = GetWavesDataFolderDFR(wRef)
 	string winNameStr = GetUserData("", "", "MyiCursorWin")
 	string plotNameStr = GetUserData("", "", "MyiplotWin")
-	variable FoVRotRad = str2num(GetUserData("", "", "FoVRotRad"))
 
 	MatrixOP/O dfr:cursorBeamProfile = beam(wSrc, p0, q0)
 	WAVE wOff = wdfr:$(NameOfWave(wRef)+"_offset")
@@ -391,12 +418,13 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	SetScale/I x, -pi/2, pi/2, wcos, dfr:cursorBeamProfile
 	variable x0 = wOff[p0][q0]
 	variable A = wA[p0][q0]
-	variable phase = wRef[p0][q0]*0.01745329 // Phase to rad
-	wcos = x0 + A * cos(2*(x + phase))
+	variable phase = wRef[p0][q0]
+	wcos = x0 + A * cos(2*(x + phase*0.01745329)) // Phase to rad
 	RemoveFromGraph/W=$plotNameStr/ALL
 	AppendToGraph/W=$plotNameStr dfr:cursorBeamProfile
 	ModifyGraph/W=$plotNameStr mode(cursorBeamProfile)=3,marker(cursorBeamProfile)=19,msize(cursorBeamProfile)=4
 	AppendToGraph/W=$plotNameStr wcos 
 	ModifyGraph/W=$plotNameStr lsize(fitPlotW)=2,rgb(fitPlotW)=(1,16019,65535)
+	TextBox/W=$plotNameStr/C/F=0/N=phaseTag "\\Z16φ="+num2str(phase)		
 	return 0
 End
