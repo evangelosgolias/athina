@@ -310,6 +310,7 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	Note wphase, metadata
 	Note wfact, metadata
 	Note woff, metadata
+	CopyScales wRef, wphase, wfact, woff
 	KillWaves/Z W_sigma, ATH_FitCoeff, fit__free_ // Cleanup the garbage
 End
 
