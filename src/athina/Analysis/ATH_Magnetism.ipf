@@ -62,15 +62,15 @@ static Function CalculateXMCD(WAVE w1, WAVE w2)
 	/// @param w1 WAVE Wave 1
 	/// @param w2 WAVE Wave 2
 	/// NB: You have to provife either outWave or wRef
-	if(ATH_WaveOp#WaveDimensionsEqualQ(w1,w2))
+	if(!ATH_WaveOp#WaveDimensionsEqualQ(w1,w2))
 		return -1
 	endif
 	DFREF currDFR = GetDataFolderDFR()
 	string saveWaveName = CreatedataObjectName(currDFR, "xmcd_", 1, 0, 5)
-	Duplicate w1, $saveWaveName
 	MatrixOP/S $saveWaveName = (w1 - w2)/(w1 + w2)
+	CopyScales/P w1, $saveWaveName
 	string noteStr = "ATH_Magnetism#CalculateXMCD("+ GetWavesDataFolder(w1,2) + ","+\
-	GetWavesDataFolder(w1,2) +"\n"
+	GetWavesDataFolder(w1,2) +")\n"
 	Note $saveWaveName, noteStr
 	return 0
 End
@@ -240,7 +240,9 @@ static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angle
 	/// **FuncFit** via the `/W=<sigmaWave>` flag.
 	///
 	/// *See also*: *DisplayHelpTopic* “Special Variables for Curve Fitting”.
-
+	
+	fastFit = ParamIsDefault(fastFit) ? 1 : fastFit
+	
 	variable firstAngleRad = ParamIsDefault(firstAngle) ? -90 * pi/180 : firstAngle * pi/180
 	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180 : angleStep * pi/180
 	

@@ -71,3 +71,10 @@ Function AfterWindowCreatedHook(string windowNameStr, variable winTypevar)
 	endif
 	return 0 // Ignored
 End
+
+Function AfterCompiledHook()
+	ModifyBrowser appendUserButton={$"Calc XMCD", "Execute/P/Q \"ATH_Launch#BrowserActionDoXMDC()\""}
+	ModifyBrowser appendUserButton={$"Stack Waves", "Execute/P/Q \"ATH_Launch#BrowserActionMakeStack()\""}
+	return 0
+End
+

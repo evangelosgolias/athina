@@ -32,7 +32,23 @@
 
 // Launchers
 
+// --- Add quick actions to Dat Browser ----
 
+Function BrowserActionDoXMDC()
+	WAVE w1 = $GetBrowserSelection(0)
+	WAVE w2 = $GetBrowserSelection(1)
+	ATH_Magnetism#CalculateXMCD(w1, w2)
+End
+
+Function BrowserActionMakeStack()
+	string wNameStr
+	Prompt wNameStr, "Name your stack"
+	DoPrompt "Stacking waves ...", wNameStr
+	wNameStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection(wNameStr, autoPath = 1) // stack in sourcedir if all waves in the same folder, otherwise in cwd
+	return 0
+End
+
+// --- End of quick actions -----
 
 static Function Make3DWaveUsingPattern()
 	string wname3dStr, pattern
