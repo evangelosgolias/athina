@@ -1132,7 +1132,7 @@ static Function PixelateSingleImageOrStack()
 	if(WaveDims(wRef) == 3)
 		Prompt nx, "Pixelate X:"
 		Prompt ny, "Pixelate Y:"	
-		Prompt nz, "Pixelate Z (= 0 to average over row, cols only!):"
+		Prompt nz, "Pixelate Z (= 0, 1 to average over row, cols only!):"
 		DoPrompt "Pixelate image stack", nx, ny, nz
 		if(V_flag)
 			return -1
