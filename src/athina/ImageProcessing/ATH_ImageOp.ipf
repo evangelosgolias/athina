@@ -873,7 +873,8 @@ static Function PixelateImage(WAVE wRef, variable nx, variable ny, [variable i16
 	ImageInterpolate/PXSZ={nx, ny}/DEST=saveDF:$wnameStr Pixelate wRef
 	string noteStr = "Source:" + GetWavesDataFolder(wRef, 2) + " . Dimensions:("+ num2str(DimSize(wRef,0))+ ", " + num2str(DimSize(wRef,1)) + ")" + \
 	".Pixelated factors:[" + num2str(nx) + ", " + num2str(ny) + "]\n" + note(wRef)
-	CopyScales/I wRef, saveDF:$wnameStr
+	SetScale/P x, DimOffset(wRef,0), DimDelta(wRef,0)*nx,saveDF:$wnameStr
+	SetScale/P y, DimOffset(wRef,1), DimDelta(wRef,1)*ny,saveDF:$wnameStr
 	Note saveDF:$wnameStr, noteStr
 	return 0
 End
@@ -889,11 +890,25 @@ static Function PixelateImageStack(WAVE wRef, variable nx, variable ny, variable
 		Redimension/S wRef // 32-bit float
 	endif
 	DFREF saveDF = GetWavesDataFolderDFR(wRef) 
-	string wnameStr = NameofWave(wRef) + "_" + num2str(nx) + "x" + num2str(ny) + "x" + num2str(nz)
-	ImageInterpolate/PXSZ={nx, ny, nz}/DEST=saveDF:$wnameStr Pixelate wRef
-	string noteStr = "Source:" + GetWavesDataFolder(wRef, 2) + ".Dimensions:("+ num2str(DimSize(wRef,0))+ ", " + num2str(DimSize(wRef,1)) + \
-	", " + num2str(DimSize(wRef,2)) + ")" +".Pixelated factors:[" + num2str(nx) + ", " + num2str(ny) + ", " + num2str(nz) + "]\n"+note(wRef)
-	CopyScales/I wRef, saveDF:$wnameStr
+	string wnameStr = NameofWave(wRef) + "_" + num2str(nx) + "x" + num2str(ny)
+	if(nz)
+		wnameStr += "x" + num2str(nz)
+		ImageInterpolate/PXSZ={nx, ny, nz}/DEST=saveDF:$wnameStr Pixelate wRef
+	else
+		ImageInterpolate/PXSZ={nx, ny}/DEST=saveDF:$wnameStr Pixelate wRef // Average only in rows/columns not layers!!!
+	endif
+	string noteStr = "Source:" + GetWavesDataFolder(wRef, 2) + ". Source dimensions:("+ num2str(DimSize(wRef,0))+ ", " + num2str(DimSize(wRef,1)) + \
+	", " + num2str(DimSize(wRef,2)) + ")" +". Pixelated factors:[" + num2str(nx) + ", " + num2str(ny)
+	if(nz) 
+		noteStr += ", " + num2str(nz) + "]\n"+note(wRef)	
+	else
+		noteStr += "]\n"+note(wRef)	
+	endif
+	SetScale/P x, DimOffset(wRef,0), DimDelta(wRef,0)*nx,saveDF:$wnameStr
+	SetScale/P y, DimOffset(wRef,1), DimDelta(wRef,1)*ny,saveDF:$wnameStr
+	if(nz)
+		SetScale/P z, DimOffset(wRef,2), DimDelta(wRef,2)*nz,saveDF:$wnameStr	
+	endif
 	Note saveDF:$wnameStr, noteStr
 	return 0
 End

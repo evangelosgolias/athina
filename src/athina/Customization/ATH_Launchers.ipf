@@ -1128,11 +1128,11 @@ End
 
 static Function PixelateSingleImageOrStack()
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
-	variable nx = 1, ny = 1, nz = 1
+	variable nx = 1, ny = 1, nz = 0 // Added om 28.06.2025!!
 	if(WaveDims(wRef) == 3)
 		Prompt nx, "Pixelate X:"
 		Prompt ny, "Pixelate Y:"	
-		Prompt nz, "Pixelate Z:"
+		Prompt nz, "Pixelate Z (= 0 to average over row, cols only!):"
 		DoPrompt "Pixelate image stack", nx, ny, nz
 		if(V_flag)
 			return -1
