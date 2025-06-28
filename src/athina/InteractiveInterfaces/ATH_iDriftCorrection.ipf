@@ -205,7 +205,7 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 	endif
 	
 	if(gATH_FastMode && s.specialKeyCode)
-		if((s.specialKeyCode == 203 ||s.specialKeyCode == 101 || s.specialKeyCode == 102) && gLayer < gATH_w3dnlayers) // backtab (shift + tab) right or up
+		if((s.specialKeyCode == 203 ||s.specialKeyCode == 101 || s.specialKeyCode == 102) && gLayer < gATH_w3dnlayers-1) // backtab (shift + tab) right or up
 			gLayer+=1
 		elseif((s.specialKeyCode == 100 || s.specialKeyCode == 103) && gLayer) // left or down
 			gLayer-=1
@@ -230,7 +230,7 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 			hookresult = 1
 			break
 		case 5:
-			if(gATH_FastMode && s.eventMod==2 && gLayer < gATH_w3dnlayers && !numtype(gATH_AnchorPositionX)) //if SHIFT is pressed and Fast Mode is on
+			if(gATH_FastMode && s.eventMod==2 && gLayer < gATH_w3dnlayers-1 && !numtype(gATH_AnchorPositionX)) //if SHIFT is pressed and Fast Mode is on
 				dx = (gATH_AnchorPositionX - AxisValFromPixel(gATH_WindowNameStr, "top", s.mouseLoc.h))/gATH_dx
 				dy = (gATH_AnchorPositionY - AxisValFromPixel(gATH_WindowNameStr, "left", s.mouseLoc.v))/gATH_dy
 				if(!gATH_SubPixelMode)

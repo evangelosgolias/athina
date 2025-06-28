@@ -67,10 +67,10 @@ static Function CalculateXMCD(WAVE w1, WAVE w2)
 	endif
 	DFREF currDFR = GetDataFolderDFR()
 	string saveWaveName = CreatedataObjectName(currDFR, "xmcd_", 1, 0, 5)
-	MatrixOP/S $saveWaveName = (w1 - w2)/(w1 + w2)
-	CopyScales/P w1, $saveWaveName
+	MatrixOP $saveWaveName = (w1 - w2)/(w1 + w2)
+	CopyScales w1, $saveWaveName
 	string noteStr = "ATH_Magnetism#CalculateXMCD("+ GetWavesDataFolder(w1,2) + ","+\
-	GetWavesDataFolder(w1,2) +")\n"
+	GetWavesDataFolder(w2,2) +")\n"
 	Note $saveWaveName, noteStr
 	return 0
 End

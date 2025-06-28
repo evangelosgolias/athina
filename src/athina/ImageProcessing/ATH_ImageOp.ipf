@@ -881,7 +881,6 @@ End
 static Function PixelateImageStack(WAVE wRef, variable nx, variable ny, variable nz, [variable i16])
 	/// Pixalate a 3D image stack using a (nx, ny, nz) binning
 	/// Set i16 to preserve a 16-bit integer wave.
-
 	if(WaveDims(wRef) != 3)
 		return -1
 	endif

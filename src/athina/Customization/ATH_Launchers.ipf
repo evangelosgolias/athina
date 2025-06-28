@@ -179,7 +179,7 @@ static Function CalculationXMCD()
 	DFREF currDFR = GetDataFolderDFR()
 	string saveWaveName = CreatedataObjectName(currDFR, "XMCD", 1, 0, 1)
 	ATH_Magnetism#CalculateXMCDWAVE(w2d1, w2d2, outWave = saveWaveName)
-	string noteStr = "ATH_Magnetism#XMCD("+ wave1Str + ","+\
+	string noteStr = "ATH_Magnetism#CalculateXMCDWAVE("+ wave1Str + ","+\
 	wave2Str+", outWave=" + saveWaveName + ")"
 	Note $saveWaveName, noteStr
 	return 0
@@ -1136,8 +1136,7 @@ static Function PixelateSingleImageOrStack()
 		DoPrompt "Pixelate image stack", nx, ny, nz
 		if(V_flag)
 			return -1
-		endif
-		
+		endif	
 		if(!ATH_Num#IntegerQ(nx))
 			print "Truncate nx: ", num2str(trunc(nx))
 		endif
@@ -1147,7 +1146,7 @@ static Function PixelateSingleImageOrStack()
 		if(!ATH_Num#IntegerQ(nz))
 			print "Truncate nz: ", num2str(trunc(nz))			
 		endif
-		ATH_ImgOp#PixelateImageStack(wRef, nx, ny, nz)
+		//ATH_ImgOp#PixelateImageStack(wRef, nx, ny, nz)
 	elseif(WaveDims(wRef) == 2)
 		Prompt nx, "Pixelate X:"
 		Prompt ny, "Pixelate Y:"
@@ -1161,10 +1160,11 @@ static Function PixelateSingleImageOrStack()
 		if(!ATH_Num#IntegerQ(ny))
 			print "Truncate ny: ", num2str(trunc(ny))			
 		endif		
-		ATH_ImgOp#PixelateImage(wRef, nx, ny)
+		//ATH_ImgOp#PixelateImage(wRef, nx, ny)
 	else
 		Abort "Operation needs an image or an image stack"
 	endif
+			
 	return 0
 End
 
