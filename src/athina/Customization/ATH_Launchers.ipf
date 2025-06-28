@@ -1146,7 +1146,7 @@ static Function PixelateSingleImageOrStack()
 		if(!ATH_Num#IntegerQ(nz))
 			print "Truncate nz: ", num2str(trunc(nz))			
 		endif
-		//ATH_ImgOp#PixelateImageStack(wRef, nx, ny, nz)
+		ATH_ImgOp#PixelateImageStack(wRef, nx, ny, nz)
 	elseif(WaveDims(wRef) == 2)
 		Prompt nx, "Pixelate X:"
 		Prompt ny, "Pixelate Y:"
@@ -1160,7 +1160,7 @@ static Function PixelateSingleImageOrStack()
 		if(!ATH_Num#IntegerQ(ny))
 			print "Truncate ny: ", num2str(trunc(ny))			
 		endif		
-		//ATH_ImgOp#PixelateImage(wRef, nx, ny)
+		ATH_ImgOp#PixelateImage(wRef, nx, ny)
 	else
 		Abort "Operation needs an image or an image stack"
 	endif
