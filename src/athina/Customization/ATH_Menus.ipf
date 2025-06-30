@@ -112,6 +112,7 @@ Menu "athina"
 		"Free space/8",/Q, ATH_Launch#DeleteBigWaves()
 		"Photoemission database",/Q, ATH_XPSData#XPSReferenceData()
 		"Calculations Pad/9",/Q, ATH_CalcPad#CalcPad()
+		"Load cyclic color tables",/Q, ATH_Graph#LoadCyclicColorTable("")
 		"List HDF5 (.h5) entries...", /Q, ATH_HDF5#ListHDF5Groups()		
 	End
 //	Submenu "Beamtime"

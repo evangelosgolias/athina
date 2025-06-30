@@ -230,7 +230,7 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 			hookresult = 1
 			break
 		case 5:
-			if(gATH_FastMode && s.eventMod==2 && gLayer < gATH_w3dnlayers-1 && !numtype(gATH_AnchorPositionX)) //if SHIFT is pressed and Fast Mode is on
+			if(gATH_FastMode && s.eventMod==2 && gLayer < gATH_w3dnlayers && !numtype(gATH_AnchorPositionX)) //if SHIFT is pressed and Fast Mode is on
 				dx = (gATH_AnchorPositionX - AxisValFromPixel(gATH_WindowNameStr, "top", s.mouseLoc.h))/gATH_dx
 				dy = (gATH_AnchorPositionY - AxisValFromPixel(gATH_WindowNameStr, "left", s.mouseLoc.v))/gATH_dy
 				if(!gATH_SubPixelMode)
@@ -240,7 +240,9 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=dfr:M_Affine2D Affine2D layerFREE // Will overwrite M_Affine
 				WAVE ATH_Affine2D = dfr:M_Affine2D
 				w3dRef[][][gLayer] = ATH_Affine2D[p][q]
-				gLayer += 1
+				if(gLayer < gATH_w3dnlayers-1)
+					gLayer += 1
+				endif
 				ModifyImage/W=$gATH_WindowNameStr $gATH_imgNameTopWindowStr plane=gLayer
 			endif
 			hookresult = 1
