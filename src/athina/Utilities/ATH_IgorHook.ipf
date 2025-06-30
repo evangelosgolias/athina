@@ -74,6 +74,12 @@ End
 
 Function AfterCompiledHook()
 	ModifyBrowser appendUserButton={$"Calc XMCD", "Execute/P/Q \"ATH_Launch#BrowserActionDoXMDC()\""}
+	variable err=GetRTError(1)
+	if (err != 0)
+		//print "Error in AfterCompiledHook() Data Browser was not active, to add custom butttons "\
+		//+"run ATH_Launch#BrowserActionDoXMDC() & ATH_Launch#BrowserActionMakeStack()"
+		return -1
+	endif	
 	ModifyBrowser appendUserButton={$"Stack Waves", "Execute/P/Q \"ATH_Launch#BrowserActionMakeStack()\""}
 	ModifyBrowser echoCommands=0
 	return 0

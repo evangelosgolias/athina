@@ -197,7 +197,7 @@ static Function/S NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
 	return normWaveStr
 End
 
-static Function GetScaledZoominImageWindow([string grfName, variable w3d])
+static Function GetScaledZoominImageWindow([string grfName, variable w3d, int evenNum])
 	// Get a the current window view as a new image with appropriate scaling.
 	// Works for 2D/3D waves
 	string axisX, axisY, noteStr, wavenameStr
@@ -206,6 +206,12 @@ static Function GetScaledZoominImageWindow([string grfName, variable w3d])
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(grfName, ";"),";")
 	WAVE wref = ImageNameToWaveRef(grfName, imgNameTopGraphStr) // full path of wave
 	[axisX, minX, maxX, axisY, minY, maxY]  = ATH_Graph#GetAxesRange(grfName = grfName)
+	if(evenNum)
+		minX = mod(minX,2) ? minX : minX-1
+		maxX = mod(maxX,2) ? maxX : maxX-1
+		minY = mod(minY,2) ? minY : minY-1
+		maxY = mod(maxY,2) ? maxY : maxY-1
+	endif
 	DFREF cdfr = GetDataFolderDFR()
 	if(WaveDims(wref) == 3)
 		NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(grfName):gLayer

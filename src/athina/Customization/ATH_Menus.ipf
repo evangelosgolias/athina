@@ -167,7 +167,7 @@ Menu "TracePopup"
 	"ATH Set Saved Axes Range (TG, 2D, 3D)",/Q, ATH_Launch#SetAxesRangeAndCtabFromSaved()		
 	"ATH Save layer (TG, 3D)", /Q, ATH_ImgOp#GetLayerFromImageStack()
 	"ATH Save current view (layer) (TG, 2D, 3D)", /Q, ATH_ImgOp#GetScaledZoominImageWindow()
-	"ATH Partition current view (3D)", /Q, ATH_ImgOp#GetScaledZoominImageWindow(w3d=1)	
+	"ATH Partition current view (3D)", /Q, ATH_ImgOp#GetScaledZoominImageWindow(w3d=1, evenNum=1)	
 	"ATH Z-profiler: Use saved ROI  (3D)", /Q, ATH_ZProfile#TracePopupLaunchSavedROI()	
 	"ATH Scale Image stack (TG, 3D)", /Q, ATH_ImgOp#SetZScaleOfImageStack()
 	"ATH Select image and copy scales (2D, 3D)", /Q, ATH_ImgOp#ImageSelectToCopyScale()
