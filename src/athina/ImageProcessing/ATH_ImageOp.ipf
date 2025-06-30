@@ -206,12 +206,6 @@ static Function GetScaledZoominImageWindow([string grfName, variable w3d, int ev
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(grfName, ";"),";")
 	WAVE wref = ImageNameToWaveRef(grfName, imgNameTopGraphStr) // full path of wave
 	[axisX, minX, maxX, axisY, minY, maxY]  = ATH_Graph#GetAxesRange(grfName = grfName)
-	if(evenNum)
-		minX = mod(minX,2) ? minX : minX-1
-		maxX = mod(maxX,2) ? maxX : maxX-1
-		minY = mod(minY,2) ? minY : minY-1
-		maxY = mod(maxY,2) ? maxY : maxY-1
-	endif
 	DFREF cdfr = GetDataFolderDFR()
 	if(WaveDims(wref) == 3)
 		NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(grfName):gLayer
@@ -244,6 +238,22 @@ static Function GetScaledZoominImageWindow([string grfName, variable w3d, int ev
 	else
 		print "Operation needs a image or image stack (2d/3d wave)"
 		return -1
+	endif
+	if(evenNum)
+		variable nRows = DimSize($wavenameStr,0)
+		variable nCols = DimSize($wavenameStr,1)
+		variable nlayers = DimSize(wref,2)
+		if(mod(nRows,2))
+			nRows -= 1
+		endif
+		if(mod(nCols,2))
+			nCols -= 1
+		endif
+		if(nlayers)
+			Redimension/N=(nRows, nCols, nlayers) $wavenameStr
+		else
+			Redimension/N=(nRows, nCols) $wavenameStr
+		endif
 	endif
 	Note $wavenameStr, noteStr
 End
