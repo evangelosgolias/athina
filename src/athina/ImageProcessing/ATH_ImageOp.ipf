@@ -923,7 +923,9 @@ static Function PixelateImageStack(WAVE wRef, variable nx, variable ny, variable
 	SetScale/P x, DimOffset(wRef,0), DimDelta(wRef,0)*nx,saveDF:$wnameStr
 	SetScale/P y, DimOffset(wRef,1), DimDelta(wRef,1)*ny,saveDF:$wnameStr
 	if(nz)
-		SetScale/P z, DimOffset(wRef,2), DimDelta(wRef,2)*nz,saveDF:$wnameStr	
+		SetScale/P z, DimOffset(wRef,2), DimDelta(wRef,2)*nz,saveDF:$wnameStr
+	else
+		SetScale/P z, DimOffset(wRef,2), DimDelta(wRef,2),saveDF:$wnameStr // Keep the scale as is.
 	endif
 	Note saveDF:$wnameStr, noteStr
 	return 0

@@ -37,7 +37,9 @@
 Function BrowserActionDoXMDC()
 	WAVE w1 = $GetBrowserSelection(0)
 	WAVE w2 = $GetBrowserSelection(1)
-	ATH_Magnetism#CalculateXMCD(w1, w2)
+	if(!strlen(GetBrowserSelection(2))) // works only with two selected waves
+		ATH_Magnetism#CalculateXMCD(w1, w2)
+	endif
 End
 
 Function BrowserActionMakeStack()
