@@ -152,9 +152,9 @@ static Function CreatePanel()
 	Button SaveReferenceCoordB,title="Save",fSize=12*pntConv,pos={18*pntConv,420*pntConv},size={60*pntConv,20.00*pntConv},win=$pnlNameStr
 	Button SaveReferenceCoordB, proc=ATH_iDriftCorrection#InterStackAlignmentButton,disable=2,win=$pnlNameStr
 	Button ShowReferenceCoordB,title="Show",fSize=12*pntConv,pos={87*pntConv,420*pntConv},size={60*pntConv,20.00*pntConv},win=$pnlNameStr
-	Button ShowReferenceCoordB, proc=ATH_iDriftCorrection#InterStackAlignmentButton,win=$pnlNameStr	
+	Button ShowReferenceCoordB, proc=ATH_iDriftCorrection#InterStackAlignmentButton,win=$pnlNameStr,help={"SHIFT+click to use axes instead of relative coordinates."}
 	Button DriftReferenceCoordB,title="Drift wrt global Ref.",fSize=12*pntConv,pos={22.00*pntConv,455*pntConv},size={120.00*pntConv,20.00*pntConv}, win=$pnlNameStr
-	Button DriftReferenceCoordB,proc=ATH_iDriftCorrection#InterStackAlignmentButton, win=$pnlNameStr
+	Button DriftReferenceCoordB,proc=ATH_iDriftCorrection#InterStackAlignmentButton, win=$pnlNameStr,help={"SHIFT+click to use axes instead of relative coordinates."}
 	// Let's sort button status and colors
 	DFREF dfrS = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveDriftCorrection:SavedReferenceCoords:")
 	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordX
@@ -721,7 +721,9 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 	if (B_Struct.eventCode != 2)
 		return 0
 	endif
-	
+	if (B_Struct.eventMod & 2) // If you press shift use axis coordinates
+		variable useTopLeftAxes = 1
+	endif
 	variable hookresult = 0
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	DFREF dfrS = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveDriftCorrection:SavedReferenceCoords:")	
@@ -736,11 +738,12 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 	NVAR/SDFR=dfr gATH_dx
 	NVAR/SDFR=dfr gATH_dy
 	NVAR/SDFR=dfr gATH_SubPixelMode
-	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordX
-	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordY
+	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordX, gATH_SavedRefRelCoordY
+	NVAR/SDFR=dfrS/Z gATH_SavedRefCoordX, gATH_SavedRefCoordY
 	SVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordSource
 	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
 	WAVE/Z w3dBackupRef = $gATH_w3dBackupPathNameStr
+	WAVE/Z sourceWaveRef = $gATH_SavedRefRelCoordSource
 	
 	strswitch (B_Struct.ctrlName)
 		case "SaveReferenceCoordB":
@@ -749,12 +752,16 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 			if(!numtype(gATH_AnchorPositionX) && !NVAR_Exists(gATH_SavedRefRelCoordX)) // If anchor is not nan and we haven't saved before
 				[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_AnchorPositionX, gATH_AnchorPositionY)
 				variable/G dfrS:gATH_SavedRefRelCoordX = relx
-				variable/G dfrS:gATH_SavedRefRelCoordY = rely
+				variable/G dfrS:gATH_SavedRefRelCoordY = rely			
+				variable/G dfrS:gATH_SavedRefCoordX =  gATH_AnchorPositionX // 25JUL25: Use axes reference in case waves do not have the same DimSize
+				variable/G dfrS:gATH_SavedRefCoordY =  gATH_AnchorPositionY			
 				string/G dfrS:gATH_SavedRefRelCoordSource = gATH_w3dPathname
 			elseif(!numtype(gATH_AnchorPositionX) && NVAR_Exists(gATH_SavedRefRelCoordX)) // if anchor is a num and we've already saved a ref point
 				[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_AnchorPositionX, gATH_AnchorPositionY)
 				gATH_SavedRefRelCoordX = relx
 				gATH_SavedRefRelCoordY = rely
+				gATH_SavedRefCoordX = gATH_AnchorPositionX
+				gATH_SavedRefCoordY = gATH_AnchorPositionY
 				gATH_SavedRefRelCoordSource = gATH_w3dPathname				
 			endif
 			Button ShowReferenceCoordB,disable=0,win=$B_Struct.win
@@ -762,39 +769,56 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 			break
 		case "ShowReferenceCoordB":
 			//-------
-			DrawTheRefCross(w3dRef, gATH_SavedRefRelCoordX, gATH_SavedRefRelCoordY, grfName=gATH_WindowNameStr)
+			if(useTopLeftAxes)
+				DrawTheRefCross(w3dRef, gATH_SavedRefCoordX, gATH_SavedRefCoordY, grfName=gATH_WindowNameStr,axisRel=0) // Axes coords
+			else
+				DrawTheRefCross(w3dRef, gATH_SavedRefRelCoordX, gATH_SavedRefRelCoordY, grfName=gATH_WindowNameStr, axisRel=1) // Relative coords				
+			endif
 			break
 		// Reference should be relative, between 0 and 1 as the number of pixels and scale might be different. 
 		case "DriftReferenceCoordB":
 			gATH_CursorPositionX = hcsr(I, gATH_WindowNameStr)
-			gATH_CursorPositionY = vcsr(I, gATH_WindowNameStr)
-			variable axisVx, axisVy
-			[axisVx, axisVy] = ATH_Graph#RelToAxisVal2D(w3dRef, gATH_SavedRefRelCoordX, gATH_SavedRefRelCoordY)
-			variable dx = (axisVx - gATH_CursorPositionX)/gATH_dx
-			variable dy = (axisVy - gATH_CursorPositionY)/gATH_dy
-			dx = gATH_SubPixelMode ? dx : round(dx)
-			dy = gATH_SubPixelMode ? dy : round(dy)			
-			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=w3dRef Affine2D w3dBackupRef
-			hookresult =  1
+			gATH_CursorPositionY = vcsr(I, gATH_WindowNameStr)	
+			if(useTopLeftAxes)
+				variable dx = (gATH_SavedRefCoordX - gATH_CursorPositionX)/gATH_dx
+				variable dy = (gATH_SavedRefCoordY - gATH_CursorPositionY)/gATH_dy
+				dx = gATH_SubPixelMode ? dx : round(dx)
+				dy = gATH_SubPixelMode ? dy : round(dy)			
+			else
+				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=w3dRef Affine2D w3dBackupRef			
+				variable axisVx, axisVy
+				[axisVx, axisVy] = ATH_Graph#RelToAxisVal2D(w3dRef, gATH_SavedRefRelCoordX, gATH_SavedRefRelCoordY)
+				dx = (axisVx - gATH_CursorPositionX)/gATH_dx
+				dy = (axisVy - gATH_CursorPositionY)/gATH_dy
+				dx = gATH_SubPixelMode ? dx : round(dx)
+				dy = gATH_SubPixelMode ? dy : round(dy)					
+			endif
+				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=w3dRef Affine2D w3dBackupRef
+				hookresult =  1					
 			break
 	endswitch
 End
 
-static Function DrawTheRefCross(WAVE wRef, variable xv, variable yv, [string grfName])
+static Function DrawTheRefCross(WAVE wRef, variable xv, variable yv, [string grfName, int axisRel])
 	// Draw the ref line
 	string axisX, axisY
 	grfName = StringFromList(0, grfName, "#") // Called from sub-window!
 	[axisX, axisY] = ATH_Graph#GetAxes(grfName=grfName)
-	variable dx = DimDelta(wRef, 0)
-	variable dy = DimDelta(wRef, 1)
-	variable axisValX = DimOffset(wRef, 0) + xv * DimSize(wRef,0) * dx
-	variable axisValY = DimOffset(wRef, 1) + yv * DimSize(wRef,1) * dy
+	if(axisRel)
+		variable dx = DimDelta(wRef, 0)
+		variable dy = DimDelta(wRef, 1)	
+		variable axisValX = DimOffset(wRef, 0) + xv * DimSize(wRef,0) * dx
+		variable axisValY = DimOffset(wRef, 1) + yv * DimSize(wRef,1) * dy
+	else
+		axisValX = xv
+		axisValY = yv
+	endif
 	variable dr =  0.05 * DimDelta(wRef, 0) * DimSize(wRef,0)	
 	SetDrawLayer/W=$grfName Overlay
 	DrawAction/W=$grfName delete
-	SetDrawEnv/W=$grfName xcoord= $axisX, ycoord= $axisY, linefgc= (65535,0,0), fillbgc= (65535,0,0),fillfgc= (65535,0,0), dash=2
+	SetDrawEnv/W=$grfName xcoord= $axisX, ycoord= $axisY, linefgc= (65535,65535*axisRel,0), fillbgc= (65535,65535*axisRel,0),fillfgc= (65535,65535*axisRel,0), dash=2
 	DrawLine/W=$grfName axisValX, axisValY-dr, axisValX, axisValY+dr
-	SetDrawEnv/W=$grfName xcoord= $axisX, ycoord= $axisY, linefgc= (65535,0,0), fillbgc= (65535,0,0),fillfgc= (65535,0,0), dash=2
+	SetDrawEnv/W=$grfName xcoord= $axisX, ycoord= $axisY, linefgc= (65535,65535*axisRel,0), fillbgc= (65535,65535*axisRel,0),fillfgc= (65535,65535*axisRel,0), dash=2
 	DrawLine/W=$grfName axisValX-dr, axisValY, axisValX+dr, axisValY
 	return 0
 End
