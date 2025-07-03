@@ -76,7 +76,7 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	//
 	// makeInSourceDFR: Created stack in the cwd or in the sourceDir?
 	// autoPath: The program sets makeInSourceDFR. If all waves in the same
-	// folder the makeInSourceDFR = 1, otherwise makeInSourceDFR = 0
+	// folder then makeInSourceDFR = 1, otherwise makeInSourceDFR = 0
 	
 	makeInSourceDFR = ParamIsDefault(makeInSourceDFR) ? 0: makeInSourceDFR
 	autoPath = ParamIsDefault(autoPath) ? 0: autoPath

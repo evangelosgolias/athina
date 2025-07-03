@@ -59,14 +59,23 @@ static Function Make3DWaveUsingPattern()
 	ATH_WaveOp#Make3DWaveUsingPattern(wname3dStr, pattern)
 End
 
-static Function Make3DWaveDataBrowserSelection([variable displayStack])
+static Function Make3DWaveDataBrowserSelection([int displayStack, int transientStack])
 	displayStack = ParamIsDefault(displayStack) ? 0: displayStack // Give any non-zero to display the stack
-	string wname3dStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection("ATH_stack", autoPath = 1) // stack in sourcedir if all waves in the same folder, otherwise in cwd
+	transientStack = ParamIsDefault(transientStack) ? 0: transientStack 
+	if(transientStack)
+		string wname3dStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection("ATH_tr_stack", autoPath = 1)
+	else
+		wname3dStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection("ATH_stack", autoPath = 1) // stack in sourcedir if all waves in the same folder, otherwise in cwd
+	endif
 	// Do you want to display the stack?
 	if(displayStack && strlen(wname3dStr)) // wname3dStr = "" when you select no or one wave
-		ATH_Display#NewImg($wname3dStr)
+		string grfName = ATH_Display#NewImg($wname3dStr)
 	else
 		return 1
+	endif
+	// If you want a transient stack, tag it
+	if(transientStack)
+		SetWindow $grfName userdata(ATH_isTransientStack) = "1"
 	endif
 	return 0
 End

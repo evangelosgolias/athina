@@ -149,16 +149,16 @@ End
 
 Menu "DataBrowserObjectsPopup"
 	"ATH Newimage", /Q, ATH_Launch#NewImageFromBrowserSelection()
+	"ATH Transient Stack", /Q, ATH_Launch#Make3DWaveDataBrowserSelection(displayStack = 1, transientStack=1)		
 	"ATH Average stack", /Q, ATH_Launch#AverageStackToImageFromBrowserMenu()
-	"ATH Make stack", /Q, ATH_Launch#Make3DWaveDataBrowserSelection()
-	"ATH Make stack and display", /Q, ATH_Launch#Make3DWaveDataBrowserSelection(displayStack = 1)
-	"ATH Restore image from backup", /Q, ATH_Launch#ImageBackupFromBrowserSelection()
+	"ATH Stack", /Q, ATH_Launch#Make3DWaveDataBrowserSelection()
+	"ATH Stack and display", /Q, ATH_Launch#Make3DWaveDataBrowserSelection(displayStack = 1)
+	"ATH Restore from backup", /Q, ATH_Launch#ImageBackupFromBrowserSelection()
 	Submenu "ATH Normalise"
 		"ATH Stack with image", /Q, ATH_Launch#NormalisationImageStackWithImage()
 		"ATH Stack with profile", /Q, ATH_Launch#NormalisationImageStackWithProfile()
 		"ATH Stack with stack", /Q, ATH_Launch#NormalisationImageStackWithImageStack()
 	End
-	
 End
 
 Menu "TracePopup"

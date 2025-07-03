@@ -71,6 +71,7 @@ static Function/S NewImg(WAVE wRef, [string grfname])
 	
 	if(DimSize(wRef, 0) == DimSize(wRef, 1))
 		SetWindow $grfname, userdata(ATH_isPlanQ) = "1"
+		ModifyGraph/W=$grfname width={Plan,1,top,left}
 	else
 		SetWindow $grfname, userdata(ATH_isPlanQ) = "0"
 	endif
@@ -155,6 +156,11 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			// If you are not in a duplicate window
 			if(is3D && !cmpstr(s.winName, ParseFilePath(0, dfrSldStr, ":", 1, 0)))
 				KillDataFolder/Z dfrSld
+			endif
+			if(is3D && str2num(GetUserData(s.winName, "", "ATH_isTransientStack"))) // Delete the transient stack & backup
+				string cmdStr = "KillWaves/Z "+  GetWavesDataFolder(w,2) + ";"
+				cmdStr += "KillWaves/Z "+  GetWavesDataFolder(w,2) + "_undo"
+				Execute/P/Q cmdStr
 			endif
 			break
 		case 13:	// renamed
