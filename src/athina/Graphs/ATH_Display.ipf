@@ -179,7 +179,6 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_Launch#ImgRemoveBackground()
 						hookResult = 1										
 					endif
-					hookResult = 1										
 					break
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
