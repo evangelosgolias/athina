@@ -20,6 +20,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 **ATH NewImage - Keyboard shortcuts**
 
 - **a** : average image stack and display.
+- **b** : remove background (if marquee is present calculate background using selected area.)
 - **d** : *if marquee is present* launch automatic drift correction, if not launch interactive drift correction.
 - **f** : FFT Magnitude aka Power Spectrum (if there is marquee, calculate only the enclosed part).
 - **i** : measure distance on images using cursors.
@@ -30,7 +31,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **s** : set saved axes range. 
 - **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
 - **z** : launch z profiler *if marquee is present on the graph*.
-- **SHIFT + b** : remove background
+- **SHIFT + b** : restore image from backup.
 - **SHIFT + f** : interactive FFT image filtering.
 - **SHIFT + l** : link/unlink graph sliders (select graph from popup)
 - **SHIFT + m** : launch mirror cursor values

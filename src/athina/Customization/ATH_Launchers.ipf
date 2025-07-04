@@ -1337,18 +1337,23 @@ static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is 
 	endif
 	ATH_DFR#BackupWaveInWaveDFQ(wRef)
 	string noteStr = note(wRef)
+	
+	// If there is a marquee use it to maks the wave
+	variable isMask = ATH_Marquee#MarqueeToMask()
+	// ATH_Marquee#MarqueeToMask() return NaN if there in no Marquee and 0 if there is.
 	if(do3D==2)
-		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, w3d=1)
+		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, w3d=1, useMask = !isMask)
 		Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + noteStr		
 		return 0
 	endif
 	if(ATH_Windows#GetgLayerValue("")!=-1) // Do we have active axis in top window?
 		variable layerN = ATH_Windows#GetgLayerValue("")
-		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = layerN)
+		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = layerN, useMask = !isMask)
 	else
-		ATH_ImgOp#ImgRemoveBackground(wRef, order = order)
+		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, useMask = !isMask)
 	endif
 	Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + noteStr
+	KillWaves/Z M_ROIMask
 	return 0
 End
 

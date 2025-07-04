@@ -41,16 +41,14 @@ Structure sUserMarqueePositions
 EndStructure
 
 static Function MarqueeToMask()
-	if(CheckActiveAxis("", "top") && CheckActiveAxis("", "left"))
-		GetMarquee/K left, top;
-		CoordinatesToROIMask(V_left, V_top, V_right, V_bottom)
-		string noteToMaskStr 
-		sprintf noteToMaskStr, "V_left, V_top, V_right, V_bottom: %s, %s, %s, %s", num2str(V_left), num2str(V_top), num2str(V_right), num2str(V_right)
-		WAVE M_ROIMask
-		Note M_ROIMask, noteToMaskStr
-	else
-		print "Operation needs an image with left and top axes"
+	string axisX, axisY
+	[axisX, axisY] = ATH_Graph#GetAxes()
+	GetMarquee/K $axisX, $axisY
+	if(!V_flag)
+		return NaN
 	endif
+	CoordinatesToROIMask(V_left, V_top, V_right, V_bottom)
+	return 0
 End
 
 static Function CoordinatesToROIMask(variable left, variable top, variable right, variable bottom, 
@@ -68,6 +66,7 @@ static Function CoordinatesToROIMask(variable left, variable top, variable right
 	string winNameStr = WinName(0, 1, 1)
 	DoWindow/F $winNameStr // You need to have your imange stack as a top window
 	SetDrawLayer ProgFront // ImageGenerateROIMask needs ProgFront layer
+	DrawAction  delete
 	SetDrawEnv linefgc = (65535,16385,16385), fillpat = 0, linethick = 0.5, xcoord = top, ycoord = left
 	DrawRect/W=$winNameStr left, top, right, bottom
 	ImageGenerateROIMask/i=(interior)/e=(exterior) $wnamestr

@@ -742,25 +742,30 @@ static Function FlattenImage(WAVE wRef, string method, variable kernelN, variabl
 	return 0
 End
 
-static Function ImgRemoveBackground(WAVE wRef, [variable order, WAVE wMask, variable layerN, variable w3d])
+static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, int w3d, variable layerN])
 	// Remove background of an image (default 1st order)
 	// Use order = n, n > 1 for higher order polynomial
 	// Use overwite = 1 to overwite the original wave
 	order = ParamIsDefault(order) ? 1: order
+	useMask = ParamIsDefault(useMask) ? 0: !!useMask
 	layerN = ParamIsDefault(layerN) ? 0: layerN
-	w3d = ParamIsDefault(w3d) ? 0: w3d
+	w3d = ParamIsDefault(w3d) ? 0: !!w3d
 
 	variable nrows, ncols
 	nrows = DimSize(wRef,0)
 	ncols = DimSize(wRef,1)
 
-	if(ParamIsDefault(wMask)) // Reserved for arbitrary masks
+	if(useMask) // Reserved for arbitrary masks
+		WAVE maskW = M_ROIMask // if you provide a mask - use default mask name
+	else
 		Make/O/FREE/N=(nrows,ncols)/B/U maskWFree = 1
+		WAVE maskW = maskWFree
 	endif
 
 	if(WaveType(wRef) & 0x02) // We need a 32-bit float for better results
 		Redimension/S wRef
 	endif
+	
 	if(WaveDims(wRef) == 3)
 		if(w3d)
 			variable nlayers = DimSize(wRef, 2), i
@@ -771,7 +776,7 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, WAVE wMask, vari
 				waveNameStr = buffer + num2str(i)
 				MatrixOP/O $waveNameStr = layer(wRef, i)
 				WAVE w = $waveNameStr
-				ImageRemoveBackground/O/R=maskWFree/P=(order) w
+				ImageRemoveBackground/O/R=maskW/P=(order) w
 			endfor
 			ImageTransform/NP=(nlayers) stackImages $"layer_0"
 			WAVE M_Stack
@@ -782,12 +787,12 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, WAVE wMask, vari
 		else
 			// Code to replace plane in 3d wave
 			MatrixOP/FREE getLayer = layer(wRef, layerN)
-			ImageRemoveBackground/O/R=maskWFree/P=(order) getLayer
+			ImageRemoveBackground/O/R=maskW/P=(order) getLayer
 			ImageTransform/O/P=(layerN) removeZplane wRef
 			ImageTransform/O/INSW=getLayer/P=(layerN) insertZplane wRef
 		endif
 	elseif(WaveDims(wRef) == 2)
-		ImageRemoveBackground/O/R=maskWFree/P=(order) wRef
+		ImageRemoveBackground/O/R=maskW/P=(order) wRef
 		return 0
 	else
 		return 1

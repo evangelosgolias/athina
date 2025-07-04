@@ -176,9 +176,10 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			switch(s.keycode)
 				case 66: // B
 					if(s.eventMod & 2) // works with SHIFT + B only!
-						ATH_Launch#ImgRemoveBackground()
+						ATH_ImgOp#RestoreTopImageFromBackup()
 						hookResult = 1										
 					endif
+					hookResult = 1										
 					break
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
@@ -235,6 +236,10 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						hookResult = 1										
 					endif
 					break
+				case 98: // b - remove background
+					ATH_Launch#ImgRemoveBackground()
+					hookResult = 1										
+					break					
 				case 100: // d - not capital here
 					GetMarquee/W=$s.winName // Just check if there is Marquee, no axes.
 					if(V_flag)
