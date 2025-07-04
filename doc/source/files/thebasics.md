@@ -30,7 +30,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **s** : set saved axes range. 
 - **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
 - **z** : launch z profiler *if marquee is present on the graph*.
-- **SHIFT + b** : restore image from backup if it exists.
+- **SHIFT + b** : remove background
 - **SHIFT + f** : interactive FFT image filtering.
 - **SHIFT + l** : link/unlink graph sliders (select graph from popup)
 - **SHIFT + m** : launch mirror cursor values

@@ -176,7 +176,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			switch(s.keycode)
 				case 66: // B
 					if(s.eventMod & 2) // works with SHIFT + B only!
-						ATH_ImgOp#RestoreTopImageFromBackup()
+						ATH_Launch#ImgRemoveBackground()
 						hookResult = 1										
 					endif
 					hookResult = 1										
