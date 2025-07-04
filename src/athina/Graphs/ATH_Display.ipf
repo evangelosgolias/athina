@@ -56,7 +56,6 @@ static Function/S NewImg(WAVE wRef, [string grfname])
 
 	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 	ModifyGraph/W=$grfname height = 400 * pntConv, width = 400 * pntConv
-	Execute/P/Q "ModifyGraph width=0,height=0"
 	// Error handling
 	ATH_exe#HandleSimpleError("NewImg")	
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
@@ -71,9 +70,10 @@ static Function/S NewImg(WAVE wRef, [string grfname])
 	
 	if(DimSize(wRef, 0) == DimSize(wRef, 1))
 		SetWindow $grfname, userdata(ATH_isPlanQ) = "1"
-		ModifyGraph/W=$grfname width={Plan,1,top,left}
+		Execute/P/Q "ModifyGraph/W="+grfname+" width={Plan,1,top,left}"
 	else
 		SetWindow $grfname, userdata(ATH_isPlanQ) = "0"
+		Execute/P/Q "ModifyGraph/W="+grfname+" width=0,height=0"
 	endif
 	return grfname
 End
