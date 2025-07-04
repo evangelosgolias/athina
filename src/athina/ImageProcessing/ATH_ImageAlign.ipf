@@ -478,52 +478,6 @@ static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [varia
 	return 0
 End
 
-
-//static Function ImgCorrelation(WAVE w1, WAVE w2, string alignedImageStr, [int printMode, int windowing])
-//	/// Align two images using Correlation/Autocorrelation operations. 
-//	/// @param w1 wave reference First wave (reference wave) for which its autocorrelation 
-//	/// is our reference.
-//	/// @param w2 wave reference Second wave (test wave), which will be tranlated with respect
-//	/// to w1.
-//	/// @param alignedImageStr string Name of the alinged image.
-//	/// @param printMode int optional print the drift corrections in pixels
-//	/// The ATH_ImageAlignmentByCorrelation function allow only for integer pixed translations.
-//	
-//	// Take into account wave scaling.
-//	printMode = ParamIsDefault(printMode) ? 0: printMode // print if not 0
-//	windowing = ParamIsDefault(windowing) ? 0: windowing // print if not 0
-//	if(!(WaveType(w1) & 0x02))
-//		Redimension/S w1
-//	endif
-//	if(!(WaveType(w2) & 0x02))
-//		Redimension/S w2
-//	endif
-//	if(windowing)
-//		ImageWindow/O Hanning w1
-//		ImageWindow/O Hanning w2
-//	endif
-//	MatrixOP/O/FREE autocorr = correlate(w1, w1, 0)
-//	MatrixOP/O/FREE corr = correlate(w1, w2, 0)
-//	WaveStats/Q autocorr // /P flag: report Loc in p, q instead of x, y
-//	variable x0 = V_maxRowLoc
-//	variable y0 = V_maxColLoc
-//	WaveStats/Q corr // /P flag: report Loc in p, q instead of x, y
-//	variable x1 = V_maxRowLoc
-//	variable y1 = V_maxColLoc
-//	variable dx = x1 - x0
-//	variable dy = y1 - y0
-//	Duplicate/FREE w1, driftCorrW
-//	ImageInterpolate/APRM={1,0,-dx,0,1,-dy,1,0} Affine2D driftCorrW
-//	WAVE M_Affine
-//	Duplicate/O M_Affine, $alignedImageStr
-//	if(printMode)
-//		print "dx=", dx,",dy=", dy
-//	endif
-//	KillWaves M_Affine
-//	return 0
-//End
-
-
 static Function LinearDriftStackABCursors(WAVE w3d, WAVE wx, WAVE wy, [int intPx])
 	/// Linear drift correction w3d using wx and wy displacements
 

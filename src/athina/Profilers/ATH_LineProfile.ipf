@@ -200,30 +200,17 @@ End
 static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	/// The line profile is drawn from E to F
-    variable hookResult = 0
+	variable hookResult = 0
 	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_LineProfRootDF"))
-	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings") // Settings here
-	SetdataFolder dfr
-	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
-	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
-	SVAR/Z ImageNameStr = dfr:gATH_ImageNameStr
-	NVAR/Z dx = dfr:gATH_dx
-	NVAR/Z dy = dfr:gATH_dy
-	NVAR/Z xOff = dfr:gATH_xOff
-	NVAR/Z yOff = dfr:gATH_yOff	
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
-	NVAR/Z updateSelectedLayer = dfr:gATH_updateSelectedLayer
-	NVAR/Z updateCursorsPositions = dfr:gATH_updateCursorsPositions
-	NVAR/Z C1x0 = dfr0:gATH_C1x0
-	NVAR/Z C1y0 = dfr0:gATH_C1y0
-	NVAR/Z C2x0 = dfr0:gATH_C2x0
-	NVAR/Z C2y0 = dfr0:gATH_C2y0
+	DFREF dfr  = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_LineProfRootDF"))
+	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings")
+	SetDataFolder dfr
+	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr, ImagePathname = dfr:gATH_ImagePathname, ImageNameStr = dfr:gATH_ImageNameStr
+	NVAR/Z dx = dfr:gATH_dx, dy = dfr:gATH_dy, xOff = dfr:gATH_xOff, yOff = dfr:gATH_yOff
+	NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+	NVAR/Z profileWidth = dfr:gATH_profileWidth, selectedLayer = dfr:gATH_selectedLayer
+	NVAR/Z updateSelectedLayer = dfr:gATH_updateSelectedLayer, updateCursorsPositions = dfr:gATH_updateCursorsPositions
+	NVAR/Z C1x0 = dfr0:gATH_C1x0, C1y0 = dfr0:gATH_C1y0, C2x0 = dfr0:gATH_C2x0, C2y0 = dfr0:gATH_C2y0
 	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
 	WAVE/Z imgWaveRef = $ImagePathname
 
@@ -318,29 +305,19 @@ End
 
 static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
-	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_ShowSavedGraphsWindow")
-	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
-	SVAR/Z wavenameStr = dfr:gATH_ImageNameStr
-	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
-	Wave/SDFR=dfr W_ImageLineProfile
-	Wave/SDFR=dfr W_LineProfileDisplacement
-	NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch
-	NVAR/Z MarkLinesSwitch = dfr:gATH_MarkLinesSwitch
-	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z colorcnt = dfr:gATH_colorcnt
-	string recreateDrawStr
-	DFREF savedfr = GetDataFolderDFR() //ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:SavedLineProfiles")
-
-	variable postfix = 0
-	variable red, green, blue
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
+			string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_ShowSavedGraphsWindow")
+			SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr, wavenameStr = dfr:gATH_ImageNameStr, ImagePathname = dfr:gATH_ImagePathname
+			Wave/SDFR=dfr W_ImageLineProfile, W_LineProfileDisplacement
+			NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch, MarkLinesSwitch = dfr:gATH_MarkLinesSwitch
+			NVAR/Z profileWidth = dfr:gATH_profileWidth, selectedLayer = dfr:gATH_selectedLayer
+			NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+			NVAR/Z colorcnt = dfr:gATH_colorcnt
+			string recreateDrawStr
+			DFREF savedfr = GetDataFolderDFR()
+			variable postfix = 0, red, green, blue
 			string saveWaveBaseNameStr = wavenameStr + "_Lprof"
 			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 5)
 			Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
@@ -380,20 +357,15 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
-	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings") // Settings here
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	NVAR/Z C1x0 = dfr0:gATH_C1x0
-	NVAR/Z C1y0 = dfr0:gATH_C1y0
-	NVAR/Z C2x0 = dfr0:gATH_C2x0
-	NVAR/Z C2y0 = dfr0:gATH_C2y0
-	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
+
 	switch(B_Struct.eventCode)	// numeric switch
-			case 2:	// "mouse up after mouse down"
+		case 2:	// "mouse up after mouse down"
+			DFREF dfr  = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
+			DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings")
+			NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+			NVAR/Z profileWidth = dfr:gATH_profileWidth
+			NVAR/Z C1x0 = dfr0:gATH_C1x0, C1y0 = dfr0:gATH_C1y0, C2x0 = dfr0:gATH_C2x0, C2y0 = dfr0:gATH_C2y0
+			NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
 			string msg = "Overwite the default cursor positions and profile linewidth?"
 			DoAlert/T="MAXPEEM would like to ask you" 1, msg
 			if(V_flag == 1)
@@ -408,22 +380,16 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 End
 
 static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
-	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings") // Settings here
-	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	NVAR/Z C1x0 = dfr0:gATH_C1x0
-	NVAR/Z C1y0 = dfr0:gATH_C1y0
-	NVAR/Z C2x0 = dfr0:gATH_C2x0
-	NVAR/Z C2y0 = dfr0:gATH_C2y0
-	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
-	NVAR/Z updateCursorsPositions = dfr:gATH_updateCursorsPositions
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			DFREF dfr  = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
+			DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:LineProfiles:DefaultSettings")
+			SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
+			NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+			NVAR/Z profileWidth = dfr:gATH_profileWidth, updateCursorsPositions = dfr:gATH_updateCursorsPositions
+			NVAR/Z C1x0 = dfr0:gATH_C1x0, C1y0 = dfr0:gATH_C1y0, C2x0 = dfr0:gATH_C2x0, C2y0 = dfr0:gATH_C2y0
+			NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
 			C1x = C1x0
 			C1y = C1y0
 			C2x = C2x0
@@ -431,7 +397,7 @@ static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonC
 			profileWidth = profileWidth0
 			updateCursorsPositions = 1
 			DoWindow/F $WindowNameStr
-			break		
+			break
 	endswitch
 End
 
@@ -439,46 +405,46 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	/// We have to find the vertices of the polygon representing
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
 	SVAR/Z WindowNameStr= dfr:gATH_WindowNameStr
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z width = dfr:gATH_profileWidth
-	NVAR/Z dx = dfr:gATH_dx
-	NVAR/Z dy = dfr:gATH_dy // assume here that dx = dy
-	variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys
-	variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y,C2x, C2y)
-	if(slope == 0)
-		x1 = C1x
-		x2 = C1x
-		x3 = C2x
-		x4 = C2x
-		y1 = C1y +  width * dy
-		y2 = C1y -  width * dy
-		y3 = C2y -  width * dy
-		y4 = C2y +  width * dy
-	elseif(slope == inf)
-		y1 = C1y
-		y2 = C1y
-		y3 = C2y
-		y4 = C2y
-		x1 = C1x +  width * dx
-		x2 = C1x -  width * dx
-		x3 = C2x -  width * dx
-		x4 = C2x +  width * dx
-	else
-		[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(width * dx/2, slope)
-		x1 = C1x + xs
-		x2 = C1x - xs
-		x3 = C2x - xs
-		x4 = C2x + xs
-		y1 = C1y + ys
-		y2 = C1y - ys
-		y3 = C2y - ys
-		y4 = C2y + ys
-	endif
 	switch(B_Struct.eventCode)	// numeric switch
 		case 1:	// "mouse down"
+			NVAR/Z C1x = dfr:gATH_C1x
+			NVAR/Z C1y = dfr:gATH_C1y
+			NVAR/Z C2x = dfr:gATH_C2x
+			NVAR/Z C2y = dfr:gATH_C2y
+			NVAR/Z width = dfr:gATH_profileWidth
+			NVAR/Z dx = dfr:gATH_dx
+			NVAR/Z dy = dfr:gATH_dy // assume here that dx = dy
+			variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys
+			variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y,C2x, C2y)
+			if(slope == 0)
+				x1 = C1x
+				x2 = C1x
+				x3 = C2x
+				x4 = C2x
+				y1 = C1y +  width * dy
+				y2 = C1y -  width * dy
+				y3 = C2y -  width * dy
+				y4 = C2y +  width * dy
+			elseif(slope == inf)
+				y1 = C1y
+				y2 = C1y
+				y3 = C2y
+				y4 = C2y
+				x1 = C1x +  width * dx
+				x2 = C1x -  width * dx
+				x3 = C2x -  width * dx
+				x4 = C2x +  width * dx
+			else
+				[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(width * dx/2, slope)
+				x1 = C1x + xs
+				x2 = C1x - xs
+				x3 = C2x - xs
+				x4 = C2x + xs
+				y1 = C1y + ys
+				y2 = C1y - ys
+				y3 = C2y - ys
+				y4 = C2y + ys
+			endif
 			SetDrawLayer/W=$WindowNameStr ProgFront
 			SetDrawEnv/W=$WindowNameStr gstart,gname= lineProfileWidth
 			SetDrawEnv/W=$WindowNameStr linefgc = (65535,16385,16385,32767), fillbgc= (65535,16385,16385,32767), fillpat = -1, linethick = 0, xcoord = top, ycoord = left

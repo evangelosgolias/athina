@@ -571,12 +571,13 @@ static Function [variable xstart, variable ystart , variable xend, variable yend
 End
 
 static Function UserGetCursorsPositions_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
-	STRUCT sUserCursorPositions s
-	string winNameStr = GetUserData(B_Struct.win, "", "sATH_ABwinNameStr")
-	StructGet/S s, GetUserData(winNameStr, "", "sATH_ABCoords")
-	string structStr
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			STRUCT sUserCursorPositions s
+			string winNameStr = GetUserData(B_Struct.win, "", "sATH_ABwinNameStr")
+			StructGet/S s, GetUserData(winNameStr, "", "sATH_ABCoords")
+			string structStr
 			GetMarquee/W=$winNameStr/K left, top
 			s.xstart = hcsr(A, winNameStr)
 			s.ystart = vcsr(A, winNameStr)
@@ -594,12 +595,13 @@ static Function UserGetCursorsPositions_ContButtonProc(STRUCT WMButtonAction &B_
 End
 
 static Function UserGetCursorsPositions_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
-	STRUCT sUserCursorPositions s
-	string winNameStr = GetUserData(B_Struct.win, "", "sATH_ABwinNameStr")
-	StructGet/S s, GetUserData(winNameStr, "", "sATH_ABCoords")
-	string structStr	
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			STRUCT sUserCursorPositions s
+			string winNameStr = GetUserData(B_Struct.win, "", "sATH_ABwinNameStr")
+			StructGet/S s, GetUserData(winNameStr, "", "sATH_ABCoords")
+			string structStr
 			s.xstart = 0
 			s.ystart = 0
 			s.xend   = 0
@@ -607,7 +609,7 @@ static Function UserGetCursorsPositions_CancelBProc(STRUCT WMButtonAction &B_Str
 			s.canceled = 1
 			StructPut/S s, structStr
 			SetWindow $winNameStr userdata(sATH_ABCoords) = structStr
-			KillWindow/Z $GetUserData(B_Struct.win, "", "sATH_ABpanelNameStr")			
+			KillWindow/Z $GetUserData(B_Struct.win, "", "sATH_ABpanelNameStr")
 			break
 	endswitch
 	return 0

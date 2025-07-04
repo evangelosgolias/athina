@@ -242,12 +242,13 @@ static Function [variable leftR, variable rightR, variable topR, variable bottom
 End
 
 static Function UserSetMarquee_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
-	STRUCT sUserMarqueePositions s
-	string winNameStr = GetUserData(B_Struct.win, "", "sATH_winNameStr")
-	StructGet/S s, GetUserData(winNameStr, "", "sATH_Coords")
-	string structStr, xaxis, yaxis
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			STRUCT sUserMarqueePositions s
+			string winNameStr = GetUserData(B_Struct.win, "", "sATH_winNameStr")
+			StructGet/S s, GetUserData(winNameStr, "", "sATH_Coords")
+			string structStr, xaxis, yaxis
 			[xaxis, yaxis] = ATH_Graph#GetAxes(grfName = winNameStr)
 			GetMarquee/W=$winNameStr/K $xaxis, $yaxis
 			s.left = V_left
@@ -264,12 +265,13 @@ static Function UserSetMarquee_ContButtonProc(STRUCT WMButtonAction &B_Struct): 
 End
 
 static Function UserSetMarquee_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
-	STRUCT sUserMarqueePositions s
-	string winNameStr = GetUserData(B_Struct.win, "", "sATH_winNameStr")
-	StructGet/S s, GetUserData(winNameStr, "", "sATH_Coords")
-	string structStr	
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			STRUCT sUserMarqueePositions s
+			string winNameStr = GetUserData(B_Struct.win, "", "sATH_winNameStr")
+			StructGet/S s, GetUserData(winNameStr, "", "sATH_Coords")
+			string structStr
 			s.left = 0
 			s.right = 0
 			s.top = 0
@@ -277,7 +279,7 @@ static Function UserSetMarquee_CancelBProc(STRUCT WMButtonAction &B_Struct) : Bu
 			s.canceled = 1
 			StructPut/S s, structStr
 			SetWindow $winNameStr userdata(sATH_Coords) = structStr
-			KillWindow/Z $GetUserData(B_Struct.win, "", "sATH_panelNameStr")			
+			KillWindow/Z $GetUserData(B_Struct.win, "", "sATH_panelNameStr")
 			break
 	endswitch
 	return 0

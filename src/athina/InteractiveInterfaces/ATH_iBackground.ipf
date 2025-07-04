@@ -142,34 +142,33 @@ static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 End
 
 static Function OverwriteAndCloseButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	variable hookresult = 0
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
-	SVAR/SDFR=dfr gATH_WindowNameStr
-	SVAR/SDFR=dfr gATH_wRefPathNameStr
-	SVAR/SDFR=dfr gATH_wRefBackupPathNameStr
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			variable hookresult = 0
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
+			SVAR/SDFR=dfr gATH_WindowNameStr, gATH_wRefBackupPathNameStr, gATH_wRefPathNameStr
 			Duplicate/O $gATH_wRefBackupPathNameStr, $gATH_wRefPathNameStr
 			SetWindow $B_Struct.win, hook(iRBMyHook) = $""
 			KillWindow $(gATH_WindowNameStr+"#iBackgroundRemoval")
 			hookresult =  1
-		break
+			break
 	endswitch
 	return hookresult
 End
 
 static Function RemoveBackgroundButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	variable hookresult = 0
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
-	SVAR/SDFR=dfr gATH_WindowNameStr
-	SVAR/SDFR=dfr gATH_wRefPathNameStr
-	NVAR PolyOrder = dfr:gATH_PolyOrder
-	WAVE wRef = $gATH_wRefPathNameStr
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			variable hookresult = 0
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImageBackgroundRemovalFolder"))
+			SVAR/SDFR=dfr gATH_WindowNameStr, gATH_wRefPathNameStr
+			NVAR PolyOrder = dfr:gATH_PolyOrder
+			WAVE wRef = $gATH_wRefPathNameStr
 			ATH_ImgOp#ImgRemoveBackground(wRef, order = PolyOrder)
 			hookresult =  1
-		break
+			break
 	endswitch
 	return hookresult
 End

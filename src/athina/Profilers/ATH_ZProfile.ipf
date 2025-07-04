@@ -401,15 +401,15 @@ End
 
 static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = $(GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr"))
-	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin"), recreateDrawStr, recreateDrawTwinStr
-	NVAR/SDFR=dfr gATH_left, gATH_right, gATH_top, gATH_bottom, gATH_Rect, gATH_TwinPlotSwitch, gATH_colorcnt, gATH_MarkAreasSwitch, gATH_DoPlotSwitch	
-	SVAR/SDFR=dfr gATH_w3dNameStr, gATH_w3dPathName, gATH_LineProfileWaveStr, gATH_WindowNameStr, gATH_LineProfileTwinWaveStr, gATH_TwinWavePath, gATH_xAxis, gATH_yAxis
-	WAVE/Z twinWRef = $gATH_TwinWavePath // twin wave	
-	WAVE/SDFR=dfr profile = $gATH_LineProfileWaveStr // full path to wave
-	Wave/Z/SDFR=dfr profileTwin = $gATH_LineProfileTwinWaveStr	
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down" // FIX THIS
+			DFREF dfr = $(GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr"))
+			string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin"), recreateDrawStr, recreateDrawTwinStr
+			NVAR/SDFR=dfr gATH_left, gATH_right, gATH_top, gATH_bottom, gATH_Rect, gATH_TwinPlotSwitch, gATH_colorcnt, gATH_MarkAreasSwitch, gATH_DoPlotSwitch
+			SVAR/SDFR=dfr gATH_w3dNameStr, gATH_w3dPathName, gATH_LineProfileWaveStr, gATH_WindowNameStr, gATH_LineProfileTwinWaveStr, gATH_TwinWavePath, gATH_xAxis, gATH_yAxis
+			WAVE/Z twinWRef = $gATH_TwinWavePath // twin wave
+			WAVE/SDFR=dfr profile = $gATH_LineProfileWaveStr // full path to wave
+			Wave/Z/SDFR=dfr profileTwin = $gATH_LineProfileTwinWaveStr
 			DFREF savedfr = GetDataFolderDFR()
 			variable red, green, blue
 			string saveWaveBaseNameStr = gATH_w3dNameStr + "_Zprof"
@@ -453,7 +453,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
 					sprintf recreateDrawTwinStr, "WaveName:%s\nWavePath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
 					"DrawCmd:DrawRect %f, %f, %f, %f", ParseFilePath(0, gATH_TwinWavePath, ":", 1, 0) , gATH_TwinWavePath, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
-					 Note twdfr:$saveTwinWaveNameStr, recreateDrawTwinStr 
+					Note twdfr:$saveTwinWaveNameStr, recreateDrawTwinStr
 				endif
 			else
 				sprintf recreateDrawStr, "WaveName:%s\nWavePath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
@@ -461,8 +461,8 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
 					sprintf recreateDrawTwinStr, "WaveName:%s\nWavePath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, xcoord= " + gATH_xAxis +", ycoord= "+gATH_yAxis+"\n" + \
 					"DrawCmd:DrawOval %f, %f, %f, %f", PossiblyQuoteName(NameOfWave(twinWRef)), gATH_TwinWavePath, red, green, blue, gATH_left, gATH_top, gATH_right, gATH_bottom
-					Note twdfr:$saveTwinWaveNameStr, recreateDrawTwinStr 
-				endif				
+					Note twdfr:$saveTwinWaveNameStr, recreateDrawTwinStr
+				endif
 			endif
 			Note savedfr:$saveWaveNameStr, recreateDrawStr
 			break
@@ -471,16 +471,17 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 End
 
 static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = $(GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr"))
-	SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
-	Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
-	// Twin wave
-	NVAR/Z TwinPlotSwitch = dfr:gATH_TwinPlotSwitch
-	SVAR/Z/SDFR=dfr gATH_LineProfileTwinWaveStr
-	WAVE/Z/SDFR=dfr twinprofile = $gATH_LineProfileTwinWaveStr // twin wave
-	string scaleCmd, scaleTwinCmd
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			DFREF dfr = $(GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr"))
+			SVAR/Z LineProfileWaveStr = dfr:gATH_LineProfileWaveStr
+			Wave/SDFR=dfr profile = $LineProfileWaveStr// full path to wave
+			// Twin wave
+			NVAR/Z TwinPlotSwitch = dfr:gATH_TwinPlotSwitch
+			SVAR/Z/SDFR=dfr gATH_LineProfileTwinWaveStr
+			WAVE/Z/SDFR=dfr twinprofile = $gATH_LineProfileTwinWaveStr // twin wave
+			string scaleCmd, scaleTwinCmd
 			string rangeZStr, sval1, separator, sval2, inputStr
 			Prompt inputStr, "Set scale as \"x0 xn\" or \"x0,dx\". \nOptionally,  add a semicolon and a second pair to scale TW."
 			DoPrompt "Set x-axis range (override wave's z-scale)", inputStr
@@ -495,7 +496,7 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 				elseif(!cmpstr(separator, ","))
 					SetScale/P x, str2num(sval1), str2num(sval2), profile
 					scaleCmd  = "SetScale/P x,"+sval1+","+sval2 +", "
-					scaleCmd += GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr")+LineProfileWaveStr					
+					scaleCmd += GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr")+LineProfileWaveStr
 					SetWindow $B_Struct.win userdata(ScaleZProfileCmdStr) = scaleCmd
 				else
 					print "Invalid range input"
@@ -507,12 +508,12 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 						SetScale/I x, str2num(sval1), str2num(sval2), twinprofile
 						scaleTwinCmd  = "SetScale/I x,"+sval1+","+sval2 +", "
 						scaleTwinCmd += GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr")+gATH_LineProfileTwinWaveStr
-						SetWindow $B_Struct.win userdata(ScaleZProfileTwinCmdStr) = scaleTwinCmd						
+						SetWindow $B_Struct.win userdata(ScaleZProfileTwinCmdStr) = scaleTwinCmd
 					elseif(!cmpstr(separator, ","))
 						SetScale/P x, str2num(sval1), str2num(sval2), twinprofile
 						scaleTwinCmd  = "SetScale/P x,"+sval1+","+sval2 +", "
 						scaleTwinCmd += GetUserData(B_Struct.win, "", "ATH_rootdfrZProfileStr")+gATH_LineProfileTwinWaveStr
-						SetWindow $B_Struct.win userdata(ScaleZProfileTwinCmdStr) = scaleTwinCmd								
+						SetWindow $B_Struct.win userdata(ScaleZProfileTwinCmdStr) = scaleTwinCmd
 					else
 						print "Invalid range input"
 					endif
@@ -600,20 +601,17 @@ End
 
 static Function SetTwinWavePath(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
-	DFREF dfr = $(GetUserData(sva.win, "", "ATH_rootdfrZProfileStr"))
-	NVAR/Z TwinPlotSwitch = dfr:gATH_TwinPlotSwitch
-	NVAR/Z/SDFR=dfr gATH_Nx
-	NVAR/Z/SDFR=dfr gATH_Ny // gATH_Nx, gATH_Ny are the last dim indices, so npts = lastidx + 1
-	variable nx = gATH_Nx + 1
-	variable ny = gATH_Ny + 1
-	SVAR/Z/SDFR=dfr gATH_TwinWavePath
-	SVAR/Z/SDFR=dfr gATH_LineProfileTwinWaveStr	
-	WAVE/Z profileTwin = dfr:$gATH_LineProfileTwinWaveStr
-									
 	switch (sva.eventCode)
 		case 1:
 		case 2:
 		case 3: 							// Live update
+			DFREF dfr = $(GetUserData(sva.win, "", "ATH_rootdfrZProfileStr"))
+			NVAR/Z TwinPlotSwitch = dfr:gATH_TwinPlotSwitch
+			NVAR/Z/SDFR=dfr gATH_Nx, gATH_Ny
+			variable nx = gATH_Nx + 1
+			variable ny = gATH_Ny + 1
+			SVAR/Z/SDFR=dfr gATH_TwinWavePath, gATH_LineProfileTwinWaveStr
+			WAVE/Z profileTwin = dfr:$gATH_LineProfileTwinWaveStr
 			CheckDisplayed/W=$sva.win dfr:$gATH_LineProfileTwinWaveStr
 			if(!V_flag && WaveExists(profileTwin))
 				AppendToGraph/W=$sva.win/T/R profileTwin
@@ -621,7 +619,7 @@ static Function SetTwinWavePath(STRUCT WMSetVariableAction &sva) : SetVariableCo
 			WAVE wRef = $sva.sval
 			if(WaveExists(wRef) && (DimSize(wRef,0)==nx && DimSize(wRef,1)==ny) && WaveDims(wRef)==3)
 				gATH_TwinWavePath = sva.sval
-			else		
+			else
 				gATH_TwinWavePath = "Wave Error!"
 				ControlUpdate/W=$sva.win SetTwinWavePath
 			endif

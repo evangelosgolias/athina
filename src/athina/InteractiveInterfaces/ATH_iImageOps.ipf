@@ -132,15 +132,9 @@ End
 static Function WindowHook(STRUCT WMWinHookStruct &s)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgOpsDFPath"))
 	DFREF saveDFR = GetDataFolderDFR()
-	NVAR/SDFR=dfr gATH_driftStep
-	NVAR/SDFR=dfr gATH_dx
-	NVAR/SDFR=dfr gATH_dy
-	WAVE/SDFR=dfr w1	
-	WAVE/SDFR=dfr w2
-	WAVE/SDFR=dfr w2_undo	
-	WAVE/SDFR=dfr wOpResult
-	SVAR/SDFR=dfr wName2Str
-	SVAR/SDFR=dfr wName1Str
+	NVAR/SDFR=dfr gATH_driftStep, gATH_dx, gATH_dy
+	WAVE/SDFR=dfr w1	, w2, w2_undo, wOpResult
+	SVAR/SDFR=dfr wName2Str, wName1Str
 	NVAR/Z/SDFR=dfr gATH_secOp
 	
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
@@ -202,23 +196,19 @@ static Function WindowHook(STRUCT WMWinHookStruct &s)
 		Execute/P/Q killDFCmd
 		hookresult = 1
 	endif
-	
 	SetDataFolder saveDFR
 	return hookResult	// If non-zero, we handled event and Igor will ignore it.
 End
 
 static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgOpsDFPath"))
-	DFREF saveDFR = GetDataFolderDFR()
-	NVAR/SDFR=dfr gATH_dx
-	NVAR/SDFR=dfr gATH_dy
-	WAVE/SDFR=dfr w1
-	WAVE/SDFR=dfr w2
-	WAVE/SDFR=dfr w2_undo
-	WAVE/SDFR=dfr wOpResult
-	NVAR/Z/SDFR=dfr gATH_secOp
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgOpsDFPath"))
+			DFREF saveDFR = GetDataFolderDFR()
+			NVAR/SDFR=dfr gATH_dx, gATH_dy
+			NVAR/Z/SDFR=dfr gATH_secOp
+			WAVE/SDFR=dfr w1, w2, w2_undo, wOpResult
 			SetDataFolder dfr
 			Duplicate/O w2_undo, w2
 			gATH_dx = 0; gATH_dy = 0
@@ -228,34 +218,29 @@ static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 				ControlInfo/W=$B_Struct.win SetSecOpFormula
 				Execute/Q/Z ("MatrixOP/O wSecOpResult = " + S_value)
 			endif
+			SetDataFolder saveDFR
 			break
 	endswitch
-	SetDataFolder saveDFR
 	return 0
 End
 
 static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgOpsDFPath"))
-	WAVE/SDFR=dfr w1
-	WAVE/SDFR=dfr w2
-	WAVE/SDFR=dfr wOpResult
-	WAVE/SDFR=dfr w2_undo
-	SVAR/SDFR=dfr wName1Str
-	SVAR/SDFR=dfr wName2Str
-	NVAR/SDFR=dfr gATH_dx
-	NVAR/SDFR=dfr gATH_dy
-	
-	variable postfix = 0
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			variable postfix = 0
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgOpsDFPath"))
+			WAVE/SDFR=dfr w1, w2, wOpResult, w2_undo
+			SVAR/SDFR=dfr wName1Str, wName2Str
+			NVAR/SDFR=dfr gATH_dx, gATH_dy
+
 			ControlInfo/W=$B_Struct.win SetOpFormula
 			string note2WaveStr = "Operation: " + S_value + "\nimg1 (w1): " \
 			+ wName1Str + "\nimg2 (w2): " + wName2Str + "\nTotal w2 drift dx:" + num2str(gATH_dx) \
 			+ " dy:" + num2str(gATH_dy) +"\n"
 			note2WaveStr += "Copy to command line: \nImageInterpolate/APRM={1,0,"+num2str(gATH_dx)+",0,1,"+num2str(gATH_dy)+\
 			",1,0} Affine2D " + wName2Str
-			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)		
+			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)
 			string saveOpResWaveStr = CreatedataObjectName(sourceDF, "iOp", 1, 0, 1)
 			Duplicate wOpResult, sourceDF:$saveOpResWaveStr
 			Note sourceDF:$saveOpResWaveStr, note2WaveStr
@@ -265,13 +250,14 @@ static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonContr
 End
 
 static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
-	string dfrStr = GetUserData(sva.win, "", "ATH_iImgOpsDFPath")
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
-	NVAR/SDFR=dfr gATH_driftStep	
+
 	switch (sva.eventCode)
 		case 1: 							// Mouse up
 		case 2:							// Enter key
 		case 3: 							// Live update
+			string dfrStr = GetUserData(sva.win, "", "ATH_iImgOpsDFPath")
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
+			NVAR/SDFR=dfr gATH_driftStep
 			gATH_driftStep = sva.dval
 			break
 		case -1: 							// Control being killed
@@ -283,37 +269,37 @@ End
 
 static Function SetOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_iImgOpsDFPath"))
-	DFREF saveDFR = GetDataFolderDFR()	
 	switch (sva.eventCode)
 		case 1:
 		case 2:
 		case 3: 							// Live update
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_iImgOpsDFPath"))
+			DFREF saveDFR = GetDataFolderDFR()
 			SetDataFolder dfr
 			Execute/Q/Z ("MatrixOP/O wOpResult = " + sva.sval)
+			SetDataFolder saveDFR
 			break
 		case -1: 							// Control being killed
 			break
 	endswitch
-	SetDataFolder saveDFR
 	return 0
 End
 
 static Function SetSecOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_iImgOpsDFPath"))
-	DFREF saveDFR = GetDataFolderDFR()	
 	switch (sva.eventCode)
 		case 1:
 		case 2:
 		case 3: 							// Live update
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_iImgOpsDFPath"))
+			DFREF saveDFR = GetDataFolderDFR()			
 			SetDataFolder dfr
 			Execute/Q/Z ("MatrixOP/O wSecOpResult = " + sva.sval)
+			SetDataFolder saveDFR
 			break
 		case -1: 							// Control being killed
 			break
 	endswitch
-	SetDataFolder saveDFR
 	return 0
 End
 

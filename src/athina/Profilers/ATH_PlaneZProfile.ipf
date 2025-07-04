@@ -383,30 +383,22 @@ End
 
 static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl // Change using UniqueName for displaying
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
-	DFREF currdfr = GetDataFolderDFR()	
-	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
-	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
-	SVAR/Z w3dNameStr = dfr:gATH_ImageNameStr
-	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
-	Wave/SDFR=dfr M_ExtractedSurface
-	NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch
-	NVAR/Z MarkLinesSwitch = dfr:gATH_MarkLinesSwitch
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z Nx = dfr:gATH_Nx
-	NVAR/Z Ny = dfr:gATH_Ny
-	NVAR/Z nLayers =  dfr:gATH_nLayers
-	NVAR/Z colorcnt = dfr:gATH_colorcnt
-	string recreateCmdStr
-	DFREF savedfr = GetDataFolderDFR()//ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ImagePlaneProfileZ:SavedImagePlaneProfileZ")
-	variable red, green, blue
-	variable postfix = 0
-	string saveImageStr
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+			DFREF currdfr = GetDataFolderDFR()
+			string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
+			SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr, w3dNameStr = dfr:gATH_ImageNameStr, ImagePathname = dfr:gATH_ImagePathname
+			Wave/SDFR=dfr M_ExtractedSurface
+			NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch, MarkLinesSwitch = dfr:gATH_MarkLinesSwitch
+			NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+			NVAR/Z Nx = dfr:gATH_Nx, Ny = dfr:gATH_Ny, nLayers = dfr:gATH_nLayers
+			NVAR/Z colorcnt = dfr:gATH_colorcnt
+			string recreateCmdStr
+			DFREF savedfr = GetDataFolderDFR()
+			variable red, green, blue
+			variable postfix = 0
+			string saveImageStr
 			string saveWaveBaseNameStr = w3dNameStr + "_PPZ"
 			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 5)
 			Duplicate dfr:M_ExtractedSurface, savedfr:$saveWaveNameStr
@@ -416,7 +408,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 				variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 				ModifyGraph/W=$saveImageStr width = 350*pntConv, height = 470*pntConv
 				SetAxis/A left
-				Execute/P/Q "ModifyGraph/W=$\""+saveImageStr+"\" width=0,height=0"			
+				Execute/P/Q "ModifyGraph/W=$\""+saveImageStr+"\" width=0,height=0"
 				colorcnt += 1
 			endif
 
@@ -436,19 +428,15 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 End
 
 static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z Xfactor = dfr:gATH_Xfactor
-	NVAR/Z Ystart = dfr:gATH_Ystart
-	NVAR/Z Yend = dfr:gATH_Yend
-	variable Xstart_l, Xend_l, Ystart_l, Yend_l, Xscale
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+			NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+			NVAR/Z Xfactor = dfr:gATH_Xfactor, Ystart = dfr:gATH_Ystart, Yend = dfr:gATH_Yend
+			variable Xstart_l, Xend_l, Ystart_l, Yend_l, Xscale
 			Prompt Xscale, "X-scale: set cursors and enter the calibrating value \n(0: pixel scale,  > 0: user scale,  < 0 : original scale)"
-			Prompt Ystart_l, "Y top value"			
+			Prompt Ystart_l, "Y top value"
 			Prompt Yend_l, "Y bottom value (Y_bottom < Y_top)"
 			DoPrompt "Set X, Y scale (Zero removes scale)", Xscale, Ystart_l, Yend_l
 			if(V_flag) // User cancelled
@@ -459,7 +447,7 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 			if(Ystart_l > Yend_l)
 				Ystart = Yend_l
 				Yend = Ystart_l
-			endif			
+			endif
 			if(Xscale == 0)
 				Xfactor = 1
 				Button SetScaleButton, userdata(SetScalePlaneZProfile) = "0", win=$B_Struct.win // pixel scale
@@ -470,7 +458,7 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 				Xfactor = 1
 				Button SetScaleButton, userdata(SetScalePlaneZProfile) = "", win=$B_Struct.win // original scale
 			endif
-		break
+			break
 	endswitch
 	return 0
 End
@@ -537,26 +525,18 @@ static Function OverrideNy(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 static Function SetVariableNx(STRUCT WMSetVariableAction& sv) : SetVariableControl
-	
-	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z Nx = dfr:gATH_Nx
-	NVAR/Z Ny = dfr:gATH_Ny
-	NVAR/Z Ystart = dfr:gATH_Ystart
-	NVAR/Z Yend = dfr:gATH_Yend
-	NVAR/Z Xfactor = dfr:gATH_Xfactor
-	NVAR/Z nLayers =  dfr:gATH_nLayers
-	NVAR/Z OverrideNx = dfr:gATH_OverrideNx
-	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
-	WAVE/Z w3dRef = $ImagePathname
-	variable normGHCursors
-	SetDataFolder dfr
+
 	switch(sv.eventCode)
 		case 6:
+			DFREF currdfr = GetDataFolderDFR()
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+			NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+			NVAR/Z Nx = dfr:gATH_Nx, Ny = dfr:gATH_Ny, Ystart = dfr:gATH_Ystart, Yend = dfr:gATH_Yend
+			NVAR/Z Xfactor = dfr:gATH_Xfactor, nLayers = dfr:gATH_nLayers, OverrideNx = dfr:gATH_OverrideNx
+			SVAR/Z ImagePathname = dfr:gATH_ImagePathname
+			WAVE/Z w3dRef = $ImagePathname
+			variable normGHCursors
+			SetDataFolder dfr
 			if(OverrideNx)
 				Nx = sv.dval
 				normGHCursors = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
@@ -565,35 +545,27 @@ static Function SetVariableNx(STRUCT WMSetVariableAction& sv) : SetVariableContr
 				SetScale/I x, 0, (normGHCursors * Xfactor), ww
 				//SetScale/I y, Ystart, Yend, ww
 			else
-		       	Nx = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
-		    endif
-		break
+				Nx = round(sqrt((C1x - C2x)^2 + (C1y - C2y)^2))
+			endif
+			SetDataFolder currdfr
+			break
 	endswitch
-	SetDataFolder currdfr
 	return 0
 End
 
 static Function SetVariableNy(STRUCT WMSetVariableAction& sv) : SetVariableControl
-	
-	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z Nx = dfr:gATH_Nx
-	NVAR/Z Ny = dfr:gATH_Ny
-	NVAR/Z nLayers =  dfr:gATH_nLayers
-	NVAR/Z OverrideNy = dfr:gATH_OverrideNy	
-	NVAR/Z Ystart = dfr:gATH_Ystart
-	NVAR/Z Yend = dfr:gATH_Yend
-	NVAR/Z Xfactor = dfr:gATH_Xfactor
-	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
-	WAVE/Z w3dRef = $ImagePathname
-	variable normGHCursors
-	SetDataFolder dfr
+
 	switch(sv.eventCode)
 		case 6:
+			DFREF currdfr = GetDataFolderDFR()
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+			NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+			NVAR/Z Nx = dfr:gATH_Nx, Ny = dfr:gATH_Ny, nLayers = dfr:gATH_nLayers, OverrideNy = dfr:gATH_OverrideNy
+			NVAR/Z Ystart = dfr:gATH_Ystart, Yend = dfr:gATH_Yend, Xfactor = dfr:gATH_Xfactor
+			SVAR/Z ImagePathname = dfr:gATH_ImagePathname
+			WAVE/Z w3dRef = $ImagePathname
+			variable normGHCursors
+			SetDataFolder dfr
 			if(OverrideNy)
 				Ny = sv.dval
 				ImageTransform/X={Nx, Ny, C1x, C1y, 0, C2x, C2y, 0, C2x, C2y, nLayers} extractSurface w3dRef
@@ -602,11 +574,11 @@ static Function SetVariableNy(STRUCT WMSetVariableAction& sv) : SetVariableContr
 				SetScale/I y, Ystart, Yend, ww
 				//SetScale/I x, 0, (normGHCursors * Xfactor), ww
 			else
-		      	Ny = nLayers
-		    endif	 
-       	break
+				Ny = nLayers
+			endif
+			SetDataFolder currdfr
+			break
 	endswitch
-	SetDataFolder currdfr
 	return 0
 End
 

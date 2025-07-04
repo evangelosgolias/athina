@@ -268,15 +268,12 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 End
 
 static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when panel is closed
-	//Cleanup when window is closed
-	variable hookresult = 0
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgAlignFolder"))
-	SVAR/SDFR=dfr gATH_WindowNameStr
-	SVAR/Z/SDFR=dfr gATH_w3dPathName
-	SVAR/Z/SDFR=dfr gATH_w3dBackupPathNameStr
 
 	switch(s.eventCode)
 		case 2: // Kill the window
+			variable hookresult = 0
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgAlignFolder"))
+			SVAR/SDFR=dfr gATH_WindowNameStr, gATH_w3dBackupPathNameStr, gATH_w3dPathName
 			CopyScales/I $gATH_w3dBackupPathNameStr, $gATH_w3dPathName
 			SetWindow $s.winName, hook(iDriftPanelHook) = $""
 			SetWindow $gATH_WindowNameStr, hook(iDriftWindowHook) = $""
@@ -292,22 +289,21 @@ static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when pan
 End
 
 static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	variable hookresult = 0
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
-	SVAR/SDFR=dfr gATH_WindowNameStr
-	SVAR/SDFR=dfr gATH_w3dPathname
-	WAVE/Z w3dRef = $gATH_w3dPathname	
-	NVAR/SDFR=dfr gATH_AnchorPositionX
-	NVAR/SDFR=dfr gATH_AnchorPositionY
-	NVAR/SDFR=dfr gATH_FastMode
-	DFREF dfrS = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveDriftCorrection:SavedReferenceCoords:")	
-	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordX	
-	variable xmax = DimSize($gATH_w3dPathname, 0)
-	variable x0 = Dimoffset($gATH_w3dPathname, 0)
-	variable ymax = DimSize($gATH_w3dPathname, 1)
-	variable y0 = Dimoffset($gATH_w3dPathname, 1)
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			variable hookresult = 0
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+			DFREF dfrS = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveDriftCorrection:SavedReferenceCoords:")
+			// String variables
+			SVAR/SDFR=dfr gATH_WindowNameStr, gATH_w3dPathname
+			// Wave and numeric variables
+			WAVE/Z w3dRef = $gATH_w3dPathname
+			NVAR/SDFR=dfr gATH_AnchorPositionX, gATH_AnchorPositionY, gATH_FastMode
+			NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordX
+			// Image dimensions
+			variable xmax = DimSize($gATH_w3dPathname, 0), x0 = Dimoffset($gATH_w3dPathname, 0)
+			variable ymax = DimSize($gATH_w3dPathname, 1), y0 = Dimoffset($gATH_w3dPathname, 1)
 			gATH_AnchorPositionX = hcsr(I, gATH_WindowNameStr)
 			gATH_AnchorPositionY = vcsr(I, gATH_WindowNameStr)
 			variable relx, rely
@@ -332,25 +328,20 @@ static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonCo
 End
 
 static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	variable hookresult = 0
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
-	SVAR/Z/SDFR=dfr gATH_WindowNameStr
-	SVAR/Z/SDFR=dfr gATH_w3dPathName
-	SVAR/Z/SDFR=dfr gATH_w3dBackupPathNameStr	
-	WAVE/Z w3dRef = $gATH_w3dPathName
-	WAVE/Z wRefbackup =$gATH_w3dBackupPathNameStr
-	NVAR/SDFR=dfr gATH_w3dnlayers
-	NVAR/SDFR=dfr gATH_AnchorPositionX
-	NVAR/SDFR=dfr gATH_AnchorPositionY
-	NVAR/SDFR=dfr gATH_CursorPositionX
-	NVAR/SDFR=dfr gATH_CursorPositionY
-	NVAR/SDFR=dfr gATH_dx
-	NVAR/SDFR=dfr gATH_dy
-	NVAR/SDFR=dfr gATH_SubPixelMode	
-	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
 
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			variable hookresult = 0
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+			// String variables
+			SVAR/Z/SDFR=dfr gATH_WindowNameStr, gATH_w3dPathName, gATH_w3dBackupPathNameStr
+			// Wave references
+			WAVE/Z w3dRef = $gATH_w3dPathName, wRefbackup = $gATH_w3dBackupPathNameStr
+			// Numeric variables
+			NVAR/SDFR=dfr gATH_w3dnlayers, gATH_AnchorPositionX, gATH_AnchorPositionY
+			NVAR/SDFR=dfr gATH_CursorPositionX, gATH_CursorPositionY
+			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_SubPixelMode
+			NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
 			gATH_CursorPositionX = hcsr(I, gATH_WindowNameStr)
 			gATH_CursorPositionY = vcsr(I, gATH_WindowNameStr)
 			variable dx = (gATH_AnchorPositionX - gATH_CursorPositionX)/gATH_dx
@@ -372,32 +363,31 @@ static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 static Function ToggleSubPixelModeButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	variable hookresult = 0
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
-	SVAR/Z/SDFR=dfr gATH_WindowNameStr
-	SVAR/Z/SDFR=dfr	gATH_imgNameTopWindowStr
-	SVAR/Z/SDFR=dfr gATH_w3dPathName
-	WAVE/Z w3dRef = $gATH_w3dPathName
-	NVAR/Z/SDFR=dfr gATH_SubPixelMode
-	NVAR/SDFR=dfr gATH_FastMode	
-	NVAR/SDFR=dfr gATH_CursorPositionX
-	NVAR/SDFR=dfr gATH_CursorPositionY
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			variable hookresult = 0
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+			// String variables
+			SVAR/Z/SDFR=dfr gATH_WindowNameStr, gATH_imgNameTopWindowStr, gATH_w3dPathName
+			// Wave reference
+			WAVE/Z w3dRef = $gATH_w3dPathName
+			// Numeric variables
+			NVAR/Z/SDFR=dfr gATH_SubPixelMode, gATH_FastMode, gATH_CursorPositionX, gATH_CursorPositionY
 			gATH_SubPixelMode = !gATH_SubPixelMode // Flip mode!
 			variable relx, rely
 			//	When used with the /I flag, x_value and y_value are row and column numbers.
 			//	When used with the /F flag, x_value and y_value are relative graph coordinates (0-1).
-				if(gATH_SubPixelMode)
-					[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_CursorPositionX, gATH_CursorPositionY)
-					Cursor/W=$gATH_WindowNameStr/I/F/L=0/H=1/C=(1,65535,33232)/S=2/P I $gATH_imgNameTopWindowStr relx, rely
-					Button ToggleSubPixelMode title="Sub-pixel drift = ON",fColor=(0,65535,0),win=$B_Struct.win
-				else
-					relx = ScaleToIndex(w3dRef, gATH_CursorPositionX, 0)
-					rely = ScaleToIndex(w3dRef, gATH_CursorPositionY, 1)
-					Cursor/W=$gATH_WindowNameStr/I/L=0/H=1/C=(1,65535,33232)/S=2/P I $gATH_imgNameTopWindowStr relx, rely
-					Button ToggleSubPixelMode title="Sub-pixel drift = OFF",fColor=(65535,0,0),win=$B_Struct.win
-				endif
+			if(gATH_SubPixelMode)
+				[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_CursorPositionX, gATH_CursorPositionY)
+				Cursor/W=$gATH_WindowNameStr/I/F/L=0/H=1/C=(1,65535,33232)/S=2/P I $gATH_imgNameTopWindowStr relx, rely
+				Button ToggleSubPixelMode title="Sub-pixel drift = ON",fColor=(0,65535,0),win=$B_Struct.win
+			else
+				relx = ScaleToIndex(w3dRef, gATH_CursorPositionX, 0)
+				rely = ScaleToIndex(w3dRef, gATH_CursorPositionY, 1)
+				Cursor/W=$gATH_WindowNameStr/I/L=0/H=1/C=(1,65535,33232)/S=2/P I $gATH_imgNameTopWindowStr relx, rely
+				Button ToggleSubPixelMode title="Sub-pixel drift = OFF",fColor=(65535,0,0),win=$B_Struct.win
+			endif
 			if(gATH_FastMode) //We are in FastMode. We don't need Cursor!
 				Cursor/K I
 			endif
@@ -408,32 +398,32 @@ static Function ToggleSubPixelModeButton(STRUCT WMButtonAction &B_Struct): Butto
 End
 				
 static Function SetStartLayerButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	variable hookresult = 0
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
-	SVAR/Z/SDFR=dfr gATH_WindowNameStr
-	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
-	NVAR/Z/SDFR=dfr gATH_LDCstartL
-	NVAR/Z/SDFR=dfr gATH_LDCendL	
-	NVAR/Z/SDFR=dfr gATH_LDCstartX
-	NVAR/Z/SDFR=dfr	gATH_LDCstartY
-	NVAR/Z/SDFR=dfr gATH_LDCendX
-	NVAR/Z/SDFR=dfr	gATH_LDCendY
-	variable nlayers	
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			variable hookresult = 0, nlayers
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+			SVAR/Z/SDFR=dfr gATH_WindowNameStr
+			NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
+			NVAR/Z/SDFR=dfr gATH_LDCstartL
+			NVAR/Z/SDFR=dfr gATH_LDCendL
+			NVAR/Z/SDFR=dfr gATH_LDCstartX
+			NVAR/Z/SDFR=dfr	gATH_LDCstartY
+			NVAR/Z/SDFR=dfr gATH_LDCendX
+			NVAR/Z/SDFR=dfr	gATH_LDCendY
 			gATH_LDCstartL = gLayer
 			gATH_LDCstartX = hcsr(I, gATH_WindowNameStr)
 			gATH_LDCstartY = vcsr(I, gATH_WindowNameStr)
 			Button FirstL win=$B_Struct.win, title=("L: " + num2str(gATH_LDCstartL))
 			ControlUpdate/W=$B_Struct.win FirstL
-			nlayers = gATH_LDCendL - gATH_LDCstartL	
+			nlayers = gATH_LDCendL - gATH_LDCstartL
 			if(!numtype(gATH_LDCstartX) && !numtype(gATH_LDCendX) && nlayers > 0)
 				Button LinearDC,win=$B_Struct.win, disable = 0
 				ControlUpdate/W=$B_Struct.win LinearD
 			else
 				Button LinearDC,win=$B_Struct.win, disable = 2
 				ControlUpdate/W=$B_Struct.win LinearD
-			endif		
+			endif
 			hookresult =  1
 			break
 	endswitch
@@ -441,19 +431,18 @@ static Function SetStartLayerButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 End
 
 static Function SetEndLayerButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	variable hookresult = 0
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
-	SVAR/Z/SDFR=dfr gATH_WindowNameStr
-	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
-	NVAR/Z/SDFR=dfr gATH_LDCstartL
-	NVAR/Z/SDFR=dfr gATH_LDCendL	
-	NVAR/Z/SDFR=dfr gATH_LDCstartX
-	NVAR/Z/SDFR=dfr	gATH_LDCstartY
-	NVAR/Z/SDFR=dfr gATH_LDCendX
-	NVAR/Z/SDFR=dfr	gATH_LDCendY
-	variable nlayers
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			variable hookresult = 0, nlayers
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+			// String variable
+			SVAR/Z/SDFR=dfr gATH_WindowNameStr
+			// External numeric variable
+			NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
+			// Numeric variables from dfr
+			NVAR/Z/SDFR=dfr gATH_LDCstartL, gATH_LDCendL
+			NVAR/Z/SDFR=dfr gATH_LDCstartX, gATH_LDCstartY, gATH_LDCendX, gATH_LDCendY
 			gATH_LDCendL = gLayer
 			gATH_LDCendX = hcsr(I, gATH_WindowNameStr)
 			gATH_LDCendY = vcsr(I, gATH_WindowNameStr)
@@ -466,7 +455,7 @@ static Function SetEndLayerButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 			else
 				Button LinearDC,win=$B_Struct.win, disable = 2
 				ControlUpdate/W=$B_Struct.win LinearD
-			endif	
+			endif
 			hookresult =  1
 			break
 	endswitch
@@ -474,26 +463,19 @@ static Function SetEndLayerButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 End
 
 static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	variable hookresult = 0
-	DFREF currDF = GetDataFolderDFR()
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
-	SVAR/Z/SDFR=dfr gATH_WindowNameStr
-	NVAR/Z/SDFR=dfr gATH_LDCstartL
-	NVAR/Z/SDFR=dfr gATH_LDCendL
-	SVAR/Z/SDFR=dfr gATH_w3dPathName
-	WAVE/Z w3dRef = $gATH_w3dPathName
-	NVAR/Z/SDFR=dfr gATH_LDCstartX
-	NVAR/Z/SDFR=dfr	gATH_LDCstartY
-	NVAR/Z/SDFR=dfr gATH_LDCendX
-	NVAR/Z/SDFR=dfr	gATH_LDCendY
-	NVAR/SDFR=dfr gATH_dx
-	NVAR/SDFR=dfr gATH_dy
-	NVAR/SDFR=dfr gATH_SubPixelMode
 
-	variable x0, y0, x1, y1, slope, shift, nlayers
-	nlayers = gATH_LDCendL - gATH_LDCstartL + 1
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			variable hookresult = 0
+			DFREF currDF = GetDataFolderDFR()
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+			SVAR/Z/SDFR=dfr gATH_WindowNameStr, gATH_w3dPathName
+			WAVE/Z w3dRef = $gATH_w3dPathName
+			NVAR/Z/SDFR=dfr gATH_LDCstartL, gATH_LDCendL
+			NVAR/Z/SDFR=dfr gATH_LDCstartX, gATH_LDCstartY, gATH_LDCendX, gATH_LDCendY
+			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_SubPixelMode
+			variable x0, y0, x1, y1, slope, shift, nlayers
+			nlayers = gATH_LDCendL - gATH_LDCstartL + 1
 			SetDataFolder dfr
 			if(numtype(gATH_LDCstartX) || numtype(gATH_LDCendX))
 				break
@@ -506,7 +488,7 @@ static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 				// ImageInterpolate needs pixels, multiply by -1 to have the proper behavior in /ARPM={...}
 				wx /= (-gATH_dx) ; wy /= (-gATH_dy)
 				ATH_ImgAlign#LinearDriftPlanesABCursors(w3dref, wx, wy, startL = gATH_LDCstartL, \
-														endL = gATH_LDCendL, intPx = 1 - gATH_SubPixelMode)
+				endL = gATH_LDCendL, intPx = 1 - gATH_SubPixelMode)
 				hookresult =  1
 			endif
 			break
@@ -516,12 +498,13 @@ static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 static Function CheckpointButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	variable hookresult = 0
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
-	SVAR/SDFR=dfr gATH_w3dBackupPathNameStr
-	SVAR/SDFR=dfr gATH_w3dPathname
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			variable hookresult = 0
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+			SVAR/SDFR=dfr gATH_w3dBackupPathNameStr
+			SVAR/SDFR=dfr gATH_w3dPathname
 			Duplicate/O $gATH_w3dPathname, $gATH_w3dBackupPathNameStr
 			hookresult =  1
 			break
@@ -531,12 +514,13 @@ End
 
 static Function RestoreWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	//Complete
-	variable hookresult = 0
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
-	SVAR/SDFR=dfr gATH_w3dBackupPathNameStr
-	SVAR/SDFR=dfr gATH_w3dPathname
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			variable hookresult = 0
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+			SVAR/SDFR=dfr gATH_w3dBackupPathNameStr
+			SVAR/SDFR=dfr gATH_w3dPathname
 			Duplicate/O $gATH_w3dBackupPathNameStr, $gATH_w3dPathname
 			hookresult =  1
 			break
@@ -546,23 +530,17 @@ End
 
 static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	variable hookresult = 0
-	DFREF currDF = GetDataFolderDFR()
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
-	SVAR/Z/SDFR=dfr gATH_WindowNameStr
-	SVAR/Z/SDFR=dfr gATH_w3dPathName
-	WAVE/Z w3dRef = $gATH_w3dPathName
-	NVAR/SDFR=dfr gATH_AnchorPositionX
-	NVAR/SDFR=dfr gATH_AnchorPositionY
-	NVAR/SDFR=dfr gATH_CursorPositionX
-	NVAR/SDFR=dfr gATH_CursorPositionY
-	NVAR/SDFR=dfr gATH_dx
-	NVAR/SDFR=dfr gATH_dy
-	NVAR/SDFR=dfr gATH_SubPixelMode	
-	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
-
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			variable hookresult = 0
+			DFREF currDF = GetDataFolderDFR()
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
+			SVAR/Z/SDFR=dfr gATH_WindowNameStr, gATH_w3dPathName
+			WAVE/Z w3dRef = $gATH_w3dPathName
+			NVAR/SDFR=dfr gATH_AnchorPositionX, gATH_AnchorPositionY
+			NVAR/SDFR=dfr gATH_CursorPositionX, gATH_CursorPositionY
+			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_SubPixelMode
+			NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
 			SetDataFolder dfr
 			gATH_CursorPositionX = hcsr(I, gATH_WindowNameStr)
 			gATH_CursorPositionY = vcsr(I, gATH_WindowNameStr)
@@ -587,16 +565,16 @@ static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct)
 			elseif(val2==lastlayerN)
 				Duplicate/FREE/RMD=[][][0, val1-1] w3dRef, waveFree0
 				Duplicate/FREE/RMD=[][][val1, lastlayerN] w3dRef, waveFreeToAffine
-				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D waveFreeToAffine	
+				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D waveFreeToAffine
 				WAVE M_Affine
-				Concatenate/O/KILL/NP=2 {waveFree0, M_Affine}, $gATH_w3dPathName				
+				Concatenate/O/KILL/NP=2 {waveFree0, M_Affine}, $gATH_w3dPathName
 			else
 				Duplicate/FREE/RMD=[][][0, val1-1] w3dRef, waveFree0
 				Duplicate/FREE/RMD=[][][val1, val2] w3dRef, waveFreeToAffine
 				Duplicate/FREE/RMD=[][][val2+1, lastlayerN] w3dRef, waveFree1
 				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D waveFreeToAffine
 				WAVE M_Affine
-				Concatenate/O/KILL/NP=2 {waveFree0, M_Affine, waveFree1}, $gATH_w3dPathName				
+				Concatenate/O/KILL/NP=2 {waveFree0, M_Affine, waveFree1}, $gATH_w3dPathName
 			endif
 			hookresult =  1
 			break
@@ -622,7 +600,7 @@ static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): Butto
 			NVAR/SDFR=dfr gATH_dx
 			NVAR/SDFR=dfr gATH_dy
 			NVAR/SDFR=dfr gATH_SubPixelMode
-			NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:gLayer // Do not use /Z here.
+			NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer // Do not use /Z here.
 			SetDataFolder dfr
 			if(gATH_AnchorPositionX < 0 || gATH_AnchorPositionY < 0)
 				print "You have first to set a reference position (anchor)"

@@ -198,11 +198,12 @@ static Function WaitForUserActions(STRUCT sUserMarqueePositions &s, [variable vW
 End
 
 static Function WaitForUserActions_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
-	STRUCT sUserMarqueePositions s
-	string winNameStr = GetUserData(B_Struct.win, "", "swinNameStr")
-	StructGet/S s, GetUserData(winNameStr, "", "sCoords")	
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			STRUCT sUserMarqueePositions s
+			string winNameStr = GetUserData(B_Struct.win, "", "swinNameStr")
+			StructGet/S s, GetUserData(winNameStr, "", "sCoords")
 			s.canceled = 0
 			KillWindow/Z $GetUserData(B_Struct.win, "", "spanelNameStr")
 			break
@@ -211,16 +212,17 @@ static Function WaitForUserActions_ContButtonProc(STRUCT WMButtonAction &B_Struc
 End
 
 static Function WaitForUserActions_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
-	STRUCT sUserMarqueePositions s
-	string winNameStr = GetUserData(B_Struct.win, "", "swinNameStr")
-	StructGet/S s, GetUserData(winNameStr, "", "sCoords")
-	string structStr	
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			STRUCT sUserMarqueePositions s
+			string winNameStr = GetUserData(B_Struct.win, "", "swinNameStr")
+			StructGet/S s, GetUserData(winNameStr, "", "sCoords")
+			string structStr
 			s.canceled = 1
 			StructPut/S s, structStr
-			SetWindow $winNameStr userdata(sCoords) = structStr	
-			KillWindow/Z $GetUserData(B_Struct.win, "", "spanelNameStr")			
+			SetWindow $winNameStr userdata(sCoords) = structStr
+			KillWindow/Z $GetUserData(B_Struct.win, "", "spanelNameStr")
 			break
 	endswitch
 	return 0

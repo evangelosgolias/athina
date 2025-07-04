@@ -559,9 +559,8 @@ static Function ShowButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 End
 
 //************************************************************
-static Function ClearButtonProc(ba) : ButtonControl
-	STRUCT WMButtonAction &ba
-
+static Function ClearButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
+	
 	switch( ba.eventCode )
 		case 2: // mouse up
 			wave Col= root:Packages:ATH_DataFolder:XPSReferenceData:Col

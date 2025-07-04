@@ -714,8 +714,8 @@ Function/S BackRem_CSWaveList()																	// create wave list for the drop
 	return list
 End
 //################################################################################################
-Function BackRem_ButtonAction(s) : ButtonControl
-	STRUCT WMButtonAction &s
+Function BackRem_ButtonAction(STRUCT WMButtonAction &s) : ButtonControl
+	
 	if (s.eventCode != 2)
 		return 0
 	endif

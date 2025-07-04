@@ -97,9 +97,8 @@ End
 static Function FlipRowsCheckBox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_iRotateFolder"))
 	NVAR/SDFR=dfr gATH_FlipRows
-	SVAR/SDFR=dfr gATH_wPathname
+	SVAR/SDFR=dfr gATH_wPathname, gATH_wBackupPathNameStr
 	WAVE wRef = $gATH_wPathname
-	SVAR/SDFR=dfr gATH_wBackupPathNameStr	
 	WAVE wRefbck = $gATH_wBackupPathNameStr
 		
 	switch(cb.checked)
@@ -120,15 +119,14 @@ static Function FlipRowsCheckBox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
-	variable hookresult = 0
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iRotateFolder"))
-	SVAR/SDFR=dfr gATH_WindowNameStr
-	SVAR/SDFR=dfr gATH_wPathname
-	SVAR/SDFR=dfr gATH_wBackupPathNameStr
-	WAVE wRef = $gATH_wPathname
-	WAVE wRefbck = $gATH_wBackupPathNameStr
-    switch(s.eventCode)
+
+	switch(s.eventCode)
 		case 2: // Kill the window
+			variable hookresult = 0
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iRotateFolder"))
+			SVAR/SDFR=dfr gATH_wPathname, gATH_wBackupPathNameStr
+			WAVE wRef = $gATH_wPathname
+			WAVE wRefbck = $gATH_wBackupPathNameStr
 			Duplicate/O wRefbck, wRef
 			SetWindow $s.winName, hook(MyImageRotationParentGraphHook) = $""
 			KillDataFolder dfr
@@ -139,16 +137,14 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
-	//Cleanup when window is closed
-	variable hookresult = 0
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iRotateFolder"))
-	SVAR/SDFR=dfr gATH_WindowNameStr
-	SVAR/SDFR=dfr gATH_wPathname
-	SVAR/SDFR=dfr gATH_wBackupPathNameStr
-	WAVE wRef = $gATH_wPathname
-	WAVE wRefbck = $gATH_wBackupPathNameStr
-    switch(s.eventCode)
+
+	switch(s.eventCode)
 		case 2: // Kill the window
+			variable hookresult = 0
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iRotateFolder"))
+			SVAR/SDFR=dfr gATH_wPathname, gATH_wBackupPathNameStr
+			WAVE wRef = $gATH_wPathname
+			WAVE wRefbck = $gATH_wBackupPathNameStr
 			Duplicate/O wRefbck, wRef
 			SetWindow $s.winName, hook(MyImageRotationPanelHook) = $""
 			string parentWindow = GetUserData(s.winName, "", "ATH_iImageRotateParentWindow")
@@ -161,12 +157,7 @@ static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 End
 
 static Function SliderProc(STRUCT WMSliderAction &sa) : SliderControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sa.win, "", "ATH_iRotateFolder"))
-	SVAR/SDFR=dfr gATH_wPathname
-	SVAR/SDFR=dfr gATH_wBackupPathNameStr
-	NVAR/SDFR=dfr gATH_Angle
-	WAVE wRef = $gATH_wPathname
-	WAVE wRefbck = $gATH_wBackupPathNameStr
+
 	switch( sa.eventCode )
 		case -3: // Control received keyboard focus
 		case -2: // Control lost keyboard focus
@@ -174,6 +165,11 @@ static Function SliderProc(STRUCT WMSliderAction &sa) : SliderControl
 			break
 		default:
 			if( sa.eventCode & 1 ) // value set
+				DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sa.win, "", "ATH_iRotateFolder"))
+				SVAR/SDFR=dfr gATH_wPathname, gATH_wBackupPathNameStr
+				NVAR/SDFR=dfr gATH_Angle
+				WAVE wRef = $gATH_wPathname
+				WAVE wRefbck = $gATH_wBackupPathNameStr
 				gATH_Angle = sa.curval
 				ImageRestoreAndRotate(wRefbck, wRef, gATH_Angle)
 			endif
@@ -184,16 +180,16 @@ static Function SliderProc(STRUCT WMSliderAction &sa) : SliderControl
 End
 
 static Function SetAngle(STRUCT WMSetVariableAction &sva) : SetVariableControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_iRotateFolder"))
-	SVAR/SDFR=dfr gATH_wPathname
-	SVAR/SDFR=dfr gATH_wBackupPathNameStr
-	NVAR/SDFR=dfr gATH_Angle
-	WAVE wRef = $gATH_wPathname
-	WAVE wRefbck = $gATH_wBackupPathNameStr
+
 	switch( sva.eventCode )
 		case 1: // mouse up
 		case 2: // Enter key
 		case 3: // Live update
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_iRotateFolder"))
+			SVAR/SDFR=dfr gATH_wPathname, gATH_wBackupPathNameStr
+			NVAR/SDFR=dfr gATH_Angle
+			WAVE wRef = $gATH_wPathname
+			WAVE wRefbck = $gATH_wBackupPathNameStr
 			gATH_Angle = sva.dval
 			ImageRestoreAndRotate(wRefbck, wRef, gATH_Angle)
 			break

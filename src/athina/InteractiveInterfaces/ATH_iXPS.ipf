@@ -419,42 +419,29 @@ End
 
 static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
-	string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
-	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
-	SVAR/Z w3dNameStr = dfr:gATH_ImageNameStr
-	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
-	Wave/SDFR=dfr W_ImageLineProfile
-	NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch
-	NVAR/Z UseBESwitch = dfr:gATH_UseBELineSwitch
-	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z colorcnt = dfr:gATH_colorcnt
-	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	NVAR/Z Gx = dfr:gATH_Gx
-	NVAR/Z Gy = dfr:gATH_Gy
-	NVAR/Z Hx = dfr:gATH_Hx
-	NVAR/Z Hy = dfr:gATH_Hy
-	NVAR/Z dx = dfr:gATH_dx
-	NVAR/Z dy = dfr:gATH_dy
-	NVAR/Z Eoffset = dfr:gATH_Eoffset
-	NVAR/Z epp = dfr:gATH_epp
-	NVAR/Z stv = dfr:gATH_stv
-	NVAR/Z linepx = dfr:gATH_linepx
-	NVAR/Z hv = dfr:gATH_hv
-	NVAR/Z Wf = dfr:gATH_Wf
 
-	string recreateDrawStr
-	DFREF savedfr = GetDataFolderDFR()
-
-	variable postfix = 0, dGE
-	variable red, green, blue
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+			string targetGraphWin = GetUserData(B_Struct.win, "", "ATH_targetGraphWin")
+
+			// String and wave references
+			SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr, w3dNameStr = dfr:gATH_ImageNameStr, ImagePathname = dfr:gATH_ImagePathname
+			Wave/SDFR=dfr W_ImageLineProfile
+
+			// Numeric variables from the data folder
+			NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch, UseBESwitch = dfr:gATH_UseBELineSwitch, selectedLayer = dfr:gATH_selectedLayer
+			NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+			NVAR/Z colorcnt = dfr:gATH_colorcnt, profileWidth = dfr:gATH_profileWidth
+			NVAR/Z Gx = dfr:gATH_Gx, Gy = dfr:gATH_Gy, Hx = dfr:gATH_Hx, Hy = dfr:gATH_Hy
+			NVAR/Z dx = dfr:gATH_dx, dy = dfr:gATH_dy
+			NVAR/Z Eoffset = dfr:gATH_Eoffset, epp = dfr:gATH_epp, stv = dfr:gATH_stv, linepx = dfr:gATH_linepx
+			NVAR/Z hv = dfr:gATH_hv, Wf = dfr:gATH_Wf
+
+			string recreateDrawStr
+			DFREF savedfr = GetDataFolderDFR()
+			variable postfix = 0, dGE
+			variable red, green, blue
 			string saveWaveBaseStr = w3dNameStr + "_prof"
 			string saveWaveNameStr = CreateDataObjectName(savedfr, saveWaveBaseStr, 1, 0, 5)
 			// It has to come first, it is used to scale to BE
@@ -500,43 +487,28 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 			// Add metadata
 			break
 	endswitch
-return 0
+	return 0
 End
 
 static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
-	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iXPS:DefaultSettings") // Settings here
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	NVAR/Z Gx = dfr:gATH_Gx
-	NVAR/Z Gy = dfr:gATH_Gy
-	NVAR/Z Hx = dfr:gATH_Hx
-	NVAR/Z Hy = dfr:gATH_Hy
-	NVAR/Z dx = dfr:gATH_dx
-	NVAR/Z dy = dfr:gATH_dy
-	NVAR/Z linepx = dfr:gATH_linepx
-	NVAR/Z epp = dfr:gATH_epp
-	NVAR/Z Wf = dfr:gATH_Wf
-	// --------------------------//
-	NVAR/Z C1x0 = dfr0:gATH_C1x0
-	NVAR/Z C1y0 = dfr0:gATH_C1y0
-	NVAR/Z C2x0 = dfr0:gATH_C2x0
-	NVAR/Z C2y0 = dfr0:gATH_C2y0
-	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
-	NVAR/Z linepx0 = dfr0:gATH_linepx0
-	NVAR/Z Gx0 = dfr0:gATH_Gx0
-	NVAR/Z Gy0 = dfr0:gATH_Gy0
-	NVAR/Z Hx0 = dfr0:gATH_Hx0
-	NVAR/Z Hy0 = dfr0:gATH_Hy0
-	NVAR/Z Wf0 = dfr0:gATH_Wf0
-	NVAR/Z epp0 = dfr0:gATH_epp0
-	NVAR/Z CursorGHSwitch = dfr:gATH_CursorGHSwitch
-	
+
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+			DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iXPS:DefaultSettings") // Settings here
+			// From main data folder
+			NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+			NVAR/Z profileWidth = dfr:gATH_profileWidth, linepx = dfr:gATH_linepx
+			NVAR/Z Gx = dfr:gATH_Gx, Gy = dfr:gATH_Gy, Hx = dfr:gATH_Hx, Hy = dfr:gATH_Hy
+			NVAR/Z Wf = dfr:gATH_Wf, epp = dfr:gATH_epp, CursorGHSwitch = dfr:gATH_CursorGHSwitch
+			NVAR/Z dx = dfr:gATH_dx, dy = dfr:gATH_dy
+
+			// From default settings folder
+			NVAR/Z C1x0 = dfr0:gATH_C1x0, C1y0 = dfr0:gATH_C1y0, C2x0 = dfr0:gATH_C2x0, C2y0 = dfr0:gATH_C2y0
+			NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0, linepx0 = dfr0:gATH_linepx0
+			NVAR/Z Gx0 = dfr0:gATH_Gx0, Gy0 = dfr0:gATH_Gy0, Hx0 = dfr0:gATH_Hx0, Hy0 = dfr0:gATH_Hy0
+			NVAR/Z Wf0 = dfr0:gATH_Wf0, epp0 = dfr0:gATH_epp0
 			ControlInfo/W=$B_Struct.win RestoreCursorPositions
 			if(CursorGHSwitch)
 				string msg = "Save (Overwite) current state as default?"
@@ -559,47 +531,30 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 				endif
 			endif
 			break
-		endswitch
+	endswitch
 End
 
 static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
-	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iXPS:DefaultSettings") // Settings here
-	string parentWindow = GetUserData(B_Struct.win, "", "ATH_parentGraphWin")
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	NVAR/Z C1x0 = dfr0:gATH_C1x0
-	NVAR/Z C1y0 = dfr0:gATH_C1y0
-	NVAR/Z C2x0 = dfr0:gATH_C2x0
-	NVAR/Z C2y0 = dfr0:gATH_C2y0
-	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
-	NVAR/Z updateCursorsPositions = dfr:gATH_updateCursorsPositions
 
-	NVAR/Z Gx0 = dfr0:gATH_Gx0
-	NVAR/Z Gy0 = dfr0:gATH_Gy0	
-	NVAR/Z Hx0 = dfr0:gATH_Hx0
-	NVAR/Z Hy0 = dfr0:gATH_Hy0
-	NVAR/Z Wf0 = dfr0:gATH_Wf0
-	NVAR/Z epp0 = dfr0:gATH_epp0
-	
-	NVAR/Z Gx = dfr:gATH_Gx
-	NVAR/Z Gy = dfr:gATH_Gy	
-	NVAR/Z Hx = dfr:gATH_Hx
-	NVAR/Z Hy = dfr:gATH_Hy
-	NVAR/Z dx = dfr:gATH_dx
-	NVAR/Z dy = dfr:gATH_dy
-	NVAR/Z linepx = dfr:gATH_linepx
-	NVAR/Z epp = dfr:gATH_epp
-	NVAR/Z stv = dfr:gATH_stv
-	WAVE/Z/SDFR=dfr W_ImageLineProfile
-
-	NVAR/Z CursorGHSwitch = dfr:gATH_CursorGHSwitch
-	
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			DFREF dfr  = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+			DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iXPS:DefaultSettings")
+			string parentWindow = GetUserData(B_Struct.win, "", "ATH_parentGraphWin")
+
+			// Current settings
+			NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+			NVAR/Z profileWidth = dfr:gATH_profileWidth, updateCursorsPositions = dfr:gATH_updateCursorsPositions
+			NVAR/Z Gx = dfr:gATH_Gx, Gy = dfr:gATH_Gy, Hx = dfr:gATH_Hx, Hy = dfr:gATH_Hy
+			NVAR/Z dx = dfr:gATH_dx, dy = dfr:gATH_dy, linepx = dfr:gATH_linepx, epp = dfr:gATH_epp, stv = dfr:gATH_stv
+			NVAR/Z CursorGHSwitch = dfr:gATH_CursorGHSwitch
+			WAVE/Z/SDFR=dfr W_ImageLineProfile
+
+			// Default settings
+			NVAR/Z C1x0 = dfr0:gATH_C1x0, C1y0 = dfr0:gATH_C1y0, C2x0 = dfr0:gATH_C2x0, C2y0 = dfr0:gATH_C2y0
+			NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
+			NVAR/Z Gx0 = dfr0:gATH_Gx0, Gy0 = dfr0:gATH_Gy0, Hx0 = dfr0:gATH_Hx0, Hy0 = dfr0:gATH_Hy0
+			NVAR/Z Wf0 = dfr0:gATH_Wf0, epp0 = dfr0:gATH_epp0
 			C1x = C1x0
 			C1y = C1y0
 			C2x = C2x0
@@ -645,49 +600,49 @@ static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonC
 End
 
 static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
-	/// We have to find the vertices of the polygon representing
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	SVAR/Z WindowNameStr= dfr:gATH_WindowNameStr
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z width = dfr:gATH_profileWidth
-	NVAR/Z dx = dfr:gATH_dx
-	NVAR/Z dy = dfr:gATH_dy // assume here that dx = dy
-	variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys
-	variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y,C2x, C2y)
-	if(slope == 0)
-		x1 = C1x
-		x2 = C1x
-		x3 = C2x
-		x4 = C2x
-		y1 = C1y + 0.5 * width * dy
-		y2 = C1y - 0.5 * width * dy
-		y3 = C2y - 0.5 * width * dy
-		y4 = C2y + 0.5 * width * dy
-	elseif(slope == inf)
-		y1 = C1y
-		y2 = C1y
-		y3 = C2y
-		y4 = C2y
-		x1 = C1x + 0.5 * width * dx
-		x2 = C1x - 0.5 * width * dx
-		x3 = C2x - 0.5 * width * dx
-		x4 = C2x + 0.5 * width * dx
-	else
-		[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(width * dx/2, slope)
-		x1 = C1x + xs
-		x2 = C1x - xs
-		x3 = C2x - xs
-		x4 = C2x + xs
-		y1 = C1y + ys
-		y2 = C1y - ys
-		y3 = C2y - ys
-		y4 = C2y + ys
-	endif
 	switch(B_Struct.eventCode)	// numeric switch
 		case 1:	// "mouse down"
+			/// We have to find the vertices of the polygon representing
+			NVAR/Z C1x = dfr:gATH_C1x
+			NVAR/Z C1y = dfr:gATH_C1y
+			NVAR/Z C2x = dfr:gATH_C2x
+			NVAR/Z C2y = dfr:gATH_C2y
+			NVAR/Z width = dfr:gATH_profileWidth
+			NVAR/Z dx = dfr:gATH_dx
+			NVAR/Z dy = dfr:gATH_dy // assume here that dx = dy
+			variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys
+			variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y,C2x, C2y)
+			if(slope == 0)
+				x1 = C1x
+				x2 = C1x
+				x3 = C2x
+				x4 = C2x
+				y1 = C1y + 0.5 * width * dy
+				y2 = C1y - 0.5 * width * dy
+				y3 = C2y - 0.5 * width * dy
+				y4 = C2y + 0.5 * width * dy
+			elseif(slope == inf)
+				y1 = C1y
+				y2 = C1y
+				y3 = C2y
+				y4 = C2y
+				x1 = C1x + 0.5 * width * dx
+				x2 = C1x - 0.5 * width * dx
+				x3 = C2x - 0.5 * width * dx
+				x4 = C2x + 0.5 * width * dx
+			else
+				[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(width * dx/2, slope)
+				x1 = C1x + xs
+				x2 = C1x - xs
+				x3 = C2x - xs
+				x4 = C2x + xs
+				y1 = C1y + ys
+				y2 = C1y - ys
+				y3 = C2y - ys
+				y4 = C2y + ys
+			endif
 			SetDrawLayer/W=$WindowNameStr ProgFront
 			SetDrawEnv/W=$WindowNameStr gstart,gname= iXPSWidth
 			SetDrawEnv/W=$WindowNameStr linefgc = (65535,16385,16385,32767), fillbgc= (65535,16385,16385,32767), fillpat = -1, linethick = 0, xcoord = top, ycoord = left
@@ -744,34 +699,28 @@ End
 
 static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 
-	DFREF currdfr = GetDataFolderDFR()
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
-	NVAR/Z C1x = dfr:gATH_C1x
-	NVAR/Z C1y = dfr:gATH_C1y
-	NVAR/Z C2x = dfr:gATH_C2x
-	NVAR/Z C2y = dfr:gATH_C2y
-	NVAR/Z profileWidth = dfr:gATH_profileWidth
-	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
-	NVAR/Z Gx = dfr:gATH_Gx
-	NVAR/Z Gy = dfr:gATH_Gy
-	NVAR/Z Hx = dfr:gATH_Hx
-	NVAR/Z Hy = dfr:gATH_Hy	
-	NVAR/Z dx = dfr:gATH_dx
-	NVAR/Z dy = dfr:gATH_dy
-	NVAR/Z stv = dfr:gATH_stv
-	NVAR/Z epp = dfr:gATH_epp
-	NVAR/Z hv = dfr:gATH_hv	
-	NVAR/Z Wf = dfr:gATH_Wf		
-	NVAR/Z linepx = dfr:gATH_linepx
-	NVAR/Z UseBESwitch = dfr:gATH_UseBELineSwitch	
-	SetDataFolder dfr
-	Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
-	SVAR/Z ImagePathname = dfr:gATH_ImagePathname
-	WAVE/Z imgWaveRef = $ImagePathname
-	WAVE/Z/SDFR=dfr W_ImageLineProfile
-	variable dGE, Eoffset, BE_Eoffset
 	switch(sv.eventCode)
 		case 6:
+			DFREF currdfr = GetDataFolderDFR()
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+			// Numeric variables
+			NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+			NVAR/Z profileWidth = dfr:gATH_profileWidth, selectedLayer = dfr:gATH_selectedLayer
+			NVAR/Z Gx = dfr:gATH_Gx, Gy = dfr:gATH_Gy, Hx = dfr:gATH_Hx, Hy = dfr:gATH_Hy
+			NVAR/Z dx = dfr:gATH_dx, dy = dfr:gATH_dy, stv = dfr:gATH_stv, epp = dfr:gATH_epp
+			NVAR/Z hv = dfr:gATH_hv, Wf = dfr:gATH_Wf, linepx = dfr:gATH_linepx
+			NVAR/Z UseBESwitch = dfr:gATH_UseBELineSwitch
+
+			// String and wave references
+			SVAR/Z ImagePathname = dfr:gATH_ImagePathname
+			WAVE/Z imgWaveRef = $ImagePathname
+			WAVE/Z/SDFR=dfr W_ImageLineProfile
+
+			// Local variables
+			SetDataFolder dfr
+			Make/O/FREE/N=2 xTrace = {C1x, C2x}, yTrace = {C1y, C2y}
+			variable dGE, Eoffset, BE_Eoffset
+
 			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2 * profileWidth
 			if(stv)
 				dGE    = sqrt(((C1x - Gx)/dx)^2 + ((C1y - Gy)/dy)^2)
@@ -793,22 +742,20 @@ End
 
 static Function SetCursorsGH(STRUCT WMButtonAction &B_Struct): ButtonControl)
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
-	string parentWindow = GetUserData(B_Struct.win, "", "ATH_parentGraphWin")
-	NVAR/Z Gx = dfr:gATH_Gx
-	NVAR/Z Gy = dfr:gATH_Gy	
-	NVAR/Z Hx = dfr:gATH_Hx
-	NVAR/Z Hy = dfr:gATH_Hy
-	NVAR/Z stv = dfr:gATH_STV
-	NVAR/Z dx = dfr:gATH_dx
-	NVAR/Z dy = dfr:gATH_dy
-	NVAR/Z linepx = dfr:gATH_linepx
-	NVAR/Z CursorGHSwitch = dfr:gATH_CursorGHSwitch
-	
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(parentWindow, ";"),";")
-	
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
+			string parentWindow = GetUserData(B_Struct.win, "", "ATH_parentGraphWin")
+
+			// Numeric variables
+			NVAR/Z Gx = dfr:gATH_Gx, Gy = dfr:gATH_Gy, Hx = dfr:gATH_Hx, Hy = dfr:gATH_Hy
+			NVAR/Z stv = dfr:gATH_STV, dx = dfr:gATH_dx, dy = dfr:gATH_dy
+			NVAR/Z linepx = dfr:gATH_linepx, CursorGHSwitch = dfr:gATH_CursorGHSwitch
+
+			// String
+			string imgNameTopGraphStr = StringFromList(0, ImageNameList(parentWindow, ";"), ";")
+
 			if(!CursorGHSwitch) // if not yet set -> CursorGHSwitch = 0
 				SetAxis/W=$parentWindow/A/R left // Auto-scale in case of zoomed in!
 				Gx = hcsr(G, parentWindow)
@@ -816,36 +763,36 @@ static Function SetCursorsGH(STRUCT WMButtonAction &B_Struct): ButtonControl)
 				Hx = hcsr(H, parentWindow)
 				Hy = vcsr(H, parentWindow)
 				linepx = sqrt(((Gx-Hx)/dx)^2 + ((Gy-Hy)/dy)^2)
-				// 
+				//
 				Cursor/K/W=$parentWindow G
 				Cursor/K/W=$parentWindow H
 				Button SetCursorsGH fcolor=(0,65535,0)
 				ControlUpdate/W=$B_Struct.win SetCursorsGH
-				SetDrawLayer/W=$parentWindow Overlay 
+				SetDrawLayer/W=$parentWindow Overlay
 				SetDrawEnv/W=$parentWindow linefgc = (65535,65535,0), fillpat = 0, linethick = 3, dash= 3, xcoord= top, ycoord= left
 				DrawLine/W=$parentWindow Gx, Gy, Hx, Hy
 				SetDrawEnv/W=$parentWindow linefgc = (65535,65535,0), fillfgc= (65535,65535,0), fillpat = 1, linethick = 3, dash= 1, xcoord= top, ycoord= left
 				DrawOval/W=$parentWindow (Gx + Hx)/2 + 3 * dx, (Gy + Hy)/2 + 3 * dy, (Gx + Hx)/2 - 3 * dx, (Gy + Hy)/2 - 3 * dy
-				SetDrawLayer/W=$parentWindow Overlay 
-				SetDrawEnv/W=$parentWindow linefgc = (1,39321,19939, 32767), fillfgc= (0,65535,0, 32767), fillpat = 1, linethick = 1, dash= 1, xcoord= top, ycoord= left	
+				SetDrawLayer/W=$parentWindow Overlay
+				SetDrawEnv/W=$parentWindow linefgc = (1,39321,19939, 32767), fillfgc= (0,65535,0, 32767), fillpat = 1, linethick = 1, dash= 1, xcoord= top, ycoord= left
 				variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(Gx, Gy, Hx, Hy)
 				variable Dx1, Dy1, Dx2, Dy2
 				[Dx1, Dy1, Dx2, Dy2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Gx, Gy, -1/slope, 200*dx)
-				SetDrawLayer/W=$parentWindow Overlay 
+				SetDrawLayer/W=$parentWindow Overlay
 				SetDrawEnv/W=$parentWindow linefgc = (65535,0,0), fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
 				DrawLine/W=$parentWindow Dx1, Dy1, Dx2, Dy2
 				// Use the same local variables for the second line
 				[Dx1, Dy1, Dx2, Dy2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(Hx, Hy, -1/slope, 200*dx) // B is the bottom point
-				SetDrawLayer/W=$parentWindow Overlay 
+				SetDrawLayer/W=$parentWindow Overlay
 				SetDrawEnv/W=$parentWindow linefgc = (1,16019,65535),  fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
 				DrawLine/W=$parentWindow Dx1, Dy1, Dx2, Dy2
 				// Draw the midpoint using the same lcoal variable
 				[Dx1, Dy1, Dx2, Dy2] = ATH_Geometry#GetBothPointsWithDistanceFromLine(0.5*(Gx+Hx), 0.5*(Gy+Hy), -1/slope, 200*dx) // B is the bottom point
-				SetDrawLayer/W=$parentWindow Overlay 
+				SetDrawLayer/W=$parentWindow Overlay
 				SetDrawEnv/W=$parentWindow linefgc = (16386,65535,16385), fillpat = 1, linethick = 3, dash= 8, xcoord= top, ycoord= left
 				DrawLine/W=$parentWindow Dx1, Dy1, Dx2, Dy2
 				SetDrawLayer/W=$parentWindow ProgFront
-				Button SaveCursorPositions, disable = 0, win=$B_Struct.win				
+				Button SaveCursorPositions, disable = 0, win=$B_Struct.win
 				CursorGHSwitch = 1
 			else
 				Cursor/W=$parentWindow/I/C=(0,65535,0, 30000)/H=1/P/N=1 G $imgNameTopGraphStr Gx, Gy
@@ -855,12 +802,12 @@ static Function SetCursorsGH(STRUCT WMButtonAction &B_Struct): ButtonControl)
 				Button SetCursorsGH fcolor=(65535,0,0)
 				ControlUpdate/W=$B_Struct.win SetCursorsGH
 				SetDrawLayer/W=$parentWindow ProgFront
-				Button SaveCursorPositions, disable = 2, win=$B_Struct.win				
+				Button SaveCursorPositions, disable = 2, win=$B_Struct.win
 				CursorGHSwitch = 0
 			endif
 			break
 	endswitch
-	
+
 End
 	
 static Function UseBE(STRUCT WMCheckboxAction& cb) : CheckBoxControl
@@ -885,10 +832,10 @@ End
 
 static Function Sethv(STRUCT WMSetVariableAction& sv) : SetVariableControl	
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
-	NVAR/Z hv = dfr:gATH_hv
 	switch(sv.eventCode)
 		case 6:
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+			NVAR/Z hv = dfr:gATH_hv		
 			hv = sv.dval
 			break
 	endswitch
@@ -897,10 +844,10 @@ End
 
 static Function SetWf(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
-	NVAR/Z wf = dfr:gATH_Wf
 	switch(sv.eventCode)
 		case 6:
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+			NVAR/Z wf = dfr:gATH_Wf		
 			wf = sv.dval
 			break
 	endswitch
@@ -909,10 +856,11 @@ End
 
 static Function SetEPP(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
-	NVAR/Z epp = dfr:gATH_epp
+
 	switch(sv.eventCode)
 		case 6:
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+			NVAR/Z epp = dfr:gATH_epp		
 			epp = sv.dval
 			break
 	endswitch
@@ -921,10 +869,10 @@ End
 
 static Function SetSTV(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
-	NVAR/Z stv = dfr:gATH_STV
 	switch(sv.eventCode)
 		case 6:
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_rootdfrStr"))
+			NVAR/Z stv = dfr:gATH_STV		
 			stv = sv.dval
 			break
 	endswitch
@@ -947,18 +895,11 @@ static Function GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
 		return -1
 	endif
 
-	NVAR/Z C1x0 = dfr0:gATH_C1x0
-	NVAR/Z C1y0 = dfr0:gATH_C1y0
-	NVAR/Z C2x0 = dfr0:gATH_C2x0
-	NVAR/Z C2y0 = dfr0:gATH_C2y0
-	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
-	NVAR/Z Gx0 = dfr0:gATH_Gx0
-	NVAR/Z Gy0 = dfr0:gATH_Gy0
-	NVAR/Z Hx0 = dfr0:gATH_Hx0
-	NVAR/Z Hy0 = dfr0:gATH_Hy0
-	NVAR/Z Wf0 = dfr0:gATH_Wf0
-	NVAR/Z epp0 = dfr0:gATH_epp0
-	NVAR/Z linepx0 = dfr0:gATH_linepx0
+	NVAR/Z C1x0 = dfr0:gATH_C1x0, C1y0 = dfr0:gATH_C1y0, C2x0 = dfr0:gATH_C2x0, C2y0 = dfr0:gATH_C2y0
+	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0, Gx0 = dfr0:gATH_Gx0, Gy0 = dfr0:gATH_Gy0
+	NVAR/Z Hx0 = dfr0:gATH_Hx0, Hy0 = dfr0:gATH_Hy0, Wf0 = dfr0:gATH_Wf0
+	NVAR/Z epp0 = dfr0:gATH_epp0, linepx0 = dfr0:gATH_linepx0
+
 	if(!NVAR_Exists(Gx0))
 		return 1
 	endif

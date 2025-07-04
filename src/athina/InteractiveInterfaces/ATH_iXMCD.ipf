@@ -129,19 +129,13 @@ End
 
 static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iXMCDPath"))
-	NVAR/SDFR=dfr gATH_driftStep
-	NVAR/SDFR=dfr gATH_dx
-	NVAR/SDFR=dfr gATH_dy
-	WAVE/SDFR=dfr wImg1	
-	WAVE/SDFR=dfr wImg2
-	WAVE/SDFR=dfr wImg2_undo	
-	WAVE/SDFR=dfr wXMCD
-	SVAR/SDFR=dfr wName2Str
-	
-	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
-	string dfrStr = GetUserData(s.winName, "", "ATH_iXMCDPath"), cmdStr
-	// deal with arrows
 	if(s.specialKeyCode)
+		NVAR/SDFR=dfr gATH_driftStep, gATH_dx, gATH_dy
+		WAVE/SDFR=dfr wImg1, wImg2, wImg2_undo, wXMCD
+		SVAR/SDFR=dfr wName2Str
+
+		variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
+		string dfrStr = GetUserData(s.winName, "", "ATH_iXMCDPath"), cmdStr
 		switch(s.specialKeyCode)
 			case 100: //left arrow
 				gATH_dx -= gATH_driftStep
@@ -180,11 +174,11 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 		endif
 	endif
-	
+
 	if(s.eventCode == 2)
-	// Window is about to be killed case 17. 
-	// Needed if you want more than one hook functions to be able to cleanup/close 
-	// windows linked a parent window.
+		// Window is about to be killed case 17.
+		// Needed if you want more than one hook functions to be able to cleanup/close
+		// windows linked a parent window.
 		string killDFCmd = "KillDataFolder "+ GetDataFolder(1, dfr)
 		Execute/P/Q killDFCmd
 		hookresult = 1
@@ -194,15 +188,13 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 End
 
 static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
-	WAVE/SDFR=dfr wImg1
-	WAVE/SDFR=dfr wImg2
-	WAVE/SDFR=dfr wXMCD
-	WAVE/SDFR=dfr wimg2_undo
-	NVAR/SDFR=dfr gATH_dx
-	NVAR/SDFR=dfr gATH_dy
+
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
+			NVAR/SDFR=dfr gATH_dx, gATH_dy
+			WAVE/SDFR=dfr wImg1, wImg2, wImg2_undo, wXMCD
+			SVAR/SDFR=dfr wName2Str
 			Duplicate/O wImg2_undo, wImg2
 			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 			gATH_dx = 0; gATH_dy = 0
@@ -213,25 +205,19 @@ End
 
 static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
-	WAVE/SDFR=dfr wImg1
-	WAVE/SDFR=dfr wImg2
-	WAVE/SDFR=dfr wXMCD
-	WAVE/SDFR=dfr wimg2_undo
-	SVAR/SDFR=dfr wName1Str
-	SVAR/SDFR=dfr wName2Str
-	NVAR/SDFR=dfr gATH_dx
-	NVAR/SDFR=dfr gATH_dy
-	
-	variable postfix = 0
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
+			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_undo
+			SVAR/SDFR=dfr wName1Str, wName2Str
+			NVAR/SDFR=dfr gATH_dx, gATH_dy
+			variable postfix = 0
 			string note2WaveStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " \
 			+ wName1Str + "\nimg2: " + wName2Str + "\nTotal img2 pixel drift dx:" + num2str(gATH_dx) \
 			+ " dy:" + num2str(gATH_dy) + "\n"
 			note2WaveStr += "Copy to command line: \nImageInterpolate/APRM={1,0,"+num2str(gATH_dx)+",0,1,"+num2str(gATH_dy)+\
 			",1,0} Affine2D " + wName2Str
-			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)		
+			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)
 			string savexmcdWaveStr = CreatedataObjectName(sourceDF, "iXMCD", 1, 0, 1)
 			Duplicate wXMCD, sourceDF:$savexmcdWaveStr
 			Note sourceDF:$savexmcdWaveStr, note2WaveStr
@@ -241,13 +227,14 @@ static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 End
 
 static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
-	string dfrStr = GetUserData(sva.win, "", "ATH_iXMCDPath")
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
-	NVAR/SDFR=dfr gATH_driftStep	
+
 	switch (sva.eventCode)
 		case 1: 							// Mouse up
 		case 2:							// Enter key
 		case 3: 							// Live update
+			string dfrStr = GetUserData(sva.win, "", "ATH_iXMCDPath")
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
+			NVAR/SDFR=dfr gATH_driftStep
 			gATH_driftStep = sva.dval
 			break
 		case -1: 							// Control being killed
