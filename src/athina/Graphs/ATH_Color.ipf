@@ -12,7 +12,9 @@
 static strConstant ATH_DF_CTAB = "root:Packages:ATH_DataFolder:ctab:"
 
 // --------------Add ctab directories here -----------------
-static strConstant SIDAM_CTAB = "CartoColors;CET;cmocean;ColorBrewer;Matplotlib;SciColMaps;Tol" 
+static strConstant SIDAM_CTAB = "CartoColors;CET;cmocean;ColorBrewer;Matplotlib;SciColMaps;Tol;LANL;ColorBrewer" 
+// Use color maps shipped wuth IP
+//static strConstant SIDAM_CTAB = "EPFL;LANL;Matplotlib;Misc;Moreland;SciColMaps" 
 /// --------------------------------------------------------
 
 //@
@@ -1417,7 +1419,7 @@ End
 Static Function loadColorTableAll() // Change here to add more directories
 
 	string datasetPathStr = ParseFilePath(1,FunctionPath("ATH_XPSData#XPSReferenceData"),":",1,1) + "Datasets:ctab:"
-	
+	//string datasetPathStr = SpecialDirPath("Igor Application",0,0,0) + "Color Tables:"
 	//N.B: The order and number of elements should match SIDAM_CTAB
 	string ATH_CTAB_PATH = ATH_String#StrThread(datasetPathStr,ATH_String#StrThread("=", SIDAM_CTAB,rev=1), rev=1)
 	
