@@ -41,6 +41,7 @@ Menu "athina"
 		".tifs (EMMENU5) and stack...", /Q, ATH_LoadImg#Loadtiffs(displayImg = 1, stack3d = 1)	
 		".h5 file (MAXIV metadata) .../4", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
 		".nxs NeXus files .../5",/Q, ATH_HDF5#LoadNXSDataSets()
+		".P3B files ...",/Q, ATH_LoadImg#PEEM3Files()
 	End
 	
 	Submenu "Image Operations"

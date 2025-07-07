@@ -165,38 +165,157 @@ static Function Loadtiffs([int numImages, int displayImg, int stack3d])
 	return 0
 End
 
-// It could be placed in ImgOp module...
 
-static Function/WAVE AverageStackedStacks(WAVE wRef, [int overwrite])
-	// Read wave notes
-	overwrite = ParamIsDefault(overwrite) ? 0 : overwrite
-	string noteStr = note(wRef)
-	string stackNames = StringByKey("STCK", noteStr, ":", "\n")
-	string wavenameStr, newWaveNameStr, buffer
-	string wlist = ""
-	variable itemsN = ItemsInList(stackNames), nL, i
-	int startL = 0
-	DFREF saveDF = GetDataFolderDFR()
-	SetDataFolder NewFreeDataFolder()
-	for(i = 0; i < itemsN; i++)
-		sscanf StringFromList(i, stackNames), "%[^(](%d%[)]", wavenameStr, nL, buffer
-		Duplicate/O/FREE/RMD=[][][startL, startL+nL-1] wRef, freeW
-		buffer = "img_" + num2str(i)
-		wlist += buffer+";"
-		ATH_WaveOp#AverageImageStack(freeW, outWaveStr = buffer)
-		startL += nL
-	endfor
-	if(overwrite)
-		Concatenate/O/NP=2 wlist, wRef
-		Note/K wRef, stackNames
-		SetDataFolder saveDF
-		return wRef
+/// Load PEEM3 P3B files ///
+
+static Structure long
+	int32 length
+EndStructure
+
+static Structure dentry
+	int32 dtype
+	int32 dlen
+EndStructure
+
+Function PEEM3File(string filepathStr, [variable mkdir])
+	variable numRef
+	string separatorchar = ":", waveNameStr, message
+	string fileFilters = "P3B File (*.P3B):.P3B;"
+	fileFilters += "All Files:.*;"
+	string parentDirName = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
+	if (!strlen(filepathStr))
+		message = "Select .dat file. \nFilename will be wave's name. (overwrite)\n "
+		Open/F=fileFilters/M=message/D/R numref
+		filepathStr = S_filename
+
+		if(!strlen(filepathStr)) // user cancel?
+			return NaN
+		endif
+
+		Open/F=fileFilters/R numRef as filepathStr
+		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
+	elseif (strlen(filepathStr))
+		message = "Select .dat file. \nWave names are filenames /O.\n "
+		Open/F=fileFilters/R numRef as filepathStr
+		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
 	else
-		newWaveNameStr = CreateDataObjectName(saveDF, NameOfWave(wRef) + "_stck_avg", 1, 0, 1)
-		Concatenate/O/NP=2 wlist, saveDF:$newWaveNameStr
-		Note/K saveDF:$newWaveNameStr, stackNames
-		SetDataFolder saveDF
-		return saveDF:$newWaveNameStr
+		print "Check ATH_LoadImage#PEEM3!"
 	endif
+	
+	DFREF saveDF = GetDataFolderDFR()
+	if(mkdir)
+		NewDataFolder/S $waveNameStr
+	else
+		DFREF dfrF = NewFreeDataFolder()
+		SetDataFolder dfrF
+	endif
+
+	FStatus numRef
+	FSetPos numRef, 0
+
+	string tagname, tagnameVal, tagsStrData = ""
+	variable i, tagnum
+	STRUCT long mylong
+	STRUCT dentry myentry
+	FBinRead numRef, mylong
+	tagnum = mylong.length
+	for(i=0;i<tagnum;i++)
+		FBinRead numRef, mylong
+		FReadLine/N=(mylong.length) numRef, tagname
+		if(exists(tagname))
+			tagname += "_"
+		endif
+		FBinRead numRef, myentry
+		switch(myentry.dtype)
+			case 1:
+				Make/B/U/N=(myentry.dlen) $tagname
+				FBinRead/F=1/U numRef,$tagname
+				break
+			case 2:
+				Make/W/N=(myentry.dlen) $tagname
+				FBinRead/F=2 numRef,$tagname
+				break
+			case 3:
+				Make/I/N=(myentry.dlen) $tagname
+				FBinRead/F=3 numRef,$tagname
+				break
+			case 4:
+				Make/R/N=(myentry.dlen) $tagname
+				FBinRead/F=4 numRef,$tagname
+				break
+			case 5:
+				Make/D/N=(myentry.dlen) $tagname
+				FBinRead/F=5 numRef,$tagname
+				break
+			case 7:
+				FReadLine/N=(myentry.dlen) numRef, tagnameVal
+				//tagsStrData += tagname +"="+tagnameVal+"\n"
+				break
+			case 12:
+				Make/W/U/N=(myentry.dlen) $tagname
+				FBinRead/F=2/U numRef,$tagname
+				break
+			case 13:
+				Make/I/U/N=(myentry.dlen) $tagname
+				FBinRead/F=3/U numRef,$tagname
+				break
+			case 14:
+				Make/L/N=(myentry.dlen) $tagname
+				FBinRead/F=6 numRef,$tagname
+				break
+			case 15:
+				Make/L/U/N=(myentry.dlen) $tagname
+				FBinRead/F=6/U numRef,$tagname
+				break
+			default:
+				Make/B/N=(myentry.dlen) $tagname
+				FBinRead/F=1 numRef,$tagname
+				break
+		endswitch
+
+		if(myentry.dlen==1)
+			WAVE/Z wRef = $tagname
+			if(WaveExists(wRef))
+				tagsStrData += RemoveEnding(tagname,"_") +"="+num2str(wRef[0])+"\n"
+			else
+				tagsStrData += RemoveEnding(tagname,"_") +"="+tagnameVal+"\n"
+			endif
+		endif
+	endfor
+
+	WAVE/Z DATA, DIMX, DIMY
+	Redimension/N=(DIMX[0],DIMY[0]) DATA
+	Note DATA, tagsStrData
+	if(mkdir)
+		Duplicate/O DATA, saveDF:$("w_"+waveNameStr)
+	else
+		Duplicate/O DATA, saveDF:$waveNameStr
+	endif
+	SetDataFolder saveDF
+	return 0
+End
+
+Function PEEM3Files()
+	variable numRef, i
+    string loadFiles, filepathStr, basenameStr, fileStr0
+
+	string message = "Select .P3B files. \n"
+	message += "Import overwrites waves with the same name."
+	string fileFilters = "P3B File (*.P3B):.P3B;"
+	fileFilters += "All Files:.*;"
+   	Open/F=fileFilters/MULT=1/M=message/D/R numref
+   	filepathStr = S_filename
+	
+   	if(!strlen(filepathStr)) // user cancel?
+   		return NaN
+   	endif	   	
+	loadFiles = SortList(S_fileName, "\r", 80) 
+	variable nrloadFiles = ItemsInList(loadFiles, "\r")
+	if(!nrloadFiles)
+		return 1
+	endif
+	for(i = 0; i < nrloadFiles; i++)
+		PEEM3File(StringFromList(i,loadFiles, "\r"))
+	endfor	
 End
 
