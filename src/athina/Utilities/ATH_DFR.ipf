@@ -60,20 +60,12 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	
 	/// Create a list of missing paths, parents first.
 	variable steps = ItemsInlist(ParseFilePath(2, fullpath, ":", 0, 0), ":"), i
-	string fldrs = "", fldrstr
-	for(i = 1; i < steps ; i++) // i = 0 & steps return NULL string
-		fldrs += ParseFilePath(1, fullpath, ":", 0, i) + ";"
+	
+	for(i = 2; i < steps; i++)
+		NewDataFolder/O $RemoveEnding(ParseFilePath(1, fullpath, ":", 0, i), ":") // ":" at the end pops an error
 	endfor
-	fldrs += ParseFilePath(2, fullpath, ":", 0, 0) // add the full path (last child folder is created here
-	// now create the folder from parent to child
-	variable fldrnum = ItemsInList(fldrs)
-	for(i = 0; i < fldrnum; i++)
-		fldrstr = StringFromList(i, fldrs)
-		if(!DataFolderExists(fldrstr))
-			NewDataFolder/O $RemoveEnding(fldrstr, ":") // ":" at the end pops an error
-		endif
-	endfor
-
+	NewDataFolder/O $RemoveEnding(ParseFilePath(2, fullpath, ":", 0, 0), ":")
+	
 	DFREF dfr = $fullpath
 	if (setDF)
 		SetDataFolder dfr
