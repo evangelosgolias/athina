@@ -189,3 +189,18 @@ static Function/S WaveToString(WAVE w, [string sep])
 	endfor
 	return concStr
 End
+
+static Function/S StrThread(string base, string strlist, [string sep, int rev])
+	sep = SelectString(ParamIsDefault(sep) ? 0: 1, ";", sep)
+	rev = ParamIsDefault(rev) ? 0: !!rev
+	variable imax = ItemsInList(strlist, sep), i
+	string retStr = ""
+	for(i=0;i<imax;i++)
+		if(rev)
+			retStr += StringFromList(i,strlist) + base + ";"
+		else
+			retStr += base + StringFromList(i,strlist) +";"
+		endif
+	endfor
+	return retStr
+End

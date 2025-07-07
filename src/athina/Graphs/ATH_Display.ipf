@@ -181,6 +181,13 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					endif
 					hookResult = 1										
 					break
+				case 67: // B
+					if(s.eventMod & 2) // works with SHIFT + B only!
+						ATH_Color#pnl(s.winName)
+						hookResult = 1										
+					endif
+					hookResult = 1										
+					break
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
 						ATH_Launch#iImgFFTFilter(grfName=s.winName)

@@ -424,27 +424,3 @@ static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 	endswitch
 	return hookResult
 End
-
-
-// Load cyclic colormaps
-
-static Function LoadCyclicColorTable(string cmapStr)
-	// Load cyclic colormap by name
-	// Currently: twilight, twilight_shifted, hsv
-	DFREF saveDF = GetDataFolderDFR()
-	ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:ColorTables",setDF=1)
-	string datasetPathStr = ParseFilePath(1,FunctionPath("ATH_XPSData#XPSReferenceData"),":",1,1) + "Datasets:ColorTables:"
-	string ctableList = "twilight;twilight_shifted;hsv"
-	NewPath/Q/O ATH_sourceData_TMP, datasetPathStr
-	if(strlen(cmapStr))
-		LoadWave/Q/H/P=ATH_sourceData_TMP cmapStr
-	else // empty string, load all
-		variable imax=ItemsInList(ctableList), i
-		for(i=0;i<imax;i++)
-			LoadWave/Q/H/P=ATH_sourceData_TMP StringFromList(i,ctableList)
-		endfor
-	endif
-	KillPath/Z ATH_sourceData_TMP
-	SetDataFolder saveDF
-	return 0
-End

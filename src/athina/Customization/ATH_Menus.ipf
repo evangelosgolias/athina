@@ -112,8 +112,9 @@ Menu "athina"
 		"Free space/8",/Q, ATH_Launch#DeleteBigWaves()
 		"Photoemission database",/Q, ATH_XPSData#XPSReferenceData()
 		"Calculations Pad/9",/Q, ATH_CalcPad#CalcPad()
-		"Load cyclic color tables",/Q, ATH_Graph#LoadCyclicColorTable("")
 		"List HDF5 (.h5) entries...", /Q, ATH_HDF5#ListHDF5Groups()		
+		"Load additional color maps",/Q, ATH_Color#loadColorTableAll()
+		"Unload unused color maps",/Q, ATH_Color#ATH_ColorKillWaves()		
 	End
 //	Submenu "Beamtime"
 //		"Set experiment's root folder",/Q, ATH_Beamtime#SetOrResetBeamtimeRootFolder()

@@ -83,7 +83,7 @@ EndStructure
 //		uchar MarkupData[128]
 //EndStructure
 
-static constant kpixelsTVIPS = 1024 // Change here if needed. Used for corrupted files only.
+static constant kpixelsTVIPS = 2048 // Change here if needed. Used for corrupted files only.
 
 static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameStr 
 			  [,int skipmetadata, int autoScale, int readMarkups,int binX, int binY, int overwrite])
@@ -117,7 +117,7 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
    		filepathStr = S_filename
    		
    		if(!strlen(filepathStr)) // user cancel?
-   			Abort
+   			return $""
    		endif
 
    		Open/F=fileFilters/R numRef as filepathStr
@@ -138,7 +138,7 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
    		filepathStr = S_filename
    		
    		if(!strlen(filepathStr)) // user cancel?
-   			Abort
+   			return $""
    		endif
    		
 		message = "Select .dat file. \nWave names are filenames /O.\n "
@@ -266,7 +266,7 @@ static Function LoadSingleDATFile(string filepathStr, string waveNameStr
    		filepathStr = S_filename
    		
    		if(!strlen(filepathStr)) // user cancel?
-   			Abort
+   			return NaN
    		endif
 
    		Open/F=fileFilters/R numRef as filepathStr
@@ -283,7 +283,7 @@ static Function LoadSingleDATFile(string filepathStr, string waveNameStr
    		filepathStr = S_filename
    		
    		if(!strlen(filepathStr)) // user cancel?
-   			Abort
+   			return NaN
    		endif
    		
 		message = "Select .dat file. \nWave names are filenames /O.\n "
@@ -809,7 +809,7 @@ static Function LoadDATFilesFromFolder(string folder, string pattern, [int stack
 	
 	NewPath/O/Q/M=message ATH_DATFilesPathTMP
 	if (V_flag) // user cancel?
-		Abort
+		return NaN
 	endif
 	PathInfo/S ATH_DATFilesPathTMP
 	folder = ParseFilePath(2, S_Path, ":", 0, 0)
@@ -999,7 +999,7 @@ static Function LoadMultiplyDATFiles([int skipmetadata, int autoscale, int stack
    	filepathStr = S_filename
 	
    	if(!strlen(filepathStr)) // user cancel?
-   		Abort
+   		return NaN
    	endif	   	
 	loadFiles = SortList(S_fileName, "\r", 80) 
 	variable nrloadFiles = ItemsInList(loadFiles, "\r")
@@ -1058,7 +1058,7 @@ static Function/WAVE WAVELoadSingleCorruptedDATFile(string filepathStr, string w
 		filepathStr = S_filename
 
 		if(!strlen(filepathStr)) // user cancel?
-			Abort
+			return $""
 		endif
 
 		Open/F=fileFilters/R numRef as filepathStr
@@ -1079,7 +1079,7 @@ static Function/WAVE WAVELoadSingleCorruptedDATFile(string filepathStr, string w
 		filepathStr = S_filename
 
 		if(!strlen(filepathStr)) // user cancel?
-			Abort
+			return $""
 		endif
 
 		message = "Select .dat file. \nWave names are filenames /O.\n "
@@ -1135,7 +1135,7 @@ static Function LoadSingleCorruptedDATFile(string filepathStr, string waveNameSt
    		filepathStr = S_filename
    		
    		if(!strlen(filepathStr)) // user cancel?
-   			Abort
+   			return NaN
    		endif
 
    		Open/F=fileFilters/R numRef as filepathStr
@@ -1156,7 +1156,7 @@ static Function LoadSingleCorruptedDATFile(string filepathStr, string waveNameSt
    		filepathStr = S_filename
    		
    		if(!strlen(filepathStr)) // user cancel?
-   			Abort
+   			return NaN
    		endif
    		
 		message = "Select .dat file. \nWave names are filenames /O.\n "
