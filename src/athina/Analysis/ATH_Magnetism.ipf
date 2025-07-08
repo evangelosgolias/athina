@@ -212,7 +212,7 @@ static Function XMCDStack4L(WAVE wRef, [string order, int overwrite, string outW
 	return 0
 End
 
-static Function CalculateXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, int fastFit])
+static Function FitXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, int fastFit])
 	
 	/// -------------------------------------------  XMLD Map  --------------------------------------------
 	///

@@ -33,29 +33,30 @@
 Menu "athina"
 
 	Submenu "Import"
-		".dat files...", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1)
+		".dat files (MAXIV)...", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1)
 		".dat files in folder and stack .../1", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1, displayImg = 1) 				
 		".dat files and stack .../2", /Q, ATH_Uview#LoadMultiplyDATFiles(stack3d = 1, autoscale = 1, displayImg = 1)		
 		".dat files in folder...", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", autoscale = 1)
 		".tif (EMMENU5).../3", /Q, ATH_LoadImg#LoadTiff("", "", displayImg = 1)	
 		".tifs (EMMENU5) and stack...", /Q, ATH_LoadImg#Loadtiffs(displayImg = 1, stack3d = 1)	
 		".h5 file (MAXIV metadata) .../4", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
-		".nxs NeXus files .../5",/Q, ATH_HDF5#LoadNXSDataSets()
-		".P3B files ...",/Q, ATH_LoadImg#PEEM3Files()
+		".nxs NeXus files (Diamond) ...",/Q, ATH_HDF5#LoadNXSDataSets()
+		".P3B files (ALS)...",/Q, ATH_LoadImg#PEEM3Files()
 	End
 	
 	Submenu "Image Operations"
 		"Average layers (range) (TG, 3D)", /Q, ATH_Launch#AverageLayersRange()
 		"Average image stack(TG, 3D)", /Q, ATH_Launch#AverageImageStack()
+		"Sum image stack(TG, 3D)", /Q, ATH_Launch#SumImagePlanes()		
 		"Append image(s) to stack (TG, 3D)", /Q, ATH_Launch#StackImagesToImageStack()
 		"Insert image at slider position  (TG, 3D)", /Q, ATH_Launch#InsertImageToStack()
 		"Extract layers to stack (TG, 3D)", /Q, ATH_Launch#ExtractLayerRangeToStack()
 		"Remove layers from stack (TG, 3D)", /Q, ATH_Launch#RemoveImagesFromImageStack()
-		"Unpack layers to source waves (TG, 3D)",/Q, ATH_Launch#UnpackStackToSources()
-		"Sum image stack(TG, 3D)", /Q, ATH_Launch#SumImagePlanes()
+		"Unpack layers to source waves (TG, 3D)",/Q, ATH_Launch#UnpackStackToSources()		
+		"Pixelate image (TG, 2D, 3D)", /Q, ATH_Launch#PixelateSingleImageOrStack()
+		"Resample image (TG, 2D)", /Q, ATH_Launch#ImageResample()
 		"Flip stack planes (TG, 3D)", /Q, ATH_Launch#FlipStackPlanes()			
 		"New image (stack) from saved ROI (TG, 2D, 3D)", /Q, ATH_Launch#MakeWaveFromSavedROI()
-		"Pixelate image (TG, 2D, 3D)", /Q, ATH_Launch#PixelateSingleImageOrStack()
 		"FFT (TG, 2D)", /Q, ATH_Launch#ImageFFTTransform()
 		"Histogram Equalisation (TG, 2D, 3D)", /Q, ATH_Launch#HistogramEqualisation()
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, ATH_Launch#ImageRotateAndScaleFromMetadata()
@@ -72,8 +73,8 @@ Menu "athina"
 	
 	Submenu "Interactive Operations"
 		"Drift correction (TG, 3D) ", /Q, ATH_iDriftCorrection#CreatePanel()
-		"XMC(L)D calculation .../6", /Q, ATH_iXMCD#MenuLaunch()
-		"Image calculation .../7", /Q, ATH_iImgOps#MainMenu()
+		"XMC(L)D calculation .../5", /Q, ATH_iXMCD#MenuLaunch()
+		"Image calculation .../6", /Q, ATH_iImgOps#MainMenu()
 		"Image rotation (TG, 2D, 3D) ", /Q,  ATH_iImgRotation#CreatePanel()		
 	End
 	
@@ -109,10 +110,10 @@ Menu "athina"
 	End	
 	
 	Submenu "Utilities"
-		"Spaces",/Q, ATH_Spaces#MenuLaunch()
-		"Free space/8",/Q, ATH_Launch#DeleteBigWaves()
+		"Spaces/9",/Q, ATH_Spaces#MenuLaunch()
+		"Free space/7",/Q, ATH_Launch#DeleteBigWaves()
 		"Photoemission database",/Q, ATH_XPSData#XPSReferenceData()
-		"Calculations Pad/9",/Q, ATH_CalcPad#CalcPad()
+		"Calculations Pad/8",/Q, ATH_CalcPad#CalcPad()
 		"List HDF5 (.h5) entries...", /Q, ATH_HDF5#ListHDF5Groups()		
 		"Load additional color maps",/Q, ATH_Color#loadColorTableAll()
 		"Unload unused color maps",/Q, ATH_Color#ATH_ColorKillWaves()		

@@ -828,54 +828,6 @@ static Function ImgRemoveBackgroundCols(WAVE wRef, variable orderN) //TODO! Fix
 	return 0
 End
 
-static Function ImageResampling(WAVE wRef,  string func, variable xOffset, variable yOffset,
-							 [int newWave, variable xscale, variable yscale])
-	// Calculate image interpolation using scaleShift and one of the following intepolating functions.
-	//
-	//	nn	Nearest neighbor interpolation uses the value of the nearest neighbor without interpolation. 
-	//		This is the fastest function.
-	//	bilinear	Bilinear interpolation uses the immediately surrounding pixels and computes a linear 
-	//				interpolation in each dimension. This is the second fastest function.
-	//	cubic	Cubic polynomial (photoshop-like) uses a 4x4 neighborhood value to compute the sampled pixel value.
-	//	spline	Spline smoothed sampled value uses a 4x4 neighborhood around the pixel.
-	//	sinc		Slowest function using a 16x16 neighborhood.
-	//
-	// Image is shifted by xOffset and yOffset. 
-	// Optional parameters: int newWave -- Create a new wave by adding _rsl at the working directory
-	// xscale, yscale: over/undersampling parameters
-	
-	string funcMethods = "bilinear;nn;cubic;spline;sinc"
-	variable ifunc = WhichListItem(func, funcMethods)
-	
-	if(ifunc == -1 || WaveDims(wRef) != 2)
-		return -1
-	endif
-	
-	
-	newWave =  ParamIsDefault(newWave) ? 0: newWave
-	xscale = ParamIsDefault(xscale) ? 1: xscale
-	yscale = ParamIsDefault(yscale) ? 1: yscale
-	string wRefStr = GetWavesDataFolder(wRef, 2), cmdTemplateStr, cmdStr
-
-	if(newWave) // New wave is createed at the working directory
-		DFREF cwdfr = GetDataFolderDFR()
-		STRING baseWaveNameStr = NameOfWave(wRef) + "_rsl"
-		string newWaveNameStr = CreateDataObjectName(cwdfr, baseWaveNameStr, 1, 0, 1)
-		cmdTemplateStr = "ImageInterpolate/FUNC=%s/TRNS={scaleShift, %.4f, %.4f, %.4f, %.4f}/DEST=%s Resample %s"
-		sprintf cmdStr, cmdTemplateStr, func, xOffset, xscale, yOffset, yscale, PossiblyQuoteName(newWaveNameStr), wRefStr
-		Execute/Z/Q cmdStr
-		CopyScales/I wRef, $newWaveNameStr
-	else
-		cmdTemplateStr = "ImageInterpolate/FUNC=%s/TRNS={scaleShift, %.4f, %.4f, %.4f, %.4f} Resample %s"
-		sprintf cmdStr, cmdTemplateStr, func, xOffset, xscale, yOffset, yscale, wRefStr
-		Execute/Z/Q cmdStr
-		WAVE M_InterpolatedImage
-		CopyScales/I wRef, M_InterpolatedImage
-		Duplicate/O M_InterpolatedImage, wRef
-		KillWaves M_InterpolatedImage
-	endif
-	return 0
-End
 
 static Function PixelateImage(WAVE wRef, variable nx, variable ny, [variable i16])
 	/// Pixalate a 2D image using a (nx, ny) binning
@@ -1025,33 +977,82 @@ static Function ImageWindow3D(WAVE wRef, string method)
 	return 0
 End
 
-static Function ShiftWaveUsingCursors(string graphStr)
-	// Shift wave wRef relative to the A cursor difference between
-	// the top graph (wRef) and graphStr
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	WAVE wRef = ImageNameToWaveRef(winNameStr, imgNameTopGraphStr)
-	if(!strlen(imgNameTopGraphStr))
+static Function ImageResampling(WAVE wRef,  string func, variable xOffset, variable yOffset,
+							 [int overwrite, variable xscale, variable yscale])
+	// Calculate image interpolation using scaleShift and one of the following intepolating functions.
+	//
+	//	nn	Nearest neighbor interpolation uses the value of the nearest neighbor without interpolation. 
+	//		This is the fastest function.
+	//	bilinear	Bilinear interpolation uses the immediately surrounding pixels and computes a linear 
+	//				interpolation in each dimension. This is the second fastest function.
+	//	cubic	Cubic polynomial (photoshop-like) uses a 4x4 neighborhood value to compute the sampled pixel value.
+	//	spline	Spline smoothed sampled value uses a 4x4 neighborhood around the pixel.
+	//	sinc		Slowest function using a 16x16 neighborhood.
+	//
+	// Image is shifted by xOffset and yOffset. 
+	// Optional parameters: int newWave -- Create a new wave by adding _rsl at the working directory
+	// xscale, yscale: over/undersampling parameters
+	
+	string funcMethods = "bilinear;nn;cubic;spline;sinc"
+	variable ifunc = WhichListItem(func, funcMethods)
+	
+	if(ifunc == -1 || WaveDims(wRef) != 2)
 		return -1
 	endif
-	variable x0 = hcsr(A, winNameStr)
-	variable y0 = vcsr(A, winNameStr)	
-	variable x1 = hcsr(A, graphStr)
-	variable y1 = vcsr(A, graphStr)
-	if(numtype(x0) == 2 || numtype(x1) == 2)
-		return -1
-	endif
-	variable dx = x1 - x0
-	variable dy = y1 - y0
-	string destWave = NameOfWave(wRef) + "_shift"
-	ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$destWave Affine2D wRef
-	Note/K $destWave, "Source: "+ NameOfWave(wRef) + "\ndx: " + num2str(dx) + "\ndy: " + num2str(dy)
-	return 0 	
-End
+	
+	
+	overwrite =  ParamIsDefault(overwrite) ? 0: !!overwrite
+	xscale = ParamIsDefault(xscale) ? 1: xscale
+	yscale = ParamIsDefault(yscale) ? 1: yscale
+	string wRefStr = GetWavesDataFolder(wRef, 2), cmdTemplateStr, cmdStr
 
-static Function AffineTransformationThreePoint(WAVE src, WAVE dest, WAVE srcP, WAVE destP, WAVE coeff)
-	variable a11, a12, tx, a21, a22, ty
-	WAVE w  = ATH_Transform#GetAffine2DMapping(srcP, destP)
-	ImageInterpolate/APRM={w[0],w[1],w[2],w[3],w[4],w[5],1,0}/DEST=dest Affine2D src
+	if(overwrite) // New wave is createed at the working directory
+		cmdTemplateStr = "ImageInterpolate/FUNC=%s/TRNS={scaleShift, %.4f, %.4f, %.4f, %.4f} Resample %s"
+		sprintf cmdStr, cmdTemplateStr, func, xOffset, xscale, yOffset, yscale, wRefStr
+		Execute/Z/Q cmdStr
+		WAVE M_InterpolatedImage
+		CopyScales/I wRef, M_InterpolatedImage
+		Duplicate/O M_InterpolatedImage, wRef
+		KillWaves M_InterpolatedImage	
+	else
+		DFREF cwdfr = GetDataFolderDFR()
+		STRING baseWaveNameStr = NameOfWave(wRef) + "_rsl"
+		string newWaveNameStr = CreateDataObjectName(cwdfr, baseWaveNameStr, 1, 0, 1)
+		cmdTemplateStr = "ImageInterpolate/FUNC=%s/TRNS={scaleShift, %.4f, %.4f, %.4f, %.4f}/DEST=%s Resample %s"
+		sprintf cmdStr, cmdTemplateStr, func, xOffset, xscale, yOffset, yscale, PossiblyQuoteName(newWaveNameStr), wRefStr
+		Execute/Z/Q cmdStr
+		CopyScales/I wRef, $newWaveNameStr
+	endif
 	return 0
 End
+
+//static Function ShiftWaveUsingCursors(string graphStr)
+//	// Shift wave wRef relative to the A cursor difference between
+//	// the top graph (wRef) and graphStr
+//	string winNameStr = WinName(0, 1, 1)
+//	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+//	WAVE wRef = ImageNameToWaveRef(winNameStr, imgNameTopGraphStr)
+//	if(!strlen(imgNameTopGraphStr))
+//		return -1
+//	endif
+//	variable x0 = hcsr(A, winNameStr)
+//	variable y0 = vcsr(A, winNameStr)	
+//	variable x1 = hcsr(A, graphStr)
+//	variable y1 = vcsr(A, graphStr)
+//	if(numtype(x0) == 2 || numtype(x1) == 2)
+//		return -1
+//	endif
+//	variable dx = x1 - x0
+//	variable dy = y1 - y0
+//	string destWave = NameOfWave(wRef) + "_shift"
+//	ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$destWave Affine2D wRef
+//	Note/K $destWave, "Source: "+ NameOfWave(wRef) + "\ndx: " + num2str(dx) + "\ndy: " + num2str(dy)
+//	return 0 	
+//End
+//
+//static Function AffineTransformationThreePoint(WAVE src, WAVE dest, WAVE srcP, WAVE destP, WAVE coeff)
+//	variable a11, a12, tx, a21, a22, ty
+//	WAVE w  = ATH_Transform#GetAffine2DMapping(srcP, destP)
+//	ImageInterpolate/APRM={w[0],w[1],w[2],w[3],w[4],w[5],1,0}/DEST=dest Affine2D src
+//	return 0
+//End

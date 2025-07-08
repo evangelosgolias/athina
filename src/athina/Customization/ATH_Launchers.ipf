@@ -1532,3 +1532,26 @@ static Function UnpackStackToSources()
 	endif
 	
 End
+
+static Function ImageResample()
+	// Resample and offset image
+	string msg = "Resample and offset image"
+	string funcMethodList = "None;bilinear;nn;cubic;spline;sinc"
+	variable funcMethod = 2, xOffset = 0,  yOffset = 0, overwrite = 2, xscale = 1, yscale = 1
+	Prompt funcMethod, "Interpolatiing method", popup, "bilinear;nn;cubic;spline;sinc" // bilinear = 1
+	Prompt overwrite, "Overwrite source",  popup, "Yes;No" // Yes = 1, No = 2!		
+	Prompt xOffset, "x-offset"
+	Prompt yOffset, "y-offset"
+	Prompt xscale, "Scale factor (x)"
+	Prompt yscale, "Scale factor (y)"	
+	DoPrompt msg, funcMethod, overwrite, xOffset, yOffset, xscale, yscale
+	if(V_flag)
+		return 0
+	endif
+	WAVE wRef = ATH_Graph#TopGraphToWaveRef()
+	if(overwrite==1)
+		ATH_DFR#BackupWaveInWaveDFQ(wRef)
+	endif
+	ATH_ImgOp#ImageResampling(wRef, StringFromList(funcMethod-1, funcMethodList), xOffset, yOffset,\
+	xscale = xscale, yscale = yscale, overwrite = overwrite-1)
+End
