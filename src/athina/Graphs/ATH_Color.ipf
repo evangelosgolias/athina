@@ -49,7 +49,7 @@ static strConstant SIDAM_CTAB = "CartoColors;CET;cmocean;ColorBrewer;Matplotlib;
 //		* !0: Any error in input parameters
 //@
 
-static Function ATH_Color([String grfName, String imgList, String ctable, int rev,
+static Function applycmap([String grfName, String imgList, String ctable, int rev,
 	int log, Wave minRGB, Wave maxRGB, int history])
 
 	STRUCT paramStruct s
@@ -76,7 +76,7 @@ static Function ATH_Color([String grfName, String imgList, String ctable, int re
 	endif
 
 	if (validateInputs(s))
-		printf "%sATH_Color gave error: %s\r", PRESTR_CAUTION, s.errMsg
+		printf "ATH_Color gave error: %s\r", s.errMsg
 		return 1
 	elseif (ParamIsDefault(ctable) && ParamIsDefault(rev) && ParamIsDefault(log) \
 		&& ParamIsDefault(minRGB) && ParamIsDefault(maxRGB))
@@ -223,7 +223,7 @@ Static Function printHistory(STRUCT paramStruct &s, STRUCT paramStruct &base)
 		if (strsearch(s.ctable, ATH_DF_CTAB, 0) == -1)
 			str0 += ",ctable=\""+s.ctable+"\""
 		else
-			str0 += ",ctable=ATH_DF_CTAB+\""+ReplaceString(ATH_DF_CTAB, s.ctable, "")+"\""
+			str0 += ",ctable=\""+ATH_DF_CTAB+ReplaceString(ATH_DF_CTAB, s.ctable, "")+"\""
 		endif
 	endif
 	str0 += SelectString(s.rev==base.rev,",rev="+num2istr(s.rev),"")
@@ -241,7 +241,7 @@ Static Function printHistory(STRUCT paramStruct &s, STRUCT paramStruct &base)
 	str1 += SelectString(CmpStr(s.grfName,base.grfName),"",",grfName=\""+s.grfName+"\"")
 	str1 += SelectString(CmpStr(s.imgList,base.imgList),"",",imgList=\""+s.imgList+"\"")
 	str1 += str0
-	printf "%sATH_Color(%s)\r", PRESTR_CMD, str1[1,inf]
+	printf "ATH_Color#applycmap(%s)\r", str1[1,inf]
 End
 
 //	Apply color table to an image in the list
@@ -251,8 +251,8 @@ Static Function applyColorTable(STRUCT paramStruct &s, int i)
 	Variable zmin, zmax
 	Variable flag = ATH_Range#SIDAM_GetColorTableMinMax(s.grfName, imgName, zmin, zmax, allowNaN=1)
 	if (GetRTError(1) || flag)
-		printf "%sATH_Color gave error: present z-range can not be obtained.\r", PRESTR_CAUTION
-		printf "%sA color index wave may be used.\r", PRESTR_CAUTION
+		print "ATH_Color gave error: present z-range can not be obtained.\r"
+		printf "A color index wave may be used.\r"
 		return 1
 	endif
 
@@ -880,9 +880,9 @@ Static Function pnlCheck(STRUCT  WMCheckboxAction &s)
 			String grfName = GetUserData(s.win,"","grf")
 			String imgList = targetImageList(s.win)
 			if (CmpStr(s.ctrlName,"op_revC"))
-				ATH_Color(grfName=grfName, imgList=imgList, log=s.checked)
+				applycmap(grfName=grfName, imgList=imgList, log=s.checked)
 			else
-				ATH_Color(grfName=grfName, imgList=imgList, rev=s.checked)
+				applycmap(grfName=grfName, imgList=imgList, rev=s.checked)
 			endif
 			break
 
@@ -903,24 +903,24 @@ Static Function pnlCheckRadio(STRUCT WMCheckboxAction &s)
 	String imgList = targetImageList(s.win)
 	strswitch (s.ctrlName)
 		case "op_beforeUseC":
-			ATH_Color(grfName=grfName, imgList=imgList, minRGB={0})
+			applycmap(grfName=grfName, imgList=imgList, minRGB={0})
 			break
 		case "op_beforeClrC":
 			ControlInfo/W=$s.win op_beforeClrP
-			ATH_Color(grfName=grfName, imgList=imgList, minRGB={V_Red,V_Green,V_Blue})
+			applycmap(grfName=grfName, imgList=imgList, minRGB={V_Red,V_Green,V_Blue})
 			break
 		case "op_beforeTransC":
-			ATH_Color(grfName=grfName, imgList=imgList, minRGB={NaN})
+			applycmap(grfName=grfName, imgList=imgList, minRGB={NaN})
 			break
 		case "op_lastUseC":
-			ATH_Color(grfName=grfName, imgList=imgList, maxRGB={0})
+			applycmap(grfName=grfName, imgList=imgList, maxRGB={0})
 			break
 		case "op_lastClrC":
 			ControlInfo/W=$s.win op_lastClrP
-			ATH_Color(grfName=grfName, imgList=imgList, maxRGB={V_Red,V_Green,V_Blue})
+			applycmap(grfName=grfName, imgList=imgList, maxRGB={V_Red,V_Green,V_Blue})
 			break
 		case "op_lastTransC":
-			ATH_Color(grfName=grfName, imgList=imgList, maxRGB={NaN})
+			applycmap(grfName=grfName, imgList=imgList, maxRGB={NaN})
 			break
 	endswitch
 
@@ -941,7 +941,7 @@ Static Function pnlCheckCtab(STRUCT WMCheckboxAction &s)
 	String pnlName = RemoveEnding(ParseFilePath(1,s.win,"#",1,0),"#")
 	String grfName = GetUserData(pnlName,"","grf")
 	String imgList = targetImageList(pnlName)
-	ATH_Color(grfName=grfName, imgList=imgList, ctable=GetUserData(s.win,s.ctrlName,"ctabName"))
+	applycmap(grfName=grfName, imgList=imgList, ctable=GetUserData(s.win,s.ctrlName,"ctabName"))
 End
 
 //	Popup
@@ -969,9 +969,9 @@ Static Function pnlPopup(STRUCT WMPopupAction &s)
 			int red, green, blue
 			sscanf s.popStr, "(%d,%d,%d)", red, green, blue
 			if (stringmatch(s.ctrlName,"op_beforeClrP"))
-				ATH_Color(grfName=grfName,imgList=imgList, minRGB={red,green,blue})
+				applycmap(grfName=grfName,imgList=imgList, minRGB={red,green,blue})
 			else
-				ATH_Color(grfName=grfName,imgList=imgList, maxRGB={red,green,blue})
+				applycmap(grfName=grfName,imgList=imgList, maxRGB={red,green,blue})
 			endif
 			break
 	endswitch
@@ -1072,7 +1072,7 @@ Static Function updateAllImaeges(STRUCT  WMCheckboxAction &s)
 
 	STRUCT paramStruct ps
 	getRGBFromPanel(s.win, ps)
-	ATH_Color(grfName=grfName, imgList=imgList, ctable=ctable, rev=cw[0],\
+	applycmap(grfName=grfName, imgList=imgList, ctable=ctable, rev=cw[0],\
 		log=cw[1], minRGB=ps.min.w, maxRGB=ps.max.w)
 End
 
@@ -1234,7 +1234,7 @@ Static Function revertImageColor(String pnlName)
 		ctab = StringFromList(0,infoStr,sepStr)
 		StructGet/S init, StringFromList(1,infoStr,sepStr)
 		Wave/WAVE ww = makeRGBWave(init)
-		ATH_Color(grfName=grfName, imgList=imgName, ctable=ctab, rev=init.rev,\
+		applycmap(grfName=grfName, imgList=imgName, ctable=ctab, rev=init.rev,\
 			log=init.log, minRGB=ww[0], maxRGB=ww[1])
 	endfor
 End
@@ -1608,7 +1608,7 @@ Static Function cindexWave2ctabWave()
 
 				//	Convert to the new format
 				int rev = NumberByKey("rev",note(cindexw)) & 1	//	Ignore invert
-				ATH_Color(grfName=win,imgList=imgName,ctable=ctabWavePath,rev=rev)
+				applycmap(grfName=win,imgList=imgName,ctable=ctabWavePath,rev=rev)
 
 				//	Kill the old color index wave if it is no longer used.
 				CheckDisplayed/A cindexw
