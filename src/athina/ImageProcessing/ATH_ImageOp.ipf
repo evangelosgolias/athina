@@ -1013,7 +1013,8 @@ static Function ImageResampling(WAVE wRef,  string func, variable xOffset, varia
 		WAVE M_InterpolatedImage
 		CopyScales/I wRef, M_InterpolatedImage
 		Duplicate/O M_InterpolatedImage, wRef
-		KillWaves M_InterpolatedImage	
+		Note wRef, cmdTemplateStr
+		KillWaves M_InterpolatedImage
 	else
 		DFREF cwdfr = GetDataFolderDFR()
 		STRING baseWaveNameStr = NameOfWave(wRef) + "_rsl"
@@ -1022,6 +1023,7 @@ static Function ImageResampling(WAVE wRef,  string func, variable xOffset, varia
 		sprintf cmdStr, cmdTemplateStr, func, xOffset, xscale, yOffset, yscale, PossiblyQuoteName(newWaveNameStr), wRefStr
 		Execute/Z/Q cmdStr
 		CopyScales/I wRef, $newWaveNameStr
+		Note $newWaveNameStr, cmdTemplateStr
 	endif
 	return 0
 End
