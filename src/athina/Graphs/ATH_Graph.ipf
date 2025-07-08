@@ -357,9 +357,9 @@ static Function LinkGraphRanges([string grfName])
 	string linkedGraph = GetUserData(grfName, "", "ATH_LinkedGraphAxesRangesStr")
 	if(strlen(linkedGraph))
 		SetWindow $grfName userdata(ATH_LinkedGraphAxesRangesStr) = ""		
-		SetWindow $grfName hook(LinkedGraphAxesRangeHook) = $""
+		SetWindow $grfName hook(ATH_LinkedGraphAxesRangeHook) = $""
 		SetWindow $linkedGraph userdata(ATH_LinkedGraphAxesRangesStr) = ""		
-		SetWindow $linkedGraph hook(LinkedGraphAxesRangeHook) = $""
+		SetWindow $linkedGraph hook(ATH_LinkedGraphAxesRangeHook) = $""
 		string axisX, axisY
 		[axisX, axisY] = ATH_Graph#GetAxes(grfName=grfName)
 		ModifyGraph/W=$grfName axRGB($axisX)=(0,0,0),tlblRGB($axisX)=(0,0,0)
