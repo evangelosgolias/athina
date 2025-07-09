@@ -183,6 +183,8 @@ Menu "GraphPopup" // Right click not on a trace or in the margin of an image
 	"ATH Text Annotation (TG)", /Q, ATH_Launch#QuickTextAnnotation()
 	"ATH SetDataFolder (TG)", /Q, ATH_Launch#SetTopGraphDF()
 	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursors()
+	"ATH Clear UserFront layer" ,/Q, ATH_ZProfile#ClearROIMarkingsUserFront("")	
+
 End
 
 Menu "AllTracesPopup" // Use SHIFT + right click
