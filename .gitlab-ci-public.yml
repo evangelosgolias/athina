@@ -10,5 +10,5 @@ pages:
     - sphinx-build -M html doc/source doc/build
     - mv doc/build/html public
   artifacts:
-  paths:
-    - public
+    paths:
+      - public
