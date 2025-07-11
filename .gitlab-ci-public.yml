@@ -10,5 +10,6 @@ pages:
     - sphinx-build -M html doc/source doc/build
     - mv doc/build/html public
   artifacts:
+	  - expire_in: 30 days
     paths:
       - public
