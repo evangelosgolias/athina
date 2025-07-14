@@ -200,9 +200,12 @@ End
 static Function GetScaledZoominImageWindow([string grfName, variable w3d, int evenNum])
 	// Get a the current window view as a new image with appropriate scaling.
 	// Works for 2D/3D waves
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	w3d = ParamIsDefault(w3d) ? 0 : !!w3d
+	evenNum = ParamIsDefault(evenNum) ? 0 : !!evenNum
+	
 	string axisX, axisY, noteStr, wavenameStr
 	variable minX, maxX, minY, maxY
-	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(grfName, ";"),";")
 	WAVE wref = ImageNameToWaveRef(grfName, imgNameTopGraphStr) // full path of wave
 	[axisX, minX, maxX, axisY, minY, maxY]  = ATH_Graph#GetAxesRange(grfName = grfName)
@@ -219,9 +222,12 @@ static Function GetScaledZoominImageWindow([string grfName, variable w3d, int ev
 				noteStr = NameOfWave(wref) + "_layer_" + num2str(gLayer) + "_ZM"
 				sprintf noteStr, "CmdToZM:Duplicate/R=(%.4f, %.4f)(%.4f, %.4f) %s", minX, maxX, minY, maxY, GetWavesDataFolder(wRef,2)
 			else
+				print "Entered here"
 				wavenameStr = NameOfWave(wref) + "_ZM"
 				wavenameStr = CreateDataObjectName(cdfr, wavenameStr, 1, 0, 5)
-				Duplicate/R=(minX, maxX)(minY, maxY)[gLayer,gLayer] wRef, $wavenameStr
+				MatrixOP/FREE getLayerFREE = layer(wRef, gLayer)
+				CopyScales/P wRef, getLayerFREE
+				Duplicate/R=(minX, maxX)(minY, maxY) getLayerFREE, $wavenameStr
 				//CopyScales/P wRef, $wavenameStr
 				sprintf noteStr, "CmdToZM:Duplicate/R=(%.4f, %.4f)(%.4f, %.4f)[%d,%d] %s ", minX, maxX, minY, maxY ,gLayer,gLayer, GetWavesDataFolder(wRef,2)
 			endif
@@ -249,7 +255,7 @@ static Function GetScaledZoominImageWindow([string grfName, variable w3d, int ev
 		if(mod(nCols,2))
 			nCols -= 1
 		endif
-		if(nlayers)
+		if(w3d && nlayers)
 			Redimension/N=(nRows, nCols, nlayers) $wavenameStr
 		else
 			Redimension/N=(nRows, nCols) $wavenameStr

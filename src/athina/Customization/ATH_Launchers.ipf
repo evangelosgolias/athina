@@ -125,7 +125,8 @@ static Function AverageStackToImageFromBrowserMenu()
 		string selected3DWaveStr = GetBrowserSelection(0)
 		WAVE wRef = $selected3DWaveStr	
 	else
-		Abort "Operation needs an image stack (3d wave)"
+		print "Operation needs an image stack (3d wave)"
+		return NaN
 	endif
 	ATH_WaveOp#AverageImageStack(wRef)
 End
