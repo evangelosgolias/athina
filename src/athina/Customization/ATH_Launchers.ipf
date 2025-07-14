@@ -35,6 +35,15 @@
 // --- Add quick actions to Dat Browser ----
 
 Function BrowserActionDoXMDC()
+	string img1, img2
+	img1 = GetBrowserSelection(0)
+	img2 = GetBrowserSelection(1)
+	if(!strlen(img1) || !strlen(img2))
+		return NaN
+	endif
+	if(!WaveExists($img1) || !WaveExists($img2))
+		return NaN
+	endif
 	WAVE w1 = $GetBrowserSelection(0)
 	WAVE w2 = $GetBrowserSelection(1)
 	if(!strlen(GetBrowserSelection(2))) // works only with two selected waves
