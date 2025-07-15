@@ -40,8 +40,11 @@ Menu "athina"
 		".tif (EMMENU5).../3", /Q, ATH_LoadImg#LoadTiff("", "", displayImg = 1)	
 		".tifs (EMMENU5) and stack...", /Q, ATH_LoadImg#Loadtiffs(displayImg = 1, stack3d = 1)	
 		".h5 file (MAXIV metadata) .../4", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
+		Submenu "Other"
 		".nxs NeXus files (Diamond) ...",/Q, ATH_HDF5#LoadNXSDataSets()
 		".P3B files (ALS)...",/Q, ATH_LoadImg#PEEM3Files()
+		".P3B files and stack (ALS)...",/Q, ATH_LoadImg#PEEM3Files(stack3d=1)
+		End
 	End
 	
 	Submenu "Image Operations"

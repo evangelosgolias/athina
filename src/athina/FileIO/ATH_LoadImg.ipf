@@ -6,7 +6,7 @@
 #pragma version = 1.01
 // ------------------------------------------------------- //
 // Functions to import data acquired using EMMenu5.
-// 
+// Functions to import P3B files (ALS)
 //
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -177,7 +177,7 @@ static Structure dentry
 	int32 dlen
 EndStructure
 
-Function PEEM3File(string filepathStr, [variable mkdir])
+Function/S PEEM3File(string filepathStr, [variable mkdir])
 	variable numRef
 	string separatorchar = ":", waveNameStr, message
 	string fileFilters = "P3B File (*.P3B):.P3B;"
@@ -189,7 +189,7 @@ Function PEEM3File(string filepathStr, [variable mkdir])
 		filepathStr = S_filename
 
 		if(!strlen(filepathStr)) // user cancel?
-			return NaN
+			return ""
 		endif
 
 		Open/F=fileFilters/R numRef as filepathStr
@@ -287,35 +287,58 @@ Function PEEM3File(string filepathStr, [variable mkdir])
 	Redimension/N=(DIMX[0],DIMY[0]) DATA
 	Note DATA, tagsStrData
 	if(mkdir)
+		// Here waveNameStr is the dir name, avoid conflict in h5px
+		waveNameStr = "w_"+waveNameStr
 		Duplicate/O DATA, saveDF:$("w_"+waveNameStr)
 	else
 		Duplicate/O DATA, saveDF:$waveNameStr
 	endif
 	SetDataFolder saveDF
-	return 0
+	return waveNameStr
 End
 
-Function PEEM3Files()
+Function PEEM3Files([int stack3d])
+	stack3d = ParamIsDefault(stack3d) ? 0 : !!stack3d
 	variable numRef, i
-    string loadFiles, filepathStr, basenameStr, fileStr0
+	string loadFiles, filepathStr, basenameStr, fileStr0
 
 	string message = "Select .P3B files. \n"
 	message += "Import overwrites waves with the same name."
 	string fileFilters = "P3B File (*.P3B):.P3B;"
 	fileFilters += "All Files:.*;"
-   	Open/F=fileFilters/MULT=1/M=message/D/R numref
-   	filepathStr = S_filename
-	
-   	if(!strlen(filepathStr)) // user cancel?
-   		return NaN
-   	endif	   	
-	loadFiles = SortList(S_fileName, "\r", 80) 
+	Open/F=fileFilters/MULT=1/M=message/D/R numref
+	filepathStr = S_filename
+
+	if(!strlen(filepathStr)) // user cancel?
+		return NaN
+	endif
+	loadFiles = SortList(S_fileName, "\r", 80)
 	variable nrloadFiles = ItemsInList(loadFiles, "\r")
 	if(!nrloadFiles)
 		return 1
 	endif
-	for(i = 0; i < nrloadFiles; i++)
-		PEEM3File(StringFromList(i,loadFiles, "\r"))
-	endfor	
+	if(stack3d)
+		DFREF saveDF = GetDataFolderDFR()
+		SetDataFolder NewFreeDataFolder()
+		//Get the first wave to have the scale
+		fileStr0 = StringFromList(0,loadFiles, "\r")
+		string wname0 = PEEM3File(fileStr0)
+		basenameStr = ParseFilePath(0, fileStr0, ":", 1, 1)
+		Rename $wname0, $"ImageToStack_0"
+		for(i = 1; i < nrloadFiles; i++)
+			wname0 = PEEM3File(StringFromList(i,loadFiles, "\r"))
+			Rename $wname0, $("ImageToStack_"+num2str(i))
+		endfor
+		ImageTransform/NP=(nrloadFiles) stackImages $"ImageToStack_0"
+		WAVE M_Stack
+		string newWaveNameStr = CreateDataObjectName(saveDF, basenameStr, 1, 0, 1)
+		Note M_Stack, ("Files loaded to " + newWaveNameStr + ":\n" + loadFiles)
+		MoveWave M_Stack, saveDF:$newWaveNameStr
+		SetDataFolder saveDF
+	else
+		for(i = 0; i < nrloadFiles; i++)
+			PEEM3File(StringFromList(i,loadFiles, "\r"))
+		endfor
+	endif
 End
 
