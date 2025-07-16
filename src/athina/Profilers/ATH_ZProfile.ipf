@@ -202,7 +202,7 @@ static Function/DF InitialiseFolder()
 	variable/G dfr:gATH_aXlen
 	variable/G dfr:gATH_aYlen
 	variable/G dfr:gATH_Rect
-	variable/G dfr:nLayers = nlayers
+	variable/G dfr:gATH_nLayers = nlayers
 	variable/G dfr:gATH_DoPlotSwitch = 1
 	variable/G dfr:gATH_MarkAreasSwitch = 1
 	variable/G dfr:gATH_TwinPlotSwitch = 0	
@@ -287,7 +287,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	variable hookResult = 0, i
 	DFREF dfr = $(GetUserData(s.winName, "", "ATH_ZProfileDFR"))
 	NVAR/SDFR=dfr gATH_left, gATH_right, gATH_top, gATH_bottom, gATH_dx, gATH_dy, gATH_xOff, gATH_yOff, gATH_TwinPlotSwitch
-	NVAR/SDFR=dfr gATH_Nx, gATH_Ny, gATH_xLast, gATH_yLast, nLayers, gATH_Rect, gATH_aXlen, gATH_aYlen
+	NVAR/SDFR=dfr gATH_Nx, gATH_Ny, gATH_xLast, gATH_yLast, gATH_nLayers, gATH_Rect, gATH_aXlen, gATH_aYlen
 	SVAR/Z/SDFR=dfr gATH_TwinWavePath, gATH_LineProfileWaveStr, gATH_LineProfileTwinWaveStr, gATH_xAxis, gATH_yAxis
 	SVAR/Z/SDFR=dfr	gATH_WindowNameStr, gATH_w3dPath, gATH_w3dNameStr
 	WAVE/Z twinWRef = $gATH_TwinWavePath // twin wave
@@ -317,7 +317,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				ce = (gATH_top > gATH_yLast)   ? gATH_Ny :  ScaleToIndex(w3d, gATH_top, 1)
 				MatrixOP/O/FREE partitionMask = subrange(M_ROIMask, rs, re, cs, ce)
 				MatrixOP/O/NTHR=0 profile = sum(subrange(w3d, rs, re, cs, ce) * partitionMask)
-				Redimension/E=1/N=(nLayers) profile
+				Redimension/E=1/N=(gATH_nLayers) profile
 				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
 					variable nlayersTW = DimSize(twinWRef, 2)
 					MatrixOP/O/FREE partitionMask = subrange(M_ROIMask, rs, re, cs, ce)
@@ -339,7 +339,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				cs = (gATH_bottom < gATH_yOff)  ? 0  :  ScaleToIndex(w3d, gATH_bottom, 1)
 				ce = (gATH_top > gATH_yLast)   ? gATH_Ny :  ScaleToIndex(w3d, gATH_top, 1)
 				MatrixOP/S/O profile =sum(subrange(w3d, rs, re, cs, ce)) // Removed /NTHR=0
-				Redimension/E=1/N=(nLayers) profile
+				Redimension/E=1/N=(gATH_nLayers) profile
 				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
 					nlayersTW = DimSize(twinWRef, 2)
 					MatrixOP/S/O profileTwin =sum(subrange(twinWRef, rs, re, cs, ce)) // Removed /NTHR=0
