@@ -435,7 +435,7 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 				x3 = C2x -  width * dx
 				x4 = C2x +  width * dx
 			else
-				[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(width * dx/2, slope)
+				[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(width * dx, slope)
 				x1 = C1x + xs
 				x2 = C1x - xs
 				x3 = C2x - xs
@@ -530,7 +530,7 @@ static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableCo
 			SetDataFolder dfr
 			Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
 			SVAR/Z ImagePathname = dfr:gATH_ImagePathname
-			WAVE/Z imgWaveRef = $ImagePathname		
+			WAVE/Z imgWaveRef = $ImagePathname
 			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
 			break
 	endswitch

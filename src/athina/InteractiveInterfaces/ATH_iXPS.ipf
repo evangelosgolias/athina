@@ -619,21 +619,21 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 				x2 = C1x
 				x3 = C2x
 				x4 = C2x
-				y1 = C1y + 0.5 * width * dy
-				y2 = C1y - 0.5 * width * dy
-				y3 = C2y - 0.5 * width * dy
-				y4 = C2y + 0.5 * width * dy
+				y1 = C1y + width * dy
+				y2 = C1y - width * dy
+				y3 = C2y - width * dy
+				y4 = C2y + width * dy
 			elseif(slope == inf)
 				y1 = C1y
 				y2 = C1y
 				y3 = C2y
 				y4 = C2y
-				x1 = C1x + 0.5 * width * dx
-				x2 = C1x - 0.5 * width * dx
-				x3 = C2x - 0.5 * width * dx
-				x4 = C2x + 0.5 * width * dx
+				x1 = C1x + width * dx
+				x2 = C1x - width * dx
+				x3 = C2x - width * dx
+				x4 = C2x + width * dx
 			else
-				[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(width * dx/2, slope)
+				[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(width * dx, slope)
 				x1 = C1x + xs
 				x2 = C1x - xs
 				x3 = C2x - xs
