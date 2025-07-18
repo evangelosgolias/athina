@@ -520,19 +520,19 @@ static function InfoMenu()
 	if (V_flag == 2)
 		BrowseURL /Z "https://www.wavemetrics.com/node/" + num2str(kProjectID)
 	elseif (V_flag == 3)
-		Make/T/free/N=5 wt = "mail"
+		Make/T/free/N=5 wtFREE = "mail"
 		string newline = "\r\n"
 //		#ifdef WINDOWS
 //		newline = "\n"
 //		#endif
-		wt[3] = "subject=" + URLEncode(ksShortTitle + " Package for Igor Pro")
-		wt[4] = "Type your message here" + newline + newline
-		wt[4] += "PROJECT VERSION:" + num2str(GetThisVersion()) + newline
-		wt[4] += ReplaceString(";", IgorInfo(3), newline) + newline
-		wt[4] = "body=" + URLEncode(wt[4])
-		wt[1] = "tony withers"
-		wt[2] = "uni-bayreuth de"
-		sprintf cmd, "%sto:%s%%%d%s?%s&%s" wt[0], wt[1], 40, wt[2], wt[3], wt[4]
+		wtFREE[3] = "subject=" + URLEncode(ksShortTitle + " Package for Igor Pro")
+		wtFREE[4] = "Type your message here" + newline + newline
+		wtFREE[4] += "PROJECT VERSION:" + num2str(GetThisVersion()) + newline
+		wtFREE[4] += ReplaceString(";", IgorInfo(3), newline) + newline
+		wtFREE[4] = "body=" + URLEncode(wtFREE[4])
+		wtFREE[1] = "tony withers"
+		wtFREE[2] = "uni-bayreuth de"
+		sprintf cmd, "%sto:%s%%%d%s?%s&%s" wtFREE[0], wtFREE[1], 40, wtFREE[2], wtFREE[3], wtFREE[4]
 		BrowseURL/Z ReplaceString(" ", cmd, ".")
 	endif
 end
