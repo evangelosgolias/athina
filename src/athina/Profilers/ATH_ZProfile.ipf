@@ -6,7 +6,7 @@
 #pragma version = 1.6
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
-// Contact: egolias@protonmail.com
+// Contact: evangelos.golias@gmail.com
 //	
 //	Permission is hereby granted, free of charge, to any person
 //	obtaining a copy of this software and associated documentation
