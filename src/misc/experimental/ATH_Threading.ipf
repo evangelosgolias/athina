@@ -1,11 +1,12 @@
 ﻿#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
+#pragma ModuleName = ATH_Threads
 
-ThreadSafe Function/WAVE Worker(w3DIn, plane)
-	WAVE w3DIn
-	variable plane
-	
+ThreadSafe Function/WAVE DriftCorrelation_Worker(WAVE w3D, WAVE w3dPart,
+					WAVE w3dPartRef, variable refP, 
+					variable refQ, variable plane, [int subPixel])
+	subPixel = ParamIsDefault(subPixel) ? 0 : !!subPixel
 	DFREF dfSav= GetDataFolderDFR()
 
 	// Create a free data folder and set it as the current data folder
@@ -14,13 +15,25 @@ ThreadSafe Function/WAVE Worker(w3DIn, plane)
 	// Extract the plane from the input wave into M_ImagePlane.
 	// M_ImagePlane is created in the current data folder
 	// which is a free data folder. 
-	ImageTransform/P=(plane) getPlane, w3DIn
-	Wave M_ImagePlane		// Created by ImageTransform getPlane
 
-	// Filter the plane
-	WAVE wOut= M_ImagePlane
-	MatrixFilter/N=21 gauss,wOut
+	ImageTransform/P=(plane) getPlane w3dPart
+	Wave M_ImagePlane		// Created by ImageTransform getPlane
+	MatrixOP/O/FREE correlationW = correlate(w3dPartRef, M_ImagePlane, 0)
+	WaveStats/M=1/Q/P correlationW
+	variable pD = V_maxRowLoc
+	variable qD = V_maxColLoc
+	variable driftP = refP - pD
+	variable driftQ = refQ - qD
+
+	if(!subPixel) // round to the nearest pixel
+		driftP = round(driftP)
+		driftQ = round(driftQ)
+	endif
 	
+	ImageTransform/P=(plane) getPlane w3D
+	Wave M_ImagePlane
+	ImageInterpolate/APRM={1,0,driftP,0,1,driftQ,1,0} Affine2D M_ImagePlane
+	WAVE M_Affine
 	// Restore the current data folder
 	SetDataFolder dfSav
 
@@ -30,22 +43,32 @@ ThreadSafe Function/WAVE Worker(w3DIn, plane)
 	// Since there IS a reference to the M_ImagePlane wave in the free
 	// data folder, M_ImagePlane is not deleted but becomes a free wave.
 
-	return wOut		// Return a reference to the free M_ImagePlane wave
+	return M_Affine		// Return a reference to the free M_Affine wave
 End
 
-Function Demo(numPlanes)
-	Variable numPlanes
-
+Function MultiThreadCorrelationDriftCorrection(WAVE w3D, 
+	 	 WAVE w3dPart, variable ref, [int subPixel])
 	// Create a 3D wave and fill it with data
-	Make/O/N=(200,200,numPlanes) srcData= (p==(2*r))*(q==(2*r))
+	//Make/O/N=(2048,2048,numPlanes) srcData= (p==(2*r))*(q==(2*r))
 	
 	// Create a wave to hold data folder references returned by Worker.
 	// /WAVE specifies the data type of the wave as "wave reference".
+	variable numPlanes = DimSize(w3d,2)
 	Make/WAVE/N=(numPlanes) ww
 
-	Variable timerRefNum = StartMSTimer
-
-	MultiThread ww= Worker(srcData,p)
+	variable timerRefNum = StartMSTimer
+	// Get reference stuff ready.
+	ImageTransform/P=(ref) getPlane w3dPart
+	Wave M_ImagePlane
+	MatrixOP/FREE correlationW = correlate(M_ImagePlane, M_ImagePlane, 0)
+	WaveStats/M=1/Q/P correlationW	
+	variable refP = V_maxRowLoc
+	variable refQ = V_maxColLoc
+	KillWaves M_ImagePlane
+	// Done
+	
+	// Release the threads.
+	MultiThread ww = DriftCorrelation_Worker(w3D, w3dPart, M_ImagePlane, refP, refQ, p)
 
 	Variable elapsedTime = StopMSTimer(timerRefNum) / 1E6
 	
@@ -56,18 +79,18 @@ Function Demo(numPlanes)
 	// data for one plane of the source 3D wave.
 
 	// Create an output wave named out3D by cloning the first filtered plane
-	WAVE w= ww[0]
-	Duplicate/O w, out3D
-	
-	// Concatenate the remaining filtered planes onto out3D
-	Variable i
-	for(i=1;i<numPlanes;i+=1)
-		WAVE w= ww[i]
-		Concatenate {w}, out3D
-	endfor
+//	WAVE w= ww[0]
+//	Duplicate/O w, w3D
+//	
+//	// Concatenate the remaining filtered planes onto out3D
+//	Variable i
+//	for(i=1;i<numPlanes;i+=1)
+//		WAVE w= ww[i]
+//		Concatenate {w}, out3D
+//	endfor
 	
 	// Create a 3D output wave by concatenating the filtered planes
-	Concatenate/O {ww}, out3D
+	Concatenate/O {ww}, w3D
 	
 	// ww holds references to the free waves. By killing ww, we kill
 	// the last reference to the free waves which causes them to be

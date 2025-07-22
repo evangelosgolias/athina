@@ -74,7 +74,7 @@ static Function ImgRegistration(WAVE w1, WAVE w2)
 End
 
 static Function ImgStackRegistration(WAVE w3d, [variable layerN, 
-		 variable cutoff, int selfDrift, int printMode, int convMode, int intPixels])
+		 variable cutoff, int selfDrift, int printMode, int convMode, int subPixel])
 	/// 
 	/// *** Use full image, translations and rotation ***
 	///
@@ -89,11 +89,11 @@ static Function ImgStackRegistration(WAVE w3d, [variable layerN,
 	/// @param selfDrift Drift original or a copy of the wave
 	/// @param intPixels Drift integer number of pixels
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then 0 is your choice
-	convMode = ParamIsDefault(convMode) ? 0: convMode // convMode = 0, 1 
-	printMode = ParamIsDefault(printMode) ? 0: printMode
+	convMode = ParamIsDefault(convMode) ? 0: !!convMode // convMode = 0, 1 
+	printMode = ParamIsDefault(printMode) ? 0: !!printMode
 	cutoff = ParamIsDefault(cutoff) ? 0: cutoff
 	selfDrift = ParamIsDefault(selfDrift) ? 1 : 0 // Default: 1, drift-correct the original wave w3d (unprocessed).
-	intPixels = ParamIsDefault(intPixels) ? 1 : intPixels
+	subPixel = ParamIsDefault(subPixel) ? 0 : !!subPixel
 	
 	if(!(WaveType(w3d) & 0x02))
 		Redimension/S w3d
@@ -101,18 +101,15 @@ static Function ImgStackRegistration(WAVE w3d, [variable layerN,
 	
 	MatrixOP/FREE refLayerWave = layer(w3d, layerN) 
 		
-	if(!convMode) // /CONV = 0, translations only
-		ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0/CSNR=0/CONV=(convMode) refwave = refLayerWave, testwave = w3d	
-	else	
-		ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/SKEW={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0/CSNR=0/CONV=(convMode) refwave = refLayerWave, testwave = w3d	
-	endif
+	ImageRegistration/Q/STCK/PSTK/TSTM=0/BVAL=0/CSNR=0/CONV=(convMode) refwave = refLayerWave, testwave = w3d		
+	
 	WAVE M_RegOut, M_RegMaskOut, M_RegParams
-	if(intPixels)
-		MatrixOP/FREE dxL = round(row(M_RegParams, 0))
-		MatrixOP/FREE dyL = round(row(M_RegParams, 1))
-	else
+	if(subPixel)
 		MatrixOP/FREE dxL = row(M_RegParams, 0)
 		MatrixOP/FREE dyL = row(M_RegParams, 1)		
+	else
+		MatrixOP/FREE dxL = round(row(M_RegParams, 0))
+		MatrixOP/FREE dyL = round(row(M_RegParams, 1))	
 	endif
 	
 	if(cutoff) // Cutoff only if set, if 0 pass
@@ -295,7 +292,7 @@ static Function ImgStackCorrelation(WAVE w3d, [variable layerN, int printMode, v
 End
 
 static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [variable layerN,
-				variable cutoff, variable intPixels, variable printMode]) // Used in menu
+				variable cutoff, variable subPixel, variable printMode]) // Used in menu
 	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave.
 	/// The partition 3d wave calls ATH_ImageStackAlignmentByFullRegistration
 	/// By default the function will  use the 0-th layer as a wave reference, uncless user chooses otherwise.
@@ -310,7 +307,7 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then default is 0
 	printMode = ParamIsDefault(printMode) ? 0: printMode
 	cutoff = ParamIsDefault(cutoff) ? 0: abs(cutoff)
-	intPixels = ParamIsDefault(intPixels) ? 1 : intPixels
+	subPixel = ParamIsDefault(subPixel) ? 0 : !!subPixel
 	
 	if(!(WaveType(w3d) & 0x02))
 		Redimension/S w3d
@@ -335,12 +332,12 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 	variable layers = DimSize(w3d, 2)
 	ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d
 	WAVE M_RegParams
-	if(intPixels)
+	if(subPixel)
+		MatrixOP/FREE dx = row(M_RegParams, 0)
+		MatrixOP/FREE dy = row(M_RegParams, 1)			
+	else
 		MatrixOP/FREE dx = round(row(M_RegParams, 0))
 		MatrixOP/FREE dy = round(row(M_RegParams, 1))
-	else
-		MatrixOP/FREE dx = row(M_RegParams, 0)
-		MatrixOP/FREE dy = row(M_RegParams, 1)		
 	endif	
 	if(cutoff) // Cutoff only if set
 		dx = (abs(dx) > cutoff) ? 0 : dx
@@ -585,4 +582,135 @@ static Function PhaseCorrelation(WAVE img1, WAVE img2)
 	IFFT/R/DEST=res R_FREE0
 	WaveStats/M=1/Q/P res	
 	print V_maxRowLoc,V_maxColLoc
+End
+
+/// ----------------------------- Multithreading ----------------------------- ///
+
+// Multithreading Correlation
+ThreadSafe Function/WAVE DriftCorrelation_Worker(WAVE w3D, WAVE w3DPart,
+					WAVE w3DPartRef, variable refP, 
+					variable refQ, variable plane)
+	
+	DFREF dfSav= GetDataFolderDFR()
+
+	// Create a free data folder and set it as the current data folder
+	SetDataFolder NewFreeDataFolder()
+	variable pD, qD, drfP, drfQ
+	// Calculate drift
+	ImageTransform/P=(plane) getPlane w3DPart // Get plane from partitioned wave
+	Wave M_ImagePlane
+	MatrixOP/O/FREE correlationW = correlate(w3DPartRef, M_ImagePlane, 0)
+	WaveStats/M=1/Q/P correlationW
+	pD = V_maxRowLoc 
+	qD = V_maxColLoc
+	drfP = refP - pD // Calculate drifts (integer pixels)
+	drfQ = refQ - qD
+	// Drift the whole image
+	ImageTransform/P=(plane) getPlane w3D
+	Wave M_ImagePlane
+	ImageInterpolate/APRM={1,0,drfP,0,1,drfQ,1,0} Affine2D M_ImagePlane
+	WAVE M_Affine
+	// Restore the current data folder
+	SetDataFolder dfSav
+
+	// Since the only reference to the free data folder created above
+	// was the current data folder, there are now no references it.
+	// Therefore, Igor has automatically deleted it.
+	// Since there IS a reference to the M_Affine wave in the free
+	// data folder, M_Affine is not deleted but becomes a free wave.
+
+	return M_Affine		// Return a reference to the free M_Affine wave
+End
+
+Function MultiThreadCorrelationDriftCorrection(WAVE w3D, 
+	 WAVE w3DPart, variable ref)
+
+	if(!(WaveType(w3D) & 0x02))
+		Redimension/S w3D
+	endif
+	if(!(WaveType(w3DPart) & 0x02))
+		Redimension/S w3DPart
+	endif
+	
+	// Create a wave to hold wave references returned by DriftCorrelation_Worker.
+	variable numPlanes = DimSize(w3D,2)
+	Make/WAVE/N=(numPlanes) ww	
+	// Get the reference layer from the partitioned wave
+	ImageTransform/P=(ref) getPlane w3DPart
+	Wave M_ImagePlane // Reference layer
+	MatrixOP/FREE correlationW = correlate(M_ImagePlane, M_ImagePlane, 0)
+	WaveStats/M=1/Q/P correlationW	
+	variable refP = V_maxRowLoc
+	variable refQ = V_maxColLoc	
+	// Release the threads.
+	MultiThread ww = DriftCorrelation_Worker(w3D, w3dPart, M_ImagePlane, refP, refQ, p)	
+	// At this point, ww holds wave references to numplanes free waves
+	// created by DriftCorrelation_Worker.
+	// So, now repack all layers.
+	Concatenate/O {ww}, $GetWavesDataFolder(w3D,2)
+	
+	// ww holds references to the free waves. By killing ww, we kill
+	// the last reference to the free waves which causes them to be
+	// automatically deleted.
+	KillWaves ww, M_ImagePlane
+End
+
+// Multithreading Registration
+ThreadSafe Function/WAVE DriftRegistration_Worker(WAVE w3D, WAVE w3DPart,
+					WAVE w3DPartRef, variable plane, [int subPixel])
+	
+	DFREF dfSav= GetDataFolderDFR()
+
+	// Create a free data folder and set it as the current data folder
+	SetDataFolder NewFreeDataFolder()
+	variable pD, qD, drfP, drfQ
+	// Calculate drift
+	ImageTransform/P=(plane) getPlane w3DPart // Get plane from partitioned wave
+	Wave M_ImagePlane
+	ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = M_ImagePlane
+	WAVE W_RegParams	
+	// Drift the whole image
+	ImageTransform/P=(plane) getPlane w3D
+	Wave W_ImagePlane
+	ImageInterpolate/APRM={1,0,W_RegParams[0],0,1,W_RegParams[1],1,0} Affine2D M_ImagePlane
+	WAVE M_Affine
+	// Restore the current data folder
+	SetDataFolder dfSav
+
+	// Since the only reference to the free data folder created above
+	// was the current data folder, there are now no references it.
+	// Therefore, Igor has automatically deleted it.
+	// Since there IS a reference to the M_Affine wave in the free
+	// data folder, M_Affine is not deleted but becomes a free wave.
+
+	return M_Affine		// Return a reference to the free M_Affine wave
+End
+
+Function MultiThreadRegistrationDriftCorrection(WAVE w3D, 
+	 WAVE w3DPart, variable ref)
+
+	if(!(WaveType(w3D) & 0x02))
+		Redimension/S w3D
+	endif
+	if(!(WaveType(w3DPart) & 0x02))
+		Redimension/S w3DPart
+	endif
+	
+	// Create a wave to hold wave references returned by DriftCorrelation_Worker.
+	variable numPlanes = DimSize(w3D,2)
+	Make/WAVE/N=(numPlanes) ww	
+	// Get the reference layer from the partitioned wave
+	ImageTransform/P=(ref) getPlane w3DPart
+	Wave M_ImagePlane // Reference layer
+	// Release the threads.
+	MultiThread ww = DriftRegistration_Worker(w3D, w3DPart, M_ImagePlane, p)	
+	// At this point, ww holds wave references to numplanes free waves
+	// created by DriftCorrelation_Worker.
+	// So, now repack all layers.
+	Concatenate/O {ww}, $GetWavesDataFolder(w3D,2)
+	
+	// ww holds references to the free waves. By killing ww, we kill
+	// the last reference to the free waves which causes them to be
+	// automatically deleted.
+	KillWaves ww, M_ImagePlane
 End
