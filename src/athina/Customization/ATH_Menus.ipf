@@ -34,8 +34,8 @@ Menu "athina"
 
 	Submenu "Import"
 		".dat files (MAXIV)...", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1)
-		".dat files in folder and stack .../1", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", stack3d = 1, autoscale = 1, displayImg = 1) 				
-		".dat files and stack .../2", /Q, ATH_Uview#LoadMultiplyDATFiles(stack3d = 1, autoscale = 1, displayImg = 1)		
+		".dat files in folder and stack .../1", /Q, ATH_Uview#LoadDATFilesFromFolderMT(displayImg = 1) 						
+		".dat files and stack .../2", /Q, ATH_Uview#LoadMultiplyDATFilesMT(displayImg = 1)				
 		".dat files in folder...", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", autoscale = 1)
 		".tif (EMMENU5).../3", /Q, ATH_LoadImg#LoadTiff("", "", displayImg = 1)	
 		".tifs (EMMENU5) and stack...", /Q, ATH_LoadImg#Loadtiffs(displayImg = 1, stack3d = 1)	

@@ -428,7 +428,7 @@ Function BackgroundSubtractGUI() //BackgroundSubtractGUI(inwave)
 	//++++++++++++++++++++++++++++++++++++++++ controls +++++++++++++++++++++++++++++++++++++++++
 	SetWindow $gName userdata(workFolder)=workF													// save work folder location
 	SetWindow $gName userdata(procVersion)=num2str(kVersion)									// save procedure version
-	ControlBar 60																				// add controls
+	ControlBar/W=$gName 60																				// add controls
 	
 	Button BMinus				,pos={10,4}		,size={65,23}		,title="Subtract"			,help={"Remove current background from the data."}
 	Button BUndo				,pos={10,31}	,size={65,23}		,title="Undo All"			,help={"Revert to the original data."}

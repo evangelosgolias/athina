@@ -345,7 +345,7 @@ Function Append3DImageSlider([string grfName])
 		// Dimensions are in points.
 		GetWindow/Z $grfName gsize 
 		gOriginalHeight = V_maxHeight * pntConv
-		ControlBar gOriginalHeight+30
+		ControlBar/W=$grfName gOriginalHeight+30
 			
 		Slider ATH_W3DSlider,ticks=0,vert=0,limits={0, nlayers-1, 1},variable=gLayer,pos={(V_left+10)*pntConv,gOriginalHeight+10},win=$grfName
 		Slider ATH_W3DSlider,thumbColor=(0,65535,0),size={V_right*0.8*pntConv,15*pntConv},proc=ATH_Display#NewImgSliderHook,win=$grfName
@@ -524,7 +524,7 @@ static Function RestartW3DImageSlider([string grfName])
 	DFREF dfr = $(skATH_W3DImageSliderParentDFR + grfName)
 	NVAR/Z originalHeight = dfr:gOriginalHeight
 	if(NVAR_Exists(originalHeight))
-		ControlBar originalHeight
+		ControlBar/W=$grfName originalHeight
 	endif
 	KillControl/W=$grfName ATH_W3DSlider
 	KillControl/W=$grfName ATH_W3DSliderVar

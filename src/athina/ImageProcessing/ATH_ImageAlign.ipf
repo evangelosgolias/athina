@@ -350,7 +350,7 @@ ThreadSafe Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart
 	return M_Affine		// Return a reference to the free M_Affine wave
 End
 
-Function MultiThreadCorrelationDriftCorrection(WAVE w3D, 
+static Function MultiThreadCorrelationDriftCorrection(WAVE w3D, 
 	 WAVE w3DPart, variable ref)
 
 	if(!(WaveType(w3D) & 0x02))
@@ -417,7 +417,7 @@ ThreadSafe Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE w3DPar
 	return M_Affine		// Return a reference to the free M_Affine wave
 End
 
-Function MultiThreadRegistrationDriftCorrection(WAVE w3D, 
+static Function MultiThreadRegistrationDriftCorrection(WAVE w3D, 
 	 WAVE w3DPart, variable ref, [variable subPixel])
 
 	if(!(WaveType(w3D) & 0x02))
@@ -464,7 +464,7 @@ ThreadSafe Function/WAVE ImageRegistration_Worker(WAVE w3D, WAVE wRef, variable 
 	return M_RegOut		// Return a reference to the free M_RegOut wave
 End
 
-Function MultiThreadImageRegistration(WAVE w3D, variable ref)
+static Function MultiThreadImageRegistration(WAVE w3D, variable ref)
 
 	if(!(WaveType(w3D) & 0x02))
 		Redimension/S w3D

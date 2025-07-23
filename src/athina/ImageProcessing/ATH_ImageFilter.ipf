@@ -119,18 +119,18 @@ static Function iFFTImgFilter(WAVE wRef)
 	variable lCBOFFSET 
 	ControlInfo kwControlBar
 	lCBOFFSET = V_height	
-	ControlBar lCBOFFSET + kCBOFFSET
+	ControlBar/W=$fftWinNameStr lCBOFFSET + kCBOFFSET
 	NVAR/SDFR=dfr gATH_Gx, gATH_Gy
 	variable maxFrequency = 1 / (2 * DimDelta(wRef, 1))
 	// Add two SetVariables for Gx, Gy
-	SetVariable IFsetGxSV, title ="Gx", pos={10*pntConv,(4+lCBOFFSET)*pntConv},help={"σ_x of Guassian"},value = gATH_Gx
-	SetVariable IFsetGySV,  title ="Gy", pos={90*pntConv,(4+lCBOFFSET)*pntConv},help={"σ_y of Guassian"},value = gATH_Gy
-	Button ifDenoiseB pos={170*pntConv,(4+lCBOFFSET)*pntConv}, size={60*pntConv,20*pntConv}, title="Denoise"
-	Button ifDenoiseB help = {"Filter image, IFFT of the Fourier image."}
-	Button ifMaskB pos={240*pntConv,(4+lCBOFFSET)*pntConv}, size={50*pntConv,20*pntConv}, title="Mask"
-	Button ifMaskB help = {"Apply threshold (Range panel) or Gaussian windowing (Gx, Gy)"}
-	Button ifrestoreB pos={300*pntConv,(4+lCBOFFSET)*pntConv}, title="Restore", size={60*pntConv,20*pntConv},help = {"Restore image and FFT"}
-	Button ifsaveB pos={370*pntConv,(4+lCBOFFSET)*pntConv}, title="Save", size={50*pntConv,20*pntConv},help = {"Save filtered image"}
+	SetVariable IFsetGxSV, title ="Gx", pos={10*pntConv,(4+lCBOFFSET)*pntConv},help={"σ_x of Guassian"},value = gATH_Gx,win=$fftWinNameStr
+	SetVariable IFsetGySV,  title ="Gy", pos={90*pntConv,(4+lCBOFFSET)*pntConv},help={"σ_y of Guassian"},value = gATH_Gy,win=$fftWinNameStr
+	Button ifDenoiseB pos={170*pntConv,(4+lCBOFFSET)*pntConv}, size={60*pntConv,20*pntConv}, title="Denoise",win=$fftWinNameStr
+	Button ifDenoiseB help = {"Filter image, IFFT of the Fourier image."},win=$fftWinNameStr
+	Button ifMaskB pos={240*pntConv,(4+lCBOFFSET)*pntConv}, size={50*pntConv,20*pntConv}, title="Mask",win=$fftWinNameStr
+	Button ifMaskB help = {"Apply threshold (Range panel) or Gaussian windowing (Gx, Gy)"},win=$fftWinNameStr
+	Button ifrestoreB pos={300*pntConv,(4+lCBOFFSET)*pntConv}, title="Restore", size={60*pntConv,20*pntConv},help = {"Restore image and FFT"},win=$fftWinNameStr
+	Button ifsaveB pos={370*pntConv,(4+lCBOFFSET)*pntConv}, title="Save", size={50*pntConv,20*pntConv},help = {"Save filtered image"},win=$fftWinNameStr
 	// Modifications
 	ModifyControlList ControlNameList(fftWinNameStr,";","if*B") mode=1, proc=ATH_ImgFilter#iImgFilterButton, fsize=13*pntConv, win=$fftWinNameStr
 	ModifyControlList ControlNameList(fftWinNameStr,";","IF*SV") size={75*pntConv,20*pntConv}, limits={0,maxFrequency,0}

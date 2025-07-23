@@ -1195,3 +1195,149 @@ static Function LoadSingleCorruptedDATFile(string filepathStr, string waveNameSt
 	
 	return 0
 End
+
+//// ------ Multithreaded Load --------////
+
+ThreadSafe Function/WAVE UviewLoad_Worker(string filepathStr)
+
+	DFREF dfSav= GetDataFolderDFR()
+
+	// Create a free data folder and set it as the current data folder
+	SetDataFolder NewFreeDataFolder()
+		
+	variable numRef, ImageHeaderSize
+	Open/R numRef as filepathStr	
+	
+	STRUCT UKFileHeader ATHFileHeader
+	STRUCT UKImageHeader ATHImageHeader
+	FSetPos numRef, 0
+	FBinRead numRef, ATHFileHeader		
+	FSetPos numRef, ATHFileHeader.size
+	FBinRead numRef, ATHImageHeader
+	//Elmitec files can have additional markup blocks hence the offsets of 128 bytes
+	if(ATHImageHeader.attachedMarkupSize == 0)
+		//no markups
+		ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
+	else
+		//Markup blocks multiple of 128 bytes after image header
+		ImageHeaderSize = 288 + 128 * ((trunc(ATHImageHeader.attachedMarkupSize/128))+1)
+	endif
+	variable LEEMdataVersion = ATHImageHeader.LEEMdataVersion <= 2 ? 0: ATHImageHeader.LEEMdataVersion //NB: Added 23.05.2023
+	variable ImageDataStart = ATHFileHeader.size + ImageHeaderSize + LEEMdataVersion
+	Make/W/U/O/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) UviewFile
+	FSetPos numRef, ImageDataStart
+	FBinRead/F=2 numRef, UviewFile	
+	Close numRef
+	SetDataFolder dfSav	
+	return UviewFile
+End
+
+static Function LoadDATFilesFromFolderMT([int displayImg])
+
+	displayImg = ParamIsDefault(displayImg) ? 0: !!displayImg
+
+	variable numRef, i
+	string loadFiles, basenameStr, stackNameStr, folder
+
+	NewPath/O/Q/M="Select a folder \n" ATH_DATFilesPathTMP
+	if (V_flag) // user cancel?
+		return NaN
+	endif
+	PathInfo/S ATH_DATFilesPathTMP
+	folder = ParseFilePath(2, S_Path, ":", 0, 0)
+	basenameStr = ParseFilePath(0, S_Path, ":", 1, 0) // Use it to name the wave if wname3d = "
+	stackNameStr = CreatedataObjectName(GetDataFolderDFR(), basenameStr, 1, 0, 1)
+	// Get all the .dat files. Use "????" for all files in IndexedFile third argument.
+	string allFiles = SortList(IndexedFile(ATH_DATFilesPathTMP, -1, ".dat"),";", 80)
+	KillPath ATH_DATFilesPathTMP
+	variable filesnr = ItemsInList(allFiles)
+
+	// If no files are selected (e.g match pattern return "") warn user
+	if (!filesnr)
+		print "No .dat files in folder"
+		return NaN
+	endif
+	
+	string firstFilename = StringFromList(0,allFiles)
+
+	WAVE/T filesW = ATH_TWave#StringListToTextWave(allFiles,";")
+	Make/WAVE/N=(filesnr) ww	
+	MultiThread ww = UviewLoad_Worker(folder+filesW[p])
+	Concatenate/O {ww}, $stackNameStr
+	variable FoV = ReadFovFromDATFile(folder+firstFilename)
+	SetScale/I x, 0, FoV, $stackNameStr
+	SetScale/I y, 0, FoV, $stackNameStr
+	Note $stackNameStr, "Loaded from folder: " + folder + " the files:"
+	Note $stackNameStr, ATH_TWave#TextWaveToString(filesW)
+	KillWaves ww
+	if(displayImg)
+		ATH_Display#NewImg($stackNameStr)
+	endif
+	return 0
+End
+
+static Function LoadMultiplyDATFilesMT([int displayImg])
+
+	displayImg = ParamIsDefault(displayImg) ? 0: !!displayImg
+
+	variable numRef, i
+	string loadFiles, basenameStr
+
+	string message = "Select .dat files. \n"
+	message += "Import overwrites waves with the same name."
+	string fileFilters = "DAT File (*.dat):.dat;"
+	fileFilters += "All Files:.*;"
+	Open/F=fileFilters/MULT=1/M=message/D/R numref
+
+	if(!strlen(S_fileName)) // user cancel?
+		return NaN
+	endif
+	loadFiles = SortList(S_fileName, "\r", 80)
+	variable nrloadFiles = ItemsInList(loadFiles, "\r")
+	WAVE/T filesW = ATH_tWave#StringListToTextWave(loadFiles, "\r")
+	Make/WAVE/N=(nrloadFiles) ww	
+	MultiThread ww = UviewLoad_Worker(filesW[p])
+	
+	string firstFilename = StringFromList(0,loadFiles,"\r")
+	string stackNameStr = CreateDataObjectName(GetDataFolderDFR(),\
+	ParseFilePath(0, firstFilename, ":", 1, 1),1,0,1)
+	
+	Concatenate/O {ww}, $stackNameStr
+	variable FoV = ReadFovFromDATFile(firstFilename)
+	SetScale/I x, 0, FoV, $stackNameStr
+	SetScale/I y, 0, FoV, $stackNameStr
+	Note $stackNameStr, ATH_TWave#TextWaveToString(filesW)
+	KillWaves ww
+	if(displayImg)
+		ATH_Display#NewImg($stackNameStr)
+	endif
+	return 0
+End
+
+static Function ReadFovFromDATFile(string filepathStr)
+		
+	variable numRef, ImageHeaderSize
+	Open/R numRef as filepathStr	
+	
+	STRUCT UKFileHeader ATHFileHeader
+	STRUCT UKImageHeader ATHImageHeader
+	FSetPos numRef, 0
+	FBinRead numRef, ATHFileHeader		
+	FSetPos numRef, ATHFileHeader.size
+	FBinRead numRef, ATHImageHeader
+	//Elmitec files can have additional markup blocks hence the offsets of 128 bytes
+	if(ATHImageHeader.attachedMarkupSize == 0)
+		//no markups
+		ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
+	else
+		//Markup blocks multiple of 128 bytes after image header
+		ImageHeaderSize = 288 + 128 * ((trunc(ATHImageHeader.attachedMarkupSize/128))+1)
+	endif
+	variable LEEMdataVersion = ATHImageHeader.LEEMdataVersion <= 2 ? 0: ATHImageHeader.LEEMdataVersion //NB: Added 23.05.2023
+	variable ImageDataStart = ATHFileHeader.size + ImageHeaderSize + LEEMdataVersion
+	variable metadataStart = LEEMdataVersion <= 2 ? ATHFileHeader.size: (ATHFileHeader.size + ImageHeaderSize)
+	string metadataStr = StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
+	variable FoV = NumberByKey("FOV(µm)", metadataStr, ":", "\n")
+	FoV = (numtype(FoV) == 2)? 0: FoV 
+	return FoV
+End

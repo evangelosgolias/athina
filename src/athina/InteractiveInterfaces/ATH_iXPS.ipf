@@ -194,7 +194,7 @@ static Function XPSPlot(DFREF dfr)
 	SetWindow $profilePlotStr userdata(ATH_parentGraphWin) = gATH_WindowNameStr 
 	SetWindow $profilePlotStr, hook(MyiXPSGraphHook) = ATH_iXPS#GraphHookFunction // Set the hook
 	
-	ControlBar 100
+	ControlBar/W=$profilePlotStr 100
 	
 	// Let's set SaveProfileButton to red if nothing is set or green otherwise
 	DFREF dfr0 = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iXPS:DefaultSettings:") // Settings here

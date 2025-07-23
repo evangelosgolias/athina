@@ -170,7 +170,7 @@ static Function CreatePlot(DFREF dfr)
 	SetWindow $profilePlotStr userdata(ATH_LinkedWinImageSource) = gATH_WindowNameStr 
 	SetWindow $profilePlotStr, hook(MyLineProfileGraphHook) = ATH_LineProfile#GraphHookFunction // Set the hook
 	
-	ControlBar 70	
+	ControlBar/W=$profilePlotStr 70	
 	Button SaveProfileButton,pos={18.00*pntConv,8.00*pntConv},size={90.00*pntConv,20.00*pntConv},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=ATH_LineProfile#SaveProfile
 	Button SaveCursorPositions,pos={118*pntConv,8*pntConv},size={95*pntConv,20*pntConv},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=ATH_LineProfile#SaveDefaultSettings
 	Button RestoreCursorPositions,pos={224*pntConv,8*pntConv},size={111*pntConv,20*pntConv},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_LineProfile#RestoreDefaultSettings

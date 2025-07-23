@@ -252,13 +252,18 @@ static Function InitialiseGraph(DFREF dfr)
 		ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=12, lsize=2
 		Label left "\\u#2 Intensity (arb. u.)";DelayUpdate
 		Label bottom "\\u#2 Energy (eV)"
-		ControlBar 40
+		ControlBar/W=$profilePlotStr 40
 		ModifyGraph/Z cbRGB=(65535,54611,49151)
-		Button SaveProfileButton, pos={15.00,10.00},size={80.00,20.00}, proc=ATH_ZProfile#SaveProfileButton, title="Save prof.", help={"Save current profile"}, valueColor=(1,12815,52428)
-		Button SetScaleZaxis, pos={105.00,10.00}, size={80.00,20.00}, proc=ATH_ZProfile#SetScaleButton, title="Set scale", help={"Set abscissas range"}, valueColor=(1,12815,52428)
-		CheckBox PlotProfile, pos={195.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckboxPlotProfile,title="Plot prof.", fSize=14, value= 1
-		CheckBox MarkAreas, pos={280,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckboxMarkAreas,title="Mark areas", fSize=14, value= 1
-		CheckBox TwinWavePlot, pos={400,2.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckBoxTwinPlot,title="Twin plot", fSize=12, value= 0
+		Button SaveProfileButton, pos={15.00,10.00},size={80.00,20.00}, proc=ATH_ZProfile#SaveProfileButton, title="Save prof." 
+		Button SaveProfileButton, win=$profilePlotStr,help={"Save current profile"}, valueColor=(1,12815,52428)
+		Button SetScaleZaxis, pos={105.00,10.00}, size={80.00,20.00}, proc=ATH_ZProfile#SetScaleButton, title="Set scale"
+		Button SetScaleZaxis, win=$profilePlotStr,help={"Set abscissas range"}, valueColor=(1,12815,52428)
+		CheckBox PlotProfile, pos={195.00,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckboxPlotProfile
+		CheckBox PlotProfile, win=$profilePlotStr,title="Plot prof.", fSize=14, value= 1
+		CheckBox MarkAreas, pos={280,12.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckboxMarkAreas
+		CheckBox MarkAreas, win=$profilePlotStr,title="Mark areas", fSize=14, value= 1
+		CheckBox TwinWavePlot, pos={400,2.00}, side=1, size={70.00,16.00}, proc=ATH_ZProfile#CheckBoxTwinPlot
+		CheckBox TwinWavePlot, win=$profilePlotStr,title="Twin plot", fSize=12, value= 0
 		
 		SetWindow $profilePlotStr userdata(ATH_rootdfrZProfileStr) = rootFolderStr // pass the dfr to the button controls
 		SetWindow $profilePlotStr userdata(ATH_targetGraphWin) = "ATH_BeamProfile_" + gATH_WindowNameStr

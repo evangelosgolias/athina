@@ -86,7 +86,7 @@ static Function MeasureDistanceUsingFreeCursors()
 	endif	
 	
 	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-	ControlBar lCBOFFSET + kCBOFFSET		
+	ControlBar/W=$winNameStr lCBOFFSET + kCBOFFSET		
 	
 	Button scaleCrsB pos={10*pntConv,(4+lCBOFFSET)*pntConv}, size={60*pntConv,20*pntConv}, title="Scale", win=$winNameStr
 	Button scaleCrsB help = {"Place cursots C, D and set scale"},fcolor=(65535,0,0),proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
@@ -517,7 +517,7 @@ Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change 
 			KillControl/W=$s.win dLogCrsB
 			KillControl/W=$s.win angleCrsB
 			ControlInfo/W=$s.win kwControlBar
-			ControlBar V_Height - kCBOFFSET
+			ControlBar/W=$s.win V_Height - kCBOFFSET
 			break
 	endswitch
 	return 0
