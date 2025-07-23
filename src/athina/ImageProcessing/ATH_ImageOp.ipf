@@ -365,30 +365,6 @@ static Function ImageEdgeDetectionToStack(WAVE w3dref, string method, [variable 
 	return 0
 End
 
-static Function/WAVE WAVEImageEdgeDetectionToStack(WAVE w3dref, string method)
-	/// Applied the edge detection operation to w3dref
-	/// and returns a wave to NameofWave(w3dref) + "_ed"
-	
-	variable numlayers = DimSize(w3dref, 2), i
-	
-	DFREF saveDF = GetDataFolderDFR()
-	SetDataFolder NewFreeDataFolder()
-	
-	for(i = 0; i < numlayers; i++)
-		ImageEdgeDetection/P=(i)/M=-1 $method w3dref
-		WAVE M_ImageEdges		
-		Rename M_ImageEdges, $("ATHWaveToStack_idx_" + num2str(i))
-	endfor
-	
-	ImageTransform/NP=(numlayers) stackImages $"ATHWaveToStack_idx_0"
-	WAVE M_Stack
-	Duplicate/O M_Stack, wRefFREE
-	CopyScales/I w3dref, wRefFREE
-	SetDataFolder saveDF
-	return wRefFREE
-End
-
-
 static Function ImageRotateAndScale(WAVE wRef, variable angle, [variable backup, variable flipY])
 	/// Math: If the side of the image is a, then the rotated image
 	/// will have side a_rot = a * (cos(angle) + sin(angle))
@@ -478,42 +454,6 @@ static Function RestoreTopImageFromBackup([string wname])
 	return 0
 End
 
-static Function ScalePlanesByMinMaxRange(WAVE w3d, [variable f64])
-	// f64: Return a float64 wave. 
-	// By default return a float32, unless w3d is float64
-	// 
-	f64 = ParamIsDefault(f64) ? 0: 1 //
-	
-	if((!ATH_Num#IsFloat32Q(w3d) && !ATH_Num#IsFloat64Q(w3d)))
-		Redimension/S w3d
-	elseif(f64 && !ATH_Num#IsFloat64Q(w3d))
-		Redimension/D w3d
-	endif
-	MatrixOP/FREE zRangeFree = 1/(maxVal(w3d) - minVal(w3d))
-	ImageTransform/BEAM={0, 0} getBeam zRangeFree
-	WAVE W_Beam
-	ImageTransform/O/D=W_Beam scalePlanes w3d
-	KillWaves W_Beam
-End
-
-static Function ScalePlanesByMaxRange(WAVE w3d, [variable f64])
-	// f64: Return a float64 wave. 
-	// By default return a float32, unless w3d is float64
-	// 
-	f64 = ParamIsDefault(f64) ? 0: 1 //
-	
-	if((!ATH_Num#IsFloat32Q(w3d) && !ATH_Num#IsFloat64Q(w3d)))
-		Redimension/S w3d
-	elseif(f64 && !ATH_Num#IsFloat64Q(w3d))
-		Redimension/D w3d
-	endif
-	MatrixOP/FREE zRangeFree = 1/maxVal(w3d)
-	ImageTransform/BEAM={0, 0} getBeam zRangeFree
-	WAVE W_Beam
-	ImageTransform/O/D=W_Beam scalePlanes w3d
-	KillWaves W_Beam
-End
-
 static Function ExtractLayerRange(WAVE w3d, [variable startL, variable endL, variable doStack])
 	// Extract layers to a new stack
 	variable  nlayers = DimSize(w3d, 2), i
@@ -551,21 +491,6 @@ static Function ExtractLayerRange(WAVE w3d, [variable startL, variable endL, var
 	endif
 	SetDataFolder saveDF
 	return 0
-End
-
-static Function/WAVE WAVEAverageImageRangeToStack(WAVE w3d, variable NP0, variable NPL)
-	/// Average NPL image planes in stack starting from N0 
-	variable  nlayers = DimSize(w3d, 2), i
-	if(NP0 + NPL > nlayers)
-		Abort "Dimension mismatch."
-	endif
-	MatrixOP/FREE calcLayer = layer(w3d, 0)
-	calcLayer = 0
-	for(i = 0; i < NPL; i++)
-		MatrixOP/O/FREE gLayerFree = layer(w3d, NP0 + i)
-		MatrixOP/O calcLayer = calcLayer + gLayerFree
-	endfor
-	return calcLayer
 End
 
 static Function AverageImageRangeToStackOffset(WAVE w3d, variable NP0, variable NPL)

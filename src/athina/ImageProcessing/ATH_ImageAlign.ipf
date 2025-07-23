@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_ImgAlign
-#pragma version = 1.01
+#pragma version = 1.1
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -31,7 +31,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static Function/WAVE ATH_WAVEImgRegistration(WAVE w1, WAVE w2)
+static Function/WAVE ImgRegistrationW(WAVE w1, WAVE w2)
 	/// Align two images using ImageRegistration operation. 
 	/// Only x, y translations are allowed.
 	/// @param w1 wave reference First wave (reference wave)
@@ -44,7 +44,7 @@ static Function/WAVE ATH_WAVEImgRegistration(WAVE w1, WAVE w2)
 		Redimension/S w2
 	endif
 	Duplicate/FREE w2, w2copy
-	ImageRegistration/TRNS={1,1,0}/ROT={0,0,0}/SKEW={0,0,0}/TSTM=0/BVAL=0 refWave = w1, testWave = w2copy
+	ImageRegistration/TRNS={1,1,0}/ROT={0,0,1}/ISOS/TSTM=0/BVAL=0 refWave = w1, testWave = w2copy
 	WAVE M_RegOut, M_RegOut, M_RegMaskOut
 	Duplicate/FREE M_RegOut, alignedW
 	KillWaves/Z M_RegOut, M_RegOut, M_RegMaskOut
@@ -53,12 +53,9 @@ End
 
 static Function ImgRegistration(WAVE w1, WAVE w2)
 	/// Align two images using ImageRegistration operation. 
-	/// Only x, y translations are allowed.
+	/// Note: w2 in overwritten
 	/// @param w1 wave reference First wave (reference wave)
 	/// @param w2 wave reference Second wave (test wave)
-	string msg
-	sprintf msg, "ImageRegistration with refWave = %s and testWave = %s.", NameOfWave(w1), NameOfWave(w2)
-	print msg		
 
 	if(!(WaveType(w1) & 0x02))	
 		Redimension/S w1
@@ -66,228 +63,10 @@ static Function ImgRegistration(WAVE w1, WAVE w2)
 	if(!(WaveType(w2) & 0x02))
 		Redimension/S w2
 	endif 
-	ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,1}/TSTM=0/BVAL=0 refWave = w1, testWave = w2
+	ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,1}/ISOS/TSTM=0/BVAL=0 refWave = w1, testWave = w2
 	WAVE M_RegOut
 	Duplicate/O M_RegOut, w2	
 	KillWaves/Z M_RegOut, M_RegMaskOut, W_RegParams
-	return 0
-End
-
-static Function ImgStackRegistration(WAVE w3d, [variable layerN, 
-		 variable cutoff, int selfDrift, int printMode, int convMode, int subPixel])
-	/// 
-	/// *** Use full image, translations and rotation ***
-	///
-	/// Align a 3d wave using ImageRegistration. By default the function will
-	/// use the 0-th layer as a wave reference, uncless user chooses otherwise 
-	/// Only x, y translations are allowed.
-	/// @param w3d wave 3d we want to register for aligment
-	/// @param layerN int optional Reference layer for ImageRegistration.
-	/// @param cutoff max drift allowed
- 	/// @param printMode int optional print drift of each layer
-	/// @param convMode int optional Select convergence method /CONV = 0, 1 for Gravity (fast) or Marquardt (slow), respectively.
-	/// @param selfDrift Drift original or a copy of the wave
-	/// @param intPixels Drift integer number of pixels
-	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then 0 is your choice
-	convMode = ParamIsDefault(convMode) ? 0: !!convMode // convMode = 0, 1 
-	printMode = ParamIsDefault(printMode) ? 0: !!printMode
-	cutoff = ParamIsDefault(cutoff) ? 0: cutoff
-	selfDrift = ParamIsDefault(selfDrift) ? 1 : 0 // Default: 1, drift-correct the original wave w3d (unprocessed).
-	subPixel = ParamIsDefault(subPixel) ? 0 : !!subPixel
-	
-	if(!(WaveType(w3d) & 0x02))
-		Redimension/S w3d
-	endif
-	
-	MatrixOP/FREE refLayerWave = layer(w3d, layerN) 
-		
-	ImageRegistration/Q/STCK/PSTK/TSTM=0/BVAL=0/CSNR=0/CONV=(convMode) refwave = refLayerWave, testwave = w3d		
-	
-	WAVE M_RegOut, M_RegMaskOut, M_RegParams
-	if(subPixel)
-		MatrixOP/FREE dxL = row(M_RegParams, 0)
-		MatrixOP/FREE dyL = row(M_RegParams, 1)		
-	else
-		MatrixOP/FREE dxL = round(row(M_RegParams, 0))
-		MatrixOP/FREE dyL = round(row(M_RegParams, 1))	
-	endif
-	
-	if(cutoff) // Cutoff only if set, if 0 pass
-		dxL = (abs(dxL) > cutoff) ? 0 : dxL
-		dyL = (abs(dyL) > cutoff) ? 0 : dyL
-	endif
-	
-	variable nlayers = DimSize(w3d, 2)
-	
-	if(!selfDrift) // Do not drift w3d, drift the unprocessed copy
-		string backupWavePathStr = GetWavesDataFolder(w3d, 1) + PossiblyQuoteName(NameOfWave(w3d) + "_undo")
-		if(WaveExists($backupWavePathStr)) // If you use the original wave for drifting and the backup wave exists
-			WAVE wRefCopy = $backupWavePathStr
-			if(!(WaveType(wRefCopy) & 0x02))
-				Redimension/S wRefCopy
-			endif
-		else
-			print backupWavePathStr + " not found"
-			return -1
-		endif
-		variable dx, dy, i
-		DFREF saveDF = GetDataFolderDFR()
-		SetDataFolder NewFreeDataFolder()
-		for(i = 0; i < nlayers; i++)
-			dx = dxL[i]; dy = dyL[i]
-			if(dx == 0 && dy == 0)
-				MatrixOP/O $("getStacklayer_" + num2str(i)) = layer(wRefCopy, i)
-			else
-				MatrixOP/O targetLayer = layer(wRefCopy, i)
-				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$("getStacklayer_" + num2str(i)) Affine2D targetLayer
-			endif
-		endfor
-		ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
-		WAVE M_Stack
-		// Restore scale here
-		CopyScales wRefCopy, M_Stack
-		Duplicate/O M_Stack, saveDF:$NameofWave(w3d)
-		SetDataFolder saveDF
-	else
-		CopyScales w3d, M_RegOut
-		Duplicate/O M_RegOut, w3d
-		KillWaves/Z M_RegOut, M_RegMaskOut, M_RegParams
-	endif
-	
-	if(printmode)
-		string driftLog = ""
-		driftLog = "Called ImageAlign#ImgStackRegistration\n"
-		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
-		driftLog +=  "---- Drift ----\n"
-		driftLog +=  "layer  dx  dy\n"
-		if(cutoff && selfdrift)
-			driftLog +=  ">>> Cutoff skipped <<<\n"
-		endif
-		for(i = 0; i < nlayers; i++)
-			if(dxL[i] == 0 && dyL[i] == 0)
-				driftLog +=  num2str(i) + ": Pass [cutoff: " + num2str(cutoff) +"]" + "\n"
-			else
-				driftLog +=  num2str(i) + ": "+ num2str(dxL[i]) + "    " + num2str(dyL[i]) + "\n"
-			endif
-		endfor
-	endif
-	
-	if(printMode)
-		string notebookName = NameOfWave(w3d)
-		KillWindow/Z notebookName
-		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
-		Notebook notebookName, text = driftLog
-	endif	
-	
-	return 0
-End
-
-static Function ImgStackCorrelation(WAVE w3d, [variable layerN, int printMode, variable cutoff, int selfDrift])
-	/// Align a 3d wave using (auto)correlation. By default the function will
-	/// use the 0-th layer as a wave reference, uncless user chooses otherwise. 
-	/// Only integer x, y translations are calculated.
-	/// @param w3d wave 3d we want to aligment
-	/// @param refLayer int optional Select refWave = refLayer for ImageRegistration.
-	/// @param printMode int optional print the drift corrections in pixels
-	/// @param cutoff max drift allowed
-	/// @param selfDrift Drift original (1) or a copy of the wave (0)
-	/// When selfDrift is True, w3d is wave to drift-corrrect, assumed unpreprocessed.
-	/// Otherwise, we drift correct  the backup of w3d, (NameOfWave(w3d)+"_undo"), which is
-	/// created by the Launcher ATH_LaunchImageStackAlignmentFullImage() before entering here.
-	
-	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then 0 is your choice
-	printMode = ParamIsDefault(printMode) ? 0: printMode
-	selfDrift = ParamIsDefault(selfDrift) ? 1 : 0
-	
-	string backupWavePathStr = GetWavesDataFolder(w3d, 1) + PossiblyQuoteName(NameOfWave(w3d) + "_undo")
-	if(!selfDrift) // We want to drift the copy
-		if(WaveExists($backupWavePathStr)) // If you use the original wave for drifting and the backup wave exists
-			WAVE wRefCopy = $backupWavePathStr
-		else
-			print backupWavePathStr + " not found"
-			return -1
-		endif
-	endif
-	
-	variable i 
-	if(printMode)
-		string driftLog = "Called ATH_Align#ImgStackCorrelation\n "
-		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
-		driftLog +=  "---- Drift ----\n"
-		driftLog +=  "layer  dx  dy\n"
-	endif
-
-	DFREF saveDF = GetDataFolderDFR()
-	DFREF saveWaveDF = GetWavesDataFolderDFR(w3d) // Location of w3d
-	SetDataFolder NewFreeDataFolder()
-	
-	MatrixOP/O refLayerFreeWave = layer(w3d, layerN) // This layer is not FREE, we have to stack it using ImageTransform at the end
-	
-	if(!selfDrift)
-		MatrixOP/O $("getStacklayer_" + num2str(layerN)) = layer(wRefCopy, layerN)
-	else
-		Duplicate refLayerFreeWave, $("getStacklayer_" + num2str(layerN))
-	endif
-	
-	MatrixOP/FREE autocorrelationW = correlate(refLayerFreeWave, refLayerFreeWave, 0)
-	WaveStats/M=1/Q autocorrelationW
-	variable x0 = V_maxRowLoc, y0 = V_maxColLoc, x1, y1, dx, dy // x, y -> p, q
-	variable nlayers = DimSize(w3d, 2)
-
-	for(i = 0; i < nlayers; i++)
-		if(i != layerN)
-			MatrixOP/O freeLayer = layer(w3d, i)
-			MatrixOP/O correlationW = correlate(refLayerFreeWave, freeLayer, 0)
-			WaveStats/M=1/Q correlationW
-			x1 = V_maxRowLoc
-			y1 = V_maxColLoc
-			dx = x0 - x1
-			dy = y0 - y1
-			if(cutoff)
-				dx = (abs(dx) > cutoff) ? 0 : dx
-				dy = (abs(dy) > cutoff) ? 0 : dy
-			endif
-			if(!selfDrift)
-				if(dx||dy)
-					MatrixOP/O freeLayer = layer(wRefCopy, i)
-					ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D freeLayer
-					WAVE M_Affine
-					Rename M_Affine, $("getStacklayer_" + num2str(i))
-				else
-					MatrixOP/O $("getStacklayer_" + num2str(i)) = layer(wRefCopy, i)
-				endif
-			else
-				if(dx||dy)
-					ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0} Affine2D freeLayer
-					WAVE M_Affine
-					Rename M_Affine, $("getStacklayer_" + num2str(i))
-				else
-					Duplicate freeLayer, $("getStacklayer_" + num2str(i))
-				endif
-			endif
-		endif
-		if(printMode)
-			if(dx == 0 && dy == 0)
-				driftLog +=  num2str(i) + ": Pass [cutoff: " + num2str(cutoff) +"]" + "\n"
-			else
-				driftLog +=  num2str(i) + ": "+ num2str(dx) + "    " + num2str(dy) + "\n"
-			endif
-		endif
-	endfor
-	
-	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
-	WAVE M_Stack
-	// Restore scale here
-	CopyScales w3d, M_Stack
-	Duplicate/O M_Stack, saveWaveDF:$NameofWave(w3d)
-	
-	if(printMode)
-		string notebookName = NameOfWave(w3d)
-		KillWindow/Z notebookName
-		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
-		Notebook notebookName, text = driftLog
-	endif
-	SetDataFolder saveDF
 	return 0
 End
 
@@ -375,7 +154,7 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 	return 0
 End
 
-static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [variable layerN, variable cutoff, int printMode, int windowing]) // Used in menu
+static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [variable layerN]) // Used in menu
 	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave.
 	/// The partition 3d wave calls ATH_ImageStackAlignmentByFullRegistration
 	/// By default the function will  use the 0-th layer as a wave reference, uncless user chooses otherwise.
@@ -386,9 +165,7 @@ static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [varia
 	/// Note: When illumination conditions change considerably, (XAS along an edge)
 	/// it is better to use a mask to isolate a characteristic feature.
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then default is 0
-	printMode = ParamIsDefault(printMode) ? 0: printMode
-	windowing = ParamIsDefault(windowing) ? 0: windowing
-	cutoff = ParamIsDefault(cutoff) ? 0: abs(cutoff)
+	
 	if(!(WaveType(w3d) & 0x02))
 		Redimension/S w3d
 	endif
@@ -401,9 +178,7 @@ static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [varia
 	SetDataFolder NewFreeDataFolder()
 
 	MatrixOP/FREE refLayerWave = layer(partitionW3d, layerN)
-	if(windowing)
-		ImageWindow/O Hanning refLayerWave
-	endif
+
 	MatrixOP/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
 	WaveStats/M=1/Q/P autocorrelationW
 	variable p0 = V_maxRowLoc, q0 = V_maxColLoc, p1, q1, i
@@ -413,9 +188,6 @@ static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [varia
 	for(i = 0; i < layers; i++)
 		if(i != layerN)
 			MatrixOP/O/FREE freeLayer = layer(partitionW3d, i)
-			if(windowing)
-				ImageWindow/O Hanning freeLayer
-			endif
 			MatrixOP/O/FREE correlationW = correlate(refLayerWave, freeLayer, 0)
 			WaveStats/M=1/Q/P correlationW
 			p1 = V_maxRowLoc
@@ -424,18 +196,6 @@ static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [varia
 			dq[i] = q0 - q1
 		endif
 	endfor
-
-	if(printMode)
-		string driftLog = "Called ATH_ImgAlign#ImgStackPartitionCorrelation\n\n"
-		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
-		driftLog +=  "---- Drift ----\n"
-		driftLog +=  "layer  dx  dy\n"
-	endif
-
-	if(cutoff) // Cutoff only if set
-		dp = (abs(dp) > cutoff) ? 0 : dp
-		dq = (abs(dq) > cutoff) ? 0 : dq
-	endif
 
 	//Now translate each wave in the stack (w3d)
 	for(i = 0; i < layers; i++)
@@ -446,17 +206,6 @@ static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [varia
 			ImageInterpolate/APRM={1,0,dp[i],0,1,dq[i],1,0} Affine2D getfreelayer
 			WAVE M_Affine
 			Rename M_Affine, $("getStacklayer_" + num2str(i))
-			//ImageTransform/IOFF={dp[i], dq[i], 0} offsetImage getfreelayer
-			//WAVE M_OffsetImage
-			//Rename M_OffsetImage, $("getStacklayer_" + num2str(i))
-		endif
-
-		if(printMode)
-			if(dp[i] == 0 && dq[i] == 0)
-				driftLog +=  num2str(i) + ": Pass [cutoff: " + num2str(cutoff) +"]" + "\n"
-			else
-				driftLog +=  num2str(i) + ": "+ num2str(dp[i]) + "    " + num2str(dq[i]) + "\n"
-			endif
 		endif
 	endfor
 	ImageTransform/NP=(layers) stackImages $"getStacklayer_0"
@@ -464,13 +213,6 @@ static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [varia
 	// Restore scale here
 	CopyScales w3d, M_Stack
 	Duplicate/O M_Stack, saveWaveDF:$NameofWave(w3d)
-
-	if(printMode)
-		string notebookName = NameOfWave(w3d)
-		KillWindow/Z notebookName
-		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
-		Notebook notebookName, text = driftLog
-	endif
 	SetDataFolder saveDF
 	return 0
 End
@@ -570,24 +312,10 @@ static Function LinearDriftPlanesABCursors(WAVE w3d, WAVE wx, WAVE wy, [variable
 	return 0
 End
 
-
-static Function PhaseCorrelation(WAVE img1, WAVE img2)
-	//	https://github.com/scikit-image/scikit-image/blob/main/skimage/registration/_phase_cross_correlation.py#L415
-	//	Can you fix it?
-	//	
-	FFT/OUT=1/WINF=Hanning/FREE/DEST=img1F img1
-	FFT/OUT=1/WINF=Hanning/FREE/DEST=img2F img2	
-	MatrixOP/O R_FREE = img1F * conj(img2F)
-	MatrixOP/O R_FREE0 = R_FREE/abs(R_FREE)
-	IFFT/R/DEST=res R_FREE0
-	WaveStats/M=1/Q/P res	
-	print V_maxRowLoc,V_maxColLoc
-End
-
 /// ----------------------------- Multithreading ----------------------------- ///
 
-// Multithreading Correlation
-ThreadSafe Function/WAVE DriftCorrelation_Worker(WAVE w3D, WAVE w3DPart,
+// // Multithreaded Drift Correction using Correlation
+ThreadSafe Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart,
 					WAVE w3DPartRef, variable refP, 
 					variable refQ, variable plane)
 	
@@ -643,7 +371,7 @@ Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	variable refP = V_maxRowLoc
 	variable refQ = V_maxColLoc	
 	// Release the threads.
-	MultiThread ww = DriftCorrelation_Worker(w3D, w3dPart, M_ImagePlane, refP, refQ, p)	
+	MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, M_ImagePlane, refP, refQ, p)	
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
 	// So, now repack all layers.
@@ -655,9 +383,9 @@ Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	KillWaves ww, M_ImagePlane
 End
 
-// Multithreading Registration
-ThreadSafe Function/WAVE DriftRegistration_Worker(WAVE w3D, WAVE w3DPart,
-					WAVE w3DPartRef, variable plane, [int subPixel])
+// Multithreaded Drift Correction using Registration
+ThreadSafe Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE w3DPart,
+					WAVE w3DPartRef, variable plane, [variable subPixel])
 	
 	DFREF dfSav= GetDataFolderDFR()
 
@@ -672,7 +400,10 @@ ThreadSafe Function/WAVE DriftRegistration_Worker(WAVE w3D, WAVE w3DPart,
 	// Drift the whole image
 	ImageTransform/P=(plane) getPlane w3D
 	Wave W_ImagePlane
-	ImageInterpolate/APRM={1,0,W_RegParams[0],0,1,W_RegParams[1],1,0} Affine2D M_ImagePlane
+	variable driftP, driftQ
+	driftP = subPixel ? W_RegParams[0] : round(W_RegParams[0])
+	driftQ = subPixel ? W_RegParams[1] : round(W_RegParams[1])
+	ImageInterpolate/APRM={1,0,driftP,0,1,driftQ,1,0} Affine2D M_ImagePlane
 	WAVE M_Affine
 	// Restore the current data folder
 	SetDataFolder dfSav
@@ -687,7 +418,7 @@ ThreadSafe Function/WAVE DriftRegistration_Worker(WAVE w3D, WAVE w3DPart,
 End
 
 Function MultiThreadRegistrationDriftCorrection(WAVE w3D, 
-	 WAVE w3DPart, variable ref)
+	 WAVE w3DPart, variable ref, [variable subPixel])
 
 	if(!(WaveType(w3D) & 0x02))
 		Redimension/S w3D
@@ -703,7 +434,50 @@ Function MultiThreadRegistrationDriftCorrection(WAVE w3D,
 	ImageTransform/P=(ref) getPlane w3DPart
 	Wave M_ImagePlane // Reference layer
 	// Release the threads.
-	MultiThread ww = DriftRegistration_Worker(w3D, w3DPart, M_ImagePlane, p)	
+	MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart, M_ImagePlane, p, subPixel = subPixel)	
+	// At this point, ww holds wave references to numplanes free waves
+	// created by DriftCorrelation_Worker.
+	// So, now repack all layers.
+	Concatenate/O {ww}, $GetWavesDataFolder(w3D,2)
+	
+	// ww holds references to the free waves. By killing ww, we kill
+	// the last reference to the free waves which causes them to be
+	// automatically deleted.
+	KillWaves ww, M_ImagePlane
+End
+
+
+// Multithreaded Registration
+ThreadSafe Function/WAVE ImageRegistration_Worker(WAVE w3D, WAVE wRef, variable plane)
+	
+	DFREF dfSav= GetDataFolderDFR()
+
+	// Create a free data folder and set it as the current data folder
+	SetDataFolder NewFreeDataFolder()
+	ImageTransform/P=(plane) getPlane w3D
+	Wave M_ImagePlane
+	ImageRegistration/Q/TRNS={1,1,1}/ROT={0,0,1}/ISOS/TSTM=0/BVAL=0 refwave = wRef, testwave = M_ImagePlane
+	WAVE M_RegOut	
+	// Restore the current data folder
+	SetDataFolder dfSav
+
+	return M_RegOut		// Return a reference to the free M_RegOut wave
+End
+
+Function MultiThreadImageRegistration(WAVE w3D, variable ref)
+
+	if(!(WaveType(w3D) & 0x02))
+		Redimension/S w3D
+	endif
+	
+	// Create a wave to hold wave references returned by DriftCorrelation_Worker.
+	variable numPlanes = DimSize(w3D,2)
+	Make/WAVE/N=(numPlanes) ww	
+	// Get the reference layer from the partitioned wave
+	ImageTransform/P=(ref) getPlane w3D
+	Wave M_ImagePlane // Reference layer
+	// Release the threads.
+	MultiThread ww = ImageRegistration_Worker(w3D, M_ImagePlane, p)
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
 	// So, now repack all layers.

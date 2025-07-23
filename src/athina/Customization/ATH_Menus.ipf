@@ -62,6 +62,7 @@ Menu "athina"
 		"New image (stack) from saved ROI (TG, 2D, 3D)", /Q, ATH_Launch#MakeWaveFromSavedROI()
 		"FFT (TG, 2D)", /Q, ATH_Launch#ImageFFTTransform()
 		"Histogram Equalisation (TG, 2D, 3D)", /Q, ATH_Launch#HistogramEqualisation()
+		"Full Image Registration (TG, 3D)", /Q, ATH_Launch#ImageRegistrationStack()	
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, ATH_Launch#ImageRotateAndScaleFromMetadata()
 		"Remove background (TG, 2D, 3D)", /Q, ATH_Launch#ImgRemoveBackground()
 		"Remove background flattening (TG, 2D, 3D)", /Q, ATH_Launch#FlattenImage()		
@@ -83,7 +84,6 @@ Menu "athina"
 	
 	Submenu "Drift Correction"
 		"Using a feature (TG, 3D)", /Q, ATH_Launch#ImageStackAlignmentPartition()
-		"Using the full image (TG, 3D)", /Q, ATH_Launch#ImageStackAlignmentFullImage()
 		"Linear drift correction (TG, 3D)",/Q, ATH_Launch#LinearDriftCorrestionStackABCursors()
 		"Linear drift correction [Range] (TG, 3D)",/Q, ATH_Launch#LinearDriftCorrestionPlanesABCursors()
 	End

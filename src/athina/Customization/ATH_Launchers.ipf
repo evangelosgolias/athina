@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_Launch
-#pragma version = 1.01
+#pragma version = 1.1
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -32,7 +32,7 @@
 
 // Launchers
 
-// --- Add quick actions to Dat Browser ----
+// --- Add quick actions to Data Browser ----
 
 Function BrowserActionDoXMDC()
 	string img1, img2
@@ -245,140 +245,61 @@ static Function CalculationXMCD3D()
 	return 0
 End
 
-static Function ImageStackAlignmentFullImage([int backupWave])
-	///
-	backupWave = ParamIsDefault(backupWave) ? 1 : backupWave
-	///
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	if(!strlen(imgNameTopGraphStr))
-		return -1
-	endif	
-	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // ATH_ImageStackAlignmentByPartitionRegistration needs a wave reference
-	variable convMode = 1
-	variable printMode = 2
-	variable layerN = 0
-	variable edgeAlgo = 0	
-	variable histEq = 2	
-	variable windowing = 0
-	variable algo = 1
-	variable cutoff = 0
-	variable subPixel = 2
-	string msg = "Align " + imgNameTopGraphStr + " using the full image."
-	Prompt algo, "Method", popup, "Registration (sub-pixel); Correlation (pixel)"
-	Prompt layerN, "Reference layer"
-	Prompt edgeAlgo, "Edge detection method", popup, "None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"
-	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
-	Prompt convMode, "Convergence (Registration only)", popup, "Gravity (fast); Marquardt (slow)"
-	Prompt windowing, "Windowing", popup, "None;Hanning;Hamming;Bartlett;Blackman"
-	Prompt subPixel, "Sub-pixel drift (Registation)",  popup, "Yes;No" // Yes = 1, No = 2!	
-	Prompt cutoff, "Cutoff drift (pixels) "
-	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
-	DoPrompt msg, algo, layerN, edgeAlgo, histEq, convMode, windowing, cutoff, subPixel, printMode
-	
-	if(V_flag) // User cancelled
-		return -1
+static Function ImageRegistrationStack()
+	WAVE wRef = ATH_Graph#TopGraphToWaveRef()
+	if(!WaveExists(wRef))
+		return NaN
 	endif
-	string driftCorrectionOriginalNoteStr = note(w3dRef), driftCorrectionNoteStr // Grab early the original wave note
-	if(backupWave)
-		ATH_DFR#BackupWaveInWaveDF(w3dref)
-	endif
-	int switchWaveCopy = 0
-
-	if(histEq == 1)
-		ImageHistModification/O/I w3dref
-		switchWaveCopy = 1
-	endif	
-	
-	if(windowing > 1)
-		string windowingMethods = "None;Hanning;Hamming;Bartlett;Blackman" // Prompt first item returns 1!
-		string applywindowingMethods = StringFromList(windowing, windowingMethods)
-		ATH_ImgOp#ImageWindow3D(w3dRef, applywindowingMethods)
-		switchWaveCopy = 1
-	endif
-	if(edgeAlgo > 1)
-		string edgeDetectionAlgorithms = "None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
-		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
-		ATH_ImgOp#ImageEdgeDetectionToStack(w3dref, applyEdgeDetectionAlgo, overwrite = 1)
-		switchWaveCopy = 1	
-	endif
-	if(algo == 1)
-		if(switchWaveCopy)
-			ATH_ImgAlign#ImgStackRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1,\
-			selfDrift = 0, cutoff = cutoff, subPixel = subPixel - 2)
-		else
-			ATH_ImgAlign#ImgStackRegistration(w3dRef, layerN = layerN, printMode = printMode - 2, convMode = convMode - 1,\
-			subPixel = subPixel - 2)
+	variable nlayers = DimSize(wRef, 2)
+	if(nlayers > 4)
+		DoAlert 1, "Image Registration is a time-consuming operation for big stacks, do you want to continue?"
+		if(V_flag == 2)
+			return NaN
 		endif
-	elseif(algo == 2)
-		if(switchWaveCopy)
-			ATH_ImgAlign#ImgStackCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, \
-			selfDrift = 0, cutoff = cutoff)
-		else
-			ATH_ImgAlign#ImgStackCorrelation(w3dRef, layerN = layerN, printMode = printMode - 2, cutoff = cutoff)
-		endif
-	else 
-		Abort "Please check ImageStackAlignmentFullImage(), method error."
 	endif
-	//Restore the note
-	driftCorrectionNoteStr = "Drift correction using " + StringFromList(algo, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
-	driftCorrectionNoteStr += "Apply histogram equalization: " + StringFromList(histEq, "dummy;Yes;No")+"\n"
-	driftCorrectionNoteStr += "Edge detection method: " + StringFromList(edgeAlgo, "dummy;None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei")+"\n"
-	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(subPixel, "dummy;Yes;No") + "\n"
-	driftCorrectionNoteStr += "Cutoff drift (pixels): " + num2str(cutoff)+"\n\n" + driftCorrectionOriginalNoteStr
-	Note w3dref,driftCorrectionNoteStr
+	ATH_DFR#BackupWaveInWaveDF(wRef)
+	variable layerN = ATH_Windows#GetgLayerValue("")
+	ATH_ImgAlign#MultiThreadImageRegistration(wRef, layerN)
+	return 0
 End
 
-
-static Function ImageStackAlignmentPartition([int backupWave])
-	///
-	backupWave = ParamIsDefault(backupWave) ? 1 : backupWave
-	///
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	if(!strlen(imgNameTopGraphStr))
-		return -1
+static Function ImageStackAlignmentPartition()
+	//
+	WAVE wRef = ATH_Graph#TopGraphToWaveRef()
+	if(!WaveExists(wRef))
+		return NaN
 	endif
-	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // ATH_ImageStackAlignmentByPartitionRegistration needs a wave reference
 	variable method = 2
-	variable printMode = 2
 	variable layerN = 0
-	variable histEq = 2
-	variable edgeAlgo = 1
 	variable filter = 1
 	variable filterN = 3	
 	variable nrTimes = 1
 	variable subPixel = 2
-	variable cutoff = 0
-	string msg = "Align " + imgNameTopGraphStr + " using part of the image."
+	string msg = "Align " + NameOfWave(wRef) + " using part of the image."
 	
 	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
 	Prompt layerN, "Reference layer"
 	Prompt filter, "Apply filter", popup, "None;gauss;avg;median;max;min" // gauss = 2
 	Prompt filterN, "Filter N = 3 ... 15 (odd N is better)"	
 	Prompt nrTimes, "Apply filter 1...5 times"	
-	Prompt histEq, "Apply histogram equalization?", popup, "Yes;No" // Yes = 1, No = 2!	
-	Prompt edgeAlgo, "Edge detection method", popup, "None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei"
 	Prompt subPixel, "Sub-pixel drift (Registation)",  popup, "Yes;No" // Yes = 1, No = 2!	
-	Prompt cutoff, "Cutoff drift (pixels) "
-	Prompt printMode, "Print layer drift", popup, "Yes;No" // Yes = 1, No = 2!
+
+	DoPrompt msg, method, layerN, filter, filterN, nrTimes, subPixel
 	
-	DoPrompt msg, method, layerN, filter, filterN, nrTimes, histEq, edgeAlgo, subPixel, cutoff, printMode
 	if(V_flag) // User cancelled
 		return -1
 	endif
 	
-	if(backupWave)
-		ATH_DFR#BackupWaveInWaveDF(w3dref)
-	endif
-	string driftCorrectionOriginalNoteStr = note(w3dRef), driftCorrectionNoteStr // Grab early the original wave note
+	ATH_DFR#BackupWaveInWaveDF(wRef)
+	string driftCorrectionOriginalNoteStr = note(wRef), driftCorrectionNoteStr // Grab early the original wave note
 	variable left, right, top, bottom
 
 	STRUCT sUserMarqueePositions s
 	[left, right, top, bottom] = ATH_Marquee#UserGetMarqueePositions(s)
 	DFREF currDFR = GetDataFolderDFR()
-	string partitionWaveStr =  CreatedataObjectName(currDFR, "ATH_DRFCorr_partition", 1, 0, 0)
-	ATH_WaveOp#WavePartition(w3dref, partitionWaveStr, left, right, top, bottom, evenNum = 1)
+	
+	string partitionWaveStr =  CreatedataObjectName(currDFR, "ATH_DRFCorr_PART", 1, 0, 0)
+	ATH_WaveOp#WavePartition(wRef, partitionWaveStr, left, right, top, bottom, evenNum = 1)
 	WAVE partitionWave = $partitionWaveStr
 
 	if(filter > 1)
@@ -396,41 +317,33 @@ static Function ImageStackAlignmentPartition([int backupWave])
 		ATH_ImgOp#MatrixFilter3D(partitionWave, filterStr, filterN, nrTimes)
 	endif
 
-	if(histEq == 1)
-		ImageHistModification/O/I partitionWave
-	endif
-
-	// Edge detection is applied last
-	if(edgeAlgo > 1)
-		string edgeDetectionAlgorithms = "dummy;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei" // Prompt first item returns 1!
-		string applyEdgeDetectionAlgo = StringFromList(edgeAlgo, edgeDetectionAlgorithms)
-		ATH_ImgOp#ImageEdgeDetectionToStack(partitionWave, applyEdgeDetectionAlgo, overwrite = 1)
-	endif
-		
-	variable timerRefNum = StartMSTimer
-
+	//Multithreaded drift alignemnt won't keep wave scaling
+	variable x0, y0, z0, dx, dy, dz
+	[x0, y0, z0, dx, dy, dz] = ATH_WaveOp#GetScalesP(wRef)
+	variable nlayers = DimSize(wRef, 2)
 	if(method == 1)
-		//ATH_ImgAlign#ImgStackPartitionRegistration(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2, cutoff = cutoff, subPixel = subPixel - 2)
-		ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(w3dRef, partitionWave, layerN)
+		if(nlayers > 9)
+			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, subPixel = subPixel - 2)
+		else
+			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, subPixel = subPixel - 2)
+		endif
 	elseif(method == 2)
-		//ATH_ImgAlign#ImgStackPartitionCorrelation(w3dRef, partitionWave, layerN = layerN, printMode = printMode - 2, cutoff = cutoff)
-		ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(w3dRef, partitionWave, layerN)
+		if(nlayers > 9)
+			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN)
+		else
+			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN)
+		endif
 	else
-		Abort "Please check ImageStackAlignmentUsingAFeature(), method error."
+		print "Please check ATH_Launch#ImageStackAlignmentPartition() method."
+		return NaN
 	endif
-
-	variable elapsedTime = StopMSTimer(timerRefNum) / 1E6
-	printf "Drift correction took %g seconds on %g threads for %d planes\r", elapsedTime,ThreadProcessorCount , DimSize(w3dRef,2)
-	
+	ATH_WaveOp#SetScalesP(wRef,x0, y0, z0, dx, dy, dz)
 	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
 	driftCorrectionNoteStr = "Drift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
 	driftCorrectionNoteStr += "Apply filter:" + StringFromList(filter, "dummy;None;gauss;avg;median;max;min") + ", N = " + num2str(filterN) + ", repeated "+num2str(nrTimes)+" times\n"
-	driftCorrectionNoteStr += "Apply histogram equalization: " + StringFromList(histEq, "dummy;Yes;No")+"\n"
-	driftCorrectionNoteStr += "Edge detection method: " + StringFromList(edgeAlgo, "dummy;None;shen;kirsch;sobel;prewitt;canny;roberts;marr;frei")+"\n"
-	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(subPixel, "dummy;Yes;No") + "\n"
-	driftCorrectionNoteStr += "Cutoff drift (pixels): " + num2str(cutoff)+"\n\n" + driftCorrectionOriginalNoteStr
+	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(subPixel, "dummy;Yes;No")// + "\n"
 	KillWaves partitionWave
-	Note w3dref,driftCorrectionNoteStr
+	Note wRef, driftCorrectionNoteStr
 End
 
 static Function LinearDriftCorrestionStackABCursors()
