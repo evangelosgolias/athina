@@ -705,23 +705,14 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 	variable hookresult = 0
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iImgAlignFolder"))
 	DFREF dfrS = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveDriftCorrection:SavedReferenceCoords:")	
-	SVAR/Z/SDFR=dfr gATH_WindowNameStr
-	SVAR/Z/SDFR=dfr gATH_w3dPathName
-	SVAR/Z/SDFR=dfr gATH_w3dBackupPathNameStr
-	WAVE/Z w3dRef = $gATH_w3dPathName
-	NVAR/SDFR=dfr gATH_CursorPositionX
-	NVAR/SDFR=dfr gATH_CursorPositionY
-	NVAR/SDFR=dfr/Z gATH_AnchorPositionX
-	NVAR/SDFR=dfr/Z gATH_AnchorPositionY	
-	NVAR/SDFR=dfr gATH_dx
-	NVAR/SDFR=dfr gATH_dy
-	NVAR/SDFR=dfr gATH_SubPixelMode
-	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordX, gATH_SavedRefRelCoordY
-	NVAR/SDFR=dfrS/Z gATH_SavedRefCoordX, gATH_SavedRefCoordY
+	SVAR/Z/SDFR=dfr gATH_WindowNameStr, gATH_w3dPathName, gATH_w3dBackupPathNameStr
+	NVAR/SDFR=dfr gATH_CursorPositionX, gATH_CursorPositionY, gATH_dx, gATH_dy, gATH_SubPixelMode
+	NVAR/SDFR=dfr/Z gATH_AnchorPositionX, gATH_AnchorPositionY
+	NVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordX, gATH_SavedRefRelCoordY, gATH_SavedRefCoordX, gATH_SavedRefCoordY
 	SVAR/SDFR=dfrS/Z gATH_SavedRefRelCoordSource
 	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
+	WAVE/Z w3dRef = $gATH_w3dPathName	
 	WAVE/Z w3dBackupRef = $gATH_w3dBackupPathNameStr
-	WAVE/Z sourceWaveRef = $gATH_SavedRefRelCoordSource
 	
 	strswitch (B_Struct.ctrlName)
 		case "SaveReferenceCoordB":
