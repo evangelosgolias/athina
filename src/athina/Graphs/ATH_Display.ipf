@@ -54,8 +54,8 @@ static Function/S NewImg(WAVE wRef, [string grfname])
 		Append3DImageSlider(grfName=grfName)
 	endif
 
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-	ModifyGraph/W=$grfname height = 400 * pntConv, width = 400 * pntConv
+//	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
+//	ModifyGraph/W=$grfname height = 400 * pntConv, width = 400 * pntConv
 	// Error handling
 	ATH_exe#HandleSimpleError("NewImg")	
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
@@ -67,13 +67,12 @@ static Function/S NewImg(WAVE wRef, [string grfname])
 	ModifyImage/W=$grfname $PossiblyQuoteName(NameOfWave(wRef)) ctabAutoscale=3, ctab= {ImgAvg - 3 * ImgStd, ImgAvg + 3 * ImgStd,$colorScaleStr,cmapSwitch} // Autoscale per plane / visible area Image
 	ModifyGraph/W=$grfname fSize=12
 	SetWindow $grfname, hook(AthinaDisplayHook) = ATH_Display#DisplayHookFunction // Set the hook
-	
 	if(DimSize(wRef, 0) == DimSize(wRef, 1))
 		SetWindow $grfname, userdata(ATH_isPlanQ) = "1"
-		Execute/P/Q "ModifyGraph/W="+grfname+" width={Plan,1,top,left}"
+		ModifyGraph/W=$grfname width={Plan,1,top,left}
 	else
 		SetWindow $grfname, userdata(ATH_isPlanQ) = "0"
-		Execute/P/Q "ModifyGraph/W="+grfname+" width=0,height=0"
+		ModifyGraph/W=$grfname width=0,height=0
 	endif
 	return grfname
 End
