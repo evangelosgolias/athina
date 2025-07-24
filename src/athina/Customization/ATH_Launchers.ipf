@@ -258,7 +258,7 @@ static Function ImageRegistrationStack()
 		endif
 	endif
 	ATH_DFR#BackupWaveInWaveDF(wRef)
-	variable layerN = ATH_Windows#GetgLayerValue("")
+	variable layerN = ATH_Graph#GetgLayer("")
 	ATH_ImgAlign#MultiThreadImageRegistration(wRef, layerN)
 	return 0
 End
@@ -270,7 +270,7 @@ static Function ImageStackAlignmentPartition()
 		return NaN
 	endif
 	variable method = 2
-	variable layerN = 0
+	variable layerN = ATH_Graph#GetgLayer("")
 	variable filter = 1
 	variable filterN = 3	
 	variable nrTimes = 1
@@ -403,7 +403,7 @@ static Function LinearDriftCorrestionPlanesABCursors()
 	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P B $imgNameTopGraphStr 0.75, 0.5
 	variable slope, shift, x0, y0, x1, y1, startL, endL, nlayers
 
-	if(ATH_Windows#GetgLayerValue(winNameStr)==-1)
+	if(ATH_Graph#GetgLayer(winNameStr)==-1)
 		ATH_Display#Append3DImageSlider()
 	endif
 	DFREF sliderDFR = $(skATH_W3DImageSliderParentDFR + winNameStr)
@@ -1276,8 +1276,8 @@ static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is 
 		Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + noteStr		
 		return 0
 	endif
-	if(ATH_Windows#GetgLayerValue("")!=-1) // Do we have active axis in top window?
-		variable layerN = ATH_Windows#GetgLayerValue("")
+	if(ATH_Graph#GetgLayer("")!=-1) // Do we have active axis in top window?
+		variable layerN = ATH_Graph#GetgLayer("")
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = layerN, useMask = !isMask)
 	else
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, useMask = !isMask)

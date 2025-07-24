@@ -79,26 +79,11 @@ static Function SetNamedHookFunctionToWindow(string hookFuncNameStr, string hook
 	return 0
 End
 
-static Function GetgLayerValue(string grfName)
-	// Returns the /P=num plane displayed in windowNameStr
-	if(!strlen(grfName))
-		grfName = WinName(0, 1, 1) // top window
-	endif
-	ControlInfo/W=$grfName ATH_W3DSlider
-	if( V_Flag != 0 )
-		DFREF dfr = $(skATH_W3DImageSliderParentDFR + grfName)
-		NVAR/SDFR=dfr gLayer
-		return gLayer
-	else
-		return -1 // There is no active slider
-	endif
-End
-
 // Dev -- need testing
 
 static Function/S WindowNameOfDisplayedImageWaveRef(WAVE wRef)
 	// Returns a semicolon separated string of the name 
-	// of the graphsnames wRef is displayed. Return "" if
+	// of the graph names wRef is displayed on. Return "" if
 	// wRef is not displayed. Graphs are search by default
 	// Check WinList documentation for more details.
 	

@@ -180,7 +180,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					endif
 					hookResult = 1										
 					break
-				case 67: // B
+				case 67: // C
 					if(s.eventMod & 2) // works with SHIFT + B only!
 						ATH_Color#pnl(s.winName)
 						hookResult = 1										

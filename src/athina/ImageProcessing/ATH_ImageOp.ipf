@@ -420,17 +420,17 @@ static Function BackupTopImage()
 	return 0
 End
 
-static Function RestoreTopImageFromBackup([string wname])
+static Function RestoreTopImageFromBackup([string wname, variable killBackup])
 	/// Restore an image from backup. When ParamIsDefault (wavenameStr = "")
 	/// the image on the top window is used, otherwise WAVE $wavenameStr.
 	/// Backup wave's name is *assummed* to be NameOfWave(wRef) + "_undo"
 	/// and it is located on the same folder as the source image
 	
 	wname = SelectString(ParamIsDefault(wname) ? 0: 1,"", wname)
-	if(!ParamIsDefault(wname))
-		WAVE wRef = $wname
-	else
+	if(ParamIsDefault(wname))
 		WAVE wRef = ATH_Graph#TopImageToWaveRef()
+	else
+		WAVE wRef = $wname		
 	endif
 	
 	if(!WaveExists(wRef))
@@ -442,11 +442,13 @@ static Function RestoreTopImageFromBackup([string wname])
 	WAVE/SDFR=wdfr/Z wRefbck = $backupWaveNameStr
 	if(WaveExists(wRefbck))
 		Duplicate/O wRefbck, wRef
-		CheckDisplayed/A wRefbck
-		if(V_Flag) // if wave is displayed
-			print "Cannot kill " + backupWaveNameStr + ". CheckDisplayed == 1."
-		else
-			KillWaves wRefbck
+		if(killBackup)
+			CheckDisplayed/A wRefbck
+			if(V_Flag) // if wave is displayed
+				print "Cannot kill " + backupWaveNameStr + ". CheckDisplayed == 1."
+			else
+				KillWaves wRefbck
+			endif
 		endif
 	else
 		return -1

@@ -172,6 +172,21 @@ static Function [variable red, variable green, variable blue] GetColor(variable 
      return [red, green, blue]
 End
 
+static Function GetgLayer(string grfName)
+	// Returns the /P=num plane displayed in windowNameStr
+	if(!strlen(grfName))
+		grfName = WinName(0, 1, 1) // top window
+	endif
+	ControlInfo/W=$grfName ATH_W3DSlider
+	if( V_Flag != 0 )
+		DFREF dfr = $(skATH_W3DImageSliderParentDFR + grfName)
+		NVAR/SDFR=dfr gLayer
+		return gLayer
+	else
+		return -1 // There is no active slider
+	endif
+End
+
 static Function [string axisX, string axisY] GetAxes([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
 	GetAxis/Q/W=$grfName top
@@ -295,7 +310,7 @@ End
 static Function LinkGraphSliders([string grfName])
 	// Link the sliders of two graphs
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
-	if(ATH_Windows#GetgLayerValue(grfName) == -1) // if you have no slider
+	if(ATH_Graph#GetgLayer(grfName) == -1) // if you have no slider
 		return -1
 	endif
 	// Have you already set a link between graph sliders
@@ -314,7 +329,7 @@ static Function LinkGraphSliders([string grfName])
 	if(V_flag)
 		return 0
 	endif
-	variable grfNameLayer = ATH_Windows#GetgLayerValue(linkedGraph)
+	variable grfNameLayer = ATH_Graph#GetgLayer(linkedGraph)
 	if(grfNameLayer == -1)
 		return -1
 	endif

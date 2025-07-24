@@ -689,7 +689,7 @@ static Function SyncCursorsInGraphsHook(STRUCT WMWinHookStruct &s)
 			if(!cmpstr(s.CursorName,"J")) // acts only on the J cursor
 				WAVE mirrorW = $mirrorWaveStr
 				WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName = s.winName)
-				layerN = ATH_Windows#GetgLayerValue(s.winName)
+				layerN = ATH_Graph#GetgLayer(s.winName)
 				if(layerN==-1)
 					sprintf cmdStr, textbuffer, wRef[s.pointnumber][s.ypointnumber], mirrorW[s.pointnumber][s.ypointnumber]
 				else
