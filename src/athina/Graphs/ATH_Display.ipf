@@ -54,8 +54,6 @@ static Function/S NewImg(WAVE wRef, [string grfname])
 		Append3DImageSlider(grfName=grfName)
 	endif
 
-//	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-//	ModifyGraph/W=$grfname height = 400 * pntConv, width = 400 * pntConv
 	// Error handling
 	ATH_exe#HandleSimpleError("NewImg")	
 	string matchPattern = "ctab= {%*f,%*f,%[A-Za-z],%d}" //%* -> Read but not store
