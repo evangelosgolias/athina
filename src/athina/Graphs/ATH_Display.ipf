@@ -95,15 +95,20 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 		NVAR/Z/SDFR=dfrSld gLayer, gRightLim, gLeftLim, gOriginalHeight
 		SVAR/Z/SDFR=dfrSld imageName
 		GetWindow $s.WinName gSize
-		variable grfWidht = V_right - V_left
+		variable grfWidth = V_right - V_left
 		variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
+		if(grfWidth < 500)
+			variable fct = grfWidth*0.875*(grfWidth/500)
+		else 
+			fct = grfWidth*0.875
+		endif
 	endif
 	
 	switch (s.eventCode)
 		case 6:
 			if(is3D)
-				Slider ATH_W3DSlider,size={grfWidht*0.85*pntConv,15},win=$s.winName
-				SetVariable ATH_W3DSliderVar,pos={grfWidht*0.885*pntConv, gOriginalHeight+5},win=$s.winName
+				Slider ATH_W3DSlider,size={fct,15},win=$s.winName
+				SetVariable ATH_W3DSliderVar,pos={fct+15, gOriginalHeight+5},win=$s.winName
 			endif
 			break
 			// mouseWheel has to be before case 11 -> keyboard events as
@@ -143,8 +148,8 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				gLayer = plane
 			else // For example, zoom-in using the marquee
 				if(is3D)				
-					Slider ATH_W3DSlider,size={grfWidht*0.85*pntConv,15},win=$s.winName
-					SetVariable ATH_W3DSliderVar,pos={grfWidht*0.885*pntConv, gOriginalHeight+5},win=$s.winName
+					Slider ATH_W3DSlider,size={fct,15},win=$s.winName
+					SetVariable ATH_W3DSliderVar,pos={fct+15, gOriginalHeight+5},win=$s.winName
 				endif
 			endif
 			break
@@ -341,9 +346,10 @@ Function Append3DImageSlider([string grfName])
 		// This includes axes but not the tool palette, control bar, or info panel. 
 		// Dimensions are in points.		
 		GetWindow $grfName gSize
+		// Size values here are overriden by the window hook function, if set.
 		Slider ATH_W3DSlider,ticks=0,vert=0,limits={0, nlayers-1, 1},variable=gLayer,pos={(V_left+10)*pntConv,(gOriginalHeight+10)*pntConv},win=$grfName
 		Slider ATH_W3DSlider,thumbColor=(0,65535,0),size={V_right*0.85*pntConv,15*pntConv},proc=ATH_Display#NewImgSliderHook,win=$grfName
-		SetVariable ATH_W3DSliderVar,limits={0,nlayers-1, 1},fsize= 12*pntConv,pos={V_right*0.885*pntConv, (gOriginalHeight+5)*pntConv},live=1,win=$grfName
+		SetVariable ATH_W3DSliderVar,limits={0,nlayers-1, 1},fsize= 12*pntConv,pos={V_right*0.875*pntConv, (gOriginalHeight+5)*pntConv},live=1,win=$grfName
 		SetVariable ATH_W3DSliderVar,title=" ",value=gLayer,size={50*pntConv,20*pntConv},proc=ATH_Display#ImageSliderSetVar,win=$grfName
 End
 
