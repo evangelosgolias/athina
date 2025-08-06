@@ -467,7 +467,7 @@ static Function ImageBackupFromBrowserSelection()
 	if(WaveDims($ATHImage) != 3 && WaveDims($ATHImage) != 2)
 		Abort "Operation needs an image or image stack"
 	endif
-	ATH_ImgOp#RestoreTopImageFromBackup(wname = ATHImage)
+	ATH_ImgOp#RestoreTopImageFromBackup(grfName = ATHImage)
 	return 0
 End
 

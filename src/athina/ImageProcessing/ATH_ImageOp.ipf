@@ -416,22 +416,22 @@ static Function BackupTopImage()
 		return -1
 	endif
 	DFREF wDFR = GetWavesDataFolderDFR(wRef)
-	Duplicate/O wRef, wDFR:$(NameOfWave(wRef) + "_undo")	
+	Duplicate wRef, wDFR:$(NameOfWave(wRef) + "_undo")	
 	return 0
 End
 
-static Function RestoreTopImageFromBackup([string wname, variable keepBackup])
+static Function RestoreTopImageFromBackup([string grfName, variable keepBackup])
 	/// Restore an image from backup. When ParamIsDefault (wavenameStr = "")
 	/// the image on the top window is used, otherwise WAVE $wavenameStr.
 	/// Backup wave's name is *assummed* to be NameOfWave(wRef) + "_undo"
 	/// and it is located on the same folder as the source image
 	
-	wname = SelectString(ParamIsDefault(wname) ? 0: 1,"", wname)
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1,"", grfName)
 	keepBackup = ParamIsDefault(keepBackup) ? 0: !!keepBackup
-	if(ParamIsDefault(wname))
+	if(ParamIsDefault(grfName))
 		WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	else
-		WAVE wRef = $wname		
+		WAVE wRef = $grfName		
 	endif
 	
 	if(!WaveExists(wRef))
@@ -447,6 +447,7 @@ static Function RestoreTopImageFromBackup([string wname, variable keepBackup])
 			if(V_Flag) // if wave is displayed
 				print "Cannot kill " + backupWaveNameStr + ". CheckDisplayed == 1."
 			else
+				Duplicate/O wRefbck, wRef
 				KillWaves wRefbck
 			endif
 		endif
