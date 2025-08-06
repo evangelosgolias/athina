@@ -97,10 +97,11 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 		GetWindow $s.WinName gSize
 		variable grfWidth = V_right - V_left
 		variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
+		print grfWidth
 		if(grfWidth < 500)
-			variable fct = grfWidth*0.875*(grfWidth/500)
+			variable fct = grfWidth*0.87*sqrt(grfWidth/500)
 		else 
-			fct = grfWidth*0.875
+			fct = grfWidth*0.87
 		endif
 	endif
 	
