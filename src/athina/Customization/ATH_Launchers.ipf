@@ -271,21 +271,14 @@ static Function ImageStackAlignmentPartition()
 	endif
 	variable method = 2
 	variable layerN = ATH_Graph#GetgLayer("")
-	variable filter = 1
-	variable filterN = 3	
-	variable nrTimes = 1
 	variable subPixel = 2
 	string msg = "Align " + NameOfWave(wRef) + " using part of the image."
 	
 	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
 	Prompt layerN, "Reference layer"
-	Prompt filter, "Apply filter", popup, "None;gauss;avg;median;max;min" // gauss = 2
-	Prompt filterN, "Filter N = 3 ... 15 (odd N is better)"	
-	Prompt nrTimes, "Apply filter 1...5 times"	
 	Prompt subPixel, "Sub-pixel drift (Registation)",  popup, "Yes;No" // Yes = 1, No = 2!	
 
-	DoPrompt msg, method, layerN, filter, filterN, nrTimes, subPixel
-	
+	DoPrompt msg, method, layerN, subPixel	
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -301,21 +294,6 @@ static Function ImageStackAlignmentPartition()
 	string partitionWaveStr =  CreatedataObjectName(currDFR, "ATH_DRFCorr_PART", 1, 0, 0)
 	ATH_WaveOp#WavePartition(wRef, partitionWaveStr, left, right, top, bottom, evenNum = 1)
 	WAVE partitionWave = $partitionWaveStr
-
-	if(filter > 1)
-		if(nrTimes > 5)
-			nrTimes = 5
-		elseif(nrTimes < 1)
-			nrTimes = 1
-		endif
-		if(filterN < 3)
-			filterN = 3
-		elseif(filterN > 15)
-			filterN = 15
-		endif
-		string filterStr = StringFromList(filter, "None;gauss;avg;median;max;min")
-		ATH_ImgOp#MatrixFilter3D(partitionWave, filterStr, filterN, nrTimes)
-	endif
 
 	//Multithreaded drift alignemnt won't keep wave scaling
 	variable x0, y0, z0, dx, dy, dz
@@ -338,9 +316,7 @@ static Function ImageStackAlignmentPartition()
 		return NaN
 	endif
 	ATH_WaveOp#SetScalesP(wRef,x0, y0, z0, dx, dy, dz)
-	//Restore the note, here backup wave exists or it have been created above, chgeck: if(!WaveExists($backupWave))
 	driftCorrectionNoteStr = "Drift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
-	driftCorrectionNoteStr += "Apply filter:" + StringFromList(filter, "dummy;None;gauss;avg;median;max;min") + ", N = " + num2str(filterN) + ", repeated "+num2str(nrTimes)+" times\n"
 	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(subPixel, "dummy;Yes;No")// + "\n"
 	KillWaves partitionWave
 	Note wRef, driftCorrectionNoteStr
