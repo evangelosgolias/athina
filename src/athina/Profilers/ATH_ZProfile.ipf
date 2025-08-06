@@ -343,7 +343,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				re = (gATH_right > gATH_xLast) ? gATH_Nx :  ScaleToIndex(w3d, gATH_right, 0)
 				cs = (gATH_bottom < gATH_yOff)  ? 0  :  ScaleToIndex(w3d, gATH_bottom, 1)
 				ce = (gATH_top > gATH_yLast)   ? gATH_Ny :  ScaleToIndex(w3d, gATH_top, 1)
-				MatrixOP/S/O profile =sum(subrange(w3d, rs, re, cs, ce)) // Removed /NTHR=0
+				MatrixOP/S/O/NTHR=2 profile =sum(subrange(w3d, rs, re, cs, ce)) // Removed /NTHR=0
 				Redimension/E=1/N=(gATH_nLayers) profile
 				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
 					nlayersTW = DimSize(twinWRef, 2)

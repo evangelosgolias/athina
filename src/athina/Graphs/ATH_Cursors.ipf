@@ -75,7 +75,7 @@ static Function MeasureDistanceUsingFreeCursors()
 		Cursor/I/A=1/F/H=1/S=1/C=(65535,43690,0)/N=1/P J $imgNameTopGraphStr 0.5, 0.5 // start at the center, FFT friendly!
 	endif
 	variable lCBOFFSET 
-	ControlInfo kwControlBar
+	ControlInfo/W=winNameStr kwControlBar
 	lCBOFFSET = V_height
 	
 	// if the hook is there you have already launch it!

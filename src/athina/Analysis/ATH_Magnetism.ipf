@@ -430,3 +430,132 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	TextBox/W=$plotNameStr/C/F=0/N=phaseTag "\\Z16φ="+num2str(phase)		
 	return 0
 End
+
+//
+///// --- Mutlithreaded version of FitXMLD
+//
+//static Function FitXMLDMapML(WAVE wRef, [variable firstAngle, variable angleStep, int fastFit])
+//	
+//	/// -------------------------------------------  XMLD Map  --------------------------------------------
+//	///
+//	/// Calculates an XMLD-intensity map by fitting **ATH_FuncFit#XMLDIntensity** to every beam
+//	/// (pixel) along the *z*-axis of a 3-D wave containing XMLD images acquired at different x-ray
+//	/// inclination angles.
+//	///
+//	/// The model assumes that the XMLD signal follows:
+//	///
+//	///     I(x) = A + B·cos(2(x + φ))
+//	///
+//	/// with *A*, *B*, and *φ* as the fitting parameters.
+//	///
+//	/// ### Parameters
+//	/// | Name           | Type     | Default| Description                                                                                           |
+//	/// |-------------   |----------|--------|-------------------------------------------------------------------------------------------------------|
+//	/// | **wRef**       | WAVE     | —      | 3-D wave whose *z* dimension lists the inclination angles in ascending order (typically −90° to +90°) |
+//	/// | **firstAngle** | variable | −90 °  | Inclination (degrees) corresponding to the first plane                                                |
+//	/// | **angleStep**  | variable | 10 °   | Angular increment (degrees) between successive *z* planes                                             |
+//	/// | **fastFit**    | variable | 0      | If non-zero, tests several phase values and keeps the one with the lowest χ² (≈ N × slower)         |
+//	///
+//	/// ---
+//	/// **Advanced curve-fitting tip**  
+//	/// To weight individual angles, create a sigma wave of length `DimSize(wRef,2)` and pass it to
+//	/// **FuncFit** via the `/W=<sigmaWave>` flag.
+//	///
+//	/// *See also*: *DisplayHelpTopic* “Special Variables for Curve Fitting”.
+//	
+//	fastFit = ParamIsDefault(fastFit) ? 1 : fastFit
+//	
+//	variable firstAngleRad = ParamIsDefault(firstAngle) ? -90 * pi/180 : firstAngle * pi/180
+//	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180 : angleStep * pi/180
+//	
+//	// Calculate the angular offset, rotate by -FoVRotRad and apply mirror operation over x-axis
+//	
+//	variable rows = DimSize(wRef, 0)
+//	variable cols = DimSize(wRef, 1)
+//	variable layers = DimSize(wRef, 2)
+//
+//	if(!layers)
+//		return 1
+//	endif
+//	variable i, j, k, cnt
+//	string mapBaseNameStr = NameofWave(wRef) + "_map"
+//	string mapNameStr = CreateDataObjectName(dfr, mapBaseNameStr, 1, 0 ,1)
+//	Make/N=(rows, cols) $mapNameStr, $(mapNameStr+"_offset"), $(mapNameStr+"_amplitude")
+//	WAVE wphase = $mapNameStr
+//	WAVE woff = $(mapNameStr+"_offset")
+//	WAVE wfact = $(mapNameStr+"_amplitude")
+//	// Make the fitting waves:  K0 + K1 * Cos(2*(x + K2))
+//	// Fit can be very sensity to contrains! Read the manual!
+//	// ********************YOU NEED TO TUNE HERE************************
+//	//
+//	// Choose carefully the parameter K1, if it's zero then a lot of errors will occur
+//	// as K1->0 reduces the functional dependency to a constant function!
+//	// We will assume of K1 hits the lowest value then K2 == 0!
+//	//
+//	string fitFuncStr = "ATH_FuncFit#XMLDCos2xIntensity"
+//	MatrixOP/FREE fitW = beam(wRef,rows/2, cols/2)
+//	SetScale/P x, firstAngleRad, angleStepRad, fitW // Set the scale, and FoVRot
+//	// *****************************************************************
+//	Make/T ATH_Constraints = {"K1>1e-3","K2 > -pi/2", "K2 <= pi/2"} // N.B: Set here constrains
+//	// Create C and D matrix, see:  DisplayHelpTopic "Constraints and ThreadSafe Functions"
+//	FuncFit/Q $fitFuncStr, fitW /D /C=ATH_Constraints
+//	WAVE M_FitConstraint, W_FitConstraint
+//	
+//	Make/WAVE/N=(rows*cols) ww
+//	Duplicate/FREE wRef, wRefS
+//	Redimension/N=(rows*cols) wRefS
+//	MultiThread ATH_FitCoeff = FitXMLD_Worker(wRef, p, firstAngle, angleStep, M_FitConstraint, W_FitConstraint)
+//	
+//	// Write the coefficients to waves
+//	woff[][] =  ATH_FitCoeff[p][q][0]
+//	wfact[][] = ATH_FitCoeff[p][q][1]
+//	wphase[][] = ATH_FitCoeff[p][q][2]*57.29577951 // From rad to deg
+//	string metadata = "FuncFit: "+ fitFuncStr + "."
+//	metadata += "Fitting constrains: {"+RemoveEnding(ATH_TWave#TextWaveToString(ATH_Constraints, sep=","))+"}."
+//	metadata += "Function parameters: firstAngle="+num2str(firstangle)+" ,angleStep="+num2str(angleStep)
+//	metadata += ", fastFit="+num2str(fastFit)+"."
+//	Note wphase, metadata
+//	Note wfact, metadata
+//	Note woff, metadata
+//	CopyScales wRef, wphase, wfact, woff
+//	KillWaves/Z W_sigma, ATH_FitCoeff, fit__free_ // Cleanup the garbage
+//End
+//
+//
+//Threadsafe Function/WAVE FitXMLD_Worker(WAVE wRef, variable rr,  variable firstAngle
+//		   variable angleStep, WAVE CMat, WAVE DWave)
+//	// fitW: beam line to fit, appropriate scaled
+//	// MatrixOP fitW = beam(wRef, i, j)
+//	// SetScale/P x, firstAngleRad, angleStepRad, fitW
+//	DFREF saveDF = GetDataFolderDFR()
+//
+//	SetDataFolder NewFreeDataFolder()
+//
+//	Make/D/N=3 ATH_Coef
+//
+//
+//	// Which model do you like to fit? Check functions in the module ATH_FuncFit
+//	string fitFuncStr = "ATH_FuncFit#XMLDCos2xIntensity"
+//
+//	// Let's fit all pixels in the image
+//	// ******************************************************
+//	Make initialGuessPhaseW = {-pi/4,0,pi/4}; // <<<<<<<
+//	// ******************************************************
+//	variable imax = numpnts(initialGuessPhaseW), i, minV, minIdx
+//	Make/N=3 coeffW
+//	minV = inf
+//	MatrixOP fitW = beam(wRef, rr, cc)
+//	WaveStats/M=1/Q fitW
+//	for(i=0;i<imax;i++)
+//		ATH_Coef = {V_avg, 0.5*(V_max-V_min),initialGuessPhaseW[i]} // N.B!! You might need to play a bit with the initial guess
+//		FuncFit/Q $fitFuncStr, kwCWave=ATH_Coef, fitW /D /C={CMat, DWave}
+//		coeffW[i][] = ATH_Coef[q]
+//		if(minV > V_chisq) // Goodness of fit
+//			minV = V_chisq
+//			coeffW = ATH_Coef
+//		endif
+//	endfor	
+//		
+//	SetDataFolder saveDF
+//	return coeffW
+//End

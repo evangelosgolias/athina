@@ -94,15 +94,16 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 		DFREF dfrSld = ATH_DFR#CreateDataFolderGetDFREF(dfrSldStr)
 		NVAR/Z/SDFR=dfrSld gLayer, gRightLim, gLeftLim, gOriginalHeight
 		SVAR/Z/SDFR=dfrSld imageName
+		GetWindow $s.WinName gSize
+		variable grfWidht = V_right - V_left
+		variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 	endif
 	
 	switch (s.eventCode)
 		case 6:
 			if(is3D)
-				variable winWidth = s.winRect.right - s.winRect.left
-				variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-				Slider ATH_W3DSlider,size={winWidth*0.8*pntConv,15},win=$s.winName
-				SetVariable ATH_W3DSliderVar,pos={winWidth*0.835*pntConv, gOriginalHeight+5},win=$s.winName
+				Slider ATH_W3DSlider,size={grfWidht*0.85*pntConv,15},win=$s.winName
+				SetVariable ATH_W3DSliderVar,pos={grfWidht*0.885*pntConv, gOriginalHeight+5},win=$s.winName
 			endif
 			break
 			// mouseWheel has to be before case 11 -> keyboard events as
@@ -141,11 +142,9 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			if (gLayer != plane)
 				gLayer = plane
 			else // For example, zoom-in using the marquee
-				if(is3D)
-					winWidth = s.winRect.right - s.winRect.left
-					pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-					Slider ATH_W3DSlider,size={winWidth*0.8*pntConv,15},win=$s.winName
-					SetVariable ATH_W3DSliderVar,pos={winWidth*0.835*pntConv, gOriginalHeight+5},win=$s.winName
+				if(is3D)				
+					Slider ATH_W3DSlider,size={grfWidht*0.85*pntConv,15},win=$s.winName
+					SetVariable ATH_W3DSliderVar,pos={grfWidht*0.885*pntConv, gOriginalHeight+5},win=$s.winName
 				endif
 			endif
 			break
@@ -336,17 +335,15 @@ Function Append3DImageSlider([string grfName])
 		NVAR/Z/SDFR=dfr gOriginalHeight
 		variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 		
+		ControlBar/W=$grfName (gOriginalHeight+30)*pntConv // Converts to points
 		// Reads graph outer dimensions into V_left,
 		// V_right, V_top, and V_bottom in local coordinates. 
 		// This includes axes but not the tool palette, control bar, or info panel. 
-		// Dimensions are in points.
-		GetWindow/Z $grfName gsize 
-		gOriginalHeight = V_maxHeight * pntConv
-		ControlBar/W=$grfName gOriginalHeight+30
-			
-		Slider ATH_W3DSlider,ticks=0,vert=0,limits={0, nlayers-1, 1},variable=gLayer,pos={(V_left+10)*pntConv,gOriginalHeight+10},win=$grfName
-		Slider ATH_W3DSlider,thumbColor=(0,65535,0),size={V_right*0.8*pntConv,15*pntConv},proc=ATH_Display#NewImgSliderHook,win=$grfName
-		SetVariable ATH_W3DSliderVar,limits={0,nlayers-1, 1},fsize= 12*pntConv,pos={V_right*0.835*pntConv, gOriginalHeight+5},live=1,win=$grfName
+		// Dimensions are in points.		
+		GetWindow $grfName gSize
+		Slider ATH_W3DSlider,ticks=0,vert=0,limits={0, nlayers-1, 1},variable=gLayer,pos={(V_left+10)*pntConv,(gOriginalHeight+10)*pntConv},win=$grfName
+		Slider ATH_W3DSlider,thumbColor=(0,65535,0),size={V_right*0.85*pntConv,15*pntConv},proc=ATH_Display#NewImgSliderHook,win=$grfName
+		SetVariable ATH_W3DSliderVar,limits={0,nlayers-1, 1},fsize= 12*pntConv,pos={V_right*0.885*pntConv, (gOriginalHeight+5)*pntConv},live=1,win=$grfName
 		SetVariable ATH_W3DSliderVar,title=" ",value=gLayer,size={50*pntConv,20*pntConv},proc=ATH_Display#ImageSliderSetVar,win=$grfName
 End
 
