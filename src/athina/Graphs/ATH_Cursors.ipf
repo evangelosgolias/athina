@@ -66,6 +66,12 @@ static Function MeasureDistanceUsingFreeCursors()
 	/// Uses ATH_MeasureDistanceUsingFreeCursorsIJHook.
 	string winNameStr = WinName(0, 1, 1) //Top graph
 	string topTraceNameStr = StringFromList(0, TraceNameList(winNameStr,";",1))
+	// if the hook is there you have already launch it!
+	GetWindow $winNameStr hook(ATH_MeasureDistanceCsrIJHook)
+	// if there is slider and MeasureDistanceUsingFreeCursors is on
+	if(strlen(S_Value))
+		return 1
+	endif		
 	if(strlen(topTraceNameStr)) // If you have a trace
 		Cursor/A=1/F/H=1/S=1/C=(16385,49025,65535)/N=1/P I $topTraceNameStr 0.25, 0.45
 		Cursor/A=1/F/H=1/S=1/C=(65535,43690,0)/N=1/P J $topTraceNameStr 0.75, 0.55
@@ -74,18 +80,13 @@ static Function MeasureDistanceUsingFreeCursors()
 		Cursor/I/A=1/F/H=1/S=1/C=(16385,49025,65535)/N=1/P I $imgNameTopGraphStr 0.25, 0.45
 		Cursor/I/A=1/F/H=1/S=1/C=(65535,43690,0)/N=1/P J $imgNameTopGraphStr 0.5, 0.5 // start at the center, FFT friendly!
 	endif
-	variable lCBOFFSET 
-	ControlInfo/W=winNameStr kwControlBar
-	lCBOFFSET = V_height
-	
-	// if the hook is there you have already launch it!
-	GetWindow $winNameStr hook(ATH_MeasureDistanceCsrIJHook)
-	// if there is slider and MeasureDistanceUsingFreeCursors is on
-	if(strlen(S_Value))
-		return 1
-	endif	
-	
-	ControlBar/W=$winNameStr lCBOFFSET + kCBOFFSET		
+
+	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
+	ControlInfo kwControlBar
+	variable lCBOFFSET = V_Height
+	ControlBar/W=$winNameStr (lCBOFFSET + kCBOFFSET)*pntConv
+
+	lCBOFFSET *= pntConv // change to cpu
 	
 	Button scaleCrsB pos={10,4+lCBOFFSET}, size={60,20}, title="Scale", win=$winNameStr
 	Button scaleCrsB help = {"Place cursots C, D and set scale"},fcolor=(65535,0,0),proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr

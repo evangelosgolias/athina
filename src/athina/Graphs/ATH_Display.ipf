@@ -337,9 +337,9 @@ Function Append3DImageSlider([string grfName])
 		variable nlayers = DimSize(wRef, 2)
 		NVAR/Z/SDFR=dfr gLayer
 		NVAR/Z/SDFR=dfr gOriginalHeight
-		//variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
+		variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 		
-		ControlBar/W=$grfName gOriginalHeight+30
+		ControlBar/W=$grfName (gOriginalHeight+30)*pntConv
 		// Reads graph outer dimensions into V_left,
 		// V_right, V_top, and V_bottom in local coordinates. 
 		// This includes axes but not the tool palette, control bar, or info panel. 
