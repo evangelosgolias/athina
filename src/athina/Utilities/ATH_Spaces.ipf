@@ -108,23 +108,22 @@ static Function MakePanel()
 	listlength = abs(panelBottom - panelTop) * 0.925
 	listwidth = abs(panelRight - panelLeft)
 	NVAR/Z/SDFR=dfr gSelectedSpace
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-	NewPanel /N=ATH_SpacesPanel/W=(panelLeft*pntConv, panelTop*pntConv, panelRight*pntConv, panelBottom*pntConv) as "ATH Spaces"
+	NewPanel /N=ATH_SpacesPanel/W=(panelLeft, panelTop, panelRight, panelBottom) as "ATH Spaces"
 	SetDrawLayer UserBack
-	Button NewSpaceB, pos={20*pntConv,8.00*pntConv},size={listwidth * 0.3333*pntConv,20.00*pntConv},help={"Create new space"},fColor=(3,52428,1)
-	Button DeleteSpaceB, pos={(20 + listwidth * 0.5)*pntConv,8.00*pntConv},size={listwidth * 0.3333*pntConv,20.00*pntConv},title="Delete"
+	Button NewSpaceB, pos={20,8.00},size={listwidth * 0.3333,20.00},help={"Create new space"},fColor=(3,52428,1)
+	Button DeleteSpaceB, pos={(20 + listwidth * 0.5),8.00},size={listwidth * 0.3333,20.00},title="Delete"
 	Button DeleteSpaceB, help={"Delete existing space"},fColor=(65535,16385,16385)
-	Button ShowAllB, pos={20*pntConv,35*pntConv},size={listwidth * 0.3333 * pntConv,20.00*pntConv},title="All"
+	Button ShowAllB, pos={20,35},size={listwidth * 0.3333,20.00},title="All"
 	Button ShowAllB, help={"Show all windows"},fColor=(32768,40777,65535)
 	Button ShowOrphansB, help={"Show windows with no tag"}, title = "Orphans", fColor=(65535,65533,32768)
-	Button ShowOrphansB, pos={(20 + listwidth * 0.5)*pntConv,35*pntConv},size={listwidth * 0.3333*pntConv,20.00*pntConv}
-	ListBox listOfspaces, pos={1.00*pntConv,60*pntConv},size={listwidth*pntConv,listlength*pntConv},proc=ATH_Spaces#ListBoxFunction
+	Button ShowOrphansB, pos={(20 + listwidth * 0.5),35},size={listwidth * 0.3333,20.00}
+	ListBox listOfspaces, pos={1.00,60},size={listwidth,listlength},proc=ATH_Spaces#ListBoxFunction
 	ListBox listOfspaces, fSize=14,frame=2,listWave=dfr:ATHSpacesTW,mode=2,selRow=gSelectedSpace
 	// Add a help string
 	string helpStr = "- SHIFT+Click: on a Space to associate with the top window.\n- Double-click: Rename the Space.\n- " +\
 	"ALT+click (on an enpty row NOT a space): Pin top window to all Spaces.\n- SHIFT+ALT+click: unpin top window and make (now with no Space link, i.e. orphan).\n- "+\
 	"CTRL+click(CMD+click): link space to the selected data folder in Data Browser (now marked with an asterisk).\nCurrent data folder changes when you select spaces with asterisk."
-	TitleBox HelpTitle, title = "?", pos={(20 + listwidth * 0.4)*pntConv,20*pntConv}, frame=0, fSize=14,fstyle=1, fColor=(65535,0,0), labelBack=(65535,49151,55704), help={helpStr}
+	TitleBox HelpTitle, title = "?", pos={(20 + listwidth * 0.4),20}, frame=0, fSize=14,fstyle=1, fColor=(65535,0,0), labelBack=(65535,49151,55704), help={helpStr}
 	
 	ModifyControlList ControlNameList("ATH_SpacesPanel",";","*B") proc=ATH_Spaces#SpacesButton,win=ATH_SpacesPanel
 

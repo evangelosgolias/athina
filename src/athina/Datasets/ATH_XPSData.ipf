@@ -233,16 +233,15 @@ Static Function PTDisplayPanel()
 		gscf = 2
 	endif
 
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 	variable ptwidth, ptheight,left,top
-	variable bw=20*gscf*pntConv,bh=15*gscf*pntConv
-	variable ptddwidth=gscf*120*pntConv,ptddheight=11*bh*pntConv
+	variable bw=20*gscf,bh=15*gscf
+	variable ptddwidth=gscf*120,ptddheight=11*bh
 	
 	string gscfstr=ptpig.scfstr
-	ptwidth=gscf*(ptpig.ptwidth+120)*pntConv
-	ptheight=gscf*ptpig.ptheight*pntConv
-	left=gscf*ptpig.left*pntConv
-	top=gscf*ptpig.top*pntConv
+	ptwidth=gscf*(ptpig.ptwidth+120)
+	ptheight=gscf*ptpig.ptheight
+	left=gscf*ptpig.left
+	top=gscf*ptpig.top
 	
 	string strgscf = num2str(gscf)
 	NewPanel/K=(gkill)/W=(gptleft,gpttop,gptleft+ptwidth,gpttop+ptheight)

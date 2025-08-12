@@ -104,56 +104,55 @@ static Function CreatePanel()
 	variable/G dfr:gATH_LDCstartY = NaN
 	variable/G dfr:gATH_LDCendX = NaN
 	variable/G dfr:gATH_LDCendY = NaN
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-	NewPanel/K=1/EXT=0/N=iDriftCorrection/W=(0,0,165*pntConv,490*pntConv)/HOST=$winNameStr
+	NewPanel/K=1/EXT=0/N=iDriftCorrection/W=(0,0,165,490)/HOST=$winNameStr
 	SetDrawLayer UserBack
-	SetDrawEnv/W=iDriftCorrection fsize= 13*pntConv,fstyle= 1,textrgb= (1,12815,52428)
-	DrawText/W=iDriftCorrection 2*pntConv,16*pntConv,"Interactive drift correction"
-	Button ToggleSubPixelMode,title="Sub-pixel drift = OFF",font="Menlo",fSize=11*pntConv,fColor=(65535,0,0),valueColor=(0,0,0),win=$pnlNameStr
-	Button ToggleSubPixelMode,pos={10*pntConv,20*pntConv},size={150*pntConv,20*pntConv},proc=ATH_iDriftCorrection#ToggleSubPixelModeButton,win=$pnlNameStr
+	SetDrawEnv/W=iDriftCorrection fsize= 13,fstyle= 1,textrgb= (1,12815,52428)
+	DrawText/W=iDriftCorrection 2,16,"Interactive drift correction"
+	Button ToggleSubPixelMode,title="Sub-pixel drift = OFF",font="Menlo",fSize=11,fColor=(65535,0,0),valueColor=(0,0,0),win=$pnlNameStr
+	Button ToggleSubPixelMode,pos={10,20},size={150,20},proc=ATH_iDriftCorrection#ToggleSubPixelModeButton,win=$pnlNameStr
 	SetDrawLayer UserBack
-	DrawLine 15*pntConv,50*pntConv,150*pntConv,50*pntConv
-	Button SetAnchorCursor,pos={23.00*pntConv,57*pntConv},size={120.00*pntConv,20.00*pntConv},title="Set anchor",fSize=12*pntConv,fstyle=1,win=$pnlNameStr 
+	DrawLine 15,50,150,50
+	Button SetAnchorCursor,pos={23.00,57},size={120.00,20.00},title="Set anchor",fSize=12,fstyle=1,win=$pnlNameStr 
 	Button SetAnchorCursor,valueColor=(65535,0,0),fColor=(61166,61166,61166),proc=ATH_iDriftCorrection#SetAnchorCursorButton,win=$pnlNameStr
 	Button SetAnchorCursor fColor=(61166,61166,61166),help={"You have to set an anchor (reference) point to start drift correction."},win=$pnlNameStr
 	//All buttons, except RestoreWave and LDC, are disabled until the anchor is set
-	Button DriftImage,pos={32.00*pntConv,90*pntConv},size={100.00*pntConv,20.00*pntConv},title="Drift Image",disable=2, win=$pnlNameStr
-	Button DriftImage,fSize=12*pntConv,fColor=(65535,49151,49151),proc=ATH_iDriftCorrection#DriftImageButton, win=$pnlNameStr
-	Button SelectedLayersDrift3D,pos={32.00*pntConv,125*pntConv},size={100.00*pntConv,20.00*pntConv},fColor=(52428,52425,1),disable=2, win=$pnlNameStr
+	Button DriftImage,pos={32.00,90},size={100.00,20.00},title="Drift Image",disable=2, win=$pnlNameStr
+	Button DriftImage,fSize=12,fColor=(65535,49151,49151),proc=ATH_iDriftCorrection#DriftImageButton, win=$pnlNameStr
+	Button SelectedLayersDrift3D,pos={32.00,125},size={100.00,20.00},fColor=(52428,52425,1),disable=2, win=$pnlNameStr
 	Button SelectedLayersDrift3D,title="Drift N images",fSize=12,proc=ATH_iDriftCorrection#DriftSelectedLayers3DWaveButton,win=$pnlNameStr
-	Button CascadeDrift3D,pos={32.00*pntConv,160*pntConv},size={100.00*pntConv,20.00*pntConv},fColor=(65535,49157,16385),disable=2, win=$pnlNameStr
-	Button CascadeDrift3D,title="Cascade drift",fSize=12*pntConv,proc=ATH_iDriftCorrection#CascadeDrift3DWaveButton,win=$pnlNameStr
+	Button CascadeDrift3D,pos={32.00,160},size={100.00,20.00},fColor=(65535,49157,16385),disable=2, win=$pnlNameStr
+	Button CascadeDrift3D,title="Cascade drift",fSize=12,proc=ATH_iDriftCorrection#CascadeDrift3DWaveButton,win=$pnlNameStr
 	// Draw the region for linear Drift correction
-	SetDrawEnv dash= 3,fillpat= 0;DrawRect 15*pntConv,195*pntConv,150*pntConv,280*pntConv
+	SetDrawEnv dash= 3,fillpat= 0;DrawRect 15,195,150,280
 	SetDrawEnv fsize= 10
-	DrawText 30*pntConv,210*pntConv,"\\F'Menlo'Linear Drift Corr"
+	DrawText 30,210,"\\F'Menlo'Linear Drift Corr"
 	string helpStrLinearDC = "Press Start and End after setting the layer using the slider/keys/mousewheel.\n"
 	helpStrLinearDC += "Press Drift to perform linear drift between Start and End layers."
-	Button LinearDC title="Drift",font="Menlo",fSize=12*pntConv,fColor=(51664,44236,58982),proc=ATH_iDriftCorrection#LinearDCButton,win=$pnlNameStr
-	Button LinearDC pos={45*pntConv,215*pntConv},size={65*pntConv,24*pntConv}, help={helpStrLinearDC}, disable=2, win=$pnlNameStr
-	Button FirstL title="Start",pos={26*pntConv,250*pntConv},size={50*pntConv,20*pntConv},proc=ATH_iDriftCorrection#SetStartLayerButton,win=$pnlNameStr
-	Button LastL title="End",pos={85*pntConv,250*pntConv},size={50*pntConv,20*pntConv},proc=ATH_iDriftCorrection#SetEndLayerButton,win=$pnlNameStr
+	Button LinearDC title="Drift",font="Menlo",fSize=12,fColor=(51664,44236,58982),proc=ATH_iDriftCorrection#LinearDCButton,win=$pnlNameStr
+	Button LinearDC pos={45,215},size={65,24}, help={helpStrLinearDC}, disable=2, win=$pnlNameStr
+	Button FirstL title="Start",pos={26,250},size={50,20},proc=ATH_iDriftCorrection#SetStartLayerButton,win=$pnlNameStr
+	Button LastL title="End",pos={85,250},size={50,20},proc=ATH_iDriftCorrection#SetEndLayerButton,win=$pnlNameStr
 	//	
-	Button Checkpoint,pos={32.00*pntConv,290*pntConv},size={100.00*pntConv,20.00*pntConv},fColor=(65535,49151,55704),win=$pnlNameStr
-	Button Checkpoint,title="Checkpoint",fSize=12*pntConv,proc=ATH_iDriftCorrection#CheckpointButton,win=$pnlNameStr
-	Button RestoreWave,pos={32.00*pntConv,320.00*pntConv},size={100.00*pntConv,20.00*pntConv},fColor=(32768,54615,65535),win=$pnlNameStr
-	Button RestoreWave,title="Restore",fSize=15*pntConv,proc=ATH_iDriftCorrection#RestoreWaveButton,win=$pnlNameStr
+	Button Checkpoint,pos={32.00,290},size={100.00,20.00},fColor=(65535,49151,55704),win=$pnlNameStr
+	Button Checkpoint,title="Checkpoint",fSize=12,proc=ATH_iDriftCorrection#CheckpointButton,win=$pnlNameStr
+	Button RestoreWave,pos={32.00,320.00},size={100.00,20.00},fColor=(32768,54615,65535),win=$pnlNameStr
+	Button RestoreWave,title="Restore",fSize=15,proc=ATH_iDriftCorrection#RestoreWaveButton,win=$pnlNameStr
 	//		
 	string helpStrShiftClick = "1. (Re)Set anchor.\n2. Use arrows/mousewheel to change between layers \n3. Use SHIFT+right-click"
 	helpStrShiftClick+= " to drift a layer and move to the next.\n4. Use Del/Bksp to restore a layer."	
-	Checkbox FastMode,pos={12.00*pntConv,350*pntConv},title="SHIFT+Click & drift",fSize=11*pntConv,font="Menlo", win=$pnlNameStr
+	Checkbox FastMode,pos={12.00,350},title="SHIFT+Click & drift",fSize=11,font="Menlo", win=$pnlNameStr
 	Checkbox FastMode,value=0,disable=2,proc=ATH_iDriftCorrection#FastModeCheckbox,help={helpStrShiftClick},win=$pnlNameStr
 	// Save point as reference in the database
-	SetDrawEnv linefgc= (1,12815,52428),dash= 3,fillpat= 0; DrawRect 15*pntConv,395*pntConv,150*pntConv,480*pntConv
-	SetDrawEnv textrgb= (65535,0,0), fname= "Arial", fSize=13*pntConv,fstyle= 1
-	DrawText 17*pntConv,390*pntConv,"Inter-stack alignment"
-	SetDrawEnv textrgb= (0,0,0),fname= "Menlo",fstyle= 4,fsize= 10*pntConv;DrawText 20*pntConv,415*pntConv,"Global Ref. (anchor)"
+	SetDrawEnv linefgc= (1,12815,52428),dash= 3,fillpat= 0; DrawRect 15,395,150,480
+	SetDrawEnv textrgb= (65535,0,0), fname= "Arial", fSize=13,fstyle= 1
+	DrawText 17,390,"Inter-stack alignment"
+	SetDrawEnv textrgb= (0,0,0),fname= "Menlo",fstyle= 4,fsize= 10;DrawText 20,415,"Global Ref. (anchor)"
 	
-	Button SaveReferenceCoordB,title="Save",fSize=12*pntConv,pos={18*pntConv,420*pntConv},size={60*pntConv,20.00*pntConv},win=$pnlNameStr
+	Button SaveReferenceCoordB,title="Save",fSize=12,pos={18,420},size={60,20.00},win=$pnlNameStr
 	Button SaveReferenceCoordB, proc=ATH_iDriftCorrection#InterStackAlignmentButton,disable=2,win=$pnlNameStr
-	Button ShowReferenceCoordB,title="Show",fSize=12*pntConv,pos={87*pntConv,420*pntConv},size={60*pntConv,20.00*pntConv},win=$pnlNameStr
+	Button ShowReferenceCoordB,title="Show",fSize=12,pos={87,420},size={60,20.00},win=$pnlNameStr
 	Button ShowReferenceCoordB, proc=ATH_iDriftCorrection#InterStackAlignmentButton,win=$pnlNameStr,help={"SHIFT+click to use axes instead of relative coordinates."}
-	Button DriftReferenceCoordB,title="Drift wrt global Ref.",fSize=12*pntConv,pos={22.00*pntConv,455*pntConv},size={120.00*pntConv,20.00*pntConv}, win=$pnlNameStr
+	Button DriftReferenceCoordB,title="Drift wrt global Ref.",fSize=12,pos={22.00,455},size={120.00,20.00}, win=$pnlNameStr
 	Button DriftReferenceCoordB,proc=ATH_iDriftCorrection#InterStackAlignmentButton, win=$pnlNameStr,help={"SHIFT+click to use axes instead of relative coordinates."}
 	// Let's sort button status and colors
 	DFREF dfrS = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveDriftCorrection:SavedReferenceCoords:")

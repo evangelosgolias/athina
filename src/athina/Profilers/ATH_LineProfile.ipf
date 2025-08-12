@@ -156,8 +156,7 @@ static Function CreatePlot(DFREF dfr)
 	NVAR profileWidth = dfr:gATH_profileWidth
 	string profilePlotStr = "ATH_LineProfilePlot_" + gATH_WindowNameStr
 	Make/O/N=0  dfr:W_LineProfileDisplacement, dfr:W_ImageLineProfile // Make a dummy wave to display 
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-	Display/W=(0*pntConv,0*pntConv,500*pntConv,300*pntConv)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile vs dfr:W_LineProfileDisplacement as "Line profile " + gATH_WindowNameStr
+	Display/W=(0,0,500,300)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile vs dfr:W_LineProfileDisplacement as "Line profile " + gATH_WindowNameStr
 	AutoPositionWindow/E/M=0/R=$gATH_WindowNameStr
 	ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=14, lsize=1.5
 	ModifyGraph/Z cbRGB=(65535,65534,49151)
@@ -171,14 +170,14 @@ static Function CreatePlot(DFREF dfr)
 	SetWindow $profilePlotStr, hook(MyLineProfileGraphHook) = ATH_LineProfile#GraphHookFunction // Set the hook
 	
 	ControlBar/W=$profilePlotStr 70	
-	Button SaveProfileButton,pos={18.00*pntConv,8.00*pntConv},size={90.00*pntConv,20.00*pntConv},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=ATH_LineProfile#SaveProfile
-	Button SaveCursorPositions,pos={118*pntConv,8*pntConv},size={95*pntConv,20*pntConv},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=ATH_LineProfile#SaveDefaultSettings
-	Button RestoreCursorPositions,pos={224*pntConv,8*pntConv},size={111*pntConv,20*pntConv},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_LineProfile#RestoreDefaultSettings
-	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344*pntConv,8*pntConv},size={111*pntConv,20*pntConv},title="Show width",fcolor=(65535,32768,32768),help={"Show width of integrated area while button is pressed"},proc=ATH_LineProfile#ShowProfileWidth
-	CheckBox PlotProfiles,pos={19*pntConv,40*pntConv},size={98*pntConv,17*pntConv},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_LineProfile#CheckboxPlotProfile
-	CheckBox MarkLines,pos={127*pntConv,40*pntConv},size={86*pntConv,17*pntConv},title="Mark lines ",fSize=14,value=1,side=1,proc=ATH_LineProfile#CheckboxMarkLines
-	CheckBox ProfileLayer3D,pos={227*pntConv,40*pntConv},size={86*pntConv,17*pntConv},title="Stack layer ",fSize=14,side=1,value=1,proc=ATH_LineProfile#ProfileLayer3D
-	SetVariable setWidth,pos={331*pntConv,40*pntConv},size={123*pntConv,20*pntConv},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1},proc=ATH_LineProfile#SetVariableWidth
+	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=ATH_LineProfile#SaveProfile
+	Button SaveCursorPositions,pos={118,8},size={95,20},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=ATH_LineProfile#SaveDefaultSettings
+	Button RestoreCursorPositions,pos={224,8},size={111,20},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_LineProfile#RestoreDefaultSettings
+	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344,8},size={111,20},title="Show width",fcolor=(65535,32768,32768),help={"Show width of integrated area while button is pressed"},proc=ATH_LineProfile#ShowProfileWidth
+	CheckBox PlotProfiles,pos={19,40},size={98,17},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_LineProfile#CheckboxPlotProfile
+	CheckBox MarkLines,pos={127,40},size={86,17},title="Mark lines ",fSize=14,value=1,side=1,proc=ATH_LineProfile#CheckboxMarkLines
+	CheckBox ProfileLayer3D,pos={227,40},size={86,17},title="Stack layer ",fSize=14,side=1,value=1,proc=ATH_LineProfile#ProfileLayer3D
+	SetVariable setWidth,pos={331,40},size={123,20},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1},proc=ATH_LineProfile#SetVariableWidth
 	SetVariable setWidth, help={"Sampling is 2 * (width + 0.5) points equidistant from the line"}
 	return 0
 End

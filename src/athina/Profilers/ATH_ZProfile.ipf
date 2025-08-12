@@ -246,8 +246,7 @@ static Function InitialiseGraph(DFREF dfr)
 	WAVE profile = dfr:$gATH_LineProfileWaveStr
 	string profilePlotStr = "ATH_ZProfPlot_" + gATH_WindowNameStr
 	if (WinType(profilePlotStr) == 0) // line profile window is not displayed
-		variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-		Display/W=(0*pntConv,0*pntConv,500*pntConv,300*pntConv)/K=1/N=$profilePlotStr profile as "Z profile " + gATH_imgNameTopWindowStr
+		Display/W=(0,0,500,300)/K=1/N=$profilePlotStr profile as "Z profile " + gATH_imgNameTopWindowStr
 		AutoPositionWindow/E/M=0/R=$gATH_WindowNameStr
 		ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=12, lsize=2
 		Label left "\\u#2 Intensity (arb. u.)";DelayUpdate

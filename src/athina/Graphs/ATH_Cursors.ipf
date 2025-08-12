@@ -85,20 +85,19 @@ static Function MeasureDistanceUsingFreeCursors()
 		return 1
 	endif	
 	
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 	ControlBar/W=$winNameStr lCBOFFSET + kCBOFFSET		
 	
-	Button scaleCrsB pos={10*pntConv,(4+lCBOFFSET)*pntConv}, size={60*pntConv,20*pntConv}, title="Scale", win=$winNameStr
+	Button scaleCrsB pos={10,4+lCBOFFSET}, size={60,20}, title="Scale", win=$winNameStr
 	Button scaleCrsB help = {"Place cursots C, D and set scale"},fcolor=(65535,0,0),proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
-	Button modeCrsB pos={75*pntConv,(4+lCBOFFSET)*pntConv}, title="Direct", size={80*pntConv,20*pntConv},win=$winNameStr
+	Button modeCrsB pos={75,4+lCBOFFSET}, title="Direct", size={80,20},win=$winNameStr
 	Button modeCrsB help = {"Change between direct and reciprocal mode"}, proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
-	Button markCrsB pos={160*pntConv,(4+lCBOFFSET)*pntConv}, title="Mark", size={55*pntConv,20*pntConv},win=$winNameStr
+	Button markCrsB pos={160,4+lCBOFFSET}, title="Mark", size={55,20},win=$winNameStr
 	Button markCrsB help = {"Mark distace (1D: with SHIFT pressed marks dv (1-D) or scale in 2D"},proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr
-	Button dLogCrsB pos={220*pntConv,(4+lCBOFFSET)*pntConv}, title="DLog", fcolor=(65535,0,0),size={55*pntConv,20*pntConv},win=$winNameStr
+	Button dLogCrsB pos={220,4+lCBOFFSET}, title="DLog", fcolor=(65535,0,0),size={55,20},win=$winNameStr
 	Button dLogCrsB help = {"Measure distances, press SHIFT+Click to register a point."},proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr	
-	Button angleCrsB pos={280*pntConv,(4+lCBOFFSET)*pntConv}, title="Angle",size={55*pntConv,20*pntConv},win=$winNameStr
+	Button angleCrsB pos={280,4+lCBOFFSET}, title="Angle",size={55,20},win=$winNameStr
 	Button angleCrsB help = {"Measure angle with apex at cursor F."},proc=ATH_Cursors#MeasureDistanceButton,win=$winNameStr		
-	Button closeCrsB pos={340*pntConv,(4+lCBOFFSET)*pntConv}, title="Close", size={50*pntConv,20*pntConv},fcolor=(0,0,65535),win=$winNameStr
+	Button closeCrsB pos={340,4+lCBOFFSET}, title="Close", size={50,20},fcolor=(0,0,65535),win=$winNameStr
 	Button closeCrsB help = {"Removes control bar"},proc=ATH_Cursors#MeasureDistanceButton, win=$winNameStr
 	// Add metadata
 	Button scaleCrsB, win=$winNameStr, userdata(ATH_SetScale) = "1", userdata(ATH_SavedDistanceForScale) = "", userdata(ATH_DistanceForScale) = "1"

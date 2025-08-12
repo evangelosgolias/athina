@@ -67,22 +67,21 @@ static Function CreatePanel()
 	string/G dfr:gATH_wBackupPathNameStr = GetWavesDataFolder(dfr:$backupNameStr, 2)
 	variable/G dfr:gATH_Angle = 0 // Not set
 	variable/G dfr:gATH_FlipRows = 0
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-	NewPanel/K=1/EXT=0/N=iImageRotation/W=(0,0,300*pntConv,130*pntConv)/HOST=$winNameStr
+	NewPanel/K=1/EXT=0/N=iImageRotation/W=(0,0,300,130)/HOST=$winNameStr
 	
 	string pnlName = winNameStr + "#iImageRotation"
 	SetDrawLayer/W=$pnlName UserBack
-	SetDrawEnv/W=$pnlName fsize= 13*pntConv,fstyle= 1,textrgb= (1,12815,52428)
-	DrawText/W=$pnlName 90*pntConv, 20*pntConv,"Image rotation (deg)"
-	Slider RotAngleSlider, vert=0,limits={-180,180,0},pos={15*pntConv,25*pntConv},size={270*pntConv,50*pntConv},win=$pnlName
-	Slider RotAngleSlider,ticks=50, fSize=12*pntConv,variable=dfr:gATH_Angle,proc=ATH_iImgRotation#SliderProc,win=$pnlName
-	SetVariable RotAngle, title="Set angle",fSize=14*pntConv,size={120*pntConv,20*pntConv},win=$pnlName
-	SetVariable RotAngle, pos={40*pntConv,70*pntConv}, value = dfr:gATH_Angle, proc=ATH_iImgRotation#SetAngle,win=$pnlName
-	CheckBox FlipRowsCB,pos={180*pntConv,70.00*pntConv},size={98.00*pntConv,17.00*pntConv},win=$pnlName
+	SetDrawEnv/W=$pnlName fsize= 13,fstyle= 1,textrgb= (1,12815,52428)
+	DrawText/W=$pnlName 90, 20,"Image rotation (deg)"
+	Slider RotAngleSlider, vert=0,limits={-180,180,0},pos={15,25},size={270,50},win=$pnlName
+	Slider RotAngleSlider,ticks=50, fSize=12,variable=dfr:gATH_Angle,proc=ATH_iImgRotation#SliderProc,win=$pnlName
+	SetVariable RotAngle, title="Set angle",fSize=14,size={120,20},win=$pnlName
+	SetVariable RotAngle, pos={40,70}, value = dfr:gATH_Angle, proc=ATH_iImgRotation#SetAngle,win=$pnlName
+	CheckBox FlipRowsCB,pos={180,70.00},size={98.00,17.00},win=$pnlName
 	CheckBox FlipRowsCB,fcolor=(65535,0,0),title="Flip y-axis",fSize=14,value=0,side=1,win=$pnlName,proc=ATH_iImgRotation#FlipRowsCheckBox
-	Button SaveImgB, title="Save copy",size={80*pntConv,20*pntConv},pos={20*pntConv,100*pntConv},proc=ATH_iImgRotation#iRotButton,win=$pnlName,win=$pnlName
-	Button OverwiteImgB, title="Overwite ",size={70*pntConv,20*pntConv}, pos={110*pntConv,100*pntConv},proc=ATH_iImgRotation#iRotButton,win=$pnlName
-	Button RestoreImageRotB, title="Restore",size={80*pntConv,20*pntConv},pos={190*pntConv,100*pntConv},win=$pnlName
+	Button SaveImgB, title="Save copy",size={80,20},pos={20,100},proc=ATH_iImgRotation#iRotButton,win=$pnlName,win=$pnlName
+	Button OverwiteImgB, title="Overwite ",size={70,20}, pos={110,100},proc=ATH_iImgRotation#iRotButton,win=$pnlName
+	Button RestoreImageRotB, title="Restore",size={80,20},pos={190,100},win=$pnlName
 	Button RestoreImageRotB, fColor=(3,52428,1),proc=ATH_iImgRotation#iRotButton,win=$pnlName
 		
 	SetWindow $pnlName hook(MyImageRotationPanelHook) = ATH_iImgRotation#PanelHookFunction

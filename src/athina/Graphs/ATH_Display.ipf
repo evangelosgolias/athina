@@ -94,9 +94,8 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 		DFREF dfrSld = ATH_DFR#CreateDataFolderGetDFREF(dfrSldStr)
 		NVAR/Z/SDFR=dfrSld gLayer, gRightLim, gLeftLim, gOriginalHeight
 		SVAR/Z/SDFR=dfrSld imageName
-		GetWindow $s.WinName gSize
+		GetWindow $s.WinName gSizeDC
 		variable grfWidth = V_right - V_left
-		variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 		if(grfWidth < 500)
 			variable fct = grfWidth*0.87*sqrt(grfWidth/500)
 		else 
@@ -338,19 +337,19 @@ Function Append3DImageSlider([string grfName])
 		variable nlayers = DimSize(wRef, 2)
 		NVAR/Z/SDFR=dfr gLayer
 		NVAR/Z/SDFR=dfr gOriginalHeight
-		variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
+		//variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
 		
-		ControlBar/W=$grfName (gOriginalHeight+30)*pntConv // Converts to points
+		ControlBar/W=$grfName gOriginalHeight+30
 		// Reads graph outer dimensions into V_left,
 		// V_right, V_top, and V_bottom in local coordinates. 
 		// This includes axes but not the tool palette, control bar, or info panel. 
 		// Dimensions are in points.		
-		GetWindow $grfName gSize
+		GetWindow $grfName gSizeDC
 		// Size values here are overriden by the window hook function, if set.
-		Slider ATH_W3DSlider,ticks=0,vert=0,limits={0, nlayers-1, 1},variable=gLayer,pos={(V_left+10)*pntConv,(gOriginalHeight+10)*pntConv},win=$grfName
-		Slider ATH_W3DSlider,thumbColor=(0,65535,0),size={V_right*0.85*pntConv,15*pntConv},proc=ATH_Display#NewImgSliderHook,win=$grfName
-		SetVariable ATH_W3DSliderVar,limits={0,nlayers-1, 1},fsize= 12*pntConv,pos={V_right*0.875*pntConv, (gOriginalHeight+5)*pntConv},live=1,win=$grfName
-		SetVariable ATH_W3DSliderVar,title=" ",value=gLayer,size={50*pntConv,20*pntConv},proc=ATH_Display#ImageSliderSetVar,win=$grfName
+		Slider ATH_W3DSlider,ticks=0,vert=0,limits={0, nlayers-1, 1},variable=gLayer,pos={(V_left+10),(gOriginalHeight+10)},win=$grfName
+		Slider ATH_W3DSlider,thumbColor=(0,65535,0),size={V_right*0.85,15},proc=ATH_Display#NewImgSliderHook,win=$grfName
+		SetVariable ATH_W3DSliderVar,limits={0,nlayers-1, 1},fsize= 12,pos={V_right*0.875, (gOriginalHeight+5)},live=1,win=$grfName
+		SetVariable ATH_W3DSliderVar,title=" ",value=gLayer,size={50,20},proc=ATH_Display#ImageSliderSetVar,win=$grfName
 End
 
 Function NewImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl

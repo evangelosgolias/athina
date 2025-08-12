@@ -194,8 +194,7 @@ static Function CreatePanel(DFREF dfr)
 	// Not good idea to use it now as long as the "i" options interferes with the ControlBar of the profilert
 	// Fix it? ATH_Display#NewImg(dfr:M_ExtractedSurface, grfname = grfname)
 	SetAxis/A left
-	variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-	ModifyGraph/W=$grfname width = 350 * pntConv, height = 470 * pntConv
+	ModifyGraph/W=$grfname width = 350, height = 470
 	Execute/P/Q "ModifyGraph width=0,height=0"
 	ModifyGraph/Z cbRGB=(65535,65534,49151)
 
@@ -207,21 +206,21 @@ static Function CreatePanel(DFREF dfr)
 	SetWindow $grfname userdata(ATH_LinkedWinImageSource) = gATH_WindowNameStr 	
 	SetWindow $grfname, hook(MyImagePlaneProfileZHook) = ATH_PlaneZProfile#GraphHookFunction// Set the hook
 
-	SetVariable setNx,pos={10*pntConv,5*pntConv},size={85*pntConv,20.00*pntConv},title="N\\Bx", fSize=14,fColor=(65535,0,0),value=Nx,limits={1,inf,1},proc=ATH_PlaneZProfile#SetVariableNx,win=$grfName	
-	SetVariable setNy,pos={97*pntConv,5*pntConv},size={70*pntConv,20.00*pntConv},title="N\\By", fSize=14,fColor=(65535,0,0),value=Ny,limits={1,inf,1},proc=ATH_PlaneZProfile#SetVariableNy,win=$grfName	
+	SetVariable setNx,pos={10,5},size={85,20.00},title="N\\Bx", fSize=14,fColor=(65535,0,0),value=Nx,limits={1,inf,1},proc=ATH_PlaneZProfile#SetVariableNx,win=$grfName	
+	SetVariable setNy,pos={97,5},size={70,20.00},title="N\\By", fSize=14,fColor=(65535,0,0),value=Ny,limits={1,inf,1},proc=ATH_PlaneZProfile#SetVariableNy,win=$grfName	
 
-	Button SetScaleButton,pos={180*pntConv,6*pntConv},size={70.00*pntConv,20.00*pntConv},title="Set Scale",valueColor=(1,12815,52428),help={"Scale X, Y coordinates. "+\
+	Button SetScaleButton,pos={180,6},size={70.00,20.00},title="Set Scale",valueColor=(1,12815,52428),help={"Scale X, Y coordinates. "+\
 	"Place markers and press button. Then set X and Y scales as intervals (Xmin, Xmax)"},proc=ATH_PlaneZProfile#SetScaleButton,win=$grfName	
-	Button SaveProfileButton,pos={260.00*pntConv,6*pntConv},size={90.00*pntConv,20.00*pntConv},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed image profile"},proc=ATH_PlaneZProfile#SaveProfileButton,win=$grfName	
-	CheckBox DisplayProfiles,pos={10*pntConv,55*pntConv},size={98.00*pntConv,17.00*pntConv},title="Display Profiles",fSize=13,value=PlotSwitch,side=1,proc=ATH_PlaneZProfile#CheckboxPlotProfile,win=$grfName	
-	CheckBox OverrideNx,pos={10*pntConv,35*pntConv},size={86.00*pntConv,17.00*pntConv},title="Override: N\\Bx",fSize=13,fColor=(65535,0,0),value=OverrideNx,side=1,proc=ATH_PlaneZProfile#OverrideNx,win=$grfName	
-	CheckBox OverrideNy,pos={110*pntConv,35*pntConv},size={86.00*pntConv,17.00*pntConv},title="N\\By",fSize=13,fColor=(65535,0,0),value=OverrideNy,side=1,proc=ATH_PlaneZProfile#OverrideNy,win=$grfName	
+	Button SaveProfileButton,pos={260.00,6},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed image profile"},proc=ATH_PlaneZProfile#SaveProfileButton,win=$grfName	
+	CheckBox DisplayProfiles,pos={10,55},size={98.00,17.00},title="Display Profiles",fSize=13,value=PlotSwitch,side=1,proc=ATH_PlaneZProfile#CheckboxPlotProfile,win=$grfName	
+	CheckBox OverrideNx,pos={10,35},size={86.00,17.00},title="Override: N\\Bx",fSize=13,fColor=(65535,0,0),value=OverrideNx,side=1,proc=ATH_PlaneZProfile#OverrideNx,win=$grfName	
+	CheckBox OverrideNy,pos={110,35},size={86.00,17.00},title="N\\By",fSize=13,fColor=(65535,0,0),value=OverrideNy,side=1,proc=ATH_PlaneZProfile#OverrideNy,win=$grfName	
 
-	ValDisplay GcoordX title="G\\Bx:",pos={150*pntConv,35*pntConv},size={80*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled X value of the G cursor"},win=$grfName
-	ValDisplay GcoordY title="G\\By:",pos={230*pntConv,35*pntConv},size={80*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled Y value of the G cursor"},win=$grfName	
-	ValDisplay HcoordX title="H\\Bx:",pos={150*pntConv,55*pntConv},size={80*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled X value of the H cursor"},win=$grfName
-	ValDisplay HcoordY title="H\\By:",pos={230*pntConv,55*pntConv},size={80*pntConv,10*pntConv},value=_NUM:NaN,fSize=13,help={"Scaled Y value of the H cursor"},win=$grfName		
-	ValDisplay normGH title="",pos={320*pntConv,45*pntConv},size={50*pntConv,10*pntConv},format="%.2f",value=_NUM:NaN,fSize=13,help={"GH norm"},win=$grfName		
+	ValDisplay GcoordX title="G\\Bx:",pos={150,35},size={80,10},value=_NUM:NaN,fSize=13,help={"Scaled X value of the G cursor"},win=$grfName
+	ValDisplay GcoordY title="G\\By:",pos={230,35},size={80,10},value=_NUM:NaN,fSize=13,help={"Scaled Y value of the G cursor"},win=$grfName	
+	ValDisplay HcoordX title="H\\Bx:",pos={150,55},size={80,10},value=_NUM:NaN,fSize=13,help={"Scaled X value of the H cursor"},win=$grfName
+	ValDisplay HcoordY title="H\\By:",pos={230,55},size={80,10},value=_NUM:NaN,fSize=13,help={"Scaled Y value of the H cursor"},win=$grfName		
+	ValDisplay normGH title="",pos={320,45},size={50,10},format="%.2f",value=_NUM:NaN,fSize=13,help={"GH norm"},win=$grfName		
 
 	return 0
 End
@@ -405,8 +404,7 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 			if(PlotSwitch)
 				saveImageStr = CreatedataObjectName(savedfr, targetGraphWin + "_s", 1, 0, 5)
 				ATH_Display#NewImg(savedfr:$saveWaveNameStr, grfName = saveImageStr)
-				variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
-				ModifyGraph/W=$saveImageStr width = 350*pntConv, height = 470*pntConv
+				ModifyGraph/W=$saveImageStr width = 350, height = 470
 				SetAxis/A left
 				Execute/P/Q "ModifyGraph/W=$\""+saveImageStr+"\" width=0,height=0"
 				colorcnt += 1
