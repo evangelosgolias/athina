@@ -50,7 +50,6 @@ Menu "athina"
 	Submenu "Image Operations"
 		"Average layers (range) (TG, 3D)", /Q, ATH_Launch#AverageLayersRange()
 		"Average image stack(TG, 3D)", /Q, ATH_Launch#AverageImageStack()
-		"Sum image stack(TG, 3D)", /Q, ATH_Launch#SumImagePlanes()		
 		"Append image(s) to stack (TG, 3D)", /Q, ATH_Launch#StackImagesToImageStack()
 		"Insert image at slider position  (TG, 3D)", /Q, ATH_Launch#InsertImageToStack()
 		"Extract layers to stack (TG, 3D)", /Q, ATH_Launch#ExtractLayerRangeToStack()
@@ -70,7 +69,6 @@ Menu "athina"
 		"Duplicate image and data (TG, 2D, 3D)", /Q, ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
 		"Backup Image (TG)", /Q, ATH_ImgOp#BackupTopImage()	
 		"Restore image from backup (TG)", /Q, ATH_ImgOp#RestoreTopImageFromBackup()
-		"Normalize to [0, 1] (TG)", /Q, ATH_Launch#ScalePlanesBetweenZeroAndOne()
 		"Center image histogram (TG)", /Q, ATH_Launch#HistogramShiftToGaussianCenter()
 		"Rotate 3d wave axes (TG, 3D)", /Q, ATH_Launch#Rotate3DWaveAxes()
 	End

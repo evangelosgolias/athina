@@ -947,7 +947,7 @@ static Function ImageResampling(WAVE wRef,  string func, variable xOffset, varia
 		WAVE M_InterpolatedImage
 		CopyScales/I wRef, M_InterpolatedImage
 		Duplicate/O M_InterpolatedImage, wRef
-		Note wRef, cmdTemplateStr
+		Note wRef, cmdStr
 		KillWaves M_InterpolatedImage
 	else
 		DFREF cwdfr = GetDataFolderDFR()
@@ -957,38 +957,7 @@ static Function ImageResampling(WAVE wRef,  string func, variable xOffset, varia
 		sprintf cmdStr, cmdTemplateStr, func, xOffset, xscale, yOffset, yscale, PossiblyQuoteName(newWaveNameStr), wRefStr
 		Execute/Z/Q cmdStr
 		CopyScales/I wRef, $newWaveNameStr
-		Note $newWaveNameStr, cmdTemplateStr
+		Note $newWaveNameStr, cmdStr
 	endif
 	return 0
 End
-
-//static Function ShiftWaveUsingCursors(string graphStr)
-//	// Shift wave wRef relative to the A cursor difference between
-//	// the top graph (wRef) and graphStr
-//	string winNameStr = WinName(0, 1, 1)
-//	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-//	WAVE wRef = ImageNameToWaveRef(winNameStr, imgNameTopGraphStr)
-//	if(!strlen(imgNameTopGraphStr))
-//		return -1
-//	endif
-//	variable x0 = hcsr(A, winNameStr)
-//	variable y0 = vcsr(A, winNameStr)	
-//	variable x1 = hcsr(A, graphStr)
-//	variable y1 = vcsr(A, graphStr)
-//	if(numtype(x0) == 2 || numtype(x1) == 2)
-//		return -1
-//	endif
-//	variable dx = x1 - x0
-//	variable dy = y1 - y0
-//	string destWave = NameOfWave(wRef) + "_shift"
-//	ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=$destWave Affine2D wRef
-//	Note/K $destWave, "Source: "+ NameOfWave(wRef) + "\ndx: " + num2str(dx) + "\ndy: " + num2str(dy)
-//	return 0 	
-//End
-//
-//static Function AffineTransformationThreePoint(WAVE src, WAVE dest, WAVE srcP, WAVE destP, WAVE coeff)
-//	variable a11, a12, tx, a21, a22, ty
-//	WAVE w  = ATH_Transform#GetAffine2DMapping(srcP, destP)
-//	ImageInterpolate/APRM={w[0],w[1],w[2],w[3],w[4],w[5],1,0}/DEST=dest Affine2D src
-//	return 0
-//End

@@ -259,7 +259,9 @@ static Function ImageRegistrationStack()
 	endif
 	ATH_DFR#BackupWaveInWaveDF(wRef)
 	variable layerN = ATH_Graph#GetgLayer("")
+	string waveNoteStr = note(wRef)
 	ATH_ImgAlign#MultiThreadImageRegistration(wRef, layerN)
+	Note wRef, waveNoteStr
 	return 0
 End
 
@@ -317,9 +319,10 @@ static Function ImageStackAlignmentPartition()
 	endif
 	ATH_WaveOp#SetScalesP(wRef,x0, y0, z0, dx, dy, dz)
 	driftCorrectionNoteStr = "Drift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
-	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(subPixel, "dummy;Yes;No")// + "\n"
+	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(subPixel, "dummy;Yes;No") + "\n"
+	driftCorrectionOriginalNoteStr += driftCorrectionNoteStr
 	KillWaves partitionWave
-	Note wRef, driftCorrectionNoteStr
+	Note wRef, driftCorrectionOriginalNoteStr
 End
 
 static Function LinearDriftCorrestionStackABCursors()
@@ -329,8 +332,8 @@ static Function LinearDriftCorrestionStackABCursors()
 	if(!strlen(imgNameTopGraphStr))
 		return -1
 	endif	
-	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // ATH_ImageStackAlignmentByPartitionRegistration needs a wave reference
-	variable nlayers = DimSize(w3dref, 2)
+	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // ATH_ImageStackAlignmentByPartitionRegistration needs a wave reference
+	variable nlayers = DimSize(wRef, 2)
 	
 	if(nlayers < 3)
 		return -1
@@ -340,7 +343,7 @@ static Function LinearDriftCorrestionStackABCursors()
 	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P B $imgNameTopGraphStr 0.75, 0.5
 	variable slope, shift
 	
-	string backupWavePathStr = ATH_DFR#BackupWaveInWaveDF(w3dref)	
+	string backupWavePathStr = ATH_DFR#BackupWaveInWaveDF(wRef)	
 	
 	variable x0, y0, x1, y1
 	STRUCT sUserCursorPositions s
@@ -353,9 +356,11 @@ static Function LinearDriftCorrestionStackABCursors()
 	wx -= x0 // Relative xshift
 	wy -= y0 // Relative yshift
 	// ImageInterpolate needs pixels, multiply by -1 to have the proper behavior in /ARPM={...}
-	variable dx = DimDelta(w3dref, 0) ; variable dy = DimDelta(w3dref, 1)
+	variable dx = DimDelta(wRef, 0) ; variable dy = DimDelta(wRef, 1)
 	wx /= (-dx) ; wy /= (-dy)
-	ATH_ImgAlign#LinearDriftStackABCursors(w3dref, wx, wy)
+	string waveNoteStr = note(wRef)
+	ATH_ImgAlign#LinearDriftStackABCursors(wRef, wx, wy)
+	Note wRef, waveNoteStr
 	return 0
 End
 
@@ -369,12 +374,12 @@ static Function LinearDriftCorrestionPlanesABCursors()
 	if(!strlen(imgNameTopGraphStr))
 		return -1
 	endif	
-	WAVE w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // ATH_ImageStackAlignmentByPartitionRegistration needs a wave reference
+	WAVE wRef = ImageNameToWaveRef("", imgNameTopGraphStr) // ATH_ImageStackAlignmentByPartitionRegistration needs a wave reference
 	
-	if(DimSize(w3dref, 2) < 3)
+	if(DimSize(wRef, 2) < 3)
 		return -1
 	endif
-	string backupWavePathStr = ATH_DFR#BackupWaveInWaveDF(w3dref)
+	string backupWavePathStr = ATH_DFR#BackupWaveInWaveDF(wRef)
 	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P A $imgNameTopGraphStr 0.25, 0.5
 	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P B $imgNameTopGraphStr 0.75, 0.5
 	variable slope, shift, x0, y0, x1, y1, startL, endL, nlayers
@@ -400,9 +405,11 @@ static Function LinearDriftCorrestionPlanesABCursors()
 	wx -= x0 // Relative xshift
 	wy -= y0 // Relative yshift
 	// ImageInterpolate needs pixels, multiply by -1 to have the proper behavior in /ARPM={...}
-	variable dx = DimDelta(w3dref, 0) ; variable dy = DimDelta(w3dref, 1)
+	variable dx = DimDelta(wRef, 0) ; variable dy = DimDelta(wRef, 1)
 	wx /= (-dx) ; wy /= (-dy)
-	ATH_ImgAlign#LinearDriftPlanesABCursors(w3dref, wx, wy, startL = startL, endL = endL)
+	string waveNoteStr = note(wRef)
+	ATH_ImgAlign#LinearDriftPlanesABCursors(wRef, wx, wy, startL = startL, endL = endL)
+	Note wRef, waveNoteStr
 	return 0
 End
 
@@ -777,15 +784,6 @@ static Function ImageFFTTransform([int noPlot, int sourceDF, int mode])
 End
 
 
-static Function ScalePlanesBetweenZeroAndOne()
-	WAVE wRef = ATH_Graph#TopImageToWaveRef()
-	MatrixOP/FREE wFree = scale(wRef, 0, 1)
-	CopyScales/P wRef, wFree
-	Duplicate/O wFree, wRef
-	ATH_ImgOp#AutoRangeTopImagePlane() // Autoscale the image
-	return 0
-End
-
 static Function AverageLayersRange()
 	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
 	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
@@ -816,23 +814,6 @@ static Function ExtractLayerRangeToStack()
 	endif
 End
 
-static Function SumImagePlanes()
-
-	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
-	if(WaveDims(wRef) != 3 || WaveDims(wRef) == 0) //  WaveDims(wRef) == 0 when wRef is NULL
-		print "SumImagePlanes() needs an image stack in top graph."
-		return -1
-	endif
-	DFREF dfr = GetDataFolderDFR()
-	ImageTransform sumPlanes wRef
-	WAVE M_SumPlanes
-	string basenameStr = NameOfWave(wRef) + "sum"
-	string sumPlanesNameStr = CreatedataObjectName(dfr, basenameStr, 1, 0, 1)
-	Duplicate M_SumPlanes, $sumPlanesNameStr
-	CopyScales wRef, $sumPlanesNameStr
-	KillWaves/Z M_SumPlanes
-	return 0
-End
 
 static Function FlipStackPlanes()
 
@@ -1085,131 +1066,6 @@ static Function PixelateSingleImageOrStack()
 	return 0
 End
 
-static Function ScaleXPSSpectrum()
-	///	Add description here.
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESSpectrumScale" ) // Root folder here
-	variable STV, hv, wf, Escale, BE_min, BE_max
-	NVAR/Z/SDFR=dfr gATH_PhotonEnergy
-	if(!NVAR_Exists(gATH_PhotonEnergy))
-		variable/G dfr:gATH_PhotonEnergy
-		variable/G dfr:gATH_StartVoltage
-		variable/G dfr:gATH_WorkFunction
-		variable/G dfr:gATH_EnergyScale
-	else
-		NVAR/Z/SDFR=dfr gATH_StartVoltage
-		NVAR/Z/SDFR=dfr gATH_WorkFunction
-		NVAR/Z/SDFR=dfr gATH_EnergyScale
-		NVAR/Z/SDFR=dfr gATH_PhotonEnergy
-		hv = gATH_PhotonEnergy
-		STV = gATH_StartVoltage
-		Wf = gATH_WorkFunction
-		Escale = gATH_EnergyScale
-	endif
-
-	
-	string waveListStr = TraceNameList("", ";", 1)
-	string wavenameStr = StringFromList(0, waveListStr)
-	
-	Prompt wavenameStr, "Select wave", popup, waveListStr
-	Prompt hv, "Photon energy"
-	Prompt STV, "Start Voltage"
-	Prompt Wf, "Work function"
-	Prompt Escale, "Energy scale"
-	DoPrompt "Scale to binding energy (all zeros for no scale)", wavenameStr, hv, STV, Wf, Escale
-		
-	if(V_flag) // User cancelled
-		return 1
-	endif
-	WAVE wRef = TraceNameToWaveRef("", wavenameStr)
-
-	BE_min = hv - STV - Wf - Escale/2
-	BE_max = hv - STV - Wf + Escale/2
-
-	SetScale/I x, BE_max, BE_min, wRef
-	string noteStr = "hv = " + num2str(hv) + " eV," + "STV = " + num2str(STV) + " V," +\
-					 "Wf = " + num2str(Wf) + " eV," + "Escale = " + num2str(Escale) + " eV"
-	Note/K wRef, noteStr // Clear the note. 
-	noteStr = "SetScale/I x," + num2str(BE_max) + "," + num2str(BE_min) + ","+ NameofWave(wRef)
-	Note wRef, noteStr
-	
-	// plot  
-	SetAxis/A/R bottom
-	Label bottom "Binding Energy (eV)"
-	Label left "\\u#2Intensity (arb. u.)"
-	//
-	gATH_PhotonEnergy = hv
-	gATH_StartVoltage = STV
-	gATH_WorkFunction = Wf
-	gATH_EnergyScale  = Escale
-End
-
-static Function ScalePartialXPSSpectrum()
-	/// In some measurements one of the edges of the dispersive plane is clippeda and
-	/// ATH_LaunchScalePESSpectrum() cannot scale the PES spectrum. We can recover the
-	/// PES spectrum if we can see one of the two edges and we know how many pixels make 
-	/// full scale. 
-	/// NB. Use one edge and set the A pointer, usually the end at the hight kinetic energy is seen
-	
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:PESPartialSpectrumScale" ) // Root folder here
-	variable STV, hv, wf, Escale, FullEnergyScale, BE_min, BE_max
-	NVAR/Z/SDFR=dfr gATH_PhotonEnergy
-	if(!NVAR_Exists(gATH_PhotonEnergy))
-		variable/G dfr:gATH_PhotonEnergy
-		variable/G dfr:gATH_StartVoltage
-		variable/G dfr:gATH_WorkFunction
-		variable/G dfr:gATH_EnergyScale
-		variable/G dfr:gATH_FullEnergyScale
-	else
-		NVAR/Z/SDFR=dfr gATH_StartVoltage
-		NVAR/Z/SDFR=dfr gATH_WorkFunction
-		NVAR/Z/SDFR=dfr gATH_EnergyScale
-		NVAR/Z/SDFR=dfr gATH_PhotonEnergy
-		NVAR/Z/SDFR=dfr gATH_FullEnergyScale
-		hv = gATH_PhotonEnergy
-		STV = gATH_StartVoltage
-		Wf = gATH_WorkFunction
-		Escale = gATH_EnergyScale
-		FullEnergyScale = gATH_FullEnergyScale
-	endif
-
-	
-	string waveListStr = TraceNameList("", ";", 1)
-	string wavenameStr = StringFromList(0, waveListStr)
-	
-	Prompt wavenameStr, "Select wave", popup, waveListStr
-	Prompt hv, "Photon energy"
-	Prompt STV, "Start Voltage"
-	Prompt Wf, "Work function"
-	Prompt Escale, "Energy scale"
-	Prompt FullEnergyScale, "Full Energy scale"
-	DoPrompt "Scale to binding energy (all zeros for no scale)", wavenameStr, hv, STV, Wf, Escale
-		
-	if(V_flag) // User cancelled
-		return 1
-	endif
-	WAVE wRef = TraceNameToWaveRef("", wavenameStr)
-
-	BE_min = hv - STV - Wf - Escale/2
-	BE_max = hv - STV - Wf + Escale/2
-
-	SetScale/I x, BE_max, BE_min, wRef
-	string noteStr = "hv = " + num2str(hv) + " eV," + "STV = " + num2str(STV) + " V," +\
-					 "Wf = " + num2str(Wf) + " eV," + "Escale = " + num2str(Escale) + " eV"
-	Note/K wRef, noteStr // Clear the note. 
-	noteStr = "SetScale/I x," + num2str(BE_max) + "," + num2str(BE_min) + ","+ NameofWave(wRef)
-	Note wRef, noteStr
-	
-	// plot  
-	SetAxis/A/R bottom
-	Label bottom "Binding Energy (eV)"
-	Label left "\\u#2Intensity (arb. u.)"
-	//
-	gATH_PhotonEnergy = hv
-	gATH_StartVoltage = STV
-	gATH_WorkFunction = Wf
-	gATH_EnergyScale  = Escale
-End
-
 static Function SetTopGraphDF()
 	// Sets the DF of the top image or top trace
 	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
@@ -1458,6 +1314,8 @@ static Function ImageResample()
 	if(overwrite==1)
 		ATH_DFR#BackupWaveInWaveDFQ(wRef)
 	endif
+	string waveNoteStr = note(wRef)
 	ATH_ImgOp#ImageResampling(wRef, StringFromList(funcMethod-1, funcMethodList), xOffset, yOffset,\
-	xscale = xscale, yscale = yscale, overwrite = overwrite-1)
+	xscale = xscale, yscale = yscale, overwrite = overwrite-2)
+	Note wRef, waveNoteStr
 End
