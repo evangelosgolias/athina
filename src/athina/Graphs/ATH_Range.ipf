@@ -1930,10 +1930,10 @@ Static Function removeImageTraceHelper(DFREF dfr, String grfName)
 End
 
 
-static Function [variable flag, variable leftR, variable rightR, variable topR, variable bottomR] GetMarqueeToIndex([string grfName, string axisX, string axisY])
+static Function [variable flag, variable leftR, variable rightR, variable topR, variable bottomR] GetMarqueeToIndex([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
-	axisX = SelectString(ParamIsDefault(axisX) ? 0: 1,"left", axisX)
-	axisY = SelectString(ParamIsDefault(axisY) ? 0: 1,"top", axisY)
+	string axisX, axisY
+	[axisX, axisY] = ATH_Graph#GetAxes(grfName=grfName)
 	variable errCode
 	
 	WAVE wRef = TopImageToWaveRef(grfName=grfName)
