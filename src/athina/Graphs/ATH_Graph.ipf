@@ -439,3 +439,27 @@ static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 	endswitch
 	return hookResult
 End
+
+// Draw scale bar
+
+static Function DrawScaleBar(variable barlen, [string grfName])
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
+	string axisX, axisY
+	variable minVX, maxVX, minVY, maxVY
+	[axisX, minVX, maxVX, axisY, minVY, maxVY] = ATH_Graph#GetAxesRange(grfName=grfName)
+	variable xlen = abs(maxVX - minVX)
+	if(0.5*xlen < barlen) // it looks bad
+		return NaN
+	endif
+	SetDrawLayer/W=$grfName Overlay	
+	DrawAction/W=$grfName getgroup = athScaleBar
+	DrawAction/W=$grfName delete = V_startPos, V_endPos
+	SetDrawEnv/W=$grfName gstart,gname= athScaleBar	
+	SetDrawEnv/W=$grfName xcoord= axrel,ycoord= axrel
+	DrawRect/W=$grfName 0.95-barlen/xlen, 0.925, 0.95, 0.95
+	SetDrawEnv/W=$grfName gstop	
+	SetDrawLayer/W=$grfName UserFront	
+	return 0
+End
+
