@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_ImgOp
-#pragma version = 1.01
+#pragma version = 1.1
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -959,5 +959,18 @@ static Function ImageResampling(WAVE wRef,  string func, variable xOffset, varia
 		CopyScales/I wRef, $newWaveNameStr
 		Note $newWaveNameStr, cmdStr
 	endif
+	return 0
+End
+
+static Function ScaleFoVWithObjectiveCurrent(variable mobj, [string grfName])
+	// Scale image using the M. Obj current in mA
+	// Applies to the current settings of the MAXPEEM microscope
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	WAVE wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
+	variable factor = (2150/mobj)^2
+	variable x0 = DimOffset(wRef, 0), y0 = DimOffset(wRef, 1)
+	variable dx = DimDelta(wRef, 0), dy = DimDelta(wRef, 1)
+	SetScale/P x, x0, dx*factor, wRef
+	SetScale/P y, y0, dy*factor, wRef	
 	return 0
 End

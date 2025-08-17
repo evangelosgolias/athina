@@ -370,7 +370,7 @@ static Function [variable x0, variable y0, variable z0, variable dx, variable dy
 	// Get the scales of waves per point. 
 	x0 = DimOffset(wRef, 0)
 	y0 = DimOffset(wRef, 1)
-	y0 = DimOffset(wRef, 2)
+	z0 = DimOffset(wRef, 2)
 	dx = DimDelta(wRef, 0)
 	dy = DimDelta(wRef, 1)
 	dz = DimDelta(wRef, 2)
