@@ -109,7 +109,7 @@ static Function ImageScaleBar(variable barlen, [string grfName])
 	if(0.5*xlen < barlen) // it looks bad
 		return NaN
 	endif
-	SetDrawLayer/W=$grfName Overlay	
+	SetDrawLayer/W=$grfName UserFront	
 	DrawAction/W=$grfName getgroup = athScaleBar
 	DrawAction/W=$grfName delete = V_startPos, V_endPos
 	SetDrawEnv/W=$grfName gstart,gname= athScaleBar	
