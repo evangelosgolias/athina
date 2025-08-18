@@ -1330,6 +1330,9 @@ static Function SetCorrectedFoVImages()
 	Prompt mobj, "Magnetic Objective current in mA"	
 	Prompt interval, "Scale per point", popup, "Yes;No"	
 	DoPrompt "Correct selected images FoV", mobj, interval
+	if(V_flag)
+		return -1
+	endif
 	if(mobj < 1000 || mobj > 2250)
 		print "Exteme values, please check your input"	
 		return NaN
