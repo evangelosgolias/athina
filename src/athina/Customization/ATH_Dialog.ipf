@@ -131,14 +131,14 @@ static Function CountSelectedObjectsInDataBrowser()
 	return cnt
 End
 
-static Function CountSelectedWavesInDataBrowser([variable wDims])
+static Function CountSelectedWavesInDataBrowser([variable wDim])
 	/// return how many waves are selected in the data browser
 	/// Function returns selected waves of dimensionality wDims
 	/// if the optional argument is set.
 	
-	wDims = ParamIsDefault(wDims) ? 0: wDims
-	if(wDims < 0 || wDims > 5)
-		return -1 // Bad arguments
+	wDim = ParamIsDefault(wDim) ? 0: wDim
+	if(wDim < 0 || wDim > 5)
+		return NaN // Bad arguments
 	endif
 	
 	string selectedItemStr
@@ -149,12 +149,38 @@ static Function CountSelectedWavesInDataBrowser([variable wDims])
 	do
 		selectedItemStr = GetBrowserSelection(i)
 		i++
-		if((exists(selectedItemStr) == 1 && !wDims) \
-		|| (exists(selectedItemStr) == 1 && WaveDims($selectedItemStr) == wDims))
+		if((exists(selectedItemStr) == 1 && !wDim) \
+		|| (exists(selectedItemStr) == 1 && WaveDims($selectedItemStr) == wDim))
 			cnt++
 		endif
 	while (strlen(GetBrowserSelection(i)))
 	return cnt
+End
+
+static Function/S GetSelectedWavesInDataBrowser([variable wDim])
+	/// returns a string list with selected wave in the data browser
+	/// selects only waves with wDim if variable is set.
+	
+	wDim = ParamIsDefault(wDim) ? 0: wDim
+
+	if(wDim < 0 || wDim > 5)
+		return "" // Bad arguments
+	endif
+	
+	string selectedItemStr, allItemsStr= ""
+	variable i = 0
+	if(!strlen(GetBrowserSelection(0)))
+		return ""
+	endif
+	do
+		selectedItemStr = GetBrowserSelection(i)
+		i++
+		if((exists(selectedItemStr) == 1 && !wDim) \
+		|| (exists(selectedItemStr) == 1 && WaveDims($selectedItemStr) == wDim))
+			allItemsStr += selectedItemStr +";"
+		endif
+	while (strlen(GetBrowserSelection(i)))
+	return allItemsStr
 End
 
 // ----------

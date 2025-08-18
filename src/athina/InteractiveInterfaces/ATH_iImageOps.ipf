@@ -35,7 +35,7 @@ static Function MainMenu()
 	/// static Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
 
-	variable waveN = ATH_Dialog#CountSelectedWavesInDataBrowser(wDims=2)
+	variable waveN = ATH_Dialog#CountSelectedWavesInDataBrowser(wDim=2)
 	if(waveN==2) // If you have selected two waves only then procceed without New Browser Selection.
 		string wave1NameStr = GetBrowserSelection(0)
 		string wave2NameStr = GetBrowserSelection(1)

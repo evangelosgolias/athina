@@ -129,7 +129,7 @@ End
 
 static Function AverageStackToImageFromBrowserMenu()
 	string bufferStr, wavenameStr
-	if(ATH_Dialog#CountSelectedWavesInDataBrowser(wDims = 3) == 1\
+	if(ATH_Dialog#CountSelectedWavesInDataBrowser(wDim = 3) == 1\
 	 && ATH_Dialog#CountSelectedWavesInDataBrowser() == 1) // If we selected a single 3D wave
 		string selected3DWaveStr = GetBrowserSelection(0)
 		WAVE wRef = $selected3DWaveStr	
@@ -476,7 +476,7 @@ End
 
 static Function NormalisationImageStackWithImage()
 		
-	if(ATH_Dialog#CountSelectedWavesInDataBrowser(wDims=3) != 1)
+	if(ATH_Dialog#CountSelectedWavesInDataBrowser(wDim=3) != 1)
 		Abort "Please select an image stack (3d wave)"
 	endif
 	string wave3dStr = StringFromList(0, GetBrowserSelection(0))
@@ -499,7 +499,7 @@ End
 
 static Function NormalisationImageStackWithProfile()
 	
-	if(ATH_Dialog#CountSelectedWavesInDataBrowser(wDims=3) != 1)
+	if(ATH_Dialog#CountSelectedWavesInDataBrowser(wDim=3) != 1)
 		Abort "Please select an image stack (3d wave)"
 	endif
 	string wave3dStr = StringFromList(0, GetBrowserSelection(0))
@@ -525,7 +525,7 @@ End
 
 static Function NormalisationImageStackWithImageStack()
 
-	if(ATH_Dialog#CountSelectedWavesInDataBrowser(wDims=3) != 1)
+	if(ATH_Dialog#CountSelectedWavesInDataBrowser(wDim=3) != 1)
 		Abort "Please select an image stack (3d wave)"
 	endif
 	string wave3d1Str = StringFromList(0, GetBrowserSelection(0))
@@ -1318,4 +1318,22 @@ static Function ImageResample()
 	ATH_ImgOp#ImageResampling(wRef, StringFromList(funcMethod-1, funcMethodList), xOffset, yOffset,\
 	xscale = xscale, yscale = yscale, overwrite = overwrite-2)
 	Note wRef, waveNoteStr
+End
+
+static Function SetCorrectedFoVImages()
+	/// Set the correct FoV in MAXPEEM images	
+	string wlistStr = ATH_Dialog#GetSelectedWavesInDataBrowser()
+	if(strlen(wlistStr))
+		WAVE wRefList = ATH_WaveOp#WaveListStrToWaveRef(wlistStr, isFree = 1)
+	endif
+	variable mobj
+	Prompt mobj, "Magnetic Objective current in mA"	
+	DoPrompt "Correct selected images FoV", mobj
+	if(mobj < 1000 || mobj > 2250)
+		print "Exteme values, please check your input"	
+		return NaN
+	endif
+	for(WAVE wRef : wRefList)
+		ATH_ImgOp#ScaleFoVWithObjectiveCurrent(wRef, mobj)
+	endfor
 End

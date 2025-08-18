@@ -962,11 +962,9 @@ static Function ImageResampling(WAVE wRef,  string func, variable xOffset, varia
 	return 0
 End
 
-static Function ScaleFoVWithObjectiveCurrent(variable mobj, [string grfName])
+static Function ScaleFoVWithObjectiveCurrent(WAVE wRef, variable mobj)
 	// Scale image using the M. Obj current in mA
 	// Applies to the current settings of the MAXPEEM microscope
-	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
-	WAVE wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
 	variable factor = (2150/mobj)^2
 	variable x0 = DimOffset(wRef, 0), y0 = DimOffset(wRef, 1)
 	variable dx = DimDelta(wRef, 0), dy = DimDelta(wRef, 1)
