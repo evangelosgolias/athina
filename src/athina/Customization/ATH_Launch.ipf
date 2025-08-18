@@ -1326,15 +1326,16 @@ static Function SetCorrectedFoVImages()
 	if(strlen(wlistStr))
 		WAVE wRefList = ATH_WaveOp#WaveListStrToWaveRef(wlistStr, isFree = 1)
 	endif
-	variable mobj
+	variable mobj = 1900, interval = 2
 	Prompt mobj, "Magnetic Objective current in mA"	
-	DoPrompt "Correct selected images FoV", mobj
+	Prompt interval, "Scale per point", popup, "Yes;No"	
+	DoPrompt "Correct selected images FoV", mobj, interval
 	if(mobj < 1000 || mobj > 2250)
 		print "Exteme values, please check your input"	
 		return NaN
 	endif
 	for(WAVE wRef : wRefList)
-		ATH_ImgOp#ScaleFoVWithObjectiveCurrent(wRef, mobj)
+		ATH_ImgOp#ScaleFoVWithObjectiveCurrent(wRef, mobj, interval = interval)
 	endfor
 End
 

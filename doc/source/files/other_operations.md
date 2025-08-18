@@ -7,7 +7,7 @@ The nominal field of view (FoV) stored in your image metadata is calibrated for 
 
 To correct the scaling of your images, select the waves acquired with the same magnetic objective current and run:
 
-athina > Utilities > Correct image FoV (DB)
+athina > Utilities > Correct MAXPEEM image(s) FoV (DB)
 
 You will then be prompted to enter the magnetic objective current (in mA). The selected waves will be rescaled accordingly.
 
