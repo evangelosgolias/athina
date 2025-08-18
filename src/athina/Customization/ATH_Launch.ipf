@@ -1335,7 +1335,7 @@ static Function SetCorrectedFoVImages()
 		return NaN
 	endif
 	for(WAVE wRef : wRefList)
-		ATH_ImgOp#ScaleFoVWithObjectiveCurrent(wRef, mobj, interval = interval)
+		ATH_ImgOp#ScaleFoVWithObjectiveCurrent(wRef, mobj, interval = interval - 1)
 	endfor
 End
 
