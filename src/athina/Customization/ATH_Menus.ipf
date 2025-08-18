@@ -119,6 +119,7 @@ Menu "athina"
 		"Load additional color maps", /Q, ATH_Color#loadColorTableAll()
 		"Unload unused color maps", /Q, ATH_Color#ATH_ColorKillWaves()
 		"Correct image FoV (DB)", /Q, ATH_Launch#SetCorrectedFoVImages()
+		"Draw scale bar (TG)", /Q, ATH_Launch#DrawScaleBar()
 	End
 //	Submenu "Beamtime"
 //		"Set experiment's root folder",/Q, ATH_Beamtime#SetOrResetBeamtimeRootFolder()

@@ -1337,3 +1337,11 @@ static Function SetCorrectedFoVImages()
 		ATH_ImgOp#ScaleFoVWithObjectiveCurrent(wRef, mobj)
 	endfor
 End
+
+static Function DrawScaleBar()	
+	variable scale
+	Prompt scale, "Set Scale"	
+	DoPrompt "Set image scale in x-axis units", scale
+	ATH_Draw#ImageScaleBar(scale)
+	return 0
+End
