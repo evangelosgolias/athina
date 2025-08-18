@@ -1340,8 +1340,11 @@ End
 
 static Function DrawScaleBar()	
 	variable scale
-	Prompt scale, "Set Scale"	
-	DoPrompt "Set image scale in x-axis units", scale
+	Prompt scale, "Scale bar length"	
+	DoPrompt "Draw a scale bar in x-axis units", scale
+	if(V_flag)
+		return -1
+	endif
 	ATH_Draw#ImageScaleBar(scale)
 	return 0
 End
