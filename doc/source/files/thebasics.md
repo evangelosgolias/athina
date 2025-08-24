@@ -22,7 +22,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **a** : average image stack and display.
 - **b** : remove background (if marquee is present calculate background using selected area.)
 - **d** : *if marquee is present* launch automatic drift correction, if not launch interactive drift correction.
-- **f** : FFT Magnitude aka Power Spectrum (if there is marquee, calculate only the enclosed part).
+- **f** : set top image data folder as your current data folder.
 - **i** : measure distance on images using cursors.
 - **l** : launch image line profiler.
 - **n** : Toggle square image on/off.
@@ -33,7 +33,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **z** : launch z profiler *if marquee is present on the graph*.
 - **SHIFT + b** : restore image from backup.
 - **SHIFT + c** : select color map.
-- **SHIFT + f** : interactive FFT image filtering.
+- **SHIFT + f** : FFT Magnitude aka Power Spectrum (if there is marquee, calculate only the enclosed part).
 - **SHIFT + l** : link/unlink graph sliders (select graph from popup)
 - **SHIFT + m** : launch mirror cursor values
 - **SHIFT + n** : add text annotation.

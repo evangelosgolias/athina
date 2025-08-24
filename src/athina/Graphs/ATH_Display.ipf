@@ -190,7 +190,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
-						ATH_Launch#iImgFFTFilter(grfName=s.winName)
+						ATH_Launch#ImageFFTTransform(sourceDF=1)
 						hookResult = 1										
 					endif
 					break
@@ -257,7 +257,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					hookResult = 1					
 					break
 				case 102: // f
-					ATH_Launch#ImageFFTTransform(sourceDF=1)
+					ATH_Launch#SetTopGraphDF()
 					hookResult = 1					
 					break										
 				case 105: // i

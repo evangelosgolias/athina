@@ -77,6 +77,7 @@ Menu "athina"
 		"Drift correction (TG, 3D) ", /Q, ATH_iDriftCorrection#CreatePanel()
 		"XMC(L)D calculation .../5", /Q, ATH_iXMCD#MenuLaunch()
 		"Image calculation .../6", /Q, ATH_iImgOps#MainMenu()
+		"FFT Image filtering (TG, 2D)", /Q, ATH_Launch#iImgFFTFilter()
 		"Image rotation (TG, 2D, 3D) ", /Q,  ATH_iImgRotation#CreatePanel()		
 	End
 	
