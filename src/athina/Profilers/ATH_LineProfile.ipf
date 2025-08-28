@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma ModuleName = ATH_LineProfile
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
-#pragma version = 1.01
+#pragma version = 1.1
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -406,55 +406,9 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	SVAR/Z WindowNameStr= dfr:gATH_WindowNameStr
 	switch(B_Struct.eventCode)	// numeric switch
 		case 1:	// "mouse down"
-			NVAR/Z C1x = dfr:gATH_C1x
-			NVAR/Z C1y = dfr:gATH_C1y
-			NVAR/Z C2x = dfr:gATH_C2x
-			NVAR/Z C2y = dfr:gATH_C2y
-			NVAR/Z width = dfr:gATH_profileWidth
-			NVAR/Z dx = dfr:gATH_dx
-			NVAR/Z dy = dfr:gATH_dy // assume here that dx = dy
-			variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys
-			variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y,C2x, C2y)
-			if(slope == 0)
-				x1 = C1x
-				x2 = C1x
-				x3 = C2x
-				x4 = C2x
-				y1 = C1y +  width * dy
-				y2 = C1y -  width * dy
-				y3 = C2y -  width * dy
-				y4 = C2y +  width * dy
-			elseif(slope == inf)
-				y1 = C1y
-				y2 = C1y
-				y3 = C2y
-				y4 = C2y
-				x1 = C1x +  width * dx
-				x2 = C1x -  width * dx
-				x3 = C2x -  width * dx
-				x4 = C2x +  width * dx
-			else
-				[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(width * dx, slope)
-				x1 = C1x + xs
-				x2 = C1x - xs
-				x3 = C2x - xs
-				x4 = C2x + xs
-				y1 = C1y + ys
-				y2 = C1y - ys
-				y3 = C2y - ys
-				y4 = C2y + ys
-			endif
-			SetDrawLayer/W=$WindowNameStr ProgFront
-			SetDrawEnv/W=$WindowNameStr gstart,gname= lineProfileWidth
-			SetDrawEnv/W=$WindowNameStr linefgc = (65535,16385,16385,32767), fillbgc= (65535,16385,16385,32767), fillpat = -1, linethick = 0, xcoord = top, ycoord = left
-			DrawPoly/W=$WindowNameStr x1, y1, 1, 1, {x1, y1, x2, y2, x3, y3, x4, y4}
-			SetDrawEnv/W=$WindowNameStr gstop
-			break
-		case 2: // "mouse up"
-		case 3: // "mouse up outside button"
-			SetDrawLayer/W=$WindowNameStr ProgFront
-			DrawAction/W=$WindowNameStr getgroup = lineProfileWidth
-			DrawAction/W=$WindowNameStr delete = V_startPos, V_endPos
+			NVAR/Z C1x = dfr:gATH_C1x,C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+			NVAR/Z width = dfr:gATH_profileWidth, dx = dfr:gATH_dx, dy = dfr:gATH_dy
+			ATH_LineProfile#DrawLineProfileRectangle(C1x, C1y,C2x, C2y, dx, dy, width, WindowNameStr)
 			break
 	endswitch
 End
@@ -520,20 +474,65 @@ static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableCo
 		case 6:
 			DFREF currdfr = GetDataFolderDFR()
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_LineProfRootDF"))
-			NVAR/Z C1x = dfr:gATH_C1x
-			NVAR/Z C1y = dfr:gATH_C1y
-			NVAR/Z C2x = dfr:gATH_C2x
-			NVAR/Z C2y = dfr:gATH_C2y
-			NVAR/Z profileWidth = dfr:gATH_profileWidth
-			NVAR/Z selectedLayer = dfr:gATH_selectedLayer
+			NVAR/Z C1x = dfr:gATH_C1x,C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+			NVAR/Z width = dfr:gATH_profileWidth, dx = dfr:gATH_dx, dy = dfr:gATH_dy, selectedLayer = dfr:gATH_selectedLayer
+			SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 			SetDataFolder dfr
 			Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
 			SVAR/Z ImagePathname = dfr:gATH_ImagePathname
 			WAVE/Z imgWaveRef = $ImagePathname
-			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
+			ATH_LineProfile#DeleleLineProfileRectangle(WindowNameStr)
+			ATH_LineProfile#DrawLineProfileRectangle(C1x, C1y,C2x, C2y, dx, dy, width, WindowNameStr)
+			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*width
 			break
 	endswitch
 	SetDataFolder currdfr
 	return 0
 End
 
+static Function DrawLineProfileRectangle(variable C1x,variable C1y,variable C2x, variable C2y, 
+							 variable dx, variable dy, variable width, string grfName)
+
+	variable x1, x2, x3, x4, y1, y2, y3, y4, xs, ys
+	variable slope = ATH_Geometry#SlopePerpendicularToLineSegment(C1x, C1y, C2x, C2y)
+	if(slope == 0)
+		x1 = C1x
+		x2 = C1x
+		x3 = C2x
+		x4 = C2x
+		y1 = C1y +  width * dy
+		y2 = C1y -  width * dy
+		y3 = C2y -  width * dy
+		y4 = C2y +  width * dy
+	elseif(slope == inf)
+		y1 = C1y
+		y2 = C1y
+		y3 = C2y
+		y4 = C2y
+		x1 = C1x +  width * dx
+		x2 = C1x -  width * dx
+		x3 = C2x -  width * dx
+		x4 = C2x +  width * dx
+	else
+		[xs, ys] = ATH_Geometry#GetVerticesPerpendicularToLine(width * dx, slope)
+		x1 = C1x + xs
+		x2 = C1x - xs
+		x3 = C2x - xs
+		x4 = C2x + xs
+		y1 = C1y + ys
+		y2 = C1y - ys
+		y3 = C2y - ys
+		y4 = C2y + ys
+	endif
+	SetDrawLayer/W=$grfName ProgFront
+	SetDrawEnv/W=$grfName gstart,gname= lineProfileWidth
+	SetDrawEnv/W=$grfName linefgc = (65535,16385,16385,32767), fillbgc= (65535,16385,16385,32767), fillpat = -1, linethick = 0, xcoord = top, ycoord = left
+	DrawPoly/W=$grfName x1, y1, 1, 1, {x1, y1, x2, y2, x3, y3, x4, y4}
+	SetDrawEnv/W=$grfName gstop
+End
+
+static Function DeleleLineProfileRectangle(string grfName)
+	SetDrawLayer/W=$grfName ProgFront
+	DrawAction/W=$grfName getgroup = lineProfileWidth
+	DrawAction/W=$grfName delete = V_startPos, V_endPos
+End
