@@ -190,7 +190,7 @@ static Function/S WaveToString(WAVE w, [string sep])
 	return concStr
 End
 
-static Function/S StrThread(string base, string strlist, [string sep, int rev])
+static Function/S AppendToStringList(string base, string strlist, [string sep, int rev])
 	sep = SelectString(ParamIsDefault(sep) ? 0: 1, ";", sep)
 	rev = ParamIsDefault(rev) ? 0: !!rev
 	variable imax = ItemsInList(strlist, sep), i
@@ -203,4 +203,22 @@ static Function/S StrThread(string base, string strlist, [string sep, int rev])
 		endif
 	endfor
 	return retStr
+End
+
+static Function/S ThreadStr(string strlist0, string strlist1, 
+							[string joinstr, string sep, string listsep])
+	// Thead strings as in Mathematica. strlist0 and strlist1 should
+	joinstr = SelectString(ParamIsDefault(joinstr) ? 0: 1, "", joinstr)							
+	sep = SelectString(ParamIsDefault(sep) ? 0: 1, "\n", sep)
+	listsep = SelectString(ParamIsDefault(listsep) ? 0: 1, ";", listsep)
+	
+	variable imax = ItemsInList(strlist0, listsep), i
+	if(ItemsInList(strlist0, listsep) != imax)
+		return ""
+	endif
+	string retStr = ""
+	for(i=0;i<imax;i++)
+		retStr += StringFromList(i, strlist0) + joinstr + StringFromList(i, strlist1) + sep
+	endfor
+	return retStr	
 End

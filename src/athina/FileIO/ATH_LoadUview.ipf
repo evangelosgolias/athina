@@ -1258,7 +1258,7 @@ static Function LoadDATFilesFromFolderMT([int displayImg])
 		return NaN
 	endif
 	
-	string firstFilename = StringFromList(0,allFiles)
+	string firstFilename = StringFromList(0, allFiles)
 
 	WAVE/T filesW = ATH_TWave#StringListToTextWave(allFiles,";")
 	Make/WAVE/N=(filesnr) ww	
@@ -1268,7 +1268,8 @@ static Function LoadDATFilesFromFolderMT([int displayImg])
 	SetScale/I x, 0, FoV, $stackNameStr
 	SetScale/I y, 0, FoV, $stackNameStr
 	Note $stackNameStr, "Loaded from folder: " + folder + " the files:"
-	Note $stackNameStr, ATH_TWave#TextWaveToString(filesW)
+	string indices = ATH_String#ExpandRangeStr("0-"+num2str(filesnr-1))
+	Note $stackNameStr, ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=":")
 	KillWaves ww
 	if(displayImg)
 		ATH_Display#NewImg($stackNameStr)
@@ -1305,8 +1306,10 @@ static Function LoadMultiplyDATFilesMT([int displayImg])
 	Concatenate/O {ww}, $stackNameStr
 	variable FoV = ReadFovFromDATFile(firstFilename)
 	SetScale/I x, 0, FoV, $stackNameStr
-	SetScale/I y, 0, FoV, $stackNameStr
-	Note $stackNameStr, ATH_TWave#TextWaveToString(filesW)
+	SetScale/I y, 0, FoV, $stackNameStr	
+	string indices = ATH_String#ExpandRangeStr("0-"+num2str(nrloadFiles-1))
+	Note $stackNameStr, ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=":")	
+	
 	KillWaves ww
 	if(displayImg)
 		ATH_Display#NewImg($stackNameStr)

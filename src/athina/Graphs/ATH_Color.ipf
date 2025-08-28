@@ -1421,7 +1421,7 @@ Static Function loadColorTableAll() // Change here to add more directories
 	string datasetPathStr = ParseFilePath(1,FunctionPath("ATH_XPSData#XPSReferenceData"),":",1,1) + "Datasets:ctab:"
 	//string datasetPathStr = SpecialDirPath("Igor Application",0,0,0) + "Color Tables:"
 	//N.B: The order and number of elements should match SIDAM_CTAB
-	string ATH_CTAB_PATH = ATH_String#StrThread(datasetPathStr,ATH_String#StrThread("=", SIDAM_CTAB,rev=1), rev=1)
+	string ATH_CTAB_PATH = ATH_String#AppendToStringList(datasetPathStr,ATH_String#AppendToStringList("=", SIDAM_CTAB,rev=1), rev=1)
 	
 	int i, j, n
 	//	Read names of groups and paths to directories
