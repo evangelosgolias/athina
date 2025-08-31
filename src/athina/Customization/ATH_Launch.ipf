@@ -1334,7 +1334,7 @@ static Function SetCorrectedFoVImages()
 		return -1
 	endif
 	if(mobj < 1000 || mobj > 2250)
-		print "Exteme values, please check your input"	
+		print "Extreme values, please check your input"	
 		return NaN
 	endif
 	for(WAVE wRef : wRefList)

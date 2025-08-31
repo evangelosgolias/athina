@@ -416,7 +416,17 @@ static Function BackupTopImage()
 		return -1
 	endif
 	DFREF wDFR = GetWavesDataFolderDFR(wRef)
-	Duplicate wRef, wDFR:$(NameOfWave(wRef) + "_undo")	
+	WAVE/Z backupWave = wDFR:$(NameOfWave(wRef) + "_undo")
+	if(WaveExists(backupWave))
+		DoAlert/T="Overwite backup wave?", 1, ("Do you want to overwite " + GetWavesDataFolder(backupWave,2) + "?")
+		if(V_flag == 1)
+			Duplicate/O wref, backupWave
+			print "Backup/O wave: ", backupWave
+		endif
+	else
+		Duplicate wRef, wDFR:$(NameOfWave(wRef) + "_undo")	
+		print "Backup wave: ", GetWavesDataFolder($(NameOfWave(wRef)+"_undo"),2)
+	endif
 	return 0
 End
 

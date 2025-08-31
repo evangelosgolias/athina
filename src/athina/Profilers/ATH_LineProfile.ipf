@@ -256,7 +256,7 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	    case 7: // cursor moved
 			if(!cmpstr(s.cursorName, "E") || !cmpstr(s.cursorName, "F")) // It should work only with E, F you might have other cursors on the image
 				SetDrawLayer/W=$s.winName ProgFront
-			    DrawAction/W=$s.winName delete
+			    DrawAction/W=$s.winName delete			    
 	   			SetDrawEnv/W=$s.winName linefgc = (65535,0,0,65535), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 	   			C1x = hcsr(E,s.winName)
 				C1y = vcsr(E,s.winName)
@@ -406,9 +406,13 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	SVAR/Z WindowNameStr= dfr:gATH_WindowNameStr
 	switch(B_Struct.eventCode)	// numeric switch
 		case 1:	// "mouse down"
-			NVAR/Z C1x = dfr:gATH_C1x,C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
-			NVAR/Z width = dfr:gATH_profileWidth, dx = dfr:gATH_dx, dy = dfr:gATH_dy
-			ATH_LineProfile#DrawLineProfileRectangle(C1x, C1y,C2x, C2y, dx, dy, width, WindowNameStr)
+			SetDrawLayer/W=$WindowNameStr ProgFront
+			DrawAction/W=$WindowNameStr getgroup = lineProfileWidth
+			if(!V_flag)
+				NVAR/Z C1x = dfr:gATH_C1x,C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
+				NVAR/Z width = dfr:gATH_profileWidth, dx = dfr:gATH_dx, dy = dfr:gATH_dy
+				ATH_LineProfile#DrawLineProfileRectangle(C1x, C1y,C2x, C2y, dx, dy, width, WindowNameStr)
+			endif
 			break
 	endswitch
 End
