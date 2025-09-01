@@ -35,10 +35,10 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **SHIFT + c** : select color map.
 - **SHIFT + f** : FFT Magnitude aka Power Spectrum (if there is marquee, calculate only the enclosed part).
 - **SHIFT + l** : link/unlink graph sliders (select graph from popup)
-- **SHIFT + m** : launch mirror cursor values
+- **SHIFT + m** : launch mirror cursor values.
 - **SHIFT + n** : add text annotation.
 - **SHIFT + o** : a copy of the wave in TG is created and displayed.
-- **SHIFT + r** : launch interactive image rotation.
+- **SHIFT + r** : resample image.
 - **SHIFT + s** : Save current axes range and ctab.
 - **SHIFT + x** : launch interactive PES (XPS) extractor
 - **SHIFT + mousewheel** : zoom image centered at the cursor.

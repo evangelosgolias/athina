@@ -221,7 +221,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break					
 				case 82: // R
 					if(s.eventMod & 2) // works with SHIFT + R only!
-						ATH_iImgRotation#CreatePanel()
+						ATH_Launch#ImageResample()
 						hookResult = 1										
 					endif
 					break

@@ -1299,25 +1299,37 @@ static Function ImageResample()
 	// Resample and offset image
 	string msg = "Resample and offset image"
 	string funcMethodList = "None;bilinear;nn;cubic;spline;sinc"
-	variable funcMethod = 2, xOffset = 0,  yOffset = 0, overwrite = 2, xscale = 1, yscale = 1
+	variable funcMethod = 2, xOffset = 0,  yOffset = 0, imgSel = 2, xscale = 1, yscale = 1
 	Prompt funcMethod, "Interpolatiing method", popup, "bilinear;nn;cubic;spline;sinc" // bilinear = 1
-	Prompt overwrite, "Overwrite source",  popup, "Yes;No" // Yes = 1, No = 2!		
 	Prompt xOffset, "x-offset"
 	Prompt yOffset, "y-offset"
 	Prompt xscale, "Scale factor (x)"
-	Prompt yscale, "Scale factor (y)"	
-	DoPrompt msg, funcMethod, overwrite, xOffset, yOffset, xscale, yscale
+	Prompt yscale, "Scale factor (y)"
+	Prompt imgSel, "Select image to match lateral dims?", popup, "Yes;No" // Yes = 1, No = 2!	
+	DoPrompt msg, funcMethod, imgSel, xOffset, yOffset, xscale, yscale
 	if(V_flag)
 		return 0
 	endif
 	WAVE wRef = ATH_Graph#TopGraphToWaveRef()
-	if(overwrite==1)
-		ATH_DFR#BackupWaveInWaveDFQ(wRef)
-	endif
 	string waveNoteStr = note(wRef)
+	if(imgSel != 2) // If any of the scales is zero, select an image to match dims
+		msg = "Select a 2D or 3D to match lateral dimensions"
+		string selectWaveStr = StringFromList(0, ATH_Dialog#SelectWavesInModalDataBrowser(msg))
+		if(!V_flag)
+			return NaN
+		endif
+		WAVE wDest = $selectWaveStr
+		if(WaveExists(wDest) && ( WaveDims(wDest)==2 || WaveDims(wDest)==3))
+			xscale = DimSize(wDest,0)/DimSize(wRef,0)
+			yscale = DimSize(wDest,1)/DimSize(wRef,1)
+		else
+			return NaN
+		endif
+	endif
 	ATH_ImgOp#ImageResampling(wRef, StringFromList(funcMethod-1, funcMethodList), xOffset, yOffset,\
-	xscale = xscale, yscale = yscale, overwrite = overwrite-2)
+	xscale = xscale, yscale = yscale)
 	Note wRef, waveNoteStr
+	return 0
 End
 
 static Function SetCorrectedFoVImages()
