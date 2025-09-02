@@ -1277,6 +1277,7 @@ static Function DrawSavedROIOnGraph(string grfName, WAVE wRef, [variable bypass]
 End
 
 static Function iImgFFTFilter([string grfName])
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	WAVE wref = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
 	ATH_ImgFilter#iFFTImgFilter(wref)
 	return 0

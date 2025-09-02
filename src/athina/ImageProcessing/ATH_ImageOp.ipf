@@ -424,8 +424,9 @@ static Function BackupTopImage()
 			print "Backup/O wave: ", backupWave
 		endif
 	else
-		Duplicate wRef, wDFR:$(NameOfWave(wRef) + "_undo")	
-		print "Backup wave: ", GetWavesDataFolder($(NameOfWave(wRef)+"_undo"),2)
+		Duplicate wRef, wDFR:$(NameOfWave(wRef) + "_undo")
+		WAVE backupWave	= wDFR:$(NameOfWave(wRef) + "_undo")
+		print "Backup wave: ", GetWavesDataFolder(backupWave,2)
 	endif
 	return 0
 End
