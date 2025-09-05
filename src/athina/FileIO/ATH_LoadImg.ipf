@@ -166,7 +166,7 @@ static Function Loadtiffs([int numImages, int displayImg, int stack3d])
 End
 
 
-/// Load PEEM3 P3B files ///
+/// ---------------- Load PEEM3 P3B files ----------------///
 
 static Structure long
 	int32 length
@@ -177,7 +177,7 @@ static Structure dentry
 	int32 dlen
 EndStructure
 
-Function/S PEEM3File(string filepathStr, [variable mkdir])
+static Function/S PEEM3File(string filepathStr, [variable mkdir])
 	variable numRef
 	string separatorchar = ":", waveNameStr, message
 	string fileFilters = "P3B File (*.P3B):.P3B;"
@@ -297,7 +297,7 @@ Function/S PEEM3File(string filepathStr, [variable mkdir])
 	return waveNameStr
 End
 
-Function PEEM3Files([int stack3d])
+static Function PEEM3Files([int stack3d])
 	stack3d = ParamIsDefault(stack3d) ? 0 : !!stack3d
 	variable numRef, i
 	string loadFiles, filepathStr, basenameStr, fileStr0

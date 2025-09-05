@@ -45,6 +45,9 @@ static Function MenuLaunch()
 		// S_fileName is a carriage-return-separated list of full paths to one or more files.
 		waveN = ItemsInList(selectedWavesInBrowserStr)
 		selectedWavesStr = SortList(selectedWavesInBrowserStr, ";", 16)
+		if(!strlen(selectedWavesStr))
+			return NaN
+		endif
 		wave1NameStr = StringFromList(0, selectedWavesStr)
 		wave2NameStr = StringFromList(1, selectedWavesStr)
 	endif
