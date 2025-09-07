@@ -1316,7 +1316,7 @@ static Function ImageResample()
 	if(imgSel != 2) // If any of the scales is zero, select an image to match dims
 		msg = "Select a 2D or 3D to match lateral dimensions"
 		string selectWaveStr = StringFromList(0, ATH_Dialog#SelectWavesInModalDataBrowser(msg))
-		if(!V_flag)
+		if(!strlen(selectWaveStr))
 			return NaN
 		endif
 		WAVE wDest = $selectWaveStr
