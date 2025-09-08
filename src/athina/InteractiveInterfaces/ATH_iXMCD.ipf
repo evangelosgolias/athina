@@ -130,35 +130,6 @@ static Function CreateiXMCDPanel(WAVE wXMCD)
 	return 0
 End
 
-static Function SetRadialScale(STRUCT WMSetVariableAction &sva) : SetVariableControl
-	switch (sva.eventCode)
-		case 1: 							// Mouse up
-		case 2:							// Enter key
-		case 3: 							// Live update
-			string dfrStr = GetUserData(sva.win, "", "ATH_iXMCDPath")
-			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
-			NVAR/SDFR=dfr gATH_radialScale, gATH_radialScaleParam, gATH_dx, gATH_dy
-			SVAR/SDFR=dfr wName2Str
-			gATH_radialScaleParam = sva.dval			
-			gATH_radialScale = 1 + gATH_radialScaleParam/1e4 // Scale in parts per 1e4.
-			WAVE/SDFR=dfr wImg1, wImg2, wimg2_drift, wXMCD
-			if(gATH_radialScaleParam)
-				ImageInterpolate/TRNS={radialPoly,gATH_radialScale,0,0,0}/DEST=dfr:M_Affine Resample wimg2_drift		
-			else
-				WAVE/Z srcImg2 = $wName2Str
-				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D srcImg2
-			endif
-			WAVE/SDFR=dfr M_Affine
-			Duplicate/O M_Affine, wImg2, wimg2_drift
-			CopyScales/I wimg1, wimg2, wimg2_drift
-			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
-			break
-		case -1: 							// Control being killed
-			break
-	endswitch
-	return 0
-End
-
 static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iXMCDPath"))
 	if(s.specialKeyCode)
@@ -242,11 +213,14 @@ static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
 			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_drift
 			SVAR/SDFR=dfr wName1Str, wName2Str
-			NVAR/SDFR=dfr gATH_dx, gATH_dy
+			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_radialScale
 			variable postfix = 0
 			string note2WaveStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " \
 			+ wName1Str + "\nimg2: " + wName2Str + "\nTotal img2 pixel drift dx:" + num2str(gATH_dx) \
 			+ " dy:" + num2str(gATH_dy) + "\n"
+			if(gATH_radialScale != 1)
+				note2WaveStr += "ImageInterpolate/TRNS={radialPoly,"+num2str(gATH_radialScale)+",0,0,0}/DEST=dfr:M_Affine Resample "+wName2Str+"\n"		
+			endif
 			note2WaveStr += "Copy to command line: \nImageInterpolate/APRM={1,0,"+num2str(gATH_dx)+",0,1,"+num2str(gATH_dy)+\
 			",1,0} Affine2D " + wName2Str
 			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)
@@ -276,3 +250,32 @@ static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableCo
 	return 0
 End
 
+
+static Function SetRadialScale(STRUCT WMSetVariableAction &sva) : SetVariableControl
+	switch (sva.eventCode)
+		case 1: 							// Mouse up
+		case 2:							// Enter key
+		case 3: 							// Live update
+			string dfrStr = GetUserData(sva.win, "", "ATH_iXMCDPath")
+			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
+			NVAR/SDFR=dfr gATH_radialScale, gATH_radialScaleParam, gATH_dx, gATH_dy
+			SVAR/SDFR=dfr wName2Str
+			gATH_radialScaleParam = sva.dval			
+			gATH_radialScale = 1 + gATH_radialScaleParam/1e4 // Scale in parts per 1e4.
+			WAVE/SDFR=dfr wImg1, wImg2, wimg2_drift, wXMCD
+			if(gATH_radialScaleParam)
+				ImageInterpolate/TRNS={radialPoly,gATH_radialScale,0,0,0}/DEST=dfr:M_Affine Resample wimg2_drift		
+			else
+				WAVE/Z srcImg2 = $wName2Str
+				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D srcImg2
+			endif
+			WAVE/SDFR=dfr M_Affine
+			Duplicate/O M_Affine, wImg2, wimg2_drift
+			CopyScales/I wimg1, wimg2, wimg2_drift
+			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
+			break
+		case -1: 							// Control being killed
+			break
+	endswitch
+	return 0
+End
