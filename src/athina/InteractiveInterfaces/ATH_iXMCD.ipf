@@ -94,7 +94,8 @@ static Function MenuLaunch()
 	WAVE wImg2 = dfr:wImg2	
 	WAVE wXMCD = dfr:wXMCD
 	// Set global variables
-	variable/G dfr:gATH_driftStep = 1, dfr:gATH_dx = 0, dfr:gATH_dy = 0, dfr:gATH_radialScale = 1
+	variable/G dfr:gATH_driftStep = 1, dfr:gATH_dx = 0, dfr:gATH_dy = 0, dfr:gATH_radialScale = 0
+	variable/G dfr:gATH_radialScaleParam = 0
 	string/G dfr:wName1Str = wave1NameStr, dfr:wName2Str = wave2NameStr
 	wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 
@@ -103,7 +104,7 @@ End
 
 static Function CreateiXMCDPanel(WAVE wXMCD)
 	DFREF dfr = GetWavesDataFolderDFR(wXMCD) // Recover the dfr	
-	NVAR/SDFR=dfr gATH_driftStep, gATH_radialScale
+	NVAR/SDFR=dfr gATH_driftStep, gATH_radialScaleParam
 
 	string winiXMCDNameStr = ATH_Display#NewImg(wXMCD)
 	DoWindow/T $winiXMCDNameStr "iXMC(L)D"		
@@ -114,8 +115,8 @@ static Function CreateiXMCDPanel(WAVE wXMCD)
 	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,64,1},live=1,proc=ATH_iXMCD#SetDriftStepVar	
 
 	SetVariable setImgScale,win=$winiXMCDNameStr,pos={270,10},size={135,20},title="Scaling"
-	SetVariable setImgScale,win=$winiXMCDNameStr,value=gATH_radialScale,help={"Radial scaling of img2"}
-	SetVariable setImgScale,win=$winiXMCDNameStr,fSize=14,limits={0.95,1.05,0},live=1,proc=ATH_iXMCD#SetRadialScale
+	SetVariable setImgScale,win=$winiXMCDNameStr,value=gATH_radialScaleParam,help={"Radial scaling of img2 in parts per 10.000"}
+	SetVariable setImgScale,win=$winiXMCDNameStr,fSize=14,limits={-1e4,1e4,1},live=1,proc=ATH_iXMCD#SetRadialScale
 
 	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20,10},size={90,20},proc=ATH_iXMCD#SaveXMCDImageButton
 	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save XMCD", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
@@ -136,10 +137,17 @@ static Function SetRadialScale(STRUCT WMSetVariableAction &sva) : SetVariableCon
 		case 3: 							// Live update
 			string dfrStr = GetUserData(sva.win, "", "ATH_iXMCDPath")
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
-			NVAR/SDFR=dfr gATH_radialScale
-			gATH_radialScale = sva.dval
+			NVAR/SDFR=dfr gATH_radialScale, gATH_radialScaleParam, gATH_dx, gATH_dy
+			SVAR/SDFR=dfr wName2Str
+			gATH_radialScaleParam = sva.dval			
+			gATH_radialScale = 1 + gATH_radialScaleParam/1e4 // Scale in parts per 1e4.
 			WAVE/SDFR=dfr wImg1, wImg2, wimg2_drift, wXMCD
-			ImageInterpolate/TRNS={radialPoly,gATH_radialScale,0,0,0}/DEST=dfr:M_Affine Resample wimg2
+			if(gATH_radialScaleParam)
+				ImageInterpolate/TRNS={radialPoly,gATH_radialScale,0,0,0}/DEST=dfr:M_Affine Resample wimg2_drift		
+			else
+				WAVE/Z srcImg2 = $wName2Str
+				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D srcImg2
+			endif
 			WAVE/SDFR=dfr M_Affine
 			Duplicate/O M_Affine, wImg2, wimg2_drift
 			CopyScales/I wimg1, wimg2, wimg2_drift
@@ -148,7 +156,6 @@ static Function SetRadialScale(STRUCT WMSetVariableAction &sva) : SetVariableCon
 		case -1: 							// Control being killed
 			break
 	endswitch
-
 	return 0
 End
 
@@ -217,12 +224,12 @@ static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
-			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_radialScale
-			WAVE/SDFR=dfr wImg1, wImg2, wXMCD
+			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_radialScale, gATH_radialScaleParam
+			WAVE/SDFR=dfr wImg1, wImg2, wImg2_drift, wXMCD
 			SVAR/SDFR=dfr wName2Str
-			Duplicate/O $wName2Str, wImg2
+			Duplicate/O $wName2Str, wImg2, wImg2_drift
 			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
-			gATH_dx = 0; gATH_dy = 0; gATH_radialScale = 1
+			gATH_dx = 0; gATH_dy = 0; gATH_radialScale = 0; gATH_radialScaleParam = 0
 			break
 	endswitch
 	return 0
