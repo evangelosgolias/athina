@@ -33,18 +33,26 @@
 Menu "athina"
 
 	Submenu "Import"
-		".dat files (MAXIV)...", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1)
-		".dat files in folder and stack .../1", /Q, ATH_Uview#LoadDATFilesFromFolderMT(displayImg = 1) 						
-		".dat files and stack .../2", /Q, ATH_Uview#LoadMultiplyDATFilesMT(displayImg = 1)				
-		".dat files in folder...", /Q, ATH_Uview#LoadDATFilesFromFolder("", "*", autoscale = 1)
-		".tif (EMMENU5).../3", /Q, ATH_LoadImg#LoadTiff("", "", displayImg = 1)	
-		".tifs (EMMENU5) and stack...", /Q, ATH_LoadImg#Loadtiffs(displayImg = 1, stack3d = 1)	
-		".h5 file (MAXIV metadata) .../4", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
-		Submenu "Other"
-		".nxs NeXus files (Diamond) ...",/Q, ATH_HDF5#LoadNXSDataSets()
+		Submenu "Elmitec .dat"
+			"Files.../1", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1)
+			"Folder to stack .../1", /Q, ATH_Uview#LoadDATFilesFromFolderMT(displayImg = 1) 						
+			"Measuremnt ID to stack (ScanGUI) ...", /Q, ATH_Uview#LoadDATFilesMatchingPattternToStackMT(displayImg = 1)
+			"Filename pattern matching to stack ...", /Q, ATH_Uview#LoadDATFilesMatchingPattternToStackMT(displayImg = 1, pattern = 1)			
+		End
+		Submenu "tif"
+			".tif (EMMENU5).../3", /Q, ATH_LoadImg#LoadTiff("", "", displayImg = 1)	
+			".tifs (EMMENU5) and stack...", /Q, ATH_LoadImg#Loadtiffs(displayImg = 1, stack3d = 1)	
+		End
+		Submenu "HDF5"
+			".h5 file (MAXIV metadata) .../4", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
+		End		
+		Submenu "P3B"
 		".P3B files (ALS)...",/Q, ATH_LoadImg#PEEM3Files()
 		".P3B files and stack (ALS)...",/Q, ATH_LoadImg#PEEM3Files(stack3d=1)
 		End
+		Submenu "NeXus"
+		".nxs NeXus files (Diamond) ...",/Q, ATH_HDF5#LoadNXSDataSets()
+		End		
 	End
 	
 	Submenu "Image Operations"

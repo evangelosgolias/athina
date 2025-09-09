@@ -1261,7 +1261,7 @@ static Function LoadDATFilesFromFolderMT([int displayImg])
 	string firstFilename = StringFromList(0, allFiles)
 
 	WAVE/T filesW = ATH_TWave#StringListToTextWave(allFiles,";")
-	Make/WAVE/N=(filesnr) ww	
+	Make/FREE/WAVE/N=(filesnr) ww	
 	MultiThread ww = UviewLoad_Worker(folder+filesW[p])
 	Concatenate/O {ww}, $stackNameStr
 	variable FoV = ReadFovFromDATFile(folder+firstFilename)
@@ -1270,7 +1270,6 @@ static Function LoadDATFilesFromFolderMT([int displayImg])
 	Note $stackNameStr, "Loaded from folder: " + folder + " the files:"
 	string indices = ATH_String#ExpandRangeStr("0-"+num2str(filesnr-1))
 	Note $stackNameStr, ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=":")
-	KillWaves ww
 	if(displayImg)
 		ATH_Display#NewImg($stackNameStr)
 	endif
@@ -1296,7 +1295,7 @@ static Function LoadMultiplyDATFilesMT([int displayImg])
 	loadFiles = SortList(S_fileName, "\r", 80)
 	variable nrloadFiles = ItemsInList(loadFiles, "\r")
 	WAVE/T filesW = ATH_tWave#StringListToTextWave(loadFiles, "\r")
-	Make/WAVE/N=(nrloadFiles) ww	
+	Make/FREE/WAVE/N=(nrloadFiles) ww	
 	MultiThread ww = UviewLoad_Worker(filesW[p])
 	
 	string firstFilename = StringFromList(0,loadFiles,"\r")
@@ -1310,7 +1309,59 @@ static Function LoadMultiplyDATFilesMT([int displayImg])
 	string indices = ATH_String#ExpandRangeStr("0-"+num2str(nrloadFiles-1))
 	Note $stackNameStr, ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=":")	
 	
-	KillWaves ww
+	if(displayImg)
+		ATH_Display#NewImg($stackNameStr)
+	endif
+	return 0
+End
+
+
+
+static Function LoadDATFilesMatchingPattternToStackMT([int displayImg, int pattern])
+
+	displayImg = ParamIsDefault(displayImg) ? 0: !!displayImg
+	pattern = ParamIsDefault(pattern) ? 0: !!pattern	
+	variable numRef, idx, i
+	string loadFiles, basenameStr, folder, patternStr, filteredFiles
+	
+	NewPath/M="Select a folder to load .dat files (pattern popup follows)"/Q/O ATH_DATFilesPathTMP
+	if(V_flag)
+		return NaN
+	endif
+	loadFiles = IndexedFile(ATH_DATFilesPathTMP, -1, ".dat")
+	PathInfo/S ATH_DATFilesPathTMP
+	folder = ParseFilePath(2, S_Path, ":", 0, 0)
+	basenameStr = ParseFilePath(0, S_Path, ":", 1, 0)
+	KillPath/Z ATH_DATFilesPathTMP
+	
+	if(pattern)
+		Prompt patternStr, "Pattern can contain \"*\" as wildcard"
+		DoPrompt "Enter pattern to match files", patternStr
+		filteredFiles = ListMatch(loadFiles, patternStr)		
+	else // ScanGUI measurement ID
+		Prompt idx, "Load files from ScanID [MAXPEEM, ScanGUI] (e.g. 0042)"
+		DoPrompt "Enter ScanID to load matched files", idx
+		filteredFiles = ListMatch(loadFiles, "*-"+num2str(idx)+"-*")		
+	endif
+
+	loadFiles = SortList(filteredFiles, ";", 80)	
+	variable nrloadFiles = ItemsInList(loadFiles)
+	if(!nrloadFiles)
+		return NaN
+	endif
+	WAVE/T filesW = ATH_TWave#StringListToTextWave(loadFiles, ";")
+	Make/FREE/WAVE/N=(nrloadFiles) ww
+	MultiThread ww = UviewLoad_Worker(folder+filesW[p])
+		
+	string stackNameStr = CreateDataObjectName(GetDataFolderDFR(),basenameStr,1,0,1)
+	
+	Concatenate/O {ww}, $stackNameStr
+	variable FoV = ReadFovFromDATFile(folder+StringFromList(0,loadFiles))
+	SetScale/I x, 0, FoV, $stackNameStr
+	SetScale/I y, 0, FoV, $stackNameStr	
+	string indices = ATH_String#ExpandRangeStr("0-"+num2str(nrloadFiles-1))
+	Note $stackNameStr, ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=":")	
+	
 	if(displayImg)
 		ATH_Display#NewImg($stackNameStr)
 	endif
