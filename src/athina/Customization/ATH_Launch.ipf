@@ -1126,7 +1126,7 @@ static Function FlattenImage([string method, variable kernelN, variable iterN])
 	kernelN = ParamIsDefault(kernelN) ? 2^5 : kernelN
 	iterN = ParamIsDefault(iterN) ? 1 : iterN		
 	string msg = "Flatten: img-bkg (layer-wise)"
-	Prompt method, "Method", popup, "avg;gauss;median;max;min"
+	Prompt method, "Method", popup, "gauss;avg;median;max;min"
 	Prompt kernelN, "Kernel size"
 	Prompt iterN, "Iterations"
 	DoPrompt msg, method, kernelN, iterN
