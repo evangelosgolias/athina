@@ -34,13 +34,13 @@ Menu "athina"
 
 	Submenu "Import"
 		Submenu "Elmitec .dat"
-			"Files.../1", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1)
+			"Files...", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1)
 			"Folder to stack .../1", /Q, ATH_Uview#LoadDATFilesFromFolderMT(displayImg = 1) 						
-			"Measuremnt ID to stack (ScanGUI) ...", /Q, ATH_Uview#LoadDATFilesMatchingPattternToStackMT(displayImg = 1)
-			"Filename pattern matching to stack ...", /Q, ATH_Uview#LoadDATFilesMatchingPattternToStackMT(displayImg = 1, pattern = 1)			
+			"Measuremnt ID to stack (ScanGUI) .../2", /Q, ATH_Uview#LoadDATFilesMatchingPattternToStackMT(displayImg = 1)
+			"Filename pattern matching to stack .../3", /Q, ATH_Uview#LoadDATFilesMatchingPattternToStackMT(displayImg = 1, pattern = 1)			
 		End
 		Submenu "tif"
-			".tif (EMMENU5).../3", /Q, ATH_LoadImg#LoadTiff("", "", displayImg = 1)	
+			".tif (EMMENU5)...", /Q, ATH_LoadImg#LoadTiff("", "", displayImg = 1)	
 			".tifs (EMMENU5) and stack...", /Q, ATH_LoadImg#Loadtiffs(displayImg = 1, stack3d = 1)	
 		End
 		Submenu "HDF5"
