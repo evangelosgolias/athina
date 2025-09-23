@@ -1198,7 +1198,7 @@ End
 
 //// ------ Multithreaded Load --------////
 
-ThreadSafe Function/WAVE UviewLoad_Worker(string filepathStr)
+ThreadSafe static Function/WAVE UviewLoad_Worker(string filepathStr)
 
 	DFREF dfSav= GetDataFolderDFR()
 
@@ -1226,7 +1226,7 @@ ThreadSafe Function/WAVE UviewLoad_Worker(string filepathStr)
 	variable ImageDataStart = ATHFileHeader.size + ImageHeaderSize + LEEMdataVersion
 	Make/W/U/O/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) UviewFile
 	FSetPos numRef, ImageDataStart
-	FBinRead/F=2 numRef, UviewFile	
+	FBinRead/F=2/B=3 numRef, UviewFile	
 	Close numRef
 	SetDataFolder dfSav	
 	return UviewFile

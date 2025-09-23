@@ -315,7 +315,7 @@ End
 /// ----------------------------- Multithreading ----------------------------- ///
 
 // // Multithreaded Drift Correction using Correlation
-ThreadSafe Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart,
+ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart,
 					WAVE w3DPartRef, variable refP, 
 					variable refQ, variable plane)
 	
@@ -384,7 +384,7 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 End
 
 // Multithreaded Drift Correction using Registration
-ThreadSafe Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE w3DPart,
+ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE w3DPart,
 					WAVE w3DPartRef, variable plane, [variable subPixel])
 	
 	DFREF dfSav= GetDataFolderDFR()
@@ -448,7 +448,7 @@ End
 
 
 // Multithreaded Registration
-ThreadSafe Function/WAVE ImageRegistration_Worker(WAVE w3D, WAVE wRef, variable plane)
+ThreadSafe static Function/WAVE ImageRegistration_Worker(WAVE w3D, WAVE wRef, variable plane)
 	
 	DFREF dfSav= GetDataFolderDFR()
 

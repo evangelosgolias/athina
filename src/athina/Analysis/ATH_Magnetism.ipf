@@ -212,7 +212,8 @@ static Function XMCDStack4L(WAVE wRef, [string order, int overwrite, string outW
 	return 0
 End
 
-static Function FitXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, int fastFit])
+static Function FitXMLDMap(WAVE wRef, [string fitFunc,
+				variable firstAngle, variable angleStep, int fastFit])
 	
 	/// -------------------------------------------  XMLD Map  --------------------------------------------
 	///
@@ -222,17 +223,18 @@ static Function FitXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, 
 	///
 	/// The model assumes that the XMLD signal follows:
 	///
-	///     I(x) = A + B·cos(2(x + φ))
+	///     I(x) = A + B·cos(2(x + φ)) // default, user can set any function
 	///
 	/// with *A*, *B*, and *φ* as the fitting parameters.
 	///
 	/// ### Parameters
 	/// | Name           | Type     | Default| Description                                                                                           |
 	/// |-------------   |----------|--------|-------------------------------------------------------------------------------------------------------|
-	/// | **wRef**       | WAVE     | —      | 3-D wave whose *z* dimension lists the inclination angles in ascending order (typically −90° to +90°) |
+	/// | **wRef**       | WAVE     |    -   | 3-D wave whose *z* dimension lists the inclination angles in ascending order (typically −90° to +90°) |
+	/// | **fitFunx   ** | string   | Cos(2x)| Fuction to fit, defaults to ATH_FuncFit#XMLDCos2xIntensity, see ATH_FuncFit module for more options   |                                             |	
 	/// | **firstAngle** | variable | −90 °  | Inclination (degrees) corresponding to the first plane                                                |
-	/// | **angleStep**  | variable | 10 °   | Angular increment (degrees) between successive *z* planes                                             |
-	/// | **fastFit**    | variable | 0      | If non-zero, tests several phase values and keeps the one with the lowest χ² (≈ N × slower)         |
+	/// | **angleStep**  | variable |  10 °  | Angular increment (degrees) between successive *z* planes                                             |
+	/// | **fastFit**    | variable |    0   | If non-zero, tests several phase values and keeps the one with the lowest χ² (≈ N × slower)           |
 	///
 	/// ---
 	/// **Advanced curve-fitting tip**  
@@ -245,7 +247,8 @@ static Function FitXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, 
 	
 	variable firstAngleRad = ParamIsDefault(firstAngle) ? -90 * pi/180 : firstAngle * pi/180
 	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180 : angleStep * pi/180
-	
+	// Which model do you like to fit? Check functions in the module ATH_FuncFit
+	fitFunc = StringFromList(ParamIsDefault(fitFunc) ? 0 : 1, "ATH_FuncFit#XMLDCos2xIntensity;"+fitFunc+";")
 	// Calculate the angular offset, rotate by -FoVRotRad and apply mirror operation over x-axis
 	
 	variable rows = DimSize(wRef, 0)
@@ -276,8 +279,6 @@ static Function FitXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, 
 	Make/O/D/N=(rows, cols, 3) ATH_FitCoeff // Fit coefficients per pixel
 	variable V_FitError
 	variable errorCnt = 0
-	// Which model do you like to fit? Check functions in the module ATH_FuncFit
-	string fitFuncStr = "ATH_FuncFit#XMLDCos2xIntensity"
 	// *****************************************************************	
 	Make/FREE/T ATH_Constraints = {"K1>1e-3","K2 > -pi/2", "K2 <= pi/2"} // N.B: Set here constrains
 	// Let's fit all pixels in the image
@@ -290,7 +291,7 @@ static Function FitXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, 
 				WaveStats/M=1/Q freeData // Makes it slower, but initial guess is better. Is it helpful?
 				V_FitError = 0 // Set it to zero before the fit
 				ATH_Coef = {V_avg, 0.5*(V_max-V_min),0.1} // N.B!! You might need to play a bit with the initial guess
-				FuncFit/Q $fitFuncStr, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
+				FuncFit/Q $fitFunc, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
 				if(V_FitError)
 					// Deal with error here....
 					errorCnt++
@@ -317,7 +318,7 @@ static Function FitXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, 
 				V_FitError = 0 // Set it to zero before the fit
 				for(k=0;k<kmax;k++)
 					ATH_Coef = {V_avg, 0.5*(V_max-V_min),initialGuessPhaseW[k]} // N.B!! You might need to play a bit with the initial guess
-					FuncFit/Q $fitFuncStr, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
+					FuncFit/Q $fitFunc, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
 					coeffW[k][] = ATH_Coef[q]
 					chisqList[k] = V_chisq // Goodness of fit
 				endfor
@@ -334,7 +335,7 @@ static Function FitXMLDMap(WAVE wRef, [variable firstAngle, variable angleStep, 
 	wfact[][] = ATH_FitCoeff[p][q][1]
 	wphase[][] = ATH_FitCoeff[p][q][2]*57.29577951 // From rad to deg
 	print "Total fit errors ", errorCnt
-	string metadata = "FuncFit: "+ fitFuncStr + "."
+	string metadata = "FuncFit: "+ fitFunc + "."
 	metadata += "Fitting constrains: {"+RemoveEnding(ATH_TWave#TextWaveToString(ATH_Constraints, sep=","))+"}."
 	metadata += "Function parameters: firstAngle="+num2str(firstangle)+" ,angleStep="+num2str(angleStep)
 	metadata += ", fastFit="+num2str(fastFit)+". Total fit errors: "+num2str(errorCnt)	
@@ -421,6 +422,7 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	variable x0 = wOff[p0][q0]
 	variable A = wA[p0][q0]
 	variable phase = wRef[p0][q0]
+	// N.B: Change here if you change the fitting function
 	wcos = x0 + A * cos(2*(x + phase*0.01745329)) // Phase to rad
 	RemoveFromGraph/W=$plotNameStr/ALL
 	AppendToGraph/W=$plotNameStr dfr:cursorBeamProfile
