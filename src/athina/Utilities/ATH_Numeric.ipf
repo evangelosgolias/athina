@@ -22,17 +22,17 @@ static Function IntegerQ(variable num)
 	endif
 End
 
-static Function IsFloatQ(WAVE wRef)
+static Function WaveIsFloatQ(WAVE wRef)
 	// Returns true of wRef is 32 or 64 bit float wave
 	return ((WaveType(wRef) & 0x02) || (WaveType(wRef) & 0x04))
 End
 
-static Function IsFloat32Q(WAVE wRef)
+static Function WaveIsFloat32Q(WAVE wRef)
 	// Returns true of wRef is 32 bit float wave
 	return WaveType(wRef) & 0x02 
 End
 
-static Function IsFloat64Q(WAVE wRef)
+static Function WaveIsFloat64Q(WAVE wRef)
 	// Returns true of wRef is 64 bit float wave
 	return WaveType(wRef) & 0x04 
 End
