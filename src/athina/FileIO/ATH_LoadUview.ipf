@@ -433,21 +433,21 @@ static Function/S StrGetBasicMetadataInfoFromDAT(string datafile, variable Metad
 		
 		// Use StringByKey to extract the metadata
 
-		if (buffer >= 0 && buffer <= 99)
+		if (buffer==11 || buffer==38 || buffer==39)
 			FReadLine/T=(num2char(0)) numRef, strbuffer			
-			 
-			if(buffer == 38) // or stringmatch(strbuffer, "*Start Voltage1*")
+			if(stringmatch(strbuffer, "*Start Voltage1*")) // or 			
 				FBinRead/F=4 numRef, buffer
 				ATHMetaDataStr += "STV(V):" + num2str(buffer) + "\n"
-			elseif(buffer == 11) // or stringmatch(strbuffer, "*Objective2*")
+			elseif(stringmatch(strbuffer, "*Objective2*")) // or 
 				FBinRead/F=4 numRef, buffer
 				ATHMetaDataStr += "Objective(mA):" + num2str(buffer) + "\n"
-			elseif(buffer == 39) // or stringmatch(strbuffer, "*Sample Temp.*")
+			elseif(stringmatch(strbuffer, "*Sample Temp.*"))
 				FBinRead/F=4 numRef, buffer
 				ATHMetaDataStr += "SampleTemp(ºC):" + num2str(buffer) + "\n"
-			else
-				FBinRead/F=4 numRef, buffer // drop the rest
 			endif
+		elseif(buffer >= 0 && buffer <= 99)
+			FReadLine/T=(num2char(0)) numRef, strbuffer			
+			FBinRead/F=4 numRef, buffer // drop the rest
 		elseif(buffer == 100)
 			FBinRead/F=4 numRef, buffer
 			ATHMetaDataStr += "X(mm):" + num2str(buffer) + "\n"
