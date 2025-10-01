@@ -91,7 +91,7 @@ EndStructure
 static constant kpixelsTVIPS = 2048 // Change here if needed. Used for corrupted files only.
 
 static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameStr 
-			  [,int skipmetadata, int autoScale, int readMarkups,int binX, int binY, int overwrite])
+			  [,int skipmetadata, int autoScale,int binX, int binY, int overwrite])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string filename (including) pathname. 
 	/// If "" a dialog opens to select the file.
@@ -105,7 +105,6 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
 	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
-	readMarkups = ParamIsDefault(readMarkups) ? 0: readMarkups
 	binX = ParamIsDefault(binX) ? 1: binX
 	binY = ParamIsDefault(binY) ? 1: binY
 	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
@@ -184,7 +183,6 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
 	variable LEEMdataVersion = ATHImageHeader.LEEMdataVersion <= 2 ? 0: ATHImageHeader.LEEMdataVersion //NB: Added 23.05.2023
 
 	if(ATHFileHeader.version == 9)
-	
 		ImageDataStart = 16384
 	else
 		ImageDataStart = ATHFileHeader.size + ImageHeaderSize + LEEMdataVersion
@@ -231,9 +229,6 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
 			mdatastr += "Binning: (" + num2str(binX) + ", " + num2str(binY) + ")\n"
 		endif			
 		mdatastr += StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
-		if(readMarkups && ATHImageHeader.attachedMarkupSize)// Add image markups if any
-			mdatastr += StrGetImageMarkups(filepathStr)
-		endif
 		if(autoScale)
 			variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
 			imgScaleVar = (numtype(imgScaleVar) == 2)? 0: imgScaleVar // NB: Added on 23.05.2023
@@ -250,7 +245,7 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
 End
 
 static Function LoadSingleDATFile(string filepathStr, string waveNameStr
-         [,int skipmetadata, int autoScale, int readMarkups, int binX, int binY, int overwrite])
+         [,int skipmetadata, int autoScale, int binX, int binY, int overwrite])
 	///< Function to load a single Elmitec binary .dat file.
 	/// @param filepathStr string pathname. 
 	/// If "" a dialog opens to select the file.
@@ -263,7 +258,6 @@ static Function LoadSingleDATFile(string filepathStr, string waveNameStr
 	
 	skipmetadata = ParamIsDefault(skipmetadata) ? 0: skipmetadata // if set do not read metadata
 	autoScale = ParamIsDefault(autoScale) ? 0: autoScale
-	readMarkups = ParamIsDefault(readMarkups) ? 0: readMarkups	
 	binX = ParamIsDefault(binX) ? 1: binX
 	binY = ParamIsDefault(binY) ? 1: binY
 	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
@@ -383,9 +377,6 @@ static Function LoadSingleDATFile(string filepathStr, string waveNameStr
 			mdatastr += "Binning: (" + num2str(binX) + ", " + num2str(binY) + ")\n"
 		endif	
 		mdatastr += StrGetBasicMetadataInfoFromDAT(filepathStr, metadataStart, ImageDataStart, ATHImageHeader.LEEMdataVersion)
-		if(readMarkups && ATHImageHeader.attachedMarkupSize)// Add image markups if any
-			mdatastr += StrGetImageMarkups(filepathStr)
-		endif
 		if(autoScale)
 			variable imgScaleVar = NumberByKey("FOV(µm)", mdatastr, ":", "\n")
 			imgScaleVar = (numtype(imgScaleVar) == 2)? 0: imgScaleVar // NB: Added on 23.05.2023
@@ -1230,21 +1221,25 @@ ThreadSafe static Function/WAVE UviewLoad_Worker(string filepathStr)
 	STRUCT UKFileHeader ATHFileHeader
 	STRUCT UKImageHeader ATHImageHeader
 	FSetPos numRef, 0
-	FBinRead numRef, ATHFileHeader		
-	FSetPos numRef, ATHFileHeader.size
-	FBinRead numRef, ATHImageHeader
-	//Elmitec files can have additional markup blocks hence the offsets of 128 bytes
-	if(ATHImageHeader.attachedMarkupSize == 0)
-		//no markups
-		ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
+	FBinRead numRef, ATHFileHeader
+	if(ATHFileHeader.version == 9) // Updated to handle v9 dat files
+		FSetPos numRef, 16384
 	else
-		//Markup blocks multiple of 128 bytes after image header
-		ImageHeaderSize = 288 + 128 * ((trunc(ATHImageHeader.attachedMarkupSize/128))+1)
+		FSetPos numRef, ATHFileHeader.size
+		FBinRead numRef, ATHImageHeader
+		//Elmitec files can have additional markup blocks hence the offsets of 128 bytes
+		if(ATHImageHeader.attachedMarkupSize == 0)
+			//no markups
+			ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
+		else
+			//Markup blocks multiple of 128 bytes after image header
+			ImageHeaderSize = 288 + 128 * ((trunc(ATHImageHeader.attachedMarkupSize/128))+1)
+		endif
+		variable LEEMdataVersion = ATHImageHeader.LEEMdataVersion <= 2 ? 0: ATHImageHeader.LEEMdataVersion //NB: Added 23.05.2023
+		variable ImageDataStart = ATHFileHeader.size + ImageHeaderSize + LEEMdataVersion
+		FSetPos numRef, ImageDataStart
 	endif
-	variable LEEMdataVersion = ATHImageHeader.LEEMdataVersion <= 2 ? 0: ATHImageHeader.LEEMdataVersion //NB: Added 23.05.2023
-	variable ImageDataStart = ATHFileHeader.size + ImageHeaderSize + LEEMdataVersion
-	Make/W/U/O/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) UviewFile
-	FSetPos numRef, ImageDataStart
+	Make/W/U/O/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) UviewFile		
 	FBinRead/F=2/B=3 numRef, UviewFile	
 	Close numRef
 	SetDataFolder dfSav	
