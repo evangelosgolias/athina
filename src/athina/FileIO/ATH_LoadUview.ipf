@@ -42,26 +42,31 @@ EndStructure
 
 
 Structure UKFileHeader // 104 bytes
-	char id[20]  // 1 byte
-	int16 size   // 2 bytes
-	int16 version
-	int16 BitsPerPixel
-	int16 CameraBitsPerPixel
-	int16 MCPDiameterInPixels
-	uchar hBinning, vBinning // 1 byte
-	STRUCT LONGLONG starttime			// 8 bytes
-	int16 ImageWidth, ImageHeight
-	int16 NrImages
-	int16 attachedRecipeSize
-	char spare[56]
+	char id[20]  // 0 byte
+	int16 size   // 20 bytes
+	int16 version // 22 bytes
+	int16 BitsPerPixel // 24 bytes
+	int16 CameraBitsPerPixel // 26 bytes
+	int16 MCPDiameterInPixels // 28 bytes
+	uchar hBinning // 30 bytes
+	uchar vBinning // 31 bytes
+	STRUCT LONGLONG starttime	// 32 bytes // redundant (spare)
+	int16 ImageWidth  // 40 bytes
+	int16 ImageHeight // 42 bytes
+	int16 NrImages // 44 bytes
+	int16 attachedRecipeSize // 46 bytes
+	char spare[56] // 48 bytes
+	// end at 104 bytes
 EndStructure
 
-Structure UKImageHeader // 288 bytes
-	int16 size
+Structure UKImageHeader 
+	int16 size // 288 bytes
 	int16 version
-	int16 ColorScaleLow,ColorScaleHigh
+	int16 ColorScaleLow
+	int16 ColorScaleHigh
 	STRUCT LONGLONG imagetime
-	int16 MaskXshift, MaskYshift
+	int16 MaskXshift
+	int16 MaskYshift
 	uint16 RotateMask
 	int16 attachedMarkupSize
 	int16 spin
@@ -161,7 +166,7 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
 		ATHFileHeader.size += 128
 	endif
 	
-	variable ImageHeaderSize, timestamp
+	variable ImageHeaderSize, ImageDataStart, timestamp
 			
 	FSetPos numRef, ATHFileHeader.size
 	FBinRead numRef, ATHImageHeader
@@ -172,11 +177,19 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
 		ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
 	else
 		//Markup blocks multiple of 128 bytes after image header
-		ImageHeaderSize = 288 + 128 * ((trunc(ATHImageHeader.attachedMarkupSize/128))+1)
+		ATHImageHeader.attachedMarkupSize = 128 * ((trunc(ATHImageHeader.attachedMarkupSize/128))+1)
+		ImageHeaderSize = 288 + ATHImageHeader.attachedMarkupSize 
 	endif
 	
 	variable LEEMdataVersion = ATHImageHeader.LEEMdataVersion <= 2 ? 0: ATHImageHeader.LEEMdataVersion //NB: Added 23.05.2023
-	variable ImageDataStart = ATHFileHeader.size + ImageHeaderSize + LEEMdataVersion
+
+	if(ATHFileHeader.version == 9)
+	
+		ImageDataStart = 16384
+	else
+		ImageDataStart = ATHFileHeader.size + ImageHeaderSize + LEEMdataVersion
+	endif
+	
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
 	if(binX == 1 && binY == 1)
 		if(overwrite)
@@ -306,7 +319,7 @@ static Function LoadSingleDATFile(string filepathStr, string waveNameStr
 		ATHFileHeader.size += 128
 	endif
 	
-	variable ImageHeaderSize, timestamp
+	variable ImageHeaderSize, ImageDataStart, timestamp
 			
 	FSetPos numRef, ATHFileHeader.size
 	FBinRead numRef, ATHImageHeader
@@ -317,13 +330,19 @@ static Function LoadSingleDATFile(string filepathStr, string waveNameStr
 		ImageHeaderSize = 288 // UKImageHeader -> 288 bytes
 	else
 		//Markup blocks multiple of 128 bytes after image header
-		ImageHeaderSize = 288 + 128 * ((trunc(ATHImageHeader.attachedMarkupSize/128))+1)
+		ATHImageHeader.attachedMarkupSize = 128 * ((trunc(ATHImageHeader.attachedMarkupSize/128))+1)
+		ImageHeaderSize = 288 + ATHImageHeader.attachedMarkupSize 
 	endif
 	
 	variable LEEMdataVersion = ATHImageHeader.LEEMdataVersion <= 2 ? 0: ATHImageHeader.LEEMdataVersion //NB: Added 23.05.2023
-	variable ImageDataStart = ATHFileHeader.size + ImageHeaderSize + LEEMdataVersion
 	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
 
+	if(ATHFileHeader.version == 9)
+		ImageDataStart = 16384
+	else
+		ImageDataStart = ATHFileHeader.size + ImageHeaderSize + LEEMdataVersion
+	endif
+	
 	if(binX == 1 && binY == 1)
 		if(overwrite)
 			Make/W/U/O/N=(ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight) $waveNameStr /WAVE=datWave

@@ -35,6 +35,7 @@ Menu "athina"
 	Submenu "Import"
 		Submenu "Elmitec .dat"
 			"Files...", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1)
+			"Files to stack ...", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1, stack3d = 1)
 			"Folder to stack .../1", /Q, ATH_Uview#LoadDATFilesFromFolderMT(displayImg = 1) 						
 			"Measuremnt ID to stack (ScanGUI) .../2", /Q, ATH_Uview#LoadDATFilesMatchingPattternToStackMT(displayImg = 1)
 			"Filename pattern matching to stack .../3", /Q, ATH_Uview#LoadDATFilesMatchingPattternToStackMT(displayImg = 1, pattern = 1)			
