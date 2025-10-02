@@ -222,3 +222,16 @@ static Function/S ThreadStr(string strlist0, string strlist1,
 	endfor
 	return retStr	
 End
+
+static Function/S RemoveIndexKeysFromList(string listStr, 
+				  [string keySep, string listSep, int startIndex])
+	keySep = SelectString(ParamIsDefault(keySep) ? 0: 1, ":", keySep)			  
+	listsep = SelectString(ParamIsDefault(listsep) ? 0: 1, ";", listsep)
+	startIndex = ParamIsDefault(startIndex) ? 0 : startIndex	
+	variable nitems = ItemsInList(listStr, listSep), i
+	string retStr = ""
+	for(i = 0; i < nitems; i++)
+		retStr += StringByKey(num2str(i+startIndex), listStr, keySep, listsep) + listsep
+	endfor
+	return retStr
+End

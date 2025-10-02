@@ -305,9 +305,10 @@ static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonCo
 			variable ymax = DimSize($gATH_w3dPathname, 1), y0 = Dimoffset($gATH_w3dPathname, 1)
 			gATH_AnchorPositionX = hcsr(I, gATH_WindowNameStr)
 			gATH_AnchorPositionY = vcsr(I, gATH_WindowNameStr)
-			variable relx, rely
-			[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_AnchorPositionX, gATH_AnchorPositionY)
-			DrawTheRefCross(w3dRef, relx, rely, grfName=B_Struct.win)
+			//variable relx, rely
+			//[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_AnchorPositionX, gATH_AnchorPositionY)
+			//DrawTheRefCross(w3dRef, relx, rely, grfName=B_Struct.win)
+			DrawTheRefCross(w3dRef, gATH_AnchorPositionX, gATH_AnchorPositionY, grfName=B_Struct.win)
 			Button SetAnchorCursor fColor=(3,52428,1),valueColor=(0,0,0), win=$B_Struct.win
 			if(!numtype(gATH_AnchorPositionX))
 				CheckBox FastMode, win = $B_Struct.win,disable = 0

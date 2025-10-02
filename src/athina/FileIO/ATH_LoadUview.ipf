@@ -1048,8 +1048,10 @@ static Function LoadDATFilesFromFolderMT([int displayImg])
 	SetScale/I x, 0, FoV, $stackNameStr
 	SetScale/I y, 0, FoV, $stackNameStr
 	Note $stackNameStr, "Loaded from folder: " + folder + " the files:"
-	string indices = ATH_String#ExpandRangeStr("0-"+num2str(filesnr-1))
-	Note $stackNameStr, ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=":")
+	string indices = ATH_String#ExpandRangeStr("0-"+num2str(filesnr-1))	
+	Note/K $stackNameStr, "---* Stacked waves *---\n" + \
+	ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=">") + \
+	"*--------------------------*\n"
 	if(displayImg)
 		ATH_Display#NewImg($stackNameStr)
 	endif
@@ -1074,7 +1076,7 @@ static Function LoadMultiplyDATFilesMT([int displayImg])
 	endif
 	loadFiles = SortList(S_fileName, "\r", 80)
 	variable nrloadFiles = ItemsInList(loadFiles, "\r")
-	WAVE/T filesW = ATH_tWave#StringListToTextWave(loadFiles, "\r")
+	WAVE/T filesW = ATH_TWave#StringListToTextWave(loadFiles, "\r")
 	Make/FREE/WAVE/N=(nrloadFiles) ww	
 	MultiThread ww = UviewLoad_Worker(filesW[p])
 	
@@ -1085,9 +1087,11 @@ static Function LoadMultiplyDATFilesMT([int displayImg])
 	Concatenate/O {ww}, $stackNameStr
 	variable FoV = ReadFovFromDATFile(firstFilename)
 	SetScale/I x, 0, FoV, $stackNameStr
-	SetScale/I y, 0, FoV, $stackNameStr	
-	string indices = ATH_String#ExpandRangeStr("0-"+num2str(nrloadFiles-1))
-	Note $stackNameStr, ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=":")	
+	SetScale/I y, 0, FoV, $stackNameStr
+	string indices = ATH_String#ExpandRangeStr("0-"+num2str(nrloadFiles-1))	
+	Note/K $stackNameStr, "---* Stacked waves *---\n" + \
+	ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=">") + \
+	"*--------------------------*\n"
 	
 	if(displayImg)
 		ATH_Display#NewImg($stackNameStr)
@@ -1137,8 +1141,10 @@ static Function LoadDATFilesMatchingPattternToStackMT([int displayImg, int patte
 	variable FoV = ReadFovFromDATFile(folder+StringFromList(0,loadFiles))
 	SetScale/I x, 0, FoV, $stackNameStr
 	SetScale/I y, 0, FoV, $stackNameStr	
-	string indices = ATH_String#ExpandRangeStr("0-"+num2str(nrloadFiles-1))
-	Note $stackNameStr, ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=":")	
+	string indices = ATH_String#ExpandRangeStr("0-"+num2str(nrloadFiles-1))	
+	Note/K $stackNameStr, "---* Stacked waves *---\n" + \
+	ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=">") + \
+	"*--------------------------*\n"
 	
 	if(displayImg)
 		ATH_Display#NewImg($stackNameStr)

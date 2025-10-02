@@ -154,8 +154,9 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	// Add a note about the stacked waves
 	
 	// Kill note, as the stacked wave strings will be used as key/values
+	string indices = ATH_String#ExpandRangeStr("0-"+num2str(nrwaves-1))		
 	Note/K $wname3dStr, "---* Stacked waves *---\n" + \
-	ReplaceString(";", listOfSelectedWaves, "\n") + "*--------------------------*\n"
+	ATH_String#ThreadStr(indices, listOfSelectedWaves, joinstr=">") + "*--------------------------*\n"
 	// Go back to the cwd
 	if(makeInSourceDFR)
 		SetDataFolder saveDF
@@ -189,6 +190,7 @@ static Function UnpackLayersToSources(WAVE wRef)
 	// as grabbed from wave note.
 	string regex = "(---\* Stacked waves \*---\n)((.|\n)*)(\*--------------------------\*)", s0, waveListStr, s1
 	SplitString/E=regex note(wRef), s0, waveListStr, s1
+	waveListStr = ATH_String#RemoveIndexKeysFromList(waveListStr, keySep=">", listSep="\n")
 	string wavePaths = ReplaceString("\n", waveListStr, ";") // Wavepaths in list
 	WAVE/WAVE wlist = ATH_WaveOp#WaveListStrToWaveRef(wavePaths, isFree = 1)
 	variable nlayers = DimSize(wRef,2)
