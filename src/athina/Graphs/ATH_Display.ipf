@@ -282,6 +282,18 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					ATH_PlaneZProfile#MainMenu()
 					hookResult = 1										
 					break
+				case 113: // q
+					// Attach the list of waves to the controller
+					if(strlen(GetUserData(s.winName, "ATH_W3DSlider", "ATH_StackedWaveList")))
+						ModifyControl ATH_W3DSlider win=$s.winName, userdata(ATH_StackedWaveList) = ""
+						DoWindow/T $s.winName, GetWavesDataFolder(w,2)						
+					else
+						string regex = "(---\* Stacked waves \*---\n)((.|\n)*)(\*--------------------------\*)", s0, waveListStr, s1
+						SplitString/E=regex note(w), s0, waveListStr, s1
+						ModifyControl ATH_W3DSlider win=$s.winName, userdata(ATH_StackedWaveList) = waveListStr
+					endif
+					hookResult = 1
+					break		
 				case 114: // r
 					ATH_Range#pnl(s.winName)
 					hookResult = 1										
@@ -387,6 +399,12 @@ static Function ImageSliderSetVar(STRUCT WMSetVariableAction &sva) : SetVariable
 		case 6:
 			gLayer = sva.dval
 			ModifyImage/W=$sva.win '' plane=gLayer
+			// Added 02.10.2025
+			string stackedWaveList = GetUserData(sva.win, "ATH_W3DSlider", "ATH_StackedWaveList")
+			if(strlen(stackedWaveList))
+				DoWindow/T $sva.win, StringByKey(num2str(gLayer),stackedWaveList,">","\n")
+			endif
+			// End of addition			
 			break
 	endswitch
 	return 0

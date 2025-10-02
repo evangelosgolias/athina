@@ -26,7 +26,8 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **i** : measure distance on images using cursors.
 - **l** : launch image line profiler.
 - **n** : Toggle square image on/off.
-- **p** : launch plane z profiler...
+- **p** : launch plane z profiler.
+- **q** : toggle name of displayed layer on/off (as window title).
 - **r** : show range panel (contrast).
 - **s** : set saved axes range. 
 - **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
