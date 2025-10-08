@@ -3,7 +3,17 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_Crystal
 
-static function AngleBetweenPlanesHCP(a, c, h1,k1,l1,h2,k2,l2)
+static function PlaneDistanceHCP(a,c,h,k,l)
+	// here enter hkl from [h k i l] hcp notation (discard the redundant i)
+	variable a,c,h,k,l
+	variable a_s = 2/(a*sqrt(3)), c_s = 1/c	
+	variable h1, k1, l1
+	h1 = (2*h-k)/3
+	k1 = (2*k-h)/3
+	l1 = l
+	return sqrt(1/((h1^2+k1^2+h1*k1)*a_s^2+l1^2*c_s^2))
+End
+static function AngleBetweenPlanesHCP(a,c,h1,k1,l1,h2,k2,l2)
 	// return phi, angle between planes [h1 k1 i1 l1] and [h2 k2 i2 l2]
 	// here enter hkl from [h k i l] hcp notation (discard the redundant i)
 	variable a,c,h1,k1,l1,h2,k2,l2
