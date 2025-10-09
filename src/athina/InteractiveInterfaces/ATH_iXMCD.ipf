@@ -264,7 +264,8 @@ static Function SetRadialScale(STRUCT WMSetVariableAction &sva) : SetVariableCon
 			gATH_radialScale = 1 + gATH_radialScaleParam/1e4 // Scale in parts per 1e4.
 			WAVE/SDFR=dfr wImg1, wImg2, wimg2_drift, wXMCD
 			if(gATH_radialScaleParam)
-				ImageInterpolate/TRNS={radialPoly,gATH_radialScale,0,0,0}/DEST=dfr:M_Affine Resample wimg2_drift		
+				ImageInterpolate/TRNS={radialPoly,gATH_radialScale,0,0,0}/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Resample wimg2_drift
+					
 			else
 				WAVE/Z srcImg2 = $wName2Str
 				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D srcImg2

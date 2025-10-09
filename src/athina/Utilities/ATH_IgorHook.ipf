@@ -73,6 +73,7 @@ Function AfterWindowCreatedHook(string windowNameStr, variable winTypevar)
 End
 
 Function AfterCompiledHook()
+    CreateBrowser
 	ModifyBrowser appendUserButton={$"Calc XMCD", "Execute/P/Q \"ATH_Launch#BrowserActionDoXMDC()\""}
 	variable err=GetRTError(1)
 	if (err != 0)

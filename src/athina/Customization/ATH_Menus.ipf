@@ -52,7 +52,7 @@ Menu "athina"
 		".P3B files and stack (ALS)...",/Q, ATH_LoadImg#PEEM3Files(stack3d=1)
 		End
 		Submenu "NeXus"
-		".nxs NeXus files (Diamond) ...",/Q, ATH_HDF5#LoadNXSDataSets()
+			".nxs NeXus files (Diamond) ...",/Q, ATH_HDF5#LoadNXSDataSets()
 		End		
 	End
 	
