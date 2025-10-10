@@ -144,7 +144,7 @@ static Function CalculateXMCDComb(WAVE w3d)
 			MatrixOP/FREE jLayer = layer(w3d, j)
 			buffer = "ATHWaveToStack_idx_" + num2str(cnt)
 			CalculateXMCDWAVE(iLayer, jLayer, outWave = buffer)
-			noteStr += num2str(cnt) + ": (" + num2str(IndexToScale(w3d, i, 2)) \
+			noteStr += num2str(cnt) + "> (" + num2str(IndexToScale(w3d, i, 2)) \
 					+", "+ num2str(IndexToScale(w3d, j, 2))+")\n"
 			cnt += 1
 		endfor	
@@ -152,7 +152,8 @@ static Function CalculateXMCDComb(WAVE w3d)
 	ImageTransform/NP=(nL) stackImages $"ATHWaveToStack_idx_0"
 	WAVE M_Stack
 	CopyScales w3d, M_Stack
-	Note M_stack, noteStr
+	Note M_stack, "---* Stacked waves *---\n" + \
+	noteStr + "*--------------------------*\n"
 	string saveStackNameStr = CreatedataObjectName(saveDF, "XMCD_Comb", 1, 0, 1)
 	MoveWave M_stack, saveDF:$saveStackNameStr
 	SetDataFolder saveDF
@@ -221,7 +222,7 @@ static Function MultiThreadXMLDComb(WAVE w3D)
 	for(i = 0; i < numPlanes; i++)
 		for(j = 0; j < i; j++)	
 			combStr += num2str(i) + "," + num2str(j) + ";"
-			noteStr += num2str(cnt) + ": (" + num2str(IndexToScale(w3D, i, 2)) \
+			noteStr += num2str(cnt) + "> (" + num2str(IndexToScale(w3D, i, 2)) \
 					+", "+ num2str(IndexToScale(w3D, j, 2))+")\n"
 			cnt++	
 		endfor
@@ -237,7 +238,8 @@ static Function MultiThreadXMLDComb(WAVE w3D)
 	string combStackNameStr = CreatedataObjectName(saveDF, "XMCD_Comb", 1, 0, 1)	
 	Concatenate/O {ww}, saveDF:$combStackNameStr
 	CopyScales w3D, saveDF:$combStackNameStr
-	Note saveDF:$combStackNameStr, noteStr
+	Note saveDF:$combStackNameStr, "---* Stacked waves *---\n" + \
+	noteStr + "*--------------------------*\n"
 	// ww holds references to the free waves. By killing ww, we kill
 	// the last reference to the free waves which causes them to be
 	// automatically deleted.
