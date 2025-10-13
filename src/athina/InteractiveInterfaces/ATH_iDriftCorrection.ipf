@@ -718,28 +718,19 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 		case "SaveReferenceCoordB":
 			variable relx, rely
 			// NB: Save coordinates in pixels! We shouldn't depend on wave scaling
-			if(!numtype(gATH_AnchorPositionX) && !NVAR_Exists(gATH_SavedRefRelCoordX)) // If anchor is not nan and we haven't saved before
-				[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_AnchorPositionX, gATH_AnchorPositionY)
-				variable/G dfrS:gATH_SavedRefRelCoordX = relx
-				variable/G dfrS:gATH_SavedRefRelCoordY = rely			
-				variable/G dfrS:gATH_SavedRefCoordX =  gATH_AnchorPositionX // 25JUL25: Use axes reference in case waves do not have the same DimSize
-				variable/G dfrS:gATH_SavedRefCoordY =  gATH_AnchorPositionY			
-				string/G dfrS:gATH_SavedRefRelCoordSource = gATH_w3dPathname
-			elseif(!numtype(gATH_AnchorPositionX) && NVAR_Exists(gATH_SavedRefRelCoordX)) // if anchor is a num and we've already saved a ref point
-				[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_AnchorPositionX, gATH_AnchorPositionY)
-				gATH_SavedRefRelCoordX = relx
-				gATH_SavedRefRelCoordY = rely
-				gATH_SavedRefCoordX = gATH_AnchorPositionX
-				gATH_SavedRefCoordY = gATH_AnchorPositionY
-				gATH_SavedRefRelCoordSource = gATH_w3dPathname				
-			endif
+			[relx, rely] = ATH_Graph#AxisValToRel2D(w3dRef, gATH_AnchorPositionX, gATH_AnchorPositionY)
+			variable/G dfrS:gATH_SavedRefRelCoordX = relx
+			variable/G dfrS:gATH_SavedRefRelCoordY = rely
+			variable/G dfrS:gATH_SavedRefCoordX =  gATH_AnchorPositionX // 25JUL25: Use axes reference in case waves do not have the same DimSize
+			variable/G dfrS:gATH_SavedRefCoordY =  gATH_AnchorPositionY			
+			string/G dfrS:gATH_SavedRefRelCoordSource = gATH_w3dPathname
 			Button ShowReferenceCoordB,disable=0,win=$B_Struct.win
 			hookresult =  1			
 			break
 		case "ShowReferenceCoordB":
-			//-------
+		//-------
 			if(useTopLeftAxes)
-				DrawTheRefCross(w3dRef, gATH_SavedRefCoordX, gATH_SavedRefCoordY, grfName=gATH_WindowNameStr,axisRel=0) // Axes coords
+				DrawTheRefCross(w3dRef, gATH_SavedRefCoordX, gATH_SavedRefCoordY, grfName=gATH_WindowNameStr, axisRel=0) // Axes coords
 			else
 				DrawTheRefCross(w3dRef, gATH_SavedRefRelCoordX, gATH_SavedRefRelCoordY, grfName=gATH_WindowNameStr, axisRel=1) // Relative coords				
 			endif
@@ -752,9 +743,8 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 				variable dx = (gATH_SavedRefCoordX - gATH_CursorPositionX)/gATH_dx
 				variable dy = (gATH_SavedRefCoordY - gATH_CursorPositionY)/gATH_dy
 				dx = gATH_SubPixelMode ? dx : round(dx)
-				dy = gATH_SubPixelMode ? dy : round(dy)			
+				dy = gATH_SubPixelMode ? dy : round(dy)
 			else
-				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=w3dRef Affine2D w3dBackupRef			
 				variable axisVx, axisVy
 				[axisVx, axisVy] = ATH_Graph#RelToAxisVal2D(w3dRef, gATH_SavedRefRelCoordX, gATH_SavedRefRelCoordY)
 				dx = (axisVx - gATH_CursorPositionX)/gATH_dx
@@ -762,8 +752,9 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 				dx = gATH_SubPixelMode ? dx : round(dx)
 				dy = gATH_SubPixelMode ? dy : round(dy)					
 			endif
-				ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=w3dRef Affine2D w3dBackupRef
-				hookresult =  1					
+			// SHIFT-click to use absolute values
+			ImageInterpolate/APRM={1,0,dx,0,1,dy,1,0}/DEST=w3dRef Affine2D w3dBackupRef			
+			hookresult =  1					
 			break
 	endswitch
 End
@@ -771,23 +762,21 @@ End
 static Function DrawTheRefCross(WAVE wRef, variable xv, variable yv, [string grfName, int axisRel])
 	// Draw the ref line
 	string axisX, axisY
+	variable axisValX, axisValY
 	grfName = StringFromList(0, grfName, "#") // Called from sub-window!
 	[axisX, axisY] = ATH_Graph#GetAxes(grfName=grfName)
 	if(axisRel)
-		variable dx = DimDelta(wRef, 0)
-		variable dy = DimDelta(wRef, 1)	
-		variable axisValX = DimOffset(wRef, 0) + xv * DimSize(wRef,0) * dx
-		variable axisValY = DimOffset(wRef, 1) + yv * DimSize(wRef,1) * dy
-	else
+		[axisValX, axisValY] = ATH_Graph#RelToAxisVal2D(wRef, xv, yv)
+	else // axes values!
 		axisValX = xv
 		axisValY = yv
 	endif
 	variable dr =  0.05 * DimDelta(wRef, 0) * DimSize(wRef,0)	
 	SetDrawLayer/W=$grfName Overlay
 	DrawAction/W=$grfName delete
-	SetDrawEnv/W=$grfName xcoord= $axisX, ycoord= $axisY, linefgc= (65535,65535*axisRel,0), fillbgc= (65535,65535*axisRel,0),fillfgc= (65535,65535*axisRel,0), dash=2
+	SetDrawEnv/W=$grfName xcoord= $axisX, ycoord= $axisY, linefgc= (65535,6553,0), fillbgc= (65535,65535,0),fillfgc= (65535,65535,0), dash=2
 	DrawLine/W=$grfName axisValX, axisValY-dr, axisValX, axisValY+dr
-	SetDrawEnv/W=$grfName xcoord= $axisX, ycoord= $axisY, linefgc= (65535,65535*axisRel,0), fillbgc= (65535,65535*axisRel,0),fillfgc= (65535,65535*axisRel,0), dash=2
+	SetDrawEnv/W=$grfName xcoord= $axisX, ycoord= $axisY, linefgc= (65535,65535,0), fillbgc= (65535,65535,0),fillfgc= (65535,65535,0), dash=2
 	DrawLine/W=$grfName axisValX-dr, axisValY, axisValX+dr, axisValY
 	return 0
 End
