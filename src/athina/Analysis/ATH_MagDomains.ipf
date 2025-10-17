@@ -2,7 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
-#pragma ModuleName = ATH_MagDomains
+#pragma ModuleName = ATH_MagDom
 #pragma version = 1.0
 
 
@@ -43,7 +43,9 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	variable firstAngleRad = ParamIsDefault(firstAngle) ? -90 * pi/180 : firstAngle * pi/180
 	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180 : angleStep * pi/180
 	// Which model do you like to fit? Check functions in the module ATH_FuncFit
-	fitFunc = StringFromList(ParamIsDefault(fitFunc) ? 0 : 1, "ATH_FuncFit#XMLDCos2xIntensity;"+fitFunc+";")
+	if(ParamIsDefault(fitFunc))
+		fitFunc = "ATH_FuncFit#XMLDCos2xIntensity" // default
+	endif
 	// Calculate the angular offset, rotate by -FoVRotRad and apply mirror operation over x-axis
 	
 	variable rows = DimSize(wRef, 0)

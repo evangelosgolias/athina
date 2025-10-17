@@ -205,6 +205,8 @@ static Function UnpackLayersToSources(WAVE wRef)
 		wnoteStr = note(wlist[i])
 		CopyScales w, getLayer
 		Note getLayer, "Unpacked layer "+num2str(i)+" from "+GetWavesDataFolder(wRef,2)+"\n"+wnoteStr
+		// Debug
+		// print "Uncpacking layer = "+num2str(i), "of ",GetWavesDataFolder(wRef,2) , " to ", GetWavesDataFolder(w,2)
 		Duplicate/O getLayer, w
 	endfor
 End

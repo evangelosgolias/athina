@@ -1283,8 +1283,9 @@ static Function iImgFFTFilter([string grfName])
 	return 0
 End
 
-static Function UnpackStackToSources()
-	WAVE wRef = ATH_Graph#TopGraphToWaveRef()
+static Function UnpackStackToSources([string grfName])
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
 	if(WaveDims(wRef)!=3)
 		return -1
 	endif

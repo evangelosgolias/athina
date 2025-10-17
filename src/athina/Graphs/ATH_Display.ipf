@@ -230,7 +230,13 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_Launch#SaveAxesRangeAndCtab()
 						hookResult = 1											
 					endif
-					break					
+					break			
+				case 85: // U
+					if(s.eventMod & 2) // works with SHIFT + U only!
+						ATH_Launch#UnpackStackToSources()
+						hookResult = 1											
+					endif
+					break								
 				case 88: // X
 					if(s.eventMod & 2) // works with SHIFT + X only!
 						ATH_iXPS#MainMenu()
