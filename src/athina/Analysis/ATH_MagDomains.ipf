@@ -165,7 +165,7 @@ static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef)
 	string/G dfr:gATH_wRefPath = GetWavesDataFolder(wRef, 2)
 	string/G dfr:gATH_wSrcPath = GetWavesDataFolder(wSrc, 2)
 	// Hook and metadata
-	SetWindow $winNameStr, hook(MyiCursorActionHook) = ATH_Magnetism#iCursorUsingCallbackHookFunction // Set the hook
+	SetWindow $winNameStr, hook(MyiCursorActionHook) = ATH_MagDom#iCursorUsingCallbackHookFunction // Set the hook
 	SetWindow $winNameStr, userdata(MyiCursorWin) = winNameStr
 	SetWindow $winNameStr, userdata(ATH_iCursorDFR) = "root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr
 	Display/N=$(winNameStr + "_iFitPlot")/K=1
