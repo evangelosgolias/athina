@@ -228,7 +228,6 @@ static Function GetScaledZoominImageWindow([string grfName, variable w3d, int ev
 				MatrixOP/FREE getLayerFREE = layer(wRef, gLayer)
 				CopyScales/P wRef, getLayerFREE
 				Duplicate/R=(minX, maxX)(minY, maxY) getLayerFREE, $wavenameStr
-				//CopyScales/P wRef, $wavenameStr
 				sprintf noteStr, "CmdToZM:Duplicate/R=(%.4f, %.4f)(%.4f, %.4f)[%d,%d] %s ", minX, maxX, minY, maxY ,gLayer,gLayer, GetWavesDataFolder(wRef,2)
 			endif
 		else
