@@ -921,7 +921,7 @@ static Function ImageWindow3D(WAVE wRef, string method)
 	return 0
 End
 
-static Function ImageResampling(WAVE wRef,  string func, variable xOffset, variable yOffset,
+static Function/S ImageResampling(WAVE wRef,  string func, variable xOffset, variable yOffset,
 							 [int overwrite, variable xscale, variable yscale])
 	// Calculate image interpolation using scaleShift and one of the following intepolating functions.
 	//
@@ -941,7 +941,7 @@ static Function ImageResampling(WAVE wRef,  string func, variable xOffset, varia
 	variable ifunc = WhichListItem(func, funcMethods)
 	
 	if(ifunc == -1 || WaveDims(wRef) != 2)
-		return -1
+		return ""	
 	endif
 	
 	
@@ -959,6 +959,7 @@ static Function ImageResampling(WAVE wRef,  string func, variable xOffset, varia
 		Duplicate/O M_InterpolatedImage, wRef
 		Note wRef, cmdStr
 		KillWaves M_InterpolatedImage
+		return GetWavesDataFolder(wRef,2)		
 	else
 		DFREF cwdfr = GetDataFolderDFR()
 		STRING baseWaveNameStr = NameOfWave(wRef) + "_rsl"
@@ -966,10 +967,12 @@ static Function ImageResampling(WAVE wRef,  string func, variable xOffset, varia
 		cmdTemplateStr = "ImageInterpolate/FUNC=%s/TRNS={scaleShift, %.4f, %.4f, %.4f, %.4f}/DEST=%s Resample %s"
 		sprintf cmdStr, cmdTemplateStr, func, xOffset, xscale, yOffset, yscale, PossiblyQuoteName(newWaveNameStr), wRefStr
 		Execute/Z/Q cmdStr
-		CopyScales/I wRef, $newWaveNameStr
-		Note $newWaveNameStr, cmdStr
+		WAVE wDest = cwdfr:$newWaveNameStr
+		CopyScales/I wRef, wDest
+		Note wDest, cmdStr	
+		return GetWavesDataFolder(wDest,2)		
 	endif
-	return 0
+	
 End
 
 static Function ScaleFoVWithObjectiveCurrent(WAVE wRef, variable mobj,[int interval])

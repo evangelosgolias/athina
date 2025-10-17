@@ -1328,9 +1328,10 @@ static Function ImageResample()
 			return NaN
 		endif
 	endif
-	ATH_ImgOp#ImageResampling(wRef, StringFromList(funcMethod-1, funcMethodList), xOffset, yOffset,\
+	string resampledWaveName = ATH_ImgOp#ImageResampling(wRef, StringFromList(funcMethod-1, funcMethodList), xOffset, yOffset,\
 	xscale = xscale, yscale = yscale)
 	Note wRef, waveNoteStr
+	//Copyscales/I wRef, $resampledWaveName
 	return 0
 End
 
