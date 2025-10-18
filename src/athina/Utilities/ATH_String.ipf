@@ -227,11 +227,37 @@ static Function/S RemoveIndexKeysFromList(string listStr,
 				  [string keySep, string listSep, int startIndex])
 	keySep = SelectString(ParamIsDefault(keySep) ? 0: 1, ":", keySep)			  
 	listsep = SelectString(ParamIsDefault(listsep) ? 0: 1, ";", listsep)
-	startIndex = ParamIsDefault(startIndex) ? 0 : startIndex	
+	startIndex = ParamIsDefault(startIndex) ? 0 : startIndex
 	variable nitems = ItemsInList(listStr, listSep), i
 	string retStr = ""
 	for(i = 0; i < nitems; i++)
 		retStr += StringByKey(num2str(i+startIndex), listStr, keySep, listsep) + listsep
 	endfor
 	return retStr
+End
+
+static Function/S GetRangeItemsFromList(string listStr, string listSep, int startIndex, int endIndex)
+	variable i
+	if(endIndex < startIndex || endIndex > ItemsInList(listStr,listSep) || startIndex < 0)
+		return ""
+	endif
+	string retStr = ""
+	for(i = startIndex; i < endIndex+1; i++)
+		retStr += StringFromList(i,listStr, listSep) + listSep
+	endfor
+	return retStr
+End
+
+
+static Function/S RemoveCharFromString(string str, string cc)
+	// remove the character cc from string str
+	
+	variable imax = strlen(str), i
+	string outStr = ""
+	for(i = 0; i < imax; i++)
+		if(cmpstr(str[i],cc))
+			outStr += str[i]
+		endif
+	endfor
+	return outStr
 End

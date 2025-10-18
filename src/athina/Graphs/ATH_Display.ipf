@@ -174,20 +174,25 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			break
 		case 11:
 			switch(s.keycode)
-				case 66: // B
+				case 66: // C
 					if(s.eventMod & 2) // works with SHIFT + B only!
-						ATH_ImgOp#RestoreTopImageFromBackup()
-						hookResult = 1										
+						ATH_ImgOp#RestoreTopImageFromBackup() // works with SHIFT + B only!
+						hookResult = 1															
 					endif
-					hookResult = 1										
-					break
+					break			
 				case 67: // C
-					if(s.eventMod & 2) // works with SHIFT + B only!
+					if(s.eventMod & 2) // works with SHIFT + C only!
 						ATH_Color#pnl(s.winName)
 						hookResult = 1										
 					endif
-					hookResult = 1										
 					break
+				case 69: // E
+					if(s.eventMod & 2) // works with SHIFT + E only!
+						ATH_Launch#ExtractLayerRangeToStack()
+						hookResult = 1										
+					endif
+					hookResult = 1										
+					break					
 				case 70: // F
 					if(s.eventMod & 2) // works with SHIFT + F only!
 						ATH_Launch#ImageFFTTransform(sourceDF=1)
@@ -232,7 +237,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					endif
 					break			
 				case 85: // U
-					if(s.eventMod & 2) // works with SHIFT + U only!
+					if(s.eventMod & 2 && s.eventMod & 8) // works with SHIFT + Ctrl + U only!
 						ATH_Launch#UnpackStackToSources()
 						hookResult = 1											
 					endif

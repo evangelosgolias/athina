@@ -803,14 +803,24 @@ static Function ExtractLayerRangeToStack()
 		print "ExtractLayersToStack() needs an image stack in top graph."
 		return -1
 	endif
-	string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Enter a range as 3-7 or 3,7. Zero-based indexing.\nLeave empty to extract all layer to a folder",\
-	 "Extract image range from stack")
+	string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Enter layer range as \"3-7\" to extract to a folder or \"3,7\" to "+\
+	"extract to a stack (zero-based indexing).\nLeave empty to extract all layers to a folder using the stack"+\
+	" names (see wave note) or enter a dash \"-\" or comma \",\" for auto-naming using indices.",\
+	"Extract image range from stack")
 	string sval1, sval2, separatorStr
 	if(!strlen(rangeStr)) // empty
+		ATH_ImgOp#ExtractLayerRange(wRef,doStack=0,nameNote=1)
+	elseif(!cmpstr(rangeStr,"-") || !cmpstr(rangeStr,","))
 		ATH_ImgOp#ExtractLayerRange(wRef,doStack=0)
 	else
 		SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
-		ATH_ImgOp#ExtractLayerRange(wRef, startL=str2num(sval1), endL=str2num(sval2), doStack=1)
+		if(!cmpstr(separatorStr,"-"))
+			ATH_ImgOp#ExtractLayerRange(wRef, startL=str2num(sval1), endL=str2num(sval2), doStack=0, nameNote = 1)
+		elseif(!cmpstr(separatorStr,","))
+			ATH_ImgOp#ExtractLayerRange(wRef, startL=str2num(sval1), endL=str2num(sval2), doStack=1)
+		else
+			print "Wrong input, please check ExtractLayerRangeToStack() in ATH_Launch module"
+		endif
 	endif
 End
 
@@ -1289,8 +1299,10 @@ static Function UnpackStackToSources([string grfName])
 	if(WaveDims(wRef)!=3)
 		return -1
 	endif
-	string msg = "You are about to overwrite the source waves listd in the wave note.\nI hope you know what you are doing."
-	DoAlert/T="athina want to unpack stack to source waves", 1, msg
+	string msg = "!!!!!!!!!!!****** A T T E N T I O N ******!!!!!!!!!!!\nYou will overwrite the source waves listed"+\
+	" in the wave note.\nThis operation cannot be undone.\nThe destination waves will be overwritten.\n"+\
+	"I hope you know what you are doing."
+	DoAlert/T="!!!athina wants to unpack stack to source waves!!!", 1, msg
 	if(V_flag == 1) // Click yes
 		ATH_WaveOp#UnpackLayersToSources(wRef)
 	endif

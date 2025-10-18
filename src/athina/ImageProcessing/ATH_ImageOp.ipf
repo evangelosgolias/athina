@@ -467,32 +467,25 @@ static Function RestoreTopImageFromBackup([string grfName, variable keepBackup])
 	return 0
 End
 
-static Function ExtractLayerRange(WAVE w3d, [variable startL, variable endL, variable doStack])
+static Function ExtractLayerRange(WAVE w3d, [variable startL, variable endL, 
+				variable doStack, variable nameNote])
 	// Extract layers to a new stack
 	variable  nlayers = DimSize(w3d, 2), i
 	startL = ParamIsDefault(startL) ? 0 : startL
 	endL = ParamIsDefault(endL) ? nlayers - 1 : endL	
 	
 	if(endL > nlayers - 1 || endL < startL || startL < 0 || WaveDims(w3d) != 3)
-		Abort "Cannot do it, check ATH_ImgOp#ExtractLayerRangeToStack"
+		print "Cannot do it, check ATH_ImgOp#ExtractLayerRange"
+		return NaN
 	endif
-	variable imax = endL - startL + 1// include endpoints
+	variable totL = endL - startL + 1 // include endpoints
 	DFREF saveDF = GetDataFolderDFR()
-	if(!doStack)
-		string folder = CreateDataObjectName(saveDF, NameOfWave(w3d) + " layers", 11, 0, 1)
-		NewDataFolder/S $folder
-		imax = DimSize(w3d, 2)
-		for(i = 0; i < imax; i++)
-			MatrixOP/O $("layer" + num2str(i)) = layer(w3d, i)
-			WAVE wRef = $("layer" + num2str(i))
-			CopyScales/P w3d, wRef
-		endfor
-	else
+	if(doStack)
 		SetDataFolder NewFreeDataFolder()
-		for(i = 0; i < imax; i++)
-			MatrixOP/O $("getLayer_" + num2str(i)) = layer(w3d, startL + i)
+		for(i = startL; i < endL+1; i++)
+			MatrixOP/O $("getLayer_" + num2str(i)) = layer(w3d, i)
 		endfor
-		ImageTransform/NP=(imax) stackImages $"getLayer_0"
+		ImageTransform/NP=(totL) stackImages $("getLayer_"+num2str(startL))
 		WAVE M_Stack
 		CopyScales w3d, M_Stack
 		variable dz = DimDelta(w3d,2)
@@ -501,6 +494,46 @@ static Function ExtractLayerRange(WAVE w3d, [variable startL, variable endL, var
 		string saveStackNameStr = CreatedataObjectName(saveDF,basenameStr , 1, 0, 1)
 		Duplicate/O M_Stack, saveDF:$saveStackNameStr
 		SetScale/P z, offset, dz, saveDF:$saveStackNameStr
+		Note saveDF:$saveStackNameStr, "Layers=[" + num2str(startL) +","+\
+		num2str(endL) + "], source: " + GetWavesDataFolder(w3d,2)				
+	else
+		string folder = CreateDataObjectName(saveDF, NameOfWave(w3d) + " layers", 11, 0, 1)
+		NewDataFolder/S $folder
+		if(nameNote)
+			string regex = "(---\* Stacked waves \*---\n)((.|\n)*)(\*--------------------------\*)", s0, waveListStr, wname
+			SplitString/E=regex note(w3d), s0, waveListStr, wname
+			waveListStr = ATH_String#RemoveIndexKeysFromList(waveListStr, keySep=">", listSep="\n")
+			// TODO: Make a better checking on notes and wavenames
+			if(ItemsInList(waveListStr, "\n") != nlayers) // No matching notes so extraxt 
+				print "Number of wavenote names not equal to number of layers, extracting all layers without names."
+				for(i = startL; i < endL+1; i++)
+					MatrixOP $("layer" + num2str(i)) = layer(w3d, i)
+					WAVE wRef = $("layer" + num2str(i))
+					CopyScales/P w3d, wRef
+					Note wRef, "Layer=" + num2str(i) + ", source: " + GetWavesDataFolder(w3d,2)				
+				endfor
+			else
+				print "2"
+				waveListStr = ATH_String#GetRangeItemsFromList(waveListStr, "\n", startL, endL)
+				// Assume here all are extracted as it should
+				print "Else\n", waveListStr
+				for(i = startL; i < endL+1; i++)
+					wname = ParseFilePath(0, StringFromList(i-startL, waveListStr,"\n"), ":", 1, 0) // !!!!!
+					wname = ATH_String#RemoveCharFromString(wname,"'") // Remove single quotes if any
+					MatrixOP $wname = layer(w3d, i)					   // otherwise MatrixOP $wavename pops an error
+					CopyScales/P w3d, $wname
+					Note $wname, "Layer=" + num2str(i) + ", source: " + GetWavesDataFolder(w3d,2)
+				endfor
+			endif
+		else
+			print "3"
+			for(i = startL; i < endL+1; i++)
+				MatrixOP $("layer" + num2str(i)) = layer(w3d, i)
+				WAVE wRef = $("layer" + num2str(i))
+				CopyScales/P w3d, wRef
+				Note wRef, "Layer=" + num2str(i) + ", source: " + GetWavesDataFolder(w3d,2)				
+			endfor
+		endif
 	endif
 	SetDataFolder saveDF
 	return 0

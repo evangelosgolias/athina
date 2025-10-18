@@ -32,15 +32,17 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **s** : set saved axes range. 
 - **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
 - **z** : launch z profiler *if marquee is present on the graph*.
-- **SHIFT + b** : restore image from backup.
+- **SHIFT + b** : restore image from backup if any.
 - **SHIFT + c** : select color map.
+- **SHIFT + e** : Extract stack layers (many options).
 - **SHIFT + f** : FFT Magnitude aka Power Spectrum (if there is marquee, calculate only the enclosed part).
-- **SHIFT + l** : link/unlink graph sliders (select graph from popup)
+- **SHIFT + l** : link/unlink graph sliders (select graph from popup).
 - **SHIFT + m** : launch mirror cursor values.
 - **SHIFT + n** : add text annotation.
 - **SHIFT + o** : a copy of the wave in TG is created and displayed.
 - **SHIFT + r** : resample image.
 - **SHIFT + s** : Save current axes range and ctab.
+- **SHIFT + CTLR + u** : Unpack stack layers to source waves (as read from wavenote)!!! (Experts only, SHIFT+CMD on Mac)
 - **SHIFT + x** : launch interactive PES (XPS) extractor
 - **SHIFT + mousewheel** : zoom image centered at the cursor.
 
