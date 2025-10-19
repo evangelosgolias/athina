@@ -281,15 +281,19 @@ static Function GetLayerFromImageStack()
 	endif
 End
 
-static Function RemoveImagesFromImageStack(WAVE w3dref, variable startLayer, variable nrLayers)
+static Function RemoveImagesFromImageStack(WAVE wRef, variable startLayer, variable nrLayers)
 	// Remove nrLayers starting at startLayer from w3dRef
-	variable nL = DimSize(w3dref, 2)
+	variable nL = DimSize(wRef, 2)
 	if(nl < 2 || startLayer > nL)
-		return -1
+		return NaN
 	elseif(startLayer + nrLayers > nL)
 		nrLayers = nL - startLayer
 	endif
-	ImageTransform/O/P=(startLayer)/NP=(nrLayers) removeZplane w3dRef
+	string rmRangeStr = num2str(startLayer)+"-"+num2str(startLayer+nrLayers-1)
+	string notesStr = note(wRef) // Get the note
+	ImageTransform/O/P=(startLayer)/NP=(nrLayers) removeZplane wRef
+	ATH_String#UpdateStackWaveNote(wRef,rmRangeStr, 1, noteStr=notesStr)
+	// Use it to change wave notes
 	return 0
 End
 
@@ -467,7 +471,7 @@ static Function RestoreTopImageFromBackup([string grfName, variable keepBackup])
 	return 0
 End
 
-static Function ExtractLayerRange(WAVE w3d, [variable startL, variable endL, 
+static Function/S ExtractLayerRange(WAVE w3d, [variable startL, variable endL, 
 				variable doStack, variable nameNote])
 	// Extract layers to a new stack
 	variable  nlayers = DimSize(w3d, 2), i
@@ -476,7 +480,7 @@ static Function ExtractLayerRange(WAVE w3d, [variable startL, variable endL,
 	
 	if(endL > nlayers - 1 || endL < startL || startL < 0 || WaveDims(w3d) != 3)
 		print "Cannot do it, check ATH_ImgOp#ExtractLayerRange"
-		return NaN
+		return ""
 	endif
 	variable totL = endL - startL + 1 // include endpoints
 	DFREF saveDF = GetDataFolderDFR()
@@ -495,13 +499,14 @@ static Function ExtractLayerRange(WAVE w3d, [variable startL, variable endL,
 		Duplicate/O M_Stack, saveDF:$saveStackNameStr
 		SetScale/P z, offset, dz, saveDF:$saveStackNameStr
 		Note saveDF:$saveStackNameStr, "Layers=[" + num2str(startL) +","+\
-		num2str(endL) + "], source: " + GetWavesDataFolder(w3d,2)				
+		num2str(endL) + "], source: " + GetWavesDataFolder(w3d,2)
+		SetDataFolder saveDF
+		return GetWavesDataFolder(saveDF:$saveStackNameStr,2)
 	else
 		string folder = CreateDataObjectName(saveDF, NameOfWave(w3d) + " layers", 11, 0, 1)
 		NewDataFolder/S $folder
 		if(nameNote)
-			string regex = "(---\* Stacked waves \*---\n)((.|\n)*)(\*--------------------------\*)", s0, waveListStr, wname
-			SplitString/E=regex note(w3d), s0, waveListStr, wname
+			string wavelistStr = ATH_string#GetStackNamesFromNote(w3d), wname
 			waveListStr = ATH_String#RemoveIndexKeysFromList(waveListStr, keySep=">", listSep="\n")
 			// TODO: Make a better checking on notes and wavenames
 			if(ItemsInList(waveListStr, "\n") != nlayers) // No matching notes so extraxt 
@@ -513,7 +518,6 @@ static Function ExtractLayerRange(WAVE w3d, [variable startL, variable endL,
 					Note wRef, "Layer=" + num2str(i) + ", source: " + GetWavesDataFolder(w3d,2)				
 				endfor
 			else
-				print "2"
 				waveListStr = ATH_String#GetRangeItemsFromList(waveListStr, "\n", startL, endL)
 				// Assume here all are extracted as it should
 				print "Else\n", waveListStr
@@ -526,7 +530,6 @@ static Function ExtractLayerRange(WAVE w3d, [variable startL, variable endL,
 				endfor
 			endif
 		else
-			print "3"
 			for(i = startL; i < endL+1; i++)
 				MatrixOP $("layer" + num2str(i)) = layer(w3d, i)
 				WAVE wRef = $("layer" + num2str(i))
@@ -534,9 +537,10 @@ static Function ExtractLayerRange(WAVE w3d, [variable startL, variable endL,
 				Note wRef, "Layer=" + num2str(i) + ", source: " + GetWavesDataFolder(w3d,2)				
 			endfor
 		endif
+		SetDataFolder saveDF
+		return folder
 	endif
-	SetDataFolder saveDF
-	return 0
+	
 End
 
 static Function AverageImageRangeToStackOffset(WAVE w3d, variable NP0, variable NPL)

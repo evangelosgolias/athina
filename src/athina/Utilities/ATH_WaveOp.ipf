@@ -80,30 +80,12 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	
 	makeInSourceDFR = ParamIsDefault(makeInSourceDFR) ? 0: makeInSourceDFR
 	autoPath = ParamIsDefault(autoPath) ? 0: autoPath
-	string listOfSelectedWaves = ""
 	
-	// Test not needed here -- Called from ATH_LaunchMake3DWaveDataBrowserSelection()
-	//
-	// if name in use by a global wave/variable 
-	//	if(!exists(wname3d) == 0) // 0 - Name not in use, or does not conflict with a wave, numeric variable or string variable in the specified data folder.
-	//		print "ATH: Renamed your wave to \"" + (wname3d + "_rn") + "\" to avoid conflicts"
-	//		wname3d += "_rn"
-	//	endif
-	string buffer		
-	variable i = 0
-	do
-		buffer = GetBrowserSelection(i)
-		if(WaveExists($buffer) && WaveDims($buffer) > 1 && WaveDims($buffer) < 4)
-			listOfSelectedWaves += buffer + ";" // Match stored at S_value
-		endif
-		i++
-	while (strlen(GetBrowserSelection(i)))
+	// Comment out to sort as seen in DB, not alphanumeically because
+	// it fails with decimals
+	// listOfSelectedWaves = SortList(listOfSelectedWaves,";", 16)
 	
-	// Sort alphanumerically
-	// NOTE: w705 goes after w709.8 because w709.8 becomes 'w709.8'
-
-	// Comment out to sort as seen in DB
-	//listOfSelectedWaves = SortList(listOfSelectedWaves,";", 16)
+	string listOfSelectedWaves = ATH_String#GetSelectedWaveNamesinDB()
 	
 	variable nrwaves = ItemsInList(listOfSelectedWaves)
 	if (nrwaves < 2)
@@ -153,10 +135,10 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	//CopyScales t2dwred, w3dref 
 	// Add a note about the stacked waves
 	
-	// Kill note, as the stacked wave strings will be used as key/values
-	string indices = ATH_String#ExpandRangeStr("0-"+num2str(nrwaves-1))		
-	Note/K $wname3dStr, "---* Stacked waves *---\n" + \
-	ATH_String#ThreadStr(indices, listOfSelectedWaves, joinstr=">") + "*--------------------------*\n"
+	// 19.10.2025 trying to fix the issue with notes.
+	// Here list of waves is delimited by ";", see ATH_String#SetStackNamesInNote
+	// and mainly ATH_String#ThreadStr
+	ATH_String#SetStackNamesInNote($wname3dStr, listOfSelectedWaves)//, listSepI = ";", listSepW = ";")
 	// Go back to the cwd
 	if(makeInSourceDFR)
 		SetDataFolder saveDF
@@ -188,8 +170,7 @@ End
 static Function UnpackLayersToSources(WAVE wRef)
 	// Unpack layers to destination waves
 	// as grabbed from wave note.
-	string regex = "(---\* Stacked waves \*---\n)((.|\n)*)(\*--------------------------\*)", s0, waveListStr, s1
-	SplitString/E=regex note(wRef), s0, waveListStr, s1
+	string wavelistStr = ATH_string#GetStackNamesFromNote(wRef)
 	waveListStr = ATH_String#RemoveIndexKeysFromList(waveListStr, keySep=">", listSep="\n")
 	string wavePaths = ReplaceString("\n", waveListStr, ";") // Wavepaths in list
 	WAVE/WAVE wlist = ATH_WaveOp#WaveListStrToWaveRef(wavePaths, isFree = 1)

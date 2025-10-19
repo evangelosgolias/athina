@@ -299,8 +299,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ModifyControl ATH_W3DSlider win=$s.winName, userdata(ATH_StackedWaveList) = ""
 						DoWindow/T $s.winName, GetWavesDataFolder(w,2)						
 					else
-						string regex = "(---\* Stacked waves \*---\n)((.|\n)*)(\*--------------------------\*)", s0, waveListStr, s1
-						SplitString/E=regex note(w), s0, waveListStr, s1
+						string wavelistStr = ATH_string#GetStackNamesFromNote(w)
 						ModifyControl ATH_W3DSlider win=$s.winName, userdata(ATH_StackedWaveList) = waveListStr
 					endif
 					hookResult = 1

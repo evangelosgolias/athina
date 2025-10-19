@@ -592,7 +592,7 @@ static Function RemoveImagesFromImageStack()
 	else
 		return -1
 	endif
-	Prompt nrLayers, "How many layers you want to remove (start from top image)?"
+	Prompt nrLayers, "How many layers do you want to remove (start from top image)?"
 	DoPrompt "ATH_RemoveImagesFromImageStack", nrLayers
 	if(nrLayers > 0 && !V_flag) // TODO: Use negative for backward removal
 		ATH_ImgOp#RemoveImagesFromImageStack(w3dref, startLayer, nrLayers)
@@ -817,7 +817,8 @@ static Function ExtractLayerRangeToStack()
 		if(!cmpstr(separatorStr,"-"))
 			ATH_ImgOp#ExtractLayerRange(wRef, startL=str2num(sval1), endL=str2num(sval2), doStack=0, nameNote = 1)
 		elseif(!cmpstr(separatorStr,","))
-			ATH_ImgOp#ExtractLayerRange(wRef, startL=str2num(sval1), endL=str2num(sval2), doStack=1)
+			string wRef_stck = ATH_ImgOp#ExtractLayerRange(wRef, startL=str2num(sval1), endL=str2num(sval2), doStack=1)
+			ATH_String#SetStackNamesInNote($wRef_stck,ATH_String#GetStackNamesForWaveNote(wRef, sval1+"-"+sval2, 0),listSepW="\n")
 		else
 			print "Wrong input, please check ExtractLayerRangeToStack() in ATH_Launch module"
 		endif
