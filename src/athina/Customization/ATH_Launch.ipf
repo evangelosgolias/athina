@@ -803,8 +803,8 @@ static Function ExtractLayerRangeToStack()
 		print "ExtractLayersToStack() needs an image stack in top graph."
 		return -1
 	endif
-	string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Enter layer range as \"3-7\" to extract to a folder or \"3,7\" to "+\
-	"extract to a stack (zero-based indexing).\nLeave empty to extract all layers to a folder using the stack"+\
+	string rangeStr = ATH_Dialog#GenericSingleStrPrompt("Enter layer range as \"3-7\" to extract to a stack or \"3,7\" to "+\
+	"extract to a folder (zero-based indexing).\nLeave empty to extract all layers to a folder using the stack"+\
 	" names (see wave note) or enter a dash \"-\" or comma \",\" for auto-naming using indices.",\
 	"Extract image range from stack")
 	string sval1, sval2, separatorStr
@@ -814,15 +814,18 @@ static Function ExtractLayerRangeToStack()
 		ATH_ImgOp#ExtractLayerRange(wRef,doStack=0)
 	else
 		SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
-		if(!cmpstr(separatorStr,"-"))
+		if(!cmpstr(separatorStr,","))
 			ATH_ImgOp#ExtractLayerRange(wRef, startL=str2num(sval1), endL=str2num(sval2), doStack=0, nameNote = 1)
-		elseif(!cmpstr(separatorStr,","))
+		elseif(!cmpstr(separatorStr,"-"))
 			string wRef_stck = ATH_ImgOp#ExtractLayerRange(wRef, startL=str2num(sval1), endL=str2num(sval2), doStack=1)
-			ATH_String#SetStackNamesInNote($wRef_stck,ATH_String#GetStackNamesForWaveNote(wRef, sval1+"-"+sval2, 0),listSepW="\n")
+			if(WaveExists($wRef_stck))
+				ATH_String#SetStackNamesInNote($wRef_stck,ATH_String#GetStackNamesForWaveNote(wRef, sval1+"-"+sval2, 0),listSepW="\n")
+			endif
 		else
 			print "Wrong input, please check ExtractLayerRangeToStack() in ATH_Launch module"
 		endif
 	endif
+	return 0
 End
 
 

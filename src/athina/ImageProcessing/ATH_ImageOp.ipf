@@ -479,7 +479,7 @@ static Function/S ExtractLayerRange(WAVE w3d, [variable startL, variable endL,
 	endL = ParamIsDefault(endL) ? nlayers - 1 : endL	
 	
 	if(endL > nlayers - 1 || endL < startL || startL < 0 || WaveDims(w3d) != 3)
-		print "Cannot do it, check ATH_ImgOp#ExtractLayerRange"
+		print "Error in layer range, check your input (ATH_ImgOp#ExtractLayerRange)"
 		return ""
 	endif
 	variable totL = endL - startL + 1 // include endpoints
