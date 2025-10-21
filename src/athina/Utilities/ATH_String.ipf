@@ -285,10 +285,10 @@ End
 
 static Function/S GetStackNamesFromNote(WAVE wref)
 	//Get the stings with the pathnames of all layers stacked in wave
-	string regex = "([\s\S]*?---\* Stacked waves \*---(?:\r?\n|\r|\n)?)"+\
-	"([\s\S]*?\*--------------------------\*(?:\r?\n|\r|\n)?)([\s\S]*$)"
-	string s0, waveListStr, s1	
-	SplitString/E=regex note(wRef), s0, waveListStr, s1
+	string regex = "([\s\S]*?(?=---\* Stacked waves \*---(?:\r?\n|\r|\n)?))(---\* Stacked waves \*---(?:\r?\n|\r|\n)*)"+\
+	"([\s\S]*?(?=\*--------------------------\*(?:\r?\n|\r|\n)?))(\*--------------------------\*(?:\r?\n|\r|\n)*)([\s\S]*$)"
+	string strBefore, dump0, waveListStr, dump1, strAfter
+	SplitString/E=regex note(wRef), strBefore, dump0, waveListStr, dump1, strAfter
 	return waveListStr
 End
 
