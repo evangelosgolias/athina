@@ -318,7 +318,7 @@ static Function ImageStackAlignmentPartition()
 		return NaN
 	endif
 	ATH_WaveOp#SetScalesP(wRef,x0, y0, z0, dx, dy, dz)
-	driftCorrectionNoteStr = "/nDrift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
+	driftCorrectionNoteStr = "\nDrift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
 	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(subPixel, "dummy;Yes;No") + "\n"
 	driftCorrectionOriginalNoteStr += driftCorrectionNoteStr
 	KillWaves partitionWave

@@ -1047,9 +1047,9 @@ static Function LoadDATFilesFromFolderMT([int displayImg])
 	variable FoV = ReadFovFromDATFile(folder+firstFilename)
 	SetScale/I x, 0, FoV, $stackNameStr
 	SetScale/I y, 0, FoV, $stackNameStr
-	Note $stackNameStr, "Loaded from folder: " + folder + " the files:"
 	string indices = ATH_String#ExpandRangeStr("0-"+num2str(filesnr-1))	
-	Note/K $stackNameStr, "---* Stacked waves *---\n" + \
+	Note $stackNameStr, "Loaded from folder: " + folder + "\n"	
+	Note $stackNameStr, "---* Stacked waves *---\n" + \
 	ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=">") + \
 	"*--------------------------*\n"
 	if(displayImg)
@@ -1089,7 +1089,7 @@ static Function LoadMultiplyDATFilesMT([int displayImg])
 	SetScale/I x, 0, FoV, $stackNameStr
 	SetScale/I y, 0, FoV, $stackNameStr
 	string indices = ATH_String#ExpandRangeStr("0-"+num2str(nrloadFiles-1))	
-	Note/K $stackNameStr, "---* Stacked waves *---\n" + \
+	Note $stackNameStr, "---* Stacked waves *---\n" + \
 	ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=">") + \
 	"*--------------------------*\n"
 	
@@ -1141,8 +1141,11 @@ static Function LoadDATFilesMatchingPattternToStackMT([int displayImg, int patte
 	variable FoV = ReadFovFromDATFile(folder+StringFromList(0,loadFiles))
 	SetScale/I x, 0, FoV, $stackNameStr
 	SetScale/I y, 0, FoV, $stackNameStr	
-	string indices = ATH_String#ExpandRangeStr("0-"+num2str(nrloadFiles-1))	
-	Note/K $stackNameStr, "---* Stacked waves *---\n" + \
+	string indices = ATH_String#ExpandRangeStr("0-"+num2str(nrloadFiles-1))
+	string noteStr = "Loaded files matching pattern: " + patternStr	+ "\n" +\
+					 "Source: " + folder + "\n"
+	Note $stackNameStr, noteStr
+	Note $stackNameStr, "---* Stacked waves *---\n" + \
 	ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=">") + \
 	"*--------------------------*\n"
 	
