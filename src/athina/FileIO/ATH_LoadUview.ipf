@@ -1166,6 +1166,7 @@ static Function ReadFovFromDATFile(string filepathStr)
 	FBinRead numRef, ATHFileHeader		
 	FSetPos numRef, ATHFileHeader.size
 	FBinRead numRef, ATHImageHeader
+	
 	//Elmitec files can have additional markup blocks hence the offsets of 128 bytes
 	if(ATHImageHeader.attachedMarkupSize == 0)
 		//no markups

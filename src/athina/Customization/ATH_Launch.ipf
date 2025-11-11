@@ -271,7 +271,7 @@ static Function ImageStackAlignmentPartition()
 	if(!WaveExists(wRef))
 		return NaN
 	endif
-	variable method = 1
+	variable method = 2
 	variable layerN = ATH_Graph#GetgLayer("")
 	variable subPixel = 2
 	string msg = "Align " + NameOfWave(wRef) + " using part of the image."
