@@ -120,13 +120,13 @@ static Function CreateiXMCDPanel(WAVE wXMCD)
 	SetVariable setDriftStep,win=$winiXMCDNameStr,value=gATH_driftStep,help={"Set drift value for img2"}
 	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,64,1},live=1,proc=ATH_iXMCD#SetDriftStepVar	
 
-	SetVariable setImgScale,win=$winiXMCDNameStr,pos={270,10},size={135,20},title="I_scaling"
-	SetVariable setImgScale,win=$winiXMCDNameStr,value=gATH_IntensityScale,help={"Intensity scaling of img2 (multiplication)"}
+	SetVariable setImgScale,win=$winiXMCDNameStr,pos={270,10},size={120,20},title="I_scaling"
+	SetVariable setImgScale,win=$winiXMCDNameStr,value=gATH_IntensityScale,help={"Intensity scaling of img2 (img2 x factor)"}
 	SetVariable setImgScale,win=$winiXMCDNameStr,fSize=14,limits={0,10,0.01},live=1,proc=ATH_iXMCD#SetRadialScale
 
 	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20,10},size={90,20},proc=ATH_iXMCD#SaveXMCDImageButton
 	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save XMCD", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
-	Button RestoreImgs title="Restore",fColor=(3,52428,1),size={70,20},pos={420,10},valueColor=(0,0,0),proc=ATH_iXMCD#RestoreImagesButton
+	Button RestoreImgs title="Restore",fColor=(3,52428,1),size={70,20},pos={400,10},valueColor=(0,0,0),proc=ATH_iXMCD#RestoreImagesButton
 	
 	// Set the path to all windows
 	string dfrStr = GetWavesDataFolder(wXMCD, 1)
@@ -225,14 +225,14 @@ static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 			+ wName1Str + "\nimg2: " + wName2Str + "\nTotal img2 pixel drift dx:" + num2str(gATH_dx) \
 			+ " dy:" + num2str(gATH_dy) + "\n"
 			if(gATH_IntensityScale != 1)
-				note2WaveStr += "Scaled by multiplying "+wName2Str+"by "+num2str(gATH_IntensityScale)+"\n"		
+				note2WaveStr += "Scaled (factor x wimg2) "+wName2Str+" with "+num2str(gATH_IntensityScale)+"\n"		
 			endif
-			note2WaveStr += "Copy to command line: \nImageInterpolate/APRM={1,0,"+num2str(gATH_dx)+",0,1,"+num2str(gATH_dy)+\
-			",1,0} Affine2D " + wName2Str
+//			note2WaveStr += "Copy to command line: \nImageInterpolate/APRM={1,0,"+num2str(gATH_dx)+",0,1,"+num2str(gATH_dy)+\
+//			",1,0} Affine2D " + wName2Str
 			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)
 			string savexmcdWaveStr = CreatedataObjectName(sourceDF, "iXMCD", 1, 0, 1)
 			Duplicate wXMCD, sourceDF:$savexmcdWaveStr
-			Note sourceDF:$savexmcdWaveStr, note2WaveStr
+			Note/K sourceDF:$savexmcdWaveStr, note2WaveStr
 			break
 	endswitch
 	return 0
@@ -265,7 +265,7 @@ static Function SetRadialScale(STRUCT WMSetVariableAction &sva) : SetVariableCon
 			string dfrStr = GetUserData(sva.win, "", "ATH_iXMCDPath")
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
 			NVAR/SDFR=dfr gATH_IntensityScale, gATH_dx, gATH_dy
-			SVAR/SDFR=dfr wName2Str
+			SVAR/SDFR=dfr wName1Str, wName2Str
 			gATH_IntensityScale = sva.dval			
 			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_drift
 			if(gATH_IntensityScale) //should't be zero!
@@ -274,6 +274,25 @@ static Function SetRadialScale(STRUCT WMSetVariableAction &sva) : SetVariableCon
 				wimg2_drift *= gATH_IntensityScale
 				wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 			endif
+			// Give info about the ratio of signals in marquee if present
+			variable flag, left, right, top, bottom
+			[flag, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex()
+
+			if(flag)
+				variable avg1, avg2
+				WaveStats/Q/RMD=[left, right][top, bottom] wImg2
+				avg1 = V_avg
+				WaveStats/Q/RMD=[left, right][top, bottom] wImg1
+				avg2 = V_avg
+				//print "Avg intensity ratio " + wName1Str + " / " + wName2Str + " = " + num2str(avg1/avg2)
+				string baseTextStr, cmdStr
+				baseTextStr = "TextBox/W="+PossiblyQuoteName(sva.win)+"/C/N=IntRatioLog \"\\Z12I\B1\M\Z12/I\B2\M\Z12 = " + "%.4f\""
+				sprintf cmdStr, baseTextStr, avg1/avg2
+				Execute/Q/Z cmdStr
+			else
+				TextBox/K/N=IntRatioLog/W=$sva.win		
+			endif
+			
 			break
 		case -1: 							// Control being killed
 			break
