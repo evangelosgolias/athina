@@ -31,6 +31,13 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+
+// TODO:
+// Note 05.12.2025: Changed the code quickly to scale intensities instead of doing a radial interpolation
+// I cannot check now, but wImg2_drift might be redundant and it might be more effecttive to 
+// remove it. Have a check when you have time!
+
+
 static Function MenuLaunch()
 	/// Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
@@ -94,8 +101,7 @@ static Function MenuLaunch()
 	WAVE wImg2 = dfr:wImg2	
 	WAVE wXMCD = dfr:wXMCD
 	// Set global variables
-	variable/G dfr:gATH_driftStep = 1, dfr:gATH_dx = 0, dfr:gATH_dy = 0, dfr:gATH_radialScale = 0
-	variable/G dfr:gATH_radialScaleParam = 0
+	variable/G dfr:gATH_driftStep = 1, dfr:gATH_dx = 0, dfr:gATH_dy = 0, dfr:gATH_IntensityScale = 1
 	string/G dfr:wName1Str = wave1NameStr, dfr:wName2Str = wave2NameStr
 	wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 
@@ -104,7 +110,7 @@ End
 
 static Function CreateiXMCDPanel(WAVE wXMCD)
 	DFREF dfr = GetWavesDataFolderDFR(wXMCD) // Recover the dfr	
-	NVAR/SDFR=dfr gATH_driftStep, gATH_radialScaleParam
+	NVAR/SDFR=dfr gATH_driftStep, gATH_IntensityScale
 
 	string winiXMCDNameStr = ATH_Display#NewImg(wXMCD)
 	DoWindow/T $winiXMCDNameStr "iXMC(L)D"		
@@ -114,9 +120,9 @@ static Function CreateiXMCDPanel(WAVE wXMCD)
 	SetVariable setDriftStep,win=$winiXMCDNameStr,value=gATH_driftStep,help={"Set drift value for img2"}
 	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,64,1},live=1,proc=ATH_iXMCD#SetDriftStepVar	
 
-	SetVariable setImgScale,win=$winiXMCDNameStr,pos={270,10},size={135,20},title="Scaling"
-	SetVariable setImgScale,win=$winiXMCDNameStr,value=gATH_radialScaleParam,help={"Radial scaling of img2 in parts per 10.000"}
-	SetVariable setImgScale,win=$winiXMCDNameStr,fSize=14,limits={-1e4,1e4,1},live=1,proc=ATH_iXMCD#SetRadialScale
+	SetVariable setImgScale,win=$winiXMCDNameStr,pos={270,10},size={135,20},title="I_scaling"
+	SetVariable setImgScale,win=$winiXMCDNameStr,value=gATH_IntensityScale,help={"Intensity scaling of img2 (multiplication)"}
+	SetVariable setImgScale,win=$winiXMCDNameStr,fSize=14,limits={0,10,0.01},live=1,proc=ATH_iXMCD#SetRadialScale
 
 	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20,10},size={90,20},proc=ATH_iXMCD#SaveXMCDImageButton
 	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save XMCD", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
@@ -195,12 +201,12 @@ static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
-			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_radialScale, gATH_radialScaleParam
+			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_IntensityScale
 			WAVE/SDFR=dfr wImg1, wImg2, wImg2_drift, wXMCD
 			SVAR/SDFR=dfr wName2Str
 			Duplicate/O $wName2Str, wImg2, wImg2_drift
 			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
-			gATH_dx = 0; gATH_dy = 0; gATH_radialScale = 0; gATH_radialScaleParam = 0
+			gATH_dx = 0; gATH_dy = 0; gATH_IntensityScale = 1
 			break
 	endswitch
 	return 0
@@ -213,13 +219,13 @@ static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
 			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_drift
 			SVAR/SDFR=dfr wName1Str, wName2Str
-			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_radialScale
+			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_IntensityScale
 			variable postfix = 0
 			string note2WaveStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " \
 			+ wName1Str + "\nimg2: " + wName2Str + "\nTotal img2 pixel drift dx:" + num2str(gATH_dx) \
 			+ " dy:" + num2str(gATH_dy) + "\n"
-			if(gATH_radialScale != 1)
-				note2WaveStr += "ImageInterpolate/TRNS={radialPoly,"+num2str(gATH_radialScale)+",0,0,0}/DEST=dfr:M_Affine Resample "+wName2Str+"\n"		
+			if(gATH_IntensityScale != 1)
+				note2WaveStr += "Scaled by multiplying "+wName2Str+"by "+num2str(gATH_IntensityScale)+"\n"		
 			endif
 			note2WaveStr += "Copy to command line: \nImageInterpolate/APRM={1,0,"+num2str(gATH_dx)+",0,1,"+num2str(gATH_dy)+\
 			",1,0} Affine2D " + wName2Str
@@ -258,22 +264,16 @@ static Function SetRadialScale(STRUCT WMSetVariableAction &sva) : SetVariableCon
 		case 3: 							// Live update
 			string dfrStr = GetUserData(sva.win, "", "ATH_iXMCDPath")
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
-			NVAR/SDFR=dfr gATH_radialScale, gATH_radialScaleParam, gATH_dx, gATH_dy
+			NVAR/SDFR=dfr gATH_IntensityScale, gATH_dx, gATH_dy
 			SVAR/SDFR=dfr wName2Str
-			gATH_radialScaleParam = sva.dval			
-			gATH_radialScale = 1 + gATH_radialScaleParam/1e4 // Scale in parts per 1e4.
-			WAVE/SDFR=dfr wImg1, wImg2, wimg2_drift, wXMCD
-			if(gATH_radialScaleParam)
-				ImageInterpolate/TRNS={radialPoly,gATH_radialScale,0,0,0}/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Resample wimg2_drift
-					
-			else
-				WAVE/Z srcImg2 = $wName2Str
-				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D srcImg2
+			gATH_IntensityScale = sva.dval			
+			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_drift
+			if(gATH_IntensityScale) //should't be zero!
+				Duplicate/O $wName2Str, wImg2, wImg2_drift
+				wimg2 *= gATH_IntensityScale
+				wimg2_drift *= gATH_IntensityScale
+				wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 			endif
-			WAVE/SDFR=dfr M_Affine
-			Duplicate/O M_Affine, wImg2, wimg2_drift
-			CopyScales/I wimg1, wimg2, wimg2_drift
-			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 			break
 		case -1: 							// Control being killed
 			break

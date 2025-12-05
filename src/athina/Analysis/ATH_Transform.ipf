@@ -53,6 +53,86 @@ Function/WAVE GetAffine2DMapping(WAVE src, WAVE dest)
 	
 End
 
+static Function MakeImageRegistrationParamsWave(WAVE wRef)
+
+	// wRef comes from the affine transformation matrix	
+	// W_ParamsOut={xDrift,yDrift,0,invXscale,-ySkew,0,-xSkew,invYscale,0,0,0,1,0,0,0,0,0,0,0,0,0,0}
+	//	0		dx			11		a33
+	//	1		dy			12		gamma
+	//	2		dz			13		phi
+	//	3		a11			14		theta
+	//	4		a12			15		psi
+	//	5		a13			16		lambda
+	//	6		a21			17		origin_x
+	//	7		a22			18		origin_y
+	//	8		a23			19		origin_z
+	//	9		a31			20		MSE
+	//	10		a32			21		SNR
+	WAVE/D/Z W_ParamsOut
+	if(!WaveExists(W_ParamsOut))
+		Make/O/D/N=22 W_ParamsOut
+		SetDimLabel 0,0, dx,W_ParamsOut;SetDimLabel 0,1, dy,W_ParamsOut;SetDimLabel 0,2, dz,W_ParamsOut
+		SetDimLabel 0,3, a11,W_ParamsOut;SetDimLabel 0,4, a12,W_ParamsOut;SetDimLabel 0,5, a13,W_ParamsOut
+		SetDimLabel 0,6, a21,W_ParamsOut;SetDimLabel 0,7, a22,W_ParamsOut;SetDimLabel 0,8, a23,W_ParamsOut
+		SetDimLabel 0,9, a31,W_ParamsOut;SetDimLabel 0,10, a32,W_ParamsOut;SetDimLabel 0,11, a33,W_ParamsOut
+		SetDimLabel 0,12, gamma,W_ParamsOut;SetDimLabel 0,13, phi,W_ParamsOut;SetDimLabel 0,14, theta,W_ParamsOut
+		SetDimLabel 0,15, psi,W_ParamsOut;SetDimLabel 0,16, lambda,W_ParamsOut;SetDimLabel 0,17, origin_x,W_ParamsOut
+		SetDimLabel 0,18, origin_y,W_ParamsOut;SetDimLabel 0,19, origin_z,W_ParamsOut
+		SetDimLabel 0,20, MSE,W_ParamsOut;SetDimLabel 0,21, SNR,W_ParamsOut
+	endif
+	W_ParamsOut={wRef[4],wRef[5],0,1/wRef[0],-wRef[3],0,-wRef[2],1/wRef[1],0,0,0,1,0,0,0,0,0,0,0,0,0,0}
+	return 0
+End
+
+//Function D_ResolveDistMatrix(V_1,V_2)
+//	wave V_1,V_2  
+//	
+//	//calculate the distortion matrix components by solving a linear system of equations
+//	//V_1 and V_2 are the undistorted and distorted vectors in the form:
+//	//{x1,y1,x2,y2,x3,y3}, where xn,yn is the n-vector 
+//	//the components of the undistorted vector V_1 are put into the matrix M_input that defines the linear system 
+//	                          
+//	variable x1=V_1[0],y1=V_1[1],x2=V_1[2],y2=V_1[3],x3=V_1[4],y3=V_1[5]
+//	
+//	make/O M_input={{x1,0,x2,0,x3,0},{0,y1,0,y2,0,y3},{0,x1,0,x2,0,x3},{y1,0,y2,0,y3,0},{1,0,1,0,1,0},{0,1,0,1,0,1}}
+//	
+//	matrixLinearSolve/Z M_input,V_2
+//	//solution is in M_b
+//	
+//	return V_flag
+//End
+
+
+
+//Function D_Distort(wImage,W_ParamsIn,M_RoiMask)
+//	wave wImage,W_ParamsIn,M_RoiMask
+//	//apply the distortion to the image using imageregistration 
+//	//the roimask should be Single Precision and have non-zero numbers in the selected area
+//	//normally we do the opposite, so you should invert the mask (M_roiTmp= !M_roiMask[p][q])
+//	
+//	//duplicate/O/S M_roiMask M_roiTmp
+//	//M_roiTmp = (M_roiMask[p][q]==0)
+//	
+//	if ((wavetype(wImage)==2)&&(wavetype(W_ParamsIn)==4)&&(wavetype(M_RoiMask)==2))
+//		imageregistration/Q/CONV=1/USER=W_ParamsIn testMask=M_roiMask  testWave=wImage
+//	else 
+//		duplicate/O wImage, wImageS
+//		duplicate/O M_RoiMask, M_RoiS
+//		redimension/S wImageS,M_Rois
+//		duplicate/O W_ParamsIn, W_ParamsInD
+//		redimension/D W_ParamsInD	
+//		imageregistration/Q/CONV=1/CSNR=0/USER=W_ParamsInD testMask=M_roiS testWave=wImageS
+//		killwaves W_paramsInD
+//	endif
+//	
+//	//killwaves M_roiTmp
+//	
+//	//wave/Z M_RegOut
+//	OP_CleanNan(M_RegOut)   //testMask=M_roiMask 
+//End	
+
+
+
 // TODO: FIXME
 // A quick solution for affineTransform
 // It does not work well, fix it
