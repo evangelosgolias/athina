@@ -32,12 +32,6 @@
 // ------------------------------------------------------- //
 
 
-// TODO:
-// Note 05.12.2025: Changed the code quickly to scale intensities instead of doing a radial interpolation
-// I cannot check now, but wImg2_drift might be redundant and it might be more effecttive to 
-// remove it. Have a check when you have time!
-
-
 static Function MenuLaunch()
 	/// Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
@@ -95,13 +89,14 @@ static Function MenuLaunch()
 	endif	
 	
 	Duplicate/O $wave1NameStr, dfr:wImg1
-	Duplicate/O $wave2NameStr, dfr:wImg2, dfr:wimg2_drift, dfr:wXMCD
+	Duplicate/O $wave2NameStr, dfr:wImg2, dfr:wimg2_undo, dfr:wXMCD
 	//Wave references
 	WAVE wImg1 = dfr:wImg1
 	WAVE wImg2 = dfr:wImg2	
 	WAVE wXMCD = dfr:wXMCD
 	// Set global variables
-	variable/G dfr:gATH_driftStep = 1, dfr:gATH_dx = 0, dfr:gATH_dy = 0, dfr:gATH_IntensityScale = 1
+	variable/G dfr:gATH_driftStep = 1, dfr:gATH_dx = 0, dfr:gATH_dy = 0
+	variable/G dfr:gATH_IntensityScale = 1, dfr:gATH_IntensityScaleMeM = 1
 	string/G dfr:wName1Str = wave1NameStr, dfr:wName2Str = wave2NameStr
 	wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 
@@ -122,7 +117,7 @@ static Function CreateiXMCDPanel(WAVE wXMCD)
 
 	SetVariable setImgScale,win=$winiXMCDNameStr,pos={270,10},size={120,20},title="I_scaling"
 	SetVariable setImgScale,win=$winiXMCDNameStr,value=gATH_IntensityScale,help={"Intensity scaling of img2 (img2 x factor)"}
-	SetVariable setImgScale,win=$winiXMCDNameStr,fSize=14,limits={0,10,0.01},live=1,proc=ATH_iXMCD#SetRadialScale
+	SetVariable setImgScale,win=$winiXMCDNameStr,fSize=14,limits={0,10,0.01},live=1,proc=ATH_iXMCD#SetIntensityScale
 
 	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20,10},size={90,20},proc=ATH_iXMCD#SaveXMCDImageButton
 	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save XMCD", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
@@ -140,7 +135,7 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iXMCDPath"))
 	if(s.specialKeyCode)
 		NVAR/SDFR=dfr gATH_driftStep, gATH_dx, gATH_dy
-		WAVE/SDFR=dfr wImg1, wImg2, wimg2_drift, wXMCD
+		WAVE/SDFR=dfr wImg1, wImg2, wimg2_undo, wXMCD
 		SVAR/SDFR=dfr wName2Str
 
 		variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
@@ -148,30 +143,22 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 		switch(s.specialKeyCode)
 			case 100: //left arrow
 				gATH_dx -= gATH_driftStep
-				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wimg2_drift
-				WAVE/SDFR=dfr M_Affine
-				Duplicate/O M_Affine, wImg2
+				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:wImg2 Affine2D wimg2_undo
 				hookResult = 1
 				break
 			case 101: //right arrow
 				gATH_dx += gATH_driftStep
-				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wimg2_drift
-				WAVE/SDFR=dfr M_Affine
-				Duplicate/O M_Affine, wImg2
+				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:wImg2 Affine2D wimg2_undo
 				hookResult = 1
 				break
 			case 102: // up arrow
 				gATH_dy -= gATH_driftStep
-				ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wimg2_drift
-				WAVE/SDFR=dfr M_Affine
-				Duplicate/O M_Affine, wImg2
+				ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:wImg2 Affine2D wimg2_undo
 				hookResult = 1
 				break
 			case 103: // down arrow
 				gATH_dy += gATH_driftStep
-				ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:M_Affine Affine2D wimg2_drift
-				WAVE/SDFR=dfr M_Affine
-				Duplicate/O M_Affine, wImg2
+				ImageInterpolate/APRM={1,0,gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:wImg2 Affine2D wimg2_undo
 				hookResult = 1
 				break
 			default:
@@ -202,9 +189,8 @@ static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 		case 2:	// "mouse up after mouse down"
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
 			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_IntensityScale
-			WAVE/SDFR=dfr wImg1, wImg2, wImg2_drift, wXMCD
-			SVAR/SDFR=dfr wName2Str
-			Duplicate/O $wName2Str, wImg2, wImg2_drift
+			WAVE/SDFR=dfr wImg1, wImg2, wimg2_undo, wXMCD
+			Duplicate/O wimg2_undo, wImg2
 			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 			gATH_dx = 0; gATH_dy = 0; gATH_IntensityScale = 1
 			break
@@ -217,7 +203,7 @@ static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 	switch(B_Struct.eventCode)	// numeric switch
 		case 2:	// "mouse up after mouse down"
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
-			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_drift
+			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_undo
 			SVAR/SDFR=dfr wName1Str, wName2Str
 			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_IntensityScale
 			variable postfix = 0
@@ -257,21 +243,21 @@ static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableCo
 End
 
 
-static Function SetRadialScale(STRUCT WMSetVariableAction &sva) : SetVariableControl
+static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariableControl
+
 	switch (sva.eventCode)
 		case 1: 							// Mouse up
 		case 2:							// Enter key
 		case 3: 							// Live update
 			string dfrStr = GetUserData(sva.win, "", "ATH_iXMCDPath")
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
-			NVAR/SDFR=dfr gATH_IntensityScale, gATH_dx, gATH_dy
-			SVAR/SDFR=dfr wName1Str, wName2Str
-			gATH_IntensityScale = sva.dval			
-			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_drift
+			NVAR/SDFR=dfr gATH_IntensityScale, gATH_IntensityScaleMeM, gATH_dx, gATH_dy
+			// Here get the old factor and calculae the next to avoid duplications
+			gATH_IntensityScale = sva.dval
+			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_undo
 			if(gATH_IntensityScale) //should't be zero!
-				Duplicate/O $wName2Str, wImg2, wImg2_drift
-				wimg2 *= gATH_IntensityScale
-				wimg2_drift *= gATH_IntensityScale
+				// Divide by gATH_IntensityScaleMeM ro restore wImg2
+				wImg2 *= gATH_IntensityScale / gATH_IntensityScaleMeM
 				wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 			endif
 			// Give info about the ratio of signals in marquee if present
@@ -280,11 +266,10 @@ static Function SetRadialScale(STRUCT WMSetVariableAction &sva) : SetVariableCon
 
 			if(flag)
 				variable avg1, avg2
-				WaveStats/Q/RMD=[left, right][top, bottom] wImg2
-				avg1 = V_avg
 				WaveStats/Q/RMD=[left, right][top, bottom] wImg1
+				avg1 = V_avg
+				WaveStats/Q/RMD=[left, right][top, bottom] wImg2
 				avg2 = V_avg
-				//print "Avg intensity ratio " + wName1Str + " / " + wName2Str + " = " + num2str(avg1/avg2)
 				string baseTextStr, cmdStr
 				baseTextStr = "TextBox/W="+PossiblyQuoteName(sva.win)+"/C/N=IntRatioLog \"\\Z12I\B1\M\Z12/I\B2\M\Z12 = " + "%.4f\""
 				sprintf cmdStr, baseTextStr, avg1/avg2
@@ -292,7 +277,7 @@ static Function SetRadialScale(STRUCT WMSetVariableAction &sva) : SetVariableCon
 			else
 				TextBox/K/N=IntRatioLog/W=$sva.win		
 			endif
-			
+			gATH_IntensityScaleMeM = sva.dval // Save the value
 			break
 		case -1: 							// Control being killed
 			break
