@@ -66,7 +66,7 @@ static Function CreatePanel()
 	string/G dfr:gATH_wNameStr = NameOfWave(wRef)
 	string/G dfr:gATH_wBackupPathNameStr = GetWavesDataFolder(dfr:$backupNameStr, 2)
 	variable/G dfr:gATH_Angle = 0 // Not set
-	variable/G dfr:gATH_FlipRows = 0
+	variable/G dfr:gATH_FlipCols = 0
 	NewPanel/K=1/EXT=0/N=iImageRotation/W=(0,0,300,130)/HOST=$winNameStr
 	
 	string pnlName = winNameStr + "#iImageRotation"
@@ -95,22 +95,20 @@ End
 
 static Function FlipRowsCheckBox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_iRotateFolder"))
-	NVAR/SDFR=dfr gATH_FlipRows
+	NVAR/SDFR=dfr gATH_FlipCols
 	SVAR/SDFR=dfr gATH_wPathname, gATH_wBackupPathNameStr
 	WAVE wRef = $gATH_wPathname
 	WAVE wRefbck = $gATH_wBackupPathNameStr
 	switch(cb.checked)
 		case 1:
-			gATH_FlipRows = 1
+			gATH_FlipCols = 1
 			CheckBox FlipRowsCB fColor=(2,39321,1), win=$cb.win
 			ImageTransform flipCols wRef
-			ImageTransform flipCols wRefbck
 			break
 		case 0:
-			gATH_FlipRows = 0
+			gATH_FlipCols = 0
 			CheckBox FlipRowsCB,fcolor=(65535,0,0), win=$cb.win
 			ImageTransform flipCols wRef
-			ImageTransform flipCols wRefbck
 			break
 	endswitch
 	return 0
@@ -165,11 +163,11 @@ static Function SliderProc(STRUCT WMSliderAction &sa) : SliderControl
 			if( sa.eventCode & 1 ) // value set
 				DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sa.win, "", "ATH_iRotateFolder"))
 				SVAR/SDFR=dfr gATH_wPathname, gATH_wBackupPathNameStr
-				NVAR/SDFR=dfr gATH_Angle
+				NVAR/SDFR=dfr gATH_Angle, gATH_FlipCols
 				WAVE wRef = $gATH_wPathname
 				WAVE wRefbck = $gATH_wBackupPathNameStr
 				gATH_Angle = sa.curval
-				ImageRestoreAndRotate(wRefbck, wRef, gATH_Angle)
+				ImageRestoreAndRotate(wRefbck, wRef, gATH_Angle, flipY=gATH_FlipCols)
 			endif
 			break
 	endswitch
@@ -211,13 +209,13 @@ static Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 	NVAR/SDFR=dfr gATH_Angle
 	WAVE wRef = $gATH_wPathname
 	WAVE wRefbck = $gATH_wBackupPathNameStr
-	NVAR/SDFR=dfr gATH_FlipRows	
+	NVAR/SDFR=dfr gATH_FlipCols	
 	string noteStr
 	strswitch (ba.ctrlName)
 		case "SaveImgB":
 			DFREF dfr = GetWavesDataFolderDFR(wRef)
 			noteStr = gATH_wPathname + " rotated by " + num2str(gATH_Angle) + " deg "
-			if(gATH_FlipRows)
+			if(gATH_FlipCols)
 				noteStr += "[Flipped y-axis (ImageTransform flipCols w)]."
 			endif			
 			string backupwNameStr = CreatedataObjectName(dfr, gATH_wNameStr + "_rot", 1, 0, 1)
@@ -229,7 +227,7 @@ static Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 			DoAlert 1, "Do want to ovewrite the source image? You cannot undo the operation"
 			if(V_Flag == 1)
 				noteStr = gATH_wPathname + " rotated by " + num2str(gATH_Angle) + " deg "
-				if(gATH_FlipRows)
+				if(gATH_FlipCols)
 					noteStr += "[Flipped y-axis (ImageTransform flipCols w)]."
 				endif
 				Note wRef, noteStr
@@ -240,7 +238,7 @@ static Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 			break
 		case "RestoreImageRotB":
 			Duplicate/O wRefbck, wRef
-			gATH_FlipRows = 0
+			gATH_FlipCols = 0
 			CheckBox FlipRowsCB,fcolor=(65535,0,0),value=0,win=$ba.win
 			gATH_Angle = 0 // Set angle to zero
 			break
@@ -249,9 +247,12 @@ static Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 End
 
 
-static Function ImageRestoreAndRotate(WAVE source, WAVE dest, variable angle)
+static Function ImageRestoreAndRotate(WAVE source, WAVE dest, variable angle, [int flipY])
 	/// Rotate dest, restore source
 	Duplicate/O source, dest
+	if(flipY)
+		ImageTransform flipCols dest
+	endif
 	ImageRotate/Q/O/A=(-angle)/E=0 dest
 	return 0
 End
