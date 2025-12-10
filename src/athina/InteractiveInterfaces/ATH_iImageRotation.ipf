@@ -99,19 +99,18 @@ static Function FlipRowsCheckBox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	SVAR/SDFR=dfr gATH_wPathname, gATH_wBackupPathNameStr
 	WAVE wRef = $gATH_wPathname
 	WAVE wRefbck = $gATH_wBackupPathNameStr
-		
 	switch(cb.checked)
 		case 1:
 			gATH_FlipRows = 1
 			CheckBox FlipRowsCB fColor=(2,39321,1), win=$cb.win
-			MatrixOP/FREE wRefFREE = reverseRows(wRef)
-			Duplicate/O wRefFREE, wRef
+			ImageTransform flipCols wRef
+			ImageTransform flipCols wRefbck
 			break
 		case 0:
 			gATH_FlipRows = 0
 			CheckBox FlipRowsCB,fcolor=(65535,0,0), win=$cb.win
-			MatrixOP/FREE wRefFREE = reverseRows(wRef)
-			Duplicate/O wRefFREE, wRef
+			ImageTransform flipCols wRef
+			ImageTransform flipCols wRefbck
 			break
 	endswitch
 	return 0
