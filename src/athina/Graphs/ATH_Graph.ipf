@@ -391,7 +391,7 @@ static Function LinkGraphRanges([string grfName])
 	if(V_flag)
 		return 0
 	endif	
-	SetWindow $grfName userdata(ATH_LinkedGraphAxesRangesStr) = linkedGraph		
+	SetWindow $grfName userdata(ATH_LinkedGraphAxesRangesStr) = linkedGraph
 	SetWindow $grfName hook(ATH_LinkedGraphAxesRangeHook) = ATH_Graph#LinkedGraphAxesRangeHook
 	SetWindow $linkedGraph userdata(ATH_LinkedGraphAxesRangesStr) = grfName	
 	SetWindow $linkedGraph hook(ATH_LinkedGraphAxesRangeHook) = ATH_Graph#LinkedGraphAxesRangeHook
@@ -405,17 +405,34 @@ End
 
 static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 	variable hookResult
+	if(cmpstr(s.cursorName, "-"))
+		string CsrName  = s.cursorName
+	endif
+	string linkedGraph = GetUserData(s.winName, "", "ATH_LinkedGraphAxesRangesStr")
 	switch (s.eventCode)
 		case 2:
-			string linkedGraph = GetUserData(s.winName, "", "ATH_LinkedGraphAxesRangesStr"), axisX, axisY
+			string axisX, axisY
 			SetWindow $linkedGraph userdata(ATH_LinkedGraphAxesRangesStr) = ""
 			SetWindow $linkedGraph hook(ATH_LinkedGraphAxesRangeHook) = $""
-			[axisX, axisY] = ATH_Graph#GetAxes(grfName=linkedGraph)		
+			[axisX, axisY] = ATH_Graph#GetAxes(grfName=linkedGraph)
 			ModifyGraph/W=$linkedGraph axRGB($axisX)=(0,0,0),tlblRGB($axisX)=(0,0,0)
-			ModifyGraph/W=$linkedGraph axRGB($axisY)=(0,0,0),tlblRGB($axisY)=(0,0,0)			
+			ModifyGraph/W=$linkedGraph axRGB($axisY)=(0,0,0),tlblRGB($axisY)=(0,0,0)
+			hookResult = 1		
+			break
+		case 4: 
+			// Note: On Windows, you have to mouse-click to enable it
+			if(s.eventMod & 2) // SHIFT
+				DrawAction/L=Overlay/W=$linkedGraph delete
+				SetDrawLayer/W=$linkedGraph Overlay	
+				SetDrawEnv/W=$linkedGraph linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
+				variable nx = AxisValFromPixel(s.winName, "top", s.mouseLoc.h), ny = AxisValFromPixel(s.winName, "left", s.mouseLoc.v)
+				DrawOval/W=$linkedGraph nx-1,ny-1,nx+1,ny+1
+				hookResult = 1
+			else
+				DrawAction/L=Overlay/W=$linkedGraph delete
+			endif	
 			break
 		case 8:
-			linkedGraph = GetUserData(s.winName, "", "ATH_LinkedGraphAxesRangesStr")
 			variable minX, maxX, minY, maxY
 			[axisX,minX,maxX, axisY,minY,maxY] = ATH_Graph#GetAxesRange(grfName=s.winName)
 			GetAxis/Q/W=$linkedGraph $axisY
@@ -434,7 +451,8 @@ static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 				SetAxis/R/W=$linkedGraph $axisY, minY, maxY
 				hookResult = 0
 				break
-			endif			
+			endif
+			hookResult = 1		
 		break
 	endswitch
 	return hookResult
