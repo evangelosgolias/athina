@@ -12,38 +12,48 @@ otherwise use the public gitlab link:
 
 **There are two options for the installation.**
 
-## Auto-load athina at Igor startup
+## Auto-load at startup (recommended)
 
-Copy the folder **athina** in **/src** to:
+Copy the `athina` folder from `/src` to:
 
-*Windows*:
-C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
+**Windows**
 
-*Mac*:
-/Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
+    C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
 
-**athina will automatically load when you launch Igor Pro.**
+**macOS**
+
+    /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
 
 
-## Manually load athina from Macros menu
+**athina** will automatically load when Igor Pro
+starts.
 
-Copy the **athinaStartUp.ipf** file to:
 
-*Windows*:
-C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
+## Manually load athina
 
-*Mac*:
-/Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
+1.  Copy the `athinaStartUp.ipf` file to:
 
-Copy the folder **athina** in **/src** to:
+**Windows**
 
-*Windows*:
-C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
+    C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\Igor Procedures
 
-*Mac*:
-/Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/User Procedures
+**macOS**
 
-**To launch the package, go to Macros > athina**
+    /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
+
+2.  Copy the `athina` folder from `/src` to:
+
+**Windows**
+
+    C:\Users\UserName\Documents\WaveMetrics\Igor Pro 9 User Files\User Procedures
+
+**macOS**
+
+    /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/User Procedures
+
+Load **athina** from Macros menu as "Macros > Load athina". 
+Once loaded, the software can be unloaded as "Macros > Unload athina". 
+
 
 ```{hint} 
 If you don't know where the folders are, select on the main menu **Help > Show Igor Pro User Files in Igor Pro**.

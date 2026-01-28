@@ -111,7 +111,7 @@ Ellipsis (...) at the end of a main menu entry singals for a follow-up prompt.
 :align: center
 :name: athina_menu
 
-athina's "Image Operations" menu items
+athina's "Image Operations" menu items. Menu items can change in newer versions of the code. 
 ```
 
 Contexual menus right-click on an image;border of graph;item in the data browser etc. reveal more custom operations. **athinas' operations are prefixed with "ATH"**. Most names are self-explanatory followed by indications, see above, for the objects they can operate.
@@ -124,10 +124,11 @@ athina extends Igor's capabilities by adding support for:
 
 - .dat files: Elmitec's proprietatary image format
 - .tif stack: TVIPS EMMENU5 tif image stack format
+- .p3b: ALS P3B file format
 - .nxs: NeXus files
 - .HDF5: custom HDF5 files used at MAXIV
 
-To load data go to **athina > Import >** and the following menu will appear:
+To load data go to **athina > Import >** and use the submenu that corresponds to your data format.
 
 ```{figure} media/importData.png
 :alt: importData
@@ -137,15 +138,5 @@ To load data go to **athina > Import >** and the following menu will appear:
 
 Import data using athina's main menu entry.
 ```
-then select an item to procced. The options are: 
-
-- .dat files... : Import selected .dat files.
-- .dat files in folder and stack ... : Import all .dat files in the selected folder and stack them (3D wave).
-- .dat files and stack ... : Import selected .dat files and stack them (3D wave).
-- .dat files in folder... : Import all .dat files in a folder.
-- .tif (EMMENU5)... : Import selected .tif file (3D wave).
-- .tifs (EMMENU5) and stack... : Import selected .tif file and stack them (3D wave).
-- .HDF5 file ... : Import entries from an HDF5 file (Groups have names "entryX", X is a number).
-- .nxs NeXus files ...: Import data from a NeXus file.
 
 Build time: {sub-ref}`today`

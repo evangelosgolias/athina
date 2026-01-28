@@ -14,9 +14,9 @@ There are two ways to calculate the XMLD/XMCD.
 
 **A:** You need a stack with just two images to calculate the XMLD/XMCD. To create the stack select the two images in the data browser, right click and "Make stack and display".
 
-Use the slider to check if the two images are aligned. If there is a drift, correct it (see [Drift Correction](operations.md#drift-correction)). Then right-click on the image and press "ATH Calculate XMC(L)D (3D[2])".
+Use the slider to check if the two images are aligned. If there is a drift, correct it (see [Drift Correction](operations.md#drift-correction)), you can just press "x" and you will get the calculated XMCD image if you used the function "ATH NewImage" to display the stack. 
 
-**B:** You can use the menu entry "athina > XMC(L)D calculation > XMC(L)D (2D[2]) ...". A new data browser will pop to select two images to calculate the XMCD.  *N.B You have to be sure that the images are aligned!*
+**B:** Use the menu entry "athina > XMC(L)D calculation > XMC(L)D (2D[2]) ...". A new data browser will pop to select two images to calculate the XMCD.  *N.B You have to be sure that the images are aligned!*
 
 ### Interactive 
 
@@ -25,6 +25,7 @@ You can use an interactive interface to calculate the XMCD/XMLD and correct imag
 You will then see the following interfaces (see image below). The image on the right is the calculated XMC(L)D = (img1-img2)/(img1 + img2). On the left you can see the sum of the two images img1 + img2 (note the graph titles!). Use the arrow keys to correct the drift, **the right image has to be the active/top graph, otherwise the arrow keys will have no effect!**.
 
 You can set in the "Drift step (px)" box how many pixels per keystroke you'd like the image to move, sub-pixel or non-integer pixels are allowed. If you press the button "Restore" you start over, and if you press "Save XMCD" the current XMCD/XMLD image is saved.
+Use the "I\_scaling" factor to scale the intensity of img2 before calculating the XMC(L)D.
 
 ```{figure} media/interactive_xmcd.png
 :alt: interactive xmcd

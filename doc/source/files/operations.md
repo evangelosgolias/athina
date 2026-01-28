@@ -188,26 +188,8 @@ Launch drift correction from the main menu targeting the top graph.
 There you have the following options:
 
 * "Method": Registration or Correlation
-* "Reference layer": Reference layer, the image to compare against for drift correction.
-* "Apply filter": Apply one filter: gauss, avg, median, max or min.
-* "Filter N = 3 ..": Filte's size (N x N matrix).
-* "Apply filter 1..5 times": How many times to apply the filter.
-* "Apply histogram equalization": Yes/No.
-* "Edge detection method": shen, kirsch, sobel, prewitt, canny, roberts, marr or frei.
+* "Reference layer": Reference layer, the image to compare against for drift correction. Current layer of the stack is the default.
 * "Sub-pixel drift (Registration)": Enable sub-pixel corrections (applies to Registration only), by default the program corrects whole pixel numbers.
-* "Cutoff drift (pixels)": Threshold above which no drift correction applies.
-* "Print drift layer": Yes/No to show the drift calculated/applied per layer.
-
-Place the marquee to a characteristic feature of your sample, as seen in the image below. Select the minimum area that covers all the positions of your selected feature across all layers - you can check this using the image slider. Make sure that the characteristic feature is not very close to the marquee boundaries. Then press continue and cross fingers. The time needed to complete the operation scales with the selected area.
-
-```{figure} media/setMarqueeForDriftCorrection.png
-:alt: Set marquee to use a feature for drift correction.
-:scale: 33%
-:align: center
-:name: setMarqueeForDriftCorrection
-
-Select a characteristic feature using the marquee and press continue to procced.
-```
 
 ### Interactive
 
