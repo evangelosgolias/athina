@@ -2,38 +2,40 @@
 
 ## Introduction
 
-**athina** is a data analysis package for spectromicroscopy and
-microspectroscopy experiments, built for **Igor Pro 9 or later**. It
-supports the analysis of image-based datasets from techniques such as:
+**athina** is a data analysis package for the analysis of image-based data and has special features for analyzing datasets from spectromicroscopy and microspectroscopy experiments. It can handle data from experimental techniques such as:
 
--   PEEM / LEEM\
--   XPEEM\
--   XMCD / XMLD-PEEM\
--   μ-XPS\
--   PED\
--   ARPES\
--   and other related modalities
+-   (X)PEEM / LEEM
+-   XMCD / XMLD-PEEM
+-   μ-XPS
+-   ARPES
+-   STM
+-   PED
+-   and any other image-based dataset
 
 The package includes built-in support for reading multiple file formats,
-including Elmitec proprietary `.dat` files, EMMENU `tif` / `tif` stacks, P3B,
-NeXus files, and more.
+including: 
+
+- Elmitec's proprietary `.dat` files
+- EMMENU `tif` / `tif` stacks
+- P3B
+- NeXus files
 
 ## System Requirements
 
--   **Operating Systems:** Windows, macOS\
+-   **Operating Systems:** Windows, macOS
 -   **Igor Pro:** Version 9 or later
 
-Igor Pro 9 requires: - Windows 7 or later\
+Igor Pro 9 requires: - Windows 7 or later
 - macOS 10.15 (Catalina) or later
 
-For more information about Igor Pro, visit:\
+For more information about Igor Pro, visit:
 https://www.wavemetrics.com
 
 ## Installation Guide
 
 You can install **athina** in one of two ways.
 
-### Option 1: Auto-load athina at Igor Pro startup
+### Option 1: Auto-load at startup (recommended)
 
 Copy the `athina` folder from `/src` to:
 
@@ -45,10 +47,11 @@ Copy the `athina` folder from `/src` to:
 
     /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/Igor Procedures
 
-With this setup, **athina** will automatically load when Igor Pro
+
+**athina** will automatically load when Igor Pro
 starts.
 
-### Option 2: Manually load athina from the Macros menu
+### Option 2: Manually load athina
 
 1.  Copy the `athinaStartUp.ipf` file to:
 
@@ -70,7 +73,8 @@ starts.
 
     /Users/UserName/Documents/WaveMetrics/Igor Pro 9 User Files/User Procedures
 
-If you use a later Igor Pro version please look for the corresponding Wavevemetrics user files folder.
+Load **athina** from Macros menu as "Macros > Load athina". 
+Once loaded, the software can be unloaded as "Macros > Unload athina". 
 
 ## Demo
 
@@ -78,7 +82,7 @@ An Igor Pro `.hdf5` file containing sample data is available in the [following l
 
 ## Documentation
 
-For detailed usage instructions and tutorials on how to use athina, please visit:\
+For detailed usage instructions and tutorials on how to use athina, please visit:
 https://evangelosgolias.gitlab.io/athina/
 
 ####Note to MAXIV Users
