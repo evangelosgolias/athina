@@ -426,7 +426,14 @@ static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 				SetDrawLayer/W=$linkedGraph Overlay	
 				SetDrawEnv/W=$linkedGraph linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left
 				variable nx = AxisValFromPixel(s.winName, "top", s.mouseLoc.h), ny = AxisValFromPixel(s.winName, "left", s.mouseLoc.v)
-				DrawOval/W=$linkedGraph nx*0.9990,1.001*ny,1.001*nx,0.9990*ny
+				//WAVE/Z wRefL = ATH_Graph#TopImageToWaveRef(grfName=s.winName)
+				//variable sizeX = DimSize(wRefL,0)
+				[axisX, axisY] = ATH_Graph#GetAxes(grfName = s.winName)
+				GetAxis/Q/W=$linkedGraph $axisX
+				variable edgeX = abs(V_max - V_min)	* 0.01 // Factor of the visible axis for x size in DrawOval
+				GetAxis/Q/W=$linkedGraph $axisY
+				variable edgeY = abs(V_max - V_min)	* 0.01 // Factor of the visible axis for y size in DrawOval	
+				DrawOval/W=$linkedGraph nx-edgeX,edgeY+ny,nx+edgeX,ny-edgeY
 				hookResult = 1
 			else
 				DrawAction/L=Overlay/W=$linkedGraph delete
@@ -457,5 +464,6 @@ static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 	endswitch
 	return hookResult
 End
+
 
 
