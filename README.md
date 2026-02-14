@@ -85,5 +85,5 @@ An Igor Pro `.hdf5` file containing sample data is available in the [following l
 For detailed usage instructions and tutorials on how to use athina, please visit:
 https://evangelosgolias.gitlab.io/athina/
 
-####Note to MAXIV Users
+#### Note to MAXIV Users
 To access the documentation from the intranet of MAXIV synchrotron facility: https://evagko.gitlab-pages.maxiv.lu.se/athina/
