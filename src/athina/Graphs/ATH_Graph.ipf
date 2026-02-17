@@ -434,9 +434,14 @@ static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 				GetAxis/Q/W=$linkedGraph $axisY
 				variable edgeY = abs(V_max - V_min)	* 0.01 // Factor of the visible axis for y size in DrawOval	
 				DrawOval/W=$linkedGraph nx-edgeX,edgeY+ny,nx+edgeX,ny-edgeY
+				DrawAction/L=Overlay/W=$s.winName delete
+				SetDrawLayer/W=$s.winName Overlay	
+				SetDrawEnv/W=$s.winName linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = top, ycoord = left				
+				DrawOval/W=$s.winName nx-edgeX,edgeY+ny,nx+edgeX,ny-edgeY
 				hookResult = 1
 			else
 				DrawAction/L=Overlay/W=$linkedGraph delete
+				DrawAction/L=Overlay/W=$s.winName delete
 			endif	
 			break
 		case 8:

@@ -263,7 +263,7 @@ static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariable
 			// Give info about the ratio of signals in marquee if present
 			variable flag, left, right, top, bottom
 			[flag, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex()
-
+			
 			if(flag)
 				variable avg1, avg2
 				WaveStats/Q/RMD=[left, right][top, bottom] wImg1
