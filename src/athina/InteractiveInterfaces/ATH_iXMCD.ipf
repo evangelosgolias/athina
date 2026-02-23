@@ -96,7 +96,7 @@ static Function MenuLaunch()
 	WAVE wXMCD = dfr:wXMCD
 	// Set global variables
 	variable/G dfr:gATH_driftStep = 1, dfr:gATH_dx = 0, dfr:gATH_dy = 0
-	variable/G dfr:gATH_IntensityScale = 1, dfr:gATH_IntensityScaleMeM = 1
+	variable/G dfr:gATH_IntensityScale = 1
 	string/G dfr:wName1Str = wave1NameStr, dfr:wName2Str = wave2NameStr
 	wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 
@@ -116,8 +116,8 @@ static Function CreateiXMCDPanel(WAVE wXMCD)
 	SetVariable setDriftStep,win=$winiXMCDNameStr,fSize=14,limits={0,64,1},live=1,proc=ATH_iXMCD#SetDriftStepVar	
 
 	SetVariable setImgScale,win=$winiXMCDNameStr,pos={270,10},size={120,20},title="I_scaling"
-	SetVariable setImgScale,win=$winiXMCDNameStr,value=gATH_IntensityScale,help={"Intensity scaling of img2 (img2 x factor)"}
-	SetVariable setImgScale,win=$winiXMCDNameStr,fSize=14,limits={0,10,0.01},live=1,proc=ATH_iXMCD#SetIntensityScale
+	SetVariable setImgScale,win=$winiXMCDNameStr,value=gATH_IntensityScale,fSize=14,limits={0,10,0.01},live=1,proc=ATH_iXMCD#SetIntensityScale
+	SetVariable setImgScale,win=$winiXMCDNameStr,help={"Intensity scaling of img2 (img2 x factor). Does not update with arrows, only with I_scaling update"}
 
 	Button SaveXMCDImage,win=$winiXMCDNameStr,pos={20,10},size={90,20},proc=ATH_iXMCD#SaveXMCDImageButton
 	Button SaveXMCDImage,win=$winiXMCDNameStr,title="Save XMCD", help={"Save XMCD image in CWD"}, valueColor=(1,12815,52428)
@@ -134,7 +134,7 @@ End
 static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iXMCDPath"))
 	if(s.specialKeyCode)
-		NVAR/SDFR=dfr gATH_driftStep, gATH_dx, gATH_dy
+		NVAR/SDFR=dfr gATH_driftStep, gATH_dx, gATH_dy, gATH_IntensityScale
 		WAVE/SDFR=dfr wImg1, wImg2, wimg2_undo, wXMCD
 		SVAR/SDFR=dfr wName2Str
 
@@ -165,8 +165,9 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 				break
 		endswitch
 		if(hookResult)
-			CopyScales/I wimg1, wimg2 // Copy back the scale, M_Affine is pixel-scaled
-			// has to be first so wXMCD, do not need rescaling
+			if(gATH_IntensityScale != 1)
+				wImg2 *= gATH_IntensityScale
+			endif
 			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 		endif
 	endif
@@ -179,7 +180,6 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 		Execute/P/Q killDFCmd
 		hookresult = 1
 	endif
-	//SetDataFolder saveDFR
 	return hookResult	// If non-zero, we handled event and Igor will ignore it.
 End
 
@@ -213,8 +213,6 @@ static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 			if(gATH_IntensityScale != 1)
 				note2WaveStr += "Scaled (factor x wimg2) "+wName2Str+" with "+num2str(gATH_IntensityScale)+"\n"		
 			endif
-//			note2WaveStr += "Copy to command line: \nImageInterpolate/APRM={1,0,"+num2str(gATH_dx)+",0,1,"+num2str(gATH_dy)+\
-//			",1,0} Affine2D " + wName2Str
 			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)
 			string savexmcdWaveStr = CreatedataObjectName(sourceDF, "iXMCD", 1, 0, 1)
 			Duplicate wXMCD, sourceDF:$savexmcdWaveStr
@@ -251,15 +249,17 @@ static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariable
 		case 3: 							// Live update
 			string dfrStr = GetUserData(sva.win, "", "ATH_iXMCDPath")
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
-			NVAR/SDFR=dfr gATH_IntensityScale, gATH_IntensityScaleMeM, gATH_dx, gATH_dy
+			NVAR/SDFR=dfr gATH_IntensityScale, gATH_dx, gATH_dy
 			// Here get the old factor and calculae the next to avoid duplications
-			gATH_IntensityScale = sva.dval
+			gATH_IntensityScale = sva.dval ? sva.dval : 1
 			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_undo
-			if(gATH_IntensityScale) //should't be zero!
-				// Divide by gATH_IntensityScaleMeM ro restore wImg2
-				wImg2 *= gATH_IntensityScale / gATH_IntensityScaleMeM
-				wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
+			if(gATH_IntensityScale!=1) //If it's not one!
+				Duplicate/O wimg2_undo, wimg2
+				wimg2 *= gATH_IntensityScale
+			else
+				Duplicate/O wimg2_undo, wimg2
 			endif
+			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 			// Give info about the ratio of signals in marquee if present
 			variable flag, left, right, top, bottom
 			[flag, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex()
@@ -277,7 +277,6 @@ static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariable
 			else
 				TextBox/K/N=IntRatioLog/W=$sva.win		
 			endif
-			gATH_IntensityScaleMeM = sva.dval // Save the value
 			break
 		case -1: 							// Control being killed
 			break
