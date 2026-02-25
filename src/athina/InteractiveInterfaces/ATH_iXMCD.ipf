@@ -254,10 +254,10 @@ static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariable
 			gATH_IntensityScale = sva.dval ? sva.dval : 1
 			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_undo
 			if(gATH_IntensityScale!=1) //If it's not one!
-				Duplicate/O wimg2_undo, wimg2
+				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:wImg2 Affine2D wimg2_undo
 				wimg2 *= gATH_IntensityScale
 			else
-				Duplicate/O wimg2_undo, wimg2
+				ImageInterpolate/APRM={1,0, gATH_dx,0,1,gATH_dy,1,0}/DEST=dfr:wImg2 Affine2D wimg2_undo
 			endif
 			wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
 			// Give info about the ratio of signals in marquee if present
