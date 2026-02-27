@@ -44,7 +44,7 @@ static Function/WAVE ImgRegistrationW(WAVE w1, WAVE w2)
 		Redimension/S w2
 	endif
 	Duplicate/FREE w2, w2copy
-	ImageRegistration/TRNS={1,1,0}/ROT={0,0,1}/ISOS/TSTM=0/BVAL=0 refWave = w1, testWave = w2copy
+	ImageRegistration/CONV=1/TRNS={1,1,0}/ROT={0,0,1}/ISOS/TSTM=0/BVAL=0 refWave = w1, testWave = w2copy
 	WAVE M_RegOut, M_RegOut, M_RegMaskOut
 	Duplicate/FREE M_RegOut, alignedW
 	KillWaves/Z M_RegOut, M_RegOut, M_RegMaskOut
@@ -63,7 +63,7 @@ static Function ImgRegistration(WAVE w1, WAVE w2)
 	if(!(WaveType(w2) & 0x02))
 		Redimension/S w2
 	endif 
-	ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,1}/ISOS/TSTM=0/BVAL=0 refWave = w1, testWave = w2
+	ImageRegistration/Q/CONV=1/TRNS={1,1,0}/ROT={0,0,1}/ISOS/TSTM=0/BVAL=0 refWave = w1, testWave = w2
 	WAVE M_RegOut
 	Duplicate/O M_RegOut, w2	
 	KillWaves/Z M_RegOut, M_RegMaskOut, W_RegParams
@@ -109,9 +109,9 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 	variable cols = DimSize(w3d, 1)
 	variable layers = DimSize(w3d, 2)
 	if(RotZ)
-		ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,1}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d		
+		ImageRegistration/Q/CONV=1/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,1}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d		
 	else
-		ImageRegistration/Q/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d
+		ImageRegistration/Q/CONV=1/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d
 	endif
 	WAVE M_RegParams
 
@@ -119,12 +119,17 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 	MatrixOP/FREE dy = row(M_RegParams, 1)			
 
 	variable i
+	Make/FREE/N=(DimSize(w3d,0), DimSize(w3d,0)) ATH_ROIMask
+	FastOP ATH_ROIMask = 1
 	for(i = 0; i < layers; i++)
 		if((dx[i] == 0 && dy[i] == 0) || layerN == i)
 			MatrixOP/O $("getStacklayer_" + num2str(i)) = layer(w3d, i) // Scaled in pixels!
 		else
 			MatrixOP/O getLayer = layer(w3d, i) // Scaled in pixels!
-			ImageInterpolate/APRM={1,0,dx[i],0,1,dy[i],1,0}/DEST=$("getStacklayer_" + num2str(i)) Affine2D getLayer
+			MatrixOP/O getRegParams = col(M_RegParams, i) // Scaled in pixels!
+			ImageRegistration/Q/USER=getRegParams/BVAL=0 testMask=ATH_ROIMask testwave=getLayer
+			WAVE M_RegOut			
+			Rename M_RegOut $("getStacklayer_" + num2str(i))
 		endif
 //		if(printMode)
 //			if(dx[i] == 0 && dy[i] == 0)
@@ -381,7 +386,7 @@ End
 
 // Multithreaded Drift Correction using Registration
 ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE w3DPart,
-					WAVE w3DPartRef, variable plane, [variable RotZ])
+					WAVE w3DPartRef, WAVE wROIMask, variable plane, [variable RotZ])
 	
 	DFREF dfSav= GetDataFolderDFR()
 
@@ -390,15 +395,15 @@ ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE
 	// Calculate drift
 	MatrixOP testPartitionW = layer(w3DPart,plane)
 	if(RotZ)
-		ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,1}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW
+		ImageRegistration/Q/CONV=1/TRNS={1,1,0}/ROT={0,0,1}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW
 	else
-		ImageRegistration/Q/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW	
+		ImageRegistration/Q/CONV=1/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW	
 	endif
 	WAVE W_RegParams
 	Duplicate W_RegParams, ATH_RegParams
 	// Drift the whole image
 	MatrixOP regPlane = layer(w3D, plane)
-	ImageRegistration/USER=ATH_RegParams/BVAL=0 testwave=regPlane
+	ImageRegistration/Q/USER=ATH_RegParams/BVAL=0 testMask=wROIMask testwave=regPlane
 	WAVE M_RegOut
 	// Restore the current data folder
 	SetDataFolder dfSav
@@ -428,8 +433,10 @@ static Function MultiThreadRegistrationDriftCorrection(WAVE w3D,
 	// Get the reference layer from the partitioned wave
 	ImageTransform/P=(ref) getPlane w3DPart
 	Wave M_ImagePlane // Reference layer
+	Make/FREE/N=(DimSize(w3D,0),DimSize(w3D,1)) ATH_ROIMask
+	FastOp ATH_ROIMask = 1
 	// Release the threads.
-	MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart, M_ImagePlane, p, RotZ = RotZ)	
+	MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart, M_ImagePlane, ATH_ROIMask, p, RotZ = RotZ)	
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
 	// So, now repack all layers.
@@ -451,7 +458,7 @@ ThreadSafe static Function/WAVE ImageRegistration_Worker(WAVE w3D, WAVE wRef, va
 	SetDataFolder NewFreeDataFolder()
 	ImageTransform/P=(plane) getPlane w3D
 	Wave M_ImagePlane
-	ImageRegistration/Q/TRNS={1,1,1}/ROT={0,0,1}/PRDL=1/TSTM=0/BVAL=0 refwave = wRef, testwave = M_ImagePlane
+	ImageRegistration/Q/CONV=1/TRNS={1,1,1}/ROT={0,0,1}/PRDL=1/TSTM=0/BVAL=0 refwave = wRef, testwave = M_ImagePlane
 	WAVE M_RegOut	
 	// Restore the current data folder
 	SetDataFolder dfSav

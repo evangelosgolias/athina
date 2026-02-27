@@ -278,7 +278,7 @@ static Function ImageStackAlignmentPartition()
 	
 	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
 	Prompt layerN, "Reference layer"
-	Prompt RotZ, "Z-rotations",  popup, "Yes;No" // Yes = 1, No = 2!	
+	Prompt RotZ, "Z-rotations (Registration only)",  popup, "Yes;No" // Yes = 1, No = 2!	
 
 	DoPrompt msg, method, layerN, RotZ
 	if(V_flag) // User cancelled

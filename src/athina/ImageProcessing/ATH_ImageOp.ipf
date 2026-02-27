@@ -1012,6 +1012,26 @@ static Function/S ImageResampling(WAVE wRef,  string func, variable xOffset, var
 	
 End
 
+static Function ScaleImagePreserveDims(WAVE wRef, variable factor, [variable factorY])
+	
+	variable nrows = DimSize(wRef, 0), ncols = DimSize(wRef, 1)
+	if(ParamIsDefault(factorY))
+		ImageInterpolate/APRM={factor,0,0,0,factor,0,1,0}/DEST=$(NameOfWave(wRef)+"_scld") Affine2D wRef
+	else
+		ImageInterpolate/APRM={factor,0,0,0,factorY,0,1,0}/DEST=$(NameOfWave(wRef)+"_scld") Affine2D wRef
+	endif
+	WAVE wScaled = $(NameOfWave(wRef)+"_scld")
+	Redimension/N=(nrows, ncols) wScaled
+	CopyScales/I wRef, wScaled
+	string wNote = note(wRef)
+	if(ParamIsDefault(factorY))
+		Note/K wScaled, wNote + "\n"+"ScaleImageSameDims with factor = " + num2str(factor)
+	else
+		Note/K wScaled, wNote + "\n"+"ScaleImageSameDims with factor = (" + num2str(factor) + ", "+ num2str(factorY) + ")"
+	endif	
+	
+End
+
 static Function ScaleFoVWithObjectiveCurrent(WAVE wRef, variable mobj,[int interval])
 	// Scale image using the M. Obj current in mA
 	// Applies to the current settings of the MAXPEEM microscope
