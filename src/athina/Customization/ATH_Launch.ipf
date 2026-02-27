@@ -273,14 +273,14 @@ static Function ImageStackAlignmentPartition()
 	endif
 	variable method = 2
 	variable layerN = ATH_Graph#GetgLayer("")
-	variable subPixel = 2
+	variable  RotZ = 2
 	string msg = "Align " + NameOfWave(wRef) + " using part of the image."
 	
 	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
 	Prompt layerN, "Reference layer"
-	Prompt subPixel, "Sub-pixel drift (Registation)",  popup, "Yes;No" // Yes = 1, No = 2!	
+	Prompt RotZ, "Z-rotations",  popup, "Yes;No" // Yes = 1, No = 2!	
 
-	DoPrompt msg, method, layerN, subPixel	
+	DoPrompt msg, method, layerN, RotZ
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -303,9 +303,9 @@ static Function ImageStackAlignmentPartition()
 	variable nlayers = DimSize(wRef, 2)
 	if(method == 1)
 		if(nlayers > 9)
-			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, subPixel = subPixel - 2)
+			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2)
 		else
-			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, subPixel = subPixel - 2)
+			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
 		endif
 	elseif(method == 2)
 		if(nlayers > 9)
@@ -319,7 +319,7 @@ static Function ImageStackAlignmentPartition()
 	endif
 	ATH_WaveOp#SetScalesP(wRef,x0, y0, z0, dx, dy, dz)
 	driftCorrectionNoteStr = "\nDrift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
-	driftCorrectionNoteStr += "Sub-pixel corrections: " + StringFromList(subPixel, "dummy;Yes;No") + "\n"
+	driftCorrectionNoteStr += "z-rotation: " + StringFromList(RotZ, "dummy;Yes;No") + "\n"
 	driftCorrectionOriginalNoteStr += driftCorrectionNoteStr
 	KillWaves partitionWave
 	Note wRef, driftCorrectionOriginalNoteStr
