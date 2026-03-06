@@ -223,7 +223,13 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
 						hookResult = 1										
 					endif
-					break					
+					break
+				case 80: // P
+					if(s.eventMod & 2) // works with SHIFT + D only!
+						ATH_Launch#PixelateSingleImageOrStack()
+						hookResult = 1										
+					endif
+					break						
 				case 82: // R
 					if(s.eventMod & 2) // works with SHIFT + R only!
 						ATH_Launch#ImageResample()

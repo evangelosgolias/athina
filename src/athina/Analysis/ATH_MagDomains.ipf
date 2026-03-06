@@ -147,13 +147,16 @@ End
 /// Beam fitting map
 /// Generic interaction using a cursor and a CallbackFunction
 
-static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef)
+static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef,[variable firstAngle, variable angleStep])
 	/// Interactive operation using a callback function
 	/// ATH_Cursors#CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	//
 	// WAVE wSrc - 3D Wave with XMLD images for different angles
 	// WAVE wRef - Wave calculated using CalculateXMLDMap
 	//
+	variable firstAngleRad = ParamIsDefault(firstAngle) ? -90 * pi/180 : firstAngle * pi/180
+	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180 : angleStep * pi/180
+		
 	string winNameStr = ATH_Display#NewImg(wRef)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	variable nrows = DimSize(wRef, 0)
@@ -164,6 +167,8 @@ static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef)
 	// Store globals
 	string/G dfr:gATH_wRefPath = GetWavesDataFolder(wRef, 2)
 	string/G dfr:gATH_wSrcPath = GetWavesDataFolder(wSrc, 2)
+	variable/G dfr:gATH_firstAngle = firstAngleRad
+	variable/G dfr:gATH_angleStep = angleStepRad
 	// Hook and metadata
 	SetWindow $winNameStr, hook(MyiCursorActionHook) = ATH_MagDom#iCursorUsingCallbackHookFunction // Set the hook
 	SetWindow $winNameStr, userdata(MyiCursorWin) = winNameStr
@@ -210,17 +215,18 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	DFREF wdfr = GetWavesDataFolderDFR(wRef)
 	string winNameStr = GetUserData("", "", "MyiCursorWin")
 	string plotNameStr = GetUserData("", "", "MyiplotWin")
-
+	NVAR/SDFR=dfr gATH_firstAngle, gATH_angleStep
+	
 	MatrixOP/O dfr:cursorBeamProfile = beam(wSrc, p0, q0)
 	WAVE wOff = wdfr:$(NameOfWave(wRef)+"_offset")
 	WAVE wA = wdfr:$(NameOfWave(wRef)+"_amplitude")
 	Make/O dfr:fitPlotW /WAVE=wcos
-	SetScale/I x, -pi/2, pi/2, wcos, dfr:cursorBeamProfile
+	SetScale/I x, gATH_firstAngle, gATH_firstAngle + gATH_angleStep * numpnts(dfr:cursorBeamProfile), wcos, dfr:cursorBeamProfile
 	variable x0 = wOff[p0][q0]
 	variable A = wA[p0][q0]
 	variable phase = wRef[p0][q0]
 	// N.B: Change here if you change the fitting function
-	wcos = x0 + A * cos(2*(x + phase*0.01745329)) // Phase to rad
+	wcos = x0 + A * cos(2*(x + phase*0.01745329-13*pi/180)) // Phase to rad
 	RemoveFromGraph/W=$plotNameStr/ALL
 	AppendToGraph/W=$plotNameStr dfr:cursorBeamProfile
 	ModifyGraph/W=$plotNameStr mode(cursorBeamProfile)=3,marker(cursorBeamProfile)=19,msize(cursorBeamProfile)=4
