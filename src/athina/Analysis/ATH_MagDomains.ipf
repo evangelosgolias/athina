@@ -27,7 +27,7 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	/// |-------------   |----------|--------|-------------------------------------------------------------------------------------------------------|
 	/// | **wRef**       | WAVE     |    -   | 3-D wave whose *z* dimension lists the inclination angles in ascending order (typically −90° to +90°) |
 	/// | **fitFunx   ** | string   | Cos(2x)| Fuction to fit, defaults to ATH_FuncFit#XMLDCos2xIntensity, see ATH_FuncFit module for more options   |                                             |	
-	/// | **firstAngle** | variable | −90 °  | Inclination (degrees) corresponding to the first plane                                                |
+	/// | **firstAngle** | variable | −90 °  | Inclination (degrees) corresponding to the first plane of the stack                                                |
 	/// | **angleStep**  | variable |  10 °  | Angular increment (degrees) between successive *z* planes                                             |
 	/// | **fastFit**    | variable |    0   | If non-zero, tests several phase values and keeps the one with the lowest χ² (≈ N × slower)           |
 	///
@@ -37,6 +37,12 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	/// **FuncFit** via the `/W=<sigmaWave>` flag.
 	///
 	/// *See also*: *DisplayHelpTopic* “Special Variables for Curve Fitting”.
+	///
+	/// Note: You have to set the firstAngle correctly if you want to have the spin axis for θ = 0 along the x-axis.
+	/// 
+	/// Use the FoVRot = θ value (in deg) as set in the metadata to set the -90 or 90 (LV light) light orientation in the lab reference to
+	/// -90 + θ, 90 + θ, respectively.In this setting the LH axis will be at θ or 180+θ. The resulting NameOfWave(wRef)+"_map" wave will 
+	/// have the axis x corresponsing to φ = 0 for the spin axis.
 	
 	fastFit = ParamIsDefault(fastFit) ? 1 : fastFit
 	
@@ -161,7 +167,7 @@ static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef,[variable firs
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	variable nrows = DimSize(wRef, 0)
 	variable ncols = DimSize(wRef, 1)	
-	Cursor/I/C=(65535,0,0)/S=1/P/N=1 J $imgNameTopGraphStr nrows/2, ncols/2
+	Cursor/I/C=(65535,65535,0)/S=1/P/N=1 J $imgNameTopGraphStr nrows/2, ncols/2
 	// Make folder in database
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr) // Root folder here
 	// Store globals

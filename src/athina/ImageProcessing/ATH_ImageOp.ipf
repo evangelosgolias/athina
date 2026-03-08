@@ -1015,12 +1015,13 @@ End
 static Function ScaleImagePreserveDims(WAVE wRef, variable factor, [variable factorY])
 	
 	variable nrows = DimSize(wRef, 0), ncols = DimSize(wRef, 1)
+	string wnameStr = CreateDataObjectName(GetDataFolderDFR(),NameOfWave(wRef)+"_scld",1,0,1)
 	if(ParamIsDefault(factorY))
-		ImageInterpolate/APRM={factor,0,0,0,factor,0,1,0}/DEST=$(NameOfWave(wRef)+"_scld") Affine2D wRef
+		ImageInterpolate/APRM={factor,0,0,0,factor,0,1,0}/DEST=$wnameStr Affine2D wRef
 	else
-		ImageInterpolate/APRM={factor,0,0,0,factorY,0,1,0}/DEST=$(NameOfWave(wRef)+"_scld") Affine2D wRef
+		ImageInterpolate/APRM={factor,0,0,0,factorY,0,1,0}/DEST=$wnameStr Affine2D wRef
 	endif
-	WAVE wScaled = $(NameOfWave(wRef)+"_scld")
+	WAVE wScaled = $wnameStr
 	Redimension/N=(nrows, ncols) wScaled
 	CopyScales/I wRef, wScaled
 	string wNote = note(wRef)

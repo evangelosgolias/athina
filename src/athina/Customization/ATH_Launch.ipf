@@ -1199,7 +1199,7 @@ static Function SaveAxesRangeAndCtab([string grfName])
 	return 0
 End
 
-static Function SetAxesRangeAndCtabFromSaved([string grfName, variable setCtab])
+static Function SetAxesRangeAndCtabFromSaved([string grfName, variable setCtab, variable printCmd])
 	//
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedAxesRangeCtab" ) // Root folder here
@@ -1216,6 +1216,12 @@ static Function SetAxesRangeAndCtabFromSaved([string grfName, variable setCtab])
 		SVAR/Z/SDFR=dfr gATH_GraphCtabStr
 		SetAxis/W=$grfName $gATH_AxisX gATH_AxisMinX, gATH_AxisMaxX
 		SetAxis/R/W=$grfName $gATH_AxisY gATH_AxisMinY, gATH_AxisMaxY
+		if(printCmd)
+			print "----  Set position on " + grfName + " ----"
+			print "SetAxis/W="+grfName+" "+gATH_AxisX+" "+num2str(gATH_AxisMinX)+", "+num2str(gATH_AxisMaxX)		
+			print "SetAxis/R/W="+grfName+" "+gATH_AxisY+" "+num2str(gATH_AxisMinY)+", "+num2str(gATH_AxisMaxY)
+			print "- - - - - - - - - - - - - - - - -"
+		endif
 		if(setCtab)
 			ATH_Graph#SetGraphCtabStr(gATH_GraphCtabStr, grfName = grfName)
 		endif

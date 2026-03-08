@@ -315,7 +315,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					hookResult = 1										
 					break
 				case 115: // s
-					ATH_Launch#SetAxesRangeAndCtabFromSaved()				
+					ATH_Launch#SetAxesRangeAndCtabFromSaved(printCmd=1)				
 					hookResult = 1					
 					break			
 				case 120: // x, calculate xmcd
