@@ -228,7 +228,7 @@ static Function GetScaledZoominImageWindow([string grfName, variable w3d, int ev
 				MatrixOP/FREE getLayerFREE = layer(wRef, gLayer)
 				CopyScales/P wRef, getLayerFREE
 				Duplicate/R=(minX, maxX)(minY, maxY) getLayerFREE, $wavenameStr
-				sprintf noteStr, "CmdToZM:Duplicate/R=(%.4f, %.4f)(%.4f, %.4f)[%d,%d] %s ", minX, maxX, minY, maxY ,gLayer,gLayer, GetWavesDataFolder(wRef,2)
+				sprintf noteStr, "CmdToZM:Duplicate/R=(%.4f, %.4f)(%.4f, %.4f)[%d] %s ", minX, maxX, minY, maxY ,gLayer, GetWavesDataFolder(wRef,2)
 			endif
 		else
 			print "Add a slider in your image stack (3d wave), I cannot guess the layer you want me to act on!"
