@@ -376,3 +376,41 @@ static Function [string srcWStr, string srcGraphStr] SelectSourceWave(WAVE destW
 	DoWindow/T $srcGraphStr, ("Source: "+ NameOfWave(srcW))
 	return [srcWStr, srcGraphStr]
 End
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//////Solution of the linear system to calculate the parameters of the affine transformation from the displacement vectors
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static Function ResolveTransformationMatrix(WAVE wv1,WAVE wv2)
+	
+	// calculate the distortion matrix components by solving a linear system of equations
+	// wv1 and wv2 are the undistorted and distorted vectors in the form:
+	// {x1,y1,x2,y2,x3,y3}, where xn,yn is the n-vector 
+	// the components of the undistorted vector wv1 are put into the matrix M_input that defines the linear system 
+	                          
+	
+	Make/O M_input={{wv1[0],0,wv1[2],0,wv1[4],0},{0,wv1[1],0,wv1[3],0,wv1[5]},\
+	{0,wv1[0],0,wv1[2],0,wv1[4]},{wv1[1],0,wv1[3],0,wv1[5],0},{1,0,1,0,1,0},{0,1,0,1,0,1}}
+	
+	MatrixLinearSolve/Z M_input, wv2
+	// Solution in M_b
+	WAVE M_b
+	if(!V_flag || (M_b[0]*M_b[1])==0)
+		print "Error "
+		return -1
+	endif
+	WAVE M_b
+	WAVE/Z/D W_ParamsOut
+	if (!WaveExists(W_ParamsOut))
+		Make/D/O/N=22 W_ParamsOut
+		SetDimLabel 0,0, dx,W_ParamsOut;SetDimLabel 0,1, dy,W_ParamsOut;SetDimLabel 0,2, dz,W_ParamsOut
+		SetDimLabel 0,3, a11,W_ParamsOut;SetDimLabel 0,4, a12,W_ParamsOut;SetDimLabel 0,5, a13,W_ParamsOut
+		SetDimLabel 0,6, a21,W_ParamsOut;SetDimLabel 0,7, a22,W_ParamsOut;SetDimLabel 0,8, a23,W_ParamsOut
+		SetDimLabel 0,9, a31,W_ParamsOut;SetDimLabel 0,10, a32,W_ParamsOut;SetDimLabel 0,11, a33,W_ParamsOut
+		SetDimLabel 0,17, origin_x,W_ParamsOut;SetDimLabel 0,18, origin_y,W_ParamsOut
+	else
+		WAVE/Z W_ParamsOut
+	endif
+	W_ParamsOut={M_b[4],M_b[5],0,1/M_b[0],-M_b[3],0,-M_b[2],1/M_b[1],0,0,0,1,0,0,0,0,0,0,0,0,0,0}
+	return 0
+End

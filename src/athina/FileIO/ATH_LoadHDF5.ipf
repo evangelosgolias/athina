@@ -276,3 +276,119 @@ static Function LoadNXSDataSets()
 	endfor
 	SetDataFolder saveDF
 End
+
+//// ------ MAXPEEM HDF5 files using TVIPS pipeline ------ /////
+
+static Function LoadTVIPSH5Data(string filename)
+	// Function to load the h5 datasets
+	// Here we check whether the Path MAXPEEM_USER_ROOT_FOLDER is set.
+	// If not, then the filename should be the filepath if you want to
+	// load the file without opening the file browser.
+	// Take care of UNC file paths on Windows (\\\\Server\\folder\\file) 
+	
+	variable fileid
+
+	HDF5OpenFile/R fileid as filename
+	if(ATH_String#EndsWith(filename, "_tvips.h5"))
+		HDF5LoadData fileid, "entry/instrument/tvips/data"
+		WAVE wRef = data
+	else
+		HDF5LoadData fileid, "entry/measurement/tvips"
+		WAVE wRef = tvips
+	endif
+	HDF5CloseFile fileid
+	string wname = CreateDataObjectName(GetDataFolderDFR(), \
+				   ParseFilePath(3, S_fileName, "*", 0, 0), 1, 0, 1)
+	//variable timerRefNum = StartMSTimer
+	ImageTransform/G=3 transposeVol wRef
+	WAVE M_VolumeTranspose
+	Rename M_VolumeTranspose, $wname
+	KillWaves/Z wRef
+	string waveNoteStr = filename
+	Note $wname, waveNoteStr
+	//variable microSeconds = StopMSTimer(timerRefNum)
+	//print "Time elapsed: ", microSeconds/1e6, " sec"
+	return 0
+End
+
+static Function LoadTVIPSH5DataNetwork(variable scanID)
+	// Function to load the h5 datasets
+	// Here we check whether the Path MAXPEEM_USER_ROOT_FOLDER is set.
+	// If not, then the filename should be the filepath if you want to
+	// load the file without opening the file browser.
+	// Take care of UNC file paths on Windows (\\\\Server\\folder\\file) 
+	
+	variable fileid
+	PathInfo MAXPEEM_USER_ROOT_FOLDER 
+	if(V_flag)
+		string filename = "scan-"+num2str(scanID)+".h5"
+	endif
+	HDF5OpenFile/R/P=MAXPEEM_USER_ROOT_FOLDER fileid as filename
+	// S_filename is the loaded filename
+	if(ATH_String#EndsWith(S_filename, "_tvips.h5"))
+		HDF5LoadData/Q fileid, "entry/instrument/tvips/data"
+		WAVE wRef = data
+	else
+		HDF5LoadData/Q fileid, "entry/measurement/tvips"
+		WAVE wRef = tvips
+	endif
+	HDF5CloseFile fileid
+	// Use S_filename[1,strlen(S_filename)-3] to clear the name
+	string wname = CreateDataObjectName(GetDataFolderDFR(),"w"+num2str(scanID), 1, 0, 1)
+	//variable timerRefNum = StartMSTimer		   
+	ImageTransform/G=3 transposeVol wRef
+	WAVE M_VolumeTranspose
+	Rename M_VolumeTranspose, $wname	
+	KillWaves/Z wRef
+	
+	string waveNoteStr = S_Path+filename
+	Note $wname, waveNoteStr
+	//variable microSeconds = StopMSTimer(timerRefNum)
+	//print "Time elapsed: ", microSeconds/1e6, " sec"
+	return 0
+End
+
+//static Function LoadTVIPSH5DataNetwork(string filename)
+//	// Function to load the h5 datasets
+//	// Here we check whether the Path MAXPEEM_USER_ROOT_FOLDER is set.
+//	// If not, then the filename should be the filepath if you want to
+//	// load the file without opening the file browser.
+//	// Take care of UNC file paths on Windows (\\\\Server\\folder\\file) 
+//	
+//	variable fileid
+//
+//	PathInfo MAXPEEM_USER_ROOT_FOLDER
+//	if(V_flag) // If PATH is set
+//		HDF5OpenFile/R/P=MAXPEEM_USER_ROOT_FOLDER fileid as filename
+//		if(ATH_String#EndsWith(filename, "_tvips.h5"))
+//			HDF5LoadData fileid, "entry/instrument/tvips/data"
+//			WAVE wRef = data
+//		else
+//			HDF5LoadData fileid, "entry/measurement/tvips"
+//			WAVE wRef = tvips
+//		endif
+//	else
+//		HDF5OpenFile/R fileid as filename
+//		if(ATH_String#EndsWith(filename, "_tvips.h5"))
+//			HDF5LoadData fileid, "entry/instrument/tvips"
+//			WAVE wRef = data
+//		else
+//			HDF5LoadData fileid, "entry/measurement/tvips"
+//			WAVE wRef = tvips	
+//		endif
+//	endif
+//	HDF5CloseFile fileid
+//	string wname = CreateDataObjectName(GetDataFolderDFR(), \
+//				   ParseFilePath(3, S_fileName, "\\", 0, 0), 1, 0, 5)
+//	//variable timerRefNum = StartMSTimer		   
+//	ImageTransform/G=3 transposeVol wRef
+//	WAVE M_VolumeTranspose
+//	Rename M_VolumeTranspose, $wname	
+//	KillWaves/Z wRef
+//	
+//	string waveNoteStr = filename
+//	Note $wname, waveNoteStr
+//	//variable microSeconds = StopMSTimer(timerRefNum)
+//	//print "Time elapsed: ", microSeconds/1e6, " sec"
+//	return 0
+//End

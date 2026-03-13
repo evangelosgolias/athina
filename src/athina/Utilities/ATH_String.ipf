@@ -150,6 +150,12 @@ static Function/S ExtendPathStr(string str, string ext)
 	endif
 End
 
+static Function/S RemoveFileExtention(string str)
+	string name, ext
+	SplitString/E="(.*(?=\.))(.*)" str, name, ext
+	return name
+End
+
 static Function StartsWith(string str, string part)
 	
 	variable nStr = strlen(str)
@@ -157,13 +163,19 @@ static Function StartsWith(string str, string part)
 	if(nStr < nPart || !nstr || !nPart)
 		return -1
 	endif
-	variable i
-	for(i=0;i<nPart;i++)
-		if(cmpstr(part[i], str[i]))
-			return 0
-		endif
-	endfor
-	return 1
+	
+	return !cmpstr(str[0,nPart-1], part)
+End
+
+static Function EndsWith(string str, string part)
+	
+	variable nStr = strlen(str)
+	variable nPart = strlen(part)	
+	if(nStr < nPart || !nstr || !nPart)
+		return -1
+	endif
+
+	return !cmpstr(str[nStr-nPart,nStr-1], part)
 End
 
 static Function WaveLogging(Wave wRef, string msg, [int prepend])
