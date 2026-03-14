@@ -297,18 +297,34 @@ static Function RemoveImagesFromImageStack(WAVE wRef, variable startLayer, varia
 	return 0
 End
 
-static Function InsertImageToImageStack(WAVE w3dref, WAVE w2dRef, variable layerN)
-	// Insert an image at the position layerN of an image stack
-	// Here the z dimension will change, as the DimDelta is used to scale the resulting 
-	// image stack
-	if((DimSize(w3dref, 0) == DimSize(w2dRef, 0)) && DimSize(w3dref, 1) == DimSize(w2dRef, 1))
+static Function InsertImagesToImageStack(WAVE wRef, WAVE wIn, variable layerN)
+	// Insert an image at the position layerN of an image stack.
+	// Here the z dimension will change, as the DimDelta for rescaling
+	// Note that the layerN stack will bethe first image after the insering stacks.
+	// Given that, you cannot insert an image at the end of the stack, you will just
+	// replace the last image and shift it. If you want to add after the last image 
+	// you have to use the append operation.
+	
+	if((DimSize(wRef, 0) == DimSize(wIn, 0)) && DimSize(wRef, 1) == DimSize(wRef, 1))
 		variable x0, y0, z0, dx, dy, dz
-		[x0, y0, z0, dx, dy, dz] = ATH_WaveOp#GetScalesP(w3dRef)
-		ImageTransform/O/INSW=w2dref/P=(layerN) insertZplane w3dRef
-		ATH_WaveOp#SetScalesP(w3dRef, x0, y0, z0, dx, dy, dz)
+		[x0, y0, z0, dx, dy, dz] = ATH_WaveOp#GetScalesP(wRef)
+		//ImageTransform/O/INSW=wIn/P=(layerN) insertZplane wRef
+		//ATH_WaveOp#SetScalesP(wRef, x0, y0, z0, dx, dy, dz)
+		if(!layerN)
+			Concatenate/O/KILL/NP=2/FREE {wIn, wRef}, bufferWaveFree
+			Duplicate/O bufferWaveFree, $GetWavesDataFolder(wRef,2)
+		else
+			ImageTransform/P=(layerN)/NP=(DimSize(wRef,2)-layerN) removeZplane wRef
+			WAVE M_ReducedWave
+			ImageTransform/O/P=0/NP=(layerN) removeZplane wRef		
+			Concatenate/O/KILL/NP=2/FREE {M_ReducedWave, wIn, wRef}, bufferWaveFree
+			Duplicate/O bufferWaveFree, $GetWavesDataFolder(wRef,2)
+		endif
 	else
-		Abort "Image and stack must have the same lateral dimensions."
+		print "Image and stack must have the same lateral dimensions."
+		return -1
 	endif
+	return 0
 End
 
 static Function AppendImagesToImageStack(WAVE wRef, string waveListStr) 

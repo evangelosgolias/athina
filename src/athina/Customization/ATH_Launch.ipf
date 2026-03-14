@@ -627,11 +627,15 @@ static Function StackImagesToImageStack()
 	endif
 	if(!ATH_ImgOp#AppendImagesToImageStack(w3dref, selectImagesStr))
 		ATH_Display#RestartW3DImageSlider(grfName=winNameStr)
-	endif	
+	endif
+	// Update here the wave note
+	// We need to change the separator to "\n"
+	
+	ATH_String#UpdateStackWaveNote(w3dref, 3, wlist = ReplaceString(";", selectImagesStr, "\n"))
 	return 0
 End
 
-static Function InsertImageToStack()
+static Function InsertImagesToStack() // Needs fixing
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	if(!strlen(imgNameTopGraphStr))
@@ -645,20 +649,35 @@ static Function InsertImageToStack()
 	else
 		return -1
 	endif
-	string selectImagesStr = ATH_Dialog#SelectWavesInModalDataBrowser("Select one image to insert to stack."), imageStr
-	imageStr = StringFromList(0, selectImagesStr)
-	if(!strlen(imageStr))
+	
+	string selectImagesStr = ATH_Dialog#SelectWavesInModalDataBrowser("Select image(s)/stack(s) to insert before top laeyer.")
+	
+	// We selected at least an image
+	if(!strlen(StringFromList(0, selectImagesStr)))
 		return 1
 	endif
-	WAVE w2dref = $imageStr
-	variable wType = WaveType(w3dref)
-	if(wType == WaveType(w2dref))
-		ATH_ImgOp#InsertImageToImageStack(w3dref, w2dref, layerN)
+		
+	WAVE/WAVE waveListFree = ATH_WaveOp#WaveListStrToWaveRef(selectImagesStr, isFree = 1)		
+	if(ATH_WaveOp#AllImagesEqualDimensionsQ(waveListFree))
+		Concatenate/FREE/NP=2 {waveListFree}, wInsertFree
+	endif
+	
+	variable wType = WaveType(wInsertFree)
+	string getWaveListStr = ATH_String#GetStackNamesForWaveNote(w3dref,-1) // separator = "\n" 
+	// Let's sort things here a bit.
+	// First lets expand the wave note when we insert a 3D wave
+	string expandedWaveList = ATH_String#ComposeWaveListsFromWaveNotes(selectImagesStr) // // separator = ";" 
+	string fullWaveListStr = ATH_String#InsertListAtPosition(ReplaceString("\n", getWaveListStr, ";"), expandedWaveList, layerN)
+	fullWaveListStr = ReplaceString(";", fullWaveListStr, "\n")
+	
+	if(wType == WaveType(wInsertFree))
+		ATH_ImgOp#InsertImagesToImageStack(w3dref, wInsertFree, layerN)
 	else
-		ATH_WaveOp#MatchWaveTypes(w3dref, w2dref)
-		ATH_ImgOp#InsertImageToImageStack(w3dref, w2dref, layerN)
+		ATH_WaveOp#MatchWaveTypes(w3dref, wInsertFree)
+		ATH_ImgOp#InsertImagesToImageStack(w3dref, wInsertFree, layerN)
 	endif
 	ATH_Display#RestartW3DImageSlider(grfName=winNameStr)
+	ATH_String#UpdateStackWaveNote(w3dref, -1, explicitWaveList = fullWaveListStr)	// use the default option
 	return 0	
 End
 
@@ -853,7 +872,7 @@ static Function FlipStackPlanes()
 	DFREF saveDF = GetDataFolderDFR()
 	SetDataFolder GetWavesDataFolderDFR(wRef)
 	ImageTransform flipPlanes wRef
-	ATH_String#UpdateStackWaveNote(wRef, 3)
+	ATH_String#UpdateStackWaveNote(wRef, 2)
 	SetDataFolder saveDF
 	return 0
 End

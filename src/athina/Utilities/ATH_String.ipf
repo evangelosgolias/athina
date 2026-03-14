@@ -150,6 +150,28 @@ static Function/S ExtendPathStr(string str, string ext)
 	endif
 End
 
+static Function/S InsertListAtPosition(string listStr, string insertList, variable pos, [string sep])
+	// We insert list insertList at the position pos of listStr.
+	// the element at pos is moved and becomes the first after the 
+	// last element of insertList
+	sep = SelectString(ParamIsDefault(sep) ? 0: 1, ";", sep)
+	WAVE/T twList = ATH_TWave#StringListToTextWave(listStr, sep) 
+	WAVE/T twInsList = ATH_TWave#StringListToTextWave(insertList, sep)
+	variable nptsL = numpnts(twList), nptsI = numpnts(twInsList)
+	if(pos > nptsL)
+		Concatenate/FREE {twList, twInsList}, freeList
+	elseif(!pos)
+		Concatenate/FREE {twInsList, twList}, freeList
+	else
+		Make/T/FREE/N=(pos) freeL1 
+		Make/T/FREE/N=(nptsL-pos) freeL2 		
+		freeL1 = twList[p]
+		freeL2 = twList[pos+p]
+		Concatenate/FREE {freeL1, twInsList ,freeL2}, freeList
+	endif
+	return ATH_TWave#TextWaveToString(freeList)
+End
+
 static Function/S RemoveFileExtention(string str)
 	string name, ext
 	SplitString/E="(.*(?=\.))(.*)" str, name, ext
@@ -295,6 +317,44 @@ static Function/S RemoveCharFromString(string str, string cc)
 	return outStr
 End
 
+static Function/S ComposeWaveListsFromWaveNotes(string wavelistStr, [string sep])
+	// Given a list of 2D/3D waves in wavelist compose a wave list with all waves:
+	// If a wave is 2D just add it, if the wave is 3D check its note, expand wave 
+	// names and add them to the list. At the end you will end up with a list of all
+	// 2D waves in the list of wavelistStr
+	sep = SelectString(ParamIsDefault(sep) ? 0: 1, ";", sep) // sep of wavelistStr
+	variable imax = ItemsInList(wavelistStr, sep), i
+	string wnameStr, bufferStr, expandedWaveListStr = ""
+	for (i = 0; i < imax; i++)
+		try
+			wnameStr = StringFromList(i, wavelistStr)
+			WAVE wRef = $wnameStr // Wave exists?
+			AbortOnRTE				// Abort if an error occurred
+			// This code executes if no error occurred
+			if(WaveDims(wRef) == 2)
+				expandedWaveListStr += wnameStr+";"
+			elseif(WaveDims(wRef) == 3)
+				bufferStr = ATH_String#GetStackNamesForWaveNote(wRef,-1) // sep = "\n" here
+				if(DimSize(wRef,3)!= ItemsInList(bufferStr, "\n"))
+					expandedWaveListStr += ReplaceString("\n", bufferStr, ";")
+				else
+					Abort "ComposeWaveListsFromWaveNotes error in "+wnameStr+" waves in notes != number of layers"
+				endif
+			else
+				Abort "ComposeWaveListsFromWaveNotes " + "assumes 2D/3D waves"
+			endif
+		catch
+			// This code executes if an error occurred in the try block
+			variable err = GetRTError(1)		// Gets error code and clears error
+			string errMessage = GetErrMessage(err, 3)
+			printf "While executing ComposeWaveListsFromWaveNotes, the following error occurred: %s\r", errMessage
+		endtry
+	endfor
+	return expandedWaveListStr
+End
+
+
+
 static Function/S GetStackNamesFromNote(WAVE wref)
 	//Get the stings with the pathnames of all layers stacked in wave
 	string regex = "([\s\S]*?(?=---\* Stacked waves \*---(?:\r?\n|\r|\n)?))(---\* Stacked waves \*---(?:\r?\n|\r|\n)*)"+\
@@ -333,17 +393,19 @@ static Function/S StackNamesInNoteStr(string waveNamesList,[string listSep]) // 
 	return noteStr
 End
 
-static Function/S GetStackNamesForWaveNote(WAVE wRef, int op, [string rangeStr, string listSep, string noteStr])
-	// Read stack names from wRef, filter and return a new list of waves
-	// to be used as a note to another wave.
+static Function/S GetStackNamesForWaveNote(WAVE wRef, int op, [string rangeStr, string wlist, string noteStr])
 	//
+	// Add/remove layer names in wave note, update the note in wRef
 	// rangeStr can be "2-5,7,9-12,50"
-	//
-	// op = 0 // Keep a range (use in extract operation)
-	// op = 1 // Remove
-	
-	listSep = SelectString(ParamIsDefault(listSep) ? 0: 1, "\n", listSep)
 	// expand a string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50"
+	//
+	// op = 0 // Keep a range
+	// op = 1 // Remove layers
+	// op = 2 // Flip Stack
+	// op = 3 // Append layers
+	// op = 4 // Insert layers // Here rangeStr is the layerN we apply the ATH_ImgOp#InsertImagesToImageStack
+	//
+
 	if(!ParamIsDefault(rangeStr))
 		string layersNum = ExpandRangeStr(rangeStr)
 		variable nItems = ItemsInList(layersNum)
@@ -358,7 +420,7 @@ static Function/S GetStackNamesForWaveNote(WAVE wRef, int op, [string rangeStr, 
 		noteStr = note(wRef)
 	endif
 	SplitString/E=regex noteStr, strBefore, dump0, waveListStr, dump1, strAfter
-	waveListStr = ATH_String#RemoveIndexKeysFromList(waveListStr, keySep=">", listSep=listSep)	
+	waveListStr = ATH_String#RemoveIndexKeysFromList(waveListStr, keySep=">", listSep="\n")	
 	variable i
 	switch(op)
 		case 0: // Extract a range
@@ -370,15 +432,18 @@ static Function/S GetStackNamesForWaveNote(WAVE wRef, int op, [string rangeStr, 
 				waveListStr = RemoveListItem(str2num(StringFromList(i,layersNum)),waveListStr,"\n")
 			endfor
 			break
-		case 2: // Add layer
-			break
-		case 3:
+		case 2: // Flip stack
 			variable totalItems = ItemsInList(waveListStr,"\n")
 			for(i = 0 ; i < totalItems; i++)
 				buffer+=StringFromList(totalItems-i-1, waveListStr, "\n")+"\n"
 			endfor
 				waveListStr = buffer
 			break
+		case 3: // Append layer(s)
+			waveListStr += wlist
+			break
+		case 4: // Insert layer(s)
+			break						
 		default:
 			break
 	endswitch
@@ -386,17 +451,20 @@ static Function/S GetStackNamesForWaveNote(WAVE wRef, int op, [string rangeStr, 
 	return waveListStr
 End
 
-static Function UpdateStackWaveNote(WAVE wRef, int op, [string rangeStr, string listSep, string noteStr])
+static Function UpdateStackWaveNote(WAVE wRef, int op, [string rangeStr, string wlist, string noteStr, string explicitWaveList])
+	//
 	// Add/remove layer names in wave note, update the note in wRef
 	// rangeStr can be "2-5,7,9-12,50"
+	// expand a string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50"
 	//
 	// op = 0 // Keep a range
-	// op = 1 // Remove
-	// op = 2 // Add layer
-	// op = 3 // Flip stack
+	// op = 1 // Remove layers
+	// op = 2 // Flip Stack
+	// op = 3 // Append layers
+	// op = 4 // Insert layers // Here rangeStr is the layerN we apply the ATH_ImgOp#InsertImagesToImageStack
 	//
-	listSep = SelectString(ParamIsDefault(listSep) ? 0: 1, "\n", listSep)
-	// expand a string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50"
+	// default: use the explicitWaveList optional parameter
+	
 	if(!ParamIsDefault(rangeStr))
 		string layersNum = ExpandRangeStr(rangeStr)
 		variable nItems = ItemsInList(layersNum)
@@ -409,7 +477,7 @@ static Function UpdateStackWaveNote(WAVE wRef, int op, [string rangeStr, string 
 	"([\s\S]*?(?=\*--------------------------\*(?:\r?\n|\r|\n)?))(\*--------------------------\*(?:\r?\n|\r|\n)*)([\s\S]*$)"
 	string strBefore, dump0, waveListStr, dump1, strAfter, buffer = ""
 	SplitString/E=regex noteStr, strBefore, dump0, waveListStr, dump1, strAfter
-	waveListStr = ATH_String#RemoveIndexKeysFromList(waveListStr, keySep=">", listSep=listSep)	
+	waveListStr = ATH_String#RemoveIndexKeysFromList(waveListStr, keySep=">", listSep="\n")	
 	variable i
 	switch(op)
 		case 0: // Extract a range
@@ -421,16 +489,22 @@ static Function UpdateStackWaveNote(WAVE wRef, int op, [string rangeStr, string 
 				waveListStr = RemoveListItem(str2num(StringFromList(i,layersNum)),waveListStr,"\n")
 			endfor
 			break
-		case 2: // Add layer
-			break
-		case 3:
+		case 2: // Flip stack
 			variable totalItems = ItemsInList(waveListStr,"\n")
 			for(i = 0 ; i < totalItems; i++)
 				buffer+=StringFromList(totalItems-i-1, waveListStr, "\n")+"\n"
 			endfor
 				waveListStr = buffer
 			break
+		case 3: // Append layer(s)
+			waveListStr += wlist
+			break
+		case 4: // Insert layer(s)
+			break
 		default:
+			if(!ParamIsDefault(explicitWaveList))
+				waveListStr = explicitWaveList
+			endif
 			break
 	endswitch
 	// update note. Careful waveListStr needs "\n" list separator
