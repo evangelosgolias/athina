@@ -94,7 +94,7 @@ static Function LoadHDF5GroupsFromFile()
 	if(strlen(selectedGroups))
 		ATH_HDF5#LoadHDF5SpecificGroupsNamesIndexed(selectedGroups, strFix = "entry")
 	else
-		ATH_HDF5#LoadHDF5File() // Load all.
+		ATH_HDF5#LoadHDF5File("") // Load all.
 	endif
 End
 
@@ -260,7 +260,11 @@ static Function ImageRegistrationStack()
 	ATH_DFR#BackupWaveInWaveDF(wRef)
 	variable layerN = ATH_Graph#GetgLayer("")
 	string waveNoteStr = note(wRef)
-	ATH_ImgAlign#MultiThreadImageRegistration(wRef, layerN)
+	#if IgorVersion() >= 10
+		ATH_ImgAlign#MultiThreadImageRegistration(wRef, layerN)
+	#else
+		ATH_ImgAlign#ImgStackRegistration(wRef, layerN)
+	#endif
 	Note wRef, waveNoteStr
 	return 0
 End
@@ -303,7 +307,13 @@ static Function ImageStackAlignmentPartition()
 	variable nlayers = DimSize(wRef, 2)
 	if(method == 1)
 		if(nlayers > 9)
-			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2)
+			// There is a bug in IP9, IP crashes when you run ImageRegistration in MT.
+			#if IgorVersion() >= 10
+				ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2)
+			#else
+				print "Multithreading is disabled for ImageRegistration IP v < 10"
+				ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
+			#endif
 		else
 			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
 		endif
@@ -823,7 +833,7 @@ static Function ExtractLayerRangeToStack()
 		elseif(!cmpstr(separatorStr,"-"))
 			string wRef_stck = ATH_ImgOp#ExtractLayerRange(wRef, startL=str2num(sval1), endL=str2num(sval2), doStack=1)
 			if(WaveExists($wRef_stck))
-				ATH_String#SetStackNamesInNote($wRef_stck,ATH_String#GetStackNamesForWaveNote(wRef, sval1+"-"+sval2, 0),listSepW="\n")
+				ATH_String#SetStackNamesInNote($wRef_stck,ATH_String#GetStackNamesForWaveNote(wRef, 0, rangeStr = sval1+"-"+sval2),listSepW="\n")
 			endif
 		else
 			print "Wrong input, please check ExtractLayerRangeToStack() in ATH_Launch module"
@@ -843,6 +853,7 @@ static Function FlipStackPlanes()
 	DFREF saveDF = GetDataFolderDFR()
 	SetDataFolder GetWavesDataFolderDFR(wRef)
 	ImageTransform flipPlanes wRef
+	ATH_String#UpdateStackWaveNote(wRef, 3)
 	SetDataFolder saveDF
 	return 0
 End

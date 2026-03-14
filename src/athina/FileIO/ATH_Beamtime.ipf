@@ -2,7 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
-#pragma ModuleName = ATH_Beamtime
+#pragma ModuleName = ATH_MAXPEEM
 #pragma version = 1.01
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -30,6 +30,7 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+// This module is solely used at the MAXPEEM beamline @ MAX IV synchrotron facility.
 // Set the /raw directory here as MAXPEEM_USER_ROOT_FOLDER
 
 static Function/S SetOrResetBeamtimeRootFolder()
@@ -83,8 +84,10 @@ static Function/S GetNewestCreatedFileInPathTree(string pathName,
 	//	level is the recursion level - pass 0 when calling ATH_GetNewestCreatedFileInPathTree.
 	//  latestfile and latestctime are called by reference as the recursive function call would 
 	//  reset pass-by-value arguments. We could alternatively use SVAR and NVAR.
+	///
 	/// DO NOT CALL THE FUNCTION DIRECTLY.
-
+	/// 
+	
 	PathInfo $pathName
 	string path = S_path	
 	if(!V_flag) // If path not defined
@@ -163,8 +166,9 @@ static Function/S GetNewestCreatedFolderInPathTree(string pathName, string &late
 	//	It recursively searches for the newest folder in a folder tree.
 	//	pathName is the name of an Igor symbolic path that you created
 	//	using NewPath or the Misc->New Path menu item.
+	///
 	/// DO NOT CALL THE FUNCTION DIRECTLY.
-
+	/// 
 	PathInfo $pathName
 	string path = S_path	
 	if(!V_flag) // If path not defined
@@ -188,9 +192,13 @@ static Function/S GetNewestCreatedFolderInPathTree(string pathName, string &late
 		// Now we get the path to the new parent folder
 		string subFolderPath
 		subFolderPath = path
-		
-		GetFileFolderInfo/Z/Q path
 
+		#if IgorVersion() >= 10
+			GetFileFolderInfo/OMIT=31/Z/Q path // /OMIT only in IP10
+		#else
+			GetFileFolderInfo/Z/Q path
+		#endif
+			
 		if(V_creationDate > latestctime)
 			latestfolder = path
 			latestctime = V_creationDate
@@ -204,7 +212,6 @@ static Function/S GetNewestCreatedFolderInPathTree(string pathName, string &late
 	while(1)
 	return latestfolder
 End
-
 
 /// ------------------------------------------------------------------------------------------- ///
 /// -------------- Python versions of the commands. Writtten before IP10 ---------------------- ///
@@ -264,72 +271,75 @@ static Function/S GetLastSavedFileInFolderTreePython(string pathName, string ext
 	return S_value
 End
 
-static Function LoadNewestTwoFilesInPathTreeAndDisplayPython(string ext)
-	/// Load the last two saved files in the tree with pathName as root folder
-	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
-	/// will pop do so. The path name is saved as pATH_LoadLastFileIgorPath.
 
-	string filepathsStr = GetLastTwoSavedFileInFolderTreePython("MAXPEEM_USER_ROOT_FOLDER", ext) // Change path!
-	string filepath1Str = StringFromList(0, filepathsStr)
-	string filepath2Str = StringFromList(1, filepathsStr)	
-	#ifdef MACINTOSH
-		filepath1Str = ParseFilePath(10, filepath1Str, "*", 0, 0)
-		filepath2Str = ParseFilePath(10, filepath2Str, "*", 0, 0)		
-	#endif
-	DFREF saveDF = GetDataFolderDFR()
-	SetDataFolder NewFreeDataFolder()
-	WAVE w1Ref = ATH_Uview#WAVELoadSingleDATFile(filepath1Str, "pyWave0", autoscale = 1)
-	WAVE w2Ref = ATH_Uview#WAVELoadSingleDATFile(filepath2Str, "pyWave1", autoscale = 1)
-	Imagetransform stackImages $"pyWave0"
-	WAVE M_Stack
-	string w3dStr = CreateDataObjectName(saveDF, "autoLoadL2F", 1, 0, 5)
-	MoveWave M_stack, saveDF:$w3dStr
-	SetDataFolder saveDF
-	ATH_Display#NewImg($w3dStr)
-	Note $w3dStr, ("file1: " + filepath1Str + "\nfile2: " + filepath2Str)
-	print "Files loaded: \n1.", filepath1Str, "\n2.", filepath2Str, "\n", "◊ Stacked in: ", w3dStr
-	return 0
-End
 
-static Function/S GetLastTwoSavedFileInFolderTreePython(string pathName, string ext)
-//	unixCmdBase = "python3 -c \"from pathlib import Path;from os.path import getmtime;"\
-//			  + "listFiles = sorted(Path('%s').rglob('*%s'), "\
-//			  + "key = getmtime);print(listFiles[-2], end='');print(';');print(listFiles[-1], end='');print(';')\""	
+
+//static Function LoadNewestTwoFilesInPathTreeAndDisplayPython(string ext)
+//	/// Load the last two saved files in the tree with pathName as root folder
+//	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
+//	/// will pop do so. The path name is saved as pATH_LoadLastFileIgorPath.
 //
-//		
-	
-	//variable timerRefNum = StartMSTimer
-
-	PathInfo $pathName
-	string path = S_path	
-	if(!V_flag) // If path not defined, set it and call the function again
-		print "MAXPEEM_USER_ROOT_FOLDER is not set!"
-		path = SetOrResetBeamtimeRootFolder()
-	endif
-	
-	#ifdef WINDOWS
-		path = RemoveEnding(ParseFilePath(5, path, "\\", 0, 0))// Remove last backslash because it is interpreted as escape character \'
-	#else // MACINTOSH
-		path = ParseFilePath(5, path, "/", 0, 0)
-	#endif	
-	string 	unixCmd, igorCmd, unixCmdBase
-	
-	#ifdef WINDOWS
-		unixCmdBase = "python -c \"from pathlib import Path;from os.path import getmtime;"\
-					  + "listFiles = sorted(Path('%s').rglob('*%s'), "\
-					  + "key = getmtime);print(listFiles[-2], end='');print(';',end='');print(listFiles[-1], end='');print(';',end='')\""		
-		sprintf unixCmd, unixCmdBase, path, ext	
-		sprintf igorCmd, "cmd.exe /C \"%s\"", unixCmd
-	#else // MACINTOSH, python3 is for my Mac! You could use python instead
-		unixCmdBase = "python3 -c \\\"from pathlib import Path;from os.path import getmtime;"\
-					  + "listFiles = sorted(Path('%s').rglob('*%s'), "\
-					  + "key = getmtime);print(listFiles[-2], end='');print(';',end='');print(listFiles[-1], end='');print(';',end='')\\\""	
-		sprintf unixCmd, unixCmdBase, path, ext	
-		sprintf igorCmd, "do shell script \"%s\" ", unixCmd
-	#endif	
-	
-	ExecuteScriptText/Z/B/UNQ igorCmd
-	//variable microSeconds = StopMSTimer(timerRefNum)
-	//print "Time elapsed: ", microSeconds/1e6, " sec"
-	return S_value
-End
+//	string filepathsStr = GetLastTwoSavedFileInFolderTreePython("MAXPEEM_USER_ROOT_FOLDER", ext) // Change path!
+//	string filepath1Str = StringFromList(0, filepathsStr)
+//	string filepath2Str = StringFromList(1, filepathsStr)	
+//	#ifdef MACINTOSH
+//		filepath1Str = ParseFilePath(10, filepath1Str, "*", 0, 0)
+//		filepath2Str = ParseFilePath(10, filepath2Str, "*", 0, 0)		
+//	#endif
+//	DFREF saveDF = GetDataFolderDFR()
+//	SetDataFolder NewFreeDataFolder()
+//	WAVE w1Ref = ATH_Uview#WAVELoadSingleDATFile(filepath1Str, "pyWave0", autoscale = 1)
+//	WAVE w2Ref = ATH_Uview#WAVELoadSingleDATFile(filepath2Str, "pyWave1", autoscale = 1)
+//	Imagetransform stackImages $"pyWave0"
+//	WAVE M_Stack
+//	string w3dStr = CreateDataObjectName(saveDF, "autoLoadL2F", 1, 0, 5)
+//	MoveWave M_stack, saveDF:$w3dStr
+//	SetDataFolder saveDF
+//	ATH_Display#NewImg($w3dStr)
+//	Note $w3dStr, ("file1: " + filepath1Str + "\nfile2: " + filepath2Str)
+//	print "Files loaded: \n1.", filepath1Str, "\n2.", filepath2Str, "\n", "◊ Stacked in: ", w3dStr
+//	return 0
+//End
+//
+//static Function/S GetLastTwoSavedFileInFolderTreePython(string pathName, string ext)
+////	unixCmdBase = "python3 -c \"from pathlib import Path;from os.path import getmtime;"\
+////			  + "listFiles = sorted(Path('%s').rglob('*%s'), "\
+////			  + "key = getmtime);print(listFiles[-2], end='');print(';');print(listFiles[-1], end='');print(';')\""	
+////
+////		
+//	
+//	//variable timerRefNum = StartMSTimer
+//
+//	PathInfo $pathName
+//	string path = S_path	
+//	if(!V_flag) // If path not defined, set it and call the function again
+//		print "MAXPEEM_USER_ROOT_FOLDER is not set!"
+//		path = SetOrResetBeamtimeRootFolder()
+//	endif
+//	
+//	#ifdef WINDOWS
+//		path = RemoveEnding(ParseFilePath(5, path, "\\", 0, 0))// Remove last backslash because it is interpreted as escape character \'
+//	#else // MACINTOSH
+//		path = ParseFilePath(5, path, "/", 0, 0)
+//	#endif	
+//	string 	unixCmd, igorCmd, unixCmdBase
+//	
+//	#ifdef WINDOWS
+//		unixCmdBase = "python -c \"from pathlib import Path;from os.path import getmtime;"\
+//					  + "listFiles = sorted(Path('%s').rglob('*%s'), "\
+//					  + "key = getmtime);print(listFiles[-2], end='');print(';',end='');print(listFiles[-1], end='');print(';',end='')\""		
+//		sprintf unixCmd, unixCmdBase, path, ext	
+//		sprintf igorCmd, "cmd.exe /C \"%s\"", unixCmd
+//	#else // MACINTOSH, python3 is for my Mac! You could use python instead
+//		unixCmdBase = "python3 -c \\\"from pathlib import Path;from os.path import getmtime;"\
+//					  + "listFiles = sorted(Path('%s').rglob('*%s'), "\
+//					  + "key = getmtime);print(listFiles[-2], end='');print(';',end='');print(listFiles[-1], end='');print(';',end='')\\\""	
+//		sprintf unixCmd, unixCmdBase, path, ext	
+//		sprintf igorCmd, "do shell script \"%s\" ", unixCmd
+//	#endif	
+//	
+//	ExecuteScriptText/Z/B/UNQ igorCmd
+//	//variable microSeconds = StopMSTimer(timerRefNum)
+//	//print "Time elapsed: ", microSeconds/1e6, " sec"
+//	return S_value
+//End

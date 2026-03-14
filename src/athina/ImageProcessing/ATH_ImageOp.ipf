@@ -292,7 +292,7 @@ static Function RemoveImagesFromImageStack(WAVE wRef, variable startLayer, varia
 	string rmRangeStr = num2str(startLayer)+"-"+num2str(startLayer+nrLayers-1)
 	string notesStr = note(wRef) // Get the note
 	ImageTransform/O/P=(startLayer)/NP=(nrLayers) removeZplane wRef
-	ATH_String#UpdateStackWaveNote(wRef,rmRangeStr, 1, noteStr=notesStr)
+	ATH_String#UpdateStackWaveNote(wRef, 1, rangeStr=rmRangeStr, noteStr=notesStr)
 	// Use it to change wave notes
 	return 0
 End

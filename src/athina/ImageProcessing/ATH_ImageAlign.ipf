@@ -31,26 +31,6 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-static Function/WAVE ImgRegistrationW(WAVE w1, WAVE w2)
-	/// Align two images using ImageRegistration operation. 
-	/// Only x, y translations are allowed.
-	/// @param w1 wave reference First wave (reference wave)
-	/// @param w2 wave reference Second wave (test wave)
-	/// @return alignedW w2 aligned with w1 as reference.
-	if(!(WaveType(w1) & 0x02))
-		Redimension/S w1
-	endif
-	if(!(WaveType(w2) & 0x02))
-		Redimension/S w2
-	endif
-	Duplicate/FREE w2, w2copy
-	ImageRegistration/CONV=1/TRNS={1,1,0}/ROT={0,0,1}/ISOS/TSTM=0/BVAL=0 refWave = w1, testWave = w2copy
-	WAVE M_RegOut, M_RegOut, M_RegMaskOut
-	Duplicate/FREE M_RegOut, alignedW
-	KillWaves/Z M_RegOut, M_RegOut, M_RegMaskOut
-	return alignedW
-End
-
 static Function ImgRegistration(WAVE w1, WAVE w2)
 	/// Align two images using ImageRegistration operation. 
 	/// Note: w2 in overwritten
@@ -67,6 +47,17 @@ static Function ImgRegistration(WAVE w1, WAVE w2)
 	WAVE M_RegOut
 	Duplicate/O M_RegOut, w2	
 	KillWaves/Z M_RegOut, M_RegMaskOut, W_RegParams
+	return 0
+End
+
+static Function ImgStackRegistration(WAVE wRef, variable layerN)
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	MatrixOP/FREE refLayerW = layer(wRef, layerN)
+	ImageRegistration/Q/CONV=1/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,1}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerW, testwave = wRef
+	WAVE M_RegOut
+	Duplicate/O M_RegOut, wRef
+	SetDataFolder saveDF
 	return 0
 End
 

@@ -48,8 +48,8 @@ Menu "athina"
 			".h5 file (MAXIV metadata) .../4", /Q, ATH_Launch#LoadHDF5GroupsFromFile()
 		End		
 		Submenu "P3B"
-		".P3B files (ALS)...",/Q, ATH_LoadImg#PEEM3Files()
-		".P3B files and stack (ALS)...",/Q, ATH_LoadImg#PEEM3Files(stack3d=1)
+			".P3B files (ALS)...",/Q, ATH_LoadImg#PEEM3Files()
+			".P3B files and stack (ALS)...",/Q, ATH_LoadImg#PEEM3Files(stack3d=1)
 		End
 		Submenu "NeXus"
 			".nxs NeXus files (Diamond) ...",/Q, ATH_HDF5#LoadNXSDataSets()
@@ -66,7 +66,7 @@ Menu "athina"
 		"Unpack layers to source waves (TG, 3D)",/Q, ATH_Launch#UnpackStackToSources()		
 		"Pixelate image (TG, 2D, 3D)", /Q, ATH_Launch#PixelateSingleImageOrStack()
 		"Resample image (TG, 2D)", /Q, ATH_Launch#ImageResample()
-		"Flip stack planes (TG, 3D)", /Q, ATH_Launch#FlipStackPlanes()			
+		"Reverse layers order (TG, 3D)", /Q, ATH_Launch#FlipStackPlanes()			
 		"New image (stack) from saved ROI (TG, 2D, 3D)", /Q, ATH_Launch#MakeWaveFromSavedROI()
 		"FFT (TG, 2D)", /Q, ATH_Launch#ImageFFTTransform()
 		"Histogram Equalisation (TG, 2D, 3D)", /Q, ATH_Launch#HistogramEqualisation()

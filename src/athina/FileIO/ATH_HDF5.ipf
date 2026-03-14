@@ -50,12 +50,10 @@ static Function/S GetHDF5Groups()
 	return GetHDF5GroupsFID(fileid_)
 End
 
-static Function LoadHDF5File()
+static Function LoadHDF5File(string filename)
 	Variable fileid_
-	String filepathname = GetHDF5SingleFilePath()
-	HDF5OpenFile/R fileid_ as filepathname
+	HDF5OpenFile/R fileid_ as filename
 	HDF5LoadGroup/R :, fileid_, "." // load all
-	print "HDF5 file ~", filepathname, "~ loaded."
 	HDF5CloseFile fileid_
 End
 
@@ -278,6 +276,7 @@ static Function LoadNXSDataSets()
 End
 
 //// ------ MAXPEEM HDF5 files using TVIPS pipeline ------ /////
+//// ------ Functions will be used in ATH_MAXPEEM  ------ /////
 
 static Function LoadTVIPSH5Data(string filename)
 	// Function to load the h5 datasets
@@ -289,25 +288,42 @@ static Function LoadTVIPSH5Data(string filename)
 	variable fileid
 
 	HDF5OpenFile/R fileid as filename
-	if(ATH_String#EndsWith(filename, "_tvips.h5"))
-		HDF5LoadData fileid, "entry/instrument/tvips/data"
-		WAVE wRef = data
-	else
-		HDF5LoadData fileid, "entry/measurement/tvips"
-		WAVE wRef = tvips
-	endif
+	// Use S_filename as you might not get filename correctly
+	// and load the h5 with the file browser.
+	HDF5LoadData/Q fileid, "/entry/instrument/tvips/data"
 	HDF5CloseFile fileid
+	WAVE data	
 	string wname = CreateDataObjectName(GetDataFolderDFR(), \
 				   ParseFilePath(3, S_fileName, "*", 0, 0), 1, 0, 1)
-	//variable timerRefNum = StartMSTimer
-	ImageTransform/G=3 transposeVol wRef
-	WAVE M_VolumeTranspose
-	Rename M_VolumeTranspose, $wname
-	KillWaves/Z wRef
-	string waveNoteStr = filename
+	if(DimSize(data,0) == 1) // You have a single image
+		Redimension/E=1/N=(DimSize(data,1), DimSize(data,2)) data
+		Rename data, $wname
+	else
+		ImageTransform/G=3 transposeVol data
+		WAVE M_VolumeTranspose
+		Rename M_VolumeTranspose, $wname
+	endif
+	KillWaves/Z data
+	// Metadata
+	string waveNoteStr = S_Path + S_filename
 	Note $wname, waveNoteStr
-	//variable microSeconds = StopMSTimer(timerRefNum)
-	//print "Time elapsed: ", microSeconds/1e6, " sec"
+	return 0
+End
+
+static Function LoadTVIPSH5Group(string filename, [string group])
+	// Function to load the h5 datasets
+	// Here we check whether the Path MAXPEEM_USER_ROOT_FOLDER is set.
+	// If not, then the filename should be the filepath if you want to
+	// load the file without opening the file browser.
+	// Take care of UNC file paths on Windows (\\\\Server\\folder\\file) 
+	
+	variable fileid
+	group = SelectString(ParamIsDefault(group), group, "entry")
+	HDF5OpenFile/R fileid as filename
+	// Use S_filename as you might not get filename correctly
+	// and load the h5 with the file browser.
+	HDF5LoadGroup/T/Q :, fileid, group
+	HDF5CloseFile fileid
 	return 0
 End
 
@@ -324,71 +340,22 @@ static Function LoadTVIPSH5DataNetwork(variable scanID)
 		string filename = "scan-"+num2str(scanID)+".h5"
 	endif
 	HDF5OpenFile/R/P=MAXPEEM_USER_ROOT_FOLDER fileid as filename
-	// S_filename is the loaded filename
-	if(ATH_String#EndsWith(S_filename, "_tvips.h5"))
-		HDF5LoadData/Q fileid, "entry/instrument/tvips/data"
-		WAVE wRef = data
-	else
-		HDF5LoadData/Q fileid, "entry/measurement/tvips"
-		WAVE wRef = tvips
-	endif
+	HDF5LoadData/Q fileid, "/entry/instrument/tvips/data"
 	HDF5CloseFile fileid
-	// Use S_filename[1,strlen(S_filename)-3] to clear the name
-	string wname = CreateDataObjectName(GetDataFolderDFR(),"w"+num2str(scanID), 1, 0, 1)
-	//variable timerRefNum = StartMSTimer		   
-	ImageTransform/G=3 transposeVol wRef
-	WAVE M_VolumeTranspose
-	Rename M_VolumeTranspose, $wname	
-	KillWaves/Z wRef
-	
+	WAVE data	
+	HDF5CloseFile fileid
+	string wname = CreateDataObjectName(GetDataFolderDFR(),"w"+num2str(scanID), 1, 0, 1)	
+	if(DimSize(data,0) == 1) // You have a single image
+		Redimension/E=1/N=(DimSize(data,1), DimSize(data,2)) data
+		Rename data, $wname
+	else
+		ImageTransform/G=3 transposeVol data
+		WAVE M_VolumeTranspose
+		Rename M_VolumeTranspose, $wname
+	endif
+	KillWaves/Z data
+	// Metadata
 	string waveNoteStr = S_Path+filename
 	Note $wname, waveNoteStr
-	//variable microSeconds = StopMSTimer(timerRefNum)
-	//print "Time elapsed: ", microSeconds/1e6, " sec"
 	return 0
 End
-
-//static Function LoadTVIPSH5DataNetwork(string filename)
-//	// Function to load the h5 datasets
-//	// Here we check whether the Path MAXPEEM_USER_ROOT_FOLDER is set.
-//	// If not, then the filename should be the filepath if you want to
-//	// load the file without opening the file browser.
-//	// Take care of UNC file paths on Windows (\\\\Server\\folder\\file) 
-//	
-//	variable fileid
-//
-//	PathInfo MAXPEEM_USER_ROOT_FOLDER
-//	if(V_flag) // If PATH is set
-//		HDF5OpenFile/R/P=MAXPEEM_USER_ROOT_FOLDER fileid as filename
-//		if(ATH_String#EndsWith(filename, "_tvips.h5"))
-//			HDF5LoadData fileid, "entry/instrument/tvips/data"
-//			WAVE wRef = data
-//		else
-//			HDF5LoadData fileid, "entry/measurement/tvips"
-//			WAVE wRef = tvips
-//		endif
-//	else
-//		HDF5OpenFile/R fileid as filename
-//		if(ATH_String#EndsWith(filename, "_tvips.h5"))
-//			HDF5LoadData fileid, "entry/instrument/tvips"
-//			WAVE wRef = data
-//		else
-//			HDF5LoadData fileid, "entry/measurement/tvips"
-//			WAVE wRef = tvips	
-//		endif
-//	endif
-//	HDF5CloseFile fileid
-//	string wname = CreateDataObjectName(GetDataFolderDFR(), \
-//				   ParseFilePath(3, S_fileName, "\\", 0, 0), 1, 0, 5)
-//	//variable timerRefNum = StartMSTimer		   
-//	ImageTransform/G=3 transposeVol wRef
-//	WAVE M_VolumeTranspose
-//	Rename M_VolumeTranspose, $wname	
-//	KillWaves/Z wRef
-//	
-//	string waveNoteStr = filename
-//	Note $wname, waveNoteStr
-//	//variable microSeconds = StopMSTimer(timerRefNum)
-//	//print "Time elapsed: ", microSeconds/1e6, " sec"
-//	return 0
-//End

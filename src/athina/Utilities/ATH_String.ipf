@@ -333,7 +333,7 @@ static Function/S StackNamesInNoteStr(string waveNamesList,[string listSep]) // 
 	return noteStr
 End
 
-static Function/S GetStackNamesForWaveNote(WAVE wref, string rangeStr, int op, [string listSep, string noteStr])
+static Function/S GetStackNamesForWaveNote(WAVE wRef, int op, [string rangeStr, string listSep, string noteStr])
 	// Read stack names from wRef, filter and return a new list of waves
 	// to be used as a note to another wave.
 	//
@@ -344,18 +344,22 @@ static Function/S GetStackNamesForWaveNote(WAVE wref, string rangeStr, int op, [
 	
 	listSep = SelectString(ParamIsDefault(listSep) ? 0: 1, "\n", listSep)
 	// expand a string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50"
-	string layersNum = ExpandRangeStr(rangeStr)
+	if(!ParamIsDefault(rangeStr))
+		string layersNum = ExpandRangeStr(rangeStr)
+		variable nItems = ItemsInList(layersNum)
+	endif
+	
 	
 	string regex = "([\s\S]*?(?=---\* Stacked waves \*---(?:\r?\n|\r|\n)?))(---\* Stacked waves \*---(?:\r?\n|\r|\n)*)"+\
 	"([\s\S]*?(?=\*--------------------------\*(?:\r?\n|\r|\n)?))(\*--------------------------\*(?:\r?\n|\r|\n)*)([\s\S]*$)"
-	string strBefore, dump0, waveListStr, dump1, strAfter
+	string strBefore, dump0, waveListStr, dump1, strAfter, buffer = ""
 	// If you do not give noteStr, use the wave note
 	if(ParamIsDefault(noteStr))
 		noteStr = note(wRef)
 	endif
 	SplitString/E=regex noteStr, strBefore, dump0, waveListStr, dump1, strAfter
 	waveListStr = ATH_String#RemoveIndexKeysFromList(waveListStr, keySep=">", listSep=listSep)	
-	variable nItems = ItemsInList(layersNum), i
+	variable i
 	switch(op)
 		case 0: // Extract a range
 			waveListStr = GetRangeItemsFromList(waveListStr, "\n",\
@@ -366,8 +370,15 @@ static Function/S GetStackNamesForWaveNote(WAVE wref, string rangeStr, int op, [
 				waveListStr = RemoveListItem(str2num(StringFromList(i,layersNum)),waveListStr,"\n")
 			endfor
 			break
-//		case 2: // Add more cases here
-//			
+		case 2: // Add layer
+			break
+		case 3:
+			variable totalItems = ItemsInList(waveListStr,"\n")
+			for(i = 0 ; i < totalItems; i++)
+				buffer+=StringFromList(totalItems-i-1, waveListStr, "\n")+"\n"
+			endfor
+				waveListStr = buffer
+			break
 		default:
 			break
 	endswitch
@@ -375,26 +386,31 @@ static Function/S GetStackNamesForWaveNote(WAVE wref, string rangeStr, int op, [
 	return waveListStr
 End
 
-static Function UpdateStackWaveNote(WAVE wref, string rangeStr, int op, [string listSep, string noteStr])
+static Function UpdateStackWaveNote(WAVE wRef, int op, [string rangeStr, string listSep, string noteStr])
 	// Add/remove layer names in wave note, update the note in wRef
 	// rangeStr can be "2-5,7,9-12,50"
 	//
 	// op = 0 // Keep a range
 	// op = 1 // Remove
-	
+	// op = 2 // Add layer
+	// op = 3 // Flip stack
+	//
 	listSep = SelectString(ParamIsDefault(listSep) ? 0: 1, "\n", listSep)
 	// expand a string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50"
-	string layersNum = ExpandRangeStr(rangeStr)
+	if(!ParamIsDefault(rangeStr))
+		string layersNum = ExpandRangeStr(rangeStr)
+		variable nItems = ItemsInList(layersNum)
+	endif
 	// If you do not give noteStr, use the wave note	
 	if(ParamIsDefault(noteStr))
 		noteStr = note(wRef)
 	endif	
 	string regex = "([\s\S]*?(?=---\* Stacked waves \*---(?:\r?\n|\r|\n)?))(---\* Stacked waves \*---(?:\r?\n|\r|\n)*)"+\
 	"([\s\S]*?(?=\*--------------------------\*(?:\r?\n|\r|\n)?))(\*--------------------------\*(?:\r?\n|\r|\n)*)([\s\S]*$)"
-	string strBefore, dump0, waveListStr, dump1, strAfter
+	string strBefore, dump0, waveListStr, dump1, strAfter, buffer = ""
 	SplitString/E=regex noteStr, strBefore, dump0, waveListStr, dump1, strAfter
 	waveListStr = ATH_String#RemoveIndexKeysFromList(waveListStr, keySep=">", listSep=listSep)	
-	variable nItems = ItemsInList(layersNum), i
+	variable i
 	switch(op)
 		case 0: // Extract a range
 			waveListStr = GetRangeItemsFromList(waveListStr, "\n",\
@@ -405,12 +421,19 @@ static Function UpdateStackWaveNote(WAVE wref, string rangeStr, int op, [string 
 				waveListStr = RemoveListItem(str2num(StringFromList(i,layersNum)),waveListStr,"\n")
 			endfor
 			break
-//		case 2: // Add layer
-//			
+		case 2: // Add layer
+			break
+		case 3:
+			variable totalItems = ItemsInList(waveListStr,"\n")
+			for(i = 0 ; i < totalItems; i++)
+				buffer+=StringFromList(totalItems-i-1, waveListStr, "\n")+"\n"
+			endfor
+				waveListStr = buffer
+			break
 		default:
 			break
 	endswitch
-	// update note
+	// update note. Careful waveListStr needs "\n" list separator
 	noteStr = strBefore + StackNamesInNoteStr(waveListStr) + strAfter
 	Note/K wRef, noteStr 
 	return 0
