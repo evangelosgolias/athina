@@ -132,13 +132,13 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	// so that if srcWaveName  and the other waves have differing dimension size 
 	// (number of points if the wave is a 1D wave), then their dimension values 
 	// will still match for the points they have in common
-	//CopyScales t2dwred, w3dref 
+	// CopyScales t2dwred, w3dref 
+
 	// Add a note about the stacked waves
 	
-	// 19.10.2025 trying to fix the issue with notes.
-	// Here list of waves is delimited by ";", see ATH_String#SetStackNamesInNote
-	// and mainly ATH_String#ThreadStr
-	ATH_String#SetStackNamesInNote($wname3dStr, listOfSelectedWaves)//, listSepI = ";", listSepW = ";")
+	string expandedWaveList = ATH_String#ComposeWaveListsFromWaveNotes(listOfSelectedWaves)
+	ATH_String#UpdateStackWaveNote($wname3dStr, -1, explicitWaveList = ReplaceString(";", expandedWaveList, "\n"))	// use the default option
+
 	// Go back to the cwd
 	if(makeInSourceDFR)
 		SetDataFolder saveDF

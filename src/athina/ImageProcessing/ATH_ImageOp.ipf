@@ -291,12 +291,41 @@ static Function RemoveImagesFromImageStack(WAVE wRef, variable startLayer, varia
 	endif
 	string rmRangeStr = num2str(startLayer)+"-"+num2str(startLayer+nrLayers-1)
 	string notesStr = note(wRef) // Get the note
-	ImageTransform/O/P=(startLayer)/NP=(nrLayers) removeZplane wRef
+	if(startLayer + nrLayers > DimSize(wRef,2)-1 && !startLayer) // startLayer is also removed
+		print "You want to remove all layers, so it's better to delete the stack!"
+		return -1
+	elseif(startLayer + nrLayers > DimSize(wRef,2))
+		ImageTransform/O/P=(startLayer)/NP=(DimSize(wRef,2)-startLayer) removeZplane wRef // remove till the end
+	else
+		ImageTransform/O/P=(startLayer)/NP=(nrLayers) removeZplane wRef
+	endif
 	ATH_String#UpdateStackWaveNote(wRef, 1, rangeStr=rmRangeStr, noteStr=notesStr)
 	// Use it to change wave notes
 	return 0
 End
 
+static Function RemoveRangeOfImagesFromImageStack(WAVE wRef, string layerRangeList)
+	// You need to remove from the end if the list
+	// Tranlst
+	string rangeStr = ATH_String#ExpandRangeStr(layerRangeList)
+	string notesStr = note(wRef) // Get the note because ImageTransform will delete it!
+
+	variable i, imax = ItemsInList(rangeStr), layerN, nLayers = DimSize(wRef, 2)
+	// maybe you are trying to remove all the layers?
+	if(imax >= nLayers)
+		print "You want to remove all layers, so it's better to delete the stack!"
+		return -1
+	endif
+	for(i = imax-1; i > -1 ; i--)
+		layerN = str2num(StringFromList(i, rangeStr))
+		if(layerN  <= nLayers - 1)
+			ImageTransform/O/P=(layerN) removeZplane wRef
+		endif
+	endfor
+	//ATH_String#UpdateStackWaveNote needs layerRangeList, not the expanded string
+	ATH_String#UpdateStackWaveNote(wRef, 1, rangeStr=layerRangeList, noteStr=notesStr)
+	return 0
+End
 static Function InsertImagesToImageStack(WAVE wRef, WAVE wIn, variable layerN)
 	// Insert an image at the position layerN of an image stack.
 	// Here the z dimension will change, as the DimDelta for rescaling

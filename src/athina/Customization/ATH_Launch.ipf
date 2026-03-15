@@ -595,17 +595,23 @@ static Function RemoveImagesFromImageStack()
 		return -1
 	endif	
 	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	variable startLayer, nrLayers, flag
+	variable flag
+	string layerList, msg
 	if(WaveDims(w3dref) == 3 && DataFolderExists(skATH_W3DImageSliderParentDFR + winNameStr))
 		NVAR glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(winNameStr):gLayer
-		startLayer = glayer
 	else
 		return -1
 	endif
-	Prompt nrLayers, "How many layers do you want to remove (start from top image)?"
-	DoPrompt "ATH_RemoveImagesFromImageStack", nrLayers
-	if(nrLayers > 0 && !V_flag) // TODO: Use negative for backward removal
-		ATH_ImgOp#RemoveImagesFromImageStack(w3dref, startLayer, nrLayers)
+	msg = "Remove layers from stack: \n1. \"N\" to remove N layers starting from top image\n"
+	msg += "2. \"2-5,6,9\" to remove a range of images, here 2,3,4,5,6,9"
+	Prompt layerList, msg
+	DoPrompt "ATH_RemoveImagesFromImageStack", layerList
+	if(!V_flag) // TODO: Use negative for backward removal
+		if(strsearch(layerList, "-", 0) == -1)
+			ATH_ImgOp#RemoveImagesFromImageStack(w3dref, gLayer, str2num(layerList))
+		else
+			ATH_ImgOp#RemoveRangeOfImagesFromImageStack(w3dref,layerList)
+		endif
 		ATH_Display#RestartW3DImageSlider(grfName=winNameStr)
 	endif
 	return 0
@@ -666,7 +672,7 @@ static Function InsertImagesToStack() // Needs fixing
 	string getWaveListStr = ATH_String#GetStackNamesForWaveNote(w3dref,-1) // separator = "\n" 
 	// Let's sort things here a bit.
 	// First lets expand the wave note when we insert a 3D wave
-	string expandedWaveList = ATH_String#ComposeWaveListsFromWaveNotes(selectImagesStr) // // separator = ";" 
+	string expandedWaveList = ATH_String#ComposeWaveListsFromWaveNotes(selectImagesStr) // separator = ";" 
 	string fullWaveListStr = ATH_String#InsertListAtPosition(ReplaceString("\n", getWaveListStr, ";"), expandedWaveList, layerN)
 	fullWaveListStr = ReplaceString(";", fullWaveListStr, "\n")
 	
@@ -677,7 +683,8 @@ static Function InsertImagesToStack() // Needs fixing
 		ATH_ImgOp#InsertImagesToImageStack(w3dref, wInsertFree, layerN)
 	endif
 	ATH_Display#RestartW3DImageSlider(grfName=winNameStr)
-	ATH_String#UpdateStackWaveNote(w3dref, -1, explicitWaveList = fullWaveListStr)	// use the default option
+	// use the default option, list should have "\n" separator
+	ATH_String#UpdateStackWaveNote(w3dref, -1, explicitWaveList = fullWaveListStr)
 	return 0	
 End
 
