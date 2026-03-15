@@ -444,7 +444,7 @@ static Function ImageRotateAndScale(WAVE wRef, variable angle, [variable backup,
 	endif
 	ImageRotate/O/E=0/A=(-angle) wRef
 	noteStr +="Image rotated by " + num2str(angle) + " deg\n"
-	Note/K wRef, noteStr
+	Note wRef, noteStr
 	if(backup)
 		CopyScales/P wRefbck, wRef // /P needed here to prevent on image distances.	
 	else
@@ -1071,9 +1071,9 @@ static Function ScaleImagePreserveDims(WAVE wRef, variable factor, [variable fac
 	CopyScales/I wRef, wScaled
 	string wNote = note(wRef)
 	if(ParamIsDefault(factorY))
-		Note/K wScaled, wNote + "\n"+"ScaleImageSameDims with factor = " + num2str(factor)
+		Note wScaled, wNote + "\n"+"ScaleImageSameDims with factor = " + num2str(factor)
 	else
-		Note/K wScaled, wNote + "\n"+"ScaleImageSameDims with factor = (" + num2str(factor) + ", "+ num2str(factorY) + ")"
+		Note wScaled, wNote + "\n"+"ScaleImageSameDims with factor = (" + num2str(factor) + ", "+ num2str(factorY) + ")"
 	endif	
 	
 End

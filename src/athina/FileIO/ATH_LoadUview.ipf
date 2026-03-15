@@ -238,7 +238,7 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
 	endif
 	
 	if(strlen(mdatastr)) // Added to allow ATH_LoadDATFilesFromFolder function to skip Note/K without error
-		Note/K datWave, mdatastr
+		Note datWave, mdatastr
 	endif
 	
 	return datWave
@@ -386,7 +386,7 @@ static Function LoadSingleDATFile(string filepathStr, string waveNameStr
 	endif
 
 	if(strlen(mdatastr)) // Added to allow ATH_LoadDATFilesFromFolder function to skip Note/K without error
-		Note/K datWave, mdatastr
+		Note datWave, mdatastr
 	endif
 	
 	return 0
@@ -808,7 +808,7 @@ static Function LoadDATFilesFromFolder(string folder, string pattern, [int stack
 		//Add a note to the 3dwave about which files have been loaded
 		string note3d
 		sprintf note3d, "Timestamp: %s\nFolder: %s\nFiles: %s\n",(date() + " " + time()), folder, allFiles
-		Note/K M_Stack, note3d
+		Note M_Stack, note3d
 		MoveWave M_Stack saveDF:$wname3d
 		SetDataFolder saveDF
 		KillDataFolder/Z ATH_tmpStorageStackFolder
@@ -895,7 +895,7 @@ static Function/WAVE WAVELoadDATFilesFromFolder(string folder, string pattern, [
 	//Add a note to the 3dwave about which files have been loaded
 	string note3d
 	sprintf note3d, "Timestamp: %s\nFolder: %s\nFiles: %s\n",(date() + " " + time()), folder, allFiles
-	Note/K M_Stack, note3d
+	Note M_Stack, note3d
 	MoveWave M_Stack saveDF:$wname3dStr
 
 	// It is assumed that all the imported waves have the same dimensions, use it to scale the 3d wave

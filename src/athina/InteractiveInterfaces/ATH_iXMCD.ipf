@@ -216,7 +216,7 @@ static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)
 			string savexmcdWaveStr = CreatedataObjectName(sourceDF, "iXMCD", 1, 0, 1)
 			Duplicate wXMCD, sourceDF:$savexmcdWaveStr
-			Note/K sourceDF:$savexmcdWaveStr, note2WaveStr
+			Note sourceDF:$savexmcdWaveStr, note2WaveStr
 			break
 	endswitch
 	return 0
