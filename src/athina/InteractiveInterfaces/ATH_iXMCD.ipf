@@ -250,7 +250,7 @@ static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariable
 			string dfrStr = GetUserData(sva.win, "", "ATH_iXMCDPath")
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
 			NVAR/SDFR=dfr gATH_IntensityScale, gATH_dx, gATH_dy
-			// Here get the old factor and calculae the next to avoid duplications
+			// Here get the old factor and calculate the next to avoid duplications
 			gATH_IntensityScale = sva.dval ? sva.dval : 1
 			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_undo
 			if(gATH_IntensityScale!=1) //If it's not one!
@@ -266,13 +266,22 @@ static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariable
 			
 			if(flag)
 				variable avg1, avg2
-				WaveStats/Q/RMD=[left, right][top, bottom] wImg1
+				WaveStats/Q/M=1/RMD=[left, right][top, bottom] wImg2	
 				avg1 = V_avg
-				WaveStats/Q/RMD=[left, right][top, bottom] wImg2
+				WaveStats/Q/M=1/RMD=[left, right][top, bottom] wImg1
 				avg2 = V_avg
+				//
+				Duplicate/FREE/RMD=[left, right][top, bottom] wImg1, imgFreePart1
+				Duplicate/FREE/RMD=[left, right][top, bottom] wImg2, imgFreePart2
+				MatrixOP/FREE xmcd_Part_free = (imgFreePart1-imgFreePart2)/(imgFreePart1+imgFreePart2) // wImg2 is already scaled!
+				WaveStats/Q xmcd_Part_free
 				string baseTextStr, cmdStr
-				baseTextStr = "TextBox/W="+PossiblyQuoteName(sva.win)+"/C/N=IntRatioLog \"\\Z12I\B1\M\Z12/I\B2\M\Z12 = " + "%.4f\""
-				sprintf cmdStr, baseTextStr, avg1/avg2
+				//baseTextStr = "TextBox/W="+PossiblyQuoteName(sva.win)+"/C/N=IntRatioLog \"\\Z12I\B1\M\Z12/I\B2\M\Z12 = " + "%.4f\""
+				baseTextStr =  "TextBox/W="+PossiblyQuoteName(sva.win)+"/C/N=IntRatioLog \"\\Z12I\B1\M\Z12/I\B2\M\Z12 = " + "%.4f"				
+				baseTextStr += "\n\\Z12XMCD\Bavg\Z12  = %.∑4f \n\\Z12XMCD\Brms\Z12  = %.4f \n\\Z12XMCD\Bsdev\Z12 = %.4f "
+				baseTextStr += "\n\\Z12XMCD\Badev\Z12 = %.4f\""				
+				//sprintf cmdStr, baseTextStr, avg1/avg2
+				sprintf cmdStr, baseTextStr, avg1/avg2, V_avg, V_rms, V_sdev, V_adev
 				Execute/Q/Z cmdStr
 			else
 				TextBox/K/N=IntRatioLog/W=$sva.win		

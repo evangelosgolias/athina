@@ -94,15 +94,16 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 
 	DFREF saveDF = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
-
-	MatrixOP/FREE refLayerWave = layer(partitionW3d, layerN)
+	
+	MatrixOP/FREE partitionW3d_n = normalize(partitionW3d)
+	MatrixOP/FREE refLayerWave = layer(partitionW3d_n, layerN)
 	variable rows = DimSize(w3d, 0)
 	variable cols = DimSize(w3d, 1)
 	variable layers = DimSize(w3d, 2)
 	if(RotZ)
-		ImageRegistration/Q/CONV=1/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,1}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d		
+		ImageRegistration/Q/CONV=1/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,1}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d_n		
 	else
-		ImageRegistration/Q/CONV=1/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d
+		ImageRegistration/Q/CONV=1/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d_n
 	endif
 	WAVE M_RegParams
 
@@ -418,6 +419,8 @@ static Function MultiThreadRegistrationDriftCorrection(WAVE w3D,
 		Redimension/S w3DPart
 	endif
 	
+	// Normalize the stack to avoid issues with ImageRegistration
+	MatrixOP/FREE w3DPart_n = normalize(w3DPart)
 	// Create a wave to hold wave references returned by DriftCorrelation_Worker.
 	variable numPlanes = DimSize(w3D,2)
 	Make/WAVE/N=(numPlanes) ww	
@@ -427,7 +430,7 @@ static Function MultiThreadRegistrationDriftCorrection(WAVE w3D,
 	Make/FREE/N=(DimSize(w3D,0),DimSize(w3D,1)) ATH_ROIMask
 	FastOp ATH_ROIMask = 1
 	// Release the threads.
-	MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart, M_ImagePlane, ATH_ROIMask, p, RotZ = RotZ)	
+	MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart_n, M_ImagePlane, ATH_ROIMask, p, RotZ = RotZ)	
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
 	// So, now repack all layers.

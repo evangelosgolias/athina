@@ -311,7 +311,7 @@ static Function ImageStackAlignmentPartition()
 			#if IgorVersion() >= 10
 				ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2)
 			#else
-				print "Multithreading is disabled for ImageRegistration IP v < 10"
+				print "Multithreading is disabled for ImageRegistration IP ver < 10"
 				ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
 			#endif
 		else
