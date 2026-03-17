@@ -108,6 +108,8 @@ static Function MenuLaunch()
 	WAVE wXMCD = dfr:wXMCD
 	// Set global variables
 	variable/G dfr:gATH_driftStep = 1, dfr:gATH_dx = 0, dfr:gATH_dy = 0
+	variable/G dfr:gATH_left, dfr:gATH_right, dfr:gATH_top, dfr:gATH_bottom, dfr:gATH_ratio
+	variable/G dfr:gATH_XMCDavg, dfr:gATH_XMCDrms, dfr:gATH_XMCDsdev, dfr:gATH_XMCDadev	
 	variable/G dfr:gATH_IntensityScale = 1
 	string/G dfr:wName1Str = wave1NameStr, dfr:wName2Str = wave2NameStr
 	wXMCD = (wImg1 - wImg2)/(wImg1 + wImg2)
@@ -245,13 +247,24 @@ static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_iXMCDPath"))
 			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_undo
 			SVAR/SDFR=dfr wName1Str, wName2Str
-			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_IntensityScale
+			NVAR/SDFR=dfr gATH_dx, gATH_dy, gATH_IntensityScale, gATH_left, gATH_right, gATH_top, gATH_bottom
+			NVAR/SDFR=dfr gATH_ratio, gATH_XMCDavg, gATH_XMCDrms, gATH_XMCDsdev, gATH_XMCDadev			
 			variable postfix = 0
 			string note2WaveStr = "XMC(L)D = (img1 - img2)/(img1 + img2)\n" + "img1: " \
 			+ wName1Str + "\nimg2: " + wName2Str + "\nTotal img2 pixel drift dx:" + num2str(gATH_dx) \
 			+ " dy:" + num2str(gATH_dy) + "\n"
 			if(gATH_IntensityScale != 1)
-				note2WaveStr += "Scaled (factor x wimg2) "+wName2Str+" with "+num2str(gATH_IntensityScale)+"\n"		
+				// Gather metadata
+				note2WaveStr += "Scaled "+wName2Str+" with *f="+num2str(gATH_IntensityScale)+"*\n"
+				if(numtype(gATH_XMCDavg)) // NaN or Inf
+					note2WaveStr += "Scaling applied without a selected region (marquee).\n"
+				else
+					note2WaveStr += "Area: /RMD=["+num2str(gATH_left)+","+num2str(gATH_right)
+					note2WaveStr +="]["+num2str(gATH_top)+","+num2str(gATH_bottom)+"]\n"
+					note2WaveStr += "I_1/I_2="+num2str(gATH_ratio)+"\n"+"XMCD_avg="+num2str(gATH_XMCDavg)+"\n"
+					note2WaveStr += "XMCD_sdev="+num2str(gATH_XMCDsdev)+"\n"+"XMCD_rms="+num2str(gATH_XMCDrms)+"\n"
+					note2WaveStr += "XMCD_adev="+num2str(gATH_XMCDadev)+"\n"
+				endif
 			endif
 			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)
 			string savexmcdWaveStr = CreatedataObjectName(sourceDF, "iXMCD", 1, 0, 1)
@@ -303,7 +316,8 @@ static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariable
 		case 3: 							// Live update
 			string dfrStr = GetUserData(sva.win, "", "ATH_iXMCDPath")
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
-			NVAR/SDFR=dfr gATH_IntensityScale, gATH_dx, gATH_dy
+			NVAR/SDFR=dfr gATH_IntensityScale, gATH_dx, gATH_dy, gATH_left, gATH_right, gATH_top, gATH_bottom
+			NVAR/SDFR=dfr gATH_ratio, gATH_XMCDavg, gATH_XMCDrms, gATH_XMCDsdev, gATH_XMCDadev
 			// Here get the old factor and calculate the next to avoid duplications
 			gATH_IntensityScale = sva.dval ? sva.dval : 1
 			WAVE/SDFR=dfr wImg1, wImg2, wXMCD, wimg2_undo
@@ -325,6 +339,10 @@ static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariable
 				WaveStats/Q/M=1/RMD=[left, right][top, bottom] wImg1
 				avg2 = V_avg
 				//
+				// Grab normalisation region
+				//
+				gATH_left = left; gATH_right = right; gATH_top = top; gATH_bottom = bottom
+				//
 				Duplicate/FREE/RMD=[left, right][top, bottom] wImg1, imgFreePart1
 				Duplicate/FREE/RMD=[left, right][top, bottom] wImg2, imgFreePart2
 				MatrixOP/FREE xmcd_Part_free = (imgFreePart1-imgFreePart2)/(imgFreePart1+imgFreePart2) // wImg2 is already scaled!
@@ -337,8 +355,13 @@ static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariable
 				//sprintf cmdStr, baseTextStr, avg1/avg2
 				sprintf cmdStr, baseTextStr, avg1/avg2, V_avg, V_rms, V_sdev, V_adev
 				Execute/Q/Z cmdStr
+				gATH_ratio = avg1/avg2; gATH_XMCDavg = V_avg; gATH_XMCDrms = V_rms
+				gATH_XMCDsdev = V_sdev; gATH_XMCDadev = V_adev
 			else
-				TextBox/K/N=IntRatioLog/W=$sva.win		
+				TextBox/K/N=IntRatioLog/W=$sva.win
+				// Save NaN
+				gATH_ratio = NaN; gATH_XMCDavg = NaN; gATH_XMCDrms = NaN
+				gATH_XMCDsdev = NaN; gATH_XMCDadev = NaN	
 			endif
 			break
 		case -1: 							// Control being killed
