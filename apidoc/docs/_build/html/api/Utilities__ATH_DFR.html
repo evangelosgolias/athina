@@ -1,0 +1,576 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATH_DFR &mdash; ATH Igor Pro API  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=7ab3649f" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ATH_Execute" href="Utilities__ATH_Execute.html" />
+    <link rel="prev" title="ATH_CalcPad" href="Utilities__ATH_CalcPad.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ATH Igor Pro API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_Func.html">ATH_Func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_FuncFit.html">ATH_FuncFit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_MagDomains.html">ATH_MagDom</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_Transform.html">ATH_Transform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XMCD.html">ATH_XMCD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XPSBackgroundRemoval.html">ATH_XPSBackgroundRemoval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Dialog.html">ATH_Dialog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Launch.html">ATH_Launch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Menus.html">ATH_Menus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Datasets__ATH_XPSData.html">ATH_XPSData</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Beamtime.html">ATH_Beamtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Export.html">ATH_Export_Repeat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_HDF5.html">ATH_HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_LoadImg.html">ATH_LoadImg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_LoadUview.html">ATH_LoadUview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Color.html">ATH_Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Cursors.html">ATH_Cursors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Display.html">ATH_Display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Draw.html">ATH_Draw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Graph.html">ATH_Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Marquee.html">ATH_Marquee</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Range.html">ATH_Range</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Traces.html">ATH_Traces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Windows.html">ATH_Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ImageProcessing__ATH_ImageAlign.html">ATH_ImageAlign</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ImageProcessing__ATH_ImageFilter.html">ATH_ImageFilter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ImageProcessing__ATH_ImageOp.html">ATH_ImageOp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iBackground.html">ATH_iBackground</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iDriftCorrection.html">ATH_iDriftCorrection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iImageOps.html">ATH_iImageOps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iImageRotation.html">ATH_iImageRotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iXMCD.html">ATH_iXMCD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iXPS.html">ATH_iXPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Profilers__ATH_LineProfile.html">ATH_LineProfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Profilers__ATH_PlaneZProfile.html">ATH_PlaneZProfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Profilers__ATH_ZProfile.html">ATH_ZProfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_CalcPad.html">ATH_CalcPad</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ATH_DFR</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#createdatafoldergetdfref"><code class="docutils literal notranslate"><span class="pre">CreateDataFolderGetDFREF</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#returns">Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#sanitizepath"><code class="docutils literal notranslate"><span class="pre">SanitizePath</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#zapdatainfoldertree"><code class="docutils literal notranslate"><span class="pre">ZapDataInFolderTree</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#zapalldatafoldersinpath"><code class="docutils literal notranslate"><span class="pre">ZapAllDataFoldersInPath</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#printfoldersandfiles"><code class="docutils literal notranslate"><span class="pre">PrintFoldersAndFiles</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cleanglobalwavesvarandstrinfolder"><code class="docutils literal notranslate"><span class="pre">CleanGlobalWavesVarAndStrInFolder</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#deleteeverythingbutsomefolders"><code class="docutils literal notranslate"><span class="pre">DeleteEverythingButSomeFolders</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#findbigwaves"><code class="docutils literal notranslate"><span class="pre">FindBigWaves</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#allwavessamepathq"><code class="docutils literal notranslate"><span class="pre">AllWavesSamePathQ</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id15">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#backupwaveinwavedf"><code class="docutils literal notranslate"><span class="pre">BackupWaveInWaveDF</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id17">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id18">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#backupwaveinwavedfq"><code class="docutils literal notranslate"><span class="pre">BackupWaveInWaveDFQ</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id19">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id20">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getallwavesstrdf"><code class="docutils literal notranslate"><span class="pre">GetAllWavesStrDF</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id21">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id22">Returns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_Execute.html">ATH_Execute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_Geometry.html">ATH_Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_IgorHook.html">ATH_IgorHook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_Numeric.html">ATH_Numeric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_Spaces.html">ATH_Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_String.html">ATH_String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_System.html">ATH_System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_TextWaves.html">ATH_TextWaves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_WaveOp.html">ATH_WaveOp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ATH Igor Pro API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ATH_DFR</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/Utilities__ATH_DFR.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ath-dfr">
+<h1>ATH_DFR<a class="headerlink" href="#ath-dfr" title="Link to this heading"></a></h1>
+<p><strong>Source file:</strong> <code class="docutils literal notranslate"><span class="pre">Utilities/ATH_DFR.ipf</span></code></p>
+<p>Module ATH_DFR.</p>
+<p>This module belongs to the ATH Igor Pro toolkit and contains procedures
+related to ATH DFR functionality.</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#createdatafoldergetdfref" id="id23"><code class="docutils literal notranslate"><span class="pre">CreateDataFolderGetDFREF</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#parameters" id="id24">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#returns" id="id25">Returns</a></p></li>
+<li><p><a class="reference internal" href="#example" id="id26">Example</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#sanitizepath" id="id27"><code class="docutils literal notranslate"><span class="pre">SanitizePath</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id1" id="id28">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id29">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#zapdatainfoldertree" id="id30"><code class="docutils literal notranslate"><span class="pre">ZapDataInFolderTree</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id3" id="id31">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id32">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#zapalldatafoldersinpath" id="id33"><code class="docutils literal notranslate"><span class="pre">ZapAllDataFoldersInPath</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id5" id="id34">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id6" id="id35">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#printfoldersandfiles" id="id36"><code class="docutils literal notranslate"><span class="pre">PrintFoldersAndFiles</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id7" id="id37">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id8" id="id38">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#cleanglobalwavesvarandstrinfolder" id="id39"><code class="docutils literal notranslate"><span class="pre">CleanGlobalWavesVarAndStrInFolder</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id9" id="id40">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id10" id="id41">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#deleteeverythingbutsomefolders" id="id42"><code class="docutils literal notranslate"><span class="pre">DeleteEverythingButSomeFolders</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id11" id="id43">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id12" id="id44">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#findbigwaves" id="id45"><code class="docutils literal notranslate"><span class="pre">FindBigWaves</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id13" id="id46">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id14" id="id47">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#allwavessamepathq" id="id48"><code class="docutils literal notranslate"><span class="pre">AllWavesSamePathQ</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id15" id="id49">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id16" id="id50">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#backupwaveinwavedf" id="id51"><code class="docutils literal notranslate"><span class="pre">BackupWaveInWaveDF</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id17" id="id52">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id18" id="id53">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#backupwaveinwavedfq" id="id54"><code class="docutils literal notranslate"><span class="pre">BackupWaveInWaveDFQ</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id19" id="id55">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id20" id="id56">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#getallwavesstrdf" id="id57"><code class="docutils literal notranslate"><span class="pre">GetAllWavesStrDF</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id21" id="id58">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id22" id="id59">Returns</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="createdatafoldergetdfref">
+<h2><a class="toc-backref" href="#id23" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CreateDataFolderGetDFREF</span></code></a><a class="headerlink" href="#createdatafoldergetdfref" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>CreateDataFolderGetDFREF(<span class="kt">string</span><span class="w"> </span>fullpath,<span class="w"> </span>[<span class="kt">int</span><span class="w"> </span>setDF])
+</pre></div>
+</div>
+<p>Create a data folder from a full path and return its data folder reference.</p>
+<p>Creates the data folder identified by <code class="docutils literal notranslate"><span class="pre">fullpath</span></code> and returns a <code class="docutils literal notranslate"><span class="pre">DFREF</span></code> to it.
+If intermediate parent folders do not exist, they are created automatically.
+Relative paths beginning with <code class="docutils literal notranslate"><span class="pre">:</span></code> are resolved against the current data folder.
+The input path is sanitized before use so that folder names using liberal naming
+are handled safely.
+If the target folder already exists, no new folder is created and a reference to
+the existing folder is returned.</p>
+<section id="parameters">
+<h3><a class="toc-backref" href="#id24" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fullpath</span></code> <em>(String)</em>: Full data folder path to create or access.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">setDF</span></code> <em>(Variable)</em>: Optional flag. If nonzero, sets the current data folder to the returned folder.</p></li>
+</ul>
+</section>
+<section id="returns">
+<h3><a class="toc-backref" href="#id25" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>DFREF</strong>: Data folder reference to the created or existing folder.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Relative paths starting with <code class="docutils literal notranslate"><span class="pre">:</span></code> are interpreted relative to the current data folder. - The path is sanitized before folder creation to support liberal folder names. - Missing parent folders are created automatically. - If the folder already exists, the function simply returns its reference.</p></li>
+</ul>
+</div>
+</section>
+<section id="example">
+<h3><a class="toc-backref" href="#id26" role="doc-backlink">Example</a><a class="headerlink" href="#example" title="Link to this heading"></a></h3>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="kt">DFREF</span><span class="w"> </span>dfr<span class="w"> </span>=<span class="w"> </span>CreateDataFolderGetDFREF(<span class="s">&quot;root:Packages:MyModule&quot;</span>,<span class="w"> </span>setDF=1)
+</pre></div>
+</div>
+</section>
+</section>
+<section id="sanitizepath">
+<h2><a class="toc-backref" href="#id27" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SanitizePath</span></code></a><a class="headerlink" href="#sanitizepath" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SanitizePath(<span class="kt">string</span><span class="w"> </span>path)
+</pre></div>
+</div>
+<p>Description of SanitizePath.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">SanitizePath</span></code>.</p>
+<section id="id1">
+<h3><a class="toc-backref" href="#id28" role="doc-backlink">Parameters</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">path</span></code> <em>(Parameter)</em>: path.</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3><a class="toc-backref" href="#id29" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="zapdatainfoldertree">
+<h2><a class="toc-backref" href="#id30" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ZapDataInFolderTree</span></code></a><a class="headerlink" href="#zapdatainfoldertree" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ZapDataInFolderTree(<span class="kt">string</span><span class="w"> </span>path)
+</pre></div>
+</div>
+<p>Description of ZapDataInFolderTree.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ZapDataInFolderTree</span></code>.</p>
+<section id="id3">
+<h3><a class="toc-backref" href="#id31" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">path</span></code> <em>(Parameter)</em>: path.</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3><a class="toc-backref" href="#id32" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="zapalldatafoldersinpath">
+<h2><a class="toc-backref" href="#id33" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ZapAllDataFoldersInPath</span></code></a><a class="headerlink" href="#zapalldatafoldersinpath" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ZapAllDataFoldersInPath(<span class="kt">string</span><span class="w"> </span>path)
+</pre></div>
+</div>
+<p>Description of ZapAllDataFoldersInPath.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ZapAllDataFoldersInPath</span></code>.</p>
+<section id="id5">
+<h3><a class="toc-backref" href="#id34" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">path</span></code> <em>(Parameter)</em>: path.</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3><a class="toc-backref" href="#id35" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="printfoldersandfiles">
+<h2><a class="toc-backref" href="#id36" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">PrintFoldersAndFiles</span></code></a><a class="headerlink" href="#printfoldersandfiles" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>PrintFoldersAndFiles(<span class="kt">string</span><span class="w"> </span>pathName,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>extension,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>recurse,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>level)
+</pre></div>
+</div>
+<p>Description of PrintFoldersAndFiles.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">PrintFoldersAndFiles</span></code>.</p>
+<section id="id7">
+<h3><a class="toc-backref" href="#id37" role="doc-backlink">Parameters</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pathName</span></code> <em>(Parameter)</em>: pathName.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extension</span></code> <em>(Parameter)</em>: extension.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">recurse</span></code> <em>(Parameter)</em>: recurse.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">level</span></code> <em>(Parameter)</em>: level.</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3><a class="toc-backref" href="#id38" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="cleanglobalwavesvarandstrinfolder">
+<h2><a class="toc-backref" href="#id39" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CleanGlobalWavesVarAndStrInFolder</span></code></a><a class="headerlink" href="#cleanglobalwavesvarandstrinfolder" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>CleanGlobalWavesVarAndStrInFolder(<span class="kt">DFREF</span><span class="w"> </span>dfr)
+</pre></div>
+</div>
+<p>Description of CleanGlobalWavesVarAndStrInFolder.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">CleanGlobalWavesVarAndStrInFolder</span></code>.</p>
+<section id="id9">
+<h3><a class="toc-backref" href="#id40" role="doc-backlink">Parameters</a><a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dfr</span></code> <em>(Parameter)</em>: dfr.</p></li>
+</ul>
+</section>
+<section id="id10">
+<h3><a class="toc-backref" href="#id41" role="doc-backlink">Returns</a><a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="deleteeverythingbutsomefolders">
+<h2><a class="toc-backref" href="#id42" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">DeleteEverythingButSomeFolders</span></code></a><a class="headerlink" href="#deleteeverythingbutsomefolders" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>DeleteEverythingButSomeFolders(<span class="kt">string</span><span class="w"> </span>baseFolderPattern,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>keepFolders)
+</pre></div>
+</div>
+<p>Description of DeleteEverythingButSomeFolders.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">DeleteEverythingButSomeFolders</span></code>.</p>
+<section id="id11">
+<h3><a class="toc-backref" href="#id43" role="doc-backlink">Parameters</a><a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">baseFolderPattern</span></code> <em>(Parameter)</em>: baseFolderPattern.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keepFolders</span></code> <em>(Parameter)</em>: keepFolders.</p></li>
+</ul>
+</section>
+<section id="id12">
+<h3><a class="toc-backref" href="#id44" role="doc-backlink">Returns</a><a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="findbigwaves">
+<h2><a class="toc-backref" href="#id45" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">FindBigWaves</span></code></a><a class="headerlink" href="#findbigwaves" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>FindBigWaves(<span class="kt">variable</span><span class="w"> </span>minSizeInMB[,<span class="kt">DFREF</span><span class="w"> </span>df,<span class="kt">variable</span><span class="w"> </span>depth,<span class="kt">variable</span><span class="w"> </span>noShow])
+</pre></div>
+</div>
+<p>Description of FindBigWaves.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">FindBigWaves</span></code>.</p>
+<section id="id13">
+<h3><a class="toc-backref" href="#id46" role="doc-backlink">Parameters</a><a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">minSizeInMB[</span></code> <em>(Parameter)</em>: minSizeInMB[.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> <em>(Parameter)</em>: df.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">depth</span></code> <em>(Parameter)</em>: depth.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">noShow]</span></code> <em>(Parameter)</em>: noShow].</p></li>
+</ul>
+</section>
+<section id="id14">
+<h3><a class="toc-backref" href="#id47" role="doc-backlink">Returns</a><a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="allwavessamepathq">
+<h2><a class="toc-backref" href="#id48" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">AllWavesSamePathQ</span></code></a><a class="headerlink" href="#allwavessamepathq" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>AllWavesSamePathQ(<span class="kt">WAVE</span>/<span class="kt">WAVE</span><span class="w"> </span>wWAVEList)
+</pre></div>
+</div>
+<p>Description of AllWavesSamePathQ.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">AllWavesSamePathQ</span></code>.</p>
+<section id="id15">
+<h3><a class="toc-backref" href="#id49" role="doc-backlink">Parameters</a><a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wWAVEList</span></code> <em>(Parameter)</em>: wWAVEList.</p></li>
+</ul>
+</section>
+<section id="id16">
+<h3><a class="toc-backref" href="#id50" role="doc-backlink">Returns</a><a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="backupwaveinwavedf">
+<h2><a class="toc-backref" href="#id51" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">BackupWaveInWaveDF</span></code></a><a class="headerlink" href="#backupwaveinwavedf" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>BackupWaveInWaveDF(<span class="kt">WAVE</span><span class="w"> </span>wref)
+</pre></div>
+</div>
+<p>Description of BackupWaveInWaveDF.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">BackupWaveInWaveDF</span></code>.</p>
+<section id="id17">
+<h3><a class="toc-backref" href="#id52" role="doc-backlink">Parameters</a><a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wref</span></code> <em>(Parameter)</em>: wref.</p></li>
+</ul>
+</section>
+<section id="id18">
+<h3><a class="toc-backref" href="#id53" role="doc-backlink">Returns</a><a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="backupwaveinwavedfq">
+<h2><a class="toc-backref" href="#id54" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">BackupWaveInWaveDFQ</span></code></a><a class="headerlink" href="#backupwaveinwavedfq" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>BackupWaveInWaveDFQ(<span class="kt">WAVE</span><span class="w"> </span>wref)
+</pre></div>
+</div>
+<p>Description of BackupWaveInWaveDFQ.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">BackupWaveInWaveDFQ</span></code>.</p>
+<section id="id19">
+<h3><a class="toc-backref" href="#id55" role="doc-backlink">Parameters</a><a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wref</span></code> <em>(Parameter)</em>: wref.</p></li>
+</ul>
+</section>
+<section id="id20">
+<h3><a class="toc-backref" href="#id56" role="doc-backlink">Returns</a><a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="getallwavesstrdf">
+<h2><a class="toc-backref" href="#id57" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GetAllWavesStrDF</span></code></a><a class="headerlink" href="#getallwavesstrdf" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>GetAllWavesStrDF(<span class="kt">DFREF</span><span class="w"> </span>dfr)
+</pre></div>
+</div>
+<p>Description of GetAllWavesStrDF.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">GetAllWavesStrDF</span></code>.</p>
+<section id="id21">
+<h3><a class="toc-backref" href="#id58" role="doc-backlink">Parameters</a><a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dfr</span></code> <em>(Parameter)</em>: dfr.</p></li>
+</ul>
+</section>
+<section id="id22">
+<h3><a class="toc-backref" href="#id59" role="doc-backlink">Returns</a><a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Utilities__ATH_CalcPad.html" class="btn btn-neutral float-left" title="ATH_CalcPad" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Utilities__ATH_Execute.html" class="btn btn-neutral float-right" title="ATH_Execute" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

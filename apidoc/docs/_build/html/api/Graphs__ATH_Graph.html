@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATH_Graph &mdash; ATH Igor Pro API  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=7ab3649f" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ATH_Marquee" href="Graphs__ATH_Marquee.html" />
+    <link rel="prev" title="ATH_Draw" href="Graphs__ATH_Draw.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ATH Igor Pro API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_Func.html">ATH_Func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_FuncFit.html">ATH_FuncFit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_MagDomains.html">ATH_MagDom</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_Transform.html">ATH_Transform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XMCD.html">ATH_XMCD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XPSBackgroundRemoval.html">ATH_XPSBackgroundRemoval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Dialog.html">ATH_Dialog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Launch.html">ATH_Launch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Menus.html">ATH_Menus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Datasets__ATH_XPSData.html">ATH_XPSData</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Beamtime.html">ATH_Beamtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Export.html">ATH_Export_Repeat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_HDF5.html">ATH_HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_LoadImg.html">ATH_LoadImg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_LoadUview.html">ATH_LoadUview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Color.html">ATH_Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Cursors.html">ATH_Cursors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Display.html">ATH_Display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Draw.html">ATH_Draw</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ATH_Graph</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#duplicatewaveanddisplayoftopimage"><code class="docutils literal notranslate"><span class="pre">DuplicateWaveAndDisplayOfTopImage</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#returns">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#textannotationontopgraph"><code class="docutils literal notranslate"><span class="pre">TextAnnotationOnTopGraph</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getglayer"><code class="docutils literal notranslate"><span class="pre">GetgLayer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#setgraphctabstr"><code class="docutils literal notranslate"><span class="pre">SetGraphCtabStr</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#linkgraphsliders"><code class="docutils literal notranslate"><span class="pre">LinkGraphSliders</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#linkedimgsliderhook"><code class="docutils literal notranslate"><span class="pre">LinkedImgSliderHook</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#linkgraphranges"><code class="docutils literal notranslate"><span class="pre">LinkGraphRanges</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#linkedgraphaxesrangehook"><code class="docutils literal notranslate"><span class="pre">LinkedGraphAxesRangeHook</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">Returns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Marquee.html">ATH_Marquee</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Range.html">ATH_Range</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Traces.html">ATH_Traces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Windows.html">ATH_Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ImageProcessing__ATH_ImageAlign.html">ATH_ImageAlign</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ImageProcessing__ATH_ImageFilter.html">ATH_ImageFilter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ImageProcessing__ATH_ImageOp.html">ATH_ImageOp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iBackground.html">ATH_iBackground</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iDriftCorrection.html">ATH_iDriftCorrection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iImageOps.html">ATH_iImageOps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iImageRotation.html">ATH_iImageRotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iXMCD.html">ATH_iXMCD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iXPS.html">ATH_iXPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Profilers__ATH_LineProfile.html">ATH_LineProfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Profilers__ATH_PlaneZProfile.html">ATH_PlaneZProfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Profilers__ATH_ZProfile.html">ATH_ZProfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_CalcPad.html">ATH_CalcPad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_DFR.html">ATH_DFR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_Execute.html">ATH_Execute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_Geometry.html">ATH_Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_IgorHook.html">ATH_IgorHook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_Numeric.html">ATH_Numeric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_Spaces.html">ATH_Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_String.html">ATH_String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_System.html">ATH_System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_TextWaves.html">ATH_TextWaves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_WaveOp.html">ATH_WaveOp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ATH Igor Pro API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ATH_Graph</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/Graphs__ATH_Graph.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ath-graph">
+<h1>ATH_Graph<a class="headerlink" href="#ath-graph" title="Link to this heading"></a></h1>
+<p><strong>Source file:</strong> <code class="docutils literal notranslate"><span class="pre">Graphs/ATH_Graph.ipf</span></code></p>
+<p>Module ATH_Graph.</p>
+<p>This module belongs to the ATH Igor Pro toolkit and contains procedures
+related to ATH Graph functionality.</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#duplicatewaveanddisplayoftopimage" id="id15"><code class="docutils literal notranslate"><span class="pre">DuplicateWaveAndDisplayOfTopImage</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#parameters" id="id16">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#returns" id="id17">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#textannotationontopgraph" id="id18"><code class="docutils literal notranslate"><span class="pre">TextAnnotationOnTopGraph</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id1" id="id19">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id20">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#getglayer" id="id21"><code class="docutils literal notranslate"><span class="pre">GetgLayer</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id3" id="id22">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id23">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#setgraphctabstr" id="id24"><code class="docutils literal notranslate"><span class="pre">SetGraphCtabStr</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id5" id="id25">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id6" id="id26">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#linkgraphsliders" id="id27"><code class="docutils literal notranslate"><span class="pre">LinkGraphSliders</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id7" id="id28">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id8" id="id29">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#linkedimgsliderhook" id="id30"><code class="docutils literal notranslate"><span class="pre">LinkedImgSliderHook</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id9" id="id31">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id10" id="id32">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#linkgraphranges" id="id33"><code class="docutils literal notranslate"><span class="pre">LinkGraphRanges</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id11" id="id34">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id12" id="id35">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#linkedgraphaxesrangehook" id="id36"><code class="docutils literal notranslate"><span class="pre">LinkedGraphAxesRangeHook</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id13" id="id37">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id14" id="id38">Returns</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="duplicatewaveanddisplayoftopimage">
+<h2><a class="toc-backref" href="#id15" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">DuplicateWaveAndDisplayOfTopImage</span></code></a><a class="headerlink" href="#duplicatewaveanddisplayoftopimage" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>DuplicateWaveAndDisplayOfTopImage([<span class="kt">string</span><span class="w"> </span>grfName])
+</pre></div>
+</div>
+<p>Description of DuplicateWaveAndDisplayOfTopImage.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">DuplicateWaveAndDisplayOfTopImage</span></code>.</p>
+<section id="parameters">
+<h3><a class="toc-backref" href="#id16" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName]</span></code> <em>(Parameter)</em>: grfName].</p></li>
+</ul>
+</section>
+<section id="returns">
+<h3><a class="toc-backref" href="#id17" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="textannotationontopgraph">
+<h2><a class="toc-backref" href="#id18" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">TextAnnotationOnTopGraph</span></code></a><a class="headerlink" href="#textannotationontopgraph" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>TextAnnotationOnTopGraph(<span class="kt">string</span><span class="w"> </span>text,<span class="w"> </span>[<span class="kt">variable</span><span class="w"> </span>fSize,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>color])
+</pre></div>
+</div>
+<p>Description of TextAnnotationOnTopGraph.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">TextAnnotationOnTopGraph</span></code>.</p>
+<section id="id1">
+<h3><a class="toc-backref" href="#id19" role="doc-backlink">Parameters</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> <em>(Parameter)</em>: text.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fSize</span></code> <em>(Parameter)</em>: fSize.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">color]</span></code> <em>(Parameter)</em>: color].</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="getglayer">
+<h2><a class="toc-backref" href="#id21" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GetgLayer</span></code></a><a class="headerlink" href="#getglayer" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>GetgLayer(<span class="kt">string</span><span class="w"> </span>grfName)
+</pre></div>
+</div>
+<p>Description of GetgLayer.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">GetgLayer</span></code>.</p>
+<section id="id3">
+<h3><a class="toc-backref" href="#id22" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(Parameter)</em>: grfName.</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3><a class="toc-backref" href="#id23" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="setgraphctabstr">
+<h2><a class="toc-backref" href="#id24" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SetGraphCtabStr</span></code></a><a class="headerlink" href="#setgraphctabstr" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SetGraphCtabStr(<span class="kt">string</span><span class="w"> </span>ctabStr,<span class="w"> </span>[<span class="kt">string</span><span class="w"> </span>grfName])
+</pre></div>
+</div>
+<p>Description of SetGraphCtabStr.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">SetGraphCtabStr</span></code>.</p>
+<section id="id5">
+<h3><a class="toc-backref" href="#id25" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ctabStr</span></code> <em>(Parameter)</em>: ctabStr.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName]</span></code> <em>(Parameter)</em>: grfName].</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3><a class="toc-backref" href="#id26" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="linkgraphsliders">
+<h2><a class="toc-backref" href="#id27" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">LinkGraphSliders</span></code></a><a class="headerlink" href="#linkgraphsliders" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>LinkGraphSliders([<span class="kt">string</span><span class="w"> </span>grfName])
+</pre></div>
+</div>
+<p>Description of LinkGraphSliders.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">LinkGraphSliders</span></code>.</p>
+<section id="id7">
+<h3><a class="toc-backref" href="#id28" role="doc-backlink">Parameters</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName]</span></code> <em>(Parameter)</em>: grfName].</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3><a class="toc-backref" href="#id29" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="linkedimgsliderhook">
+<h2><a class="toc-backref" href="#id30" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">LinkedImgSliderHook</span></code></a><a class="headerlink" href="#linkedimgsliderhook" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>LinkedImgSliderHook(<span class="kt">STRUCT</span><span class="w"> </span>WMSliderAction<span class="w"> </span>&amp;sa)
+</pre></div>
+</div>
+<p>Description of LinkedImgSliderHook.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">LinkedImgSliderHook</span></code>.</p>
+<section id="id9">
+<h3><a class="toc-backref" href="#id31" role="doc-backlink">Parameters</a><a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&amp;sa</span></code> <em>(Parameter)</em>: &amp;sa.</p></li>
+</ul>
+</section>
+<section id="id10">
+<h3><a class="toc-backref" href="#id32" role="doc-backlink">Returns</a><a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="linkgraphranges">
+<h2><a class="toc-backref" href="#id33" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">LinkGraphRanges</span></code></a><a class="headerlink" href="#linkgraphranges" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>LinkGraphRanges([<span class="kt">string</span><span class="w"> </span>grfName])
+</pre></div>
+</div>
+<p>Description of LinkGraphRanges.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">LinkGraphRanges</span></code>.</p>
+<section id="id11">
+<h3><a class="toc-backref" href="#id34" role="doc-backlink">Parameters</a><a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName]</span></code> <em>(Parameter)</em>: grfName].</p></li>
+</ul>
+</section>
+<section id="id12">
+<h3><a class="toc-backref" href="#id35" role="doc-backlink">Returns</a><a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+<section id="linkedgraphaxesrangehook">
+<h2><a class="toc-backref" href="#id36" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">LinkedGraphAxesRangeHook</span></code></a><a class="headerlink" href="#linkedgraphaxesrangehook" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>LinkedGraphAxesRangeHook(<span class="kt">STRUCT</span><span class="w"> </span>WMWinHookStruct<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Description of LinkedGraphAxesRangeHook.</p>
+<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">LinkedGraphAxesRangeHook</span></code>.</p>
+<section id="id13">
+<h3><a class="toc-backref" href="#id37" role="doc-backlink">Parameters</a><a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&amp;s</span></code> <em>(Parameter)</em>: &amp;s.</p></li>
+</ul>
+</section>
+<section id="id14">
+<h3><a class="toc-backref" href="#id38" role="doc-backlink">Returns</a><a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Return value.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Graphs__ATH_Draw.html" class="btn btn-neutral float-left" title="ATH_Draw" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Graphs__ATH_Marquee.html" class="btn btn-neutral float-right" title="ATH_Marquee" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

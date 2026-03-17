@@ -1,0 +1,540 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATH_FuncFit &mdash; ATH Igor Pro API  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=7ab3649f" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ATH_MagDom" href="Analysis__ATH_MagDomains.html" />
+    <link rel="prev" title="ATH_Func" href="Analysis__ATH_Func.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            ATH Igor Pro API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_Func.html">ATH_Func</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ATH_FuncFit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#fitfermiedge"><code class="docutils literal notranslate"><span class="pre">FitFermiEdge</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#returns">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fitfermiedgetimesline"><code class="docutils literal notranslate"><span class="pre">FitFermiEdgeTimesLine</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fitxasstepbackground"><code class="docutils literal notranslate"><span class="pre">FitXASStepBackground</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fitfermiedgegaussianconvolution"><code class="docutils literal notranslate"><span class="pre">FitFermiEdgeGaussianConvolution</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#xmldsinsqintensity"><code class="docutils literal notranslate"><span class="pre">XMLDSinSqIntensity</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#xmldcossqintensity"><code class="docutils literal notranslate"><span class="pre">XMLDCosSqIntensity</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#xmldsin2xintensity"><code class="docutils literal notranslate"><span class="pre">XMLDSin2xIntensity</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#xmldcos2xintensity"><code class="docutils literal notranslate"><span class="pre">XMLDCos2xIntensity</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#xmldintensitywtgradient"><code class="docutils literal notranslate"><span class="pre">XMLDIntensityWtGradient</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id15">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#gaussian2d"><code class="docutils literal notranslate"><span class="pre">Gaussian2D</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id17">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id18">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#focusstv"><code class="docutils literal notranslate"><span class="pre">FocusSTV</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id19">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id20">Returns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_MagDomains.html">ATH_MagDom</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_Transform.html">ATH_Transform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XMCD.html">ATH_XMCD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XPSBackgroundRemoval.html">ATH_XPSBackgroundRemoval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Dialog.html">ATH_Dialog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Launch.html">ATH_Launch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Menus.html">ATH_Menus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Datasets__ATH_XPSData.html">ATH_XPSData</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Beamtime.html">ATH_Beamtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Export.html">ATH_Export_Repeat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_HDF5.html">ATH_HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_LoadImg.html">ATH_LoadImg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_LoadUview.html">ATH_LoadUview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Color.html">ATH_Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Cursors.html">ATH_Cursors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Display.html">ATH_Display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Draw.html">ATH_Draw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Graph.html">ATH_Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Marquee.html">ATH_Marquee</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Range.html">ATH_Range</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Traces.html">ATH_Traces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Windows.html">ATH_Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ImageProcessing__ATH_ImageAlign.html">ATH_ImageAlign</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ImageProcessing__ATH_ImageFilter.html">ATH_ImageFilter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ImageProcessing__ATH_ImageOp.html">ATH_ImageOp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iBackground.html">ATH_iBackground</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iDriftCorrection.html">ATH_iDriftCorrection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iImageOps.html">ATH_iImageOps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iImageRotation.html">ATH_iImageRotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iXMCD.html">ATH_iXMCD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="InteractiveInterfaces__ATH_iXPS.html">ATH_iXPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Profilers__ATH_LineProfile.html">ATH_LineProfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Profilers__ATH_PlaneZProfile.html">ATH_PlaneZProfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Profilers__ATH_ZProfile.html">ATH_ZProfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_CalcPad.html">ATH_CalcPad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_DFR.html">ATH_DFR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_Execute.html">ATH_Execute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_Geometry.html">ATH_Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_IgorHook.html">ATH_IgorHook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_Numeric.html">ATH_Numeric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_Spaces.html">ATH_Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_String.html">ATH_String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_System.html">ATH_System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_TextWaves.html">ATH_TextWaves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_WaveOp.html">ATH_WaveOp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">ATH Igor Pro API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ATH_FuncFit</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/Analysis__ATH_FuncFit.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ath-funcfit">
+<h1>ATH_FuncFit<a class="headerlink" href="#ath-funcfit" title="Link to this heading"></a></h1>
+<p><strong>Source file:</strong> <code class="docutils literal notranslate"><span class="pre">Analysis/ATH_FuncFit.ipf</span></code></p>
+<p>Fit functions for spectroscopy, XMLD, and image-shape analysis.</p>
+<p>This module collects Igor Pro fit functions used by the ATH analysis package.
+It includes Fermi-edge models, XAS step backgrounds, angular XMLD models,
+a 2D Gaussian model, and a simple focus calibration relation.</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#fitfermiedge" id="id21"><code class="docutils literal notranslate"><span class="pre">FitFermiEdge</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#parameters" id="id22">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#returns" id="id23">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#fitfermiedgetimesline" id="id24"><code class="docutils literal notranslate"><span class="pre">FitFermiEdgeTimesLine</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id1" id="id25">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id26">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#fitxasstepbackground" id="id27"><code class="docutils literal notranslate"><span class="pre">FitXASStepBackground</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id3" id="id28">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id29">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#fitfermiedgegaussianconvolution" id="id30"><code class="docutils literal notranslate"><span class="pre">FitFermiEdgeGaussianConvolution</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id5" id="id31">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id6" id="id32">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#xmldsinsqintensity" id="id33"><code class="docutils literal notranslate"><span class="pre">XMLDSinSqIntensity</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id7" id="id34">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id8" id="id35">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#xmldcossqintensity" id="id36"><code class="docutils literal notranslate"><span class="pre">XMLDCosSqIntensity</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id9" id="id37">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id10" id="id38">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#xmldsin2xintensity" id="id39"><code class="docutils literal notranslate"><span class="pre">XMLDSin2xIntensity</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id11" id="id40">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id12" id="id41">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#xmldcos2xintensity" id="id42"><code class="docutils literal notranslate"><span class="pre">XMLDCos2xIntensity</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id13" id="id43">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id14" id="id44">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#xmldintensitywtgradient" id="id45"><code class="docutils literal notranslate"><span class="pre">XMLDIntensityWtGradient</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id15" id="id46">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id16" id="id47">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#gaussian2d" id="id48"><code class="docutils literal notranslate"><span class="pre">Gaussian2D</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id17" id="id49">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id18" id="id50">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#focusstv" id="id51"><code class="docutils literal notranslate"><span class="pre">FocusSTV</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id19" id="id52">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id20" id="id53">Returns</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="fitfermiedge">
+<h2><a class="toc-backref" href="#id21" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">FitFermiEdge</span></code></a><a class="headerlink" href="#fitfermiedge" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>FitFermiEdge(<span class="kt">WAVE</span><span class="w"> </span>w,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>x)
+</pre></div>
+</div>
+<p>Fermi edge model with constant offset.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">y0</span> <span class="pre">+</span> <span class="pre">1</span> <span class="pre">/</span> <span class="pre">(exp((E</span> <span class="pre">-</span> <span class="pre">Ef)</span> <span class="pre">/</span> <span class="pre">kT)</span> <span class="pre">+</span> <span class="pre">1)</span></code> for scalar fitting in Igor’s
+curve fitting framework.</p>
+<section id="parameters">
+<h3><a class="toc-backref" href="#id22" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code> <em>(Wave)</em>: Coefficient wave with <code class="docutils literal notranslate"><span class="pre">w[0]=y0</span></code>, <code class="docutils literal notranslate"><span class="pre">w[1]=Ef</span></code>, and <code class="docutils literal notranslate"><span class="pre">w[2]=kT</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x</span></code> <em>(Variable)</em>: Energy value at which the model is evaluated.</p></li>
+</ul>
+</section>
+<section id="returns">
+<h3><a class="toc-backref" href="#id23" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Model value at <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="fitfermiedgetimesline">
+<h2><a class="toc-backref" href="#id24" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">FitFermiEdgeTimesLine</span></code></a><a class="headerlink" href="#fitfermiedgetimesline" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>FitFermiEdgeTimesLine(<span class="kt">WAVE</span><span class="w"> </span>w,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>x)
+</pre></div>
+</div>
+<p>Fermi edge model multiplied by a linear term and shifted by an offset.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">y0</span> <span class="pre">+</span> <span class="pre">(a*x</span> <span class="pre">+</span> <span class="pre">b)</span> <span class="pre">/</span> <span class="pre">(exp((x</span> <span class="pre">-</span> <span class="pre">Ef)</span> <span class="pre">/</span> <span class="pre">kT)</span> <span class="pre">+</span> <span class="pre">1)</span></code> for use with Igor curve fitting.</p>
+<section id="id1">
+<h3><a class="toc-backref" href="#id25" role="doc-backlink">Parameters</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code> <em>(Wave)</em>: Coefficient wave with <code class="docutils literal notranslate"><span class="pre">w[0]=y0</span></code>, <code class="docutils literal notranslate"><span class="pre">w[1]=Ef</span></code>, <code class="docutils literal notranslate"><span class="pre">w[2]=kT</span></code>, <code class="docutils literal notranslate"><span class="pre">w[3]=b</span></code>, and <code class="docutils literal notranslate"><span class="pre">w[4]=a</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x</span></code> <em>(Variable)</em>: Energy value at which the model is evaluated.</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3><a class="toc-backref" href="#id26" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Model value at <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="fitxasstepbackground">
+<h2><a class="toc-backref" href="#id27" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">FitXASStepBackground</span></code></a><a class="headerlink" href="#fitxasstepbackground" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>FitXASStepBackground(<span class="kt">WAVE</span><span class="w"> </span>w,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>E)
+</pre></div>
+</div>
+<p>Two-step arctangent background model for XAS spectra.</p>
+<p>Models the L3 and L2 edge-step contributions using two broadened arctangent
+functions plus a constant baseline.</p>
+<section id="id3">
+<h3><a class="toc-backref" href="#id28" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code> <em>(Wave)</em>: Coefficient wave containing baseline, height, edge positions, and widths.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">E</span></code> <em>(Variable)</em>: Energy value at which the model is evaluated.</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3><a class="toc-backref" href="#id29" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Model value at <code class="docutils literal notranslate"><span class="pre">E</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="fitfermiedgegaussianconvolution">
+<h2><a class="toc-backref" href="#id30" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">FitFermiEdgeGaussianConvolution</span></code></a><a class="headerlink" href="#fitfermiedgegaussianconvolution" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>FitFermiEdgeGaussianConvolution(<span class="kt">WAVE</span><span class="w"> </span>pw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>yw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>xw)
+</pre></div>
+</div>
+<p>Fermi-Dirac edge broadened by Gaussian convolution.</p>
+<p>Generates a Fermi-Dirac edge in <code class="docutils literal notranslate"><span class="pre">yw</span></code>, convolves it with a Gaussian kernel
+defined by the FWHM in <code class="docutils literal notranslate"><span class="pre">pw[3]</span></code>, and then adds a linear background.</p>
+<section id="id5">
+<h3><a class="toc-backref" href="#id31" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pw</span></code> <em>(Wave)</em>: Parameter wave with offset, slope, temperature, Gaussian width, amplitude, and edge location.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">yw</span></code> <em>(Wave)</em>: Output wave that is overwritten with the calculated fit values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xw</span></code> <em>(Wave)</em>: X wave associated with <code class="docutils literal notranslate"><span class="pre">yw</span></code>.</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3><a class="toc-backref" href="#id32" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: FitFunc output as required by Igor; the computed values are written to <code class="docutils literal notranslate"><span class="pre">yw</span></code>.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">yw</span></code> is overwritten. Temporary waves are created during convolution.</p>
+</div>
+</section>
+</section>
+<section id="xmldsinsqintensity">
+<h2><a class="toc-backref" href="#id33" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">XMLDSinSqIntensity</span></code></a><a class="headerlink" href="#xmldsinsqintensity" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>XMLDSinSqIntensity(<span class="kt">WAVE</span><span class="w"> </span>pw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>yw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>xw)
+</pre></div>
+</div>
+<p>XMLD angular intensity model using a squared sine term.</p>
+<section id="id7">
+<h3><a class="toc-backref" href="#id34" role="doc-backlink">Parameters</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pw</span></code> <em>(Wave)</em>: Coefficient wave with baseline, amplitude, and phase.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">yw</span></code> <em>(Wave)</em>: Output wave that receives the calculated model values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xw</span></code> <em>(Wave)</em>: Angular coordinate wave.</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3><a class="toc-backref" href="#id35" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: FitFunc output as required by Igor; the computed values are written to <code class="docutils literal notranslate"><span class="pre">yw</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="xmldcossqintensity">
+<h2><a class="toc-backref" href="#id36" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">XMLDCosSqIntensity</span></code></a><a class="headerlink" href="#xmldcossqintensity" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>XMLDCosSqIntensity(<span class="kt">WAVE</span><span class="w"> </span>pw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>yw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>xw)
+</pre></div>
+</div>
+<p>XMLD angular intensity model using a squared cosine term.</p>
+<section id="id9">
+<h3><a class="toc-backref" href="#id37" role="doc-backlink">Parameters</a><a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pw</span></code> <em>(Wave)</em>: Coefficient wave with baseline, amplitude, and phase.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">yw</span></code> <em>(Wave)</em>: Output wave that receives the calculated model values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xw</span></code> <em>(Wave)</em>: Angular coordinate wave.</p></li>
+</ul>
+</section>
+<section id="id10">
+<h3><a class="toc-backref" href="#id38" role="doc-backlink">Returns</a><a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: FitFunc output as required by Igor; the computed values are written to <code class="docutils literal notranslate"><span class="pre">yw</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="xmldsin2xintensity">
+<h2><a class="toc-backref" href="#id39" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">XMLDSin2xIntensity</span></code></a><a class="headerlink" href="#xmldsin2xintensity" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>XMLDSin2xIntensity(<span class="kt">WAVE</span><span class="w"> </span>pw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>yw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>xw)
+</pre></div>
+</div>
+<p>XMLD angular intensity model using <code class="docutils literal notranslate"><span class="pre">sin(2*(x+phase))</span></code>.</p>
+<section id="id11">
+<h3><a class="toc-backref" href="#id40" role="doc-backlink">Parameters</a><a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pw</span></code> <em>(Wave)</em>: Coefficient wave with baseline, amplitude, and phase.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">yw</span></code> <em>(Wave)</em>: Output wave that receives the calculated model values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xw</span></code> <em>(Wave)</em>: Angular coordinate wave.</p></li>
+</ul>
+</section>
+<section id="id12">
+<h3><a class="toc-backref" href="#id41" role="doc-backlink">Returns</a><a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: FitFunc output as required by Igor; the computed values are written to <code class="docutils literal notranslate"><span class="pre">yw</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="xmldcos2xintensity">
+<h2><a class="toc-backref" href="#id42" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">XMLDCos2xIntensity</span></code></a><a class="headerlink" href="#xmldcos2xintensity" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>XMLDCos2xIntensity(<span class="kt">WAVE</span><span class="w"> </span>pw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>yw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>xw)
+</pre></div>
+</div>
+<p>XMLD angular intensity model using <code class="docutils literal notranslate"><span class="pre">cos(2*(x+phase))</span></code>.</p>
+<section id="id13">
+<h3><a class="toc-backref" href="#id43" role="doc-backlink">Parameters</a><a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pw</span></code> <em>(Wave)</em>: Coefficient wave with baseline, amplitude, and phase.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">yw</span></code> <em>(Wave)</em>: Output wave that receives the calculated model values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xw</span></code> <em>(Wave)</em>: Angular coordinate wave.</p></li>
+</ul>
+</section>
+<section id="id14">
+<h3><a class="toc-backref" href="#id44" role="doc-backlink">Returns</a><a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: FitFunc output as required by Igor; the computed values are written to <code class="docutils literal notranslate"><span class="pre">yw</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="xmldintensitywtgradient">
+<h2><a class="toc-backref" href="#id45" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">XMLDIntensityWtGradient</span></code></a><a class="headerlink" href="#xmldintensitywtgradient" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>XMLDIntensityWtGradient(<span class="kt">WAVE</span><span class="w"> </span>pw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>yw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>xw)
+</pre></div>
+</div>
+<p>XMLD angular intensity model with an added linear gradient term.</p>
+<section id="id15">
+<h3><a class="toc-backref" href="#id46" role="doc-backlink">Parameters</a><a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pw</span></code> <em>(Wave)</em>: Coefficient wave with baseline, gradient, amplitude, and phase.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">yw</span></code> <em>(Wave)</em>: Output wave that receives the calculated model values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xw</span></code> <em>(Wave)</em>: Angular coordinate wave.</p></li>
+</ul>
+</section>
+<section id="id16">
+<h3><a class="toc-backref" href="#id47" role="doc-backlink">Returns</a><a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: FitFunc output as required by Igor; the computed values are written to <code class="docutils literal notranslate"><span class="pre">yw</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="gaussian2d">
+<h2><a class="toc-backref" href="#id48" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Gaussian2D</span></code></a><a class="headerlink" href="#gaussian2d" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>Gaussian2D(<span class="kt">WAVE</span><span class="w"> </span>pw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>yw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>wx,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>wy)
+</pre></div>
+</div>
+<p>2D Gaussian model for fitting flattened image data.</p>
+<p>Evaluates a rotated 2D Gaussian plus constant background using separate x and y
+coordinate waves. This function is intended for use with Igor’s all-at-once fitting.</p>
+<section id="id17">
+<h3><a class="toc-backref" href="#id49" role="doc-backlink">Parameters</a><a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pw</span></code> <em>(Wave)</em>: Parameter wave with background, amplitude, angle in radians, center coordinates, and standard deviations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">yw</span></code> <em>(Wave)</em>: Output wave that receives the calculated model values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wx</span></code> <em>(Wave)</em>: X coordinate wave.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wy</span></code> <em>(Wave)</em>: Y coordinate wave.</p></li>
+</ul>
+</section>
+<section id="id18">
+<h3><a class="toc-backref" href="#id50" role="doc-backlink">Returns</a><a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: FitFunc output as required by Igor; the computed values are written to <code class="docutils literal notranslate"><span class="pre">yw</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="focusstv">
+<h2><a class="toc-backref" href="#id51" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">FocusSTV</span></code></a><a class="headerlink" href="#focusstv" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>FocusSTV(<span class="kt">WAVE</span><span class="w"> </span>pw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>yw,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>xw)
+</pre></div>
+</div>
+<p>Square-root focus calibration model.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">f0</span> <span class="pre">+</span> <span class="pre">a*sqrt(STV)</span></code> for use in curve fitting.</p>
+<section id="id19">
+<h3><a class="toc-backref" href="#id52" role="doc-backlink">Parameters</a><a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pw</span></code> <em>(Wave)</em>: Coefficient wave with <code class="docutils literal notranslate"><span class="pre">pw[0]=f0</span></code> and <code class="docutils literal notranslate"><span class="pre">pw[1]=a</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">yw</span></code> <em>(Wave)</em>: Output wave that receives the calculated model values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">xw</span></code> <em>(Wave)</em>: Input STV values.</p></li>
+</ul>
+</section>
+<section id="id20">
+<h3><a class="toc-backref" href="#id53" role="doc-backlink">Returns</a><a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: FitFunc output as required by Igor; the computed values are written to <code class="docutils literal notranslate"><span class="pre">yw</span></code>.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="Analysis__ATH_Func.html" class="btn btn-neutral float-left" title="ATH_Func" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Analysis__ATH_MagDomains.html" class="btn btn-neutral float-right" title="ATH_MagDom" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

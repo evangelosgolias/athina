@@ -1,0 +1,737 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Documentation &mdash; ATH Igor Pro API  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=7ab3649f" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ATH_Func" href="api/Analysis__ATH_Func.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            ATH Igor Pro API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="api/Analysis__ATH_Func.html">ATH_Func</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Analysis__ATH_FuncFit.html">ATH_FuncFit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Analysis__ATH_MagDomains.html">ATH_MagDom</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Analysis__ATH_Transform.html">ATH_Transform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Analysis__ATH_XMCD.html">ATH_XMCD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Analysis__ATH_XPSBackgroundRemoval.html">ATH_XPSBackgroundRemoval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Customization__ATH_Dialog.html">ATH_Dialog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Customization__ATH_Launch.html">ATH_Launch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Customization__ATH_Menus.html">ATH_Menus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Datasets__ATH_XPSData.html">ATH_XPSData</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/FileIO__ATH_Beamtime.html">ATH_Beamtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/FileIO__ATH_Export.html">ATH_Export_Repeat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/FileIO__ATH_HDF5.html">ATH_HDF5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/FileIO__ATH_LoadImg.html">ATH_LoadImg</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/FileIO__ATH_LoadUview.html">ATH_LoadUview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Color.html">ATH_Color</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Cursors.html">ATH_Cursors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Display.html">ATH_Display</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Draw.html">ATH_Draw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Graph.html">ATH_Graph</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Marquee.html">ATH_Marquee</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Range.html">ATH_Range</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Traces.html">ATH_Traces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Windows.html">ATH_Windows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ImageProcessing__ATH_ImageAlign.html">ATH_ImageAlign</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ImageProcessing__ATH_ImageFilter.html">ATH_ImageFilter</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html">ATH_ImageOp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iBackground.html">ATH_iBackground</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html">ATH_iDriftCorrection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageOps.html">ATH_iImageOps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageRotation.html">ATH_iImageRotation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXMCD.html">ATH_iXMCD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html">ATH_iXPS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html">ATH_LineProfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html">ATH_PlaneZProfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html">ATH_ZProfile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_CalcPad.html">ATH_CalcPad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_DFR.html">ATH_DFR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_Execute.html">ATH_Execute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_Geometry.html">ATH_Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_IgorHook.html">ATH_IgorHook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_Numeric.html">ATH_Numeric</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_Spaces.html">ATH_Spaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_String.html">ATH_String</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_System.html">ATH_System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_TextWaves.html">ATH_TextWaves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html">ATH_WaveOp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">ATH Igor Pro API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-documentation">
+<h1>API Documentation<a class="headerlink" href="#api-documentation" title="Link to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/Analysis__ATH_Func.html">ATH_Func</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_Func.html#genericgaussian2d"><code class="docutils literal notranslate"><span class="pre">GenericGaussian2D</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_Func.html#genericgaussian2dpw"><code class="docutils literal notranslate"><span class="pre">GenericGaussian2Dpw</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Analysis__ATH_FuncFit.html">ATH_FuncFit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_FuncFit.html#fitfermiedge"><code class="docutils literal notranslate"><span class="pre">FitFermiEdge</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_FuncFit.html#fitfermiedgetimesline"><code class="docutils literal notranslate"><span class="pre">FitFermiEdgeTimesLine</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_FuncFit.html#fitxasstepbackground"><code class="docutils literal notranslate"><span class="pre">FitXASStepBackground</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_FuncFit.html#fitfermiedgegaussianconvolution"><code class="docutils literal notranslate"><span class="pre">FitFermiEdgeGaussianConvolution</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_FuncFit.html#xmldsinsqintensity"><code class="docutils literal notranslate"><span class="pre">XMLDSinSqIntensity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_FuncFit.html#xmldcossqintensity"><code class="docutils literal notranslate"><span class="pre">XMLDCosSqIntensity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_FuncFit.html#xmldsin2xintensity"><code class="docutils literal notranslate"><span class="pre">XMLDSin2xIntensity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_FuncFit.html#xmldcos2xintensity"><code class="docutils literal notranslate"><span class="pre">XMLDCos2xIntensity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_FuncFit.html#xmldintensitywtgradient"><code class="docutils literal notranslate"><span class="pre">XMLDIntensityWtGradient</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_FuncFit.html#gaussian2d"><code class="docutils literal notranslate"><span class="pre">Gaussian2D</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_FuncFit.html#focusstv"><code class="docutils literal notranslate"><span class="pre">FocusSTV</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Analysis__ATH_MagDomains.html">ATH_MagDom</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_MagDomains.html#fitxmldmap"><code class="docutils literal notranslate"><span class="pre">FitXMLDMap</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_MagDomains.html#interactivexmldfitinspection"><code class="docutils literal notranslate"><span class="pre">InteractiveXMLDFitInspection</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_MagDomains.html#icursorusingcallbackhookfunction"><code class="docutils literal notranslate"><span class="pre">iCursorUsingCallbackHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_MagDomains.html#cursorcallback"><code class="docutils literal notranslate"><span class="pre">CursorCallBack</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Analysis__ATH_Transform.html">ATH_Transform</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_Transform.html#fft2d"><code class="docutils literal notranslate"><span class="pre">FFT2D</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_Transform.html#highlowscale"><code class="docutils literal notranslate"><span class="pre">HighLowScale</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_Transform.html#getaffine2dmapping"><code class="docutils literal notranslate"><span class="pre">GetAffine2DMapping</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_Transform.html#makeimageregistrationparamswave"><code class="docutils literal notranslate"><span class="pre">MakeImageRegistrationParamsWave</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Analysis__ATH_XMCD.html">ATH_XMCD</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_XMCD.html#calculatexmcdwave"><code class="docutils literal notranslate"><span class="pre">CalculateXMCDWAVE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_XMCD.html#calculatexmcd"><code class="docutils literal notranslate"><span class="pre">CalculateXMCD</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_XMCD.html#stacktoxmcd"><code class="docutils literal notranslate"><span class="pre">StackToXMCD</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_XMCD.html#calculatexmcd3d"><code class="docutils literal notranslate"><span class="pre">CalculateXMCD3D</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_XMCD.html#calculatexmcdcomb"><code class="docutils literal notranslate"><span class="pre">CalculateXMCDComb</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_XMCD.html#xmcdstack4l"><code class="docutils literal notranslate"><span class="pre">XMCDStack4L</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_XMCD.html#multithreadxmldcomb"><code class="docutils literal notranslate"><span class="pre">MultiThreadXMLDComb</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Analysis__ATH_XMCD.html#xmcdcalculation-worker"><code class="docutils literal notranslate"><span class="pre">XMCDCalculation_Worker</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Analysis__ATH_XPSBackgroundRemoval.html">ATH_XPSBackgroundRemoval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Customization__ATH_Dialog.html">ATH_Dialog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Dialog.html#genericsinglepopupstrprompt"><code class="docutils literal notranslate"><span class="pre">GenericSinglePopupStrPrompt</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Dialog.html#countselectedobjectsindatabrowser"><code class="docutils literal notranslate"><span class="pre">CountSelectedObjectsInDataBrowser</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Dialog.html#countselectedwavesindatabrowser"><code class="docutils literal notranslate"><span class="pre">CountSelectedWavesInDataBrowser</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Dialog.html#waitforuseractions"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Dialog.html#waitforuseractions-contbuttonproc"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_ContButtonProc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Dialog.html#waitforuseractions-cancelbproc"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_CancelBProc</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Customization__ATH_Launch.html">ATH_Launch</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#browseractiondoxmdc"><code class="docutils literal notranslate"><span class="pre">BrowserActionDoXMDC</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#browseractionmakestack"><code class="docutils literal notranslate"><span class="pre">BrowserActionMakeStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#make3dwaveusingpattern"><code class="docutils literal notranslate"><span class="pre">Make3DWaveUsingPattern</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#make3dwavedatabrowserselection"><code class="docutils literal notranslate"><span class="pre">Make3DWaveDataBrowserSelection</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#loadhdf5groupsfromfile"><code class="docutils literal notranslate"><span class="pre">LoadHDF5GroupsFromFile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#averagestacktoimagefrommenu"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromMenu</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#averagestacktoimagefromtracemenu"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromTraceMenu</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#averagestacktoimagefrombrowsermenu"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromBrowserMenu</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#calculatexmcdfromstack"><code class="docutils literal notranslate"><span class="pre">CalculateXMCDFromStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#calculationxmcd"><code class="docutils literal notranslate"><span class="pre">CalculationXMCD</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#calculationxmcd3d"><code class="docutils literal notranslate"><span class="pre">CalculationXMCD3D</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#imageregistrationstack"><code class="docutils literal notranslate"><span class="pre">ImageRegistrationStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#imagestackalignmentpartition"><code class="docutils literal notranslate"><span class="pre">ImageStackAlignmentPartition</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#lineardriftcorrestionstackabcursors"><code class="docutils literal notranslate"><span class="pre">LinearDriftCorrestionStackABCursors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#lineardriftcorrestionplanesabcursors"><code class="docutils literal notranslate"><span class="pre">LinearDriftCorrestionPlanesABCursors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#newimagefrombrowserselection"><code class="docutils literal notranslate"><span class="pre">NewImageFromBrowserSelection</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#imagebackupfrombrowserselection"><code class="docutils literal notranslate"><span class="pre">ImageBackupFromBrowserSelection</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#xpsprofilefromdefaultsettings"><code class="docutils literal notranslate"><span class="pre">XPSProfileFromDefaultSettings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#normalisationimagestackwithimage"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithImage</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#normalisationimagestackwithprofile"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithProfile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#normalisationimagestackwithimagestack"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithImageStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#removeimagesfromimagestack"><code class="docutils literal notranslate"><span class="pre">RemoveImagesFromImageStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#stackimagestoimagestack"><code class="docutils literal notranslate"><span class="pre">StackImagesToImageStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#insertimagestostack"><code class="docutils literal notranslate"><span class="pre">InsertImagesToStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#imgrgb2gray16"><code class="docutils literal notranslate"><span class="pre">ImgRGB2Gray16</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#rotate3dwaveaxes"><code class="docutils literal notranslate"><span class="pre">Rotate3DWaveAxes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#imagerotateandscalefrommetadata"><code class="docutils literal notranslate"><span class="pre">ImageRotateAndScaleFromMetadata</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#imageffttransform"><code class="docutils literal notranslate"><span class="pre">ImageFFTTransform</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#averagelayersrange"><code class="docutils literal notranslate"><span class="pre">AverageLayersRange</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#extractlayerrangetostack"><code class="docutils literal notranslate"><span class="pre">ExtractLayerRangeToStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#flipstackplanes"><code class="docutils literal notranslate"><span class="pre">FlipStackPlanes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#averageimagestack"><code class="docutils literal notranslate"><span class="pre">AverageImageStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#histogramshifttogaussiancenter"><code class="docutils literal notranslate"><span class="pre">HistogramShiftToGaussianCenter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#twotracecalcs"><code class="docutils literal notranslate"><span class="pre">TwoTraceCalcs</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#quicktextannotation"><code class="docutils literal notranslate"><span class="pre">QuickTextAnnotation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#makewavefromsavedroi"><code class="docutils literal notranslate"><span class="pre">MakeWaveFromSavedROI</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#xmcdcombinations"><code class="docutils literal notranslate"><span class="pre">XMCDCombinations</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#deletebigwaves"><code class="docutils literal notranslate"><span class="pre">DeleteBigWaves</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#deletebigwavesdisplayed"><code class="docutils literal notranslate"><span class="pre">DeleteBigWavesDisplayed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#pixelatesingleimageorstack"><code class="docutils literal notranslate"><span class="pre">PixelateSingleImageOrStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#settopgraphdf"><code class="docutils literal notranslate"><span class="pre">SetTopGraphDF</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#imgremovebackground"><code class="docutils literal notranslate"><span class="pre">ImgRemoveBackground</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#flattenimage"><code class="docutils literal notranslate"><span class="pre">FlattenImage</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#saveaxesrangeandctab"><code class="docutils literal notranslate"><span class="pre">SaveAxesRangeAndCtab</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#setaxesrangeandctabfromsaved"><code class="docutils literal notranslate"><span class="pre">SetAxesRangeAndCtabFromSaved</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#histogramequalisation"><code class="docutils literal notranslate"><span class="pre">HistogramEqualisation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#closetopwindowanddeletesource"><code class="docutils literal notranslate"><span class="pre">CloseTopWindowAndDeleteSource</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#mirrorpositiontowavevalues"><code class="docutils literal notranslate"><span class="pre">MirrorPositionToWaveValues</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#drawsavedroiongraph"><code class="docutils literal notranslate"><span class="pre">DrawSavedROIOnGraph</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#iimgfftfilter"><code class="docutils literal notranslate"><span class="pre">iImgFFTFilter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#unpackstacktosources"><code class="docutils literal notranslate"><span class="pre">UnpackStackToSources</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#imageresample"><code class="docutils literal notranslate"><span class="pre">ImageResample</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#setcorrectedfovimages"><code class="docutils literal notranslate"><span class="pre">SetCorrectedFoVImages</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Customization__ATH_Launch.html#drawscalebar"><code class="docutils literal notranslate"><span class="pre">DrawScaleBar</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Customization__ATH_Menus.html">ATH_Menus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/Datasets__ATH_XPSData.html">ATH_XPSData</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Datasets__ATH_XPSData.html#xpsreferencedata"><code class="docutils literal notranslate"><span class="pre">XPSReferenceData</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Datasets__ATH_XPSData.html#setvariablefunction"><code class="docutils literal notranslate"><span class="pre">SetVariableFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Datasets__ATH_XPSData.html#ptresizepanel"><code class="docutils literal notranslate"><span class="pre">PTResizePanel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Datasets__ATH_XPSData.html#getatnr"><code class="docutils literal notranslate"><span class="pre">GetAtNr</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Datasets__ATH_XPSData.html#showbuttonproc"><code class="docutils literal notranslate"><span class="pre">ShowButtonProc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Datasets__ATH_XPSData.html#clearbuttonproc"><code class="docutils literal notranslate"><span class="pre">ClearButtonProc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Datasets__ATH_XPSData.html#kebuttonproc"><code class="docutils literal notranslate"><span class="pre">KEButtonProc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Datasets__ATH_XPSData.html#ptgetstate"><code class="docutils literal notranslate"><span class="pre">PTGetState</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Datasets__ATH_XPSData.html#plotphcrosssectionofelement"><code class="docutils literal notranslate"><span class="pre">PlotPhCrossSectionOfElement</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Datasets__ATH_XPSData.html#createelemselectcorelevels"><code class="docutils literal notranslate"><span class="pre">CreateElemSelectCoreLevels</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Datasets__ATH_XPSData.html#createelemselectcsatphotonenergy"><code class="docutils literal notranslate"><span class="pre">CreateElemSelectCSAtPhotonEnergy</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Datasets__ATH_XPSData.html#getcrosssectionatphotonenergy"><code class="docutils literal notranslate"><span class="pre">GetCrossSectionAtPhotonEnergy</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Datasets__ATH_XPSData.html#sorsf"><code class="docutils literal notranslate"><span class="pre">soRSF</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/FileIO__ATH_Beamtime.html">ATH_Beamtime</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_Beamtime.html#setorresetbeamtimerootfolder"><code class="docutils literal notranslate"><span class="pre">SetOrResetBeamtimeRootFolder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_Beamtime.html#loadnewestfileinraw"><code class="docutils literal notranslate"><span class="pre">LoadNewestFileInRaw</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_Beamtime.html#loadfilefromraw"><code class="docutils literal notranslate"><span class="pre">LoadFileFromRaw</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_Beamtime.html#loadnewestfolderinpathtreeanddisplay"><code class="docutils literal notranslate"><span class="pre">LoadNewestFolderInPathTreeAndDisplay</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_Beamtime.html#loadnewestfileinpathtreeanddisplaypython"><code class="docutils literal notranslate"><span class="pre">LoadNewestFileInPathTreeAndDisplayPython</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/FileIO__ATH_Export.html">ATH_Export_Repeat</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_Export.html#wavestotiffdb"><code class="docutils literal notranslate"><span class="pre">WavesToTIFFDB</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_Export.html#wave3dtotiffsdb"><code class="docutils literal notranslate"><span class="pre">Wave3DToTIFFsDB</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_Export.html#tracestogeneraltextdb"><code class="docutils literal notranslate"><span class="pre">TracesToGeneralTextDB</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/FileIO__ATH_HDF5.html">ATH_HDF5</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#listhdf5groups"><code class="docutils literal notranslate"><span class="pre">ListHDF5Groups</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#loadhdf5file"><code class="docutils literal notranslate"><span class="pre">LoadHDF5File</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#loadhdf5specificgroups"><code class="docutils literal notranslate"><span class="pre">LoadHDF5SpecificGroups</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#loadhdf5specificgroupsnamesindexed"><code class="docutils literal notranslate"><span class="pre">LoadHDF5SpecificGroupsNamesIndexed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#loadhdf5specificgroupsfrompath"><code class="docutils literal notranslate"><span class="pre">LoadHDF5SpecificGroupsFromPath</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#gethdf5singlefilepath"><code class="docutils literal notranslate"><span class="pre">GetHDF5SingleFilePath</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#listhdf5groupsfid"><code class="docutils literal notranslate"><span class="pre">ListHDF5GroupsFID</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#loadhdf5groupfid"><code class="docutils literal notranslate"><span class="pre">LoadHDF5GroupFID</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#gethdf5numgroupsfid"><code class="docutils literal notranslate"><span class="pre">GetHDF5NumGroupsFID</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#loadnxsxmcddataset"><code class="docutils literal notranslate"><span class="pre">LoadNXSXMCDDataSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#loadnxsdatasets"><code class="docutils literal notranslate"><span class="pre">LoadNXSDataSets</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#loadtvipsh5data"><code class="docutils literal notranslate"><span class="pre">LoadTVIPSH5Data</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#loadtvipsh5group"><code class="docutils literal notranslate"><span class="pre">LoadTVIPSH5Group</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_HDF5.html#loadtvipsh5datanetwork"><code class="docutils literal notranslate"><span class="pre">LoadTVIPSH5DataNetwork</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/FileIO__ATH_LoadImg.html">ATH_LoadImg</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_LoadImg.html#loadtiff"><code class="docutils literal notranslate"><span class="pre">Loadtiff</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_LoadImg.html#loadtiffs"><code class="docutils literal notranslate"><span class="pre">Loadtiffs</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_LoadImg.html#peem3files"><code class="docutils literal notranslate"><span class="pre">PEEM3Files</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/FileIO__ATH_LoadUview.html">ATH_LoadUview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_LoadUview.html#loaddatfilesfromfolder"><code class="docutils literal notranslate"><span class="pre">LoadDATFilesFromFolder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_LoadUview.html#loadmultiplydatfiles"><code class="docutils literal notranslate"><span class="pre">LoadMultiplyDATFiles</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_LoadUview.html#uviewload-worker"><code class="docutils literal notranslate"><span class="pre">UviewLoad_Worker</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_LoadUview.html#loaddatfilesfromfoldermt"><code class="docutils literal notranslate"><span class="pre">LoadDATFilesFromFolderMT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_LoadUview.html#loadmultiplydatfilesmt"><code class="docutils literal notranslate"><span class="pre">LoadMultiplyDATFilesMT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_LoadUview.html#loaddatfilesmatchingpattterntostackmt"><code class="docutils literal notranslate"><span class="pre">LoadDATFilesMatchingPattternToStackMT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/FileIO__ATH_LoadUview.html#readfovfromdatfile"><code class="docutils literal notranslate"><span class="pre">ReadFovFromDATFile</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Color.html">ATH_Color</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Color.html#ath-colorkillwaves"><code class="docutils literal notranslate"><span class="pre">ATH_ColorKillWaves</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Color.html#sidam-colortablelog"><code class="docutils literal notranslate"><span class="pre">SIDAM_ColorTableLog</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Color.html#sidam-imagecolorrgbmode"><code class="docutils literal notranslate"><span class="pre">SIDAM_ImageColorRGBMode</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Color.html#sidamclickcheckbox"><code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBox</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Color.html#sidamclickcheckboxprototype"><code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBoxPrototype</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Cursors.html">ATH_Cursors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Cursors.html#getdistancefromcursors"><code class="docutils literal notranslate"><span class="pre">GetDistanceFromCursors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Cursors.html#measuredistanceusingfreecursors"><code class="docutils literal notranslate"><span class="pre">MeasureDistanceUsingFreeCursors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Cursors.html#measuredistanceusingfreecursorshook"><code class="docutils literal notranslate"><span class="pre">MeasureDistanceUsingFreeCursorsHook</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Cursors.html#usergetcursorspositions-contbuttonproc"><code class="docutils literal notranslate"><span class="pre">UserGetCursorsPositions_ContButtonProc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Cursors.html#usergetcursorspositions-cancelbproc"><code class="docutils literal notranslate"><span class="pre">UserGetCursorsPositions_CancelBProc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Cursors.html#threecursorstoangle"><code class="docutils literal notranslate"><span class="pre">ThreeCursorsToAngle</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Cursors.html#mirrorcursorpositiontowavevalues"><code class="docutils literal notranslate"><span class="pre">MirrorCursorPositionToWaveValues</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Cursors.html#synccursorsingraphshook"><code class="docutils literal notranslate"><span class="pre">SyncCursorsInGraphsHook</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Display.html">ATH_Display</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Display.html#displayhookfunction"><code class="docutils literal notranslate"><span class="pre">DisplayHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Display.html#append3dimageslider"><code class="docutils literal notranslate"><span class="pre">Append3DImageSlider</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Display.html#newimgsliderhook"><code class="docutils literal notranslate"><span class="pre">NewImgSliderHook</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Display.html#imageslidersetvar"><code class="docutils literal notranslate"><span class="pre">ImageSliderSetVar</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Display.html#restartw3dimageslider"><code class="docutils literal notranslate"><span class="pre">RestartW3DImageSlider</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Draw.html">ATH_Draw</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Draw.html#drawlineusingcursors"><code class="docutils literal notranslate"><span class="pre">DrawLineUsingCursors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Draw.html#drawcircleusingantinodalcursors"><code class="docutils literal notranslate"><span class="pre">DrawCircleUsingAntinodalCursors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Draw.html#drawcircleusingcenterandpointcursors"><code class="docutils literal notranslate"><span class="pre">DrawCircleUsingCenterAndPointCursors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Draw.html#imagescalebar"><code class="docutils literal notranslate"><span class="pre">ImageScaleBar</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Graph.html">ATH_Graph</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Graph.html#duplicatewaveanddisplayoftopimage"><code class="docutils literal notranslate"><span class="pre">DuplicateWaveAndDisplayOfTopImage</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Graph.html#textannotationontopgraph"><code class="docutils literal notranslate"><span class="pre">TextAnnotationOnTopGraph</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Graph.html#getglayer"><code class="docutils literal notranslate"><span class="pre">GetgLayer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Graph.html#setgraphctabstr"><code class="docutils literal notranslate"><span class="pre">SetGraphCtabStr</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Graph.html#linkgraphsliders"><code class="docutils literal notranslate"><span class="pre">LinkGraphSliders</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Graph.html#linkedimgsliderhook"><code class="docutils literal notranslate"><span class="pre">LinkedImgSliderHook</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Graph.html#linkgraphranges"><code class="docutils literal notranslate"><span class="pre">LinkGraphRanges</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Graph.html#linkedgraphaxesrangehook"><code class="docutils literal notranslate"><span class="pre">LinkedGraphAxesRangeHook</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Marquee.html">ATH_Marquee</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Marquee.html#marqueetomask"><code class="docutils literal notranslate"><span class="pre">MarqueeToMask</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Marquee.html#partitionregion"><code class="docutils literal notranslate"><span class="pre">PartitionRegion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Marquee.html#getmarqueewavestats"><code class="docutils literal notranslate"><span class="pre">GetMarqueeWaveStats</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Marquee.html#checkactiveaxis"><code class="docutils literal notranslate"><span class="pre">CheckActiveAxis</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Marquee.html#saveroicoordinatestodatabase"><code class="docutils literal notranslate"><span class="pre">SaveROICoordinatesToDatabase</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Marquee.html#usersetmarquee-contbuttonproc"><code class="docutils literal notranslate"><span class="pre">UserSetMarquee_ContButtonProc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Marquee.html#usersetmarquee-cancelbproc"><code class="docutils literal notranslate"><span class="pre">UserSetMarquee_CancelBProc</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Range.html">ATH_Range</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Range.html#sidamwindowexists"><code class="docutils literal notranslate"><span class="pre">SIDAMWindowExists</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Range.html#sidam-colortablelog"><code class="docutils literal notranslate"><span class="pre">SIDAM_ColorTableLog</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Range.html#sidamgetlayerindex"><code class="docutils literal notranslate"><span class="pre">SIDAMGetLayerIndex</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Range.html#sidamkilldatafolder"><code class="docutils literal notranslate"><span class="pre">SIDAMKillDataFolder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Range.html#sidampopupto"><code class="docutils literal notranslate"><span class="pre">SIDAMPopupTo</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Traces.html">ATH_Traces</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Traces.html#toptracetowaveref"><code class="docutils literal notranslate"><span class="pre">TopTraceToWaveRef</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Traces.html#marqueetotraceoperation"><code class="docutils literal notranslate"><span class="pre">MarqueeToTraceOperation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Traces.html#operationsongraphtraceswithmarquee"><code class="docutils literal notranslate"><span class="pre">OperationsOnGraphTracesWithMarquee</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Traces.html#aligntracesdb"><code class="docutils literal notranslate"><span class="pre">AlignTracesDB</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Graphs__ATH_Windows.html">ATH_Windows</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Windows.html#getlistofnamedwindowhookfunctions"><code class="docutils literal notranslate"><span class="pre">GetListOfNamedWindowHookFunctions</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Windows.html#setnamedhookfunctiontowindow"><code class="docutils literal notranslate"><span class="pre">SetNamedHookFunctionToWindow</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Graphs__ATH_Windows.html#killwindowsinliststring"><code class="docutils literal notranslate"><span class="pre">KillWindowsInListString</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/ImageProcessing__ATH_ImageAlign.html">ATH_ImageAlign</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageAlign.html#imgregistration"><code class="docutils literal notranslate"><span class="pre">ImgRegistration</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageAlign.html#imgstackregistration"><code class="docutils literal notranslate"><span class="pre">ImgStackRegistration</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageAlign.html#imgstackpartitioncorrelation"><code class="docutils literal notranslate"><span class="pre">ImgStackPartitionCorrelation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageAlign.html#lineardriftstackabcursors"><code class="docutils literal notranslate"><span class="pre">LinearDriftStackABCursors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageAlign.html#lineardriftplanesabcursors"><code class="docutils literal notranslate"><span class="pre">LinearDriftPlanesABCursors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageAlign.html#multithreadimageregistration"><code class="docutils literal notranslate"><span class="pre">MultiThreadImageRegistration</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/ImageProcessing__ATH_ImageFilter.html">ATH_ImageFilter</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageFilter.html#ifftimgfilter"><code class="docutils literal notranslate"><span class="pre">iFFTImgFilter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageFilter.html#iimgfilterhookfunction"><code class="docutils literal notranslate"><span class="pre">iImgFilterHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageFilter.html#iimgfilterbutton"><code class="docutils literal notranslate"><span class="pre">iImgFilterButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageFilter.html#iimgfiltersetgvalues"><code class="docutils literal notranslate"><span class="pre">iImgFilterSetGValues</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html">ATH_ImageOp</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#rangemeansigmatopimage"><code class="docutils literal notranslate"><span class="pre">RangeMeanSigmaTopImage</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#getlayerindex"><code class="docutils literal notranslate"><span class="pre">GetLayerIndex</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#autorangetopimageplane"><code class="docutils literal notranslate"><span class="pre">AutoRangeTopImagePlane</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#setzscaleofimagestack"><code class="docutils literal notranslate"><span class="pre">SetZScaleOfImageStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#imageselecttocopyscale"><code class="docutils literal notranslate"><span class="pre">ImageSelectToCopyScale</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#getscaledzoominimagewindow"><code class="docutils literal notranslate"><span class="pre">GetScaledZoominImageWindow</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#getlayerfromimagestack"><code class="docutils literal notranslate"><span class="pre">GetLayerFromImageStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#removeimagesfromimagestack"><code class="docutils literal notranslate"><span class="pre">RemoveImagesFromImageStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#removerangeofimagesfromimagestack"><code class="docutils literal notranslate"><span class="pre">RemoveRangeOfImagesFromImageStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#insertimagestoimagestack"><code class="docutils literal notranslate"><span class="pre">InsertImagesToImageStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#appendimagestoimagestack"><code class="docutils literal notranslate"><span class="pre">AppendImagesToImageStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#concatenateimages"><code class="docutils literal notranslate"><span class="pre">ConcatenateImages</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#imageedgedetectiontostack"><code class="docutils literal notranslate"><span class="pre">ImageEdgeDetectionToStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#imagerotateandscale"><code class="docutils literal notranslate"><span class="pre">ImageRotateAndScale</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#backuptopimage"><code class="docutils literal notranslate"><span class="pre">BackupTopImage</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#restoretopimagefrombackup"><code class="docutils literal notranslate"><span class="pre">RestoreTopImageFromBackup</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#averageimagerangetostackoffset"><code class="docutils literal notranslate"><span class="pre">AverageImageRangeToStackOffset</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#averageimagerangetostack"><code class="docutils literal notranslate"><span class="pre">AverageImageRangeToStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#histogramshifttogaussiancenter"><code class="docutils literal notranslate"><span class="pre">HistogramShiftToGaussianCenter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#histogramshifttogaussiancenterstack"><code class="docutils literal notranslate"><span class="pre">HistogramShiftToGaussianCenterStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#graytorgbimage"><code class="docutils literal notranslate"><span class="pre">GrayToRGBImage</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#rgb2gray8image"><code class="docutils literal notranslate"><span class="pre">RGB2Gray8Image</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#rgb2gray16image"><code class="docutils literal notranslate"><span class="pre">RGB2Gray16Image</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#flattenimage"><code class="docutils literal notranslate"><span class="pre">FlattenImage</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#imgremovebackground"><code class="docutils literal notranslate"><span class="pre">ImgRemoveBackground</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#imgremovebackgroundcols"><code class="docutils literal notranslate"><span class="pre">ImgRemoveBackgroundCols</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#pixelateimage"><code class="docutils literal notranslate"><span class="pre">PixelateImage</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#pixelateimagestack"><code class="docutils literal notranslate"><span class="pre">PixelateImageStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#matrixfilter3d"><code class="docutils literal notranslate"><span class="pre">MatrixFilter3D</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#flattenimage3d"><code class="docutils literal notranslate"><span class="pre">FlattenImage3D</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#imagewindow3d"><code class="docutils literal notranslate"><span class="pre">ImageWindow3D</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#scaleimagepreservedims"><code class="docutils literal notranslate"><span class="pre">ScaleImagePreserveDims</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/ImageProcessing__ATH_ImageOp.html#scalefovwithobjectivecurrent"><code class="docutils literal notranslate"><span class="pre">ScaleFoVWithObjectiveCurrent</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iBackground.html">ATH_iBackground</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iBackground.html#createlpanel"><code class="docutils literal notranslate"><span class="pre">CreatelPanel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iBackground.html#graphhookfunction"><code class="docutils literal notranslate"><span class="pre">GraphHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iBackground.html#panelhookfunction"><code class="docutils literal notranslate"><span class="pre">PanelHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iBackground.html#overwriteandclosebutton"><code class="docutils literal notranslate"><span class="pre">OverwriteAndCloseButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iBackground.html#removebackgroundbutton"><code class="docutils literal notranslate"><span class="pre">RemoveBackgroundButton</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html">ATH_iDriftCorrection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#createpanel"><code class="docutils literal notranslate"><span class="pre">CreatePanel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#graphhookfunction"><code class="docutils literal notranslate"><span class="pre">GraphHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#panelhookfunction"><code class="docutils literal notranslate"><span class="pre">PanelHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#setanchorcursorbutton"><code class="docutils literal notranslate"><span class="pre">SetAnchorCursorButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#driftimagebutton"><code class="docutils literal notranslate"><span class="pre">DriftImageButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#togglesubpixelmodebutton"><code class="docutils literal notranslate"><span class="pre">ToggleSubPixelModeButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#setstartlayerbutton"><code class="docutils literal notranslate"><span class="pre">SetStartLayerButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#setendlayerbutton"><code class="docutils literal notranslate"><span class="pre">SetEndLayerButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#lineardcbutton"><code class="docutils literal notranslate"><span class="pre">LinearDCButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#checkpointbutton"><code class="docutils literal notranslate"><span class="pre">CheckpointButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#restorewavebutton"><code class="docutils literal notranslate"><span class="pre">RestoreWaveButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#driftselectedlayers3dwavebutton"><code class="docutils literal notranslate"><span class="pre">DriftSelectedLayers3DWaveButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#cascadedrift3dwavebutton"><code class="docutils literal notranslate"><span class="pre">CascadeDrift3DWaveButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#fastmodecheckbox"><code class="docutils literal notranslate"><span class="pre">FastModeCheckbox</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#interstackalignmentbutton"><code class="docutils literal notranslate"><span class="pre">InterStackAlignmentButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iDriftCorrection.html#drawtherefcross"><code class="docutils literal notranslate"><span class="pre">DrawTheRefCross</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageOps.html">ATH_iImageOps</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageOps.html#mainmenu"><code class="docutils literal notranslate"><span class="pre">MainMenu</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageOps.html#createiopsimgscalculationpanel"><code class="docutils literal notranslate"><span class="pre">CreateiOpsImgsCalculationPanel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageOps.html#windowhook"><code class="docutils literal notranslate"><span class="pre">WindowHook</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageOps.html#restoreimagesbutton"><code class="docutils literal notranslate"><span class="pre">RestoreImagesButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageOps.html#saveopresultbutton"><code class="docutils literal notranslate"><span class="pre">SaveOpResultButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageOps.html#setdriftstepvar"><code class="docutils literal notranslate"><span class="pre">SetDriftStepVar</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageOps.html#setopformula"><code class="docutils literal notranslate"><span class="pre">SetOpFormula</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageOps.html#setsecopformula"><code class="docutils literal notranslate"><span class="pre">SetSecOpFormula</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageOps.html#checkboxsecop"><code class="docutils literal notranslate"><span class="pre">CheckBoxSecOp</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageRotation.html">ATH_iImageRotation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageRotation.html#createpanel"><code class="docutils literal notranslate"><span class="pre">CreatePanel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageRotation.html#fliprowscheckbox"><code class="docutils literal notranslate"><span class="pre">FlipRowsCheckBox</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageRotation.html#graphhookfunction"><code class="docutils literal notranslate"><span class="pre">GraphHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageRotation.html#panelhookfunction"><code class="docutils literal notranslate"><span class="pre">PanelHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageRotation.html#sliderproc"><code class="docutils literal notranslate"><span class="pre">SliderProc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageRotation.html#setangle"><code class="docutils literal notranslate"><span class="pre">SetAngle</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageRotation.html#irotbutton"><code class="docutils literal notranslate"><span class="pre">iRotButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iImageRotation.html#imagerestoreandrotate"><code class="docutils literal notranslate"><span class="pre">ImageRestoreAndRotate</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXMCD.html">ATH_iXMCD</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXMCD.html#menulaunch"><code class="docutils literal notranslate"><span class="pre">MenuLaunch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXMCD.html#createixmcdpanel"><code class="docutils literal notranslate"><span class="pre">CreateiXMCDPanel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXMCD.html#ixmcdwindowhook"><code class="docutils literal notranslate"><span class="pre">iXMCDWindowHook</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXMCD.html#restoreimagesbutton"><code class="docutils literal notranslate"><span class="pre">RestoreImagesButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXMCD.html#savexmcdimagebutton"><code class="docutils literal notranslate"><span class="pre">SaveXMCDImageButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXMCD.html#setdriftstepvar"><code class="docutils literal notranslate"><span class="pre">SetDriftStepVar</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXMCD.html#setintensityscale"><code class="docutils literal notranslate"><span class="pre">SetIntensityScale</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html">ATH_iXPS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#mainmenu"><code class="docutils literal notranslate"><span class="pre">MainMenu</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#initialisegraph"><code class="docutils literal notranslate"><span class="pre">InitialiseGraph</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#xpsplot"><code class="docutils literal notranslate"><span class="pre">XPSPlot</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#clearxpsmarkings"><code class="docutils literal notranslate"><span class="pre">ClearXPSMarkings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#cursorhookfunction"><code class="docutils literal notranslate"><span class="pre">CursorHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#graphhookfunction"><code class="docutils literal notranslate"><span class="pre">GraphHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#saveprofile"><code class="docutils literal notranslate"><span class="pre">SaveProfile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#savedefaultsettings"><code class="docutils literal notranslate"><span class="pre">SaveDefaultSettings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#restoredefaultsettings"><code class="docutils literal notranslate"><span class="pre">RestoreDefaultSettings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#showprofilewidth"><code class="docutils literal notranslate"><span class="pre">ShowProfileWidth</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#plotprofile"><code class="docutils literal notranslate"><span class="pre">PlotProfile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#layer3d"><code class="docutils literal notranslate"><span class="pre">Layer3D</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#setprofilewidth"><code class="docutils literal notranslate"><span class="pre">SetProfileWidth</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#setcursorsgh"><code class="docutils literal notranslate"><span class="pre">SetCursorsGH</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#usebe"><code class="docutils literal notranslate"><span class="pre">UseBE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#sethv"><code class="docutils literal notranslate"><span class="pre">Sethv</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#setwf"><code class="docutils literal notranslate"><span class="pre">SetWf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#setepp"><code class="docutils literal notranslate"><span class="pre">SetEPP</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#setstv"><code class="docutils literal notranslate"><span class="pre">SetSTV</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/InteractiveInterfaces__ATH_iXPS.html#getprofileusingdefaults"><code class="docutils literal notranslate"><span class="pre">GetProfileUsingDefaults</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html">ATH_LineProfile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#mainmenu"><code class="docutils literal notranslate"><span class="pre">MainMenu</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#initialisegraph"><code class="docutils literal notranslate"><span class="pre">InitialiseGraph</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#createplot"><code class="docutils literal notranslate"><span class="pre">CreatePlot</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#clearlinemarkings"><code class="docutils literal notranslate"><span class="pre">ClearLineMarkings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#drawlineuserfront"><code class="docutils literal notranslate"><span class="pre">DrawLineUserFront</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#cursorshookfunction"><code class="docutils literal notranslate"><span class="pre">CursorsHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#graphhookfunction"><code class="docutils literal notranslate"><span class="pre">GraphHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#saveprofile"><code class="docutils literal notranslate"><span class="pre">SaveProfile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#savedefaultsettings"><code class="docutils literal notranslate"><span class="pre">SaveDefaultSettings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#restoredefaultsettings"><code class="docutils literal notranslate"><span class="pre">RestoreDefaultSettings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#showprofilewidth"><code class="docutils literal notranslate"><span class="pre">ShowProfileWidth</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#checkboxplotprofile"><code class="docutils literal notranslate"><span class="pre">CheckboxPlotProfile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#profilelayer3d"><code class="docutils literal notranslate"><span class="pre">ProfileLayer3D</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#checkboxmarklines"><code class="docutils literal notranslate"><span class="pre">CheckboxMarkLines</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#setvariablewidth"><code class="docutils literal notranslate"><span class="pre">SetVariableWidth</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_LineProfile.html#delelelineprofilerectangle"><code class="docutils literal notranslate"><span class="pre">DeleleLineProfileRectangle</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html">ATH_PlaneZProfile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#mainmenu"><code class="docutils literal notranslate"><span class="pre">MainMenu</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#initialisegraph"><code class="docutils literal notranslate"><span class="pre">InitialiseGraph</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#createpanel"><code class="docutils literal notranslate"><span class="pre">CreatePanel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#cursorhookfunction"><code class="docutils literal notranslate"><span class="pre">CursorHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#graphhookfunction"><code class="docutils literal notranslate"><span class="pre">GraphHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#saveprofilebutton"><code class="docutils literal notranslate"><span class="pre">SaveProfileButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#setscalebutton"><code class="docutils literal notranslate"><span class="pre">SetScaleButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#checkboxplotprofile"><code class="docutils literal notranslate"><span class="pre">CheckboxPlotProfile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#checkboxmarklines"><code class="docutils literal notranslate"><span class="pre">CheckboxMarkLines</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#overridenx"><code class="docutils literal notranslate"><span class="pre">OverrideNx</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#overrideny"><code class="docutils literal notranslate"><span class="pre">OverrideNy</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#setvariablenx"><code class="docutils literal notranslate"><span class="pre">SetVariableNx</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#setvariableny"><code class="docutils literal notranslate"><span class="pre">SetVariableNy</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_PlaneZProfile.html#drawlineuserfront"><code class="docutils literal notranslate"><span class="pre">DrawLineUserFront</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html">ATH_ZProfile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#graphmarqueelaunchoval"><code class="docutils literal notranslate"><span class="pre">GraphMarqueeLaunchOval</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#graphmarqueelaunchrectangle"><code class="docutils literal notranslate"><span class="pre">GraphMarqueeLaunchRectangle</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#tracepopuplaunchsavedroi"><code class="docutils literal notranslate"><span class="pre">TracePopupLaunchSavedROI</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#drawovalimageroi"><code class="docutils literal notranslate"><span class="pre">DrawOvalImageROI</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#drawrectimageroi"><code class="docutils literal notranslate"><span class="pre">DrawRectImageROI</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#clearroimarkingsuserfront"><code class="docutils literal notranslate"><span class="pre">ClearROIMarkingsUserFront</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#initialisegraph"><code class="docutils literal notranslate"><span class="pre">InitialiseGraph</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#cursorhookfunction"><code class="docutils literal notranslate"><span class="pre">CursorHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#graphhookfunction"><code class="docutils literal notranslate"><span class="pre">GraphHookFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#saveprofilebutton"><code class="docutils literal notranslate"><span class="pre">SaveProfileButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#setscalebutton"><code class="docutils literal notranslate"><span class="pre">SetScaleButton</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#checkboxplotprofile"><code class="docutils literal notranslate"><span class="pre">CheckboxPlotProfile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#checkboxmarkareas"><code class="docutils literal notranslate"><span class="pre">CheckboxMarkAreas</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#checkboxtwinplot"><code class="docutils literal notranslate"><span class="pre">CheckBoxTwinPlot</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Profilers__ATH_ZProfile.html#settwinwavepath"><code class="docutils literal notranslate"><span class="pre">SetTwinWavePath</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_CalcPad.html">ATH_CalcPad</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_CalcPad.html#prefssetdefaults"><code class="docutils literal notranslate"><span class="pre">PrefsSetDefaults</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_CalcPad.html#loadprefs"><code class="docutils literal notranslate"><span class="pre">LoadPrefs</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_CalcPad.html#calcpad"><code class="docutils literal notranslate"><span class="pre">CalcPad</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_CalcPad.html#calcpadhook"><code class="docutils literal notranslate"><span class="pre">CalcPadHook</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_CalcPad.html#preventpaste"><code class="docutils literal notranslate"><span class="pre">PreventPaste</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_CalcPad.html#savewindow"><code class="docutils literal notranslate"><span class="pre">SaveWindow</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_CalcPad.html#makeprefspanel"><code class="docutils literal notranslate"><span class="pre">makePrefsPanel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_CalcPad.html#buttonproc"><code class="docutils literal notranslate"><span class="pre">ButtonProc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_CalcPad.html#checkproc"><code class="docutils literal notranslate"><span class="pre">CheckProc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_CalcPad.html#setvarproc"><code class="docutils literal notranslate"><span class="pre">SetVarProc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_CalcPad.html#popmenuproc"><code class="docutils literal notranslate"><span class="pre">PopMenuProc</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_DFR.html">ATH_DFR</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_DFR.html#createdatafoldergetdfref"><code class="docutils literal notranslate"><span class="pre">CreateDataFolderGetDFREF</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_DFR.html#sanitizepath"><code class="docutils literal notranslate"><span class="pre">SanitizePath</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_DFR.html#zapdatainfoldertree"><code class="docutils literal notranslate"><span class="pre">ZapDataInFolderTree</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_DFR.html#zapalldatafoldersinpath"><code class="docutils literal notranslate"><span class="pre">ZapAllDataFoldersInPath</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_DFR.html#printfoldersandfiles"><code class="docutils literal notranslate"><span class="pre">PrintFoldersAndFiles</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_DFR.html#cleanglobalwavesvarandstrinfolder"><code class="docutils literal notranslate"><span class="pre">CleanGlobalWavesVarAndStrInFolder</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_DFR.html#deleteeverythingbutsomefolders"><code class="docutils literal notranslate"><span class="pre">DeleteEverythingButSomeFolders</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_DFR.html#findbigwaves"><code class="docutils literal notranslate"><span class="pre">FindBigWaves</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_DFR.html#allwavessamepathq"><code class="docutils literal notranslate"><span class="pre">AllWavesSamePathQ</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_DFR.html#backupwaveinwavedf"><code class="docutils literal notranslate"><span class="pre">BackupWaveInWaveDF</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_DFR.html#backupwaveinwavedfq"><code class="docutils literal notranslate"><span class="pre">BackupWaveInWaveDFQ</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_DFR.html#getallwavesstrdf"><code class="docutils literal notranslate"><span class="pre">GetAllWavesStrDF</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_Execute.html">ATH_Execute</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Execute.html#executeshellcommand"><code class="docutils literal notranslate"><span class="pre">ExecuteShellCommand</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Execute.html#cmdexecutionusingrange"><code class="docutils literal notranslate"><span class="pre">CmdExecutionUsingRange</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Execute.html#cmdexecutioninfolderwithpattern"><code class="docutils literal notranslate"><span class="pre">CmdExecutionInFolderWithPattern</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Execute.html#handlesimpleerror"><code class="docutils literal notranslate"><span class="pre">HandleSimpleError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Execute.html#getandexecutenoteentry"><code class="docutils literal notranslate"><span class="pre">GetAndExecuteNoteEntry</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_Geometry.html">ATH_Geometry</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Geometry.html#slopeperpendiculartolinesegment"><code class="docutils literal notranslate"><span class="pre">SlopePerpendicularToLineSegment</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Geometry.html#getantipodalpoint"><code class="docutils literal notranslate"><span class="pre">GetAntipodalPoint</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Geometry.html#linecoefficientsfromcursors"><code class="docutils literal notranslate"><span class="pre">LineCoefficientsFromCursors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Geometry.html#getlinefromcursors"><code class="docutils literal notranslate"><span class="pre">GetLineFromCursors</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_IgorHook.html">ATH_IgorHook</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_IgorHook.html#beforefileopenhook"><code class="docutils literal notranslate"><span class="pre">BeforeFileOpenHook</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_IgorHook.html#afterwindowcreatedhook"><code class="docutils literal notranslate"><span class="pre">AfterWindowCreatedHook</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_IgorHook.html#aftercompiledhook"><code class="docutils literal notranslate"><span class="pre">AfterCompiledHook</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_Numeric.html">ATH_Numeric</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Numeric.html#numsigndigits"><code class="docutils literal notranslate"><span class="pre">NumSignDigits</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Numeric.html#integerq"><code class="docutils literal notranslate"><span class="pre">IntegerQ</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Numeric.html#waveisfloatq"><code class="docutils literal notranslate"><span class="pre">WaveIsFloatQ</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Numeric.html#waveisfloat32q"><code class="docutils literal notranslate"><span class="pre">WaveIsFloat32Q</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Numeric.html#waveisfloat64q"><code class="docutils literal notranslate"><span class="pre">WaveIsFloat64Q</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Numeric.html#nextpoweroftwo"><code class="docutils literal notranslate"><span class="pre">NextPowerOfTwo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Numeric.html#isnumberinwaverangeq"><code class="docutils literal notranslate"><span class="pre">IsNumberInWaveRangeQ</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Numeric.html#runningmeandifferencezapnan"><code class="docutils literal notranslate"><span class="pre">RunningMeanDifferenceZapNaN</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Numeric.html#wavebeammeanzapnan"><code class="docutils literal notranslate"><span class="pre">WaveBeamMeanZapNaN</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_Spaces.html">ATH_Spaces</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Spaces.html#menulaunch"><code class="docutils literal notranslate"><span class="pre">MenuLaunch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Spaces.html#makepanel"><code class="docutils literal notranslate"><span class="pre">MakePanel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Spaces.html#listboxfunction"><code class="docutils literal notranslate"><span class="pre">ListBoxFunction</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Spaces.html#showwindowsofspacetag"><code class="docutils literal notranslate"><span class="pre">ShowWindowsOfSpaceTag</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Spaces.html#renamespacetagonwindows"><code class="docutils literal notranslate"><span class="pre">RenameSpaceTagOnWindows</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Spaces.html#clearwindowsfromspacetag"><code class="docutils literal notranslate"><span class="pre">ClearWindowsFromSpaceTag</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Spaces.html#uniquespacenameq"><code class="docutils literal notranslate"><span class="pre">UniqueSpaceNameQ</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Spaces.html#sanitiseathspacename"><code class="docutils literal notranslate"><span class="pre">SanitiseATHSpaceName</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Spaces.html#showallwindows"><code class="docutils literal notranslate"><span class="pre">ShowAllWindows</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_Spaces.html#showorphanwindows"><code class="docutils literal notranslate"><span class="pre">ShowOrphanWindows</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_String.html">ATH_String</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#expandrangestr"><code class="docutils literal notranslate"><span class="pre">ExpandRangeStr</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#getphotonenergyfromfilename"><code class="docutils literal notranslate"><span class="pre">GetPhotonEnergyFromFilename</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#uniquifystringlist"><code class="docutils literal notranslate"><span class="pre">UniquifyStringList</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#isliberalq"><code class="docutils literal notranslate"><span class="pre">isLiberalQ</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#stringtononliberal"><code class="docutils literal notranslate"><span class="pre">StringToNonLiberal</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#isextwindow"><code class="docutils literal notranslate"><span class="pre">isEXTWindow</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#ispathstringlegalq"><code class="docutils literal notranslate"><span class="pre">isPathStringLegalQ</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#extendpathstr"><code class="docutils literal notranslate"><span class="pre">ExtendPathStr</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#insertlistatposition"><code class="docutils literal notranslate"><span class="pre">InsertListAtPosition</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#removefileextention"><code class="docutils literal notranslate"><span class="pre">RemoveFileExtention</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#startswith"><code class="docutils literal notranslate"><span class="pre">StartsWith</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#endswith"><code class="docutils literal notranslate"><span class="pre">EndsWith</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#wavelogging"><code class="docutils literal notranslate"><span class="pre">WaveLogging</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#wavetostring"><code class="docutils literal notranslate"><span class="pre">WaveToString</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#getselectedwavenamesindb"><code class="docutils literal notranslate"><span class="pre">GetSelectedWaveNamesinDB</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#appendtostringlist"><code class="docutils literal notranslate"><span class="pre">AppendToStringList</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#getrangeitemsfromlist"><code class="docutils literal notranslate"><span class="pre">GetRangeItemsFromList</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#removecharfromstring"><code class="docutils literal notranslate"><span class="pre">RemoveCharFromString</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#composewavelistsfromwavenotes"><code class="docutils literal notranslate"><span class="pre">ComposeWaveListsFromWaveNotes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#getstacknamesfromnote"><code class="docutils literal notranslate"><span class="pre">GetStackNamesFromNote</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#setstacknamesinnote"><code class="docutils literal notranslate"><span class="pre">SetStackNamesInNote</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#stacknamesinnotestr"><code class="docutils literal notranslate"><span class="pre">StackNamesInNoteStr</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#getstacknamesforwavenote"><code class="docutils literal notranslate"><span class="pre">GetStackNamesForWaveNote</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_String.html#updatestackwavenote"><code class="docutils literal notranslate"><span class="pre">UpdateStackWaveNote</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_System.html">ATH_System</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_System.html#getfreememory"><code class="docutils literal notranslate"><span class="pre">GetFreeMemory</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_TextWaves.html">ATH_TextWaves</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_TextWaves.html#twaveremoveentriesfrompatters"><code class="docutils literal notranslate"><span class="pre">TWaveRemoveEntriesFromPatters</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_TextWaves.html#deletewavesintextwave"><code class="docutils literal notranslate"><span class="pre">DeleteWavesInTextWave</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_TextWaves.html#textwavetostring"><code class="docutils literal notranslate"><span class="pre">TextWaveToString</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_TextWaves.html#stringlisttotextwave"><code class="docutils literal notranslate"><span class="pre">StringListToTextWave</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_TextWaves.html#twaveremoveentriesfromstringlist"><code class="docutils literal notranslate"><span class="pre">TWaveRemoveEntriesFromStringList</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html">ATH_WaveOp</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#make3dwaveusingpattern"><code class="docutils literal notranslate"><span class="pre">Make3DWaveUsingPattern</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#concatenatewavesindatabrowserselection"><code class="docutils literal notranslate"><span class="pre">ConcatenateWavesInDataBrowserSelection</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#waveliststrtowaveref"><code class="docutils literal notranslate"><span class="pre">WaveListStrToWaveRef</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#unpacklayerstosources"><code class="docutils literal notranslate"><span class="pre">UnpackLayersToSources</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#makesquare3dwave"><code class="docutils literal notranslate"><span class="pre">MakeSquare3DWave</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#averageimagestack"><code class="docutils literal notranslate"><span class="pre">AverageImageStack</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#zapnanandinfwithvalue"><code class="docutils literal notranslate"><span class="pre">ZapNaNAndInfWithValue</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#normalisewavewithwave"><code class="docutils literal notranslate"><span class="pre">NormaliseWaveWithWave</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#setscalesp"><code class="docutils literal notranslate"><span class="pre">SetScalesP</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#makewavefromroi"><code class="docutils literal notranslate"><span class="pre">MakeWaveFromROI</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#setwaveoffsetzero"><code class="docutils literal notranslate"><span class="pre">SetWaveOffsetZero</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#wave2ddimensionsequalq"><code class="docutils literal notranslate"><span class="pre">Wave2DDimensionsEqualQ</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#allimagesequaldimensionsq"><code class="docutils literal notranslate"><span class="pre">AllImagesEqualDimensionsQ</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#wavedimensionsequalq"><code class="docutils literal notranslate"><span class="pre">WaveDimensionsEqualQ</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#matchwavetypes"><code class="docutils literal notranslate"><span class="pre">MatchWaveTypes</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#wavecasting"><code class="docutils literal notranslate"><span class="pre">WaveCasting</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#lastdimval"><code class="docutils literal notranslate"><span class="pre">LastDimVal</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#sizeofwave"><code class="docutils literal notranslate"><span class="pre">SizeOfWave</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#sumlateralwavedims"><code class="docutils literal notranslate"><span class="pre">SumLateralWaveDims</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#getwavetype"><code class="docutils literal notranslate"><span class="pre">GetWaveType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#removelinefromwave1d"><code class="docutils literal notranslate"><span class="pre">RemoveLineFromWave1D</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#removezlinewave3d"><code class="docutils literal notranslate"><span class="pre">RemoveZLineWave3D</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#getwaveminpos"><code class="docutils literal notranslate"><span class="pre">GetWaveMinPos</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/Utilities__ATH_WaveOp.html#getwavemaxpos"><code class="docutils literal notranslate"><span class="pre">GetWaveMaxPos</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api/Analysis__ATH_Func.html" class="btn btn-neutral float-right" title="ATH_Func" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright .</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

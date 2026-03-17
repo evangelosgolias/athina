@@ -332,7 +332,7 @@ static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariable
 				string baseTextStr, cmdStr
 				//baseTextStr = "TextBox/W="+PossiblyQuoteName(sva.win)+"/C/N=IntRatioLog \"\\Z12I\B1\M\Z12/I\B2\M\Z12 = " + "%.4f\""
 				baseTextStr =  "TextBox/W="+PossiblyQuoteName(sva.win)+"/C/N=IntRatioLog \"\\Z12I\B1\M\Z12/I\B2\M\Z12 = " + "%.4f"				
-				baseTextStr += "\n\\Z12XMCD\Bavg\Z12  = %.∑4f \n\\Z12XMCD\Brms\Z12  = %.4f \n\\Z12XMCD\Bsdev\Z12 = %.4f "
+				baseTextStr += "\n\\Z12XMCD\Bavg\Z12  = %.4f \n\\Z12XMCD\Brms\Z12  = %.4f \n\\Z12XMCD\Bsdev\Z12 = %.4f "
 				baseTextStr += "\n\\Z12XMCD\Badev\Z12 = %.4f\""				
 				//sprintf cmdStr, baseTextStr, avg1/avg2
 				sprintf cmdStr, baseTextStr, avg1/avg2, V_avg, V_rms, V_sdev, V_adev
