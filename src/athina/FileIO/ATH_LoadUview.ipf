@@ -1,9 +1,10 @@
-﻿#pragma rtGlobals    = 3
+#pragma rtGlobals    = 3
 #pragma TextEncoding = "UTF-8"
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName  = ATH_Uview
 #pragma version = 1.01
+
 // ------------------------------------------------------- //
 // Functions to import binary .dat & .dav files created by 
 // Elmitec's Uview Software at MAXPEEM beamline of MAX IV.
@@ -34,6 +35,12 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+/// @module ATH_LoadUview
+/// @brief Module ATH_LoadUview.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH LoadUview functionality.
 
 
 Structure LONGLONG
@@ -722,6 +729,18 @@ static Function/S StrGetAllMetadataInfoFromDAT(string datafile, variable Metadat
 	return ATHMetaDataStr
 End
 
+/// @function LoadDATFilesFromFolder
+/// @brief Description of LoadDATFilesFromFolder.
+/// @details
+/// Auto-generated documentation stub for function `LoadDATFilesFromFolder`.
+/// @param folder Parameter folder.
+/// @param pattern Parameter pattern.
+/// @param stack3d Parameter stack3d.
+/// @param wname3d Parameter wname3d.
+/// @param autoscale Parameter autoscale.
+/// @param displayImg] Parameter displayImg].
+/// @returns Variable Return value.
+
 static Function LoadDATFilesFromFolder(string folder, string pattern, [int stack3d, string wname3d, int autoscale, int displayImg])
 	// We use ImageTransform stackImages X to create the 3d wave. Compared to 3d wave assignement it is faster by nearly 3x.
 
@@ -909,6 +928,16 @@ static Function/WAVE WAVELoadDATFilesFromFolder(string folder, string pattern, [
 	return wRef
 End
 
+/// @function LoadMultiplyDATFiles
+/// @brief Description of LoadMultiplyDATFiles.
+/// @details
+/// Auto-generated documentation stub for function `LoadMultiplyDATFiles`.
+/// @param skipmetadata Parameter skipmetadata.
+/// @param autoscale Parameter autoscale.
+/// @param stack3d Parameter stack3d.
+/// @param displayImg] Parameter displayImg].
+/// @returns Variable Return value.
+
 static Function LoadMultiplyDATFiles([int skipmetadata, int autoscale, int stack3d, int displayImg])
 	/// Load multiply selected .dat files
 	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
@@ -1012,6 +1041,13 @@ ThreadSafe static Function/WAVE UviewLoad_Worker(string filepathStr)
 	return UviewFile
 End
 
+/// @function LoadDATFilesFromFolderMT
+/// @brief Description of LoadDATFilesFromFolderMT.
+/// @details
+/// Auto-generated documentation stub for function `LoadDATFilesFromFolderMT`.
+/// @param displayImg] Parameter displayImg].
+/// @returns Variable Return value.
+
 static Function LoadDATFilesFromFolderMT([int displayImg])
 
 	displayImg = ParamIsDefault(displayImg) ? 0: !!displayImg
@@ -1058,6 +1094,13 @@ static Function LoadDATFilesFromFolderMT([int displayImg])
 	return 0
 End
 
+/// @function LoadMultiplyDATFilesMT
+/// @brief Description of LoadMultiplyDATFilesMT.
+/// @details
+/// Auto-generated documentation stub for function `LoadMultiplyDATFilesMT`.
+/// @param displayImg] Parameter displayImg].
+/// @returns Variable Return value.
+
 static Function LoadMultiplyDATFilesMT([int displayImg])
 
 	displayImg = ParamIsDefault(displayImg) ? 0: !!displayImg
@@ -1098,6 +1141,14 @@ static Function LoadMultiplyDATFilesMT([int displayImg])
 	endif
 	return 0
 End
+
+/// @function LoadDATFilesMatchingPattternToStackMT
+/// @brief Description of LoadDATFilesMatchingPattternToStackMT.
+/// @details
+/// Auto-generated documentation stub for function `LoadDATFilesMatchingPattternToStackMT`.
+/// @param displayImg Parameter displayImg.
+/// @param pattern] Parameter pattern].
+/// @returns Variable Return value.
 
 static Function LoadDATFilesMatchingPattternToStackMT([int displayImg, int pattern])
 
@@ -1154,6 +1205,13 @@ static Function LoadDATFilesMatchingPattternToStackMT([int displayImg, int patte
 	endif
 	return 0
 End
+
+/// @function ReadFovFromDATFile
+/// @brief Description of ReadFovFromDATFile.
+/// @details
+/// Auto-generated documentation stub for function `ReadFovFromDATFile`.
+/// @param filepathStr Parameter filepathStr.
+/// @returns Variable Return value.
 
 static Function ReadFovFromDATFile(string filepathStr)
 		

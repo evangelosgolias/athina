@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
@@ -30,7 +30,13 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
-// ------------------------------------------------------- //
+
+/// @module ATH_Spaces
+/// @brief Module ATH_Spaces.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Spaces functionality.
+
 // Igor Spaces organises windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate 
 // Spaces. When a Space is selected in the panel, only windows linked to it are shown. 
 // 
@@ -64,6 +70,12 @@
 /// CTRL+click (CMD+click on MacOS): link space to the selected data folder in Data Browser 
 /// (now marked with an asterisk). Current data folder changes when you select spaces with asterisk.
 
+/// @function MenuLaunch
+/// @brief Description of MenuLaunch.
+/// @details
+/// Auto-generated documentation stub for function `MenuLaunch`.
+/// @returns Variable Return value.
+
 static Function MenuLaunch()
 	
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
@@ -89,6 +101,12 @@ static Function MenuLaunch()
 	endif
 	return 0
 End
+
+/// @function MakePanel
+/// @brief Description of MakePanel.
+/// @details
+/// Auto-generated documentation stub for function `MakePanel`.
+/// @returns Variable Return value.
 
 static Function MakePanel()
 	// Scale with IgorOptions here
@@ -210,6 +228,13 @@ Static Function SpacesButton(STRUCT WMButtonAction &s)
 	endswitch
 	return 0
 End
+
+/// @function ListBoxFunction
+/// @brief Description of ListBoxFunction.
+/// @details
+/// Auto-generated documentation stub for function `ListBoxFunction`.
+/// @param &LB_Struct Parameter &LB_Struct.
+/// @returns Variable Return value.
 
 static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 
@@ -348,6 +373,14 @@ static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 	return hookresult
 End
 
+/// @function ShowWindowsOfSpaceTag
+/// @brief Description of ShowWindowsOfSpaceTag.
+/// @details
+/// Auto-generated documentation stub for function `ShowWindowsOfSpaceTag`.
+/// @param spaceTagStr Parameter spaceTagStr.
+/// @param showSwitch Parameter showSwitch.
+/// @returns Variable Return value.
+
 static Function ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
 	// showSwitch = 0 (hide window) 
 	// showSwitch = 1 (show window)
@@ -369,6 +402,14 @@ static Function ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
 	return 0
 End
 
+/// @function RenameSpaceTagOnWindows
+/// @brief Description of RenameSpaceTagOnWindows.
+/// @details
+/// Auto-generated documentation stub for function `RenameSpaceTagOnWindows`.
+/// @param oldspaceTagStr Parameter oldspaceTagStr.
+/// @param newspaceTagStr Parameter newspaceTagStr.
+/// @returns Variable Return value.
+
 
 static Function RenameSpaceTagOnWindows(string oldspaceTagStr, string newspaceTagStr)
 
@@ -384,6 +425,13 @@ static Function RenameSpaceTagOnWindows(string oldspaceTagStr, string newspaceTa
 	while(strlen(winNameStr))
 	return 0
 End
+
+/// @function ClearWindowsFromSpaceTag
+/// @brief Description of ClearWindowsFromSpaceTag.
+/// @details
+/// Auto-generated documentation stub for function `ClearWindowsFromSpaceTag`.
+/// @param spaceTagStr Parameter spaceTagStr.
+/// @returns Variable Return value.
 
 static Function ClearWindowsFromSpaceTag(string spaceTagStr)
 
@@ -404,6 +452,14 @@ static Function ClearWindowsFromSpaceTag(string spaceTagStr)
 	return 0
 End
 
+/// @function UniqueSpaceNameQ
+/// @brief Description of UniqueSpaceNameQ.
+/// @details
+/// Auto-generated documentation stub for function `UniqueSpaceNameQ`.
+/// @param textW Parameter textW.
+/// @param spaceNameStr Parameter spaceNameStr.
+/// @returns Variable Return value.
+
 static Function UniqueSpaceNameQ(WAVE/T textW, string spaceNameStr)
 	/// Return true of spaceNameStr in not an element of textW (case-insensitive), i.e it is Unique
 	variable numEntries = DimSize(textW, 0), i
@@ -416,6 +472,13 @@ static Function UniqueSpaceNameQ(WAVE/T textW, string spaceNameStr)
 	return 1
 End
 
+/// @function SanitiseATHSpaceName
+/// @brief Description of SanitiseATHSpaceName.
+/// @details
+/// Auto-generated documentation stub for function `SanitiseATHSpaceName`.
+/// @param spaceNameStr Parameter spaceNameStr.
+/// @returns String Return value.
+
 static Function/S SanitiseATHSpaceName(string spaceNameStr)
 	if(GrepString(spaceNameStr, "^\*"))
 		return spaceNameStr[1,inf]
@@ -423,6 +486,13 @@ static Function/S SanitiseATHSpaceName(string spaceNameStr)
 		return spaceNameStr
 	endif
 End
+
+/// @function ShowAllWindows
+/// @brief Description of ShowAllWindows.
+/// @details
+/// Auto-generated documentation stub for function `ShowAllWindows`.
+/// @param showSwitch Parameter showSwitch.
+/// @returns Variable Return value.
 
 static Function ShowAllWindows(variable showSwitch)
 	// showSwitch = 0 (hide window) 
@@ -443,6 +513,13 @@ static Function ShowAllWindows(variable showSwitch)
 	while(strlen(winNameStr))
 	return 0
 End
+
+/// @function ShowOrphanWindows
+/// @brief Description of ShowOrphanWindows.
+/// @details
+/// Auto-generated documentation stub for function `ShowOrphanWindows`.
+/// @param showSwitch Parameter showSwitch.
+/// @returns Variable Return value.
 
 static Function ShowOrphanWindows(variable showSwitch)
 	// Show windows with no tag

@@ -1,9 +1,10 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_Launch
 #pragma version = 1.1
+
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -30,9 +31,19 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-// Launchers
+/// @module ATH_Launch
+/// @brief Module ATH_Launch.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Launch functionality.
 
 // --- Add quick actions to Data Browser ----
+
+/// @function BrowserActionDoXMDC
+/// @brief Description of BrowserActionDoXMDC.
+/// @details
+/// Auto-generated documentation stub for function `BrowserActionDoXMDC`.
+/// @returns Variable Return value.
 
 Function BrowserActionDoXMDC()
 	string img1, img2
@@ -51,6 +62,12 @@ Function BrowserActionDoXMDC()
 	endif
 End
 
+/// @function BrowserActionMakeStack
+/// @brief Description of BrowserActionMakeStack.
+/// @details
+/// Auto-generated documentation stub for function `BrowserActionMakeStack`.
+/// @returns Variable Return value.
+
 Function BrowserActionMakeStack()
 	string wNameStr
 	Prompt wNameStr, "Name your stack"
@@ -61,12 +78,26 @@ End
 
 // --- End of quick actions -----
 
+/// @function Make3DWaveUsingPattern
+/// @brief Description of Make3DWaveUsingPattern.
+/// @details
+/// Auto-generated documentation stub for function `Make3DWaveUsingPattern`.
+/// @returns Variable Return value.
+
 static Function Make3DWaveUsingPattern()
 	string wname3dStr, pattern
 	[wname3dStr, pattern] = ATH_Dialog#GenericDoubleStrPrompt("Stack name","Match waves (use * wildcard)", "Make a stack from waves using a pattern")
 	
 	ATH_WaveOp#Make3DWaveUsingPattern(wname3dStr, pattern)
 End
+
+/// @function Make3DWaveDataBrowserSelection
+/// @brief Description of Make3DWaveDataBrowserSelection.
+/// @details
+/// Auto-generated documentation stub for function `Make3DWaveDataBrowserSelection`.
+/// @param displayStack Parameter displayStack.
+/// @param transientStack] Parameter transientStack].
+/// @returns Variable Return value.
 
 static Function Make3DWaveDataBrowserSelection([int displayStack, int transientStack])
 	displayStack = ParamIsDefault(displayStack) ? 0: displayStack // Give any non-zero to display the stack
@@ -89,6 +120,12 @@ static Function Make3DWaveDataBrowserSelection([int displayStack, int transientS
 	return 0
 End
 
+/// @function LoadHDF5GroupsFromFile
+/// @brief Description of LoadHDF5GroupsFromFile.
+/// @details
+/// Auto-generated documentation stub for function `LoadHDF5GroupsFromFile`.
+/// @returns Variable Return value.
+
 static Function LoadHDF5GroupsFromFile()
 	string selectedGroups = ATH_Dialog#GenericSingleStrPrompt("Use single ScanID and/or ranges, e.g.  \"2-5,7,9-12,50\".  Leave string empty to load all entries.", "Before the .h5 selection dialog opens...")
 	if(strlen(selectedGroups))
@@ -97,6 +134,12 @@ static Function LoadHDF5GroupsFromFile()
 		ATH_HDF5#LoadHDF5File("") // Load all.
 	endif
 End
+
+/// @function AverageStackToImageFromMenu
+/// @brief Description of AverageStackToImageFromMenu.
+/// @details
+/// Auto-generated documentation stub for function `AverageStackToImageFromMenu`.
+/// @returns Variable Return value.
 
 static Function AverageStackToImageFromMenu()
 	string waveListStr = Wavelist("*",";","DIMS:3"), selectWaveStr, waveNameStr
@@ -110,6 +153,12 @@ static Function AverageStackToImageFromMenu()
 		ATH_WaveOp#AverageImageStack($selectWaveStr, outWaveStr = waveNameStr)
 	endif
 End
+
+/// @function AverageStackToImageFromTraceMenu
+/// @brief Description of AverageStackToImageFromTraceMenu.
+/// @details
+/// Auto-generated documentation stub for function `AverageStackToImageFromTraceMenu`.
+/// @returns Variable Return value.
 
 static Function AverageStackToImageFromTraceMenu()
 	WAVE/Z w3dref = ATH_Graph#TopImageToWaveRef()
@@ -127,6 +176,12 @@ static Function AverageStackToImageFromTraceMenu()
 	endif
 End
 
+/// @function AverageStackToImageFromBrowserMenu
+/// @brief Description of AverageStackToImageFromBrowserMenu.
+/// @details
+/// Auto-generated documentation stub for function `AverageStackToImageFromBrowserMenu`.
+/// @returns Variable Return value.
+
 static Function AverageStackToImageFromBrowserMenu()
 	string bufferStr, wavenameStr
 	if(ATH_Dialog#CountSelectedWavesInDataBrowser(wDim = 3) == 1\
@@ -139,6 +194,12 @@ static Function AverageStackToImageFromBrowserMenu()
 	endif
 	ATH_WaveOp#AverageImageStack(wRef)
 End
+
+/// @function CalculateXMCDFromStack
+/// @brief Description of CalculateXMCDFromStack.
+/// @details
+/// Auto-generated documentation stub for function `CalculateXMCDFromStack`.
+/// @returns Variable Return value.
 
 static Function CalculateXMCDFromStack()
 	WAVE/Z w3d = ATH_Graph#TopImageToWaveRef()
@@ -161,6 +222,12 @@ static Function CalculateXMCDFromStack()
 	SetDataFolder saveDF
 	return 0
 End
+
+/// @function CalculationXMCD
+/// @brief Description of CalculationXMCD.
+/// @details
+/// Auto-generated documentation stub for function `CalculationXMCD`.
+/// @returns Variable Return value.
 
 static Function CalculationXMCD()
 	string msg = "Select two 2d waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
@@ -206,6 +273,12 @@ static Function CalculationXMCD()
 	return 0
 End
 
+/// @function CalculationXMCD3D
+/// @brief Description of CalculationXMCD3D.
+/// @details
+/// Auto-generated documentation stub for function `CalculationXMCD3D`.
+/// @returns Variable Return value.
+
 static Function CalculationXMCD3D()
 	string msg = "Select two 3d waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."
 	string selectedWavesInBrowserStr = ATH_Dialog#SelectWavesInModalDataBrowser(msg)
@@ -245,6 +318,12 @@ static Function CalculationXMCD3D()
 	return 0
 End
 
+/// @function ImageRegistrationStack
+/// @brief Description of ImageRegistrationStack.
+/// @details
+/// Auto-generated documentation stub for function `ImageRegistrationStack`.
+/// @returns Variable Return value.
+
 static Function ImageRegistrationStack()
 	WAVE wRef = ATH_Graph#TopGraphToWaveRef()
 	if(!WaveExists(wRef))
@@ -268,6 +347,12 @@ static Function ImageRegistrationStack()
 	Note wRef, waveNoteStr
 	return 0
 End
+
+/// @function ImageStackAlignmentPartition
+/// @brief Description of ImageStackAlignmentPartition.
+/// @details
+/// Auto-generated documentation stub for function `ImageStackAlignmentPartition`.
+/// @returns Variable Return value.
 
 static Function ImageStackAlignmentPartition()
 	//
@@ -335,6 +420,12 @@ static Function ImageStackAlignmentPartition()
 	Note wRef, driftCorrectionOriginalNoteStr
 End
 
+/// @function LinearDriftCorrestionStackABCursors
+/// @brief Description of LinearDriftCorrestionStackABCursors.
+/// @details
+/// Auto-generated documentation stub for function `LinearDriftCorrestionStackABCursors`.
+/// @returns Variable Return value.
+
 static Function LinearDriftCorrestionStackABCursors()
 	// Use AB to linearly correct an image stack drift
 	string winNameStr = WinName(0, 1, 1)
@@ -373,6 +464,12 @@ static Function LinearDriftCorrestionStackABCursors()
 	Note wRef, waveNoteStr
 	return 0
 End
+
+/// @function LinearDriftCorrestionPlanesABCursors
+/// @brief Description of LinearDriftCorrestionPlanesABCursors.
+/// @details
+/// Auto-generated documentation stub for function `LinearDriftCorrestionPlanesABCursors`.
+/// @returns Variable Return value.
 
 static Function LinearDriftCorrestionPlanesABCursors()
 	// Use AB to linearly correct planes in an image stack
@@ -425,6 +522,12 @@ End
 
 // ---- ///
 
+/// @function NewImageFromBrowserSelection
+/// @brief Description of NewImageFromBrowserSelection.
+/// @details
+/// Auto-generated documentation stub for function `NewImageFromBrowserSelection`.
+/// @returns Variable Return value.
+
 static Function NewImageFromBrowserSelection()
 	// Display selected images
 	variable i = 0, cnt = 0, promptOnceSwitch = 1
@@ -455,6 +558,12 @@ static Function NewImageFromBrowserSelection()
 	while (strlen(GetBrowserSelection(i)))
 End
 
+/// @function ImageBackupFromBrowserSelection
+/// @brief Description of ImageBackupFromBrowserSelection.
+/// @details
+/// Auto-generated documentation stub for function `ImageBackupFromBrowserSelection`.
+/// @returns Variable Return value.
+
 static Function ImageBackupFromBrowserSelection()
 	string ATHImage = GetBrowserSelection(0)
 	if(WaveDims($ATHImage) != 3 && WaveDims($ATHImage) != 2)
@@ -463,6 +572,12 @@ static Function ImageBackupFromBrowserSelection()
 	ATH_ImgOp#RestoreTopImageFromBackup(grfName = ATHImage)
 	return 0
 End
+
+/// @function XPSProfileFromDefaultSettings
+/// @brief Description of XPSProfileFromDefaultSettings.
+/// @details
+/// Auto-generated documentation stub for function `XPSProfileFromDefaultSettings`.
+/// @returns Variable Return value.
 
 static Function XPSProfileFromDefaultSettings()
 	// extract selected PES profiles for selected images in DB
@@ -483,6 +598,12 @@ static Function XPSProfileFromDefaultSettings()
 End
 
 // -------
+
+/// @function NormalisationImageStackWithImage
+/// @brief Description of NormalisationImageStackWithImage.
+/// @details
+/// Auto-generated documentation stub for function `NormalisationImageStackWithImage`.
+/// @returns Variable Return value.
 
 static Function NormalisationImageStackWithImage()
 		
@@ -506,6 +627,12 @@ static Function NormalisationImageStackWithImage()
 	string noteStr = "Normalised with " + GetWavesDataFolder(imageWaveRef, 2)
 	Note $waveNormStr, noteStr
 End
+
+/// @function NormalisationImageStackWithProfile
+/// @brief Description of NormalisationImageStackWithProfile.
+/// @details
+/// Auto-generated documentation stub for function `NormalisationImageStackWithProfile`.
+/// @returns Variable Return value.
 
 static Function NormalisationImageStackWithProfile()
 	
@@ -532,6 +659,12 @@ static Function NormalisationImageStackWithProfile()
 	string noteStr = "Normalised with " + GetWavesDataFolder(profWaveRef, 2)
 	Note $waveNormStr, noteStr	
 End
+
+/// @function NormalisationImageStackWithImageStack
+/// @brief Description of NormalisationImageStackWithImageStack.
+/// @details
+/// Auto-generated documentation stub for function `NormalisationImageStackWithImageStack`.
+/// @returns Variable Return value.
 
 static Function NormalisationImageStackWithImageStack()
 
@@ -588,6 +721,12 @@ static Function NormalisationImageStackWithImageStack()
 	Note $normWaveStr, noteStr	
 End
 
+/// @function RemoveImagesFromImageStack
+/// @brief Description of RemoveImagesFromImageStack.
+/// @details
+/// Auto-generated documentation stub for function `RemoveImagesFromImageStack`.
+/// @returns Variable Return value.
+
 static Function RemoveImagesFromImageStack()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -617,6 +756,12 @@ static Function RemoveImagesFromImageStack()
 	return 0
 End
 
+/// @function StackImagesToImageStack
+/// @brief Description of StackImagesToImageStack.
+/// @details
+/// Auto-generated documentation stub for function `StackImagesToImageStack`.
+/// @returns Variable Return value.
+
 static Function StackImagesToImageStack()
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -640,6 +785,12 @@ static Function StackImagesToImageStack()
 	ATH_String#UpdateStackWaveNote(w3dref, 3, wlist = ReplaceString(";", selectImagesStr, "\n"))
 	return 0
 End
+
+/// @function InsertImagesToStack
+/// @brief Description of InsertImagesToStack.
+/// @details
+/// Auto-generated documentation stub for function `InsertImagesToStack`.
+/// @returns Variable Return value.
 
 static Function InsertImagesToStack() // Needs fixing
 	string winNameStr = WinName(0, 1, 1)
@@ -688,6 +839,12 @@ static Function InsertImagesToStack() // Needs fixing
 	return 0	
 End
 
+/// @function ImgRGB2Gray16
+/// @brief Description of ImgRGB2Gray16.
+/// @details
+/// Auto-generated documentation stub for function `ImgRGB2Gray16`.
+/// @returns Variable Return value.
+
 static Function ImgRGB2Gray16()
 	string ATHImage = GetBrowserSelection(0)
 	WAVE/Z wRef = $ATHImage
@@ -698,6 +855,12 @@ static Function ImgRGB2Gray16()
 	endif
 	return 0
 End
+
+/// @function Rotate3DWaveAxes
+/// @brief Description of Rotate3DWaveAxes.
+/// @details
+/// Auto-generated documentation stub for function `Rotate3DWaveAxes`.
+/// @returns Variable Return value.
 
 static Function Rotate3DWaveAxes()
 	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
@@ -727,6 +890,12 @@ static Function Rotate3DWaveAxes()
 	return 0
 End
 
+/// @function ImageRotateAndScaleFromMetadata
+/// @brief Description of ImageRotateAndScaleFromMetadata.
+/// @details
+/// Auto-generated documentation stub for function `ImageRotateAndScaleFromMetadata`.
+/// @returns Variable Return value.
+
 static Function ImageRotateAndScaleFromMetadata()
 	/// This operation transform the image as seen in the microscope
 	/// when the angular compensation is on for different FoVs. The combination
@@ -754,6 +923,15 @@ static Function ImageRotateAndScaleFromMetadata()
 	ATH_ImgOp#ImageRotateAndScale(wRef, angle, flipY = 1, backup=1) // Flip rows and rotate clock-wise
 	Note wRef, noteStr
 End
+
+/// @function ImageFFTTransform
+/// @brief Description of ImageFFTTransform.
+/// @details
+/// Auto-generated documentation stub for function `ImageFFTTransform`.
+/// @param noPlot Parameter noPlot.
+/// @param sourceDF Parameter sourceDF.
+/// @param mode] Parameter mode].
+/// @returns Variable Return value.
 
 
 static Function ImageFFTTransform([int noPlot, int sourceDF, int mode])
@@ -823,6 +1001,12 @@ static Function ImageFFTTransform([int noPlot, int sourceDF, int mode])
 	return 0
 End
 
+/// @function AverageLayersRange
+/// @brief Description of AverageLayersRange.
+/// @details
+/// Auto-generated documentation stub for function `AverageLayersRange`.
+/// @returns Variable Return value.
+
 
 static Function AverageLayersRange()
 	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
@@ -835,6 +1019,12 @@ static Function AverageLayersRange()
 	SplitString/E="\s*([0-9]+)\s*(-|,)\s*([0-9]+)" rangeStr, sval1, separatorStr, sval2
 	ATH_ImgOp#AverageImageRangeToStack(wRef, str2num(sval1), str2num(sval2))
 End
+
+/// @function ExtractLayerRangeToStack
+/// @brief Description of ExtractLayerRangeToStack.
+/// @details
+/// Auto-generated documentation stub for function `ExtractLayerRangeToStack`.
+/// @returns Variable Return value.
 
 static Function ExtractLayerRangeToStack()
 
@@ -868,6 +1058,12 @@ static Function ExtractLayerRangeToStack()
 	return 0
 End
 
+/// @function FlipStackPlanes
+/// @brief Description of FlipStackPlanes.
+/// @details
+/// Auto-generated documentation stub for function `FlipStackPlanes`.
+/// @returns Variable Return value.
+
 
 static Function FlipStackPlanes()
 
@@ -884,6 +1080,12 @@ static Function FlipStackPlanes()
 	return 0
 End
 
+/// @function AverageImageStack
+/// @brief Description of AverageImageStack.
+/// @details
+/// Auto-generated documentation stub for function `AverageImageStack`.
+/// @returns Variable Return value.
+
 static Function AverageImageStack()
 	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
 	variable nlayers = DimSize(wRef,2)	
@@ -893,6 +1095,12 @@ static Function AverageImageStack()
 	ATH_WaveOp#AverageImageStack(wRef)
 	return 0
 End
+
+/// @function HistogramShiftToGaussianCenter
+/// @brief Description of HistogramShiftToGaussianCenter.
+/// @details
+/// Auto-generated documentation stub for function `HistogramShiftToGaussianCenter`.
+/// @returns Variable Return value.
 
 static Function HistogramShiftToGaussianCenter()
 	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
@@ -909,6 +1117,12 @@ static Function HistogramShiftToGaussianCenter()
 	endif
 	Note wref, "Histogram shift num = " + num2str(shift) + " [w -= num]"
 End
+
+/// @function TwoTraceCalcs
+/// @brief Description of TwoTraceCalcs.
+/// @details
+/// Auto-generated documentation stub for function `TwoTraceCalcs`.
+/// @returns Variable Return value.
 
 static Function TwoTraceCalcs()
 	string winNameStr = WinName(0, 1, 1), cmdStr, resNameStr, noteStr
@@ -945,6 +1159,12 @@ static Function TwoTraceCalcs()
 	return 0
 End
 
+/// @function QuickTextAnnotation
+/// @brief Description of QuickTextAnnotation.
+/// @details
+/// Auto-generated documentation stub for function `QuickTextAnnotation`.
+/// @returns Variable Return value.
+
 static Function QuickTextAnnotation()
 	string textStr = "" 
 	string color ="black"
@@ -962,10 +1182,22 @@ static Function QuickTextAnnotation()
 	return 0
 End
 
+/// @function MakeWaveFromSavedROI
+/// @brief Description of MakeWaveFromSavedROI.
+/// @details
+/// Auto-generated documentation stub for function `MakeWaveFromSavedROI`.
+/// @returns Variable Return value.
+
 static Function MakeWaveFromSavedROI()
 	WAVE/Z wref = ATH_Graph#TopImageToWaveRef()
 	ATH_WaveOp#MakeWaveFromROI(wRef)
 End
+
+/// @function XMCDCombinations
+/// @brief Description of XMCDCombinations.
+/// @details
+/// Auto-generated documentation stub for function `XMCDCombinations`.
+/// @returns Variable Return value.
 
 static Function XMCDCombinations()
 	
@@ -997,6 +1229,12 @@ static Function XMCDCombinations()
 	endif
 	return 0
 End
+
+/// @function DeleteBigWaves
+/// @brief Description of DeleteBigWaves.
+/// @details
+/// Auto-generated documentation stub for function `DeleteBigWaves`.
+/// @returns Variable Return value.
 
 static Function DeleteBigWaves()
 	/// Delete filter larger than minFileSizeMB.
@@ -1048,6 +1286,12 @@ static Function DeleteBigWaves()
 	endif
 End
 
+/// @function DeleteBigWavesDisplayed
+/// @brief Description of DeleteBigWavesDisplayed.
+/// @details
+/// Auto-generated documentation stub for function `DeleteBigWavesDisplayed`.
+/// @returns Variable Return value.
+
 static Function DeleteBigWavesDisplayed()
 	variable minFileSizeMB = 100 // Threshhold in MB
 	Prompt minFileSizeMB, "Enter threshold value in MegaBytes (MB)"
@@ -1078,6 +1322,12 @@ static Function DeleteBigWavesDisplayed()
 		return 0
 	endif
 End
+
+/// @function PixelateSingleImageOrStack
+/// @brief Description of PixelateSingleImageOrStack.
+/// @details
+/// Auto-generated documentation stub for function `PixelateSingleImageOrStack`.
+/// @returns Variable Return value.
 
 static Function PixelateSingleImageOrStack()
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
@@ -1121,6 +1371,12 @@ static Function PixelateSingleImageOrStack()
 	return 0
 End
 
+/// @function SetTopGraphDF
+/// @brief Description of SetTopGraphDF.
+/// @details
+/// Auto-generated documentation stub for function `SetTopGraphDF`.
+/// @returns Variable Return value.
+
 static Function SetTopGraphDF()
 	// Sets the DF of the top image or top trace
 	WAVE/Z wRef = ATH_Graph#TopImageToWaveRef()
@@ -1134,6 +1390,13 @@ static Function SetTopGraphDF()
 End
 
 // Remove background
+
+/// @function ImgRemoveBackground
+/// @brief Description of ImgRemoveBackground.
+/// @details
+/// Auto-generated documentation stub for function `ImgRemoveBackground`.
+/// @param w3d] Parameter w3d].
+/// @returns Variable Return value.
 
 static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is an Igor operation
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
@@ -1176,6 +1439,15 @@ End
 
 // Flatten Image
 
+/// @function FlattenImage
+/// @brief Description of FlattenImage.
+/// @details
+/// Auto-generated documentation stub for function `FlattenImage`.
+/// @param method Parameter method.
+/// @param kernelN Parameter kernelN.
+/// @param iterN] Parameter iterN].
+/// @returns Variable Return value.
+
 static Function FlattenImage([string method, variable kernelN, variable iterN])
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	kernelN = ParamIsDefault(kernelN) ? 2^5 : kernelN
@@ -1199,6 +1471,13 @@ static Function FlattenImage([string method, variable kernelN, variable iterN])
 End
 
 // Get and set image range and ctab
+
+/// @function SaveAxesRangeAndCtab
+/// @brief Description of SaveAxesRangeAndCtab.
+/// @details
+/// Auto-generated documentation stub for function `SaveAxesRangeAndCtab`.
+/// @param grfName] Parameter grfName].
+/// @returns Variable Return value.
 
 static Function SaveAxesRangeAndCtab([string grfName])
 	//
@@ -1236,6 +1515,15 @@ static Function SaveAxesRangeAndCtab([string grfName])
 	return 0
 End
 
+/// @function SetAxesRangeAndCtabFromSaved
+/// @brief Description of SetAxesRangeAndCtabFromSaved.
+/// @details
+/// Auto-generated documentation stub for function `SetAxesRangeAndCtabFromSaved`.
+/// @param grfName Parameter grfName.
+/// @param setCtab Parameter setCtab.
+/// @param printCmd] Parameter printCmd].
+/// @returns Variable Return value.
+
 static Function SetAxesRangeAndCtabFromSaved([string grfName, variable setCtab, variable printCmd])
 	//
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
@@ -1266,6 +1554,12 @@ static Function SetAxesRangeAndCtabFromSaved([string grfName, variable setCtab, 
 	return 0
 End
 
+/// @function HistogramEqualisation
+/// @brief Description of HistogramEqualisation.
+/// @details
+/// Auto-generated documentation stub for function `HistogramEqualisation`.
+/// @returns Variable Return value.
+
 static Function HistogramEqualisation()
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	if(WaveDims(wRef)==1 || WaveDims(wRef)==4)
@@ -1276,6 +1570,14 @@ static Function HistogramEqualisation()
 	Note wRef, ("ImageHistModification/O/I " + NameOfWave(wRef))
 	return 0
 End
+
+/// @function CloseTopWindowAndDeleteSource
+/// @brief Description of CloseTopWindowAndDeleteSource.
+/// @details
+/// Auto-generated documentation stub for function `CloseTopWindowAndDeleteSource`.
+/// @param deleteBackUp Parameter deleteBackUp.
+/// @param grfName] Parameter grfName].
+/// @returns Variable Return value.
 
 static Function CloseTopWindowAndDeleteSource([int deleteBackUp, string grfName])
 	// Close topwindow and delete the top image or trace
@@ -1303,6 +1605,12 @@ static Function CloseTopWindowAndDeleteSource([int deleteBackUp, string grfName]
 	return 0
 End
 
+/// @function MirrorPositionToWaveValues
+/// @brief Description of MirrorPositionToWaveValues.
+/// @details
+/// Auto-generated documentation stub for function `MirrorPositionToWaveValues`.
+/// @returns Variable Return value.
+
 
 static Function MirrorPositionToWaveValues()
 
@@ -1322,6 +1630,15 @@ static Function MirrorPositionToWaveValues()
 	print logmsg
 End
 
+/// @function DrawSavedROIOnGraph
+/// @brief Description of DrawSavedROIOnGraph.
+/// @details
+/// Auto-generated documentation stub for function `DrawSavedROIOnGraph`.
+/// @param grfName Parameter grfName.
+/// @param wRef Parameter wRef.
+/// @param bypass] Parameter bypass].
+/// @returns Variable Return value.
+
 static Function DrawSavedROIOnGraph(string grfName, WAVE wRef, [variable bypass])
 	/// Draw the ROI saved in wRef on grfName
 	/// set bypass to draw ROI on any graph
@@ -1337,12 +1654,26 @@ static Function DrawSavedROIOnGraph(string grfName, WAVE wRef, [variable bypass]
 	return 0
 End
 
+/// @function iImgFFTFilter
+/// @brief Description of iImgFFTFilter.
+/// @details
+/// Auto-generated documentation stub for function `iImgFFTFilter`.
+/// @param grfName] Parameter grfName].
+/// @returns Variable Return value.
+
 static Function iImgFFTFilter([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	WAVE wref = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
 	ATH_ImgFilter#iFFTImgFilter(wref)
 	return 0
 End
+
+/// @function UnpackStackToSources
+/// @brief Description of UnpackStackToSources.
+/// @details
+/// Auto-generated documentation stub for function `UnpackStackToSources`.
+/// @param grfName] Parameter grfName].
+/// @returns Variable Return value.
 
 static Function UnpackStackToSources([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
@@ -1359,6 +1690,12 @@ static Function UnpackStackToSources([string grfName])
 	endif
 	
 End
+
+/// @function ImageResample
+/// @brief Description of ImageResample.
+/// @details
+/// Auto-generated documentation stub for function `ImageResample`.
+/// @returns Variable Return value.
 
 static Function ImageResample()
 	// Resample and offset image
@@ -1398,6 +1735,12 @@ static Function ImageResample()
 	return 0
 End
 
+/// @function SetCorrectedFoVImages
+/// @brief Description of SetCorrectedFoVImages.
+/// @details
+/// Auto-generated documentation stub for function `SetCorrectedFoVImages`.
+/// @returns Variable Return value.
+
 static Function SetCorrectedFoVImages()
 	/// Set the correct FoV in MAXPEEM images	
 	string wlistStr = ATH_Dialog#GetSelectedWavesInDataBrowser()
@@ -1419,6 +1762,12 @@ static Function SetCorrectedFoVImages()
 		ATH_ImgOp#ScaleFoVWithObjectiveCurrent(wRef, mobj, interval = interval - 1)
 	endfor
 End
+
+/// @function DrawScaleBar
+/// @brief Description of DrawScaleBar.
+/// @details
+/// Auto-generated documentation stub for function `DrawScaleBar`.
+/// @returns Variable Return value.
 
 static Function DrawScaleBar()	
 	variable scale

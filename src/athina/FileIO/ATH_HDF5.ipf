@@ -1,9 +1,10 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion  = 9
 #pragma ModuleName = ATH_HDF5
 #pragma version = 1.01
+
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -30,7 +31,18 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-// Read metadata of the beamline settings
+/// @module ATH_HDF5
+/// @brief Module ATH_HDF5.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH HDF5 functionality.
+
+
+/// @function ListHDF5Groups
+/// @brief Description of ListHDF5Groups.
+/// @details
+/// Auto-generated documentation stub for function `ListHDF5Groups`.
+/// @returns Variable Return value.
 
 static Function ListHDF5Groups()
 	variable fileid_
@@ -50,12 +62,26 @@ static Function/S GetHDF5Groups()
 	return GetHDF5GroupsFID(fileid_)
 End
 
+/// @function LoadHDF5File
+/// @brief Description of LoadHDF5File.
+/// @details
+/// Auto-generated documentation stub for function `LoadHDF5File`.
+/// @param filename Parameter filename.
+/// @returns Variable Return value.
+
 static Function LoadHDF5File(string filename)
 	Variable fileid_
 	HDF5OpenFile/R fileid_ as filename
 	HDF5LoadGroup/R :, fileid_, "." // load all
 	HDF5CloseFile fileid_
 End
+
+/// @function LoadHDF5SpecificGroups
+/// @brief Description of LoadHDF5SpecificGroups.
+/// @details
+/// Auto-generated documentation stub for function `LoadHDF5SpecificGroups`.
+/// @param groups Parameter groups.
+/// @returns Variable Return value.
 
 static Function LoadHDF5SpecificGroups(string groups)
 	variable fileid_
@@ -75,6 +101,14 @@ static Function LoadHDF5SpecificGroups(string groups)
 	
 	HDF5CloseFile fileid_
 End
+
+/// @function LoadHDF5SpecificGroupsNamesIndexed
+/// @brief Description of LoadHDF5SpecificGroupsNamesIndexed.
+/// @details
+/// Auto-generated documentation stub for function `LoadHDF5SpecificGroupsNamesIndexed`.
+/// @param idxstr Parameter idxstr.
+/// @param strFix] Parameter strFix].
+/// @returns Variable Return value.
 
 static Function LoadHDF5SpecificGroupsNamesIndexed(string idxstr, [string strFix])
 	// String should be in the form "2-5,7,9-12,50"
@@ -99,6 +133,14 @@ static Function LoadHDF5SpecificGroupsNamesIndexed(string idxstr, [string strFix
 	
 	HDF5CloseFile fileid_
 End
+
+/// @function LoadHDF5SpecificGroupsFromPath
+/// @brief Description of LoadHDF5SpecificGroupsFromPath.
+/// @details
+/// Auto-generated documentation stub for function `LoadHDF5SpecificGroupsFromPath`.
+/// @param groups Parameter groups.
+/// @param filename_fullpathstr Parameter filename_fullpathstr.
+/// @returns Variable Return value.
 
 static Function LoadHDF5SpecificGroupsFromPath(String groups, String filename_fullpathstr)
 	// String should be in the form "2-5,7,9-12,50"
@@ -131,6 +173,13 @@ static Function/S GetHDF5SingleFilePath()
 	return S_fileName
 End
 
+/// @function ListHDF5GroupsFID
+/// @brief Description of ListHDF5GroupsFID.
+/// @details
+/// Auto-generated documentation stub for function `ListHDF5GroupsFID`.
+/// @param fileid Parameter fileid.
+/// @returns Variable Return value.
+
 
 static Function ListHDF5GroupsFID(Variable fileid)
 	//Lists all entries in file
@@ -144,9 +193,24 @@ static Function/S GetHDF5GroupsFID(Variable fileid)
 	return SortList(S_HDF5ListGroup,";",16)
 End
 
+/// @function LoadHDF5GroupFID
+/// @brief Description of LoadHDF5GroupFID.
+/// @details
+/// Auto-generated documentation stub for function `LoadHDF5GroupFID`.
+/// @param fileid Parameter fileid.
+/// @param group Parameter group.
+/// @returns Variable Return value.
+
 static Function LoadHDF5GroupFID(Variable fileid, String group)
 	HDF5LoadGroup/R :, fileid, group
 End
+
+/// @function GetHDF5NumGroupsFID
+/// @brief Description of GetHDF5NumGroupsFID.
+/// @details
+/// Auto-generated documentation stub for function `GetHDF5NumGroupsFID`.
+/// @param fileid Parameter fileid.
+/// @returns Variable Return value.
 
 
 static Function GetHDF5NumGroupsFID(Variable fileid)
@@ -156,6 +220,12 @@ static Function GetHDF5NumGroupsFID(Variable fileid)
 End
 
 ///Functions to import datasets acquired at the I06 beamline at Diamond (UK)
+
+/// @function LoadNXSXMCDDataSet
+/// @brief Description of LoadNXSXMCDDataSet.
+/// @details
+/// Auto-generated documentation stub for function `LoadNXSXMCDDataSet`.
+/// @returns Variable Return value.
 
 static Function LoadNXSXMCDDataSet()
 	/// Load XMCD data acquired at i06 beamline at Diamond
@@ -208,6 +278,12 @@ static Function LoadNXSXMCDDataSet()
 End
 
 // Select many files to load at once
+
+/// @function LoadNXSDataSets
+/// @brief Description of LoadNXSDataSets.
+/// @details
+/// Auto-generated documentation stub for function `LoadNXSDataSets`.
+/// @returns Variable Return value.
 static Function LoadNXSDataSets()
 	/// Load data acquired at i06 beamline at Diamond, XMCD or XAS
 	/// along with basic metadada, STV and FoV.
@@ -278,6 +354,13 @@ End
 //// ------ MAXPEEM HDF5 files using TVIPS pipeline ------ /////
 //// ------ Functions will be used in ATH_MAXPEEM  ------ /////
 
+/// @function LoadTVIPSH5Data
+/// @brief Description of LoadTVIPSH5Data.
+/// @details
+/// Auto-generated documentation stub for function `LoadTVIPSH5Data`.
+/// @param filename Parameter filename.
+/// @returns Variable Return value.
+
 static Function LoadTVIPSH5Data(string filename)
 	// Function to load the h5 datasets
 	// Here we check whether the Path MAXPEEM_USER_ROOT_FOLDER is set.
@@ -310,6 +393,14 @@ static Function LoadTVIPSH5Data(string filename)
 	return 0
 End
 
+/// @function LoadTVIPSH5Group
+/// @brief Description of LoadTVIPSH5Group.
+/// @details
+/// Auto-generated documentation stub for function `LoadTVIPSH5Group`.
+/// @param filename Parameter filename.
+/// @param group] Parameter group].
+/// @returns Variable Return value.
+
 static Function LoadTVIPSH5Group(string filename, [string group])
 	// Function to load the h5 datasets
 	// Here we check whether the Path MAXPEEM_USER_ROOT_FOLDER is set.
@@ -326,6 +417,13 @@ static Function LoadTVIPSH5Group(string filename, [string group])
 	HDF5CloseFile fileid
 	return 0
 End
+
+/// @function LoadTVIPSH5DataNetwork
+/// @brief Description of LoadTVIPSH5DataNetwork.
+/// @details
+/// Auto-generated documentation stub for function `LoadTVIPSH5DataNetwork`.
+/// @param scanID Parameter scanID.
+/// @returns Variable Return value.
 
 static Function LoadTVIPSH5DataNetwork(variable scanID)
 	// Function to load the h5 datasets

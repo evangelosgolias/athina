@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals    = 3		
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
@@ -32,11 +32,23 @@
 // ------------------------------------------------------- //
 
 
-/// NOTE: the program needs E to be at the lower part of the KE of the dispersion.
-/// Line profile is extracted from E -> F cursor. Also set the G - Low KE and H - High KE end.
-/// With microscope settings for September 2024 high KE in on the bottomn right part of the image.
+/// @module ATH_iXPS
+/// @brief Module ATH_iXPS.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH iXPS functionality.
+
+// NOTE: the program needs E to be at the lower part of the KE of the dispersion.
+// Line profile is extracted from E -> F cursor. Also set the G - Low KE and H - High KE end.
+// With microscope settings for September 2024 high KE in on the bottomn right part of the image.
 
 static constant kATHEnergyPerPixel =   0.00558659 // energy per pixel - default setting 02.09.2024 [2K image]
+
+/// @function MainMenu
+/// @brief Description of MainMenu.
+/// @details
+/// Auto-generated documentation stub for function `MainMenu`.
+/// @returns Variable Return value.
 
 
 static Function MainMenu()
@@ -154,6 +166,13 @@ static Function/DF InitialiseFolder(string winNameStr)
 	return dfr
 End
 
+/// @function InitialiseGraph
+/// @brief Description of InitialiseGraph.
+/// @details
+/// Auto-generated documentation stub for function `InitialiseGraph`.
+/// @param dfr Parameter dfr.
+/// @returns Variable Return value.
+
 static Function InitialiseGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
 	string plotNameStr = "ATH_XPSProf_" + GetDataFolder(0, dfr)
@@ -164,6 +183,13 @@ static Function InitialiseGraph(DFREF dfr)
 	endif
 	return 0
 End
+
+/// @function XPSPlot
+/// @brief Description of XPSPlot.
+/// @details
+/// Auto-generated documentation stub for function `XPSPlot`.
+/// @param dfr Parameter dfr.
+/// @returns Variable Return value.
 
 static Function XPSPlot(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
@@ -232,12 +258,25 @@ static Function XPSPlot(DFREF dfr)
 	return 0
 End
 
+/// @function ClearXPSMarkings
+/// @brief Description of ClearXPSMarkings.
+/// @details
+/// Auto-generated documentation stub for function `ClearXPSMarkings`.
+/// @returns Variable Return value.
+
 static Function ClearXPSMarkings()
 	SetDrawLayer UserFront
 	DrawAction delete
 	SetDrawLayer ProgFront
 	return 0
 End
+
+/// @function CursorHookFunction
+/// @brief Description of CursorHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `CursorHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
 
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
@@ -388,6 +427,13 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	return hookResult       // 0 if nothing done, else 1
 End
 
+/// @function GraphHookFunction
+/// @brief Description of GraphHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `GraphHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
+
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentGraphWin = GetUserData(s.winName, "", "ATH_parentGraphWin")
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
@@ -415,6 +461,13 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			break
 	endswitch
 End
+
+/// @function SaveProfile
+/// @brief Description of SaveProfile.
+/// @details
+/// Auto-generated documentation stub for function `SaveProfile`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 
 static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
@@ -490,6 +543,13 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	return 0
 End
 
+/// @function SaveDefaultSettings
+/// @brief Description of SaveDefaultSettings.
+/// @details
+/// Auto-generated documentation stub for function `SaveDefaultSettings`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 
@@ -533,6 +593,13 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 			break
 	endswitch
 End
+
+/// @function RestoreDefaultSettings
+/// @brief Description of RestoreDefaultSettings.
+/// @details
+/// Auto-generated documentation stub for function `RestoreDefaultSettings`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 
@@ -599,6 +666,13 @@ static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonC
 	endswitch
 End
 
+/// @function ShowProfileWidth
+/// @brief Description of ShowProfileWidth.
+/// @details
+/// Auto-generated documentation stub for function `ShowProfileWidth`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	SVAR/Z WindowNameStr= dfr:gATH_WindowNameStr
@@ -658,6 +732,13 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	endswitch
 End
 
+/// @function PlotProfile
+/// @brief Description of PlotProfile.
+/// @details
+/// Auto-generated documentation stub for function `PlotProfile`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
+
 static Function PlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
@@ -672,6 +753,13 @@ static Function PlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	endswitch
 	return 0
 End
+
+/// @function Layer3D
+/// @brief Description of Layer3D.
+/// @details
+/// Auto-generated documentation stub for function `Layer3D`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
 
 static Function Layer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
@@ -696,6 +784,13 @@ static Function Layer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	endswitch
 	return 0
 End
+
+/// @function SetProfileWidth
+/// @brief Description of SetProfileWidth.
+/// @details
+/// Auto-generated documentation stub for function `SetProfileWidth`.
+/// @param sv Parameter sv.
+/// @returns Variable Return value.
 
 static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 
@@ -738,6 +833,13 @@ static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableCon
 	SetDataFolder currdfr
 	return 0
 End
+
+/// @function SetCursorsGH
+/// @brief Description of SetCursorsGH.
+/// @details
+/// Auto-generated documentation stub for function `SetCursorsGH`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 
 static Function SetCursorsGH(STRUCT WMButtonAction &B_Struct): ButtonControl)
@@ -809,6 +911,13 @@ static Function SetCursorsGH(STRUCT WMButtonAction &B_Struct): ButtonControl)
 	endswitch
 
 End
+
+/// @function UseBE
+/// @brief Description of UseBE.
+/// @details
+/// Auto-generated documentation stub for function `UseBE`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
 	
 static Function UseBE(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
@@ -830,6 +939,13 @@ static Function UseBE(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	return 0
 End
 
+/// @function Sethv
+/// @brief Description of Sethv.
+/// @details
+/// Auto-generated documentation stub for function `Sethv`.
+/// @param sv Parameter sv.
+/// @returns Variable Return value.
+
 static Function Sethv(STRUCT WMSetVariableAction& sv) : SetVariableControl	
 
 	switch(sv.eventCode)
@@ -842,6 +958,13 @@ static Function Sethv(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	return 0
 End
 
+/// @function SetWf
+/// @brief Description of SetWf.
+/// @details
+/// Auto-generated documentation stub for function `SetWf`.
+/// @param sv Parameter sv.
+/// @returns Variable Return value.
+
 static Function SetWf(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	switch(sv.eventCode)
@@ -853,6 +976,13 @@ static Function SetWf(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	endswitch
 	return 0
 End
+
+/// @function SetEPP
+/// @brief Description of SetEPP.
+/// @details
+/// Auto-generated documentation stub for function `SetEPP`.
+/// @param sv Parameter sv.
+/// @returns Variable Return value.
 
 static Function SetEPP(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
@@ -867,6 +997,13 @@ static Function SetEPP(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	return 0
 End
 
+/// @function SetSTV
+/// @brief Description of SetSTV.
+/// @details
+/// Auto-generated documentation stub for function `SetSTV`.
+/// @param sv Parameter sv.
+/// @returns Variable Return value.
+
 static Function SetSTV(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	switch(sv.eventCode)
@@ -880,6 +1017,14 @@ static Function SetSTV(STRUCT WMSetVariableAction& sv) : SetVariableControl
 End
 
 // This is used to for waves selected in the DB, not here
+
+/// @function GetProfileUsingDefaults
+/// @brief Description of GetProfileUsingDefaults.
+/// @details
+/// Auto-generated documentation stub for function `GetProfileUsingDefaults`.
+/// @param wRef Parameter wRef.
+/// @param BEscaleQ] Parameter BEscaleQ].
+/// @returns Variable Return value.
 static Function GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
 	/// Get a profile from wRef using the default saved settings
 	/// BEscaleQ = 1 is default. If BEscaleQ = 0 scale with KE

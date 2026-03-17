@@ -1,9 +1,17 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_FuncFit
 #pragma version = 1.01
+/// @module ATH_FuncFit
+/// @brief Fit functions for spectroscopy, XMLD, and image-shape analysis.
+/// @details
+/// This module collects Igor Pro fit functions used by the ATH analysis package.
+/// It includes Fermi-edge models, XAS step backgrounds, angular XMLD models,
+/// a 2D Gaussian model, and a simple focus calibration relation.
+///
+
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -32,6 +40,15 @@
 
 static constant k_B = 8.617333262e-5 // Boltzmann constant in eV/K
 
+/// @function FitFermiEdge
+/// @brief Fermi edge model with constant offset.
+/// @details
+/// Returns `y0 + 1 / (exp((E - Ef) / kT) + 1)` for scalar fitting in Igor's
+/// curve fitting framework.
+/// @param w Wave Coefficient wave with `w[0]=y0`, `w[1]=Ef`, and `w[2]=kT`.
+/// @param x Variable Energy value at which the model is evaluated.
+/// @returns Variable Model value at `x`.
+///
 static Function FitFermiEdge(WAVE w, variable x) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ f(E) = y0 + 1 / (exp((E - Ef)/kT) + 1)
@@ -46,6 +63,14 @@ static Function FitFermiEdge(WAVE w, variable x) : FitFunc
 	return w[0] + 1 / (exp((x-w[1])/w[2])+1)
 End
 
+/// @function FitFermiEdgeTimesLine
+/// @brief Fermi edge model multiplied by a linear term and shifted by an offset.
+/// @details
+/// Returns `y0 + (a*x + b) / (exp((x - Ef) / kT) + 1)` for use with Igor curve fitting.
+/// @param w Wave Coefficient wave with `w[0]=y0`, `w[1]=Ef`, `w[2]=kT`, `w[3]=b`, and `w[4]=a`.
+/// @param x Variable Energy value at which the model is evaluated.
+/// @returns Variable Model value at `x`.
+///
 static Function FitFermiEdgeTimesLine(WAVE w, variable x) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ f(E) = y0 + (a * E + b) / (exp((E - Ef)/kT) + 1)
@@ -62,6 +87,15 @@ static Function FitFermiEdgeTimesLine(WAVE w, variable x) : FitFunc
 	return w[0] + (w[4]*x+w[3]) / (exp((x-w[1])/w[2])+1)
 End
 
+/// @function FitXASStepBackground
+/// @brief Two-step arctangent background model for XAS spectra.
+/// @details
+/// Models the L3 and L2 edge-step contributions using two broadened arctangent
+/// functions plus a constant baseline.
+/// @param w Wave Coefficient wave containing baseline, height, edge positions, and widths.
+/// @param E Variable Energy value at which the model is evaluated.
+/// @returns Variable Model value at `E`.
+///
 static Function FitXASStepBackground(WAVE w, variable E) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) = w[0] + w[1]/3 * (1 + 2/pi * atan((E-w[2])/w[3]) + w[1]/6 * (1 + 2/pi * atan((E-w[4])/w[5])
@@ -80,6 +114,17 @@ static Function FitXASStepBackground(WAVE w, variable E) : FitFunc
 End
 
 // All-at-once
+/// @function FitFermiEdgeGaussianConvolution
+/// @brief Fermi-Dirac edge broadened by Gaussian convolution.
+/// @details
+/// Generates a Fermi-Dirac edge in `yw`, convolves it with a Gaussian kernel
+/// defined by the FWHM in `pw[3]`, and then adds a linear background.
+/// @param pw Wave Parameter wave with offset, slope, temperature, Gaussian width, amplitude, and edge location.
+/// @param yw Wave Output wave that is overwritten with the calculated fit values.
+/// @param xw Wave X wave associated with `yw`.
+/// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
+/// @note `yw` is overwritten. Temporary waves are created during convolution.
+///
 static Function FitFermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	/// FitFunc shared by Emile Rienks (BESSY-II, 1^3)
 	//
@@ -116,6 +161,13 @@ static Function FitFermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : Fit
 End
 
 // All-at-once
+/// @function XMLDSinSqIntensity
+/// @brief XMLD angular intensity model using a squared sine term.
+/// @param pw Wave Coefficient wave with baseline, amplitude, and phase.
+/// @param yw Wave Output wave that receives the calculated model values.
+/// @param xw Wave Angular coordinate wave.
+/// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
+///
 static Function XMLDSinSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(x - yw[2])^2
@@ -129,6 +181,13 @@ static Function XMLDSinSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	yw = pw[0] + pw[1] * sin(xw + pw[2])^2
 End
 
+/// @function XMLDCosSqIntensity
+/// @brief XMLD angular intensity model using a squared cosine term.
+/// @param pw Wave Coefficient wave with baseline, amplitude, and phase.
+/// @param yw Wave Output wave that receives the calculated model values.
+/// @param xw Wave Angular coordinate wave.
+/// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
+///
 static Function XMLDCosSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) =pw[0] + pw[1] * cos(x - yw[2])^2
@@ -142,6 +201,13 @@ static Function XMLDCosSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	yw = pw[0] + pw[1] * cos(xw + pw[2])^2
 End
 
+/// @function XMLDSin2xIntensity
+/// @brief XMLD angular intensity model using `sin(2*(x+phase))`.
+/// @param pw Wave Coefficient wave with baseline, amplitude, and phase.
+/// @param yw Wave Output wave that receives the calculated model values.
+/// @param xw Wave Angular coordinate wave.
+/// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
+///
 static Function XMLDSin2xIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(2*(x + yw[2]))
@@ -155,6 +221,13 @@ static Function XMLDSin2xIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	yw = pw[0] + pw[1] * sin(2*(xw + pw[2]))
 End
 
+/// @function XMLDCos2xIntensity
+/// @brief XMLD angular intensity model using `cos(2*(x+phase))`.
+/// @param pw Wave Coefficient wave with baseline, amplitude, and phase.
+/// @param yw Wave Output wave that receives the calculated model values.
+/// @param xw Wave Angular coordinate wave.
+/// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
+///
 static Function XMLDCos2xIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) =pw[0] + pw[1] * cos(2*(x + yw[2]))
@@ -168,6 +241,13 @@ static Function XMLDCos2xIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	yw = pw[0] + pw[1] * cos(2*(xw + pw[2]))
 End
 
+/// @function XMLDIntensityWtGradient
+/// @brief XMLD angular intensity model with an added linear gradient term.
+/// @param pw Wave Coefficient wave with baseline, gradient, amplitude, and phase.
+/// @param yw Wave Output wave that receives the calculated model values.
+/// @param xw Wave Angular coordinate wave.
+/// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
+///
 static Function XMLDIntensityWtGradient(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) = pw[0] + pw[1] * sin(x + yw[2])^2
@@ -182,6 +262,17 @@ static Function XMLDIntensityWtGradient(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	yw = pw[0] + pw[1] * xw + pw[2] * sin(xw + pw[3])^2
 End
 
+/// @function Gaussian2D
+/// @brief 2D Gaussian model for fitting flattened image data.
+/// @details
+/// Evaluates a rotated 2D Gaussian plus constant background using separate x and y
+/// coordinate waves. This function is intended for use with Igor's all-at-once fitting.
+/// @param pw Wave Parameter wave with background, amplitude, angle in radians, center coordinates, and standard deviations.
+/// @param yw Wave Output wave that receives the calculated model values.
+/// @param wx Wave X coordinate wave.
+/// @param wy Wave Y coordinate wave.
+/// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
+///
 static Function Gaussian2D(WAVE pw, WAVE yw, WAVE wx, WAVE wy) : Fitfunc
 
 	//pw[0]: const bck
@@ -207,6 +298,15 @@ static Function Gaussian2D(WAVE pw, WAVE yw, WAVE wx, WAVE wy) : Fitfunc
 	
 End 
 
+/// @function FocusSTV
+/// @brief Square-root focus calibration model.
+/// @details
+/// Returns `f0 + a*sqrt(STV)` for use in curve fitting.
+/// @param pw Wave Coefficient wave with `pw[0]=f0` and `pw[1]=a`.
+/// @param yw Wave Output wave that receives the calculated model values.
+/// @param xw Wave Input STV values.
+/// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
+///
 static Function FocusSTV(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ f(STV) = f0 + a * sqrt(STV)

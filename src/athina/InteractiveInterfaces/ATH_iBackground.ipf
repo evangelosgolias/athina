@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
@@ -30,6 +30,18 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+/// @module ATH_iBackground
+/// @brief Module ATH_iBackground.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH iBackground functionality.
+
+/// @function CreatelPanel
+/// @brief Description of CreatelPanel.
+/// @details
+/// Auto-generated documentation stub for function `CreatelPanel`.
+/// @returns Variable Return value.
 
 static Function CreatelPanel()
 	
@@ -99,6 +111,13 @@ static Function CreatelPanel()
 	SetWindow $winNameStr, hook(iRBMyHook) = ATH_iBackground#GraphHookFunction // Set the hook
 End
 
+/// @function GraphHookFunction
+/// @brief Description of GraphHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `GraphHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
+
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	variable hookresult = 0
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImageBackgroundRemovalFolder"))
@@ -122,6 +141,13 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 	return hookresult
 End
 
+/// @function PanelHookFunction
+/// @brief Description of PanelHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `PanelHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
+
 static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
@@ -141,6 +167,13 @@ static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 	return hookresult
 End
 
+/// @function OverwriteAndCloseButton
+/// @brief Description of OverwriteAndCloseButton.
+/// @details
+/// Auto-generated documentation stub for function `OverwriteAndCloseButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function OverwriteAndCloseButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -156,6 +189,13 @@ static Function OverwriteAndCloseButton(STRUCT WMButtonAction &B_Struct): Button
 	endswitch
 	return hookresult
 End
+
+/// @function RemoveBackgroundButton
+/// @brief Description of RemoveBackgroundButton.
+/// @details
+/// Auto-generated documentation stub for function `RemoveBackgroundButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 static Function RemoveBackgroundButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 

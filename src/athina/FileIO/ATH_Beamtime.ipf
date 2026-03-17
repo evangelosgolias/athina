@@ -1,9 +1,10 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_MAXPEEM
 #pragma version = 1.01
+
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -33,6 +34,13 @@
 // This module is solely used at the MAXPEEM beamline @ MAX IV synchrotron facility.
 // Set the /raw directory here as MAXPEEM_USER_ROOT_FOLDER
 
+/// @module ATH_Beamtime
+/// @brief Module ATH_Beamtime.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Beamtime functionality.
+
+
 static Function/S SetOrResetBeamtimeRootFolder()
 	// Helper function for functions in ATH_LoadFilesDuringBeamtime.ipf.
 	// Set or reset the Igor Path MAXPEEM_USER_ROOT_FOLDER
@@ -50,6 +58,13 @@ static Function/S SetOrResetBeamtimeRootFolder()
 	return S_path
 End
 
+/// @function LoadNewestFileInRaw
+/// @brief Description of LoadNewestFileInRaw.
+/// @details
+/// Auto-generated documentation stub for function `LoadNewestFileInRaw`.
+/// @param extension Parameter extension.
+/// @returns Variable Return value.
+
 static Function LoadNewestFileInRaw(string extension)
 	 // variable timerRefNum = StartMSTimer
 	/// Load the last file found in the directory tree with root at pathName
@@ -62,6 +77,13 @@ static Function LoadNewestFileInRaw(string extension)
 	ATH_HDF5#LoadTVIPSH5Data(ReplaceString("\\", ParseFilePath(5,filepathStr,"\\",0,0), "\\\\")) // Dealing withg UNC names
 	return 0
 End
+
+/// @function LoadFileFromRaw
+/// @brief Description of LoadFileFromRaw.
+/// @details
+/// Auto-generated documentation stub for function `LoadFileFromRaw`.
+/// @param scanID Parameter scanID.
+/// @returns Variable Return value.
 
 
 static Function LoadFileFromRaw(variable scanID)
@@ -146,6 +168,12 @@ static Function/S GetNewestCreatedFileInPathTree(string pathName,
 	return latestfile
 End
 
+/// @function LoadNewestFolderInPathTreeAndDisplay
+/// @brief Description of LoadNewestFolderInPathTreeAndDisplay.
+/// @details
+/// Auto-generated documentation stub for function `LoadNewestFolderInPathTreeAndDisplay`.
+/// @returns Variable Return value.
+
 static Function LoadNewestFolderInPathTreeAndDisplay()
 	/// Load the last file found in the directory tree with root at pathName
 	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
@@ -215,6 +243,13 @@ End
 
 /// ------------------------------------------------------------------------------------------- ///
 /// -------------- Python versions of the commands. Writtten before IP10 ---------------------- ///
+
+/// @function LoadNewestFileInPathTreeAndDisplayPython
+/// @brief Description of LoadNewestFileInPathTreeAndDisplayPython.
+/// @details
+/// Auto-generated documentation stub for function `LoadNewestFileInPathTreeAndDisplayPython`.
+/// @param ext Parameter ext.
+/// @returns Variable Return value.
 
 static Function LoadNewestFileInPathTreeAndDisplayPython(string ext)
 	/// Load the last file found in the directory tree with root set at pathName

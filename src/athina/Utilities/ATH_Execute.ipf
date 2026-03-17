@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
@@ -31,6 +31,22 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+/// @module ATH_Execute
+/// @brief Module ATH_Execute.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Execute functionality.
+
+/// @function ExecuteShellCommand
+/// @brief Description of ExecuteShellCommand.
+/// @details
+/// Auto-generated documentation stub for function `ExecuteShellCommand`.
+/// @param uCommand Parameter uCommand.
+/// @param printCommandInHistory Parameter printCommandInHistory.
+/// @param [ Parameter [.
+/// @param asAdmin] Parameter asAdmin].
+/// @returns String Return value.
+
 static Function/S ExecuteShellCommand(uCommand, printCommandInHistory, printResultInHistory [, asAdmin])
 	// Copy of Wavemetrics procedure
 	String uCommand					// Unix command to execute
@@ -60,6 +76,14 @@ static Function/S ExecuteShellCommand(uCommand, printCommandInHistory, printResu
 	return S_value
 End
 
+/// @function CmdExecutionUsingRange
+/// @brief Description of CmdExecutionUsingRange.
+/// @details
+/// Auto-generated documentation stub for function `CmdExecutionUsingRange`.
+/// @param cmdStr Parameter cmdStr.
+/// @param rangeStr Parameter rangeStr.
+/// @returns Variable Return value.
+
 static Function CmdExecutionUsingRange(string cmdStr, string rangeStr)
 	/// Execute cmdStr with parameters the numbers in rangeStr
 	/// See ATH_ExpandRangeStr doc string.
@@ -74,6 +98,14 @@ static Function CmdExecutionUsingRange(string cmdStr, string rangeStr)
 	endfor
 	return 0
 End
+
+/// @function CmdExecutionInFolderWithPattern
+/// @brief Description of CmdExecutionInFolderWithPattern.
+/// @details
+/// Auto-generated documentation stub for function `CmdExecutionInFolderWithPattern`.
+/// @param cmdStr Parameter cmdStr.
+/// @param pattern Parameter pattern.
+/// @returns Variable Return value.
 
 static Function CmdExecutionInFolderWithPattern(string cmdStr, string pattern)
 	/// Execute cmdStr for wavelist using pattern
@@ -90,6 +122,13 @@ static Function CmdExecutionInFolderWithPattern(string cmdStr, string pattern)
 	return 0
 End
 
+/// @function HandleSimpleError
+/// @brief Description of HandleSimpleError.
+/// @details
+/// Auto-generated documentation stub for function `HandleSimpleError`.
+/// @param funName Parameter funName.
+/// @returns Variable Return value.
+
 static Function HandleSimpleError(string funName)
 	// Handle execution error, clear and print a message.
 	string msg=GetErrMessage(GetRTError(0),3); variable err=GetRTError(1)
@@ -99,6 +138,16 @@ static Function HandleSimpleError(string funName)
 	endif
 	return 0
 End
+
+/// @function GetAndExecuteNoteEntry
+/// @brief Description of GetAndExecuteNoteEntry.
+/// @details
+/// Auto-generated documentation stub for function `GetAndExecuteNoteEntry`.
+/// @param wRef Parameter wRef.
+/// @param entry Parameter entry.
+/// @param sep Parameter sep.
+/// @param listsep] Parameter listsep].
+/// @returns Variable Return value.
 
 static Function GetAndExecuteNoteEntry(WAVE wRef, string entry, [string sep, string listsep])
 	/// Retrieve string entry from wRef note (use sep)

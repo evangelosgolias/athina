@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion= 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
@@ -30,6 +30,18 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+/// @module ATH_iXMCD
+/// @brief Module ATH_iXMCD.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH iXMCD functionality.
+
+/// @function MenuLaunch
+/// @brief Description of MenuLaunch.
+/// @details
+/// Auto-generated documentation stub for function `MenuLaunch`.
+/// @returns Variable Return value.
 
 
 static Function MenuLaunch()
@@ -103,6 +115,13 @@ static Function MenuLaunch()
 	CreateiXMCDPanel(wXMCD)
 End
 
+/// @function CreateiXMCDPanel
+/// @brief Description of CreateiXMCDPanel.
+/// @details
+/// Auto-generated documentation stub for function `CreateiXMCDPanel`.
+/// @param wXMCD Parameter wXMCD.
+/// @returns Variable Return value.
+
 static Function CreateiXMCDPanel(WAVE wXMCD)
 	DFREF dfr = GetWavesDataFolderDFR(wXMCD) // Recover the dfr	
 	NVAR/SDFR=dfr gATH_driftStep, gATH_IntensityScale
@@ -130,6 +149,13 @@ static Function CreateiXMCDPanel(WAVE wXMCD)
 	SetWindow $winiXMCDNameStr hook(MyiXMCDWinHook) = ATH_iXMCD#iXMCDWindowHook // Set the hook
 	return 0
 End
+
+/// @function iXMCDWindowHook
+/// @brief Description of iXMCDWindowHook.
+/// @details
+/// Auto-generated documentation stub for function `iXMCDWindowHook`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
 
 static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iXMCDPath"))
@@ -183,6 +209,13 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	return hookResult	// If non-zero, we handled event and Igor will ignore it.
 End
 
+/// @function RestoreImagesButton
+/// @brief Description of RestoreImagesButton.
+/// @details
+/// Auto-generated documentation stub for function `RestoreImagesButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -197,6 +230,13 @@ static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 	endswitch
 	return 0
 End
+
+/// @function SaveXMCDImageButton
+/// @brief Description of SaveXMCDImageButton.
+/// @details
+/// Auto-generated documentation stub for function `SaveXMCDImageButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
@@ -222,6 +262,13 @@ static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 	return 0
 End
 
+/// @function SetDriftStepVar
+/// @brief Description of SetDriftStepVar.
+/// @details
+/// Auto-generated documentation stub for function `SetDriftStepVar`.
+/// @param &sva Parameter &sva.
+/// @returns Variable Return value.
+
 static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
 	switch (sva.eventCode)
@@ -239,6 +286,13 @@ static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableCo
 
 	return 0
 End
+
+/// @function SetIntensityScale
+/// @brief Description of SetIntensityScale.
+/// @details
+/// Auto-generated documentation stub for function `SetIntensityScale`.
+/// @param &sva Parameter &sva.
+/// @returns Variable Return value.
 
 
 static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariableControl

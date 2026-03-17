@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
@@ -30,6 +30,24 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+/// @module ATH_IgorHook
+/// @brief Module ATH_IgorHook.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH IgorHook functionality.
+
+/// @function BeforeFileOpenHook
+/// @brief Description of BeforeFileOpenHook.
+/// @details
+/// Auto-generated documentation stub for function `BeforeFileOpenHook`.
+/// @param refNum Parameter refNum.
+/// @param fileNameStr Parameter fileNameStr.
+/// @param pathNameStr Parameter pathNameStr.
+/// @param fileTypeStr Parameter fileTypeStr.
+/// @param fileCreatorStr Parameter fileCreatorStr.
+/// @param fileKind Parameter fileKind.
+/// @returns Variable Return value.
+
 Function BeforeFileOpenHook(variable refNum, string fileNameStr, string pathNameStr, string fileTypeStr, string fileCreatorStr, variable fileKind)
 
     PathInfo $pathNameStr
@@ -53,6 +71,14 @@ Function BeforeFileOpenHook(variable refNum, string fileNameStr, string pathName
 End
 
 // AfterWindowCreatedHook - Used in Spaces to assign tags to new windows
+
+/// @function AfterWindowCreatedHook
+/// @brief Description of AfterWindowCreatedHook.
+/// @details
+/// Auto-generated documentation stub for function `AfterWindowCreatedHook`.
+/// @param windowNameStr Parameter windowNameStr.
+/// @param winTypevar Parameter winTypevar.
+/// @returns Variable Return value.
 Function AfterWindowCreatedHook(string windowNameStr, variable winTypevar)
 	// Every window created is assigned to the active Space if the panel is there
 	if(WinType("ATH_SpacesPanel"))
@@ -71,6 +97,12 @@ Function AfterWindowCreatedHook(string windowNameStr, variable winTypevar)
 	endif
 	return 0 // Ignored
 End
+
+/// @function AfterCompiledHook
+/// @brief Description of AfterCompiledHook.
+/// @details
+/// Auto-generated documentation stub for function `AfterCompiledHook`.
+/// @returns Variable Return value.
 
 Function AfterCompiledHook()
     CreateBrowser

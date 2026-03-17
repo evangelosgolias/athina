@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion= 9
@@ -30,6 +30,18 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+/// @module ATH_iImageOps
+/// @brief Module ATH_iImageOps.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH iImageOps functionality.
+
+/// @function MainMenu
+/// @brief Description of MainMenu.
+/// @details
+/// Auto-generated documentation stub for function `MainMenu`.
+/// @returns Variable Return value.
 
 static Function MainMenu()
 	/// static Function to interactively drift images and get an updated
@@ -107,6 +119,13 @@ static Function MainMenu()
 	CreateiOpsImgsCalculationPanel(wOpResult)
 End
 
+/// @function CreateiOpsImgsCalculationPanel
+/// @brief Description of CreateiOpsImgsCalculationPanel.
+/// @details
+/// Auto-generated documentation stub for function `CreateiOpsImgsCalculationPanel`.
+/// @param wOpResult Parameter wOpResult.
+/// @returns Variable Return value.
+
 static Function CreateiOpsImgsCalculationPanel(WAVE wOpResult)
 	DFREF dfr = GetWavesDataFolderDFR(wOpResult) // Recover the dfr	
 	NVAR/SDFR=dfr gATH_driftStep
@@ -131,6 +150,13 @@ static Function CreateiOpsImgsCalculationPanel(WAVE wOpResult)
 	SetWindow $winNameStr, hook(MyiXMCDWinHook) = ATH_iImgOps#WindowHook // Set the hook
 	return 0
 End
+
+/// @function WindowHook
+/// @brief Description of WindowHook.
+/// @details
+/// Auto-generated documentation stub for function `WindowHook`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
 
 static Function WindowHook(STRUCT WMWinHookStruct &s)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgOpsDFPath"))
@@ -203,6 +229,13 @@ static Function WindowHook(STRUCT WMWinHookStruct &s)
 	return hookResult	// If non-zero, we handled event and Igor will ignore it.
 End
 
+/// @function RestoreImagesButton
+/// @brief Description of RestoreImagesButton.
+/// @details
+/// Auto-generated documentation stub for function `RestoreImagesButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -226,6 +259,13 @@ static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 	endswitch
 	return 0
 End
+
+/// @function SaveOpResultButton
+/// @brief Description of SaveOpResultButton.
+/// @details
+/// Auto-generated documentation stub for function `SaveOpResultButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
@@ -252,6 +292,13 @@ static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonContr
 	return 0
 End
 
+/// @function SetDriftStepVar
+/// @brief Description of SetDriftStepVar.
+/// @details
+/// Auto-generated documentation stub for function `SetDriftStepVar`.
+/// @param &sva Parameter &sva.
+/// @returns Variable Return value.
+
 static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
 	switch (sva.eventCode)
@@ -269,6 +316,13 @@ static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableCo
 
 	return 0
 End
+
+/// @function SetOpFormula
+/// @brief Description of SetOpFormula.
+/// @details
+/// Auto-generated documentation stub for function `SetOpFormula`.
+/// @param &sva Parameter &sva.
+/// @returns Variable Return value.
 
 static Function SetOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
@@ -288,6 +342,13 @@ static Function SetOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableContr
 	return 0
 End
 
+/// @function SetSecOpFormula
+/// @brief Description of SetSecOpFormula.
+/// @details
+/// Auto-generated documentation stub for function `SetSecOpFormula`.
+/// @param &sva Parameter &sva.
+/// @returns Variable Return value.
+
 static Function SetSecOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
 	switch (sva.eventCode)
@@ -305,6 +366,13 @@ static Function SetSecOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableCo
 	endswitch
 	return 0
 End
+
+/// @function CheckBoxSecOp
+/// @brief Description of CheckBoxSecOp.
+/// @details
+/// Auto-generated documentation stub for function `CheckBoxSecOp`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
 
 static Function CheckBoxSecOp(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 

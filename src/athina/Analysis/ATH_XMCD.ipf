@@ -1,9 +1,19 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_XMCD
 #pragma version = 1.2
+
+/// @module ATH_XMCD
+/// @brief XMCD/XMLD calculations for 2D images and 3D stacks.
+/// @details
+/// This module provides helper routines for computing normalized contrast maps of the form
+/// `(w1 - w2) / (w1 + w2)` for individual images, two-layer stacks, all pairwise layer
+/// combinations, and specific four-layer acquisition schemes. It also includes a multithreaded
+/// worker-based implementation for stack combinations.
+///
+
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -30,6 +40,18 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+/// @function CalculateXMCDWAVE
+/// @brief Compute a normalized XMCD/XMLD image from two input waves.
+/// @details
+/// Calculates `(w1 - w2) / (w1 + w2)` after converting integer inputs to single
+/// precision if needed. The result is written either to a named output wave or to
+/// a provided destination wave reference.
+/// @param w1 Wave First input image.
+/// @param w2 Wave Second input image.
+/// @param outWave String Optional output-wave name. Exactly one of `outWave` or `wRef` must be provided.
+/// @param wRef Wave Optional destination wave reference. Exactly one of `outWave` or `wRef` must be provided.
+/// @returns Wave Reference to the output wave. Returns a null wave reference on invalid argument usage.
+///
 static Function/WAVE CalculateXMCDWAVE(WAVE w1, WAVE w2, [string outWave, WAVE wRef])
 	/// Calculate XMCD/XMLD of two images and save it to 
 	/// @param w1 WAVE Wave 1
@@ -57,6 +79,15 @@ static Function/WAVE CalculateXMCDWAVE(WAVE w1, WAVE w2, [string outWave, WAVE w
 	endif
 End
 
+/// @function CalculateXMCD
+/// @brief Compute a normalized XMCD/XMLD image and save it in the current data folder.
+/// @details
+/// Validates that the two waves have equal dimensions, computes
+/// `(w1 - w2) / (w1 + w2)`, copies scales from `w1`, and attaches provenance notes.
+/// @param w1 Wave First input image.
+/// @param w2 Wave Second input image.
+/// @returns Variable Returns 0 on success and -1 if the dimensions do not match.
+///
 static Function CalculateXMCD(WAVE w1, WAVE w2)
 	/// Calculate XMCD/XMLD of two images and save it to 
 	/// @param w1 WAVE Wave 1
@@ -75,6 +106,15 @@ static Function CalculateXMCD(WAVE w1, WAVE w2)
 	return 0
 End
 
+/// @function StackToXMCD
+/// @brief Compute XMCD/XMLD from a two-layer stack.
+/// @details
+/// Extracts the first two layers of `w3d` and computes `(w0 - w1) / (w0 + w1)`.
+/// The output is written to `wXMCD` or to a user-specified wave name.
+/// @param w3d Wave Input 3D wave with exactly two layers.
+/// @param wnameStr String Optional output-wave name.
+/// @returns Variable Returns 0 on success and 1 if the stack does not have exactly two layers.
+///
 static Function StackToXMCD(WAVE w3d, [string wnameStr])
 	/// Calculate XMCD/XMLD of two images
 	/// @param w3d WAVE Wave with 2 layers.	
@@ -94,6 +134,15 @@ static Function StackToXMCD(WAVE w3d, [string wnameStr])
 	return 0
 End
 
+/// @function CalculateXMCD3D
+/// @brief Compute XMCD/XMLD layer by layer for two 3D stacks.
+/// @details
+/// Computes `(w3d1 - w3d2) / (w3d1 + w3d2)` for all corresponding layers in two
+/// equally sized 3D waves. Multithreaded `MatrixOP` is used for large stacks.
+/// @param w3d1 Wave First input 3D stack.
+/// @param w3d2 Wave Second input 3D stack.
+/// @returns Variable Returns 0 on success and -1 if the input dimensions are incompatible.
+///
 static Function CalculateXMCD3D(WAVE w3d1, WAVE w3d2)
 	// Calculate XMC(L)D for 3D waves over layers.
 	// XMC(L)D = (w3d1 - w3d2)/(w3d1 + w3d2)
@@ -126,6 +175,15 @@ static Function CalculateXMCD3D(WAVE w3d1, WAVE w3d2)
 	return 0
 End
 
+/// @function CalculateXMCDComb
+/// @brief Compute XMCD/XMLD for all pairwise layer combinations in a 3D stack.
+/// @details
+/// Iterates over all unique layer pairs in `w3d`, computes a normalized contrast map
+/// for each pair, and stacks the results into a new output wave.
+/// @param w3d Wave Input 3D stack.
+/// @returns Variable Returns 0 on success and -1 if `w3d` is not three-dimensional.
+/// @note The output stack is saved in the current data folder under a generated name based on `XMCD_Comb`.
+///
 static Function CalculateXMCDComb(WAVE w3d)
 	/// Calculate XMC(L)D = (w3d1 - w3d2)/(w3d1 + w3d2)
 	/// for all different layer combinations of w3d,
@@ -160,6 +218,17 @@ static Function CalculateXMCDComb(WAVE w3d)
 	return 0
 End
 
+/// @function XMCDStack4L
+/// @brief Compute a difference of two XMCD images from a four-layer stack.
+/// @details
+/// Forms XMCD for layer pairs `(l0,l1)` and `(l2,l3)` according to `order`, then
+/// subtracts the second XMCD image from the first. The result is written to `outWave`.
+/// @param wRef Wave Input 3D stack with four layers.
+/// @param order String Optional permutation string specifying layer order, default `0123`.
+/// @param overwrite Variable Optional flag controlling whether an existing output wave may be overwritten.
+/// @param outWave String Optional output-wave name.
+/// @returns Variable Returns 0 on success and -1 on invalid input or output creation failure.
+///
 static Function XMCDStack4L(WAVE wRef, [string order, int overwrite, string outWave])
 	// wRef comprises four layers.
 	// Calculate xmcd between stack l0, l1 and l2, l3
@@ -210,6 +279,16 @@ End
 
 //// ----- Multithreading ------- ////
 
+/// @function MultiThreadXMLDComb
+/// @brief Multithreaded computation of XMCD/XMLD for all layer combinations.
+/// @details
+/// Builds all unique layer-pair combinations, dispatches the work to
+/// `XMCDCalculation_Worker`, then concatenates the returned free waves into a
+/// combined output stack.
+/// @param w3D Wave Input 3D stack.
+/// @returns Variable Returns 0 on completion.
+/// @note The combined output is stored in the source wave's data folder using a generated `XMCD_Comb` name.
+///
 static Function MultiThreadXMLDComb(WAVE w3D)
 
 	if(!(WaveType(w3D) & 0x02 || WaveType(w3D) & 0x04))
@@ -247,6 +326,15 @@ static Function MultiThreadXMLDComb(WAVE w3D)
 End
 	
 // Multithreaded Registration
+/// @function XMCDCalculation_Worker
+/// @brief Thread-safe worker for a single pairwise XMCD/XMLD calculation.
+/// @details
+/// Parses a layer-index pair from `idxStr`, extracts the corresponding layers from
+/// `w3D`, computes `(w0 - w1) / (w0 + w1)`, and returns the result as a free wave.
+/// @param w3D Wave Input 3D stack.
+/// @param idxStr String Comma-separated layer indices specifying the pair to process.
+/// @returns Wave Free wave containing the computed XMCD/XMLD image.
+///
 ThreadSafe static Function/WAVE XMCDCalculation_Worker(WAVE w3D, string idxStr)
 	
 	DFREF dfSav= GetDataFolderDFR()

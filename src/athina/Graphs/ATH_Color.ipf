@@ -9,6 +9,14 @@
 /// This module is a (shameless) copy of the module SIDAM_Color from the amazing SIDAM project 
 /// see https://github.com/yuksk/SIDAM
 
+
+/// @module ATH_Color
+/// @brief Module ATH_Color.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Color functionality.
+
+
 static strConstant ATH_DF_CTAB = "root:Packages:ATH_DataFolder:ctab:"
 
 // --------------Add ctab directories here -----------------
@@ -1554,6 +1562,12 @@ EndStructure
 //-----------------------------------------------------------------------
 //	Kill all unused waves under ATH_DF_CTAB
 //-----------------------------------------------------------------------
+
+/// @function ATH_ColorKillWaves
+/// @brief Description of ATH_ColorKillWaves.
+/// @details
+/// Auto-generated documentation stub for function `ATH_ColorKillWaves`.
+/// @returns Variable Return value.
 Function ATH_ColorKillWaves()
 	int status = ATH_Range#SIDAMKillDataFolder($ATH_DF_CTAB)
 	if (status != 3)
@@ -1637,6 +1651,14 @@ End
 //		* 1: a logarithmically-spaced color.
 //		* -1: any error.
 //@
+
+/// @function SIDAM_ColorTableLog
+/// @brief Description of SIDAM_ColorTableLog.
+/// @details
+/// Auto-generated documentation stub for function `SIDAM_ColorTableLog`.
+/// @param grfName Parameter grfName.
+/// @param imgName Parameter imgName.
+/// @returns Variable Return value.
 static Function SIDAM_ColorTableLog(String grfName, String imgName)
 	String info = ImageInfo(grfName, imgName, 0)
 	if (GetRTError(1))
@@ -1664,6 +1686,15 @@ End
 //		* 2: transparent
 //		* -1: any error
 //@
+
+/// @function SIDAM_ImageColorRGBMode
+/// @brief Description of SIDAM_ImageColorRGBMode.
+/// @details
+/// Auto-generated documentation stub for function `SIDAM_ImageColorRGBMode`.
+/// @param grfName Parameter grfName.
+/// @param imgName Parameter imgName.
+/// @param key Parameter key.
+/// @returns Variable Return value.
 static Function SIDAM_ImageColorRGBMode(String grfName, String imgName, String key)
 	String info = ImageInfo(grfName, imgName, 0)
 	if (GetRTError(1))
@@ -1759,6 +1790,14 @@ End
 //******************************************************************************
 //	Bahave as if a checkbox is clicked
 //******************************************************************************
+
+/// @function SIDAMClickCheckBox
+/// @brief Description of SIDAMClickCheckBox.
+/// @details
+/// Auto-generated documentation stub for function `SIDAMClickCheckBox`.
+/// @param pnlName Parameter pnlName.
+/// @param ctrlName Parameter ctrlName.
+/// @returns Variable Return value.
 static Function SIDAMClickCheckBox(String pnlName, String ctrlName)
 	if (!ATH_Range#SIDAMWindowExists(pnlName))
 		return 1
@@ -1801,6 +1840,13 @@ End
 //-------------------------------------------------------------
 //	Prototypes of control procedure functions
 //-------------------------------------------------------------
+
+/// @function SIDAMClickCheckBoxPrototype
+/// @brief Description of SIDAMClickCheckBoxPrototype.
+/// @details
+/// Auto-generated documentation stub for function `SIDAMClickCheckBoxPrototype`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
 Function SIDAMClickCheckBoxPrototype(STRUCT WMCheckboxAction &s)
 End
 

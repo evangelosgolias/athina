@@ -1,9 +1,10 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_Draw
 #pragma version = 1.01
+
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -31,6 +32,23 @@
 // ------------------------------------------------------- //
 
 
+/// @module ATH_Draw
+/// @brief Module ATH_Draw.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Draw functionality.
+
+
+/// @function DrawLineUsingCursors
+/// @brief Description of DrawLineUsingCursors.
+/// @details
+/// Auto-generated documentation stub for function `DrawLineUsingCursors`.
+/// @param C1 Parameter C1.
+/// @param C2 Parameter C2.
+/// @param layer] Parameter layer].
+/// @returns Variable Return value.
+
+
 static Function DrawLineUsingCursors(string C1, string C2, [string layer])
 	// Draw a line using cursor C1 & C2
 	// Draws in Overlay layer if layer optional argument is not given
@@ -42,6 +60,15 @@ static Function DrawLineUsingCursors(string C1, string C2, [string layer])
 	DrawLine hcsr($C1), vcsr($C1), hcsr($C2), vcsr($C2)
 	return 0
 End
+
+/// @function DrawCircleUsingAntinodalCursors
+/// @brief Description of DrawCircleUsingAntinodalCursors.
+/// @details
+/// Auto-generated documentation stub for function `DrawCircleUsingAntinodalCursors`.
+/// @param C1 Parameter C1.
+/// @param C2 Parameter C2.
+/// @param layer] Parameter layer].
+/// @returns Variable Return value.
 
 static Function DrawCircleUsingAntinodalCursors(string C1, string C2, [string layer])
 	// Draw a circle with antinodal points at C1 & C2
@@ -71,6 +98,15 @@ static Function DrawCircleUsingAntinodalCursors(string C1, string C2, [string la
 	return 0
 End
 
+/// @function DrawCircleUsingCenterAndPointCursors
+/// @brief Description of DrawCircleUsingCenterAndPointCursors.
+/// @details
+/// Auto-generated documentation stub for function `DrawCircleUsingCenterAndPointCursors`.
+/// @param C1 Parameter C1.
+/// @param C2 Parameter C2.
+/// @param layer] Parameter layer].
+/// @returns Variable Return value.
+
 static Function DrawCircleUsingCenterAndPointCursors(string C1, string C2, [string layer])
 	// Draw a circle with center at C1 that passed from C2
 	// Draws in Overlay layer if layer optional argument is not given
@@ -98,6 +134,14 @@ static Function DrawCircleUsingCenterAndPointCursors(string C1, string C2, [stri
 End
 
 // Draw scale bar
+
+/// @function ImageScaleBar
+/// @brief Description of ImageScaleBar.
+/// @details
+/// Auto-generated documentation stub for function `ImageScaleBar`.
+/// @param barlen Parameter barlen.
+/// @param grfName] Parameter grfName].
+/// @returns Variable Return value.
 
 static Function ImageScaleBar(variable barlen, [string grfName])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below

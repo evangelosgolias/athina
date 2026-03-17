@@ -36,6 +36,12 @@
 // v1.2 Igor Pro 10 ready
 #include <WMImageInfo>
 
+/// @module ATH_Range
+/// @brief Module ATH_Range.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Range functionality.
+
 StrConstant PRESTR_CMD = "•"			//	prefix character for regular commands in the history window
 StrConstant PRESTR_CAUTION = "** "	//	prefix characters for cautions in the history window
 
@@ -1187,6 +1193,13 @@ End
 //		* 0: The window does not exists
 //		* !0: Otherwise.
 //@
+
+/// @function SIDAMWindowExists
+/// @brief Description of SIDAMWindowExists.
+/// @details
+/// Auto-generated documentation stub for function `SIDAMWindowExists`.
+/// @param pnlName Parameter pnlName.
+/// @returns Variable Return value.
 static Function SIDAMWindowExists(String pnlName)
 	if (!strlen(pnlName))
 		return 0
@@ -1400,6 +1413,14 @@ End
 //		* 1: a logarithmically-spaced color.
 //		* -1: any error.
 //@
+
+/// @function SIDAM_ColorTableLog
+/// @brief Description of SIDAM_ColorTableLog.
+/// @details
+/// Auto-generated documentation stub for function `SIDAM_ColorTableLog`.
+/// @param grfName Parameter grfName.
+/// @param imgName Parameter imgName.
+/// @returns Variable Return value.
 static Function SIDAM_ColorTableLog(String grfName, String imgName)
 	String info = ImageInfo(grfName, imgName, 0)
 	if (GetRTError(1))
@@ -1549,6 +1570,14 @@ End
 //		The index of displayed layer. If no 3D wave is shown,
 //		nan is returned.
 //@
+
+/// @function SIDAMGetLayerIndex
+/// @brief Description of SIDAMGetLayerIndex.
+/// @details
+/// Auto-generated documentation stub for function `SIDAMGetLayerIndex`.
+/// @param grfName Parameter grfName.
+/// @param w] Parameter w].
+/// @returns Variable Return value.
 static Function SIDAMGetLayerIndex(String grfName, [Wave/Z w])
 	if (ParamIsDefault(w))
 		Wave/Z w =  SIDAMImageNameToWaveRef(grfName)
@@ -1574,6 +1603,13 @@ End
 ///	@param dfr	datafolder
 ///	@return	1 for dfr is invalid, otherwise 0
 //******************************************************************************
+
+/// @function SIDAMKillDataFolder
+/// @brief Description of SIDAMKillDataFolder.
+/// @details
+/// Auto-generated documentation stub for function `SIDAMKillDataFolder`.
+/// @param dfr Parameter dfr.
+/// @returns Variable Return value.
 static Function SIDAMKillDataFolder(DFREF dfr) // Recursion here
 	if (!DataFolderRefStatus(dfr))
 		return 0
@@ -1605,6 +1641,14 @@ End
 //******************************************************************************
 //	Run "To cmd line" or "To clip"
 //******************************************************************************
+
+/// @function SIDAMPopupTo
+/// @brief Description of SIDAMPopupTo.
+/// @details
+/// Auto-generated documentation stub for function `SIDAMPopupTo`.
+/// @param &s Parameter &s.
+/// @param paramStr Parameter paramStr.
+/// @returns Variable Return value.
 static Function SIDAMPopupTo(STRUCT WMPopupAction &s, String paramStr)
 	switch (s.popNum)
 		case 1:

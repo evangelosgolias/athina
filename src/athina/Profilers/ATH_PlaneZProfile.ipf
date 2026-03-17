@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals    = 3		
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
 #pragma IgorVersion  = 9
@@ -30,6 +30,19 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+/// @module ATH_PlaneZProfile
+/// @brief Module ATH_PlaneZProfile.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH PlaneZProfile functionality.
+
+
+/// @function MainMenu
+/// @brief Description of MainMenu.
+/// @details
+/// Auto-generated documentation stub for function `MainMenu`.
+/// @returns Variable Return value.
 
 static Function MainMenu()
 
@@ -156,6 +169,13 @@ static Function/DF InitialiseFolder()
 	return dfr
 End
 
+/// @function InitialiseGraph
+/// @brief Description of InitialiseGraph.
+/// @details
+/// Auto-generated documentation stub for function `InitialiseGraph`.
+/// @param dfr Parameter dfr.
+/// @returns Variable Return value.
+
 static Function InitialiseGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
 	string plotNameStr = "ATH_ImagePlaneZProf_" + GetDataFolder(0, dfr)
@@ -166,6 +186,13 @@ static Function InitialiseGraph(DFREF dfr)
 	endif
 	return 0
 End
+
+/// @function CreatePanel
+/// @brief Description of CreatePanel.
+/// @details
+/// Auto-generated documentation stub for function `CreatePanel`.
+/// @param dfr Parameter dfr.
+/// @returns Variable Return value.
 
 static Function CreatePanel(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
@@ -224,6 +251,13 @@ static Function CreatePanel(DFREF dfr)
 
 	return 0
 End
+
+/// @function CursorHookFunction
+/// @brief Description of CursorHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `CursorHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
 
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
@@ -349,6 +383,13 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	return hookResult       // 0 if nothing done, else 1
 End
 
+/// @function GraphHookFunction
+/// @brief Description of GraphHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `GraphHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
+
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentGraphWin = GetUserData(s.winName, "", "ATH_LinkedWinImageSource")
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
@@ -379,6 +420,13 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			break
 	endswitch
 End
+
+/// @function SaveProfileButton
+/// @brief Description of SaveProfileButton.
+/// @details
+/// Auto-generated documentation stub for function `SaveProfileButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl // Change using UniqueName for displaying
 
@@ -425,6 +473,13 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 	return 0
 End
 
+/// @function SetScaleButton
+/// @brief Description of SetScaleButton.
+/// @details
+/// Auto-generated documentation stub for function `SetScaleButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -461,6 +516,13 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	return 0
 End
 
+/// @function CheckboxPlotProfile
+/// @brief Description of CheckboxPlotProfile.
+/// @details
+/// Auto-generated documentation stub for function `CheckboxPlotProfile`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
+
 static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
@@ -475,6 +537,13 @@ static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxContr
 	endswitch
 	return 0
 End
+
+/// @function CheckboxMarkLines
+/// @brief Description of CheckboxMarkLines.
+/// @details
+/// Auto-generated documentation stub for function `CheckboxMarkLines`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
 
 
 static Function CheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
@@ -492,6 +561,13 @@ static Function CheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	return 0
 End
 
+/// @function OverrideNx
+/// @brief Description of OverrideNx.
+/// @details
+/// Auto-generated documentation stub for function `OverrideNx`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
+
 static Function OverrideNx(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
@@ -507,6 +583,13 @@ static Function OverrideNx(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	return 0
 End
 
+/// @function OverrideNy
+/// @brief Description of OverrideNy.
+/// @details
+/// Auto-generated documentation stub for function `OverrideNy`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
+
 static Function OverrideNy(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
@@ -521,6 +604,13 @@ static Function OverrideNy(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	endswitch
 	return 0
 End
+
+/// @function SetVariableNx
+/// @brief Description of SetVariableNx.
+/// @details
+/// Auto-generated documentation stub for function `SetVariableNx`.
+/// @param sv Parameter sv.
+/// @returns Variable Return value.
 
 static Function SetVariableNx(STRUCT WMSetVariableAction& sv) : SetVariableControl
 
@@ -551,6 +641,13 @@ static Function SetVariableNx(STRUCT WMSetVariableAction& sv) : SetVariableContr
 	return 0
 End
 
+/// @function SetVariableNy
+/// @brief Description of SetVariableNy.
+/// @details
+/// Auto-generated documentation stub for function `SetVariableNy`.
+/// @param sv Parameter sv.
+/// @returns Variable Return value.
+
 static Function SetVariableNy(STRUCT WMSetVariableAction& sv) : SetVariableControl
 
 	switch(sv.eventCode)
@@ -579,6 +676,20 @@ static Function SetVariableNy(STRUCT WMSetVariableAction& sv) : SetVariableContr
 	endswitch
 	return 0
 End
+
+/// @function DrawLineUserFront
+/// @brief Description of DrawLineUserFront.
+/// @details
+/// Auto-generated documentation stub for function `DrawLineUserFront`.
+/// @param winNameStr Parameter winNameStr.
+/// @param x0 Parameter x0.
+/// @param y0 Parameter y0.
+/// @param x1 Parameter x1.
+/// @param y1 Parameter y1.
+/// @param red Parameter red.
+/// @param green Parameter green.
+/// @param blue Parameter blue.
+/// @returns Variable Return value.
 
 static Function DrawLineUserFront(string winNameStr, variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
 	SetDrawLayer/W=$winNameStr UserFront 

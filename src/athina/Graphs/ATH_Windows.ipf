@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
@@ -30,6 +30,13 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+/// @module ATH_Windows
+/// @brief Module ATH_Windows.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Windows functionality.
+
 
 static Function/S GetListOfNamedWindowHookFunctions([string winNameStr, string hookFuncNameStr])
 	// Copy from https://www.wavemetrics.com/code-snippet/get-list-named-window-hook-functions
@@ -64,6 +71,15 @@ static Function/S GetListOfNamedWindowHookFunctions([string winNameStr, string h
     endif   
     return hookFuncNameStr 
 End
+
+/// @function SetNamedHookFunctionToWindow
+/// @brief Description of SetNamedHookFunctionToWindow.
+/// @details
+/// Auto-generated documentation stub for function `SetNamedHookFunctionToWindow`.
+/// @param hookFuncNameStr Parameter hookFuncNameStr.
+/// @param hookFuncStr Parameter hookFuncStr.
+/// @param grfName] Parameter grfName].
+/// @returns Variable Return value.
 
 static Function SetNamedHookFunctionToWindow(string hookFuncNameStr, string hookFuncStr, [string grfName])
 	// Set the the named hook function hookFuncStr as hook(hookFuncNameStr) 
@@ -104,6 +120,13 @@ static Function/S WindowNameOfDisplayedImageWaveRef(WAVE wRef)
 	endfor
 	return displayedStr
 End
+
+/// @function KillWindowsInListString
+/// @brief Description of KillWindowsInListString.
+/// @details
+/// Auto-generated documentation stub for function `KillWindowsInListString`.
+/// @param windowsListStr Parameter windowsListStr.
+/// @returns Variable Return value.
 
 static Function KillWindowsInListString(string windowsListStr)
 	// Kill all windows in winListstr (;)

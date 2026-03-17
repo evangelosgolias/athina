@@ -1,9 +1,10 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_Cursors
 #pragma version = 1.3
+
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
 // Contact: evangelos.golias@gmail.com
@@ -31,9 +32,11 @@
 // ------------------------------------------------------- //
 
 
-/// 06.12.2024: When you plot a trace and you launch MeasureDistanceUsingFreeCursors
-/// without any interaction with the window, the buttons do not work. You have to move
-/// the window to enable the buttons. 
+/// @module ATH_Cursors
+/// @brief Module ATH_Cursors.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Cursors functionality.
 
 static constant kCBOFFSET = 30 // height slider in 3d waves
 
@@ -55,12 +58,26 @@ static Function/S GetActiveCursors([string grfName])
 	return active
 End
 
+/// @function GetDistanceFromCursors
+/// @brief Description of GetDistanceFromCursors.
+/// @details
+/// Auto-generated documentation stub for function `GetDistanceFromCursors`.
+/// @param C1 Parameter C1.
+/// @param C2 Parameter C2.
+/// @returns Variable Return value.
+
 static Function GetDistanceFromCursors(string C1, string C2)
 	/// Returns the distance between C1 and C2 if given.
 	return sqrt((hcsr($C1) - hcsr($C2))^2 + (vcsr($C1) - vcsr($C2))^2)
 End
 
 // Interactive functionality
+
+/// @function MeasureDistanceUsingFreeCursors
+/// @brief Description of MeasureDistanceUsingFreeCursors.
+/// @details
+/// Auto-generated documentation stub for function `MeasureDistanceUsingFreeCursors`.
+/// @returns Variable Return value.
 static Function MeasureDistanceUsingFreeCursors()	
 	/// Use Cursors I, J (Free) to measure distances in a graph
 	/// Uses ATH_MeasureDistanceUsingFreeCursorsIJHook.
@@ -113,6 +130,13 @@ static Function MeasureDistanceUsingFreeCursors()
 	SetWindow $winNameStr, hook(ATH_MeasureDistanceCsrIJHook) = ATH_Cursors#MeasureDistanceUsingFreeCursorsHook
 
 End
+
+/// @function MeasureDistanceUsingFreeCursorsHook
+/// @brief Description of MeasureDistanceUsingFreeCursorsHook.
+/// @details
+/// Auto-generated documentation stub for function `MeasureDistanceUsingFreeCursorsHook`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
 
 static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 	/// Hook function for ATH_MeasureDistanceUsingFreeCursorsIJ()
@@ -570,6 +594,13 @@ static Function [variable xstart, variable ystart , variable xend, variable yend
 	return [xstart, ystart , xend, yend]
 End
 
+/// @function UserGetCursorsPositions_ContButtonProc
+/// @brief Description of UserGetCursorsPositions_ContButtonProc.
+/// @details
+/// Auto-generated documentation stub for function `UserGetCursorsPositions_ContButtonProc`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function UserGetCursorsPositions_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -594,6 +625,13 @@ static Function UserGetCursorsPositions_ContButtonProc(STRUCT WMButtonAction &B_
 	return 0
 End
 
+/// @function UserGetCursorsPositions_CancelBProc
+/// @brief Description of UserGetCursorsPositions_CancelBProc.
+/// @details
+/// Auto-generated documentation stub for function `UserGetCursorsPositions_CancelBProc`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function UserGetCursorsPositions_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -615,6 +653,17 @@ static Function UserGetCursorsPositions_CancelBProc(STRUCT WMButtonAction &B_Str
 	return 0
 End
 // End of Cursor positions with PauseforUser
+
+/// @function ThreeCursorsToAngle
+/// @brief Description of ThreeCursorsToAngle.
+/// @details
+/// Auto-generated documentation stub for function `ThreeCursorsToAngle`.
+/// @param Cursor1 Parameter Cursor1.
+/// @param Cursor2 Parameter Cursor2.
+/// @param Cursor3 Parameter Cursor3.
+/// @param [ Parameter [.
+/// @param deg] Parameter deg].
+/// @returns Variable Return value.
 
 static Function ThreeCursorsToAngle(string Cursor1, string Cursor2, string Cursor3, [, variable deg]) 
 	//
@@ -655,6 +704,13 @@ static Function ThreeCursorsToAngle(string Cursor1, string Cursor2, string Curso
 	return (deg == 0) ? angle : angle*180/pi
 End
 
+/// @function MirrorCursorPositionToWaveValues
+/// @brief Description of MirrorCursorPositionToWaveValues.
+/// @details
+/// Auto-generated documentation stub for function `MirrorCursorPositionToWaveValues`.
+/// @param wRef Parameter wRef.
+/// @returns Variable Return value.
+
 
 static Function MirrorCursorPositionToWaveValues(WAVE wRef)
 	// Add a textbox with values from two graphs in the same cursor position
@@ -678,6 +734,13 @@ static Function MirrorCursorPositionToWaveValues(WAVE wRef)
 	SetWindow $grfName userdata(ATH_LinkedWaveToMirrorValues) = GetWavesDataFolder(wRef,2)
 	return 0
 End
+
+/// @function SyncCursorsInGraphsHook
+/// @brief Description of SyncCursorsInGraphsHook.
+/// @details
+/// Auto-generated documentation stub for function `SyncCursorsInGraphsHook`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
 
 static Function SyncCursorsInGraphsHook(STRUCT WMWinHookStruct &s)
 

@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
@@ -31,6 +31,22 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+
+/// @module ATH_ImageAlign
+/// @brief Module ATH_ImageAlign.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH ImageAlign functionality.
+
+
+/// @function ImgRegistration
+/// @brief Description of ImgRegistration.
+/// @details
+/// Auto-generated documentation stub for function `ImgRegistration`.
+/// @param w1 Parameter w1.
+/// @param w2 Parameter w2.
+/// @returns Variable Return value.
+
 static Function ImgRegistration(WAVE w1, WAVE w2)
 	/// Align two images using ImageRegistration operation. 
 	/// Note: w2 in overwritten
@@ -49,6 +65,14 @@ static Function ImgRegistration(WAVE w1, WAVE w2)
 	KillWaves/Z M_RegOut, M_RegMaskOut, W_RegParams
 	return 0
 End
+
+/// @function ImgStackRegistration
+/// @brief Description of ImgStackRegistration.
+/// @details
+/// Auto-generated documentation stub for function `ImgStackRegistration`.
+/// @param wRef Parameter wRef.
+/// @param layerN Parameter layerN.
+/// @returns Variable Return value.
 
 static Function ImgStackRegistration(WAVE wRef, variable layerN)
 	DFREF saveDF = GetDataFolderDFR()
@@ -97,6 +121,7 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 	
 	MatrixOP/FREE partitionW3d_n = normalize(partitionW3d)
 	MatrixOP/FREE refLayerWave = layer(partitionW3d_n, layerN)
+	
 	variable rows = DimSize(w3d, 0)
 	variable cols = DimSize(w3d, 1)
 	variable layers = DimSize(w3d, 2)
@@ -146,6 +171,15 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 	SetDataFolder saveDF
 	return 0
 End
+
+/// @function ImgStackPartitionCorrelation
+/// @brief Description of ImgStackPartitionCorrelation.
+/// @details
+/// Auto-generated documentation stub for function `ImgStackPartitionCorrelation`.
+/// @param w3d Parameter w3d.
+/// @param partitionW3d Parameter partitionW3d.
+/// @param layerN] Parameter layerN].
+/// @returns Variable Return value.
 
 static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [variable layerN]) // Used in menu
 	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave.
@@ -210,6 +244,16 @@ static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [varia
 	return 0
 End
 
+/// @function LinearDriftStackABCursors
+/// @brief Description of LinearDriftStackABCursors.
+/// @details
+/// Auto-generated documentation stub for function `LinearDriftStackABCursors`.
+/// @param w3d Parameter w3d.
+/// @param wx Parameter wx.
+/// @param wy Parameter wy.
+/// @param intPx] Parameter intPx].
+/// @returns Variable Return value.
+
 static Function LinearDriftStackABCursors(WAVE w3d, WAVE wx, WAVE wy, [int intPx])
 	/// Linear drift correction w3d using wx and wy displacements
 
@@ -247,6 +291,18 @@ static Function LinearDriftStackABCursors(WAVE w3d, WAVE wx, WAVE wy, [int intPx
 	SetDataFolder currDF
 	return 0
 End
+
+/// @function LinearDriftPlanesABCursors
+/// @brief Description of LinearDriftPlanesABCursors.
+/// @details
+/// Auto-generated documentation stub for function `LinearDriftPlanesABCursors`.
+/// @param w3d Parameter w3d.
+/// @param wx Parameter wx.
+/// @param wy Parameter wy.
+/// @param startL Parameter startL.
+/// @param endL Parameter endL.
+/// @param intPx] Parameter intPx].
+/// @returns Variable Return value.
 
 static Function LinearDriftPlanesABCursors(WAVE w3d, WAVE wx, WAVE wy, [variable startL, variable endL, int intPx])
 	/// Linear drift correction w3d using wx and wy displacements
@@ -459,6 +515,14 @@ ThreadSafe static Function/WAVE ImageRegistration_Worker(WAVE w3D, WAVE wRef, va
 
 	return M_RegOut		// Return a reference to the free M_RegOut wave
 End
+
+/// @function MultiThreadImageRegistration
+/// @brief Description of MultiThreadImageRegistration.
+/// @details
+/// Auto-generated documentation stub for function `MultiThreadImageRegistration`.
+/// @param w3D Parameter w3D.
+/// @param ref Parameter ref.
+/// @returns Variable Return value.
 
 static Function MultiThreadImageRegistration(WAVE w3D, variable ref)
 

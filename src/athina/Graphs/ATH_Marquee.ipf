@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
@@ -31,6 +31,12 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+/// @module ATH_Marquee
+/// @brief Module ATH_Marquee.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Marquee functionality.
+
 Structure sUserMarqueePositions
 	// Used in ATH_UserGetMarqueePositions
 	variable left
@@ -39,6 +45,12 @@ Structure sUserMarqueePositions
 	variable bottom
 	variable canceled
 EndStructure
+
+/// @function MarqueeToMask
+/// @brief Description of MarqueeToMask.
+/// @details
+/// Auto-generated documentation stub for function `MarqueeToMask`.
+/// @returns Variable Return value.
 
 static Function MarqueeToMask()
 	string axisX, axisY
@@ -101,6 +113,14 @@ static Function/WAVE WAVECoordinatesToROIMask(variable left, variable top, varia
 	return ATH_ROIMask
 End
 
+/// @function PartitionRegion
+/// @brief Description of PartitionRegion.
+/// @details
+/// Auto-generated documentation stub for function `PartitionRegion`.
+/// @param evenNum Parameter evenNum.
+/// @param square] Parameter square].
+/// @returns Variable Return value.
+
 static Function PartitionRegion([int evenNum, int square])
 	evenNum = ParamIsDefault(evenNum) ? 1 : evenNum
 	square = ParamIsDefault(square) ? 0 : square
@@ -143,6 +163,12 @@ static Function [variable flag, variable leftR, variable rightR, variable topR, 
 	return [flag, leftR, rightR, topR, bottomR]
 End
 
+/// @function GetMarqueeWaveStats
+/// @brief Description of GetMarqueeWaveStats.
+/// @details
+/// Auto-generated documentation stub for function `GetMarqueeWaveStats`.
+/// @returns Variable Return value.
+
 static Function GetMarqueeWaveStats()
 	/// Wavestats for a marquee region in a 2D wave. In case of a 3D wave the stats
 	/// are calculated for all layers.
@@ -173,6 +199,14 @@ static Function GetMarqueeWaveStats()
 	return 0
 End
 
+/// @function CheckActiveAxis
+/// @brief Description of CheckActiveAxis.
+/// @details
+/// Auto-generated documentation stub for function `CheckActiveAxis`.
+/// @param graphname Parameter graphname.
+/// @param axis Parameter axis.
+/// @returns Variable Return value.
+
 static Function CheckActiveAxis(string graphname, string axis)
 	/// If axis is present, return 1 otherwise 0
 	/// graphnname = "" we refer to the top window
@@ -182,6 +216,13 @@ static Function CheckActiveAxis(string graphname, string axis)
 		return 0
 	endif
 End
+
+/// @function SaveROICoordinatesToDatabase
+/// @brief Description of SaveROICoordinatesToDatabase.
+/// @details
+/// Auto-generated documentation stub for function `SaveROICoordinatesToDatabase`.
+/// @param rect] Parameter rect].
+/// @returns Variable Return value.
 
 static Function SaveROICoordinatesToDatabase([variable rect])
 	// Save ROI to database and draw it on image's UserFront
@@ -240,6 +281,13 @@ static Function [variable leftR, variable rightR, variable topR, variable bottom
 	return [leftR, rightR , topR, bottomR]
 End
 
+/// @function UserSetMarquee_ContButtonProc
+/// @brief Description of UserSetMarquee_ContButtonProc.
+/// @details
+/// Auto-generated documentation stub for function `UserSetMarquee_ContButtonProc`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function UserSetMarquee_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -262,6 +310,13 @@ static Function UserSetMarquee_ContButtonProc(STRUCT WMButtonAction &B_Struct): 
 	endswitch
 	return 0
 End
+
+/// @function UserSetMarquee_CancelBProc
+/// @brief Description of UserSetMarquee_CancelBProc.
+/// @details
+/// Auto-generated documentation stub for function `UserSetMarquee_CancelBProc`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 static Function UserSetMarquee_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
 

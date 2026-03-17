@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
@@ -28,9 +28,14 @@
 //	WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
-// ------------------------------------------------------- //
-// --------------------------- Helper functions ------------------------------------//
-// Dialogs
+
+/// @module ATH_Dialog
+/// @brief Module ATH_Dialog.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Dialog functionality.
+
+
 static Function/S GenericSinglePopupStrPrompt(string strPrompt, string popupStrSelection, string msgDialog)
 	string returnStrVar 
 	Prompt returnStrVar, strPrompt, popup, popupStrSelection
@@ -115,6 +120,12 @@ End
 
 /// Helper function
 
+/// @function CountSelectedObjectsInDataBrowser
+/// @brief Description of CountSelectedObjectsInDataBrowser.
+/// @details
+/// Auto-generated documentation stub for function `CountSelectedObjectsInDataBrowser`.
+/// @returns Variable Return value.
+
 static Function CountSelectedObjectsInDataBrowser()
 	/// return how many objects of any kind you have 
 	/// selected in the data browser 
@@ -130,6 +141,13 @@ static Function CountSelectedObjectsInDataBrowser()
 	while (strlen(GetBrowserSelection(i)))
 	return cnt
 End
+
+/// @function CountSelectedWavesInDataBrowser
+/// @brief Description of CountSelectedWavesInDataBrowser.
+/// @details
+/// Auto-generated documentation stub for function `CountSelectedWavesInDataBrowser`.
+/// @param wDim] Parameter wDim].
+/// @returns Variable Return value.
 
 static Function CountSelectedWavesInDataBrowser([variable wDim])
 	/// return how many waves are selected in the data browser
@@ -189,6 +207,14 @@ End
 //
 // Code does not work, check similar function in MarqueeOperations.ipf
 
+/// @function WaitForUserActions
+/// @brief Description of WaitForUserActions.
+/// @details
+/// Auto-generated documentation stub for function `WaitForUserActions`.
+/// @param &s Parameter &s.
+/// @param vWinType] Parameter vWinType].
+/// @returns Variable Return value.
+
 static Function WaitForUserActions(STRUCT sUserMarqueePositions &s, [variable vWinType])
 	// vWinType = 1 (default) graphs
 	// vWinType = 2 Tables
@@ -223,6 +249,13 @@ static Function WaitForUserActions(STRUCT sUserMarqueePositions &s, [variable vW
 	return 0
 End
 
+/// @function WaitForUserActions_ContButtonProc
+/// @brief Description of WaitForUserActions_ContButtonProc.
+/// @details
+/// Auto-generated documentation stub for function `WaitForUserActions_ContButtonProc`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function WaitForUserActions_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -236,6 +269,13 @@ static Function WaitForUserActions_ContButtonProc(STRUCT WMButtonAction &B_Struc
 	endswitch
 	return 0
 End
+
+/// @function WaitForUserActions_CancelBProc
+/// @brief Description of WaitForUserActions_CancelBProc.
+/// @details
+/// Auto-generated documentation stub for function `WaitForUserActions_CancelBProc`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 static Function WaitForUserActions_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
 

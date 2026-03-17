@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
@@ -30,6 +30,13 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+
+/// @module ATH_ImageFilter
+/// @brief Module ATH_ImageFilter.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH ImageFilter functionality.
 
 static constant kCBOFFSET = 30 // height slider in 3d waves
 
@@ -95,6 +102,13 @@ End
 //// -----------------------------------------------------------------
 //// iFFTFilter Panel
 
+/// @function iFFTImgFilter
+/// @brief Description of iFFTImgFilter.
+/// @details
+/// Auto-generated documentation stub for function `iFFTImgFilter`.
+/// @param wRef Parameter wRef.
+/// @returns Variable Return value.
+
 static Function iFFTImgFilter(WAVE wRef)
 	DFREF saveDF = GetDataFolderDFR()
 	string winNameStr = ATH_Display#NewImg(wRef)
@@ -140,6 +154,13 @@ static Function iFFTImgFilter(WAVE wRef)
 	SetWindow $fftWinNameStr hook(iImgFilterHookFunction) = ATH_ImgFilter#iImgFilterHookFunction
 End
 
+/// @function iImgFilterHookFunction
+/// @brief Description of iImgFilterHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `iImgFilterHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
+
 Function iImgFilterHookFunction(STRUCT WMWinHookStruct &s)
 		
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
@@ -153,6 +174,13 @@ Function iImgFilterHookFunction(STRUCT WMWinHookStruct &s)
 	endswitch
 	return hookResult		// If non-zero, we handled event and Igor will ignore it.
 End
+
+/// @function iImgFilterButton
+/// @brief Description of iImgFilterButton.
+/// @details
+/// Auto-generated documentation stub for function `iImgFilterButton`.
+/// @param &ba Parameter &ba.
+/// @returns Variable Return value.
 
 static Function iImgFilterButton(STRUCT WMButtonAction &ba) : ButtonControl
 	if (ba.eventCode != 2)
@@ -205,6 +233,13 @@ static Function iImgFilterButton(STRUCT WMButtonAction &ba) : ButtonControl
 	SetDataFolder saveDF
 	return 0
 End
+
+/// @function iImgFilterSetGValues
+/// @brief Description of iImgFilterSetGValues.
+/// @details
+/// Auto-generated documentation stub for function `iImgFilterSetGValues`.
+/// @param &sva Parameter &sva.
+/// @returns Variable Return value.
 
 static Function iImgFilterSetGValues(STRUCT WMSetVariableAction &sva) : SetVariableControl
 	DFREF dfr = $GetUserData(sva.win,"","iImgFilterDFREF")

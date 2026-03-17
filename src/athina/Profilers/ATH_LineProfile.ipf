@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals    = 3		
 #pragma IgorVersion  = 9
 #pragma ModuleName = ATH_LineProfile
@@ -30,6 +30,18 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+/// @module ATH_LineProfile
+/// @brief Module ATH_LineProfile.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH LineProfile functionality.
+
+/// @function MainMenu
+/// @brief Description of MainMenu.
+/// @details
+/// Auto-generated documentation stub for function `MainMenu`.
+/// @returns Variable Return value.
 
 
 static Function MainMenu()
@@ -138,6 +150,13 @@ static Function/DF InitialiseFolder(string winNameStr)
 	return dfr
 End
 
+/// @function InitialiseGraph
+/// @brief Description of InitialiseGraph.
+/// @details
+/// Auto-generated documentation stub for function `InitialiseGraph`.
+/// @param dfr Parameter dfr.
+/// @returns Variable Return value.
+
 static Function InitialiseGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
 	string plotNameStr = "ATH_LineProf_" + GetDataFolder(0, dfr)
@@ -148,6 +167,13 @@ static Function InitialiseGraph(DFREF dfr)
 	endif
 	return 0
 End
+
+/// @function CreatePlot
+/// @brief Description of CreatePlot.
+/// @details
+/// Auto-generated documentation stub for function `CreatePlot`.
+/// @param dfr Parameter dfr.
+/// @returns Variable Return value.
 
 static Function CreatePlot(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
@@ -182,6 +208,13 @@ static Function CreatePlot(DFREF dfr)
 	return 0
 End
 
+/// @function ClearLineMarkings
+/// @brief Description of ClearLineMarkings.
+/// @details
+/// Auto-generated documentation stub for function `ClearLineMarkings`.
+/// @param winNameStr Parameter winNameStr.
+/// @returns Variable Return value.
+
 static Function ClearLineMarkings(string winNameStr)
 	SetDrawLayer/W=$winNameStr UserFront
 	DrawAction/W=$winNameStr delete
@@ -189,12 +222,33 @@ static Function ClearLineMarkings(string winNameStr)
 	return 0
 End
 
+/// @function DrawLineUserFront
+/// @brief Description of DrawLineUserFront.
+/// @details
+/// Auto-generated documentation stub for function `DrawLineUserFront`.
+/// @param winNameStr Parameter winNameStr.
+/// @param x0 Parameter x0.
+/// @param y0 Parameter y0.
+/// @param x1 Parameter x1.
+/// @param y1 Parameter y1.
+/// @param red Parameter red.
+/// @param green Parameter green.
+/// @param blue Parameter blue.
+/// @returns Variable Return value.
+
 static Function DrawLineUserFront(string winNameStr, variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
 	SetDrawLayer/W=$winNameStr UserFront 
 	SetDrawEnv/W=$winNameStr linefgc = (red, green, blue), fillpat = 0, linethick = 2, dash= 2, xcoord= top, ycoord= left
 	DrawLine/W=$winNameStr x0, y0, x1, y1
 	return 0
 End
+
+/// @function CursorsHookFunction
+/// @brief Description of CursorsHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `CursorsHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
 
 static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
@@ -275,6 +329,13 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
     return hookResult       // 0 if nothing done, else 1
 End
 
+/// @function GraphHookFunction
+/// @brief Description of GraphHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `GraphHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
+
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentImageWinStr = GetUserData(s.winName, "", "ATH_LinkedWinImageSource")
 	switch(s.eventCode)
@@ -300,6 +361,13 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			break
 	endswitch
 End
+
+/// @function SaveProfile
+/// @brief Description of SaveProfile.
+/// @details
+/// Auto-generated documentation stub for function `SaveProfile`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 
 static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
@@ -355,6 +423,13 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 	return 0
 End
 
+/// @function SaveDefaultSettings
+/// @brief Description of SaveDefaultSettings.
+/// @details
+/// Auto-generated documentation stub for function `SaveDefaultSettings`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -378,6 +453,13 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 	endswitch
 End
 
+/// @function RestoreDefaultSettings
+/// @brief Description of RestoreDefaultSettings.
+/// @details
+/// Auto-generated documentation stub for function `RestoreDefaultSettings`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -400,6 +482,13 @@ static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonC
 	endswitch
 End
 
+/// @function ShowProfileWidth
+/// @brief Description of ShowProfileWidth.
+/// @details
+/// Auto-generated documentation stub for function `ShowProfileWidth`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	/// We have to find the vertices of the polygon representing
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
@@ -417,6 +506,13 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	endswitch
 End
 
+/// @function CheckboxPlotProfile
+/// @brief Description of CheckboxPlotProfile.
+/// @details
+/// Auto-generated documentation stub for function `CheckboxPlotProfile`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
+
 static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
@@ -431,6 +527,13 @@ static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxContr
 	endswitch
 	return 0
 End
+
+/// @function ProfileLayer3D
+/// @brief Description of ProfileLayer3D.
+/// @details
+/// Auto-generated documentation stub for function `ProfileLayer3D`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
 
 static Function ProfileLayer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
@@ -456,6 +559,13 @@ static Function ProfileLayer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	return 0
 End
 
+/// @function CheckboxMarkLines
+/// @brief Description of CheckboxMarkLines.
+/// @details
+/// Auto-generated documentation stub for function `CheckboxMarkLines`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
+
 static Function CheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
@@ -470,6 +580,13 @@ static Function CheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	endswitch
 	return 0
 End
+
+/// @function SetVariableWidth
+/// @brief Description of SetVariableWidth.
+/// @details
+/// Auto-generated documentation stub for function `SetVariableWidth`.
+/// @param sv Parameter sv.
+/// @returns Variable Return value.
 
 static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
@@ -534,6 +651,13 @@ static Function DrawLineProfileRectangle(variable C1x,variable C1y,variable C2x,
 	DrawPoly/W=$grfName x1, y1, 1, 1, {x1, y1, x2, y2, x3, y3, x4, y4}
 	SetDrawEnv/W=$grfName gstop
 End
+
+/// @function DeleleLineProfileRectangle
+/// @brief Description of DeleleLineProfileRectangle.
+/// @details
+/// Auto-generated documentation stub for function `DeleleLineProfileRectangle`.
+/// @param grfName Parameter grfName.
+/// @returns Variable Return value.
 
 static Function DeleleLineProfileRectangle(string grfName)
 	SetDrawLayer/W=$grfName ProgFront

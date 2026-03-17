@@ -1,9 +1,10 @@
-﻿#pragma rtGlobals    = 3
+#pragma rtGlobals    = 3
 #pragma TextEncoding = "UTF-8"
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName  = ATH_LoadImg
 #pragma version = 1.01
+
 // ------------------------------------------------------- //
 // Functions to import data acquired using EMMenu5.
 // Functions to import P3B files (ALS)
@@ -33,6 +34,23 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+/// @module ATH_LoadImg
+/// @brief Module ATH_LoadImg.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH LoadImg functionality.
+
+
+/// @function Loadtiff
+/// @brief Description of Loadtiff.
+/// @details
+/// Auto-generated documentation stub for function `Loadtiff`.
+/// @param filepathStr Parameter filepathStr.
+/// @param waveNameStr Parameter waveNameStr.
+/// @param displayImg Parameter displayImg.
+/// @param overwrite] Parameter overwrite].
+/// @returns Variable Return value.
 
 
 static Function Loadtiff(string filepathStr, string waveNameStr, [int displayImg, int overwrite])
@@ -100,6 +118,15 @@ static Function Loadtiff(string filepathStr, string waveNameStr, [int displayImg
 	endif
 	return 0
 End
+
+/// @function Loadtiffs
+/// @brief Description of Loadtiffs.
+/// @details
+/// Auto-generated documentation stub for function `Loadtiffs`.
+/// @param numImages Parameter numImages.
+/// @param displayImg Parameter displayImg.
+/// @param stack3d] Parameter stack3d].
+/// @returns Variable Return value.
 
 static Function Loadtiffs([int numImages, int displayImg, int stack3d])
 	/// @param filepathStr string pathname.
@@ -296,6 +323,13 @@ static Function/S PEEM3File(string filepathStr, [variable mkdir])
 	SetDataFolder saveDF
 	return waveNameStr
 End
+
+/// @function PEEM3Files
+/// @brief Description of PEEM3Files.
+/// @details
+/// Auto-generated documentation stub for function `PEEM3Files`.
+/// @param stack3d] Parameter stack3d].
+/// @returns Variable Return value.
 
 static Function PEEM3Files([int stack3d])
 	stack3d = ParamIsDefault(stack3d) ? 0 : !!stack3d

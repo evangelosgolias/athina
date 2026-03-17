@@ -1,10 +1,27 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_Transform
 #pragma version = 1.01
 
+/// @module ATH_Transform
+/// @brief Fourier and affine-transformation helpers for image processing.
+/// @details
+/// This module contains utility routines for 2D FFT generation, value scaling,
+/// affine mapping estimation from three point pairs, and conversion of affine
+/// coefficients into the parameter-wave format expected by Igor's image-registration tools.
+///
+
+/// @function FFT2D
+/// @brief Compute the 2D FFT of an input wave.
+/// @details
+/// Duplicates the input wave as a temporary complex wave, performs a 2D FFT, and
+/// stores the result in the source wave's data folder using the suffix `_FFT`.
+/// @param wRef Wave Input 2D wave.
+/// @param mode Variable Optional FFT output mode passed to `FFT/OUT`.
+/// @returns Wave Reference to the generated FFT wave.
+///
 static Function/WAVE FFT2D(WAVE wRef, [int mode])
 	///
 	/// FFT of a 2D wave
@@ -20,6 +37,15 @@ static Function/WAVE FFT2D(WAVE wRef, [int mode])
 End
 
 
+/// @function HighLowScale
+/// @brief Scale wave values into a specified numeric range.
+/// @details
+/// Creates a new wave named `<input>_scaled` using `MatrixOP scale(wRef, low, high)`.
+/// @param wRef Wave Input wave to scale.
+/// @param low Variable Lower bound of the target range.
+/// @param high Variable Upper bound of the target range.
+/// @returns Variable Returns 0 on completion.
+///
 Function HighLowScale(WAVE wRef, variable low, variable high)
     // Find min and max values of the wave
     string waveNormStr = NameOfWave(wRef)+"_scaled"
@@ -27,6 +53,15 @@ Function HighLowScale(WAVE wRef, variable low, variable high)
     return 0
 End
 
+/// @function GetAffine2DMapping
+/// @brief Compute an affine transform from three source and destination point pairs.
+/// @details
+/// Solves for the six affine coefficients that map the three points in `src` onto
+/// the corresponding three points in `dest`.
+/// @param src Wave Six-element source coordinate wave `{x1,y1,x2,y2,x3,y3}`.
+/// @param dest Wave Six-element destination coordinate wave `{X1,Y1,X2,Y2,X3,Y3}`.
+/// @returns Wave Free wave containing the affine coefficients.
+///
 Function/WAVE GetAffine2DMapping(WAVE src, WAVE dest)
 
 	// Calculate an affine transformation that maps img0 to img1.
@@ -53,6 +88,15 @@ Function/WAVE GetAffine2DMapping(WAVE src, WAVE dest)
 	
 End
 
+/// @function MakeImageRegistrationParamsWave
+/// @brief Convert affine coefficients to an image-registration parameter wave.
+/// @details
+/// Fills `W_ParamsOut` with the 22-element parameter layout used by Igor's
+/// `ImageRegistration` operation, based on the affine coefficients in `wRef`.
+/// @param wRef Wave Input wave containing affine transform coefficients.
+/// @returns Variable Returns 0 on completion.
+/// @note Creates `W_ParamsOut` if it does not already exist and overwrites its contents.
+///
 static Function MakeImageRegistrationParamsWave(WAVE wRef)
 
 	// wRef comes from the affine transformation matrix	

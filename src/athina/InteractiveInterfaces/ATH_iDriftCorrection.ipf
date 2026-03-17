@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
@@ -31,17 +31,28 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
-/// Note: We cannot launch the operation without having a slider on at the moment
-/// the problem is the Wavemetrics functions used in ATH_Display. "GetWindow kwTopWin, property" fails
-/// as it acts on the /EXT panel with "error: this operation is for graphs only"
-/// static Function Append3DImageSlider() is the source of error.
-/// Exterior windows are on top
+/// @module ATH_iDriftCorrection
+/// @brief Module ATH_iDriftCorrection.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH iDriftCorrection functionality.
 
-/// Revised and now can handle single images 04.10.2024
-/// Revised to use relative coordinate to save Ref. Coord.
-/// to be independent from scale/img size and only drift
-/// to the same spot wrt to the axes.
-///
+// Note: We cannot launch the operation without having a slider on at the moment
+// the problem is the Wavemetrics functions used in ATH_Display. "GetWindow kwTopWin, property" fails
+// as it acts on the /EXT panel with "error: this operation is for graphs only"
+// static Function Append3DImageSlider() is the source of error.
+// Exterior windows are on top
+
+// Revised and now can handle single images 04.10.2024
+// Revised to use relative coordinate to save Ref. Coord.
+// to be independent from scale/img size and only drift
+// to the same spot wrt to the axes.
+
+/// @function CreatePanel
+/// @brief Description of CreatePanel.
+/// @details
+/// Auto-generated documentation stub for function `CreatePanel`.
+/// @returns Variable Return value.
 static Function CreatePanel()
 
 	string winNameStr = WinName(0, 1, 1)
@@ -177,6 +188,13 @@ static Function CreatePanel()
 	SetWindow $winNameStr, hook(iDriftWindowHook) = ATH_iDriftCorrection#GraphHookFunction // Set the hook
 End
 
+/// @function GraphHookFunction
+/// @brief Description of GraphHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `GraphHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
+
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
@@ -266,6 +284,13 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 	return hookresult
 End
 
+/// @function PanelHookFunction
+/// @brief Description of PanelHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `PanelHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
+
 static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when panel is closed
 
 	switch(s.eventCode)
@@ -286,6 +311,13 @@ static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when pan
 	endswitch
 	return hookresult
 End
+
+/// @function SetAnchorCursorButton
+/// @brief Description of SetAnchorCursorButton.
+/// @details
+/// Auto-generated documentation stub for function `SetAnchorCursorButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
@@ -327,6 +359,13 @@ static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonCo
 	return hookresult
 End
 
+/// @function DriftImageButton
+/// @brief Description of DriftImageButton.
+/// @details
+/// Auto-generated documentation stub for function `DriftImageButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -362,6 +401,13 @@ static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	return hookresult
 End
 
+/// @function ToggleSubPixelModeButton
+/// @brief Description of ToggleSubPixelModeButton.
+/// @details
+/// Auto-generated documentation stub for function `ToggleSubPixelModeButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function ToggleSubPixelModeButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -396,6 +442,13 @@ static Function ToggleSubPixelModeButton(STRUCT WMButtonAction &B_Struct): Butto
 	endswitch
 	return hookresult
 End
+
+/// @function SetStartLayerButton
+/// @brief Description of SetStartLayerButton.
+/// @details
+/// Auto-generated documentation stub for function `SetStartLayerButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 				
 static Function SetStartLayerButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
@@ -430,6 +483,13 @@ static Function SetStartLayerButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 	return hookresult
 End
 
+/// @function SetEndLayerButton
+/// @brief Description of SetEndLayerButton.
+/// @details
+/// Auto-generated documentation stub for function `SetEndLayerButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function SetEndLayerButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -461,6 +521,13 @@ static Function SetEndLayerButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 	endswitch
 	return hookresult
 End
+
+/// @function LinearDCButton
+/// @brief Description of LinearDCButton.
+/// @details
+/// Auto-generated documentation stub for function `LinearDCButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
@@ -497,6 +564,13 @@ static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	return hookresult
 End
 
+/// @function CheckpointButton
+/// @brief Description of CheckpointButton.
+/// @details
+/// Auto-generated documentation stub for function `CheckpointButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function CheckpointButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -511,6 +585,13 @@ static Function CheckpointButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	endswitch
 	return hookresult
 End
+
+/// @function RestoreWaveButton
+/// @brief Description of RestoreWaveButton.
+/// @details
+/// Auto-generated documentation stub for function `RestoreWaveButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 static Function RestoreWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	//Complete
@@ -527,6 +608,13 @@ static Function RestoreWaveButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 	endswitch
 	return hookresult
 End
+
+/// @function DriftSelectedLayers3DWaveButton
+/// @brief Description of DriftSelectedLayers3DWaveButton.
+/// @details
+/// Auto-generated documentation stub for function `DriftSelectedLayers3DWaveButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
@@ -583,6 +671,13 @@ static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct)
 	return hookresult
 End
 
+/// @function CascadeDrift3DWaveButton
+/// @brief Description of CascadeDrift3DWaveButton.
+/// @details
+/// Auto-generated documentation stub for function `CascadeDrift3DWaveButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
 
@@ -628,6 +723,13 @@ static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): Butto
 	endswitch
 	return hookresult
 End
+
+/// @function FastModeCheckbox
+/// @brief Description of FastModeCheckbox.
+/// @details
+/// Auto-generated documentation stub for function `FastModeCheckbox`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
 
 static Function FastModeCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	variable hookresult = 0
@@ -694,6 +796,13 @@ static Function FastModeCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	return hookresult
 End
 
+/// @function InterStackAlignmentButton
+/// @brief Description of InterStackAlignmentButton.
+/// @details
+/// Auto-generated documentation stub for function `InterStackAlignmentButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	// fast exit if not eventCode is not 2
 	if (B_Struct.eventCode != 2)
@@ -758,6 +867,17 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 			break
 	endswitch
 End
+
+/// @function DrawTheRefCross
+/// @brief Description of DrawTheRefCross.
+/// @details
+/// Auto-generated documentation stub for function `DrawTheRefCross`.
+/// @param wRef Parameter wRef.
+/// @param xv Parameter xv.
+/// @param yv Parameter yv.
+/// @param grfName Parameter grfName.
+/// @param axisRel] Parameter axisRel].
+/// @returns Variable Return value.
 
 static Function DrawTheRefCross(WAVE wRef, variable xv, variable yv, [string grfName, int axisRel])
 	// Draw the ref line

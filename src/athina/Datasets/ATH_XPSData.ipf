@@ -1,4 +1,10 @@
-﻿#pragma TextEncoding = "UTF-8"
+/// @module ATH_XPSData
+/// @brief Module ATH_XPSData.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH XPSData functionality.
+
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
@@ -86,6 +92,12 @@ EndStructure
 //************************************************************
 // Periodic Table
 // this is the starting point for creating the periodic table panel
+
+/// @function XPSReferenceData
+/// @brief Description of XPSReferenceData.
+/// @details
+/// Auto-generated documentation stub for function `XPSReferenceData`.
+/// @returns Variable Return value.
 static Function XPSReferenceData() : Panel
 
 	if (!DataFolderExists("root:Packages:ATH_DataFolder:XPSReferenceData"))
@@ -424,6 +436,13 @@ Static Function PTDisplayPanel()
 End
 
 //
+
+/// @function SetVariableFunction
+/// @brief Description of SetVariableFunction.
+/// @details
+/// Auto-generated documentation stub for function `SetVariableFunction`.
+/// @param sv Parameter sv.
+/// @returns Variable Return value.
 static Function SetVariableFunction(STRUCT WMSetVariableAction& sv) : SetVariableControl
 
 		NVAR ghv = root:Packages:ATH_DataFolder:XPSReferenceData:ghv
@@ -454,6 +473,13 @@ End
 
 //************************************************************
 // Resize PT Panel
+
+/// @function PTResizePanel
+/// @brief Description of PTResizePanel.
+/// @details
+/// Auto-generated documentation stub for function `PTResizePanel`.
+/// @param pa Parameter pa.
+/// @returns Variable Return value.
 static Function PTResizePanel(pa) : PopupMenuControl
 	STRUCT WMPopupAction &pa
 	
@@ -485,6 +511,13 @@ static Function PTResizePanel(pa) : PopupMenuControl
 End
 
 //************************************************************
+
+/// @function GetAtNr
+/// @brief Description of GetAtNr.
+/// @details
+/// Auto-generated documentation stub for function `GetAtNr`.
+/// @param Estr Parameter Estr.
+/// @returns Variable Return value.
 static Function GetAtNr(Estr)
 	string Estr
 	wave AtNr= root:Packages:ATH_DataFolder:XPSReferenceData:AtNr
@@ -502,6 +535,13 @@ end
 
 
 //************************************************************
+
+/// @function ShowButtonProc
+/// @brief Description of ShowButtonProc.
+/// @details
+/// Auto-generated documentation stub for function `ShowButtonProc`.
+/// @param &ba Parameter &ba.
+/// @returns Variable Return value.
 static Function ShowButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 
 	switch( ba.eventCode )
@@ -558,6 +598,13 @@ static Function ShowButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 End
 
 //************************************************************
+
+/// @function ClearButtonProc
+/// @brief Description of ClearButtonProc.
+/// @details
+/// Auto-generated documentation stub for function `ClearButtonProc`.
+/// @param &ba Parameter &ba.
+/// @returns Variable Return value.
 static Function ClearButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 	
 	switch( ba.eventCode )
@@ -598,6 +645,13 @@ static Function ClearButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 	return 0
 End
 
+/// @function KEButtonProc
+/// @brief Description of KEButtonProc.
+/// @details
+/// Auto-generated documentation stub for function `KEButtonProc`.
+/// @param &ba Parameter &ba.
+/// @returns Variable Return value.
+
 static Function KEButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 	NVAR gkE = root:Packages:ATH_DataFolder:XPSReferenceData:gKE
 	
@@ -620,6 +674,13 @@ End
 // Periodic Table Get State
 // this button procedure is called whenever an element button
 // is entered, left, or pushed
+
+/// @function PTGetState
+/// @brief Description of PTGetState.
+/// @details
+/// Auto-generated documentation stub for function `PTGetState`.
+/// @param &bs Parameter &bs.
+/// @returns Variable Return value.
 static Function PTGetState(STRUCT WMButtonAction &bs) : ButtonControl
 	
 	wave Col= root:Packages:ATH_DataFolder:XPSReferenceData:Col
@@ -681,6 +742,13 @@ static Function/S GetColumnOrderFromSelectedElement(string elementStr)
 	string matchedFilesStr = SortList(GrepList(ATH_OrbitalOrder, elementStr + RegExpBaseStr), ";", 16)
 	return matchedFilesStr
 End
+
+/// @function PlotPhCrossSectionOfElement
+/// @brief Description of PlotPhCrossSectionOfElement.
+/// @details
+/// Auto-generated documentation stub for function `PlotPhCrossSectionOfElement`.
+/// @param elementStr Parameter elementStr.
+/// @returns Variable Return value.
 
 static Function PlotPhCrossSectionOfElement(string elementStr)
 	string allDimLabels = GetColumnOrderFromSelectedElement(elementStr)
@@ -785,6 +853,15 @@ static Function [variable red, variable green, variable blue] SetTraceColor(vari
      return [red, green, blue]
 End
 
+/// @function CreateElemSelectCoreLevels
+/// @brief Description of CreateElemSelectCoreLevels.
+/// @details
+/// Auto-generated documentation stub for function `CreateElemSelectCoreLevels`.
+/// @param KE Parameter KE.
+/// @param hv Parameter hv.
+/// @param wf] Parameter wf].
+/// @returns Variable Return value.
+
 
 
 Function CreateElemSelectCoreLevels([int KE, variable hv, variable wf])
@@ -816,6 +893,16 @@ End
 
 // Not the most effective fuction having to call GetCrossSectionAtPhotonEnergy
 // several times
+
+/// @function CreateElemSelectCSAtPhotonEnergy
+/// @brief Description of CreateElemSelectCSAtPhotonEnergy.
+/// @details
+/// Auto-generated documentation stub for function `CreateElemSelectCSAtPhotonEnergy`.
+/// @param wRef Parameter wRef.
+/// @param hv Parameter hv.
+/// @param normalise Parameter normalise.
+/// @param maskExc] Parameter maskExc].
+/// @returns Variable Return value.
 Function CreateElemSelectCSAtPhotonEnergy(WAVE wRef, variable hv, [int normalise, int maskExc])
 	// wRef here is root:Packages:ATH_DataFolder:XPSReferenceData:CoreLevelsSelect
 	//	RSF p3/2 = RSFp * 2/3
@@ -863,6 +950,15 @@ End
 // Not the most effective fuction having to call GetCrossSectionAtPhotonEnergy
 // several times
 
+/// @function GetCrossSectionAtPhotonEnergy
+/// @brief Description of GetCrossSectionAtPhotonEnergy.
+/// @details
+/// Auto-generated documentation stub for function `GetCrossSectionAtPhotonEnergy`.
+/// @param elem Parameter elem.
+/// @param orb Parameter orb.
+/// @param hv Parameter hv.
+/// @returns Variable Return value.
+
 Function GetCrossSectionAtPhotonEnergy(string elem, string orb, variable hv)
 	// Get the ionisation cross-section, use DimLavels
 	
@@ -885,6 +981,13 @@ Function GetCrossSectionAtPhotonEnergy(string elem, string orb, variable hv)
 		return 0
 	endif
 End
+
+/// @function soRSF
+/// @brief Description of soRSF.
+/// @details
+/// Auto-generated documentation stub for function `soRSF`.
+/// @param orbital Parameter orbital.
+/// @returns Variable Return value.
 
 Function soRSF(string orbital)
 	// Return relative sensitivity factor

@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
@@ -30,6 +30,13 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+
+/// @module ATH_Display
+/// @brief Module ATH_Display.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Display functionality.
 
 // Visible everywhere, global constant.
 strConstant skATH_W3DImageSliderParentDFR = "root:Packages:ATH_DataFolder:W3DImageSlider:" // Ends with semicolon
@@ -74,6 +81,13 @@ static Function/S NewImg(WAVE wRef, [string grfname])
 	endif
 	return grfname
 End
+
+/// @function DisplayHookFunction
+/// @brief Description of DisplayHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `DisplayHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
 
 
 static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
@@ -342,6 +356,13 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	return hookResult
 End
 
+/// @function Append3DImageSlider
+/// @brief Description of Append3DImageSlider.
+/// @details
+/// Auto-generated documentation stub for function `Append3DImageSlider`.
+/// @param grfName] Parameter grfName].
+/// @returns Variable Return value.
+
 Function Append3DImageSlider([string grfName])
 		// Append a slider if you have a stack
 		// Wave in top graph
@@ -380,6 +401,13 @@ Function Append3DImageSlider([string grfName])
 		SetVariable ATH_W3DSliderVar,title=" ",value=gLayer,size={50,20},proc=ATH_Display#ImageSliderSetVar,win=$grfName
 End
 
+/// @function NewImgSliderHook
+/// @brief Description of NewImgSliderHook.
+/// @details
+/// Auto-generated documentation stub for function `NewImgSliderHook`.
+/// @param &sa Parameter &sa.
+/// @returns Variable Return value.
+
 Function NewImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 
 	if (sa.eventCode & 9) // Mouse moved or arrow key moved the slider & Value Set
@@ -404,6 +432,13 @@ Function NewImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 	return 0
 End
 
+/// @function ImageSliderSetVar
+/// @brief Description of ImageSliderSetVar.
+/// @details
+/// Auto-generated documentation stub for function `ImageSliderSetVar`.
+/// @param &sva Parameter &sva.
+/// @returns Variable Return value.
+
 static Function ImageSliderSetVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
 	variable hookresult =  0
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_W3DImageSliderDFR"))
@@ -426,7 +461,7 @@ static Function ImageSliderSetVar(STRUCT WMSetVariableAction &sva) : SetVariable
 	return 0
 End
 
-static function Mangify(STRUCT WMWinHookStruct &s)
+static Function Mangify(STRUCT WMWinHookStruct &s)
 	//
 	// Copied from https://www.wavemetrics.com/code-snippet/mousewheel-graph-window-zoom
 	// and edited to our taste.
@@ -482,6 +517,32 @@ static function Mangify(STRUCT WMWinHookStruct &s)
 	return 0
 End
 
+/// @function RestartW3DImageSlider
+/// @brief Description of RestartW3DImageSlider.
+/// @details
+/// Auto-generated documentation stub for function `RestartW3DImageSlider`.
+/// @param grfName] Parameter grfName].
+/// @returns Variable Return value.
+
+static Function RestartW3DImageSlider([string grfName])
+	// Kill and restart ATH_Display#Append3DImageSlider and restart in case 
+	// of changes in the source 3d wave.
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	DFREF dfr = $(skATH_W3DImageSliderParentDFR + grfName)
+	NVAR/Z originalHeight = dfr:gOriginalHeight
+	if(NVAR_Exists(originalHeight))
+		ControlBar/W=$grfName originalHeight
+	endif
+	KillControl/W=$grfName ATH_W3DSlider
+	KillControl/W=$grfName ATH_W3DSliderVar
+	KillDataFolder/Z dfr
+	ATH_Display#Append3DImageSlider()
+	return 0
+End
+
+
+// ---------------------------------
+// ----------------------------------
 
 //*******************************************************************************************************
 
@@ -549,23 +610,3 @@ End
 //	SetDataFolder saveDF
 //	return 0
 //End
-
-static Function RestartW3DImageSlider([string grfName])
-	// Kill and restart ATH_Display#Append3DImageSlider and restart in case 
-	// of changes in the source 3d wave.
-	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
-	DFREF dfr = $(skATH_W3DImageSliderParentDFR + grfName)
-	NVAR/Z originalHeight = dfr:gOriginalHeight
-	if(NVAR_Exists(originalHeight))
-		ControlBar/W=$grfName originalHeight
-	endif
-	KillControl/W=$grfName ATH_W3DSlider
-	KillControl/W=$grfName ATH_W3DSliderVar
-	KillDataFolder/Z dfr
-	ATH_Display#Append3DImageSlider()
-	return 0
-End
-
-
-// ---------------------------------
-// ----------------------------------

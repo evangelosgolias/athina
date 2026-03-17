@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals    = 3		
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and late
@@ -29,6 +29,19 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+/// @module ATH_ZProfile
+/// @brief Module ATH_ZProfile.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH ZProfile functionality.
+
+
+/// @function GraphMarqueeLaunchOval
+/// @brief Description of GraphMarqueeLaunchOval.
+/// @details
+/// Auto-generated documentation stub for function `GraphMarqueeLaunchOval`.
+/// @returns Variable Return value.
 
 static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 	
@@ -68,6 +81,12 @@ static Function GraphMarqueeLaunchOval() // Launch directly from trace meny
 	return 0
 End
 
+/// @function GraphMarqueeLaunchRectangle
+/// @brief Description of GraphMarqueeLaunchRectangle.
+/// @details
+/// Auto-generated documentation stub for function `GraphMarqueeLaunchRectangle`.
+/// @returns Variable Return value.
+
 static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 	
 	string winNameStr = WinName(0, 1, 1)
@@ -105,6 +124,12 @@ static Function GraphMarqueeLaunchRectangle() // Launch directly from trace meny
 	Cursor/I/C=(65535,0,0)/S=2/N=1/A=0 J $wnamestr 0.5 * (gATH_left + gATH_right), 0.5 * (gATH_top + gATH_bottom)
 	return 0
 End
+
+/// @function TracePopupLaunchSavedROI
+/// @brief Description of TracePopupLaunchSavedROI.
+/// @details
+/// Auto-generated documentation stub for function `TracePopupLaunchSavedROI`.
+/// @returns Variable Return value.
 
 static Function TracePopupLaunchSavedROI() // Launch directly from trace menu
 	
@@ -210,6 +235,20 @@ static Function/DF InitialiseFolder()
 	return dfr
 End	
 
+/// @function DrawOvalImageROI
+/// @brief Description of DrawOvalImageROI.
+/// @details
+/// Auto-generated documentation stub for function `DrawOvalImageROI`.
+/// @param winNameStr Parameter winNameStr.
+/// @param left Parameter left.
+/// @param top Parameter top.
+/// @param right Parameter right.
+/// @param bottom Parameter bottom.
+/// @param red Parameter red.
+/// @param green Parameter green.
+/// @param blue Parameter blue.
+/// @returns Variable Return value.
+
 static Function DrawOvalImageROI(string winNameStr, variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
 	// Use ATH_ZProfileDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
 	SetDrawLayer/W=$winNameStr UserFront 
@@ -218,6 +257,20 @@ static Function DrawOvalImageROI(string winNameStr, variable left, variable top,
 	SetDrawLayer/W=$winNameStr ProgFront 
 	return 0
 End
+
+/// @function DrawRectImageROI
+/// @brief Description of DrawRectImageROI.
+/// @details
+/// Auto-generated documentation stub for function `DrawRectImageROI`.
+/// @param winNameStr Parameter winNameStr.
+/// @param left Parameter left.
+/// @param top Parameter top.
+/// @param right Parameter right.
+/// @param bottom Parameter bottom.
+/// @param red Parameter red.
+/// @param green Parameter green.
+/// @param blue Parameter blue.
+/// @returns Variable Return value.
 
 static Function DrawRectImageROI(string winNameStr, variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
 	// Use ATH_ZProfileDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook function and ImageGenerateROIMask)
@@ -228,12 +281,26 @@ static Function DrawRectImageROI(string winNameStr, variable left, variable top,
 	return 0
 End
 
+/// @function ClearROIMarkingsUserFront
+/// @brief Description of ClearROIMarkingsUserFront.
+/// @details
+/// Auto-generated documentation stub for function `ClearROIMarkingsUserFront`.
+/// @param winNameStr Parameter winNameStr.
+/// @returns Variable Return value.
+
 static Function ClearROIMarkingsUserFront(string winNameStr)
 	SetDrawLayer/W=$winNameStr UserFront
 	DrawAction/W=$winNameStr delete
 	SetDrawLayer/W=$winNameStr ProgFront
 	return 0
 End
+
+/// @function InitialiseGraph
+/// @brief Description of InitialiseGraph.
+/// @details
+/// Auto-generated documentation stub for function `InitialiseGraph`.
+/// @param dfr Parameter dfr.
+/// @returns Variable Return value.
 
 static Function InitialiseGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
@@ -285,6 +352,13 @@ static Function InitialiseGraph(DFREF dfr)
 	endif
 	return 0
 End
+
+/// @function CursorHookFunction
+/// @brief Description of CursorHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `CursorHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
 
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
@@ -382,6 +456,13 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	return hookResult       // If non-zero, we handled event and Igor will ignore it.
 End
 
+/// @function GraphHookFunction
+/// @brief Description of GraphHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `GraphHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
+
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentGraphWin = GetUserData(s.winName, "", "ATH_LinkedWinImageSource")
 	switch(s.eventCode)
@@ -402,6 +483,13 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			break
 	endswitch
 End
+
+/// @function SaveProfileButton
+/// @brief Description of SaveProfileButton.
+/// @details
+/// Auto-generated documentation stub for function `SaveProfileButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
 
 static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
@@ -474,6 +562,13 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 	return 0
 End
 
+/// @function SetScaleButton
+/// @brief Description of SetScaleButton.
+/// @details
+/// Auto-generated documentation stub for function `SetScaleButton`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+
 static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -528,6 +623,13 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	return 0
 End
 
+/// @function CheckboxPlotProfile
+/// @brief Description of CheckboxPlotProfile.
+/// @details
+/// Auto-generated documentation stub for function `CheckboxPlotProfile`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
+
 static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = $(GetUserData(cb.win, "", "ATH_rootdfrZProfileStr"))
@@ -543,6 +645,13 @@ static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxContr
 	return 0
 End
 
+/// @function CheckboxMarkAreas
+/// @brief Description of CheckboxMarkAreas.
+/// @details
+/// Auto-generated documentation stub for function `CheckboxMarkAreas`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
+
 static Function CheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = $(GetUserData(cb.win, "", "ATH_rootdfrZProfileStr"))
@@ -557,6 +666,13 @@ static Function CheckboxMarkAreas(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	endswitch
 	return 0
 End
+
+/// @function CheckBoxTwinPlot
+/// @brief Description of CheckBoxTwinPlot.
+/// @details
+/// Auto-generated documentation stub for function `CheckBoxTwinPlot`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
 
 static Function CheckBoxTwinPlot(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
@@ -601,6 +717,13 @@ static Function CheckBoxTwinPlot(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	endswitch
 	return 0
 End
+
+/// @function SetTwinWavePath
+/// @brief Description of SetTwinWavePath.
+/// @details
+/// Auto-generated documentation stub for function `SetTwinWavePath`.
+/// @param &sva Parameter &sva.
+/// @returns Variable Return value.
 
 
 static Function SetTwinWavePath(STRUCT WMSetVariableAction &sva) : SetVariableControl

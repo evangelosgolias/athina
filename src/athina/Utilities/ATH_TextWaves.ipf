@@ -1,7 +1,49 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_TWave
+
+// ------------------------------------------------------- //
+// Copyright (c) 2022 Evangelos Golias.
+// Contact: evangelos.golias@gmail.com
+//	
+//	Permission is hereby granted, free of charge, to any person
+//	obtaining a copy of this software and associated documentation
+//	files (the "Software"), to deal in the Software without
+//	restriction, including without limitation the rights to use,
+//	copy, modify, merge, publish, distribute, sublicense, and/or sell
+//	copies of the Software, and to permit persons to whom the
+//	Software is furnished to do so, subject to the following
+//	conditions:
+//	
+//	The above copyright notice and this permission notice shall be
+//	included in all copies or substantial portions of the Software.
+//	
+//	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+//	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+//	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+//	NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+//	HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+//	WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+//	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+//	OTHER DEALINGS IN THE SOFTWARE.
+// ------------------------------------------------------- //
+
+/// @module ATH_TextWaves
+/// @brief Module ATH_TextWaves.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH TextWaves functionality.
+
+
+/// @function TWaveRemoveEntriesFromPatters
+/// @brief Description of TWaveRemoveEntriesFromPatters.
+/// @details
+/// Auto-generated documentation stub for function `TWaveRemoveEntriesFromPatters`.
+/// @param textW Parameter textW.
+/// @param patternStr Parameter patternStr.
+/// @param otherW] Parameter otherW].
+/// @returns Variable Return value.
 
 static Function TWaveRemoveEntriesFromPatters(WAVE/T textW, string patternStr, [WAVE otherW])
 	// Remove entries from textW that start with pathbase
@@ -20,6 +62,13 @@ static Function TWaveRemoveEntriesFromPatters(WAVE/T textW, string patternStr, [
 	return 0
 End
 
+/// @function DeleteWavesInTextWave
+/// @brief Description of DeleteWavesInTextWave.
+/// @details
+/// Auto-generated documentation stub for function `DeleteWavesInTextWave`.
+/// @param textW Parameter textW.
+/// @returns Variable Return value.
+
 static Function DeleteWavesInTextWave(WAVE/T textW)
 	// Delete big waves listed in textW
 	variable nw = DimSize(textW, 0), i
@@ -28,6 +77,14 @@ static Function DeleteWavesInTextWave(WAVE/T textW)
 	endfor
 	return 0
 End
+
+/// @function TextWaveToString
+/// @brief Description of TextWaveToString.
+/// @details
+/// Auto-generated documentation stub for function `TextWaveToString`.
+/// @param textW Parameter textW.
+/// @param sep] Parameter sep].
+/// @returns String Return value.
 
 static Function/S TextWaveToString(WAVE/T textW, [string sep])
 	// Make a string from a textwave
@@ -43,6 +100,14 @@ static Function/S TextWaveToString(WAVE/T textW, [string sep])
 	return concStr
 End
 
+/// @function StringListToTextWave
+/// @brief Description of StringListToTextWave.
+/// @details
+/// Auto-generated documentation stub for function `StringListToTextWave`.
+/// @param stringListStr Parameter stringListStr.
+/// @param sep Parameter sep.
+/// @returns Wave Return value.
+
 static Function/WAVE StringListToTextWave(string stringListStr, string sep)
 
 	variable numElem = ItemsInList(stringListStr, sep)
@@ -54,6 +119,15 @@ static Function/WAVE StringListToTextWave(string stringListStr, string sep)
 End
 
 // Dev -- need testing
+
+/// @function TWaveRemoveEntriesFromStringList
+/// @brief Description of TWaveRemoveEntriesFromStringList.
+/// @details
+/// Auto-generated documentation stub for function `TWaveRemoveEntriesFromStringList`.
+/// @param textW Parameter textW.
+/// @param stringListStr Parameter stringListStr.
+/// @param otherW] Parameter otherW].
+/// @returns Variable Return value.
 static Function TWaveRemoveEntriesFromStringList(WAVE/T textW, string stringListStr, [WAVE otherW])
 	// Remove entries from textW in stringListStr
 	// Optionally we can remove the same entries from another wave otherW

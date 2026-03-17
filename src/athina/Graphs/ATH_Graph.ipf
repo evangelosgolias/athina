@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
@@ -30,6 +30,20 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+/// @module ATH_Graph
+/// @brief Module ATH_Graph.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Graph functionality.
+
+
+/// @function DuplicateWaveAndDisplayOfTopImage
+/// @brief Description of DuplicateWaveAndDisplayOfTopImage.
+/// @details
+/// Auto-generated documentation stub for function `DuplicateWaveAndDisplayOfTopImage`.
+/// @param grfName] Parameter grfName].
+/// @returns Variable Return value.
 
 static Function DuplicateWaveAndDisplayOfTopImage([string grfName])
 	/// Duplicate the graph of an image (2d, 3d wave) along with the wave at its
@@ -74,6 +88,15 @@ End
 //	matchStr = ReplaceString("\r\t", matchStr, ";")
 //	Execute/P/Q/Z matchStr
 //End
+
+/// @function TextAnnotationOnTopGraph
+/// @brief Description of TextAnnotationOnTopGraph.
+/// @details
+/// Auto-generated documentation stub for function `TextAnnotationOnTopGraph`.
+/// @param text Parameter text.
+/// @param fSize Parameter fSize.
+/// @param color] Parameter color].
+/// @returns Variable Return value.
 
 static Function TextAnnotationOnTopGraph(string text, [variable fSize, string color])
 	/// Add text on the top graph. Optionally you can set fSize and text color.
@@ -172,6 +195,13 @@ static Function [variable red, variable green, variable blue] GetColor(variable 
      return [red, green, blue]
 End
 
+/// @function GetgLayer
+/// @brief Description of GetgLayer.
+/// @details
+/// Auto-generated documentation stub for function `GetgLayer`.
+/// @param grfName Parameter grfName.
+/// @returns Variable Return value.
+
 static Function GetgLayer(string grfName)
 	// Returns the /P=num plane displayed in windowNameStr
 	if(!strlen(grfName))
@@ -230,6 +260,14 @@ static Function/S GetGraphCtabStr([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName), grfName, "")
 	return StringByKey("RECREATION",ImageInfo(grfName, StringFromList(0, ImageNameList(grfName,";")), 0))
 End
+
+/// @function SetGraphCtabStr
+/// @brief Description of SetGraphCtabStr.
+/// @details
+/// Auto-generated documentation stub for function `SetGraphCtabStr`.
+/// @param ctabStr Parameter ctabStr.
+/// @param grfName] Parameter grfName].
+/// @returns Variable Return value.
 
 static Function SetGraphCtabStr(string ctabStr, [string grfName])
 	grfName = SelectString(ParamIsDefault(grfName), grfName, "")	
@@ -307,6 +345,13 @@ static Function/WAVE TopGraphToWaveRef([string grfName])
 	return wRef
 End
 
+/// @function LinkGraphSliders
+/// @brief Description of LinkGraphSliders.
+/// @details
+/// Auto-generated documentation stub for function `LinkGraphSliders`.
+/// @param grfName] Parameter grfName].
+/// @returns Variable Return value.
+
 static Function LinkGraphSliders([string grfName])
 	// Link the sliders of two graphs
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
@@ -339,6 +384,13 @@ static Function LinkGraphSliders([string grfName])
 	Slider ATH_W3DSlider, win=$grfName,thumbColor=(65535,0,0), proc=ATH_Graph#LinkedImgSliderHook
 End
 
+/// @function LinkedImgSliderHook
+/// @brief Description of LinkedImgSliderHook.
+/// @details
+/// Auto-generated documentation stub for function `LinkedImgSliderHook`.
+/// @param &sa Parameter &sa.
+/// @returns Variable Return value.
+
 static Function LinkedImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 	//
 	if (sa.eventCode & 9) // Mouse moved or arrow key moved the slider & Value Set
@@ -364,6 +416,13 @@ static Function LinkedImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 End
 
 // ----- Link Axes range
+
+/// @function LinkGraphRanges
+/// @brief Description of LinkGraphRanges.
+/// @details
+/// Auto-generated documentation stub for function `LinkGraphRanges`.
+/// @param grfName] Parameter grfName].
+/// @returns Variable Return value.
 static Function LinkGraphRanges([string grfName])
 	// 
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
@@ -402,6 +461,13 @@ static Function LinkGraphRanges([string grfName])
 	ModifyGraph/W=$linkedGraph axRGB($axisX)=(65535,0,0),tlblRGB($axisX)=(65535,0,0)
 	ModifyGraph/W=$linkedGraph axRGB($axisY)=(65535,0,0),tlblRGB($axisY)=(65535,0,0)	
 End
+
+/// @function LinkedGraphAxesRangeHook
+/// @brief Description of LinkedGraphAxesRangeHook.
+/// @details
+/// Auto-generated documentation stub for function `LinkedGraphAxesRangeHook`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
 
 static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 	variable hookResult

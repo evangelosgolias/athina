@@ -1,12 +1,59 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_MagDom
 #pragma version = 1.0
 
+// ------------------------------------------------------- //
+// Copyright (c) 2022 Evangelos Golias.
+// Contact: evangelos.golias@gmail.com
+//	
+//	Permission is hereby granted, free of charge, to any person
+//	obtaining a copy of this software and associated documentation
+//	files (the "Software"), to deal in the Software without
+//	restriction, including without limitation the rights to use,
+//	copy, modify, merge, publish, distribute, sublicense, and/or sell
+//	copies of the Software, and to permit persons to whom the
+//	Software is furnished to do so, subject to the following
+//	conditions:
+//	
+//	The above copyright notice and this permission notice shall be
+//	included in all copies or substantial portions of the Software.
+//	
+//	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+//	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+//	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+//	NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+//	HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+//	WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+//	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+//	OTHER DEALINGS IN THE SOFTWARE.
+// ------------------------------------------------------- //
 
+/// @module ATH_MagDom
+/// @brief Tools for XMLD magnetic-domain analysis and interactive inspection.
+/// @details
+/// This module provides routines for fitting angular XMLD image stacks pixel by
+/// pixel and for interactively inspecting the fitted phase, offset, and amplitude
+/// at selected image positions.
+///
 
+/// @function FitXMLDMap
+/// @brief Fit an angular XMLD model to every pixel in a 3D image stack.
+/// @details
+/// For each `(row, column)` beam in the 3D input wave, this routine fits an XMLD
+/// angular model along the layer axis and generates three 2D output maps:
+/// phase, offset, and amplitude. By default it uses
+/// `ATH_FuncFit#XMLDCos2xIntensity`.
+/// @param wRef Wave Input 3D wave whose third dimension contains images acquired at different angles.
+/// @param fitFunc String Optional fully qualified fit-function name. Defaults to `ATH_FuncFit#XMLDCos2xIntensity`.
+/// @param firstAngle Variable Optional angle in degrees assigned to the first layer. Defaults to -90.
+/// @param angleStep Variable Optional angular increment in degrees between successive layers. Defaults to 10.
+/// @param fastFit Variable Optional flag controlling the fitting strategy. Non-zero uses one initial phase guess; zero tests multiple initial phases.
+/// @returns Variable Returns 0 on completion. Returns 1 if the input has no layers.
+/// @note Creates output waves named `<input>_map`, `<input>_map_offset`, and `<input>_map_amplitude`.
+///
 static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 				variable firstAngle, variable angleStep, int fastFit])
 	
@@ -153,6 +200,17 @@ End
 /// Beam fitting map
 /// Generic interaction using a cursor and a CallbackFunction
 
+/// @function InteractiveXMLDFitInspection
+/// @brief Launch interactive inspection of an XMLD fit map.
+/// @details
+/// Displays the fitted map and opens a companion plot window. Moving cursor `J`
+/// over the image updates the beam profile and overlayed fit curve for the selected pixel.
+/// @param wSrc Wave Source 3D XMLD image stack used to extract beam profiles.
+/// @param wRef Wave 2D phase map produced by `FitXMLDMap`.
+/// @param firstAngle Variable Optional first angle in degrees for the source stack. Defaults to -90.
+/// @param angleStep Variable Optional angle increment in degrees. Defaults to 10.
+/// @returns Variable Returns 0 on completion.
+///
 static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef,[variable firstAngle, variable angleStep])
 	/// Interactive operation using a callback function
 	/// ATH_Cursors#CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
@@ -185,6 +243,14 @@ static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef,[variable firs
 	return 0
 End
 
+/// @function iCursorUsingCallbackHookFunction
+/// @brief Window hook for interactive XMLD fit inspection.
+/// @details
+/// Handles window close, cursor movement, and keyboard events for the interactive
+/// XMLD inspection workflow.
+/// @param s Struct Igor window hook structure supplied by the event system.
+/// @returns Variable Hook return code. Returns 1 when the event is handled, otherwise 0.
+///
 static Function iCursorUsingCallbackHookFunction(STRUCT WMWinHookStruct &s)
 	variable hookResult = 0
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
@@ -215,6 +281,17 @@ static Function iCursorUsingCallbackHookFunction(STRUCT WMWinHookStruct &s)
 	return hookResult       // 0 if nothing done, else 1
 End
 
+/// @function CursorCallBack
+/// @brief Update the fit-inspection plot for the selected pixel.
+/// @details
+/// Extracts the beam profile at `(p0, q0)`, reconstructs the fitted angular dependence
+/// from the stored fit maps, and redraws the inspection plot.
+/// @param wSrc Wave Source 3D XMLD image stack.
+/// @param wRef Wave Phase map returned by `FitXMLDMap`.
+/// @param p0 Variable Row index of the selected pixel.
+/// @param q0 Variable Column index of the selected pixel.
+/// @returns Variable Returns 0 on completion.
+///
 static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	
 	DFREF dfr = $GetUserData("", "", "ATH_iCursorDFR")

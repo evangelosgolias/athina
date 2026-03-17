@@ -1,4 +1,4 @@
-﻿#pragma rtGlobals    = 3
+#pragma rtGlobals    = 3
 #pragma TextEncoding = "UTF-8"
 #pragma IgorVersion  = 9
 #pragma DefaultTab	= {3,20,4}			// Set default tab width in Igor Pro 9 and later
@@ -31,7 +31,42 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+/// @module ATH_DFR
+/// @brief Module ATH_DFR.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH DFR functionality.
+
+
 // N.B: Changed on 31.01.2024.
+
+/// @function CreateDataFolderGetDFREF
+/// @brief Create a data folder from a full path and return its data folder reference.
+/// @details
+/// Creates the data folder identified by `fullpath` and returns a `DFREF` to it.
+/// If intermediate parent folders do not exist, they are created automatically.
+///
+/// Relative paths beginning with `:` are resolved against the current data folder.
+/// The input path is sanitized before use so that folder names using liberal naming
+/// are handled safely.
+///
+/// If the target folder already exists, no new folder is created and a reference to
+/// the existing folder is returned.
+///
+/// @param fullpath String Full data folder path to create or access.
+/// @param setDF Variable Optional flag. If nonzero, sets the current data folder to the returned folder.
+///
+/// @returns DFREF Data folder reference to the created or existing folder.
+///
+/// @note
+/// - Relative paths starting with `:` are interpreted relative to the current data folder.
+/// - The path is sanitized before folder creation to support liberal folder names.
+/// - Missing parent folders are created automatically.
+/// - If the folder already exists, the function simply returns its reference.
+///
+/// @example
+///     DFREF dfr = CreateDataFolderGetDFREF("root:Packages:MyModule", setDF=1)
+///
 static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cornerstone function
 	/// Create a data folder using fullpath and return a DF reference.
 	/// If parent directories do not exist they are created.
@@ -74,6 +109,13 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 	return dfr
 End
 
+/// @function SanitizePath
+/// @brief Description of SanitizePath.
+/// @details
+/// Auto-generated documentation stub for function `SanitizePath`.
+/// @param path Parameter path.
+/// @returns String Return value.
+
 static Function/S SanitizePath(string path)
 	// Fix liberal relative pathnames in fullpath
 	variable steps = ItemsInlist(path, ":"), i
@@ -84,6 +126,13 @@ static Function/S SanitizePath(string path)
 	endfor
 	return spath
 End
+
+/// @function ZapDataInFolderTree
+/// @brief Description of ZapDataInFolderTree.
+/// @details
+/// Auto-generated documentation stub for function `ZapDataInFolderTree`.
+/// @param path Parameter path.
+/// @returns Variable Return value.
 
 static Function ZapDataInFolderTree(string path) 
 	/// Kills the contents of a data folder and the contents of its 
@@ -107,6 +156,13 @@ static Function ZapDataInFolderTree(string path)
 	SetDataFolder saveDF 
 End
 
+/// @function ZapAllDataFoldersInPath
+/// @brief Description of ZapAllDataFoldersInPath.
+/// @details
+/// Auto-generated documentation stub for function `ZapAllDataFoldersInPath`.
+/// @param path Parameter path.
+/// @returns Variable Return value.
+
 static Function ZapAllDataFoldersInPath(string path) 
 	/// Kills all data folders in path.
 
@@ -122,6 +178,16 @@ static Function ZapAllDataFoldersInPath(string path)
 
 	SetDataFolder saveDF 
 End
+
+/// @function PrintFoldersAndFiles
+/// @brief Description of PrintFoldersAndFiles.
+/// @details
+/// Auto-generated documentation stub for function `PrintFoldersAndFiles`.
+/// @param pathName Parameter pathName.
+/// @param extension Parameter extension.
+/// @param recurse Parameter recurse.
+/// @param level Parameter level.
+/// @returns Variable Return value.
 
 static Function PrintFoldersAndFiles(string pathName, string extension, variable recurse, variable level)
 	/// This is a Wavemetrics function
@@ -185,6 +251,13 @@ static Function PrintFoldersAndFiles(string pathName, string extension, variable
 	endif
 End
 
+/// @function CleanGlobalWavesVarAndStrInFolder
+/// @brief Description of CleanGlobalWavesVarAndStrInFolder.
+/// @details
+/// Auto-generated documentation stub for function `CleanGlobalWavesVarAndStrInFolder`.
+/// @param dfr Parameter dfr.
+/// @returns Variable Return value.
+
 static Function CleanGlobalWavesVarAndStrInFolder(DFREF dfr)
 	/// Move from current working directory to dfr
 	/// kill all global variables and strings and 
@@ -197,6 +270,14 @@ static Function CleanGlobalWavesVarAndStrInFolder(DFREF dfr)
 	KillStrings/A
 	SetDataFolder cwd
 End
+
+/// @function DeleteEverythingButSomeFolders
+/// @brief Description of DeleteEverythingButSomeFolders.
+/// @details
+/// Auto-generated documentation stub for function `DeleteEverythingButSomeFolders`.
+/// @param baseFolderPattern Parameter baseFolderPattern.
+/// @param keepFolders Parameter keepFolders.
+/// @returns Variable Return value.
 
 static Function DeleteEverythingButSomeFolders(string baseFolderPattern, string keepFolders)
 	/// Delete waves and child folders in folders that match baseFolderPattern but keep keepFolders
@@ -230,6 +311,16 @@ static Function DeleteEverythingButSomeFolders(string baseFolderPattern, string 
 End
 
 // ----------------------------------------
+
+/// @function FindBigWaves
+/// @brief Description of FindBigWaves.
+/// @details
+/// Auto-generated documentation stub for function `FindBigWaves`.
+/// @param minSizeInMB[ Parameter minSizeInMB[.
+/// @param df Parameter df.
+/// @param depth Parameter depth.
+/// @param noShow] Parameter noShow].
+/// @returns Variable Return value.
 
 static Function FindBigWaves(variable minSizeInMB[,DFREF df,variable depth,variable noShow])
 	/// See https://www.wavemetrics.com/code-snippet/find-big-waves
@@ -284,6 +375,13 @@ static Function FindBigWaves(variable minSizeInMB[,DFREF df,variable depth,varia
     endif
 End
 
+/// @function AllWavesSamePathQ
+/// @brief Description of AllWavesSamePathQ.
+/// @details
+/// Auto-generated documentation stub for function `AllWavesSamePathQ`.
+/// @param wWAVEList Parameter wWAVEList.
+/// @returns Variable Return value.
+
 static Function AllWavesSamePathQ(WAVE/WAVE wWAVEList)
 	// Function checks whether all have are in the same data folder
 	// 0 - no, 1 - yes.  
@@ -301,6 +399,13 @@ static Function AllWavesSamePathQ(WAVE/WAVE wWAVEList)
 	return 1
 End
 
+/// @function BackupWaveInWaveDF
+/// @brief Description of BackupWaveInWaveDF.
+/// @details
+/// Auto-generated documentation stub for function `BackupWaveInWaveDF`.
+/// @param wref Parameter wref.
+/// @returns String Return value.
+
 static Function/S BackupWaveInWaveDF(WAVE wref)
 	// Backup a wave in the same DF. If a wave with wavename_undo exists, nothing is done
 	// If a backup wave is created a message is printed in the command window.
@@ -313,6 +418,13 @@ static Function/S BackupWaveInWaveDF(WAVE wref)
 	endif
 	return backupWavePathStr
 End
+
+/// @function BackupWaveInWaveDFQ
+/// @brief Description of BackupWaveInWaveDFQ.
+/// @details
+/// Auto-generated documentation stub for function `BackupWaveInWaveDFQ`.
+/// @param wref Parameter wref.
+/// @returns String Return value.
 
 static Function/S BackupWaveInWaveDFQ(WAVE wref)
 	// Backup a wave in the same DF. If a wave with wavename_undo exists
@@ -333,6 +445,13 @@ static Function/S BackupWaveInWaveDFQ(WAVE wref)
 	endif
 	return backupWavePathStr // return the backup wavename in either case.
 End
+
+/// @function GetAllWavesStrDF
+/// @brief Description of GetAllWavesStrDF.
+/// @details
+/// Auto-generated documentation stub for function `GetAllWavesStrDF`.
+/// @param dfr Parameter dfr.
+/// @returns String Return value.
 
 static Function/S GetAllWavesStrDF(DFREF dfr)
 	// Return a string of all fullpaths of waves

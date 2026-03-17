@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding="UTF-8"
+#pragma TextEncoding="UTF-8"
 #pragma rtGlobals=3
 #pragma version=1.33
 #pragma IgorVersion=9
@@ -17,6 +17,13 @@
 // Execution environment is current data folder. Global variables
 // v_CalcPad and s_CalcPad are created temporarily in the current data
 // folder. Type ? and hit enter to change package preferences.
+
+/// @module ATH_CalcPad
+/// @brief Module ATH_CalcPad.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH CalcPad functionality.
+
 
 strconstant ksPackageName = "CalcPad"
 strconstant ksPrefsFileName = "CalcPadPrefs.bin"
@@ -39,6 +46,13 @@ Structure PackagePrefs
 	char shortcut
 	char reserved[200 - 3*4 - 8 - 4*6 - 4*2 - 1]	// Reserved for future use
 EndStructure
+
+/// @function PrefsSetDefaults
+/// @brief Description of PrefsSetDefaults.
+/// @details
+/// Auto-generated documentation stub for function `PrefsSetDefaults`.
+/// @param &prefs Parameter &prefs.
+/// @returns Variable Return value.
 
 static Function PrefsSetDefaults(STRUCT PackagePrefs &prefs)
 	prefs.version       = kPrefsVersion
@@ -65,12 +79,25 @@ static Function PrefsSetDefaults(STRUCT PackagePrefs &prefs)
 	endif
 end
 
+/// @function LoadPrefs
+/// @brief Description of LoadPrefs.
+/// @details
+/// Auto-generated documentation stub for function `LoadPrefs`.
+/// @param &prefs Parameter &prefs.
+/// @returns Variable Return value.
+
 static Function LoadPrefs(STRUCT PackagePrefs &prefs)
 	LoadPackagePreferences ksPackageName, ksPrefsFileName, 0, prefs
 	if (V_flag!=0 || V_bytesRead==0 || prefs.version!=kPrefsVersion)
 		PrefsSetDefaults(prefs)
 	endif
 end
+
+/// @function CalcPad
+/// @brief Description of CalcPad.
+/// @details
+/// Auto-generated documentation stub for function `CalcPad`.
+/// @returns Variable Return value.
 
 static Function CalcPad()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:CalcPad")
@@ -91,6 +118,13 @@ static Function CalcPad()
 	SetWindow CalcPadNB, hook(hCalcPad)=ATH_CalcPad#CalcPadHook
 	return 1
 end
+
+/// @function CalcPadHook
+/// @brief Description of CalcPadHook.
+/// @details
+/// Auto-generated documentation stub for function `CalcPadHook`.
+/// @param &H_Struct Parameter &H_Struct.
+/// @returns Variable Return value.
 
 static Function CalcPadHook(STRUCT WMWinHookStruct &H_Struct)
 	
@@ -257,6 +291,12 @@ static Function CalcPadHook(STRUCT WMWinHookStruct &H_Struct)
 	return 0
 end
 
+/// @function PreventPaste
+/// @brief Description of PreventPaste.
+/// @details
+/// Auto-generated documentation stub for function `PreventPaste`.
+/// @returns Variable Return value.
+
 static Function PreventPaste()
 	GetSelection Notebook, CalcPadNB, 1 // get current position in notebook
 	// store position
@@ -275,6 +315,13 @@ end
 
 
 // record some settings and clean up when notebook is closed
+
+/// @function SaveWindow
+/// @brief Description of SaveWindow.
+/// @details
+/// Auto-generated documentation stub for function `SaveWindow`.
+/// @param strWin Parameter strWin.
+/// @returns Variable Return value.
 static Function SaveWindow(string strWin)
 	
 	STRUCT PackagePrefs prefs
@@ -296,6 +343,12 @@ static Function SaveWindow(string strWin)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:CalcPad")
 	KillDataFolder/Z dfr
 end
+
+/// @function makePrefsPanel
+/// @brief Description of makePrefsPanel.
+/// @details
+/// Auto-generated documentation stub for function `makePrefsPanel`.
+/// @returns Variable Return value.
 
 static Function makePrefsPanel()
 	STRUCT PackagePrefs prefs
@@ -358,6 +411,13 @@ static Function makePrefsPanel()
 	PauseForUser CalcPadPrefsPanel
 end
 
+/// @function ButtonProc
+/// @brief Description of ButtonProc.
+/// @details
+/// Auto-generated documentation stub for function `ButtonProc`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
+
 static Function ButtonProc(STRUCT WMButtonAction &s)
 	if (s.eventCode !=2 )
 		return 0
@@ -381,6 +441,13 @@ static Function ButtonProc(STRUCT WMButtonAction &s)
 	return 0
 end
 
+/// @function CheckProc
+/// @brief Description of CheckProc.
+/// @details
+/// Auto-generated documentation stub for function `CheckProc`.
+/// @param &cba Parameter &cba.
+/// @returns Variable Return value.
+
 static Function CheckProc(STRUCT WMCheckboxAction &cba)
 	if (cba.eventCode != 2)
 		return 0
@@ -402,6 +469,13 @@ static Function CheckProc(STRUCT WMCheckboxAction &cba)
 	return 0
 end
 
+/// @function SetVarProc
+/// @brief Description of SetVarProc.
+/// @details
+/// Auto-generated documentation stub for function `SetVarProc`.
+/// @param &sva Parameter &sva.
+/// @returns Variable Return value.
+
 static Function SetVarProc(STRUCT WMSetVariableAction &sva)
 	switch( sva.eventCode )
 		case 1: // mouse up
@@ -415,6 +489,13 @@ static Function SetVarProc(STRUCT WMSetVariableAction &sva)
 	endswitch
 	return 0
 end
+
+/// @function PopMenuProc
+/// @brief Description of PopMenuProc.
+/// @details
+/// Auto-generated documentation stub for function `PopMenuProc`.
+/// @param &pa Parameter &pa.
+/// @returns Variable Return value.
 
 static Function PopMenuProc(STRUCT WMPopupAction &pa)
 	if (pa.eventCode != 2)

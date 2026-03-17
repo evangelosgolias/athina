@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
@@ -30,6 +30,18 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+/// @module ATH_iImageRotation
+/// @brief Module ATH_iImageRotation.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH iImageRotation functionality.
+
+/// @function CreatePanel
+/// @brief Description of CreatePanel.
+/// @details
+/// Auto-generated documentation stub for function `CreatePanel`.
+/// @returns Variable Return value.
 
 static Function CreatePanel()
 	
@@ -93,6 +105,13 @@ static Function CreatePanel()
 	return 0
 End
 
+/// @function FlipRowsCheckBox
+/// @brief Description of FlipRowsCheckBox.
+/// @details
+/// Auto-generated documentation stub for function `FlipRowsCheckBox`.
+/// @param cb Parameter cb.
+/// @returns Variable Return value.
+
 static Function FlipRowsCheckBox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_iRotateFolder"))
 	NVAR/SDFR=dfr gATH_FlipCols
@@ -114,6 +133,13 @@ static Function FlipRowsCheckBox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	return 0
 End
 
+/// @function GraphHookFunction
+/// @brief Description of GraphHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `GraphHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
+
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 
 	switch(s.eventCode)
@@ -131,6 +157,13 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	endswitch
 	return hookresult
 End
+
+/// @function PanelHookFunction
+/// @brief Description of PanelHookFunction.
+/// @details
+/// Auto-generated documentation stub for function `PanelHookFunction`.
+/// @param &s Parameter &s.
+/// @returns Variable Return value.
 
 static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 
@@ -151,6 +184,13 @@ static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 	endswitch
 	return hookresult
 End
+
+/// @function SliderProc
+/// @brief Description of SliderProc.
+/// @details
+/// Auto-generated documentation stub for function `SliderProc`.
+/// @param &sa Parameter &sa.
+/// @returns Variable Return value.
 
 static Function SliderProc(STRUCT WMSliderAction &sa) : SliderControl
 
@@ -175,6 +215,13 @@ static Function SliderProc(STRUCT WMSliderAction &sa) : SliderControl
 	return 0
 End
 
+/// @function SetAngle
+/// @brief Description of SetAngle.
+/// @details
+/// Auto-generated documentation stub for function `SetAngle`.
+/// @param &sva Parameter &sva.
+/// @returns Variable Return value.
+
 static Function SetAngle(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
 	switch( sva.eventCode )
@@ -195,6 +242,13 @@ static Function SetAngle(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
 	return 0
 End
+
+/// @function iRotButton
+/// @brief Description of iRotButton.
+/// @details
+/// Auto-generated documentation stub for function `iRotButton`.
+/// @param &ba Parameter &ba.
+/// @returns Variable Return value.
 
 static Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 
@@ -245,6 +299,16 @@ static Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 	endswitch
 	return 0
 End
+
+/// @function ImageRestoreAndRotate
+/// @brief Description of ImageRestoreAndRotate.
+/// @details
+/// Auto-generated documentation stub for function `ImageRestoreAndRotate`.
+/// @param source Parameter source.
+/// @param dest Parameter dest.
+/// @param angle Parameter angle.
+/// @param flipY] Parameter flipY].
+/// @returns Variable Return value.
 
 
 static Function ImageRestoreAndRotate(WAVE source, WAVE dest, variable angle, [int flipY])

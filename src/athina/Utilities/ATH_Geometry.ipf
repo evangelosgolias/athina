@@ -1,4 +1,4 @@
-﻿#pragma TextEncoding = "UTF-8"
+#pragma TextEncoding = "UTF-8"
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion  = 9
@@ -29,6 +29,12 @@
 //	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
+
+/// @module ATH_Geometry
+/// @brief Module ATH_Geometry.
+/// @details
+/// This module belongs to the ATH Igor Pro toolkit and contains procedures
+/// related to ATH Geometry functionality.
 
 
 static Function [variable x0, variable y0] GetSinglePointWithDistanceFromLine(variable x1, variable y1, variable s, variable d)
@@ -62,6 +68,16 @@ static Function [variable xp0, variable yp0, variable xp1, variable yp1 ] GetBot
 	endif
 	return [xp0, yp0, xp1, yp1]
 End
+
+/// @function SlopePerpendicularToLineSegment
+/// @brief Description of SlopePerpendicularToLineSegment.
+/// @details
+/// Auto-generated documentation stub for function `SlopePerpendicularToLineSegment`.
+/// @param x1 Parameter x1.
+/// @param y1 Parameter y1.
+/// @param x2 Parameter x2.
+/// @param y2 Parameter y2.
+/// @returns Variable Return value.
 
 static Function SlopePerpendicularToLineSegment(variable x1, variable y1, variable x2, variable y2)
 	// Return the slope of a line perpendicular to the line segment defined by (x1, y1) and (x2, y2)
@@ -111,6 +127,16 @@ End
 
 // TODO: Test and uncomment 
 //Function [variable xn, variable yn]  ATH_GetAntipodalPoint(variable x1, variable y1, variable x0, variable y0, int solution)
+
+/// @function GetAntipodalPoint
+/// @brief Description of GetAntipodalPoint.
+/// @details
+/// Auto-generated documentation stub for function `GetAntipodalPoint`.
+/// @param x1 Parameter x1.
+/// @param y1 Parameter y1.
+/// @param x0 Parameter x0.
+/// @param y0 Parameter y0.
+/// @returns Variable Return value.
 static Function GetAntipodalPoint(variable x1, variable y1, variable x0, variable y0)
 
 	/// Returns the antipodal point (xn, yn) of (x1, x2) of a circle with center (x0, y0)
@@ -153,6 +179,16 @@ static Function [variable slope, variable shift] LineEquationFromTwoPoints(varia
 	return [slope, shift]
 End
 
+/// @function LineCoefficientsFromCursors
+/// @brief Description of LineCoefficientsFromCursors.
+/// @details
+/// Auto-generated documentation stub for function `LineCoefficientsFromCursors`.
+/// @param csr0 Parameter csr0.
+/// @param csr1 Parameter csr1.
+/// @param free Parameter free.
+/// @param grfName] Parameter grfName].
+/// @returns Wave Return value.
+
 static Function/WAVE LineCoefficientsFromCursors(string csr0, string csr1, [int free, string grfName])
 	//
 	// Get a WAVE with the coefficients of a line defined by csr0 & csr1.
@@ -192,6 +228,16 @@ static Function/WAVE LineCoefficientsFromCursors(string csr0, string csr1, [int 
 	wRefFREE[1] = slope
 	return wRefFREE
 End
+
+/// @function GetLineFromCursors
+/// @brief Description of GetLineFromCursors.
+/// @details
+/// Auto-generated documentation stub for function `GetLineFromCursors`.
+/// @param csr0 Parameter csr0.
+/// @param csr1 Parameter csr1.
+/// @param free Parameter free.
+/// @param grfName] Parameter grfName].
+/// @returns Wave Return value.
 
 static Function/WAVE GetLineFromCursors(string csr0, string csr1, [int free, string grfName])
 	//
