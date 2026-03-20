@@ -34,33 +34,26 @@
 /// @module ATH_Spaces
 /// @brief Module ATH_Spaces.
 /// @details
-/// This module belongs to the ATH Igor Pro toolkit and contains procedures
-/// related to ATH Spaces functionality.
-
-// Igor Spaces organises windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate 
-// Spaces. When a Space is selected in the panel, only windows linked to it are shown. 
-// 
-// Igor Spaces organises windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate Spaces. 
-// When a Space is selected in the panel, only windows linked to it are shown. 
-// How it works: 
-// 1. Launch Igor Spaces from "Windows/Packages" submenu. 
-// 2. Press the "New" button to create a new Space, name should be unique, otherwise you will be 
-// prompted to change your input. When a new "Space" is created it becomes your active working Space. 
-// New Spaces are created below the active row selection, and at the moment you cannot change their order.
-// 3.Press "Delete" to delete the selected space. Windows associated with the space are released and not 
-// linked to any space ("" tag)
-// 4. Press "All" to show/hide all windows whether linked to a Space or not.
-// 5. When the Igor Spaces Panel is open any window you create is associated with the active Space.
-// 6. Double click on a row to rename the Space
-// 7. Press Shift + Click on a row of the ListBox to move the top window to the selected space
-// 8. Press Alt + Click anywhere in the ListBox of the panel (rows or empty space below) to pin the top 
-// window to all spaces (visible everywhere)
-// 9. To unpin press Shift + Alt + Click anywhere in the ListBox to unpin the window (becomes free floating).
-// You can also make a normal window free-floating using the same procedure. Alternatively, if you want to 
-// unpin and link it to a space goto 7.
-// 10. Use Ctlr + click to mark/unmark a space with an asterisk and link it to the selected data folder in the data browser. 
-// When selecting a Space with an asterisk the current data folder changes to the linked data folder.
-// ------------------------------------------------------- //
+/// Igor Spaces organises windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate Spaces. 
+/// When a Space is selected in the panel, only windows linked to it are shown. 
+/// How it works: 
+/// 1. Launch Igor Spaces from "Windows/Packages" submenu. 
+/// 2. Press the "New" button to create a new Space, name should be unique, otherwise you will be 
+/// prompted to change your input. When a new "Space" is created it becomes your active working Space. 
+/// New Spaces are created below the active row selection, and at the moment you cannot change their order.
+/// 3.Press "Delete" to delete the selected space. Windows associated with the space are released and not 
+/// linked to any space ("" tag)
+/// 4. Press "All" to show/hide all windows whether linked to a Space or not.
+/// 5. When the Igor Spaces Panel is open any window you create is associated with the active Space.
+/// 6. Double click on a row to rename the Space
+/// 7. Press Shift + Click on a row of the ListBox to move the top window to the selected space
+/// 8. Press Alt + Click anywhere in the ListBox of the panel (rows or empty space below) to pin the top 
+/// window to all spaces (visible everywhere)
+/// 9. To unpin press Shift + Alt + Click anywhere in the ListBox to unpin the window (becomes free floating).
+/// You can also make a normal window free-floating using the same procedure. Alternatively, if you want to 
+/// unpin and link it to a space goto 7.
+/// 10. Use Ctlr + click to mark/unmark a space with an asterisk and link it to the selected data folder in the data browser. 
+/// When selecting a Space with an asterisk the current data folder changes to the linked data folder.
 ///
 /// TL;DR:
 /// SHIFT+Click: on a Space to associate with the top window.
@@ -73,8 +66,8 @@
 /// @function MenuLaunch
 /// @brief Description of MenuLaunch.
 /// @details
-/// Auto-generated documentation stub for function `MenuLaunch`.
-/// @returns Variable Return value.
+/// Launch Spaces named ATH_Spaces#MenuLaunch().
+/// @returns Variable 0
 
 static Function MenuLaunch()
 	
@@ -103,10 +96,11 @@ static Function MenuLaunch()
 End
 
 /// @function MakePanel
-/// @brief Description of MakePanel.
+/// @brief Create main window of ATH_Spaces.
 /// @details
-/// Auto-generated documentation stub for function `MakePanel`.
-/// @returns Variable Return value.
+/// Create main window of ATH_Spaces named ATH_SpacesPanel, launch from command line
+/// as ATH_Spaces#MakePanel().
+/// @returns Returns 0 if all ok
 
 static Function MakePanel()
 	// Scale with IgorOptions here
@@ -228,13 +222,6 @@ Static Function SpacesButton(STRUCT WMButtonAction &s)
 	endswitch
 	return 0
 End
-
-/// @function ListBoxFunction
-/// @brief Description of ListBoxFunction.
-/// @details
-/// Auto-generated documentation stub for function `ListBoxFunction`.
-/// @param &LB_Struct Parameter &LB_Struct.
-/// @returns Variable Return value.
 
 static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 
@@ -374,16 +361,16 @@ static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 End
 
 /// @function ShowWindowsOfSpaceTag
-/// @brief Description of ShowWindowsOfSpaceTag.
+/// @brief Show/hide windows tagged with @param spaceTagStr.
 /// @details
-/// Auto-generated documentation stub for function `ShowWindowsOfSpaceTag`.
-/// @param spaceTagStr Parameter spaceTagStr.
-/// @param showSwitch Parameter showSwitch.
-/// @returns Variable Return value.
+/// Show or hide windows that have a tag on them. Control show/hide using the parameter show.
+/// @param spaceTagStr String Name of the tag
+/// @param showSwitch  Variable show = 0 or 1
+/// @returns Variable 0
 
-static Function ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
-	// showSwitch = 0 (hide window) 
-	// showSwitch = 1 (show window)
+static Function ShowWindowsOfSpaceTag(string spaceTagStr, variable show)
+	// show = 0 (hide window) 
+	// show = 1 (show window)
 	string winNameStr, getSpacetagStr
 	string allWindowsStr = SortList(RemoveFromList("ATH_SpacesPanel",WinList("*",";","WIN:87")), ";", 16)
 	variable i, imax = ItemsInList(allWindowsStr)
@@ -392,23 +379,24 @@ static Function ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
 		winNameStr = StringFromList(i, allWindowsStr)
 		getSpacetagStr = GetUserData(winNameStr, "", "ATH_SpacesTag")
 		if(!cmpstr(getSpacetagStr, spacetagStr, 0)) // comparison is case-insensitive. 		
-			SetWindow $winNameStr hide = 1 - showSwitch // Match
+			SetWindow $winNameStr hide = 1 - show // Match
 		elseif(!cmpstr(getSpacetagStr, "ATH__PinnedWindow__ATH", 0)) // Pinned window
 			SetWindow $winNameStr hide = 0 // Always show
 		else
-			SetWindow $winNameStr hide = showSwitch
+			SetWindow $winNameStr hide = show
 		endif
 	endfor
 	return 0
 End
 
 /// @function RenameSpaceTagOnWindows
-/// @brief Description of RenameSpaceTagOnWindows.
+/// @brief Change the name of the space, all tag linked to the space are renamed.
 /// @details
-/// Auto-generated documentation stub for function `RenameSpaceTagOnWindows`.
-/// @param oldspaceTagStr Parameter oldspaceTagStr.
-/// @param newspaceTagStr Parameter newspaceTagStr.
-/// @returns Variable Return value.
+/// Change the name of a space. All windows with tags linked to the space are renamed.
+/// The function is used by Spaces when a space is renamed. Do not call the function directly.
+/// @param oldspaceTagStr String Current space name
+/// @param newspaceTagStr Parameter New space name
+/// @returns Variable 0
 
 
 static Function RenameSpaceTagOnWindows(string oldspaceTagStr, string newspaceTagStr)
@@ -427,11 +415,13 @@ static Function RenameSpaceTagOnWindows(string oldspaceTagStr, string newspaceTa
 End
 
 /// @function ClearWindowsFromSpaceTag
-/// @brief Description of ClearWindowsFromSpaceTag.
+/// @brief Clears all windows associated with a specific tag.
 /// @details
-/// Auto-generated documentation stub for function `ClearWindowsFromSpaceTag`.
-/// @param spaceTagStr Parameter spaceTagStr.
-/// @returns Variable Return value.
+/// Clears all windows associated with a specific tag. This function is used by Spaces
+/// to clear tags from windows associated to spaces that are being deleted. Do not call the 
+/// function directly.
+/// @param spaceTagStr String spaceTagStr
+/// @returns Variable 0
 
 static Function ClearWindowsFromSpaceTag(string spaceTagStr)
 
@@ -453,12 +443,12 @@ static Function ClearWindowsFromSpaceTag(string spaceTagStr)
 End
 
 /// @function UniqueSpaceNameQ
-/// @brief Description of UniqueSpaceNameQ.
+/// @brief Is the Space name unique?
 /// @details
-/// Auto-generated documentation stub for function `UniqueSpaceNameQ`.
-/// @param textW Parameter textW.
-/// @param spaceNameStr Parameter spaceNameStr.
-/// @returns Variable Return value.
+/// The function checks is the name of a space is not already in the list of existing spaces. 
+/// @param textW Wave/T textW.
+/// @param spaceNameStr String spaceNameStr
+/// @returns Variable True(1)/False(0)
 
 static Function UniqueSpaceNameQ(WAVE/T textW, string spaceNameStr)
 	/// Return true of spaceNameStr in not an element of textW (case-insensitive), i.e it is Unique
@@ -473,11 +463,13 @@ static Function UniqueSpaceNameQ(WAVE/T textW, string spaceNameStr)
 End
 
 /// @function SanitiseATHSpaceName
-/// @brief Description of SanitiseATHSpaceName.
+/// @brief Sanitise a space name.
 /// @details
-/// Auto-generated documentation stub for function `SanitiseATHSpaceName`.
-/// @param spaceNameStr Parameter spaceNameStr.
-/// @returns String Return value.
+/// Returns a sanitized version of a space name by removing a trailing asterisk if present.
+/// An asterisk is used to mark spaces linked to specific folders, therefore, they do not 
+/// consist valid space names in Spaces.
+/// @param spaceNameStr String spaceNameStr
+/// @returns String Sanitized spaceNameStr
 
 static Function/S SanitiseATHSpaceName(string spaceNameStr)
 	if(GrepString(spaceNameStr, "^\*"))
@@ -488,11 +480,11 @@ static Function/S SanitiseATHSpaceName(string spaceNameStr)
 End
 
 /// @function ShowAllWindows
-/// @brief Description of ShowAllWindows.
+/// @brief Show all windows.
 /// @details
-/// Auto-generated documentation stub for function `ShowAllWindows`.
-/// @param showSwitch Parameter showSwitch.
-/// @returns Variable Return value.
+/// Show all windows in the current experiment.
+/// @param showSwitch Variable show = 0 or 1
+/// @returns Variable 0
 
 static Function ShowAllWindows(variable showSwitch)
 	// showSwitch = 0 (hide window) 
@@ -515,13 +507,13 @@ static Function ShowAllWindows(variable showSwitch)
 End
 
 /// @function ShowOrphanWindows
-/// @brief Description of ShowOrphanWindows.
+/// @brief Show orphan windows.
 /// @details
-/// Auto-generated documentation stub for function `ShowOrphanWindows`.
-/// @param showSwitch Parameter showSwitch.
-/// @returns Variable Return value.
+/// Show orphan windows, i.e. windows without any tag.
+/// @param showSwitch Variable show = 0 or 1
+/// @returns Variable 0
 
-static Function ShowOrphanWindows(variable showSwitch)
+static Function ShowOrphanWindows(variable show)
 	// Show windows with no tag
 	string winNameStr = "", getSpacetagStr
 	variable i = 0 
@@ -534,9 +526,9 @@ static Function ShowOrphanWindows(variable showSwitch)
 		endif
 		getSpacetagStr = GetUserData(winNameStr, "", "ATH_SpacesTag")
 		if(!strlen(getSpacetagStr))
-			SetWindow $winNameStr hide = 1 - showSwitch
+			SetWindow $winNameStr hide = 1 - show
 		else 
-			SetWindow $winNameStr hide = showSwitch
+			SetWindow $winNameStr hide = show
 		endif
 	while(strlen(winNameStr))
 	return 0

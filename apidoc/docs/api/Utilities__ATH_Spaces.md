@@ -4,8 +4,33 @@
 
 Module ATH_Spaces.
 
-This module belongs to the ATH Igor Pro toolkit and contains procedures
-related to ATH Spaces functionality.
+Igor Spaces organises windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate Spaces.
+When a Space is selected in the panel, only windows linked to it are shown.
+How it works:
+1. Launch Igor Spaces from "Windows/Packages" submenu.
+2. Press the "New" button to create a new Space, name should be unique, otherwise you will be
+prompted to change your input. When a new "Space" is created it becomes your active working Space.
+New Spaces are created below the active row selection, and at the moment you cannot change their order.
+3.Press "Delete" to delete the selected space. Windows associated with the space are released and not
+linked to any space ("" tag)
+4. Press "All" to show/hide all windows whether linked to a Space or not.
+5. When the Igor Spaces Panel is open any window you create is associated with the active Space.
+6. Double click on a row to rename the Space
+7. Press Shift + Click on a row of the ListBox to move the top window to the selected space
+8. Press Alt + Click anywhere in the ListBox of the panel (rows or empty space below) to pin the top
+window to all spaces (visible everywhere)
+9. To unpin press Shift + Alt + Click anywhere in the ListBox to unpin the window (becomes free floating).
+You can also make a normal window free-floating using the same procedure. Alternatively, if you want to
+unpin and link it to a space goto 7.
+10. Use Ctlr + click to mark/unmark a space with an asterisk and link it to the selected data folder in the data browser.
+When selecting a Space with an asterisk the current data folder changes to the linked data folder.
+TL;DR:
+SHIFT+Click: on a Space to associate with the top window.
+Double-click: Rename the Space.
+ALT+click (on an enpty row NOT a space): Pin top window to all Spaces.
+SHIFT+ALT+click: unpin top window and make (now with no Space link, i.e. orphan).
+CTRL+click (CMD+click on MacOS): link space to the selected data folder in Data Browser
+(now marked with an asterisk). Current data folder changes when you select spaces with asterisk.
 
 ```{contents}
 :local:
@@ -22,11 +47,11 @@ MenuLaunch()
 
 Description of MenuLaunch.
 
-Auto-generated documentation stub for function `MenuLaunch`.
+Launch Spaces named ATH_Spaces#MenuLaunch().
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: 0
 
 
 ## `MakePanel`
@@ -37,34 +62,14 @@ Auto-generated documentation stub for function `MenuLaunch`.
 MakePanel()
 ```
 
-Description of MakePanel.
+Create main window of ATH_Spaces.
 
-Auto-generated documentation stub for function `MakePanel`.
-
-### Returns
-
-- **Variable**: Return value.
-
-
-## `ListBoxFunction`
-
-**Signature**
-
-```igorpro
-ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
-```
-
-Description of ListBoxFunction.
-
-Auto-generated documentation stub for function `ListBoxFunction`.
-
-### Parameters
-
-- `&LB_Struct` *(Parameter)*: &LB_Struct.
+Create main window of ATH_Spaces named ATH_SpacesPanel, launch from command line
+as ATH_Spaces#MakePanel().
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Returns 0 if all ok
 
 
 ## `ShowWindowsOfSpaceTag`
@@ -72,21 +77,21 @@ Auto-generated documentation stub for function `ListBoxFunction`.
 **Signature**
 
 ```igorpro
-ShowWindowsOfSpaceTag(string spaceTagStr, variable showSwitch)
+ShowWindowsOfSpaceTag(string spaceTagStr, variable show)
 ```
 
-Description of ShowWindowsOfSpaceTag.
+Show/hide windows tagged with @param spaceTagStr.
 
-Auto-generated documentation stub for function `ShowWindowsOfSpaceTag`.
+Show or hide windows that have a tag on them. Control show/hide using the parameter show.
 
 ### Parameters
 
-- `spaceTagStr` *(Parameter)*: spaceTagStr.
-- `showSwitch` *(Parameter)*: showSwitch.
+- `spaceTagStr` *(String)*: Name of the tag
+- `showSwitch` *(Variable)*: show = 0 or 1
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: 0
 
 
 ## `RenameSpaceTagOnWindows`
@@ -97,18 +102,19 @@ Auto-generated documentation stub for function `ShowWindowsOfSpaceTag`.
 RenameSpaceTagOnWindows(string oldspaceTagStr, string newspaceTagStr)
 ```
 
-Description of RenameSpaceTagOnWindows.
+Change the name of the space, all tag linked to the space are renamed.
 
-Auto-generated documentation stub for function `RenameSpaceTagOnWindows`.
+Change the name of a space. All windows with tags linked to the space are renamed.
+The function is used by Spaces when a space is renamed. Do not call the function directly.
 
 ### Parameters
 
-- `oldspaceTagStr` *(Parameter)*: oldspaceTagStr.
-- `newspaceTagStr` *(Parameter)*: newspaceTagStr.
+- `oldspaceTagStr` *(String)*: Current space name
+- `newspaceTagStr` *(Parameter)*: New space name
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: 0
 
 
 ## `ClearWindowsFromSpaceTag`
@@ -119,17 +125,19 @@ Auto-generated documentation stub for function `RenameSpaceTagOnWindows`.
 ClearWindowsFromSpaceTag(string spaceTagStr)
 ```
 
-Description of ClearWindowsFromSpaceTag.
+Clears all windows associated with a specific tag.
 
-Auto-generated documentation stub for function `ClearWindowsFromSpaceTag`.
+Clears all windows associated with a specific tag. This function is used by Spaces
+to clear tags from windows associated to spaces that are being deleted. Do not call the
+function directly.
 
 ### Parameters
 
-- `spaceTagStr` *(Parameter)*: spaceTagStr.
+- `spaceTagStr` *(String)*: spaceTagStr
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: 0
 
 
 ## `UniqueSpaceNameQ`
@@ -140,18 +148,18 @@ Auto-generated documentation stub for function `ClearWindowsFromSpaceTag`.
 UniqueSpaceNameQ(WAVE/T textW, string spaceNameStr)
 ```
 
-Description of UniqueSpaceNameQ.
+Is the Space name unique?
 
-Auto-generated documentation stub for function `UniqueSpaceNameQ`.
+The function checks is the name of a space is not already in the list of existing spaces.
 
 ### Parameters
 
-- `textW` *(Parameter)*: textW.
-- `spaceNameStr` *(Parameter)*: spaceNameStr.
+- `textW` *(Wave/T)*: textW.
+- `spaceNameStr` *(String)*: spaceNameStr
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: True(1)/False(0)
 
 
 ## `SanitiseATHSpaceName`
@@ -162,17 +170,19 @@ Auto-generated documentation stub for function `UniqueSpaceNameQ`.
 SanitiseATHSpaceName(string spaceNameStr)
 ```
 
-Description of SanitiseATHSpaceName.
+Sanitise a space name.
 
-Auto-generated documentation stub for function `SanitiseATHSpaceName`.
+Returns a sanitized version of a space name by removing a trailing asterisk if present.
+An asterisk is used to mark spaces linked to specific folders, therefore, they do not
+consist valid space names in Spaces.
 
 ### Parameters
 
-- `spaceNameStr` *(Parameter)*: spaceNameStr.
+- `spaceNameStr` *(String)*: spaceNameStr
 
 ### Returns
 
-- **String**: Return value.
+- **String**: Sanitized spaceNameStr
 
 
 ## `ShowAllWindows`
@@ -183,17 +193,17 @@ Auto-generated documentation stub for function `SanitiseATHSpaceName`.
 ShowAllWindows(variable showSwitch)
 ```
 
-Description of ShowAllWindows.
+Show all windows.
 
-Auto-generated documentation stub for function `ShowAllWindows`.
+Show all windows in the current experiment.
 
 ### Parameters
 
-- `showSwitch` *(Parameter)*: showSwitch.
+- `showSwitch` *(Variable)*: show = 0 or 1
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: 0
 
 
 ## `ShowOrphanWindows`
@@ -201,17 +211,17 @@ Auto-generated documentation stub for function `ShowAllWindows`.
 **Signature**
 
 ```igorpro
-ShowOrphanWindows(variable showSwitch)
+ShowOrphanWindows(variable show)
 ```
 
-Description of ShowOrphanWindows.
+Show orphan windows.
 
-Auto-generated documentation stub for function `ShowOrphanWindows`.
+Show orphan windows, i.e. windows without any tag.
 
 ### Parameters
 
-- `showSwitch` *(Parameter)*: showSwitch.
+- `showSwitch` *(Variable)*: show = 0 or 1
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: 0

@@ -94,44 +94,39 @@
 <li class="toctree-l3"><a class="reference internal" href="#id1">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#listboxfunction"><code class="docutils literal notranslate"><span class="pre">ListBoxFunction</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#showwindowsofspacetag"><code class="docutils literal notranslate"><span class="pre">ShowWindowsOfSpaceTag</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id2">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#showwindowsofspacetag"><code class="docutils literal notranslate"><span class="pre">ShowWindowsOfSpaceTag</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#renamespacetagonwindows"><code class="docutils literal notranslate"><span class="pre">RenameSpaceTagOnWindows</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id3">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id4">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#renamespacetagonwindows"><code class="docutils literal notranslate"><span class="pre">RenameSpaceTagOnWindows</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#clearwindowsfromspacetag"><code class="docutils literal notranslate"><span class="pre">ClearWindowsFromSpaceTag</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id5">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id6">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#clearwindowsfromspacetag"><code class="docutils literal notranslate"><span class="pre">ClearWindowsFromSpaceTag</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#uniquespacenameq"><code class="docutils literal notranslate"><span class="pre">UniqueSpaceNameQ</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id7">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id8">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#uniquespacenameq"><code class="docutils literal notranslate"><span class="pre">UniqueSpaceNameQ</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sanitiseathspacename"><code class="docutils literal notranslate"><span class="pre">SanitiseATHSpaceName</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id9">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id10">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#sanitiseathspacename"><code class="docutils literal notranslate"><span class="pre">SanitiseATHSpaceName</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#showallwindows"><code class="docutils literal notranslate"><span class="pre">ShowAllWindows</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id11">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id12">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#showallwindows"><code class="docutils literal notranslate"><span class="pre">ShowAllWindows</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#showorphanwindows"><code class="docutils literal notranslate"><span class="pre">ShowOrphanWindows</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id13">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id14">Returns</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#showorphanwindows"><code class="docutils literal notranslate"><span class="pre">ShowOrphanWindows</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id15">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id16">Returns</a></li>
 </ul>
 </li>
 </ul>
@@ -170,268 +165,274 @@
 <h1>ATH_Spaces<a class="headerlink" href="#ath-spaces" title="Link to this heading"></a></h1>
 <p><strong>Source file:</strong> <code class="docutils literal notranslate"><span class="pre">Utilities/ATH_Spaces.ipf</span></code></p>
 <p>Module ATH_Spaces.</p>
-<p>This module belongs to the ATH Igor Pro toolkit and contains procedures
-related to ATH Spaces functionality.</p>
+<p>Igor Spaces organises windows (Graphs, Tables, Layouts, Notebooks or Panels) in separate Spaces.
+When a Space is selected in the panel, only windows linked to it are shown.
+How it works:</p>
+<ol class="arabic simple">
+<li><p>Launch Igor Spaces from “Windows/Packages” submenu.</p></li>
+<li><p>Press the “New” button to create a new Space, name should be unique, otherwise you will be
+prompted to change your input. When a new “Space” is created it becomes your active working Space.
+New Spaces are created below the active row selection, and at the moment you cannot change their order.
+3.Press “Delete” to delete the selected space. Windows associated with the space are released and not
+linked to any space (”” tag)</p></li>
+<li><p>Press “All” to show/hide all windows whether linked to a Space or not.</p></li>
+<li><p>When the Igor Spaces Panel is open any window you create is associated with the active Space.</p></li>
+<li><p>Double click on a row to rename the Space</p></li>
+<li><p>Press Shift + Click on a row of the ListBox to move the top window to the selected space</p></li>
+<li><p>Press Alt + Click anywhere in the ListBox of the panel (rows or empty space below) to pin the top
+window to all spaces (visible everywhere)</p></li>
+<li><p>To unpin press Shift + Alt + Click anywhere in the ListBox to unpin the window (becomes free floating).
+You can also make a normal window free-floating using the same procedure. Alternatively, if you want to
+unpin and link it to a space goto 7.</p></li>
+<li><p>Use Ctlr + click to mark/unmark a space with an asterisk and link it to the selected data folder in the data browser.
+When selecting a Space with an asterisk the current data folder changes to the linked data folder.
+TL;DR:
+SHIFT+Click: on a Space to associate with the top window.
+Double-click: Rename the Space.
+ALT+click (on an enpty row NOT a space): Pin top window to all Spaces.
+SHIFT+ALT+click: unpin top window and make (now with no Space link, i.e. orphan).
+CTRL+click (CMD+click on MacOS): link space to the selected data folder in Data Browser
+(now marked with an asterisk). Current data folder changes when you select spaces with asterisk.</p></li>
+</ol>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#menulaunch" id="id17"><code class="docutils literal notranslate"><span class="pre">MenuLaunch</span></code></a></p>
+<li><p><a class="reference internal" href="#menulaunch" id="id15"><code class="docutils literal notranslate"><span class="pre">MenuLaunch</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#returns" id="id18">Returns</a></p></li>
+<li><p><a class="reference internal" href="#returns" id="id16">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#makepanel" id="id19"><code class="docutils literal notranslate"><span class="pre">MakePanel</span></code></a></p>
+<li><p><a class="reference internal" href="#makepanel" id="id17"><code class="docutils literal notranslate"><span class="pre">MakePanel</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id1" id="id20">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id1" id="id18">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#listboxfunction" id="id21"><code class="docutils literal notranslate"><span class="pre">ListBoxFunction</span></code></a></p>
+<li><p><a class="reference internal" href="#showwindowsofspacetag" id="id19"><code class="docutils literal notranslate"><span class="pre">ShowWindowsOfSpaceTag</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#parameters" id="id22">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id2" id="id23">Returns</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id20">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id21">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#showwindowsofspacetag" id="id24"><code class="docutils literal notranslate"><span class="pre">ShowWindowsOfSpaceTag</span></code></a></p>
+<li><p><a class="reference internal" href="#renamespacetagonwindows" id="id22"><code class="docutils literal notranslate"><span class="pre">RenameSpaceTagOnWindows</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id3" id="id25">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id4" id="id26">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id23">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id24">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#renamespacetagonwindows" id="id27"><code class="docutils literal notranslate"><span class="pre">RenameSpaceTagOnWindows</span></code></a></p>
+<li><p><a class="reference internal" href="#clearwindowsfromspacetag" id="id25"><code class="docutils literal notranslate"><span class="pre">ClearWindowsFromSpaceTag</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id5" id="id28">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id6" id="id29">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id26">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id6" id="id27">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#clearwindowsfromspacetag" id="id30"><code class="docutils literal notranslate"><span class="pre">ClearWindowsFromSpaceTag</span></code></a></p>
+<li><p><a class="reference internal" href="#uniquespacenameq" id="id28"><code class="docutils literal notranslate"><span class="pre">UniqueSpaceNameQ</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id7" id="id31">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id8" id="id32">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id7" id="id29">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id8" id="id30">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#uniquespacenameq" id="id33"><code class="docutils literal notranslate"><span class="pre">UniqueSpaceNameQ</span></code></a></p>
+<li><p><a class="reference internal" href="#sanitiseathspacename" id="id31"><code class="docutils literal notranslate"><span class="pre">SanitiseATHSpaceName</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id9" id="id34">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id10" id="id35">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id9" id="id32">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id10" id="id33">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#sanitiseathspacename" id="id36"><code class="docutils literal notranslate"><span class="pre">SanitiseATHSpaceName</span></code></a></p>
+<li><p><a class="reference internal" href="#showallwindows" id="id34"><code class="docutils literal notranslate"><span class="pre">ShowAllWindows</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id11" id="id37">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id12" id="id38">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id11" id="id35">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id12" id="id36">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#showallwindows" id="id39"><code class="docutils literal notranslate"><span class="pre">ShowAllWindows</span></code></a></p>
+<li><p><a class="reference internal" href="#showorphanwindows" id="id37"><code class="docutils literal notranslate"><span class="pre">ShowOrphanWindows</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id13" id="id40">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id14" id="id41">Returns</a></p></li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#showorphanwindows" id="id42"><code class="docutils literal notranslate"><span class="pre">ShowOrphanWindows</span></code></a></p>
-<ul>
-<li><p><a class="reference internal" href="#id15" id="id43">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id16" id="id44">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id13" id="id38">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id14" id="id39">Returns</a></p></li>
 </ul>
 </li>
 </ul>
 </nav>
 <section id="menulaunch">
-<h2><a class="toc-backref" href="#id17" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">MenuLaunch</span></code></a><a class="headerlink" href="#menulaunch" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id15" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">MenuLaunch</span></code></a><a class="headerlink" href="#menulaunch" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>MenuLaunch()
 </pre></div>
 </div>
 <p>Description of MenuLaunch.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">MenuLaunch</span></code>.</p>
+<p>Launch Spaces named ATH_Spaces#MenuLaunch().</p>
 <section id="returns">
-<h3><a class="toc-backref" href="#id18" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id16" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: 0</p></li>
 </ul>
 </section>
 </section>
 <section id="makepanel">
-<h2><a class="toc-backref" href="#id19" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">MakePanel</span></code></a><a class="headerlink" href="#makepanel" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id17" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">MakePanel</span></code></a><a class="headerlink" href="#makepanel" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>MakePanel()
 </pre></div>
 </div>
-<p>Description of MakePanel.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">MakePanel</span></code>.</p>
+<p>Create main window of ATH_Spaces.</p>
+<p>Create main window of ATH_Spaces named ATH_SpacesPanel, launch from command line
+as ATH_Spaces#MakePanel().</p>
 <section id="id1">
-<h3><a class="toc-backref" href="#id20" role="doc-backlink">Returns</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id18" role="doc-backlink">Returns</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
-</ul>
-</section>
-</section>
-<section id="listboxfunction">
-<h2><a class="toc-backref" href="#id21" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ListBoxFunction</span></code></a><a class="headerlink" href="#listboxfunction" title="Link to this heading"></a></h2>
-<p><strong>Signature</strong></p>
-<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ListBoxFunction(<span class="kt">STRUCT</span><span class="w"> </span>WMListboxAction<span class="w"> </span>&amp;LB_Struct)
-</pre></div>
-</div>
-<p>Description of ListBoxFunction.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ListBoxFunction</span></code>.</p>
-<section id="parameters">
-<h3><a class="toc-backref" href="#id22" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&amp;LB_Struct</span></code> <em>(Parameter)</em>: &amp;LB_Struct.</p></li>
-</ul>
-</section>
-<section id="id2">
-<h3><a class="toc-backref" href="#id23" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Returns 0 if all ok</p></li>
 </ul>
 </section>
 </section>
 <section id="showwindowsofspacetag">
-<h2><a class="toc-backref" href="#id24" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ShowWindowsOfSpaceTag</span></code></a><a class="headerlink" href="#showwindowsofspacetag" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id19" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ShowWindowsOfSpaceTag</span></code></a><a class="headerlink" href="#showwindowsofspacetag" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
-<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ShowWindowsOfSpaceTag(<span class="kt">string</span><span class="w"> </span>spaceTagStr,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>showSwitch)
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ShowWindowsOfSpaceTag(<span class="kt">string</span><span class="w"> </span>spaceTagStr,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>show)
 </pre></div>
 </div>
-<p>Description of ShowWindowsOfSpaceTag.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ShowWindowsOfSpaceTag</span></code>.</p>
-<section id="id3">
-<h3><a class="toc-backref" href="#id25" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>Show/hide windows tagged with &#64;param spaceTagStr.</p>
+<p>Show or hide windows that have a tag on them. Control show/hide using the parameter show.</p>
+<section id="parameters">
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">spaceTagStr</span></code> <em>(Parameter)</em>: spaceTagStr.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">showSwitch</span></code> <em>(Parameter)</em>: showSwitch.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spaceTagStr</span></code> <em>(String)</em>: Name of the tag</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">showSwitch</span></code> <em>(Variable)</em>: show = 0 or 1</p></li>
 </ul>
 </section>
-<section id="id4">
-<h3><a class="toc-backref" href="#id26" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<section id="id2">
+<h3><a class="toc-backref" href="#id21" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: 0</p></li>
 </ul>
 </section>
 </section>
 <section id="renamespacetagonwindows">
-<h2><a class="toc-backref" href="#id27" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">RenameSpaceTagOnWindows</span></code></a><a class="headerlink" href="#renamespacetagonwindows" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id22" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">RenameSpaceTagOnWindows</span></code></a><a class="headerlink" href="#renamespacetagonwindows" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>RenameSpaceTagOnWindows(<span class="kt">string</span><span class="w"> </span>oldspaceTagStr,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>newspaceTagStr)
 </pre></div>
 </div>
-<p>Description of RenameSpaceTagOnWindows.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">RenameSpaceTagOnWindows</span></code>.</p>
-<section id="id5">
-<h3><a class="toc-backref" href="#id28" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>Change the name of the space, all tag linked to the space are renamed.</p>
+<p>Change the name of a space. All windows with tags linked to the space are renamed.
+The function is used by Spaces when a space is renamed. Do not call the function directly.</p>
+<section id="id3">
+<h3><a class="toc-backref" href="#id23" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">oldspaceTagStr</span></code> <em>(Parameter)</em>: oldspaceTagStr.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">newspaceTagStr</span></code> <em>(Parameter)</em>: newspaceTagStr.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">oldspaceTagStr</span></code> <em>(String)</em>: Current space name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">newspaceTagStr</span></code> <em>(Parameter)</em>: New space name</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3><a class="toc-backref" href="#id29" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="id4">
+<h3><a class="toc-backref" href="#id24" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: 0</p></li>
 </ul>
 </section>
 </section>
 <section id="clearwindowsfromspacetag">
-<h2><a class="toc-backref" href="#id30" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ClearWindowsFromSpaceTag</span></code></a><a class="headerlink" href="#clearwindowsfromspacetag" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id25" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ClearWindowsFromSpaceTag</span></code></a><a class="headerlink" href="#clearwindowsfromspacetag" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ClearWindowsFromSpaceTag(<span class="kt">string</span><span class="w"> </span>spaceTagStr)
 </pre></div>
 </div>
-<p>Description of ClearWindowsFromSpaceTag.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ClearWindowsFromSpaceTag</span></code>.</p>
-<section id="id7">
-<h3><a class="toc-backref" href="#id31" role="doc-backlink">Parameters</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>Clears all windows associated with a specific tag.</p>
+<p>Clears all windows associated with a specific tag. This function is used by Spaces
+to clear tags from windows associated to spaces that are being deleted. Do not call the
+function directly.</p>
+<section id="id5">
+<h3><a class="toc-backref" href="#id26" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">spaceTagStr</span></code> <em>(Parameter)</em>: spaceTagStr.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spaceTagStr</span></code> <em>(String)</em>: spaceTagStr</p></li>
 </ul>
 </section>
-<section id="id8">
-<h3><a class="toc-backref" href="#id32" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<section id="id6">
+<h3><a class="toc-backref" href="#id27" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: 0</p></li>
 </ul>
 </section>
 </section>
 <section id="uniquespacenameq">
-<h2><a class="toc-backref" href="#id33" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">UniqueSpaceNameQ</span></code></a><a class="headerlink" href="#uniquespacenameq" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id28" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">UniqueSpaceNameQ</span></code></a><a class="headerlink" href="#uniquespacenameq" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>UniqueSpaceNameQ(<span class="kt">WAVE</span>/T<span class="w"> </span>textW,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>spaceNameStr)
 </pre></div>
 </div>
-<p>Description of UniqueSpaceNameQ.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">UniqueSpaceNameQ</span></code>.</p>
-<section id="id9">
-<h3><a class="toc-backref" href="#id34" role="doc-backlink">Parameters</a><a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>Is the Space name unique?</p>
+<p>The function checks is the name of a space is not already in the list of existing spaces.</p>
+<section id="id7">
+<h3><a class="toc-backref" href="#id29" role="doc-backlink">Parameters</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">textW</span></code> <em>(Parameter)</em>: textW.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">spaceNameStr</span></code> <em>(Parameter)</em>: spaceNameStr.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">textW</span></code> <em>(Wave/T)</em>: textW.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spaceNameStr</span></code> <em>(String)</em>: spaceNameStr</p></li>
 </ul>
 </section>
-<section id="id10">
-<h3><a class="toc-backref" href="#id35" role="doc-backlink">Returns</a><a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<section id="id8">
+<h3><a class="toc-backref" href="#id30" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: True(1)/False(0)</p></li>
 </ul>
 </section>
 </section>
 <section id="sanitiseathspacename">
-<h2><a class="toc-backref" href="#id36" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SanitiseATHSpaceName</span></code></a><a class="headerlink" href="#sanitiseathspacename" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id31" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SanitiseATHSpaceName</span></code></a><a class="headerlink" href="#sanitiseathspacename" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SanitiseATHSpaceName(<span class="kt">string</span><span class="w"> </span>spaceNameStr)
 </pre></div>
 </div>
-<p>Description of SanitiseATHSpaceName.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">SanitiseATHSpaceName</span></code>.</p>
-<section id="id11">
-<h3><a class="toc-backref" href="#id37" role="doc-backlink">Parameters</a><a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<p>Sanitise a space name.</p>
+<p>Returns a sanitized version of a space name by removing a trailing asterisk if present.
+An asterisk is used to mark spaces linked to specific folders, therefore, they do not
+consist valid space names in Spaces.</p>
+<section id="id9">
+<h3><a class="toc-backref" href="#id32" role="doc-backlink">Parameters</a><a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">spaceNameStr</span></code> <em>(Parameter)</em>: spaceNameStr.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spaceNameStr</span></code> <em>(String)</em>: spaceNameStr</p></li>
 </ul>
 </section>
-<section id="id12">
-<h3><a class="toc-backref" href="#id38" role="doc-backlink">Returns</a><a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<section id="id10">
+<h3><a class="toc-backref" href="#id33" role="doc-backlink">Returns</a><a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>String</strong>: Return value.</p></li>
+<li><p><strong>String</strong>: Sanitized spaceNameStr</p></li>
 </ul>
 </section>
 </section>
 <section id="showallwindows">
-<h2><a class="toc-backref" href="#id39" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ShowAllWindows</span></code></a><a class="headerlink" href="#showallwindows" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id34" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ShowAllWindows</span></code></a><a class="headerlink" href="#showallwindows" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ShowAllWindows(<span class="kt">variable</span><span class="w"> </span>showSwitch)
 </pre></div>
 </div>
-<p>Description of ShowAllWindows.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ShowAllWindows</span></code>.</p>
-<section id="id13">
-<h3><a class="toc-backref" href="#id40" role="doc-backlink">Parameters</a><a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<p>Show all windows.</p>
+<p>Show all windows in the current experiment.</p>
+<section id="id11">
+<h3><a class="toc-backref" href="#id35" role="doc-backlink">Parameters</a><a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">showSwitch</span></code> <em>(Parameter)</em>: showSwitch.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">showSwitch</span></code> <em>(Variable)</em>: show = 0 or 1</p></li>
 </ul>
 </section>
-<section id="id14">
-<h3><a class="toc-backref" href="#id41" role="doc-backlink">Returns</a><a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<section id="id12">
+<h3><a class="toc-backref" href="#id36" role="doc-backlink">Returns</a><a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: 0</p></li>
 </ul>
 </section>
 </section>
 <section id="showorphanwindows">
-<h2><a class="toc-backref" href="#id42" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ShowOrphanWindows</span></code></a><a class="headerlink" href="#showorphanwindows" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id37" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ShowOrphanWindows</span></code></a><a class="headerlink" href="#showorphanwindows" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
-<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ShowOrphanWindows(<span class="kt">variable</span><span class="w"> </span>showSwitch)
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ShowOrphanWindows(<span class="kt">variable</span><span class="w"> </span>show)
 </pre></div>
 </div>
-<p>Description of ShowOrphanWindows.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ShowOrphanWindows</span></code>.</p>
-<section id="id15">
-<h3><a class="toc-backref" href="#id43" role="doc-backlink">Parameters</a><a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<p>Show orphan windows.</p>
+<p>Show orphan windows, i.e. windows without any tag.</p>
+<section id="id13">
+<h3><a class="toc-backref" href="#id38" role="doc-backlink">Parameters</a><a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">showSwitch</span></code> <em>(Parameter)</em>: showSwitch.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">showSwitch</span></code> <em>(Variable)</em>: show = 0 or 1</p></li>
 </ul>
 </section>
-<section id="id16">
-<h3><a class="toc-backref" href="#id44" role="doc-backlink">Returns</a><a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<section id="id14">
+<h3><a class="toc-backref" href="#id39" role="doc-backlink">Returns</a><a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: 0</p></li>
 </ul>
 </section>
 </section>

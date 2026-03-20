@@ -336,7 +336,7 @@ static Function ImageRegistrationStack()
 			return NaN
 		endif
 	endif
-	ATH_DFR#BackupWaveInWaveDF(wRef)
+	string wRef_backStr = ATH_DFR#BackupWaveInWaveDF(wRef)
 	variable layerN = ATH_Graph#GetgLayer("")
 	string waveNoteStr = note(wRef)
 	#if IgorVersion() >= 10
@@ -345,6 +345,7 @@ static Function ImageRegistrationStack()
 		ATH_ImgAlign#ImgStackRegistration(wRef, layerN)
 	#endif
 	Note wRef, waveNoteStr
+	CopyScales $wRef_backStr, wRef
 	return 0
 End
 

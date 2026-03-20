@@ -32,17 +32,19 @@
 
 
 /// @module ATH_Menus
-/// @brief Module ATH_Menus.
+/// @brief Main menu entries
 /// @details
-/// This module belongs to the ATH Igor Pro toolkit and contains procedures
-/// related to ATH Menus functionality.
+/// The file control athina's menubar entries. You can edit the file to customize 
+/// the entries to your taste. Use /N (N=1..9) at the end of the entry name string
+/// to define a quick launch shortcut (CMD+N on Mac or Ctrl+N on Windows). The flag
+/// /Q is used in all menu entries to supress command printing.
 
 Menu "athina"
 
 	Submenu "Import"
 		Submenu "Elmitec .dat"
 			"Files...", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1) // Single thread
-			"Files to stack ...", /Q, ATH_Uview#LoadMultiplyDATFilesMT(displayImg = 1) // MT - Mutlithread
+			"Files to stack .../O", /Q, ATH_Uview#LoadMultiplyDATFilesMT(displayImg = 1) // MT - Mutlithread
 			"Folder to stack .../1", /Q, ATH_Uview#LoadDATFilesFromFolderMT(displayImg = 1) 						
 			"Measuremnt ID to stack (ScanGUI) .../2", /Q, ATH_Uview#LoadDATFilesMatchingPattternToStackMT(displayImg = 1)
 			"Filename pattern matching to stack .../3", /Q, ATH_Uview#LoadDATFilesMatchingPattternToStackMT(displayImg = 1, pattern = 1)			

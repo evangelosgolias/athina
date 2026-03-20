@@ -40,7 +40,6 @@
 /// This module belongs to the ATH Igor Pro toolkit and contains procedures
 /// related to ATH Beamtime functionality.
 
-
 static Function/S SetOrResetBeamtimeRootFolder()
 	// Helper function for functions in ATH_LoadFilesDuringBeamtime.ipf.
 	// Set or reset the Igor Path MAXPEEM_USER_ROOT_FOLDER

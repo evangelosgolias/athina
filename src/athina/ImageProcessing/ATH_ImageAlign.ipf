@@ -77,6 +77,11 @@ End
 static Function ImgStackRegistration(WAVE wRef, variable layerN)
 	DFREF saveDF = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
+	
+	if(!(WaveType(wRef) & 0x02))
+		Redimension/S wRef
+	endif
+		
 	MatrixOP/FREE refLayerW = layer(wRef, layerN)
 	ImageRegistration/Q/CONV=1/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,1}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerW, testwave = wRef
 	WAVE M_RegOut
@@ -85,7 +90,7 @@ static Function ImgStackRegistration(WAVE wRef, variable layerN)
 	return 0
 End
 
-static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [variable layerN,
+static Function ImgStackPartitionRegistration(WAVE wRef, WAVE partwRef, [variable layerN,
 				variable RotZ, variable printMode]) // Used in menu
 	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave.
 	/// The partition 3d wave calls ATH_ImageStackAlignmentByFullRegistration
@@ -102,11 +107,11 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 	printMode = ParamIsDefault(printMode) ? 0: printMode
 	RotZ = ParamIsDefault(RotZ) ? 0 : !!RotZ
 	
-	if(!(WaveType(w3d) & 0x02))
-		Redimension/S w3d
+	if(!(WaveType(wRef) & 0x02))
+		Redimension/S wRef
 	endif
-	if(!(WaveType(partitionW3d) & 0x02))
-		Redimension/S partitionW3d
+	if(!(WaveType(partwRef) & 0x02))
+		Redimension/S partwRef
 	endif
 
 	if(printMode)
@@ -119,16 +124,16 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 	DFREF saveDF = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
 	
-	MatrixOP/FREE partitionW3d_n = normalize(partitionW3d)
-	MatrixOP/FREE refLayerWave = layer(partitionW3d_n, layerN)
+	MatrixOP/FREE partwRef_n = normalize(partwRef)
+	MatrixOP/FREE refLayerWave = layer(partwRef_n, layerN)
 	
-	variable rows = DimSize(w3d, 0)
-	variable cols = DimSize(w3d, 1)
-	variable layers = DimSize(w3d, 2)
+	variable rows = DimSize(wRef, 0)
+	variable cols = DimSize(wRef, 1)
+	variable layers = DimSize(wRef, 2)
 	if(RotZ)
-		ImageRegistration/Q/CONV=1/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,1}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d_n		
+		ImageRegistration/Q/CONV=1/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,1}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partwRef_n		
 	else
-		ImageRegistration/Q/CONV=1/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partitionW3d_n
+		ImageRegistration/Q/CONV=1/STCK/PSTK/TRNS={1,1,0}/ROT={0,0,0}/CSNR=0/TSTM=0/BVAL=0 refwave = refLayerWave, testwave = partwRef_n
 	endif
 	WAVE M_RegParams
 
@@ -136,13 +141,13 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 	MatrixOP/FREE dy = row(M_RegParams, 1)			
 
 	variable i
-	Make/FREE/N=(DimSize(w3d,0), DimSize(w3d,0)) ATH_ROIMask
+	Make/FREE/N=(DimSize(wRef,0), DimSize(wRef,0)) ATH_ROIMask
 	FastOP ATH_ROIMask = 1
 	for(i = 0; i < layers; i++)
 		if((dx[i] == 0 && dy[i] == 0) || layerN == i)
-			MatrixOP/O $("getStacklayer_" + num2str(i)) = layer(w3d, i) // Scaled in pixels!
+			MatrixOP/O $("getStacklayer_" + num2str(i)) = layer(wRef, i) // Scaled in pixels!
 		else
-			MatrixOP/O getLayer = layer(w3d, i) // Scaled in pixels!
+			MatrixOP/O getLayer = layer(wRef, i) // Scaled in pixels!
 			MatrixOP/O getRegParams = col(M_RegParams, i) // Scaled in pixels!
 			ImageRegistration/Q/USER=getRegParams/BVAL=0 testMask=ATH_ROIMask testwave=getLayer
 			WAVE M_RegOut			
@@ -159,11 +164,11 @@ static Function ImgStackPartitionRegistration(WAVE w3d, WAVE partitionW3d, [vari
 	ImageTransform/NP=(layers) stackImages $"getStacklayer_0"
 	WAVE M_Stack
 	// Restore scale here
-	CopyScales w3d, M_Stack
-	Duplicate/O M_Stack, saveDF:$NameofWave(w3d)
+	CopyScales wRef, M_Stack
+	Duplicate/O M_Stack, saveDF:$NameofWave(wRef)
 
 	if(printMode)
-		string notebookName = NameOfWave(w3d)
+		string notebookName = NameOfWave(wRef)
 		KillWindow/Z notebookName
 		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
 		Notebook notebookName, text = driftLog

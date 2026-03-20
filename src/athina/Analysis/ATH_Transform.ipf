@@ -14,18 +14,26 @@
 ///
 
 /// @function FFT2D
-/// @brief Compute the 2D FFT of an input wave.
+/// @brief Compute the 2D FFT.
 /// @details
-/// Duplicates the input wave as a temporary complex wave, performs a 2D FFT, and
-/// stores the result in the source wave's data folder using the suffix `_FFT`.
-/// @param wRef Wave Input 2D wave.
-/// @param mode Variable Optional FFT output mode passed to `FFT/OUT`.
-/// @returns Wave Reference to the generated FFT wave.
+/// Performs a 2D FFT, and stores the result in the source wave's data 
+/// folder using the suffix `_FFT`.
+/// @param wRef WAVE Input 2D wave.
+/// @param [mode] Variable Optional FFT output mode:
+/// mode = 1:	Default for complex output (default)
+/// mode = 2:	Real output
+/// mode = 3:	Magnitude
+/// mode = 4:	Magnitude square
+/// mode = 5:	Phase
+/// mode = 6:	Scaled magnitude
+/// mode = 7:	Scaled magnitude squared
+/// @returns WAVE Reference to the generated FFT wave
 ///
 static Function/WAVE FFT2D(WAVE wRef, [int mode])
 	///
 	/// FFT of a 2D wave
 	///
+    mode = ParamIsDefault(mode) ? 1 : mode 
 	DFREF dfr = GetWavesDataFolderDFR(wRef)
 	Duplicate/FREE wref, wRefFree
 	Redimension/C wRefFree 	
@@ -36,15 +44,30 @@ static Function/WAVE FFT2D(WAVE wRef, [int mode])
 	return $destWaveNameStr
 End
 
+/// @function PhaseCorrelation
+/// @brief Compute the phase correlation between two images.
+/// @details
+/// 
+/// Add documentation here 
+///
+/// @param wRef WAVE Reference image
+/// @param [mode] WAVE Test image
+/// @returns WAVE Phase correlation 
+///
+static Function/WAVE PhaseCorrelation(WAVE/C wRef, WAVE/C wTest)
+	
+	// Implement it here.
+	// https://raw.githubusercontent.com/scikit-image/scikit-image/v0.23.2/skimage/registration/_phase_cross_correlation.py
+End
 
 /// @function HighLowScale
 /// @brief Scale wave values into a specified numeric range.
 /// @details
-/// Creates a new wave named `<input>_scaled` using `MatrixOP scale(wRef, low, high)`.
+/// Creates a new wave named `NameOfWave_scaled` using `MatrixOP scale(wRef, low, high)`.
 /// @param wRef Wave Input wave to scale.
-/// @param low Variable Lower bound of the target range.
-/// @param high Variable Upper bound of the target range.
-/// @returns Variable Returns 0 on completion.
+/// @param low Variable Lower bound of the target range
+/// @param high Variable Upper bound of the target range
+/// @returns Variable 0
 ///
 Function HighLowScale(WAVE wRef, variable low, variable high)
     // Find min and max values of the wave
@@ -60,7 +83,7 @@ End
 /// the corresponding three points in `dest`.
 /// @param src Wave Six-element source coordinate wave `{x1,y1,x2,y2,x3,y3}`.
 /// @param dest Wave Six-element destination coordinate wave `{X1,Y1,X2,Y2,X3,Y3}`.
-/// @returns Wave Free wave containing the affine coefficients.
+/// @returns Wave Wave containing the affine transformation coefficients.
 ///
 Function/WAVE GetAffine2DMapping(WAVE src, WAVE dest)
 

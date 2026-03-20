@@ -310,7 +310,7 @@ static Function WaveLogging(Wave wRef, string msg, [int prepend])
 	// Add str to the note of wRef.
 	// Use prepend = 1 to add string at the start.
 	if(prepend)
-		Note wRef, msg + Note(wRef)
+		Note/K wRef, msg + "\n" + Note(wRef)
 	else
 		Note wRef, msg
 	endif
