@@ -1361,20 +1361,20 @@ End
 /// @param interval] Parameter interval].
 /// @returns Variable Return value.
 
-static Function ScaleFoVWithObjectiveCurrent(WAVE wRef, variable mobj,[int interval])
-	// Scale image using the M. Obj current in mA
-	// Applies to the current settings of the MAXPEEM microscope
-	variable factor = (2150/mobj)^2
-	variable x0 = DimOffset(wRef, 0), y0 = DimOffset(wRef, 1)
-	variable dx = DimDelta(wRef, 0), dy = DimDelta(wRef, 1)
-	if(interval)
-		variable lenx = (DimSize(wRef, 0) - 1) * dx
-		variable leny = (DimSize(wRef, 1) - 1) * dy		
-		SetScale/I x, x0, x0+lenx*factor, wRef
-		SetScale/I y, y0, y0+leny*factor, wRef	
-	else
-		SetScale/P x, x0, dx*factor, wRef
-		SetScale/P y, y0, dy*factor, wRef	
-	endif
-	return 0
-End
+//static Function ScaleFoVWithObjectiveCurrent(WAVE wRef, variable mobj,[int interval])
+//	// Scale image using the M. Obj current in mA
+//	// Applies to the current settings of the MAXPEEM microscope
+//	// variable factor = (2150/mobj)^2
+//	variable x0 = DimOffset(wRef, 0), y0 = DimOffset(wRef, 1)
+//	variable dx = DimDelta(wRef, 0), dy = DimDelta(wRef, 1)
+//	if(interval)
+//		variable lenx = (DimSize(wRef, 0) - 1) * dx
+//		variable leny = (DimSize(wRef, 1) - 1) * dy		
+//		SetScale/I x, x0, x0+lenx*factor, wRef
+//		SetScale/I y, y0, y0+leny*factor, wRef	
+//	else
+//		SetScale/P x, x0, dx*factor, wRef
+//		SetScale/P y, y0, dy*factor, wRef	
+//	endif
+//	return 0
+//End

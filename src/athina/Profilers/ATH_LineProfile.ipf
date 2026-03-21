@@ -31,6 +31,17 @@
 //	OTHER DEALINGS IN THE SOFTWARE.
 // ------------------------------------------------------- //
 
+
+// 21.03.2026: Added scaling using cursor positions. Scaling is performed
+// using only a parameter that scales (multiplies) the x-axis wave from the
+// ImageLineProfile operation, W_LineProfileDisplacement.
+// 
+// TODO
+// You can update the code to deal with cases with different x, y wavescales
+// You can use the cursor values to find the distance between E, F. You can then
+// check how many points you have in x, y and extract two scale factors. But you have
+// to always track the points in x, y axis to get the correct scaling.
+
 /// @module ATH_LineProfile
 /// @brief Module ATH_LineProfile.
 /// @details
@@ -132,6 +143,7 @@ static Function/DF InitialiseFolder(string winNameStr)
 	variable/G dfr:gATH_C2y = round(1.1 * ncols/2)
 	variable/G dfr:gATH_profileWidth = 0
 	variable/G dfr:gATH_selectedLayer = 0
+	variable/G dfr:gATH_scalingFactor = 1
 	variable/G dfr:gATH_updateCursorsPositions = 0
 	// Switches and indicators
 	variable/G dfr:gATH_PlotSwitch = 1
@@ -181,14 +193,14 @@ static Function CreatePlot(DFREF dfr)
 	SVAR/SDFR=dfr gATH_WindowNameStr
 	NVAR profileWidth = dfr:gATH_profileWidth
 	string profilePlotStr = "ATH_LineProfilePlot_" + gATH_WindowNameStr
-	Make/O/N=0  dfr:W_LineProfileDisplacement, dfr:W_ImageLineProfile // Make a dummy wave to display 
-	Display/W=(0,0,500,300)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile vs dfr:W_LineProfileDisplacement as "Line profile " + gATH_WindowNameStr
+	Make/O/N=0  dfr:W_LineProfileDisplacement, dfr:W_ImageLineProfile // Make a dummy wave to display z
+	Display/W=(0,0,515,300)/K=1/N=$profilePlotStr dfr:W_ImageLineProfile vs dfr:W_LineProfileDisplacement as "Line profile " + gATH_WindowNameStr
 	AutoPositionWindow/E/M=0/R=$gATH_WindowNameStr
 	ModifyGraph rgb=(1,12815,52428), tick(left)=2, tick(bottom)=2, fSize=14, lsize=1.5
 	ModifyGraph/Z cbRGB=(65535,65534,49151)
 	//ModifyGraph mode=7,useNegRGB=1,usePlusRGB=1,hbFill=5,negRGB=(65535,32768,32768),plusRGB=(32768,40777,65535) // delay at 4K?
-	Label left "\\u#2 Intensity (arb. u.)"
-	Label bottom "\\u#2 \$WMTEX$ d_{E \\ \to \\ F} \\ (u.)$/WMTEX$"
+	Label left "Intensity (arb. u.)"
+	Label bottom "\$WMTEX$ d_{E \\ \to \\ F} \\ (u.)$/WMTEX$"
 	
 	SetWindow $profilePlotStr userdata(ATH_LineProfRootDF) = rootFolderStr // pass the dfr to the button controls
 	SetWindow $profilePlotStr userdata(ATH_ShowSavedGraphsWindow) = "ATH_LineProf_" + gATH_WindowNameStr 
@@ -196,15 +208,21 @@ static Function CreatePlot(DFREF dfr)
 	SetWindow $profilePlotStr, hook(MyLineProfileGraphHook) = ATH_LineProfile#GraphHookFunction // Set the hook
 	
 	ControlBar/W=$profilePlotStr 70	
-	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428),help={"Save displayed profile"},proc=ATH_LineProfile#SaveProfile
-	Button SaveCursorPositions,pos={118,8},size={95,20},title="Save settings",valueColor=(1,12815,52428),help={"Save cursor positions and profile wifth as defaults"},proc=ATH_LineProfile#SaveDefaultSettings
-	Button RestoreCursorPositions,pos={224,8},size={111,20},valueColor=(1,12815,52428),title="Restore settings",help={"Restore default cursor positions and line width"},proc=ATH_LineProfile#RestoreDefaultSettings
-	Button ShowProfileWidth,valueColor=(1,12815,52428), pos={344,8},size={111,20},title="Show width",fcolor=(65535,32768,32768),help={"Show width of integrated area while button is pressed"},proc=ATH_LineProfile#ShowProfileWidth
+	Button SaveProfileButton,pos={18.00,8.00},size={90.00,20.00},title="Save Profile",valueColor=(1,12815,52428)
+	Button SaveProfileButton,help={"Save displayed profile"},proc=ATH_LineProfile#SaveProfile
+	Button SaveCursorPositions,pos={118,8},size={95,20},title="Save settings",valueColor=(1,12815,52428)
+	Button SaveCursorPositions,help={"Save cursor positions and profile wifth as defaults"},proc=ATH_LineProfile#SaveDefaultSettings
+	Button RestoreCursorPositions,pos={224,8},size={111,20},valueColor=(1,12815,52428),title="Restore settings"
+	Button RestoreCursorPositions,help={"Restore default cursor positions and line width"},proc=ATH_LineProfile#RestoreDefaultSettings
+	Button ShowProfileWidth,pos={344,8},size={111,20},title="Show width",fcolor=(0,0,65535)
+	Button ShowProfileWidth,help={"Set scale based on cursor positions"},proc=ATH_LineProfile#SetLineProfileScale
+	Button ScaleLineProfile,valueColor=(1,12815,52428), pos={460,15},size={50,40},title="Set\nScale"
+	Button ScaleLineProfile,fcolor=(65535,0,0),help={"Show width of integrated area while button is pressed"},proc=ATH_LineProfile#SetLineProfileScale	
 	CheckBox PlotProfiles,pos={19,40},size={98,17},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_LineProfile#CheckboxPlotProfile
 	CheckBox MarkLines,pos={127,40},size={86,17},title="Mark lines ",fSize=14,value=1,side=1,proc=ATH_LineProfile#CheckboxMarkLines
 	CheckBox ProfileLayer3D,pos={227,40},size={86,17},title="Stack layer ",fSize=14,side=1,value=1,proc=ATH_LineProfile#ProfileLayer3D
-	SetVariable setWidth,pos={331,40},size={123,20},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1},proc=ATH_LineProfile#SetVariableWidth
-	SetVariable setWidth, help={"Sampling is 2 * (width + 0.5) points equidistant from the line"}
+	SetVariable setWidth,pos={331,40},size={123,20},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1}
+	SetVariable setWidth, help={"Sampling is 2 * (width + 0.5) points equidistant from the line"},proc=ATH_LineProfile#SetVariableWidth
 	return 0
 End
 
@@ -261,7 +279,7 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr, ImagePathname = dfr:gATH_ImagePathname, ImageNameStr = dfr:gATH_ImageNameStr
 	NVAR/Z dx = dfr:gATH_dx, dy = dfr:gATH_dy, xOff = dfr:gATH_xOff, yOff = dfr:gATH_yOff
 	NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
-	NVAR/Z profileWidth = dfr:gATH_profileWidth, selectedLayer = dfr:gATH_selectedLayer
+	NVAR/Z profileWidth = dfr:gATH_profileWidth, selectedLayer = dfr:gATH_selectedLayer, scaleFactor = dfr:gATH_scalingFactor
 	NVAR/Z updateSelectedLayer = dfr:gATH_updateSelectedLayer, updateCursorsPositions = dfr:gATH_updateCursorsPositions
 	NVAR/Z C1x0 = dfr0:gATH_C1x0, C1y0 = dfr0:gATH_C1y0, C2x0 = dfr0:gATH_C2x0, C2y0 = dfr0:gATH_C2y0
 	NVAR/Z profileWidth0 = dfr0:gATH_profileWidth0
@@ -278,6 +296,10 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 				DrawLine/W=$s.winName C1x0, C1y0, C2x0, C2y0
 				Make/O/FREE/N=2 xTrace={C1x0, C2x0}, yTrace = {C1y0, C2y0}
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
+				if(scaleFactor !=1)
+					WAVE W_LineProfileDisplacement
+					W_LineProfileDisplacement*=scaleFactor
+				endif					
 				updateCursorsPositions = 0
 			endif
 			break
@@ -304,6 +326,10 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 				selectedLayer = glayer
 				Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y} // profile from E to F
 				ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
+				if(scaleFactor !=1)
+					WAVE W_LineProfileDisplacement
+					W_LineProfileDisplacement*=scaleFactor
+				endif					
 			endif
 			hookResult = 1
 			break
@@ -319,12 +345,17 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	   			DrawLine/W=$s.winName C1x, C1y, C2x, C2y
 	   			Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
 	   			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*profileWidth
+				// Scale here the x-axis if needed (custom scaling)    
+				if(scaleFactor !=1)
+					WAVE W_LineProfileDisplacement
+					W_LineProfileDisplacement*=scaleFactor
+				endif	  	   			
 	   			hookResult = 1
 	   			break
 			endif
 			hookresult = 0
 			break
-    endswitch
+    endswitch	
     SetdataFolder currdfr
     return hookResult       // 0 if nothing done, else 1
 End
@@ -381,14 +412,15 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 			NVAR/Z PlotSwitch = dfr:gATH_PlotSwitch, MarkLinesSwitch = dfr:gATH_MarkLinesSwitch
 			NVAR/Z profileWidth = dfr:gATH_profileWidth, selectedLayer = dfr:gATH_selectedLayer
 			NVAR/Z C1x = dfr:gATH_C1x, C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
-			NVAR/Z colorcnt = dfr:gATH_colorcnt
+			NVAR/Z colorcnt = dfr:gATH_colorcnt, scalingFactor = dfr:gATH_scalingFactor
 			string recreateDrawStr
 			DFREF savedfr = GetDataFolderDFR()
 			variable postfix = 0, red, green, blue
 			string saveWaveBaseNameStr = wavenameStr + "_Lprof"
 			string saveWaveNameStr = CreatedataObjectName(savedfr, saveWaveBaseNameStr, 1, 0, 5)
 			Duplicate dfr:W_ImageLineProfile, savedfr:$saveWaveNameStr
-			variable xRange = W_LineProfileDisplacement[DimSize(W_LineProfileDisplacement,0)-1] - W_LineProfileDisplacement[0]
+			variable profnpts = DimSize(W_LineProfileDisplacement,0)
+			variable xRange = W_LineProfileDisplacement[profnpts-1] - W_LineProfileDisplacement[0]
 			SetScale/I x, 0, xRange, savedfr:$saveWaveNameStr
 			if(PlotSwitch)
 				if(WinType(targetGraphWin) == 1)
@@ -414,9 +446,9 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 				DrawLineUserFront(WindowNameStr,C1x, C1y, C2x, C2y, red, green, blue) // Draw on UserFront and return to ProgFront
 			endif
 			sprintf recreateDrawStr, "wavename:%s\npath:%s\nDrawEnv:SetDrawEnv linefgc = (%d, %d, %d), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left;" + \
-			"DrawCmd:DrawLine %f, %f, %f, %f;ProfileCmd:Make/O/N=2 xTrace={%f, %f}, yTrace = {%f, %f}\nImageLineProfile/P=(%d) srcWave=%s," +\
-			"xWave=xTrace, yWave=yTrace, width = %f\nDisplay/K=1 W_ImageLineProfile vs W_LineProfileDisplacement" + \
-			"", wavenameStr, ImagePathname, red, green, blue, C1x, C1y, C2x, C2y, C1x, C2x, C1y, C2y, selectedLayer, ImagePathname, 2*profileWidth
+			"DrawCmd:DrawLine %g, %g, %g, %g;ProfileCmd:Make/O/N=2 xTrace={%g, %g}, yTrace = {%g, %g}\nImageLineProfile/P=(%d) srcWave=%s," +\
+			"xWave=xTrace, yWave=yTrace, width = %g\nDisplay/K=1 W_ImageLineProfile vs W_LineProfileDisplacement. Scaling factor = %g for %d points" + \
+			"", wavenameStr, ImagePathname, red, green, blue, C1x, C1y, C2x, C2y, C1x, C2x, C1y, C2y, selectedLayer, ImagePathname, 2*profileWidth, scalingFactor, profnpts
 			Note savedfr:$saveWaveNameStr, recreateDrawStr
 			break
 	endswitch
@@ -453,13 +485,61 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 	endswitch
 End
 
+// @function SetLineProfileScale
+/// @brief Description of SetLineProfileScale.
+/// @details
+/// Auto-generated documentation stub for function `SetLineProfileScale`.
+/// @param &B_Struct Parameter &B_Struct.
+/// @returns Variable Return value.
+static Function SetLineProfileScale(STRUCT WMButtonAction &B_Struct): ButtonControl
+	
+	switch(B_Struct.eventCode)	// numeric switch
+		case 2:	// "mouse up after mouse down"
+			DFREF dfr  = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
+			NVAR/SDFR=dfr/Z gATH_scalingFactor
+			variable scalebuffer
+			Prompt scalebuffer, "Enter cursors distace as scale (0 or 1 for nominal scale)"
+			string msg = "Enter a value to scale the line profiles based on the current cursor positions."
+			msg += "Set the value 1 to use the nominal image scale. Negative values are not allowed for the scaling factor."
+			msg += "Move a cursor to update the scale in graph"
+			DoPrompt/HELP=msg "Scale line profile", scalebuffer
+			if(V_flag)
+				return 1
+			endif
+			if(scalebuffer > 0)
+			   	WAVE wRef = dfr:W_LineProfileDisplacement
+			   	SVAR/Z/SDFR=dfr gATH_ImagePathname
+			   	WAVE imgWaveRef = $gATH_ImagePathname
+			   	if(DimDelta(imgWaveRef,0) != DimDelta(imgWaveRef,1))
+				   	gATH_scalingFactor = 1 // Leave nominal scale
+			   		Button ScaleLineProfile, fcolor=(65535,0,0), disable = 2
+			   		return -1
+			   	endif
+			   	gATH_scalingFactor = scalebuffer / numpnts(wRef) / DimDelta(imgWaveRef,0)
+				Button ScaleLineProfile win=$B_Struct.win, fcolor=(0,65535,0)
+			else
+				gATH_scalingFactor = 1 // Leave nominal scale
+				Button ScaleLineProfile win=$B_Struct.win, fcolor=(65535,0,0)
+			endif
+//			SVAR/Z/SDFR=dfr gATH_WindowNameStr, gATH_ImagePathname
+//			NVAR/Z glayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(gATH_WindowNameStr):gLayer
+//			NVAR/Z/SDFR=dfr gATH_C1x, gATH_C2x, gATH_C1y, gATH_C2y, gATH_profileWidth
+//			WAVE imgWaveRef = $gATH_ImagePathname
+//			Make/O/FREE/N=2 xTrace={gATH_C1x, gATH_C2x}, yTrace = {gATH_C1y, gATH_C2y} // profile from E to F
+//			ImageLineProfile/P=(glayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*gATH_profileWidth
+//			WAVE W_LineProfileDisplacement
+//			W_LineProfileDisplacement*=gATH_scalingFactor
+			break
+	endswitch
+	return 0
+End
+
 /// @function RestoreDefaultSettings
 /// @brief Description of RestoreDefaultSettings.
 /// @details
 /// Auto-generated documentation stub for function `RestoreDefaultSettings`.
 /// @param &B_Struct Parameter &B_Struct.
 /// @returns Variable Return value.
-
 static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -596,7 +676,8 @@ static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableCo
 			DFREF currdfr = GetDataFolderDFR()
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sv.win, "", "ATH_LineProfRootDF"))
 			NVAR/Z C1x = dfr:gATH_C1x,C1y = dfr:gATH_C1y, C2x = dfr:gATH_C2x, C2y = dfr:gATH_C2y
-			NVAR/Z width = dfr:gATH_profileWidth, dx = dfr:gATH_dx, dy = dfr:gATH_dy, selectedLayer = dfr:gATH_selectedLayer
+			NVAR/Z width = dfr:gATH_profileWidth, dx = dfr:gATH_dx, dy = dfr:gATH_dy
+			NVAR/Z scaleFactor = dfr:gATH_scalingFactor, selectedLayer = dfr:gATH_selectedLayer
 			SVAR/Z WindowNameStr = dfr:gATH_WindowNameStr
 			SetDataFolder dfr
 			Make/O/FREE/N=2 xTrace={C1x, C2x}, yTrace = {C1y, C2y}
@@ -605,6 +686,10 @@ static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableCo
 			ATH_LineProfile#DeleleLineProfileRectangle(WindowNameStr)
 			ATH_LineProfile#DrawLineProfileRectangle(C1x, C1y,C2x, C2y, dx, dy, width, WindowNameStr)
 			ImageLineProfile/P=(selectedLayer) srcWave=imgWaveRef, xWave=xTrace, yWave=yTrace, width = 2*width
+	   		if(scaleFactor !=1)
+		   		WAVE W_LineProfileDisplacement
+		   		W_LineProfileDisplacement*=scaleFactor
+	   		endif			
 			break
 	endswitch
 	SetDataFolder currdfr

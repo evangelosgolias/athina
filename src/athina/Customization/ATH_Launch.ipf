@@ -1742,27 +1742,27 @@ End
 /// Auto-generated documentation stub for function `SetCorrectedFoVImages`.
 /// @returns Variable Return value.
 
-static Function SetCorrectedFoVImages()
-	/// Set the correct FoV in MAXPEEM images	
-	string wlistStr = ATH_Dialog#GetSelectedWavesInDataBrowser()
-	if(strlen(wlistStr))
-		WAVE wRefList = ATH_WaveOp#WaveListStrToWaveRef(wlistStr, isFree = 1)
-	endif
-	variable mobj = 1900, interval = 2
-	Prompt mobj, "Magnetic Objective current in mA"	
-	Prompt interval, "Scale per point", popup, "Yes;No"	
-	DoPrompt "Correct selected images FoV", mobj, interval
-	if(V_flag)
-		return -1
-	endif
-	if(mobj < 1000 || mobj > 2250)
-		print "Extreme values, please check your input"	
-		return NaN
-	endif
-	for(WAVE wRef : wRefList)
-		ATH_ImgOp#ScaleFoVWithObjectiveCurrent(wRef, mobj, interval = interval - 1)
-	endfor
-End
+//static Function SetCorrectedFoVImages()
+//	/// Set the correct FoV in MAXPEEM images	
+//	string wlistStr = ATH_Dialog#GetSelectedWavesInDataBrowser()
+//	if(strlen(wlistStr))
+//		WAVE wRefList = ATH_WaveOp#WaveListStrToWaveRef(wlistStr, isFree = 1)
+//	endif
+//	variable mobj = 1900, interval = 2
+//	Prompt mobj, "Magnetic Objective current in mA"	
+//	Prompt interval, "Scale per point", popup, "Yes;No"	
+//	DoPrompt "Correct selected images FoV", mobj, interval
+//	if(V_flag)
+//		return -1
+//	endif
+//	if(mobj < 1000 || mobj > 2250)
+//		print "Extreme values, please check your input"	
+//		return NaN
+//	endif
+//	for(WAVE wRef : wRefList)
+//		ATH_ImgOp#ScaleFoVWithObjectiveCurrent(wRef, mobj, interval = interval - 1)
+//	endfor
+//End
 
 /// @function DrawScaleBar
 /// @brief Description of DrawScaleBar.
