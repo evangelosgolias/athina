@@ -364,13 +364,15 @@ static Function ImageStackAlignmentPartition()
 	variable method = 2
 	variable layerN = ATH_Graph#GetgLayer("")
 	variable  RotZ = 2
+	variable saveDrift = 2
 	string msg = "Align " + NameOfWave(wRef) + " using part of the image."
 	
 	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
 	Prompt layerN, "Reference layer"
-	Prompt RotZ, "Z-rotations (Registration only)",  popup, "Yes;No" // Yes = 1, No = 2!	
+	Prompt RotZ, "Z-rotations (Registration only)",  popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt saveDrift, "Save drift corrections",  popup, "Yes;No" // Yes = 1, No = 2!	
 
-	DoPrompt msg, method, layerN, RotZ
+	DoPrompt msg, method, layerN, RotZ, saveDrift
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -395,7 +397,7 @@ static Function ImageStackAlignmentPartition()
 		if(nlayers > 9)
 			// There is a bug in IP9, IP crashes when you run ImageRegistration in MT.
 			#if IgorVersion() >= 10
-				ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2)
+				ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2, saveDrift = saveDrift - 2)
 			#else
 				print "Multithreading is disabled for ImageRegistration IP ver < 10"
 				ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
