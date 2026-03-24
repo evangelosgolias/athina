@@ -215,7 +215,7 @@ static Function CreatePlot(DFREF dfr)
 	Button RestoreCursorPositions,pos={224,8},size={111,20},valueColor=(1,12815,52428),title="Restore settings"
 	Button RestoreCursorPositions,help={"Restore default cursor positions and line width"},proc=ATH_LineProfile#RestoreDefaultSettings
 	Button ShowProfileWidth,pos={344,8},size={111,20},title="Show width",fcolor=(0,0,65535)
-	Button ShowProfileWidth,help={"Set scale based on cursor positions"},proc=ATH_LineProfile#SetLineProfileScale
+	Button ShowProfileWidth,help={"Set scale based on cursor positions"},proc=ATH_LineProfile#ShowProfileWidth
 	Button ScaleLineProfile,valueColor=(1,12815,52428), pos={460,15},size={50,40},title="Set\nScale"
 	Button ScaleLineProfile,fcolor=(65535,0,0),help={"Show width of integrated area while button is pressed"},proc=ATH_LineProfile#SetLineProfileScale	
 	CheckBox PlotProfiles,pos={19,40},size={98,17},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_LineProfile#CheckboxPlotProfile
