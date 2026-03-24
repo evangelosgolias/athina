@@ -8,7 +8,8 @@
 Function ATH_AthinaLauncher()
 	if(!strlen(FunctionList("CreateDataFolderGetDFREF",";","KIND:18,WIN:ATH_DFR.ipf")))
 		Execute/P "INSERTINCLUDE \"ATH_Func\""
-		Execute/P "INSERTINCLUDE \"ATH_CalcPad\""		
+		Execute/P "INSERTINCLUDE \"ATH_CalcPad\""
+		Execute/P "INSERTINCLUDE \"ATH_Constants\""				
 		Execute/P "INSERTINCLUDE \"ATH_FuncFit\""
 		Execute/P "INSERTINCLUDE \"ATH_XMCD\""
 		Execute/P "INSERTINCLUDE \"ATH_Transform\""
@@ -59,7 +60,8 @@ Function ATH_AthinaLauncher()
 		Execute/P "COMPILEPROCEDURES "
 	else
 		Execute/P "DELETEINCLUDE \"ATH_Func\""
-		Execute/P "DELETEINCLUDE \"ATH_CalcPad\""		
+		Execute/P "DELETEINCLUDE \"ATH_CalcPad\""
+		Execute/P "DELETEINCLUDE \"ATH_Constants\""				
 		Execute/P "DELETEINCLUDE \"ATH_FuncFit\""
 		Execute/P "DELETEINCLUDE \"ATH_XMCD\""
 		Execute/P "DELETEINCLUDE \"ATH_Transform\""

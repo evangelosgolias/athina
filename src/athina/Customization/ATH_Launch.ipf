@@ -103,9 +103,9 @@ static Function Make3DWaveDataBrowserSelection([int displayStack, int transientS
 	displayStack = ParamIsDefault(displayStack) ? 0: displayStack // Give any non-zero to display the stack
 	transientStack = ParamIsDefault(transientStack) ? 0: transientStack 
 	if(transientStack)
-		string wname3dStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection("ATH_tr_stack", autoPath = 1)
+		string wname3dStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection(ksATH_TransientStackPrefix, autoPath = 1)
 	else
-		wname3dStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection("ATH_stack", autoPath = 1) // stack in sourcedir if all waves in the same folder, otherwise in cwd
+		wname3dStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection(ksATH_StackPrefix, autoPath = 1) // stack in sourcedir if all waves in the same folder, otherwise in cwd
 	endif
 	// Do you want to display the stack?
 	if(displayStack && strlen(wname3dStr)) // wname3dStr = "" when you select no or one wave
@@ -394,22 +394,22 @@ static Function ImageStackAlignmentPartition()
 	[x0, y0, z0, dx, dy, dz] = ATH_WaveOp#GetScalesP(wRef)
 	variable nlayers = DimSize(wRef, 2)
 	if(method == 1)
-		if(nlayers > 9)
+		if(nlayers > kATH_DriftCorrectionMT)
 			// There is a bug in IP9, IP crashes when you run ImageRegistration in MT.
 			#if IgorVersion() >= 10
 				ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2, saveDrift = saveDrift - 2)
 			#else
 				print "Multithreading is disabled for ImageRegistration IP ver < 10"
-				ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
+				ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2, saveDrift = saveDrift - 2)
 			#endif
 		else
-			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
+			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2, saveDrift = saveDrift - 2)
 		endif
 	elseif(method == 2)
-		if(nlayers > 9)
-			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN)
+		if(nlayers > kATH_DriftCorrectionMT)
+			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = saveDrift - 2)
 		else
-			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN)
+			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN, saveDrift = saveDrift - 2)
 		endif
 	else
 		print "Please check ATH_Launch#ImageStackAlignmentPartition() method."

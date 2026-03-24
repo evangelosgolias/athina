@@ -112,6 +112,45 @@ Function/WAVE GetAffine2DMapping(WAVE src, WAVE dest)
 End
 
 /// @function MakeImageRegistrationParamsWave
+/// @brief Brief here.
+/// @details
+/// Add details here
+/// @param wname String wPathName Path name for t
+/// @returns Variable Returns 0 on completion.
+///
+static Function MakeImageRegistrationParamsWave(string wPathName, [variable nlayers])
+
+	// wRef comes from the affine transformation matrix	
+	// W_ParamsOut={xDrift,yDrift,0,invXscale,-ySkew,0,-xSkew,invYscale,0,0,0,1,0,0,0,0,0,0,0,0,0,0}
+	//	0		dx			11		a33
+	//	1		dy			12		gamma
+	//	2		dz			13		phi
+	//	3		a11			14		theta
+	//	4		a12			15		psi
+	//	5		a13			16		lambda
+	//	6		a21			17		origin_x
+	//	7		a22			18		origin_y
+	//	8		a23			19		origin_z
+	//	9		a31			20		MSE
+	//	10		a32			21		SNR
+	if(nlayers)
+		Make/D/N=(22,nlayers) $wPathName
+	else
+		Make/D/N=22 $wPathName
+	endif
+	WAVE wRef = $wPathName
+	SetDimLabel 0,0, dx,wRef;SetDimLabel 0,1, dy,wRef;SetDimLabel 0,2, dz,wRef
+	SetDimLabel 0,3, a11,wRef;SetDimLabel 0,4, a12,wRef;SetDimLabel 0,5, a13,wRef
+	SetDimLabel 0,6, a21,wRef;SetDimLabel 0,7, a22,wRef;SetDimLabel 0,8, a23,wRef
+	SetDimLabel 0,9, a31,wRef;SetDimLabel 0,10, a32,wRef;SetDimLabel 0,11, a33,wRef
+	SetDimLabel 0,12, gamma,wRef;SetDimLabel 0,13, phi,wRef;SetDimLabel 0,14, theta,wRef
+	SetDimLabel 0,15, psi,wRef;SetDimLabel 0,16, lambda,wRef;SetDimLabel 0,17, origin_x,wRef
+	SetDimLabel 0,18, origin_y,wRef;SetDimLabel 0,19, origin_z,wRef
+	SetDimLabel 0,20, MSE,wRef;SetDimLabel 0,21, SNR,wRef
+	return 0
+End
+
+/// @function MakeImageRegistrationParamsWave
 /// @brief Convert affine coefficients to an image-registration parameter wave.
 /// @details
 /// Fills `W_ParamsOut` with the 22-element parameter layout used by Igor's
@@ -120,7 +159,7 @@ End
 /// @returns Variable Returns 0 on completion.
 /// @note Creates `W_ParamsOut` if it does not already exist and overwrites its contents.
 ///
-static Function MakeImageRegistrationParamsWave(WAVE wRef)
+static Function MakeImageRegistrationParamsWaveForImageRegistration(WAVE wRef)
 
 	// wRef comes from the affine transformation matrix	
 	// W_ParamsOut={xDrift,yDrift,0,invXscale,-ySkew,0,-xSkew,invYscale,0,0,0,1,0,0,0,0,0,0,0,0,0,0}
@@ -150,6 +189,7 @@ static Function MakeImageRegistrationParamsWave(WAVE wRef)
 	W_ParamsOut={wRef[4],wRef[5],0,1/wRef[0],-wRef[3],0,-wRef[2],1/wRef[1],0,0,0,1,0,0,0,0,0,0,0,0,0,0}
 	return 0
 End
+
 
 //Function D_ResolveDistMatrix(V_1,V_2)
 //	wave V_1,V_2  

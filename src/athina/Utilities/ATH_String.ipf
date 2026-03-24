@@ -310,7 +310,8 @@ static Function WaveLogging(Wave wRef, string msg, [int prepend])
 	// Add str to the note of wRef.
 	// Use prepend = 1 to add string at the start.
 	if(prepend)
-		Note/K wRef, msg + "\n" + Note(wRef)
+		string noteStr = Note(wRef)
+		Note/K wRef, msg + "\n" + noteStr
 	else
 		Note wRef, msg
 	endif
@@ -479,6 +480,11 @@ static Function/S ComposeWaveListsFromWaveNotes(string wavelistStr, [string sep]
 	// names and add them to the list. At the end you will end up with a list of all
 	// 2D waves in the list of wavelistStr
 	sep = SelectString(ParamIsDefault(sep) ? 0: 1, ";", sep) // sep of wavelistStr
+	
+	//If waveListStr is empty abort
+	if(!strlen(wavelistStr))
+		return ""
+	endif
 	variable imax = ItemsInList(wavelistStr, sep), i
 	string wnameStr, bufferStr, expandedWaveListStr = ""
 	for (i = 0; i < imax; i++)
@@ -490,10 +496,12 @@ static Function/S ComposeWaveListsFromWaveNotes(string wavelistStr, [string sep]
 			if(WaveDims(wRef) == 2)
 				expandedWaveListStr += wnameStr+";"
 			elseif(WaveDims(wRef) == 3)
+				// FIX: What's this here? Why?
 				bufferStr = ATH_String#GetStackNamesForWaveNote(wRef,-1) // sep = "\n" here
 				if(DimSize(wRef,3)!= ItemsInList(bufferStr, "\n"))
 					expandedWaveListStr += ReplaceString("\n", bufferStr, ";")
 				else
+					//return ""
 					Abort "ComposeWaveListsFromWaveNotes error in "+wnameStr+" waves in notes != number of layers"
 				endif
 			else
@@ -612,7 +620,11 @@ static Function/S GetStackNamesForWaveNote(WAVE wRef, int op, [string rangeStr, 
 		noteStr = note(wRef)
 	endif
 	SplitString/E=regex noteStr, strBefore, dump0, waveListStr, dump1, strAfter
-	waveListStr = ATH_String#RemoveIndexKeysFromList(waveListStr, keySep=">", listSep="\n")	
+	waveListStr = ATH_String#RemoveIndexKeysFromList(waveListStr, keySep=">", listSep="\n")
+	// What if we created a wave, and there is no stacked wave string?
+	if(!strlen(waveListStr)) // Critical!
+		return "" 
+	endif
 	variable i
 	switch(op)
 		case 0: // Extract a range
@@ -704,6 +716,7 @@ static Function UpdateStackWaveNote(WAVE wRef, int op, [string rangeStr, string 
 			waveListStr += wlist
 			break
 		case 4: // Insert layer(s)
+			//Insert here the code in ATH_Launch#InsertImagesToStack()
 			break
 		default:
 			if(!ParamIsDefault(explicitWaveList))

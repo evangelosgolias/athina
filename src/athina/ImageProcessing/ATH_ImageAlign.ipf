@@ -91,7 +91,7 @@ static Function ImgStackRegistration(WAVE wRef, variable layerN)
 End
 
 static Function ImgStackPartitionRegistration(WAVE wRef, WAVE partwRef, [variable layerN,
-				variable RotZ, variable printMode]) // Used in menu
+				variable RotZ, variable savedrift]) // Used in menu
 	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave.
 	/// The partition 3d wave calls ATH_ImageStackAlignmentByFullRegistration
 	/// By default the function will  use the 0-th layer as a wave reference, uncless user chooses otherwise.
@@ -99,12 +99,12 @@ static Function ImgStackPartitionRegistration(WAVE wRef, WAVE partwRef, [variabl
 	/// @param w3d wave 3d we want to register for aligment
 	/// @param partitionW3d WAVE partition of w3d
 	/// @layerN set the reference layer
-	/// @printMode if set x, y drifts are printed in a notebook
+	/// @savedrift if set the drift paramers are saved.
 	/// @cutoff if set max drift in pixels allowed
 	/// @intPixels Drift an integer number of pixels
 	
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then default is 0
-	printMode = ParamIsDefault(printMode) ? 0: printMode
+	savedrift = ParamIsDefault(savedrift) ? 0: savedrift
 	RotZ = ParamIsDefault(RotZ) ? 0 : !!RotZ
 	
 	if(!(WaveType(wRef) & 0x02))
@@ -114,14 +114,7 @@ static Function ImgStackPartitionRegistration(WAVE wRef, WAVE partwRef, [variabl
 		Redimension/S partwRef
 	endif
 
-	if(printMode)
-		string driftLog = "Called ATH_Align#ImgStackPartitionRegistration\n\n"
-		driftLog += "Ref. Layer = " + num2str(layerN) + "\n"
-		driftLog +=  "---- Drift ----\n"
-		driftLog +=  "layer  dx  dy\n"
-	endif
-
-	DFREF saveDF = GetDataFolderDFR()
+	DFREF currDF = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
 	
 	MatrixOP/FREE partwRef_n = normalize(partwRef)
@@ -140,6 +133,17 @@ static Function ImgStackPartitionRegistration(WAVE wRef, WAVE partwRef, [variabl
 	MatrixOP/FREE dx = row(M_RegParams, 0)
 	MatrixOP/FREE dy = row(M_RegParams, 1)			
 
+	if(savedrift)
+		DFREF saveDF = $ksATH_DriftCorrectionDFREF
+		string dcWaveName = CreateDataObjectName(saveDF, NameOfWave(wRef), 1, 0, 1)
+		Duplicate M_RegParams, saveDF:$dcWaveName
+		string driftLog
+		sprintf driftLog, "***** Drift Parameters of %s *****\n", GetWavesDataFolder(wRef, 2)
+		Note/K saveDF:$dcWaveName, driftLog
+		sprintf driftLog, "***** Drift Parameters in %s *****\n", GetWavesDataFolder(saveDF:$dcWaveName, 2)
+		ATH_String#WaveLogging(wRef, driftLog, prepend = 1)
+	endif
+	
 	variable i
 	Make/FREE/N=(DimSize(wRef,0), DimSize(wRef,0)) ATH_ROIMask
 	FastOP ATH_ROIMask = 1
@@ -153,13 +157,6 @@ static Function ImgStackPartitionRegistration(WAVE wRef, WAVE partwRef, [variabl
 			WAVE M_RegOut			
 			Rename M_RegOut $("getStacklayer_" + num2str(i))
 		endif
-//		if(printMode)
-//			if(dx[i] == 0 && dy[i] == 0)
-//				driftLog +=  num2str(i) + ": Pass " + "\n"
-//			else
-//				driftLog +=  num2str(i) + ": "+ num2str(dx[i]) + "    " + num2str(dy[i]) + "\n"
-//			endif
-//		endifS
 	endfor
 	ImageTransform/NP=(layers) stackImages $"getStacklayer_0"
 	WAVE M_Stack
@@ -167,13 +164,7 @@ static Function ImgStackPartitionRegistration(WAVE wRef, WAVE partwRef, [variabl
 	CopyScales wRef, M_Stack
 	Duplicate/O M_Stack, saveDF:$NameofWave(wRef)
 
-	if(printMode)
-		string notebookName = NameOfWave(wRef)
-		KillWindow/Z notebookName
-		NewNotebook/K=1/F=0/N=notebookName as (notebookName + " drift correction")
-		Notebook notebookName, text = driftLog
-	endif
-	SetDataFolder saveDF
+	SetDataFolder currDF
 	return 0
 End
 
@@ -186,7 +177,8 @@ End
 /// @param layerN] Parameter layerN].
 /// @returns Variable Return value.
 
-static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [variable layerN]) // Used in menu
+static Function ImgStackPartitionCorrelation(WAVE w3d,
+	   WAVE partitionW3d, [variable layerN, variable savedrift]) // Used in menu
 	/// Align a 3d wave using ImageRegistration of a partition of the target 3d wave.
 	/// The partition 3d wave calls ATH_ImageStackAlignmentByFullRegistration
 	/// By default the function will  use the 0-th layer as a wave reference, uncless user chooses otherwise.
@@ -197,6 +189,7 @@ static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [varia
 	/// Note: When illumination conditions change considerably, (XAS along an edge)
 	/// it is better to use a mask to isolate a characteristic feature.
 	layerN = ParamIsDefault(layerN) ? 0: layerN // If you don't select reference layer then default is 0
+	savedrift = ParamIsDefault(savedrift) ? 0: savedrift
 	
 	if(!(WaveType(w3d) & 0x02))
 		Redimension/S w3d
@@ -205,7 +198,7 @@ static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [varia
 		Redimension/S partitionW3d
 	endif
 
-	DFREF saveDF = GetDataFolderDFR()
+	DFREF currDF = GetDataFolderDFR()
 	DFREF saveWaveDF = GetWavesDataFolderDFR(w3d) // Location of w3d
 	SetDataFolder NewFreeDataFolder()
 
@@ -245,7 +238,19 @@ static Function ImgStackPartitionCorrelation(WAVE w3d, WAVE partitionW3d, [varia
 	// Restore scale here
 	CopyScales w3d, M_Stack
 	Duplicate/O M_Stack, saveWaveDF:$NameofWave(w3d)
-	SetDataFolder saveDF
+	// -----------------
+	if(savedrift)
+		DFREF saveDF = $ksATH_DriftCorrectionDFREF
+		string dcWaveName = CreateDataObjectName(saveDF, NameOfWave(w3d), 1, 0, 1)
+		Concatenate/NP=1 {dp, dq}, saveDF:$dcWaveName
+		string driftLog
+		sprintf driftLog, "***** Drift Parameters of %s *****\n", GetWavesDataFolder(w3d, 2)
+		Note/K saveDF:$dcWaveName, driftLog
+		sprintf driftLog, "***** Drift Parameters in %s *****\n", GetWavesDataFolder(saveDF:$dcWaveName, 2)
+		ATH_String#WaveLogging(w3d, driftLog, prepend = 1)
+	endif
+	// -----------------
+	SetDataFolder currDF
 	return 0
 End
 
@@ -393,16 +398,18 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	variable refQ = V_maxColLoc	
 	// In case you want to register the drifts for later use
 	if(saveDrift)
-		MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, M_ImagePlane, refP, refQ, p)			
-	else
-		DFREF saveDF = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:DriftCorrectionDataSets")
+		DFREF saveDF = $ksATH_DriftCorrectionDFREF
 		string dcWaveName = CreateDataObjectName(saveDF, NameOfWave(w3D), 1, 0, 1)
 		Make/O/N=(numPlanes,2) saveDF:$dcWaveName// Save dx, dy
 		WAVE driftWRef = saveDF:$dcWaveName
 		string driftLog
-		sprintf driftLog, "***** rift Parameters of %s *****\n", GetWavesDataFolder(w3D, 2)
-		Note/K driftWRef, driftLog
+		sprintf driftLog, "***** Drift Parameters of %s *****\n", GetWavesDataFolder(w3D, 2)
+		Note driftWRef, driftLog
 		MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, M_ImagePlane, refP, refQ, p, saveDriftW=driftWRef)
+		sprintf driftLog, "***** Drift Parameters in %s *****\n", GetWavesDataFolder(driftWRef, 2)
+		ATH_String#WaveLogging(w3D, driftLog, prepend = 1)		
+	else
+		MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, M_ImagePlane, refP, refQ, p)		
 	endif
 	// Release the threads.
 	
@@ -468,6 +475,8 @@ End
 static Function MultiThreadRegistrationDriftCorrection(WAVE w3D, 
 	 WAVE w3DPart, variable ref, [variable RotZ, variable saveDrift])
 
+	saveDrift = ParamIsDefault(saveDrift) ? 0 : saveDrift
+
 	if(!(WaveType(w3D) & 0x02))
 		Redimension/S w3D
 	endif
@@ -486,12 +495,27 @@ static Function MultiThreadRegistrationDriftCorrection(WAVE w3D,
 	Make/FREE/N=(DimSize(w3D,0),DimSize(w3D,1)) ATH_ROIMask
 	FastOp ATH_ROIMask = 1
 	// Release the threads.
-	MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart_n, M_ImagePlane, ATH_ROIMask, p, RotZ = RotZ)	
+	if(saveDrift)
+		DFREF saveDF = $ksATH_DriftCorrectionDFREF
+		string dcWaveName = CreateDataObjectName(saveDF, NameOfWave(w3D), 1, 0, 1)
+		string pathnameStr = ksATH_DriftCorrectionDFREF + dcWaveName
+		ATH_Transform#MakeImageRegistrationParamsWave(pathnameStr, nlayers = numPlanes)
+		WAVE driftWRef = $pathnameStr
+		string driftLog
+		sprintf driftLog, "***** Drift Parameters of %s *****\n", GetWavesDataFolder(w3D, 2)
+		Note driftWRef, driftLog
+		MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart_n, M_ImagePlane, ATH_ROIMask, \
+		p, RotZ = RotZ,saveDriftW=driftWRef)
+		sprintf driftLog, "***** Drift Parameters in %s *****\n", GetWavesDataFolder(driftWRef, 2)
+		ATH_String#WaveLogging(w3D, driftLog, prepend = 1)
+	else
+		MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart_n, M_ImagePlane, ATH_ROIMask, p, RotZ = RotZ)
+	endif
+	
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
 	// So, now repack all layers.
 	Concatenate/O {ww}, $GetWavesDataFolder(w3D,2)
-	
 	// ww holds references to the free waves. By killing ww, we kill
 	// the last reference to the free waves which causes them to be
 	// automatically deleted.
@@ -514,10 +538,22 @@ ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE
 		ImageRegistration/Q/CONV=1/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW	
 	endif
 	WAVE W_RegParams
-	Duplicate W_RegParams, ATH_RegParams
+	// Duplicate W_RegParams, ATH_RegParams // Why this was here?
 	// Drift the whole image
+	if(!ParamIsDefault(saveDriftW))
+        try	
+        	print DimSize(W_RegParams,0)
+        	// ATH_WAVELoadSingleDATFile(fileToOpen, "", autoscale = 1)
+        	saveDriftW[][plane] = W_RegParams[p]
+        catch
+        	// Added on the 17.03.2023 to deal with a corrupted file. 
+        	print "!!! DriftRegistrationPartition_Worker missed plane " +num2str(plane)+" drift paramerets." 
+        	variable err = GetRTError(1) // Clears the error
+        endtry
+	endif
+	// Do the correction	
 	MatrixOP regPlane = layer(w3D, plane)
-	ImageRegistration/Q/USER=ATH_RegParams/BVAL=0 testMask=wROIMask testwave=regPlane
+	ImageRegistration/Q/USER=W_RegParams/BVAL=0 testMask=wROIMask testwave=regPlane
 	WAVE M_RegOut
 	// Restore the current data folder
 	SetDataFolder dfSav
