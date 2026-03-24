@@ -526,7 +526,7 @@ End
 /// @param w2 Parameter w2.
 /// @returns Variable Return value.
 
-static Function Wave2DDimensionsEqualQ(WAVE w1, WAVE w2)
+static Function WaveLateralDimensionsEqualQ(WAVE w1, WAVE w2)
 	// Return 1 if images have equal number of rows, cols and 0 otherwise.
 	// Works for 2D and 3D waves.
 	if(WaveDims(w1) > 1 && WaveDims(w1) < 4 && WaveDims(w2) > 1 && WaveDims(w2) < 4)
@@ -551,7 +551,7 @@ static Function AllImagesEqualDimensionsQ(WAVE/WAVE wRefw)
 	WAVE w1 = wRefw[0]
 	for(i = 1; i < nwaves; i++)
 		WAVE w2 = wRefw[i]
-		if(!ATH_WaveOp#Wave2DDimensionsEqualQ(w1, w2))
+		if(!ATH_WaveOp#WaveLateralDimensionsEqualQ(w1, w2))
 			return 0
 		endif
 	endfor

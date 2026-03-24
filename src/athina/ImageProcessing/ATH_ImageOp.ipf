@@ -422,6 +422,9 @@ static Function InsertImagesToImageStack(WAVE wRef, WAVE wIn, variable layerN)
 		if(!layerN)
 			Concatenate/O/KILL/NP=2/FREE {wIn, wRef}, bufferWaveFree
 			Duplicate/O bufferWaveFree, $GetWavesDataFolder(wRef,2)
+		elseif(layerN >= DimSize(wRef,2)) // append
+			Concatenate/O/KILL/NP=2/FREE {wRef, wIn}, bufferWaveFree
+			Duplicate/O bufferWaveFree, $GetWavesDataFolder(wRef,2)			
 		else
 			ImageTransform/P=(layerN)/NP=(DimSize(wRef,2)-layerN) removeZplane wRef
 			WAVE M_ReducedWave

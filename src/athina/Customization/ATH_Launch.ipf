@@ -757,43 +757,16 @@ static Function RemoveImagesFromImageStack()
 	return 0
 End
 
-/// @function StackImagesToImageStack
-/// @brief Description of StackImagesToImageStack.
-/// @details
-/// Auto-generated documentation stub for function `StackImagesToImageStack`.
-/// @returns Variable Return value.
-
-static Function StackImagesToImageStack()
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	if(!strlen(imgNameTopGraphStr))
-		return -1
-	endif	
-	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-
-	string selectImagesStr = ATH_Dialog#SelectWavesInModalDataBrowser("Select image(s) (2d, 3d waves) to append to image(stack)"), imageStr
-	variable imagesNr = ItemsInList(selectImagesStr), i
-	
-	if(!ItemsInList(selectImagesStr))
-		return 1
-	endif
-	if(!ATH_ImgOp#AppendImagesToImageStack(w3dref, selectImagesStr))
-		ATH_Display#RestartW3DImageSlider(grfName=winNameStr)
-	endif
-	// Update here the wave note
-	// We need to change the separator to "\n"
-	
-	ATH_String#UpdateStackWaveNote(w3dref, 3, wlist = ReplaceString(";", selectImagesStr, "\n"))
-	return 0
-End
-
 /// @function InsertImagesToStack
 /// @brief Description of InsertImagesToStack.
 /// @details
 /// Auto-generated documentation stub for function `InsertImagesToStack`.
 /// @returns Variable Return value.
 
-static Function InsertImagesToStack() // Needs fixing
+static Function InsertImagesToStack([variable extend]) // Needs fixing
+
+	extend = ParamIsDefault(extend) ? 0 : extend 
+	
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
 	if(!strlen(imgNameTopGraphStr))
@@ -824,10 +797,20 @@ static Function InsertImagesToStack() // Needs fixing
 	string getWaveListStr = ATH_String#GetStackNamesForWaveNote(w3dref,-1) // separator = "\n" 
 	// Let's sort things here a bit.
 	// First lets expand the wave note when we insert a 3D wave
-	string expandedWaveList = ATH_String#ComposeWaveListsFromWaveNotes(selectImagesStr) // separator = ";" 
+	string expandedWaveList = ATH_String#ComposeWaveListsFromWaveNotes(selectImagesStr) // separator = ";"
+
+	// Clear here the layerN to avoid if branches
+	// This is because of the behaviour of ATH_ImgOp#InsertImagesToImageStack
+	// see there to get the points
+	if(extend)
+		layerN = DimSize(w3dref,2)
+	endif
+	
 	string fullWaveListStr = ATH_String#InsertListAtPosition(ReplaceString("\n", getWaveListStr, ";"), expandedWaveList, layerN)
+
 	fullWaveListStr = ReplaceString(";", fullWaveListStr, "\n")
 	
+
 	if(wType == WaveType(wInsertFree))
 		ATH_ImgOp#InsertImagesToImageStack(w3dref, wInsertFree, layerN)
 	else
