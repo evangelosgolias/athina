@@ -259,6 +259,21 @@ static Function/S RemoveFileExtention(string str)
 	return name
 End
 
+/// @function ReplaceRegexWithString
+/// @brief Description of ReplaceRegexWithString.
+/// @details
+/// Auto-generated documentation stub for function `ReplaceRegexWithString`.
+/// @param str Parameter str.
+/// @returns String Return value.
+
+static Function/S ReplaceRegexWithString(string instr, string regex, string replacestr)
+	string beforestr, discardstr, afterstr
+	string pattern = "(.*(?="+regex+"))"
+	SplitString/E=(pattern) instr, beforest
+	print beforestr, discardstr, afterstr
+	return ""
+End
+
 /// @function StartsWith
 /// @brief Description of StartsWith.
 /// @details
@@ -310,7 +325,7 @@ static Function WaveLogging(Wave wRef, string msg, [int prepend])
 	// Add str to the note of wRef.
 	// Use prepend = 1 to add string at the start.
 	if(prepend)
-		string noteStr = Note(wRef)
+		string noteStr = note(wRef)
 		Note/K wRef, msg + "\n" + noteStr
 	else
 		Note wRef, msg
@@ -496,16 +511,16 @@ static Function/S ComposeWaveListsFromWaveNotes(string wavelistStr, [string sep]
 			if(WaveDims(wRef) == 2)
 				expandedWaveListStr += wnameStr+";"
 			elseif(WaveDims(wRef) == 3)
-				// FIX: What's this here? Why?
 				bufferStr = ATH_String#GetStackNamesForWaveNote(wRef,-1) // sep = "\n" here
-				if(DimSize(wRef,3)!= ItemsInList(bufferStr, "\n"))
+				if(DimSize(wRef,2) == ItemsInList(bufferStr, "\n"))
 					expandedWaveListStr += ReplaceString("\n", bufferStr, ";")
 				else
-					//return ""
-					Abort "ComposeWaveListsFromWaveNotes error in "+wnameStr+" waves in notes != number of layers"
+					return  "" // Something is wrong, just return ""
+					//Abort "ComposeWaveListsFromWaveNotes error in "+wnameStr+" waves in notes != number of layers"
 				endif
 			else
-				Abort "ComposeWaveListsFromWaveNotes " + "assumes 2D/3D waves"
+				print "ComposeWaveListsFromWaveNotes " + "assumes 2D/3D waves"
+				return  ""
 			endif
 		catch
 			// This code executes if an error occurred in the try block
@@ -573,7 +588,12 @@ End
 
 static Function/S StackNamesInNoteStr(string waveNamesList,[string listSep]) // Special listSep="\n" 
 	// Add list of stacked waves to wRef
-	listsep = SelectString(ParamIsDefault(listsep) ? 0: 1, "\n", listsep)	
+	listsep = SelectString(ParamIsDefault(listsep) ? 0: 1, "\n", listsep)
+	
+	if(!strlen(waveNamesList)) // If list is empty return ""
+		return ""
+	endif
+	
 	string indices = ATH_String#ExpandRangeStr("0-"+num2str(ItemsInList(waveNamesList,listSep)-1))
 	// NB. indices sep is ";", waveNameList is "\n"
 	string noteStr = "---* Stacked waves *---\n" + \
@@ -648,7 +668,7 @@ static Function/S GetStackNamesForWaveNote(WAVE wRef, int op, [string rangeStr, 
 			break
 		case 4: // Insert layer(s)
 			break						
-		default:
+		default: // Do nothing and proceed
 			break
 	endswitch
 	// update note

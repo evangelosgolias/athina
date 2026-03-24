@@ -157,7 +157,11 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	// Add a note about the stacked waves
 	
 	string expandedWaveList = ATH_String#ComposeWaveListsFromWaveNotes(listOfSelectedWaves)
-	ATH_String#UpdateStackWaveNote($wname3dStr, -1, explicitWaveList = ReplaceString(";", expandedWaveList, "\n"))	// use the default option
+	if(strlen(expandedWaveList)) // ATH_String#ComposeWaveListsFromWaveNotes return "" if it cannot resolve all the wave names (incl. 3D)
+		ATH_String#UpdateStackWaveNote($wname3dStr, -1, explicitWaveList = ReplaceString(";", expandedWaveList, "\n"))	// use the default option
+	else
+		ATH_String#SetStackNamesInNote($wname3dStr, listOfSelectedWaves)	// use the default option
+	endif
 
 	// Go back to the cwd
 	if(makeInSourceDFR)

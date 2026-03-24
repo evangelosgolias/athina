@@ -35,8 +35,6 @@
 /// @details
 /// This module belongs to the ATH Igor Pro toolkit and contains procedures
 /// related to ATH Geometry functionality.
-
-
 static Function [variable x0, variable y0] GetSinglePointWithDistanceFromLine(variable x1, variable y1, variable s, variable d)
 	/// Return the coordinates of a point with distance d from line passing from A(x1, y1) with slope s.
 	/// Use positive or *negative* distance to get a point on either side of A.

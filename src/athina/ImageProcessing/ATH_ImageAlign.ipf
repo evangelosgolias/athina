@@ -134,7 +134,7 @@ static Function ImgStackPartitionRegistration(WAVE wRef, WAVE partwRef, [variabl
 	MatrixOP/FREE dy = row(M_RegParams, 1)			
 
 	if(savedrift)
-		DFREF saveDF = $ksATH_DriftCorrectionDFREF
+		DFREF saveDF = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:DriftCorrectionDataSets:")
 		string dcWaveName = CreateDataObjectName(saveDF, NameOfWave(wRef), 1, 0, 1)
 		Duplicate M_RegParams, saveDF:$dcWaveName
 		string driftLog
@@ -240,7 +240,7 @@ static Function ImgStackPartitionCorrelation(WAVE w3d,
 	Duplicate/O M_Stack, saveWaveDF:$NameofWave(w3d)
 	// -----------------
 	if(savedrift)
-		DFREF saveDF = $ksATH_DriftCorrectionDFREF
+		DFREF saveDF = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:DriftCorrectionDataSets:")
 		string dcWaveName = CreateDataObjectName(saveDF, NameOfWave(w3d), 1, 0, 1)
 		Concatenate/NP=1 {dp, dq}, saveDF:$dcWaveName
 		string driftLog
@@ -372,61 +372,12 @@ static Function LinearDriftPlanesABCursors(WAVE w3d, WAVE wx, WAVE wy, [variable
 End
 
 /// ----------------------------- Multithreading ----------------------------- ///
+
 // // Multithreaded Drift Correction using Correlation
-
-static Function MultiThreadCorrelationDriftCorrection(WAVE w3D, 
-	 WAVE w3DPart, variable ref, [variable saveDrift])
-	
-	saveDrift = ParamIsDefault(saveDrift) ? 0 : saveDrift
-	
-	if(!(WaveType(w3D) & 0x02))
-		Redimension/S w3D
-	endif
-	if(!(WaveType(w3DPart) & 0x02))
-		Redimension/S w3DPart
-	endif
-	
-	// Create a wave to hold wave references returned by DriftCorrelation_Worker.
-	variable numPlanes = DimSize(w3D,2)
-	Make/WAVE/N=(numPlanes) ww	
-	// Get the reference layer from the partitioned wave
-	ImageTransform/P=(ref) getPlane w3DPart
-	Wave M_ImagePlane // Reference layer
-	MatrixOP/FREE correlationW = correlate(M_ImagePlane, M_ImagePlane, 0)
-	WaveStats/M=1/Q/P correlationW	
-	variable refP = V_maxRowLoc
-	variable refQ = V_maxColLoc	
-	// In case you want to register the drifts for later use
-	if(saveDrift)
-		DFREF saveDF = $ksATH_DriftCorrectionDFREF
-		string dcWaveName = CreateDataObjectName(saveDF, NameOfWave(w3D), 1, 0, 1)
-		Make/O/N=(numPlanes,2) saveDF:$dcWaveName// Save dx, dy
-		WAVE driftWRef = saveDF:$dcWaveName
-		string driftLog
-		sprintf driftLog, "***** Drift Parameters of %s *****\n", GetWavesDataFolder(w3D, 2)
-		Note driftWRef, driftLog
-		MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, M_ImagePlane, refP, refQ, p, saveDriftW=driftWRef)
-		sprintf driftLog, "***** Drift Parameters in %s *****\n", GetWavesDataFolder(driftWRef, 2)
-		ATH_String#WaveLogging(w3D, driftLog, prepend = 1)		
-	else
-		MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, M_ImagePlane, refP, refQ, p)		
-	endif
-	// Release the threads.
-	
-	// At this point, ww holds wave references to numplanes free waves
-	// created by DriftCorrelation_Worker.
-	// So, now repack all layers.
-	Concatenate/O {ww}, $GetWavesDataFolder(w3D,2)
-	
-	// ww holds references to the free waves. By killing ww, we kill
-	// the last reference to the free waves which causes them to be
-	// automatically deleted.
-	KillWaves ww, M_ImagePlane
-End
-
 ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart,
 					WAVE w3DPartRef, variable refP, 
-					variable refQ, variable plane, [WAVE saveDriftW])
+					variable refQ, variable plane)
+	
 	DFREF dfSav= GetDataFolderDFR()
 
 	// Create a free data folder and set it as the current data folder
@@ -446,20 +397,6 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 	Wave M_ImagePlane
 	ImageInterpolate/APRM={1,0,drfP,0,1,drfQ,1,0} Affine2D M_ImagePlane
 	WAVE M_Affine
-	// Debug
-	//print "Done with plane " + num2str(plane) + ". dx = " + num2str(drfP)+ ", dy = " + num2str(drfQ)
-	// Not much checking here, we assume everything's ok
-	if(!ParamIsDefault(saveDriftW))
-        try	
-        	// ATH_WAVELoadSingleDATFile(fileToOpen, "", autoscale = 1)
-        	saveDriftW[plane][0] = drfP
-        	saveDriftW[plane][1] = drfQ       	
-        catch
-        	// Added on the 17.03.2023 to deal with a corrupted file. 
-        	print "!!! DriftCorrelationPartition_Worker missed plane " +num2str(plane)+" drift paramerets." 
-        	variable err = GetRTError(1) // Clears the error
-        endtry
-	endif
 	// Restore the current data folder
 	SetDataFolder dfSav
 
@@ -472,10 +409,74 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 	return M_Affine		// Return a reference to the free M_Affine wave
 End
 
-static Function MultiThreadRegistrationDriftCorrection(WAVE w3D, 
-	 WAVE w3DPart, variable ref, [variable RotZ, variable saveDrift])
+static Function MultiThreadCorrelationDriftCorrection(WAVE w3D, 
+	 WAVE w3DPart, variable ref)
 
-	saveDrift = ParamIsDefault(saveDrift) ? 0 : saveDrift
+	if(!(WaveType(w3D) & 0x02))
+		Redimension/S w3D
+	endif
+	if(!(WaveType(w3DPart) & 0x02))
+		Redimension/S w3DPart
+	endif
+	
+	// Create a wave to hold wave references returned by DriftCorrelation_Worker.
+	variable numPlanes = DimSize(w3D,2)
+	Make/WAVE/N=(numPlanes) ww	
+	// Get the reference layer from the partitioned wave
+	ImageTransform/P=(ref) getPlane w3DPart
+	Wave M_ImagePlane // Reference layer
+	MatrixOP/FREE correlationW = correlate(M_ImagePlane, M_ImagePlane, 0)
+	WaveStats/M=1/Q/P correlationW	
+	variable refP = V_maxRowLoc
+	variable refQ = V_maxColLoc	
+	// Release the threads.
+	MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, M_ImagePlane, refP, refQ, p)	
+	// At this point, ww holds wave references to numplanes free waves
+	// created by DriftCorrelation_Worker.
+	// So, now repack all layers.
+	Concatenate/O {ww}, $GetWavesDataFolder(w3D,2)
+	
+	// ww holds references to the free waves. By killing ww, we kill
+	// the last reference to the free waves which causes them to be
+	// automatically deleted.
+	KillWaves ww, M_ImagePlane
+End
+
+// Multithreaded Drift Correction using Registration
+ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE w3DPart,
+					WAVE w3DPartRef, WAVE wROIMask, variable plane, [variable RotZ])
+	
+	DFREF dfSav= GetDataFolderDFR()
+
+	// Create a free data folder and set it as the current data folder
+	SetDataFolder NewFreeDataFolder()
+	// Calculate drift
+	MatrixOP testPartitionW = layer(w3DPart,plane)
+	if(RotZ)
+		ImageRegistration/Q/CONV=1/TRNS={1,1,0}/ROT={0,0,1}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW
+	else
+		ImageRegistration/Q/CONV=1/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW	
+	endif
+	WAVE W_RegParams
+	Duplicate W_RegParams, ATH_RegParams
+	// Drift the whole image
+	MatrixOP regPlane = layer(w3D, plane)
+	ImageRegistration/Q/USER=ATH_RegParams/BVAL=0 testMask=wROIMask testwave=regPlane
+	WAVE M_RegOut
+	// Restore the current data folder
+	SetDataFolder dfSav
+
+	// Since the only reference to the free data folder created above
+	// was the current data folder, there are now no references it.
+	// Therefore, Igor has automatically deleted it.
+	// Since there IS a reference to the M_Affine wave in the free
+	// data folder, M_Affine is not deleted but becomes a free wave.
+
+	return M_RegOut		// Return a reference to the free M_Affine wave
+End
+
+static Function MultiThreadRegistrationDriftCorrection(WAVE w3D, 
+	 WAVE w3DPart, variable ref, [variable RotZ])
 
 	if(!(WaveType(w3D) & 0x02))
 		Redimension/S w3D
@@ -495,77 +496,18 @@ static Function MultiThreadRegistrationDriftCorrection(WAVE w3D,
 	Make/FREE/N=(DimSize(w3D,0),DimSize(w3D,1)) ATH_ROIMask
 	FastOp ATH_ROIMask = 1
 	// Release the threads.
-	if(saveDrift)
-		DFREF saveDF = $ksATH_DriftCorrectionDFREF
-		string dcWaveName = CreateDataObjectName(saveDF, NameOfWave(w3D), 1, 0, 1)
-		string pathnameStr = ksATH_DriftCorrectionDFREF + dcWaveName
-		ATH_Transform#MakeImageRegistrationParamsWave(pathnameStr, nlayers = numPlanes)
-		WAVE driftWRef = $pathnameStr
-		string driftLog
-		sprintf driftLog, "***** Drift Parameters of %s *****\n", GetWavesDataFolder(w3D, 2)
-		Note driftWRef, driftLog
-		MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart_n, M_ImagePlane, ATH_ROIMask, \
-		p, RotZ = RotZ,saveDriftW=driftWRef)
-		sprintf driftLog, "***** Drift Parameters in %s *****\n", GetWavesDataFolder(driftWRef, 2)
-		ATH_String#WaveLogging(w3D, driftLog, prepend = 1)
-	else
-		MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart_n, M_ImagePlane, ATH_ROIMask, p, RotZ = RotZ)
-	endif
-	
+	MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart_n, M_ImagePlane, ATH_ROIMask, p, RotZ = RotZ)	
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
 	// So, now repack all layers.
 	Concatenate/O {ww}, $GetWavesDataFolder(w3D,2)
+	
 	// ww holds references to the free waves. By killing ww, we kill
 	// the last reference to the free waves which causes them to be
 	// automatically deleted.
 	KillWaves ww, M_ImagePlane
 End
 
-// Multithreaded Drift Correction using Registration
-ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE w3DPart,
-					WAVE w3DPartRef, WAVE wROIMask, variable plane, [variable RotZ, WAVE saveDriftW])
-	
-	DFREF dfSav= GetDataFolderDFR()
-
-	// Create a free data folder and set it as the current data folder
-	SetDataFolder NewFreeDataFolder()
-	// Calculate drift
-	MatrixOP testPartitionW = layer(w3DPart,plane)
-	if(RotZ)
-		ImageRegistration/Q/CONV=1/TRNS={1,1,0}/ROT={0,0,1}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW
-	else
-		ImageRegistration/Q/CONV=1/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW	
-	endif
-	WAVE W_RegParams
-	// Duplicate W_RegParams, ATH_RegParams // Why this was here?
-	// Drift the whole image
-	if(!ParamIsDefault(saveDriftW))
-        try	
-        	print DimSize(W_RegParams,0)
-        	// ATH_WAVELoadSingleDATFile(fileToOpen, "", autoscale = 1)
-        	saveDriftW[][plane] = W_RegParams[p]
-        catch
-        	// Added on the 17.03.2023 to deal with a corrupted file. 
-        	print "!!! DriftRegistrationPartition_Worker missed plane " +num2str(plane)+" drift paramerets." 
-        	variable err = GetRTError(1) // Clears the error
-        endtry
-	endif
-	// Do the correction	
-	MatrixOP regPlane = layer(w3D, plane)
-	ImageRegistration/Q/USER=W_RegParams/BVAL=0 testMask=wROIMask testwave=regPlane
-	WAVE M_RegOut
-	// Restore the current data folder
-	SetDataFolder dfSav
-
-	// Since the only reference to the free data folder created above
-	// was the current data folder, there are now no references it.
-	// Therefore, Igor has automatically deleted it.
-	// Since there IS a reference to the M_Affine wave in the free
-	// data folder, M_Affine is not deleted but becomes a free wave.
-
-	return M_RegOut		// Return a reference to the free M_Affine wave
-End
 
 // Multithreaded Registration
 ThreadSafe static Function/WAVE ImageRegistration_Worker(WAVE w3D, WAVE wRef, variable plane)

@@ -7,12 +7,6 @@
 // Number of layers above which the MT drift correction is called
 constant kATH_DriftCorrectionMT = 9
 
-// Data folders
-// Where the drift correction parameters are saved
-strconstant ksATH_DriftCorrectionDFREF ="root:Packages:ATH_DataFolder:DriftCorrectionDataSets:"
-
 // Wave names
 strconstant ksATH_StackPrefix = "ath_stack"
 strconstant ksATH_TransientStackPrefix = "ath_tr_stack"
-
-// Regex

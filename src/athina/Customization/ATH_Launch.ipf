@@ -364,15 +364,13 @@ static Function ImageStackAlignmentPartition()
 	variable method = 2
 	variable layerN = ATH_Graph#GetgLayer("")
 	variable  RotZ = 2
-	variable saveDrift = 2
 	string msg = "Align " + NameOfWave(wRef) + " using part of the image."
 	
 	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
 	Prompt layerN, "Reference layer"
 	Prompt RotZ, "Z-rotations (Registration only)",  popup, "Yes;No" // Yes = 1, No = 2!
-	Prompt saveDrift, "Save drift corrections",  popup, "Yes;No" // Yes = 1, No = 2!	
 
-	DoPrompt msg, method, layerN, RotZ, saveDrift
+	DoPrompt msg, method, layerN, RotZ
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -397,19 +395,19 @@ static Function ImageStackAlignmentPartition()
 		if(nlayers > kATH_DriftCorrectionMT)
 			// There is a bug in IP9, IP crashes when you run ImageRegistration in MT.
 			#if IgorVersion() >= 10
-				ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2, saveDrift = saveDrift - 2)
+				ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2)
 			#else
 				print "Multithreading is disabled for ImageRegistration IP ver < 10"
-				ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2, saveDrift = saveDrift - 2)
+				ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
 			#endif
 		else
-			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2, saveDrift = saveDrift - 2)
+			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
 		endif
 	elseif(method == 2)
 		if(nlayers > kATH_DriftCorrectionMT)
-			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = saveDrift - 2)
+			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN)
 		else
-			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN, saveDrift = saveDrift - 2)
+			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN)
 		endif
 	else
 		print "Please check ATH_Launch#ImageStackAlignmentPartition() method."
@@ -1684,7 +1682,7 @@ static Function UnpackStackToSources([string grfName])
 	if(WaveDims(wRef)!=3)
 		return -1
 	endif
-	string msg = "!!!!!!!!!!!****** A T T E N T I O N ******!!!!!!!!!!!\nYou will overwrite the source waves listed"+\
+	string msg = "!!!!!!!!!!! A T T E N T I O N !!!!!!!!!!!\nYou will overwrite the source waves listed"+\
 	" in the wave note.\nThis operation cannot be undone.\nThe destination waves will be overwritten.\n"+\
 	"I hope you know what you are doing."
 	DoAlert/T="!!!athina wants to unpack stack to source waves!!!", 1, msg
