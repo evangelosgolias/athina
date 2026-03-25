@@ -59,8 +59,8 @@ static Function MarqueeToMask()
 	if(!V_flag)
 		return NaN
 	endif
-	CoordinatesToROIMask(V_left, V_top, V_right, V_bottom)
-	return 0
+	variable succeed = CoordinatesToROIMask(V_left, V_top, V_right, V_bottom)
+	return succeed // 1 we got a mask, 0 we did not.
 End
 
 static Function CoordinatesToROIMask(variable left, variable top, variable right, variable bottom, 
@@ -71,8 +71,8 @@ static Function CoordinatesToROIMask(variable left, variable top, variable right
 	/// you can change the mask values with the optional parameters.
 	
 	/// Creates the wave M_ROIMask
-	interior = ParamIsDefault(interior) ? 1: interior // if set do not read metadata
-	exterior = ParamIsDefault(exterior) ? 0: exterior // if set do not read metadata
+	interior = ParamIsDefault(interior) ? 1: interior
+	exterior = ParamIsDefault(exterior) ? 0: exterior
 	
 	string wnamestr = ATH_Graph#TopImageName()
 	string winNameStr = WinName(0, 1, 1)
@@ -82,6 +82,7 @@ static Function CoordinatesToROIMask(variable left, variable top, variable right
 	SetDrawEnv linefgc = (65535,16385,16385), fillpat = 0, linethick = 0.5, xcoord = top, ycoord = left
 	DrawRect/W=$winNameStr left, top, right, bottom
 	ImageGenerateROIMask/i=(interior)/e=(exterior) $wnamestr
+	variable domask = V_flag
 	DrawAction  delete
 	SetDrawLayer UserFront
 	
@@ -89,7 +90,7 @@ static Function CoordinatesToROIMask(variable left, variable top, variable right
 		WAVE M_ROIMask
 		Redimension/S M_ROIMask
 	endif
-	return 0
+	return domask // 1 if you created the mask, 0 if not (from ImageGenerateROIMask operation)
 End
 
 static Function/WAVE WAVECoordinatesToROIMask(variable left, variable top, variable right, 

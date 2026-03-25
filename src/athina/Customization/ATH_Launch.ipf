@@ -1388,7 +1388,7 @@ static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is 
 	variable do3D = 1
 	if(WaveDims(wRef) == 3)
 		Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
-		Prompt do3D, "Apply to all layers?", popup "No;Yes"
+		Prompt do3D, "Apply to all layers?", popup "No;Yes" // 1-No, 2-Yes
 		DoPrompt "Background subtraction ", order, do3D
 	else
 		Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
@@ -1402,19 +1402,19 @@ static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is 
 	ATH_DFR#BackupWaveInWaveDFQ(wRef)
 	string noteStr = note(wRef)
 	
-	// If there is a marquee use it to maks the wave
-	variable isMask = ATH_Marquee#MarqueeToMask()
-	// ATH_Marquee#MarqueeToMask() return NaN if there in no Marquee and 0 if there is.
-	if(do3D==2)
-		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, w3d=1, useMask = !isMask)
+	// If there is a marquee use it to mask the wave
+	// Return 1 for successful Mask creation, 0 otherwise
+	variable isMask = ATH_Marquee#MarqueeToMask() // If there is no Marquee isMask is Nan. !NaN = 0
+	isMask = !isMask 
+	variable gLayer = ATH_Graph#GetgLayer("")
+	if(do3D==2) // apply to the whole stack or a single 2D wave 
+		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = - 1, useMask = isMask)
 		Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + noteStr		
-		return 0
-	endif
-	if(ATH_Graph#GetgLayer("")!=-1) // Do we have active axis in top window?
-		variable layerN = ATH_Graph#GetgLayer("")
-		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = layerN, useMask = !isMask)
+	elseif(gLayer!=-1)
+		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = gLayer, useMask = isMask)
 	else
-		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, useMask = !isMask)
+		print "Check ATH_Launch#ImgRemoveBackground"
+		return -1
 	endif
 	Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + noteStr
 	KillWaves/Z M_ROIMask
@@ -1432,10 +1432,10 @@ End
 /// @param iterN] Parameter iterN].
 /// @returns Variable Return value.
 
-static Function FlattenImage([string method, variable kernelN, variable iterN, string kind])
+static Function FlattenImage()
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
-	kernelN = ParamIsDefault(kernelN) ? 2^5 : kernelN
-	iterN = ParamIsDefault(iterN) ? 1 : iterN
+	variable kernelN = 2^5, iterN = 1
+	string method, kind, notestr
 	string msg = "Flatten: img-bkg (layer-wise)"
 	Prompt method, "Method", popup, "gauss;avg;median;max;min"
 	Prompt kind, "Background type", popup, "additive;multiplicative"
@@ -1450,10 +1450,13 @@ static Function FlattenImage([string method, variable kernelN, variable iterN, s
 		ATH_ImgOp#FlattenImage(wRef, method, kind, kernelN, iterN, overwrite = 1)
 	elseif(WaveDims(wRef) == 3)
 		ATH_ImgOp#BackupTopImage()
-		ATH_ImgOp#FlattenImage3D(wRef, method, kernelN, iterN, overwrite = 1)
+		ATH_ImgOp#FlattenImage3D(wRef, method, kind, kernelN, iterN, overwrite = 1)
 	else
 		return -1
 	endif
+	notestr = "Background removal using ATH_ImgOp#FlattenImage("+method+","
+	notestr += kind+","+num2str(kernelN)+","+num2str(iterN)+", overwrite = 1)\n"
+	Note wRef, notestr
 	return 0
 End
 

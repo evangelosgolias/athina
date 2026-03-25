@@ -132,18 +132,7 @@ static Function SetZScaleOfImageStack() // Uses top graph
 	string cmdStr = "0, 0", setScaleZStr
 	string msgDialog = "Scale Z direction of stack"
 	string strPrompt = "Set firstVal,  lastVal in quotes (string).\n Leave \"\"  and press continue for autoscaling."
-	if(WaveDims(waveRef) == 2)
-		getScaleXY = NumberByKey("FOV(µm)", note(waveRef), ":", "\n")
-		if(numtype(getScaleXY) == 2)
-			getScaleXY = 0
-		endif
-		SetScale/I x, 0, getScaleXY, waveRef
-		SetScale/I y, 0, getScaleXY, waveRef
-	elseif(WaveDims(waveRef) == 3)
-		// We deal with the x, y scale when we import the wave
-		//getScaleXY = NumberByKey("FOV(µm)", note(waveRef), ":", "\n")
-		//SetScale/I x, 0, getScaleXY, waveRef
-		//SetScale/I y, 0, getScaleXY, waveRef
+	if(WaveDims(waveRef) == 3)
 		DoWindow/F $winNameStr
 		setScaleZStr = ATH_Dialog#GenericSingleStrPrompt(strPrompt, msgDialog)
 		string dataPathStr = GetWavesDataFolder(waveRef, 2)
@@ -164,8 +153,12 @@ static Function ImageSelectToCopyScale() // Uses top graph
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	// Select the first wave from browser selection
 	string selectedWavesStr = ATH_Dialog#SelectWavesInModalDataBrowser("Select an image to set common dimension scaling")
-	WAVE sourceWaveRef = $StringFromList(0, selectedWavesStr)
-	CopyScales/P sourceWaveRef, wRef // 
+	WAVE/Z sourceWaveRef = $StringFromList(0, selectedWavesStr)
+	if(WaveExists(sourceWaveRef))
+		CopyScales/P sourceWaveRef, wRef
+		return 0
+	endif
+	return 1
 End
 
 static Function/S NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
@@ -995,14 +988,13 @@ End
 /// @param layerN] Parameter layerN].
 /// @returns Variable Return value.
 
-static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, int w3d, variable layerN])
+static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, variable layerN])
 	// Remove background of an image (default 1st order)
 	// Use order = n, n > 1 for higher order polynomial
 	// Use overwite = 1 to overwite the original wave
 	order = ParamIsDefault(order) ? 1: order
 	useMask = ParamIsDefault(useMask) ? 0: !!useMask
-	layerN = ParamIsDefault(layerN) ? 0: layerN
-	w3d = ParamIsDefault(w3d) ? 0: !!w3d
+	layerN = ParamIsDefault(layerN) ? -1 : layerN // if you do not define layer, apply to all
 
 	variable nrows, ncols
 	nrows = DimSize(wRef,0)
@@ -1019,9 +1011,17 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, int
 		Redimension/S wRef
 	endif
 	
+	// If you have a 2D wave
+	if(WaveDims(wRef) == 2)
+		ImageRemoveBackground/O/R=maskW/P=(order) wRef
+		return 0
+	endif	
+	
+	variable nlayers = DimSize(wRef, 2)
+	// If you have a 3D wave
 	if(WaveDims(wRef) == 3)
-		if(w3d)
-			variable nlayers = DimSize(wRef, 2), i
+		if(layerN < 0) // layerN < 0 to apply to all layers
+			variable i
 			DFREF saveDF = GetDataFolderDFR()
 			SetDataFolder NewFreeDataFolder()
 			string buffer = "layer_", waveNameStr
@@ -1037,18 +1037,15 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, int
 			CopyScales wRef, M_Stack
 			Duplicate/O M_Stack, wRef
 			SetDataFolder saveDF
-		else
+		elseif(layerN < nlayers)
 			// Code to replace plane in 3d wave
 			MatrixOP/FREE getLayer = layer(wRef, layerN)
 			ImageRemoveBackground/O/R=maskW/P=(order) getLayer
 			ImageTransform/O/P=(layerN) removeZplane wRef
 			ImageTransform/O/INSW=getLayer/P=(layerN) insertZplane wRef
+		else
+			return 1
 		endif
-	elseif(WaveDims(wRef) == 2)
-		ImageRemoveBackground/O/R=maskW/P=(order) wRef
-		return 0
-	else
-		return 1
 	endif
 End
 
@@ -1224,12 +1221,15 @@ End
 /// @param overwrite] Parameter overwrite].
 /// @returns Variable Return value.
 
-static Function FlattenImage3D(WAVE wRef, string method, variable size, variable passes, [int overwrite])
+static Function FlattenImage3D(WAVE wRef, string method, string kind, variable size, variable passes, [int overwrite])
 	/// Applies the MatrixFilter/N=size/P=passes method wRef
 	/// to each layer of wRef
 	overwrite = ParamIsDefault(overwrite) ? 1 : overwrite // default overwite (used in drift correction)
 	string allmethods = "gauss;avg;median:max;min"
 	variable ifunc = WhichListItem(method, allmethods)
+	string allkinds = "additive;multiplicative" // kind
+	variable ikind = WhichListItem(kind, allkinds)	
+		
 	if(ifunc == -1 || WaveDims(wRef) != 3)
 		return -1
 	endif
@@ -1240,8 +1240,16 @@ static Function FlattenImage3D(WAVE wRef, string method, variable size, variable
 	for(i = 0; i < nlayers; i++)
 		waveNameStr = buffer + num2str(i)
 		MatrixOP/FREE/O layerFree = layer(wRef, i)
-		MatrixFilter/N=(size)/P=(passes) $method layerFree
-		MatrixOP $waveNameStr = layer(wRef, i) - layerFree	
+		MatrixFilter/N=(size)/P=(passes) $method layerFree		
+		if(ikind) // 1
+			WaveStats/Q/M=1 layerFree
+			layerFree = (layerFree-V_min)/(V_max-V_min)
+			WaveStats/Q/M=1 layerFree
+			MatrixOP/O layerFree = layerFree+V_avg*equal(layerFree,0)
+			MatrixOP $waveNameStr = layer(wRef, i) / layerFree
+		else // 0
+			MatrixOP $waveNameStr = layer(wRef, i) - layerFree
+		endif
 	endfor
 	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
 	WAVE M_Stack
@@ -1252,7 +1260,7 @@ static Function FlattenImage3D(WAVE wRef, string method, variable size, variable
 	else
 		string newWaveNameStr = NameofWave(wRef) + "_flt"
 		Duplicate/O M_Stack, saveDF:$newWaveNameStr
-	endif		
+	endif
 	SetDataFolder saveDF
 	return 0
 End
