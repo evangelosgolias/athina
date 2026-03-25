@@ -117,7 +117,7 @@ static Function ImgStackPartitionRegistration(WAVE wRef, WAVE partwRef, [variabl
 	DFREF currDF = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
 	
-	MatrixOP/FREE partwRef_n = normalize(partwRef)
+	MatrixOP/FREE partwRef_n = scale(partwRef,0,1)
 	MatrixOP/FREE refLayerWave = layer(partwRef_n, layerN)
 	
 	variable rows = DimSize(wRef, 0)
@@ -486,7 +486,7 @@ static Function MultiThreadRegistrationDriftCorrection(WAVE w3D,
 	endif
 	
 	// Normalize the stack to avoid issues with ImageRegistration
-	MatrixOP/FREE w3DPart_n = normalize(w3DPart)
+	MatrixOP/FREE w3DPart_n = scale(w3DPart,0,1)
 	// Create a wave to hold wave references returned by DriftCorrelation_Worker.
 	variable numPlanes = DimSize(w3D,2)
 	Make/WAVE/N=(numPlanes) ww	

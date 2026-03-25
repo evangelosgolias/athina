@@ -1432,19 +1432,22 @@ End
 /// @param iterN] Parameter iterN].
 /// @returns Variable Return value.
 
-static Function FlattenImage([string method, variable kernelN, variable iterN])
+static Function FlattenImage([string method, variable kernelN, variable iterN, string kind])
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	kernelN = ParamIsDefault(kernelN) ? 2^5 : kernelN
-	iterN = ParamIsDefault(iterN) ? 1 : iterN		
+	iterN = ParamIsDefault(iterN) ? 1 : iterN
 	string msg = "Flatten: img-bkg (layer-wise)"
 	Prompt method, "Method", popup, "gauss;avg;median;max;min"
+	Prompt kind, "Background type", popup, "additive;multiplicative"
 	Prompt kernelN, "Kernel size"
 	Prompt iterN, "Iterations"
-	DoPrompt msg, method, kernelN, iterN
+	DoPrompt msg, method, kind, kernelN, iterN
 	// Create backup here
+	
+	// Resolve the 
 	if(WaveDims(wRef) == 2)
 		ATH_ImgOp#BackupTopImage()
-		ATH_ImgOp#FlattenImage(wRef, method, kernelN, iterN, overwrite = 1)
+		ATH_ImgOp#FlattenImage(wRef, method, kind, kernelN, iterN, overwrite = 1)
 	elseif(WaveDims(wRef) == 3)
 		ATH_ImgOp#BackupTopImage()
 		ATH_ImgOp#FlattenImage3D(wRef, method, kernelN, iterN, overwrite = 1)

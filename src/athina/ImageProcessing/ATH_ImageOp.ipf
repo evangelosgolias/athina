@@ -944,11 +944,13 @@ End
 /// @param overwrite] Parameter overwrite].
 /// @returns Variable Return value.
 
-static Function FlattenImage(WAVE wRef, string method, variable kernelN, variable iterN, [int overwrite])
-	// Flatten image using a
+static Function FlattenImage(WAVE wRef, string method, string kind, variable kernelN, variable iterN, [int overwrite])
+	// Flatten image
 	overwrite = ParamIsDefault(overwrite) ? 0 : overwrite
-	string allmethods = "gauss;avg;median:max;min"
+	string allmethods = "gauss;avg;median:max;min" // method
 	variable ifunc = WhichListItem(method, allmethods)
+	string allkinds = "additive;multiplicative" // kind
+	variable ikind = WhichListItem(kind, allkinds)	
 	if(ifunc == -1)
 		return -1
 	endif
@@ -956,12 +958,28 @@ static Function FlattenImage(WAVE wRef, string method, variable kernelN, variabl
 	Duplicate/O/FREE wRef, bkgFREE
 	MatrixFilter/P=(iterN)/N=(kernelN) $method bkgFREE // MatrixFilter operation overwrites source
 	if(overwrite)
-		wRef -= bkgFREE
+		if(ikind)
+			WaveStats/Q/M=1 bkgFREE
+			bkgFREE = (bkgFREE-V_min)/(V_max-V_min)
+			WaveStats/Q/M=1 bkgFREE
+			MatrixOP/O bkgFREE = bkgFREE+V_avg*equal(bkgFREE,0)
+			wRef /= bkgFREE
+		else
+			wRef -= bkgFREE
+		endif		
 	else
 		string waveNameStr = NameOfWave(wRef)
 		DFREF dfr = GetDataFolderDFR()
 		string flattenWaveStr = CreateDataObjectName(dfr, waveNameStr + "_flt", 1, 0, 1)
-		MatrixOP $flattenWaveStr = wRef - bkgFREE
+		if(ikind)
+			WaveStats/Q/M=1 bkgFREE
+			bkgFREE = (bkgFREE-V_min)/(V_max-V_min)
+			WaveStats/Q/M=1 bkgFREE
+			MatrixOP/O bkgFREE = bkgFREE+V_avg*equal(bkgFREE,0)
+			MatrixOP $flattenWaveStr = wRef / bkgFREE
+		else
+			MatrixOP $flattenWaveStr = wRef - bkgFREE
+		endif
 	endif
 	return 0
 End
