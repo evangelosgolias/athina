@@ -1759,13 +1759,17 @@ End
 /// Auto-generated documentation stub for function `DrawScaleBar`.
 /// @returns Variable Return value.
 
-static Function DrawScaleBar()	
+static Function DrawScaleBar([string grfName])
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
 	variable scale
 	Prompt scale, "Scale bar length"	
 	DoPrompt "Draw a scale bar in x-axis units", scale
 	if(V_flag)
 		return -1
 	endif
-	ATH_Draw#ImageScaleBar(scale)
-	return 0
+	variable success = ATH_Draw#ImageScaleBar(scale) // 1 for success
+	if(success)
+		SetWindow $grfName userdata(ATH_DrawScaleBarInGraph) = num2str(scale)
+	endif
+	return success
 End
