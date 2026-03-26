@@ -185,6 +185,22 @@ Function/S GetCurrentLayerLabel(grfName)
     variable plane = NumberByKey("plane", ImageInfo(grfName, PossiblyQuoteName(NameOfWave(w)), 0), "=")
     string labelStr = GetDimLabel(w, 2, plane)
     
+    // Break the recursive redraw loop by checking if the plane actually changed
+    // This prevents SetScale/ColorScale from triggering infinite updates
+    string lastPlaneStr = GetUserData(grfName, "", "ATH_Asylum_lastPlane")
+    if(CmpStr(num2str(plane), lastPlaneStr) != 0)
+        SetWindow $grfName userdata(ATH_Asylum_lastPlane)=num2str(plane)
+        UpdateAsylumGraphState(grfName, w, plane, labelStr)
+    endif
+
+    return labelStr // Return the name to the dynamic Textbox in the margin
+End
+
+static Function UpdateAsylumGraphState(grfName, w, plane, labelStr)
+    string grfName, labelStr
+    WAVE w
+    variable plane
+    
     // Update the ColorScale units by setting wave data units (SetScale d)
     // This is much more robust than ColorScale title for multi-version compatibility
     string layerUnits = GetLayerUnits(labelStr)
@@ -220,16 +236,12 @@ Function/S GetCurrentLayerLabel(grfName)
         ModifyImage/W=$grfName $PossiblyQuoteName(wName) ctab={-90, 90, $ctabName, revFlag}
     else
         // Full range stats for all other layers (Height, Amp, Freq, etc.)
-        // Use RMD (Multi-Dimensional) flag for 3D waves as per package standard
-        // In rtGlobals=3, we must sometimes declare built-in variables locally
         variable V_flag, V_min, V_max 
         WaveStats/Q/M=1/RMD=[][][plane] w
         if(V_flag == 0) // Stats successful
             ModifyImage/W=$grfName $PossiblyQuoteName(wName) ctab={V_min, V_max, $ctabName, revFlag}
         endif
     endif
-
-    return labelStr // Return the name to the dynamic Textbox in the margin
 End
 
 static Function/S GetLayerUnits(label)
