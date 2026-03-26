@@ -188,7 +188,7 @@ Function/S GetCurrentLayerLabel(grfName)
     
     // Dynamic Z-Limits (Auto-scale color bar to current plane's data range)
     string wName = NameOfWave(w)
-    string ctabName = "Grays" // Default color table name
+    string ctabName = "VioletOrangeYellow" // Default color table name
     variable revFlag = 0      // Default reverse flag
     
     if(strsearch(labelStr, "Phase", 0, 2) >= 0)
