@@ -124,7 +124,20 @@ Function LoadAsylumIBW()
         LabelAsylumStack(w)
         // Asylum files in mathina usually appear upside down relative to Gwyddion.
         // We apply a mandatory Vertical Flip (matching the manual "Rotate from metadata" tool).
-        ImageTransform flipCols w 
+        // Use a loop with /P flag to ensure every layer in the stack is flipped.
+        variable nL = DimSize(w, 2)
+        variable iL
+        if(nL > 0)
+            for(iL=0; iL < nL; iL+=1)
+                ImageTransform/P=(iL) flipCols w
+            endfor
+        else
+            ImageTransform flipCols w
+        endif
+        
+        // Rotate stack if ScanAngle is non-zero (REMOVED as per user request)
+        // variable angle = NumberByKey("ScanAngle", note(w), ":", "\r")
+        
         string grfName = ATH_Display#NewImg(w)
         if(WaveDims(w) == 3 && strlen(grfName))
             // Resize window to be wider (600 pts wide, 500 pts tall) to fit the margin!
