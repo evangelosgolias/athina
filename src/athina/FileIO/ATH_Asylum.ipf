@@ -122,8 +122,19 @@ Function LoadAsylumIBW()
     
     if(WaveExists(w))
         LabelAsylumStack(w)
+        // Asylum files in mathina usually appear upside down relative to Gwyddion.
+        // We apply a mandatory Vertical Flip (matching the manual "Rotate from metadata" tool).
+        ImageTransform flipCols w 
         string grfName = ATH_Display#NewImg(w)
         if(WaveDims(w) == 3 && strlen(grfName))
+            // Resize window to be wider (600 pts wide, 500 pts tall) to fit the margin!
+            MoveWindow/W=$grfName 50, 50, 650, 550
+            // Enforce a fixed 120pt whitespace margin on the right
+            ModifyGraph/W=$grfName margin(right)=120
+            // Add ColorScale in the right window margin
+            // /E=2 anchors to the WINDOW boundary (resize-invariant)
+            // /A=RC /X=2 pins it to the right edge of the window, staying in the 120pt space
+            ColorScale/W=$grfName/C/N=ath_cbar/E=2/A=RC/X=2/Y=0 width=15
             // Dynamic labels are reactive to slider changes!
             AddAsylumLabel(grfName)
         endif
@@ -149,5 +160,64 @@ Function/S GetCurrentLayerLabel(grfName)
     
     variable plane = NumberByKey("plane", ImageInfo(grfName, PossiblyQuoteName(NameOfWave(w)), 0), "=")
     string labelStr = GetDimLabel(w, 2, plane)
+    
+    // Update the ColorScale units by setting wave data units (SetScale d)
+    // This is much more robust than ColorScale title for multi-version compatibility
+    string layerUnits = GetLayerUnits(labelStr)
+    if(CmpStr(waveunits(w, -1), layerUnits) != 0)
+        string setScaleCmd
+        sprintf setScaleCmd, "SetScale d, 0, 0, \"%s\", %s", layerUnits, GetWavesDataFolder(w, 2)
+        Execute/P/Q setScaleCmd
+    endif
+    
+    // Only apply manual axis label for non-SI units (Phase) and Frequency
+    // For 'm' units, we use an empty string to allow automatic SI tick labeling
+    string csLabel = layerUnits
+    variable tUnit = 0
+    variable psExp = 0
+    if(StringMatch(layerUnits, "m"))
+        csLabel = ""
+    elseif(StringMatch(layerUnits, "Hz"))
+        csLabel = "kHz"
+        tUnit = 1
+        psExp = -3 // Show 706.3 instead of 706300 or 706.3 x 10^3
+    elseif(StringMatch(layerUnits, "deg"))
+        tUnit = 1
+    endif
+    ColorScale/W=$grfName/C/N=ath_cbar tickUnit=tUnit, prescaleExp=psExp, csLabel
+    
+    // Dynamic Z-Limits (Auto-scale color bar to current plane's data range)
+    string wName = NameOfWave(w)
+    string ctabName = "Grays" // Default color table name
+    variable revFlag = 0      // Default reverse flag
+    
+    if(strsearch(labelStr, "Phase", 0, 2) >= 0)
+        // Fixed range for Phase as requested
+        ModifyImage/W=$grfName $PossiblyQuoteName(wName) ctab={-90, 90, $ctabName, revFlag}
+    else
+        // Full range stats for all other layers (Height, Amp, Freq, etc.)
+        // Use RMD (Multi-Dimensional) flag for 3D waves as per package standard
+        // In rtGlobals=3, we must sometimes declare built-in variables locally
+        variable V_flag, V_min, V_max 
+        WaveStats/Q/M=1/RMD=[][][plane] w
+        if(V_flag == 0) // Stats successful
+            ModifyImage/W=$grfName $PossiblyQuoteName(wName) ctab={V_min, V_max, $ctabName, revFlag}
+        endif
+    endif
+
     return SelectString(strlen(labelStr) > 0, num2str(plane), labelStr)
+End
+
+static Function/S GetLayerUnits(label)
+    string label
+    if(strsearch(label, "Height", 0, 2) >= 0 || strsearch(label, "ZSensor", 0, 2) >= 0)
+        return "m" // Use base units; Igor 10 handles SI prefixes (n, u, p) automatically
+    elseif(strsearch(label, "Phase", 0, 2) >= 0)
+        return "deg"
+    elseif(strsearch(label, "Amp", 0, 2) >= 0 || strsearch(label, "Defl", 0, 2) >= 0)
+        return "m"
+    elseif(strsearch(label, "Freq", 0, 2) >= 0)
+        return "Hz"
+    endif
+    return ""
 End
