@@ -14,7 +14,24 @@ Function LabelAsylumStack(w)
     String noteStr = note(w)
     String labels = StringByKey("Labels", noteStr, ":", "\r")
     
-    // Fallback order: ChannelNDataType (Signal Section) -> DART...Label -> Hardcoded
+    // Fallback order: PFM-specific (if detected) -> ChannelNDataType -> DART...Label -> Hardcoded
+    if(ItemsInList(labels, ";") < 2)
+        // Detect PFM Mode and use the confirmed sequence (matched to Gwyddion)
+        if(StringMatch(StringByKey("ImagingMode", noteStr, ":", "\r"), "PFM Mode"))
+            variable nLayers = DimSize(w, 2)
+            if(nLayers == 8)
+                // Height(R), Amp1(T, R), Amp2(R), Phase1(T, R), Phase2(R), Freq(R)
+                labels = "Height_R;Amp1_T;Amp1_R;Amp2_R;Phase1_T;Phase1_R;Phase2_R;Freq_R"
+            elseif(nLayers == 6)
+                // Height(R), Amp1(R), Amp2(R), Phase1(R), Phase2(R), Freq(R)
+                labels = "Height_R;Amp1_R;Amp2_R;Phase1_R;Phase2_R;Freq_R"
+            elseif(nLayers == 4)
+                // Height(R), Amp1(R), Phase1(R), Freq(R)
+                labels = "Height_R;Amp1_R;Phase1_R;Freq_R"
+            endif
+        endif
+    endif
+
     if(ItemsInList(labels, ";") < 2)
         // Find the section after "Initial Parms: End" to avoid duplicate keys with generic values like "1"
         string subNote = noteStr
@@ -25,7 +42,7 @@ Function LabelAsylumStack(w)
 
         string channelLabels = ""
         variable chIdx = 1
-        variable nLayers = DimSize(w, 2)
+        nLayers = DimSize(w, 2)
         do
             string chKey = "Channel" + num2str(chIdx) + "DataType"
             string chVal = TrimString(StringByKey(chKey, subNote, ":", "\r"))
