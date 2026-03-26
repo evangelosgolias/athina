@@ -143,34 +143,40 @@ End
 /// @param grfName] Parameter grfName].
 /// @returns Variable Return value.
 
-static Function ImageScaleBar(variable barlen, [string grfName])
+static Function ImageScaleBar(variable barlen, [string grfName]) 
+	// Here the function returns the factor barlen/xlen which is the 
+	// number we need to adjust so that the scale bar corresponds to the
+	// size of the visible range.
+	// Return 0 if you have already a scale bar on image. Function used
+	// in case 8 of ATH_Display#NewImg()
+	
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
-	//WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
 	string axisX, axisY
-	variable minVX, maxVX, minVY, maxVY
+	variable minVX, maxVX, minVY, maxVY, sf
 	[axisX, minVX, maxVX, axisY, minVY, maxVY] = ATH_Graph#GetAxesRange(grfName=grfName)
-	variable xlen = abs(maxVX - minVX), groupExists
-	if(0.6*xlen < barlen) // it looks bad
+	variable xlen = abs(maxVX - minVX)
+	
+	sf = barlen/xlen
+	
+	if(kATH_ScaleBarRelFactorRed * xlen < barlen) // it looks bad
 		SetDrawLayer/W=$grfName UserFront	
 		DrawAction/W=$grfName getgroup = athScaleBar
 		DrawAction/W=$grfName delete = V_startPos, V_endPos
 		SetDrawEnv/W=$grfName gstart,gname= athScaleBar
 		SetDrawEnv/W=$grfName xcoord= axrel,ycoord= axrel, fillfgc = (65535,0,0)
-		DrawRect/W=$grfName 0.95-barlen/xlen, 0.935, 0.95, 0.95
+		DrawRect/W=$grfName 0.95-sf, 0.935, 0.95, 0.95
 		SetDrawEnv/W=$grfName gstop	
-		SetDrawLayer/W=$grfName UserFront	
-		return -1 // We draw but it's ugly!
+		SetDrawLayer/W=$grfName UserFront
 	else 
 		SetDrawLayer/W=$grfName UserFront	
 		DrawAction/W=$grfName getgroup = athScaleBar
 		DrawAction/W=$grfName delete = V_startPos, V_endPos
 		SetDrawEnv/W=$grfName gstart,gname= athScaleBar
-		groupExists = V_flag
 		SetDrawEnv/W=$grfName xcoord= axrel,ycoord= axrel
-		DrawRect/W=$grfName 0.95-barlen/xlen, 0.935, 0.95, 0.95
+		DrawRect/W=$grfName 0.95-sf, 0.935, 0.95, 0.95
 		SetDrawEnv/W=$grfName gstop	
 		SetDrawLayer/W=$grfName UserFront
-		return groupExists // 1 if all ok, 0 if you do not find the group
 	endif
-
+	
+	return sf
 End

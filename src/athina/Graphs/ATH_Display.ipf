@@ -165,18 +165,21 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					SetVariable ATH_W3DSliderVar,pos={fct+15, gOriginalHeight+5},win=$s.winName
 				endif
 			endif
-			
-			// New in case you draw a scalebar
-			if(strlen(GetUserData(s.winName, "", "ATH_DrawScaleBarInGraph")))
-				// Debug line for WM
-				// print "fire ", s.winName, GetUserData(s.winName, "", "ATH_DrawScaleBarInGraph")
-				variable scale_ = str2num(GetUserData(s.winName, "", "ATH_DrawScaleBarInGraph"))
-				variable scaleBarExists = ATH_Draw#ImageScaleBar(scale_, grfName=s.winName) // 1 if all ok
-				if(!scaleBarExists) // if scaleBarExists == 0 , something went wrong, clear metadata
-					print "Reset", scaleBarExists, GetUserData(s.winName, "", "ATH_DrawScaleBarInGraph")
-					SetWindow $s.winName userdata(ATH_DrawScaleBarInGraph) = ""
+
+			DrawAction/L=UserFront/W=$s.winName getgroup = athScaleBar // Do we gave a scale bar?
+			if(V_flag)
+				string axisX, axisY, scaleFactorStr
+				variable minVX, maxVX, minVY, maxVY
+				[axisX, minVX, maxVX, axisY, minVY, maxVY] = ATH_Graph#GetAxesRange(grfName=s.winName)
+				variable xlen = abs(maxVX - minVX)
+				variable scale = str2num(GetUserData(s.winName, "", "ATH_DrawBarInGraphNominalScale"))
+				scaleFactorStr = num2str(scale/xlen)
+				if(cmpstr((GetUserData(s.winName, "", "ATH_DrawBarInGraphScaleFactor")), scaleFactorStr))
+					variable sf = ATH_Draw#ImageScaleBar(str2num(GetUserData(s.winName, "", "ATH_DrawBarInGraphNominalScale")), grfName=s.winName)
+					SetWindow $s.winName userdata(ATH_DrawBarInGraphScaleFactor) = num2str(sf)
 				endif
-			endif			
+			endif
+
 			hookResult = 1
 			break
 		case 2: // kill

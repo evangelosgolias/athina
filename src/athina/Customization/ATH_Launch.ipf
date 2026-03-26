@@ -1764,12 +1764,17 @@ static Function DrawScaleBar([string grfName])
 	variable scale
 	Prompt scale, "Scale bar length"	
 	DoPrompt "Draw a scale bar in x-axis units", scale
-	if(V_flag)
+	if(V_flag || scale <= 0)
 		return -1
 	endif
-	variable success = ATH_Draw#ImageScaleBar(scale) // 1 for success
-	if(success)
-		SetWindow $grfName userdata(ATH_DrawScaleBarInGraph) = num2str(scale)
+	variable scaleFactor = ATH_Draw#ImageScaleBar(scale) // non-zero is ok
+	if(scaleFactor)
+		SetWindow $grfName userdata(ATH_DrawBarInGraphNominalScale) = num2str(scale)
+//		string axisX, axisY
+//		variable minVX, maxVX, minVY, maxVY, sf
+//		[axisX, minVX, maxVX, axisY, minVY, maxVY] = ATH_Graph#GetAxesRange(grfName=grfName)
+//		variable xlen = abs(maxVX - minVX)
+		SetWindow $grfName userdata(ATH_DrawBarInGraphScaleFactor) = num2str(scaleFactor)		
 	endif
-	return success
+	return scaleFactor
 End
