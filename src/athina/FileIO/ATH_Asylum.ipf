@@ -148,7 +148,9 @@ static Function AddAsylumLabel(grfName)
     string grfName
     // Dynamic expression calls GetCurrentLayerLabel on every redraw.
     string dynamicText = "\\Z18\\K(0,0,0)\\{ATH_Asylum#GetCurrentLayerLabel(\"" + grfName + "\")}"
-    Textbox/W=$grfName/N=ATH_Asylum_LayerLabel/F=0/A=LT/X=2/Y=2 dynamicText
+    // Use Right-Top anchor to place the label in the right margin, above the color bar
+    // /E=2 anchors to window boundary to match ColorScale positioning
+    Textbox/W=$grfName/N=ATH_Asylum_LayerLabel/F=0/A=RT/X=5/Y=5/E=2 dynamicText
 End
 
 Function/S GetCurrentLayerLabel(grfName)
@@ -205,7 +207,7 @@ Function/S GetCurrentLayerLabel(grfName)
         endif
     endif
 
-    return SelectString(strlen(labelStr) > 0, num2str(plane), labelStr)
+    return labelStr // Return the name to the dynamic Textbox in the margin
 End
 
 static Function/S GetLayerUnits(label)
