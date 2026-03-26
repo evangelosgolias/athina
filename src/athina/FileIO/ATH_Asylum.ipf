@@ -151,6 +151,15 @@ static Function AddAsylumLabel(grfName)
     // Use Right-Top anchor to place the label in the right margin, above the color bar
     // /E=2 anchors to window boundary to match ColorScale positioning
     Textbox/W=$grfName/N=ATH_Asylum_LayerLabel/F=0/A=RT/X=5/Y=5/E=2 dynamicText
+    
+    // Add Scan Angle label underneath the color bar (Bottom-Right)
+    WAVE/Z w = ATH_Graph#TopImageToWaveRef(grfName=grfName)
+    if(WaveExists(w))
+        string angleText = GetScanAngleText(w)
+        if(strlen(angleText))
+            Textbox/W=$grfName/N=ATH_Asylum_ScanAngle/F=0/A=RB/X=5/Y=5/E=2 "\\Z14\\K(0,0,0)" + angleText
+        endif
+    endif
 End
 
 Function/S GetCurrentLayerLabel(grfName)
@@ -222,4 +231,17 @@ static Function/S GetLayerUnits(label)
         return "Hz"
     endif
     return ""
+End
+
+static Function/S GetScanAngleText(w)
+    WAVE w
+    string noteStr = note(w)
+    // Extract ScanAngle (e.g., "ScanAngle: 90")
+    variable angle = NumberByKey("ScanAngle", noteStr, ":", "\r")
+    if(numtype(angle) != 0)
+        return ""
+    endif
+    string s
+    sprintf s, "Scan Angle\r%.1f°", angle
+    return s
 End
