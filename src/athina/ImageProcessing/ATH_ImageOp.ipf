@@ -999,14 +999,19 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, var
 	variable nrows, ncols
 	nrows = DimSize(wRef,0)
 	ncols = DimSize(wRef,1)
-
+	
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder GetWavesDataFolderDFR(wRef)
+	
 	if(useMask) // Reserved for arbitrary masks
 		WAVE maskW = M_ROIMask // if you provide a mask - use default mask name
 	else
 		Make/O/FREE/N=(nrows,ncols)/B/U maskWFree = 1
 		WAVE maskW = maskWFree
 	endif
-
+	
+	SetDataFolder saveDF
+	
 	if(WaveType(wRef) & 0x02) // We need a 32-bit float for better results
 		Redimension/S wRef
 	endif

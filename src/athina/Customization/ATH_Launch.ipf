@@ -1404,8 +1404,8 @@ static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is 
 	
 	// If there is a marquee use it to mask the wave
 	// Return 1 for successful Mask creation, 0 otherwise
-	variable isMask = ATH_Marquee#MarqueeToMask() // If there is no Marquee isMask is Nan. !NaN = 0
-	isMask = !isMask 
+	string maskPathStr = ATH_Marquee#MarqueeToMask() // If there is no Marquee isMask is Nan. !NaN = 0
+	variable isMask = strlen(maskPathStr)
 	variable gLayer = ATH_Graph#GetgLayer("")
 	if(doFullStack==2) // apply to the whole stack OR a single 2D wave 
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = - 1, useMask = isMask)
@@ -1417,7 +1417,7 @@ static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is 
 		return -1
 	endif
 	Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + noteStr
-	KillWaves/Z M_ROIMask
+	KillWaves/Z $maskPathStr
 	return 0
 End
 
