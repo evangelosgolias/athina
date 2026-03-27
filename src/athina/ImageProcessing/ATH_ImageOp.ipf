@@ -1005,9 +1005,11 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, var
 	
 	if(useMask) // Reserved for arbitrary masks
 		WAVE maskW = M_ROIMask // if you provide a mask - use default mask name
+		string maskNote = note(maskW)
 	else
 		Make/O/FREE/N=(nrows,ncols)/B/U maskWFree = 1
 		WAVE maskW = maskWFree
+		maskNote = ""
 	endif
 	
 	SetDataFolder saveDF
@@ -1019,6 +1021,7 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, var
 	// If you have a 2D wave
 	if(WaveDims(wRef) == 2)
 		ImageRemoveBackground/O/R=maskW/P=(order) wRef
+		Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + maskNote	
 		return 0
 	endif	
 	
@@ -1041,6 +1044,7 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, var
 			// Restore scale here
 			CopyScales wRef, M_Stack
 			Duplicate/O M_Stack, wRef
+			Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + maskNote			
 			SetDataFolder saveDF
 		elseif(layerN < nlayers)
 			// Code to replace plane in 3d wave
@@ -1048,6 +1052,7 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, var
 			ImageRemoveBackground/O/R=maskW/P=(order) getLayer
 			ImageTransform/O/P=(layerN) removeZplane wRef
 			ImageTransform/O/INSW=getLayer/P=(layerN) insertZplane wRef
+			Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "layer="+num2str(layerN)+"\n" + maskNote				
 		else
 			return 1
 		endif

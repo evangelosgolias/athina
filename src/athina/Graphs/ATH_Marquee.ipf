@@ -98,6 +98,10 @@ static Function/S CoordinatesToROIMask(variable left, variable top, variable rig
 		Redimension/S M_ROIMask
 	endif
 		
+	// Add a note to the mask
+	string maskNotePattern = "Background area [left, top, right, bottom]=[%d,%d,%d,%d]", maskNote
+	sprintf maskNote, maskNotePattern, left, top, right, bottom
+	Note M_ROIMask, maskNote
 	SetDataFolder saveDF
 	
 	variable domask = V_flag

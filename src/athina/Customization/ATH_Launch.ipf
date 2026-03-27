@@ -1408,8 +1408,7 @@ static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is 
 	variable isMask = strlen(maskPathStr)
 	variable gLayer = ATH_Graph#GetgLayer("")
 	if(doFullStack==2) // apply to the whole stack OR a single 2D wave 
-		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = - 1, useMask = isMask)
-		Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + noteStr		
+		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = - 1, useMask = isMask)	
 	elseif(doFullStack==1) // apply to one layer of a stack
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = gLayer, useMask = isMask)
 	else
