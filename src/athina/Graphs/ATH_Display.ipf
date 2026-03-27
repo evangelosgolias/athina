@@ -165,7 +165,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					SetVariable ATH_W3DSliderVar,pos={fct+15, gOriginalHeight+5},win=$s.winName
 				endif
 			endif
-
+			
 			DrawAction/L=UserFront/W=$s.winName getgroup = athScaleBar // Do we gave a scale bar?
 			if(V_flag)
 				string axisX, axisY, scaleFactorStr
@@ -179,7 +179,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					SetWindow $s.winName userdata(ATH_DrawBarInGraphScaleFactor) = num2str(sf)
 				endif
 			endif
-			hookResult = 1
+			//hookResult = 1 // it blocks the update of Stack layer in Line profile!
 			break
 		case 2: // kill
 			// If you are not in a duplicate window
