@@ -530,7 +530,7 @@ static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 				hookResult = 0
 				break
 			endif
-			hookResult = 1		
+			//hookResult = 1		
 		break
 	endswitch
 	return hookResult

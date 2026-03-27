@@ -330,8 +330,8 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 					WAVE W_LineProfileDisplacement
 					W_LineProfileDisplacement*=scaleFactor
 				endif					
-			endif
-			hookResult = 1
+				hookResult = 1
+			endif	
 			break
 	    case 7: // cursor moved
 			if(!cmpstr(s.cursorName, "E") || !cmpstr(s.cursorName, "F")) // It should work only with E, F you might have other cursors on the image

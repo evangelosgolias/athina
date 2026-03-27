@@ -42,7 +42,7 @@ Proc MakeAngleColorLegend(colorTableName, repeatColorTable, x0Points, y0Points, 
 	arrowOptions= arrowOptions - 1	// convert popup item numbers to option
 
 	// remember choices for next time
-	String/G root:Packages:zAngleColorLegend:colorTableName = colorTableName
+	String/G root:Packages:AngleColorLegend:colorTableName = colorTableName
 	Variable/G root:Packages:AngleColorLegend:repeatColorTable = repeatColorTable
 	Variable/G root:Packages:AngleColorLegend:x0Points = x0Points
 	Variable/G root:Packages:AngleColorLegend:y0Points = y0Points

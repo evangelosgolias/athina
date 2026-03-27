@@ -446,10 +446,8 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				SetDrawEnv/W=$plotNameStr xcoord= bottom, ycoord= prel,linefgc = (65535,0,0) //It should be after the draw action
 				DrawLine/W=$plotNameStr linePos, 0, linePos, 1
 				TextBox/W=$plotNameStr/F=0/A=LT/C/N=zScaleProfileTag "\\Z12z\Bsc\M\Z12 = " + num2str(linepos)
-				hookresult = 1
-				break
+				//hookresult = 1
 			endif
-			hookresult = 0
 			break
 	endswitch
 	//KillWaves/Z M_ROIMask

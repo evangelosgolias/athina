@@ -373,10 +373,8 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				variable yExtSurfPos = DimOffset(extSurfaceW, 1) + gLayer * DimDelta(extSurfaceW, 1)
 				DrawLine/W=$PlaneProfileWin 0, yExtSurfPos, 1, yExtSurfPos
 				TextBox/W=$PlaneProfileWin/F=0/A=LT/C/N=zScaleProfileTag "\\Z12z\Bsc\M\Z12 = " + num2str(yExtSurfPos)
-				hookresult = 1
-				break
+			//	hookresult = 1				
 			endif
-			hookresult = 0
 			break
 	endswitch
 
