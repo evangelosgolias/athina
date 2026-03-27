@@ -304,7 +304,7 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	WAVE wOff = wdfr:$(NameOfWave(wRef)+"_offset")
 	WAVE wA = wdfr:$(NameOfWave(wRef)+"_amplitude")
 	Make/O dfr:fitPlotW /WAVE=wcos
-	SetScale/I x, gATH_firstAngle, gATH_firstAngle + gATH_angleStep * numpnts(dfr:cursorBeamProfile), wcos, dfr:cursorBeamProfile
+	SetScale/I x, gATH_firstAngle, gATH_firstAngle + gATH_angleStep * (numpnts(dfr:cursorBeamProfile)-1), wcos, dfr:cursorBeamProfile
 	variable x0 = wOff[p0][q0]
 	variable A = wA[p0][q0]
 	variable phase = wRef[p0][q0]
