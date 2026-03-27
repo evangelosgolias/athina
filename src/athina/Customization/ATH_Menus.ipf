@@ -186,6 +186,7 @@ Menu "DataBrowserObjectsPopup"
 End
 
 Menu "TracePopup"
+	"ATH Clear UserFront layer" ,/Q, ATH_ZProfile#ClearROIMarkingsUserFront("")	
 	"ATH Save Axes\Color Range (TG, 2D, 3D)",/Q, ATH_Launch#SaveAxesRangeAndCtab()
 	"ATH Set Saved Axes Range and Ctab (TG, 2D, 3D)",/Q, ATH_Launch#SetAxesRangeAndCtabFromSaved(setCtab=1)
 	"ATH Set Saved Axes Range (TG, 2D, 3D)",/Q, ATH_Launch#SetAxesRangeAndCtabFromSaved()		
@@ -197,7 +198,6 @@ Menu "TracePopup"
 	"ATH Select image and copy scales (2D, 3D)", /Q, ATH_ImgOp#ImageSelectToCopyScale()
 	"ATH Backup Image (2D, 3D)", /Q, ATH_ImgOp#BackupTopImage()	
 	"ATH Restore image (2D, 3D)", /Q, ATH_ImgOp#RestoreTopImageFromBackup()
-	"ATH Clear UserFront layer" ,/Q, ATH_ZProfile#ClearROIMarkingsUserFront("")	
 End
 
 Menu "GraphPopup" // Right click not on a trace or in the margin of an image
