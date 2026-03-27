@@ -89,7 +89,7 @@ static Function CreatePanel()
 	endif
 	//Duplicate the wave for backup
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:InteractiveDriftCorrection:" + winNameStr) // Root folder here
-	string backupNameStr = NameOfWave(w3dref) + "_undo"
+	string backupNameStr = NameOfWave(w3dref) + ksATHBackupWaveExtention
 	Duplicate/O w3dref, dfr:$backupNameStr
 	ModifyImage/W=$winNameStr $imgNameTopGraphStr ctabAutoscale=3
 	// Create the global variables for panel

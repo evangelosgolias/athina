@@ -410,7 +410,7 @@ static Function/S BackupWaveInWaveDF(WAVE wref)
 	// Backup a wave in the same DF. If a wave with wavename_undo exists, nothing is done
 	// If a backup wave is created a message is printed in the command window.
 	// The function returns a string of backupWavePathStr
-	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref) + "_undo")
+	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref) + ksATHBackupWaveExtention)
 
 	if(!WaveExists($backupWavePathStr))
 		Duplicate wref, $backupWavePathStr
@@ -431,7 +431,7 @@ static Function/S BackupWaveInWaveDFQ(WAVE wref)
 	// the user is prompted to proceed and overwrite the destination wave or not.
 	// If a backup wave is created a message is printed in the command window.
 	// The function returns a string of backupWavePathStr
-	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref) + "_undo")
+	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref) + ksATHBackupWaveExtention)
 
 	if(WaveExists($backupWavePathStr))
 		DoAlert/T="Overwite backup wave?", 1, ("Do you want to overwite " + backupWavePathStr + "?")
@@ -479,7 +479,7 @@ End
 //	// Restore image from wRef_undo if it exists. wRef and WRef_undo 
 //	// should be in the same DF.
 //	string waveNameStr = NameOfWave(wref)
-//	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(waveNameStr + "_undo")
+//	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(waveNameStr + ksATHBackupWaveExtention)
 //	if(WaveExists($backupWavePathStr))
 //		Duplicate $backupWavePathStr, wRef
 //		print waveNameStr, " restored from backup"
@@ -493,7 +493,7 @@ End
 //	// If a backup wave is created a message is printed in the command window.
 //	// The function returns a string of backupWavePathStr
 //	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref)\
-//						       + "_p" + num2str(layerN) + "_undo")
+//						       + "_p" + num2str(layerN) + ksATHBackupWaveExtention)
 //	if(!WaveExists($backupWavePathStr))
 //		MatrixOP $backupWavePathStr = layer(wRef, layerN)
 //		print "Backup of layer ", num2str(layerN), " ", backupWavePathStr
@@ -508,7 +508,7 @@ End
 //	// If a backup wave is created a message is printed in the command window.
 //	// The function returns a string of backupWavePathStr
 //	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(NameOfWave(wref)\
-//						       + "_p" + num2str(layerN) + "_undo")
+//						       + "_p" + num2str(layerN) + ksATHBackupWaveExtention)
 //	if(WaveExists($backupWavePathStr))
 //		DoAlert/T="Overwite backup wave?", 1, ("Do you want to overwite " + backupWavePathStr + "?")
 //		if(V_flag == 1)
@@ -528,7 +528,7 @@ End
 //	// should be in the same DF.
 //	string waveNameStr = NameOfWave(wref)
 //	string backupWavePathStr = GetWavesDataFolder(wref, 1) + PossiblyQuoteName(wavenameStr\
-//						       + "_p" + num2str(layerN) + "_undo")
+//						       + "_p" + num2str(layerN) + ksATHBackupWaveExtention)
 //	if(WaveExists($backupWavePathStr))
 //		ImageTransform/P=(layerN)/D=$backupWavePathStr setplane wRef
 //		print "Backup of layer ", num2str(layerN), " ", backupWavePathStr

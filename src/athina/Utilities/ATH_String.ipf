@@ -205,7 +205,7 @@ static Function/S ExtendPathStr(string str, string ext)
 	// Add ext to s, which is usually a full path to a wave
 	// Works for liberal and proper paths
 	// For example:
-	// Add "_undo" to the root:'2434w' -> root:'2434w_undo' !
+	// Add ksATHBackupWaveExtention to the root:'2434w' -> root:'2434w_undo' !
 
 	if(!cmpstr(str[strlen(str) - 1], "'"))
 		return RemoveEnding(str, "'") + ext + "'"

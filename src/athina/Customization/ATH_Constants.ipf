@@ -4,6 +4,9 @@
 
 // Constants 
 
+//Wave backup extention
+strconstant ksATHBackupWaveExtention = "_undo"
+
 // Number of layers above which the MT drift correction is called
 constant kATH_DriftCorrectionMT = 9
 

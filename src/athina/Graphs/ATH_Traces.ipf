@@ -110,12 +110,12 @@ static Function OperationsOnGraphTracesWithMarquee(variable left, variable right
 				break
 			case 3: // Backup traces
 				DFREF dfr = GetWavesDataFolderDFR(TraceNameToWaveRef("", traceNameStr))
-				buffer = NameOfWave(wref) + "_undo"
+				buffer = NameOfWave(wref) + ksATHBackupWaveExtention
 				Duplicate/O wref, dfr:$buffer
 				break
 			case 4: // Restore traces
 				DFREF dfr = GetWavesDataFolderDFR(TraceNameToWaveRef("", traceNameStr))
-				buffer = NameOfWave(wref) + "_undo"
+				buffer = NameOfWave(wref) + ksATHBackupWaveExtention
 				Duplicate/O dfr:$buffer, wref
 				KillWaves/Z dfr:$buffer
 				break

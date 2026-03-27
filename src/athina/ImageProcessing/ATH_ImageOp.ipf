@@ -536,7 +536,7 @@ static Function ImageRotateAndScale(WAVE wRef, variable angle, [variable backup,
 	backup = ParamIsDefault(backup) ? 0 : backup
 	flipY = ParamIsDefault(flipY) ? 0 : flipY
 	if(backup)
-		string backupWaveNameStr = NameOfWave(wRef) + "_undo"
+		string backupWaveNameStr = NameOfWave(wRef) + ksATHBackupWaveExtention
 		DFREF wDFR = GetWavesDataFolderDFR(wRef)
 		Duplicate/O wRef, wDFR:$backupWaveNameStr
 		WAVE wRefbck = wDFR:$backupWaveNameStr
@@ -581,7 +581,7 @@ static Function BackupTopImage()
 		return -1
 	endif
 	DFREF wDFR = GetWavesDataFolderDFR(wRef)
-	WAVE/Z backupWave = wDFR:$(NameOfWave(wRef) + "_undo")
+	WAVE/Z backupWave = wDFR:$(NameOfWave(wRef) + ksATHBackupWaveExtention)
 	if(WaveExists(backupWave))
 		DoAlert/T="Overwite backup wave?", 1, ("Do you want to overwite " + GetWavesDataFolder(backupWave,2) + "?")
 		if(V_flag == 1)
@@ -589,8 +589,8 @@ static Function BackupTopImage()
 			print "Backup/O wave: ", backupWave
 		endif
 	else
-		Duplicate wRef, wDFR:$(NameOfWave(wRef) + "_undo")
-		WAVE backupWave	= wDFR:$(NameOfWave(wRef) + "_undo")
+		Duplicate wRef, wDFR:$(NameOfWave(wRef) + ksATHBackupWaveExtention)
+		WAVE backupWave	= wDFR:$(NameOfWave(wRef) + ksATHBackupWaveExtention)
 		print "Backup wave: ", GetWavesDataFolder(backupWave,2)
 	endif
 	return 0
@@ -607,7 +607,7 @@ End
 static Function RestoreTopImageFromBackup([string grfName, variable keepBackup])
 	/// Restore an image from backup. When ParamIsDefault (wavenameStr = "")
 	/// the image on the top window is used, otherwise WAVE $wavenameStr.
-	/// Backup wave's name is *assummed* to be NameOfWave(wRef) + "_undo"
+	/// Backup wave's name is *assummed* to be NameOfWave(wRef) + ksATHBackupWaveExtention
 	/// and it is located on the same folder as the source image
 	
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1,"", grfName)
@@ -623,17 +623,20 @@ static Function RestoreTopImageFromBackup([string grfName, variable keepBackup])
 	endif
 	
 	DFREF wdfr = GetWavesDataFolderDFR(wRef)
-	string backupWaveNameStr = NameOfWave(wRef) + "_undo"
+	string backupWaveNameStr = NameOfWave(wRef) + ksATHBackupWaveExtention
 	WAVE/SDFR=wdfr/Z wRefbck = $backupWaveNameStr
 	if(WaveExists(wRefbck))
 		if(!keepBackup)
 			CheckDisplayed/A wRefbck
 			if(V_Flag) // if wave is displayed
+				Duplicate/O wRefbck, wRef
 				print "Cannot kill " + backupWaveNameStr + ". CheckDisplayed == 1."
 			else
 				Duplicate/O wRefbck, wRef
 				KillWaves wRefbck
 			endif
+		else
+			Duplicate/O wRefbck, wRef
 		endif
 	else
 		return -1

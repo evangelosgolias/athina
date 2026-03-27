@@ -66,7 +66,7 @@ static Function CreatelPanel()
 
 	//Duplicate the wave for backup
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:BackgroundRemoval:" + winNameStr) // Root folder here
-	string backupNameStr = NameOfWave(wRef) + "_undo"
+	string backupNameStr = NameOfWave(wRef) + ksATHBackupWaveExtention
 	Duplicate/O wRef, dfr:$backupNameStr
 	// Create the global variables for panel
 	string/G dfr:gATH_imgNameTopWindowStr = imgNameTopGraphStr

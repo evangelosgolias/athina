@@ -1455,7 +1455,7 @@ static Function FlattenImage()
 	endif
 	notestr = "Background removal using ATH_ImgOp#FlattenImage("+method+","
 	notestr += kind+","+num2str(kernelN)+","+num2str(iterN)+", overwrite = 1)\n"
-	Note wRef, notestr
+	ATH_String#WaveLogging(wRef, notestr, prepend = 1)
 	return 0
 End
 
@@ -1581,7 +1581,7 @@ static Function CloseTopWindowAndDeleteSource([int deleteBackUp, string grfName]
 	if(deleteBackUp) // Check first and then delete the wRef!!
 		DFREF saveDF = GetDataFolderDFR()
 		SetDataFolder $GetWavesDataFolder(wRef, 1)
-		WAVE/Z wRefBck = $(NameOfWave(wRef) + "_undo")
+		WAVE/Z wRefBck = $(NameOfWave(wRef) + ksATHBackupWaveExtention)
 		if(WaveExists(wRefBck))
 			Killwaves/Z wRefBck, wRef
 			SetDataFolder saveDF

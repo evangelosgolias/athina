@@ -188,7 +188,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			endif
 			if(is3D && str2num(GetUserData(s.winName, "", "ATH_isTransientStack"))) // Delete the transient stack & backup
 				string cmdStr = "KillWaves/Z "+  GetWavesDataFolder(w,2) + ";"
-				cmdStr += "KillWaves/Z "+  GetWavesDataFolder(w,2) + "_undo"
+				cmdStr += "KillWaves/Z "+  GetWavesDataFolder(w,2) + ksATHBackupWaveExtention
 				Execute/P/Q cmdStr
 			endif
 			break
