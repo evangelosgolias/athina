@@ -173,6 +173,23 @@ static Function AddAsylumLabel(grfName)
             Textbox/W=$grfName/N=ATH_Asylum_ScanAngle/F=0/A=RB/X=5/Y=5/E=2 "\\Z14\\K(0,0,0)" + angleText
         endif
     endif
+
+    // Add a window hook to detect axis changes (zoom) and trigger autoscale
+    SetWindow $grfName hook(ATH_Asylum_Hook)=ATH_Asylum#GraphHook
+End
+
+static Function GraphHook(s)
+    STRUCT WMWinHookStruct &s
+    if(s.eventCode == 8 || s.eventCode == 6) // Modified or Resized
+        if(strlen(GetUserData(s.winName, "", "ATH_Asylum_pauseHook")))
+            SetWindow $s.winName userdata(ATH_Asylum_pauseHook)=""
+            return 0
+        endif
+        // DoUpdate ensures axis limits are finalized before we calculate stats
+        DoUpdate/W=$s.winName
+        GetCurrentLayerLabel(s.winName)
+    endif
+    return 0
 End
 
 Function/S GetCurrentLayerLabel(grfName)
@@ -185,11 +202,17 @@ Function/S GetCurrentLayerLabel(grfName)
     variable plane = NumberByKey("plane", ImageInfo(grfName, PossiblyQuoteName(NameOfWave(w)), 0), "=")
     string labelStr = GetDimLabel(w, 2, plane)
     
-    // Break the recursive redraw loop by checking if the plane actually changed
-    // This prevents SetScale/ColorScale from triggering infinite updates
-    string lastPlaneStr = GetUserData(grfName, "", "ATH_Asylum_lastPlane")
-    if(CmpStr(num2str(plane), lastPlaneStr) != 0)
-        SetWindow $grfName userdata(ATH_Asylum_lastPlane)=num2str(plane)
+    // Break the recursive redraw loop by checking if the state (plane + zoom) changed
+    // We use GetAxis to precisely detect axis limit changes (zoom, expand, SetAxis/A)
+    GetAxis/Q/W=$grfName bottom
+    variable xm1 = V_min, xm2 = V_max
+    GetAxis/Q/W=$grfName left
+    variable ym1 = V_min, ym2 = V_max
+    string currentLayoutState = num2str(plane) + "|" + num2str(xm1) + "|" + num2str(xm2) + "|" + num2str(ym1) + "|" + num2str(ym2)
+    
+    if(CmpStr(currentLayoutState, GetUserData(grfName, "", "ATH_Asylum_lastState")) != 0)
+        SetWindow $grfName userdata(ATH_Asylum_pauseHook)="1"
+        SetWindow $grfName userdata(ATH_Asylum_lastState)=currentLayoutState
         UpdateAsylumGraphState(grfName, w, plane, labelStr)
     endif
 
@@ -201,8 +224,10 @@ static Function UpdateAsylumGraphState(grfName, w, plane, labelStr)
     WAVE w
     variable plane
     
+    // In rtGlobals=3, we must declare built-in variables as local if we want to avoid global conflicts
+    variable V_flag, V_min, V_max 
+    
     // Update the ColorScale units by setting wave data units (SetScale d)
-    // This is much more robust than ColorScale title for multi-version compatibility
     string layerUnits = GetLayerUnits(labelStr)
     if(CmpStr(waveunits(w, -1), layerUnits) != 0)
         string setScaleCmd
@@ -211,7 +236,6 @@ static Function UpdateAsylumGraphState(grfName, w, plane, labelStr)
     endif
     
     // Only apply manual axis label for non-SI units (Phase) and Frequency
-    // For 'm' units, we use an empty string to allow automatic SI tick labeling
     string csLabel = layerUnits
     variable tUnit = 0
     variable psExp = 0
@@ -220,26 +244,47 @@ static Function UpdateAsylumGraphState(grfName, w, plane, labelStr)
     elseif(StringMatch(layerUnits, "Hz"))
         csLabel = "kHz"
         tUnit = 1
-        psExp = -3 // Show 706.3 instead of 706300 or 706.3 x 10^3
+        psExp = -3 // Show 706.3 instead of 706300 
     elseif(StringMatch(layerUnits, "deg"))
         tUnit = 1
     endif
-    ColorScale/W=$grfName/C/N=ath_cbar tickUnit=tUnit, prescaleExp=psExp, csLabel
     
-    // Dynamic Z-Limits (Auto-scale color bar to current plane's data range)
+    // Explicitly link ColorScale to the image wave to ensure numbers track the ctab
     string wName = NameOfWave(w)
-    string ctabName = "VioletOrangeYellow" // Default color table name
-    variable revFlag = 0      // Default reverse flag
+    ColorScale/W=$grfName/C/N=ath_cbar image=$PossiblyQuoteName(wName), tickUnit=tUnit, prescaleExp=psExp, csLabel
+    
+    // Dynamic Z-Limits (Auto-scale color bar to current plane's VISIBLE data range)
+    string ctabName = "VioletOrangeYellow" 
+    variable revFlag = 0      
     
     if(strsearch(labelStr, "Phase", 0, 2) >= 0)
-        // Fixed range for Phase as requested
         ModifyImage/W=$grfName $PossiblyQuoteName(wName) ctab={-90, 90, $ctabName, revFlag}
     else
-        // Full range stats for all other layers (Height, Amp, Freq, etc.)
-        variable V_flag, V_min, V_max 
-        WaveStats/Q/M=1/RMD=[][][plane] w
-        if(V_flag == 0) // Stats successful
-            ModifyImage/W=$grfName $PossiblyQuoteName(wName) ctab={V_min, V_max, $ctabName, revFlag}
+        // Get visible coordinates and convert to wave units if necessary (e.g. um to m)
+        GetAxis/Q/W=$grfName bottom
+        variable xMin = V_min, xMax = V_max
+        GetAxis/Q/W=$grfName left
+        variable yMin = V_min, yMax = V_max
+        
+        // Robust unit conversion: if axis limits are huge compared to wave limits, assume um vs m mismatch
+        variable wXMax = IndexToScale(w, DimSize(w, 0) - 1, 0)
+        variable wYMax = IndexToScale(w, DimSize(w, 1) - 1, 1)
+        if(abs(xMax) > 1 && abs(wXMax) < 1e-3)
+            xMin *= 1e-6; xMax *= 1e-6
+        endif
+        if(abs(yMax) > 1 && abs(wYMax) < 1e-3)
+            yMin *= 1e-6; yMax *= 1e-6
+        endif
+
+        // Duplicate the visible rectangle of the current plane to a free wave for statistics
+        // This is the most robust way to handle zoomed-in stats in Igor
+        Duplicate/FREE/R=(xMin, xMax)(yMin, yMax)/RMD=[][][plane] w, wVisible
+        WaveStats/Q wVisible
+        if(V_flag == 0)
+            // Use Mean +/- 3*Sigma for a robust view (matching ATH_Range behavior)
+            variable low = max(V_min, V_avg - 3*V_sdev)
+            variable high = min(V_max, V_avg + 3*V_sdev)
+            ModifyImage/W=$grfName $PossiblyQuoteName(wName) ctab={low, high, $ctabName, revFlag}
         endif
     endif
 End
