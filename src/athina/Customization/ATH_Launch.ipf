@@ -1385,11 +1385,11 @@ End
 static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is an Igor operation
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	variable order = 1
-	variable do3D = 1
+	variable doFullStack = 1
 	if(WaveDims(wRef) == 3)
 		Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
-		Prompt do3D, "Apply to all layers?", popup "No;Yes" // 1-No, 2-Yes
-		DoPrompt "Background subtraction ", order, do3D
+		Prompt doFullStack, "Apply to all layers?", popup "No;Yes" // 1-No, 2-Yes
+		DoPrompt "Background subtraction ", order, doFullStack
 	else
 		Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
 		DoPrompt "Background subtraction ", order
@@ -1407,13 +1407,13 @@ static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is 
 	variable isMask = ATH_Marquee#MarqueeToMask() // If there is no Marquee isMask is Nan. !NaN = 0
 	isMask = !isMask 
 	variable gLayer = ATH_Graph#GetgLayer("")
-	if(do3D==2) // apply to the whole stack or a single 2D wave 
+	if(doFullStack==2) // apply to the whole stack OR a single 2D wave 
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = - 1, useMask = isMask)
 		Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + noteStr		
-	elseif(gLayer!=-1)
+	elseif(doFullStack==1) // apply to one layer of a stack
 		ATH_ImgOp#ImgRemoveBackground(wRef, order = order, layerN = gLayer, useMask = isMask)
 	else
-		print "Check ATH_Launch#ImgRemoveBackground"
+		print "--> Check ATH_Launch#ImgRemoveBackground <--"
 		return -1
 	endif
 	Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + noteStr

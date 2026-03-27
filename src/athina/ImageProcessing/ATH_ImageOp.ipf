@@ -1047,6 +1047,7 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, var
 			return 1
 		endif
 	endif
+	return 0
 End
 
 /// @function ImgRemoveBackgroundCols
