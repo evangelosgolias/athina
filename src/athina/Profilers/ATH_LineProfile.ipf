@@ -330,7 +330,7 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 					WAVE W_LineProfileDisplacement
 					W_LineProfileDisplacement*=scaleFactor
 				endif					
-				hookResult = 1
+				//hookResult = 1
 			endif	
 			break
 	    case 7: // cursor moved

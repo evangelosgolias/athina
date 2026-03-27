@@ -178,7 +178,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					variable sf = ATH_Draw#ImageScaleBar(str2num(GetUserData(s.winName, "", "ATH_DrawBarInGraphNominalScale")), grfName=s.winName)
 					SetWindow $s.winName userdata(ATH_DrawBarInGraphScaleFactor) = num2str(sf)
 				endif
-			hookResult = 1 // it blocks the update of Stack layer in Line profile!	
+			//hookResult = 1 // it blocks the update of Stack layer in Line profile!	
 			endif	
 			break
 		case 2: // kill
