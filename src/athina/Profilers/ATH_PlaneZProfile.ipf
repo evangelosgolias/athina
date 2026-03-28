@@ -359,7 +359,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 			ValDisplay HcoordY, value=_NUM:(y0 + C2y*dy),win=$PlaneProfileWin
 			originalScale = sqrt( ((C2x-C1x)*dx)^2 + ((C2y-C1y)*dy)^2 )
 			ValDisplay normGH, value=_NUM:originalScale,win=$PlaneProfileWin
-			hookResult = 1
+			//hookResult = 1
 			SetdataFolder currdfr
 			break
 		case 8: // We have a Window modification event

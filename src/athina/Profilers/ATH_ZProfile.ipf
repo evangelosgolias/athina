@@ -432,7 +432,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				else
 					DrawOval/W=$s.winName gATH_left, gATH_top, gATH_right, gATH_bottom
 				endif				
-				hookresult = 1
+				//hookresult = 1
 				break
 			endif
 			hookresult = 0

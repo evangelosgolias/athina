@@ -269,7 +269,7 @@ static Function iCursorUsingCallbackHookFunction(STRUCT WMWinHookStruct &s)
 				CursorCallBack(wSrc, wRef, s.pointNumber, s.ypointNumber) // Function using row, column
 				//CursorCallBack3(wRef, s.pointNumber, s.ypointNumber) // Function using row, column
 			endif
-			hookResult = 1
+			//hookResult = 1
 			break
 		case 11: // Keyboard event
 			if(s.specialKeyCode == 204) //  Esc

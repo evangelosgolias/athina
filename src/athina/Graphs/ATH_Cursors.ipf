@@ -331,7 +331,7 @@ static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 			endif
 			
 			Execute/Q/Z cmdStr
-			hookResult = 1
+			//hookResult = 1
 			break
 	endswitch
 	return hookResult
