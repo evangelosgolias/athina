@@ -675,6 +675,10 @@ Static Function pnlButton(STRUCT WMButtonAction &s)
 			break
 		case "refreshRngB":
 			// ------ EG ---- //
+			// Added on 28.03.2026
+			updatePnlHistogram(s.win, NumberByKey(s.ctrlName, "presentRngB:0;fullRngB:1"))
+			updatePnlHistogram(s.win, 0) // Update to First-Last // hard-coded
+			//
 			updateZmode(s.win)
 			updateZRange(GetUserData(s.win,"","grf"), pause=1)
 
