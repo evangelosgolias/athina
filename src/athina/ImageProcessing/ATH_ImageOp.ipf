@@ -970,7 +970,7 @@ static Function FlattenImage(WAVE wRef, string method, string kind, variable ker
 		if(ikind)
 			WaveStats/Q/M=1 bkgFREE
 			bkgFREE = (bkgFREE-V_min)/(V_max-V_min)
-			WaveStats/Q/M=1 bkgFREE
+			WaveStats/Q/M=1 bkgFREE		
 			MatrixOP/O bkgFREE = bkgFREE+V_avg*equal(bkgFREE,0)
 			MatrixOP $flattenWaveStr = wRef / bkgFREE
 		else

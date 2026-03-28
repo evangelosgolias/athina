@@ -88,7 +88,7 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	/// Note: You have to set the firstAngle correctly if you want to have the spin axis for θ = 0 along the x-axis.
 	/// 
 	/// Use the FoVRot = θ value (in deg) as set in the metadata to set the -90 or 90 (LV light) light orientation in the lab reference to
-	/// -90 + θ, 90 + θ, respectively.In this setting the LH axis will be at θ or 180+θ. The resulting NameOfWave(wRef)+"_map" wave will 
+	/// -90 + θ, 90 + θ, respectively. In this setting the LH axis will be at θ or 180+θ. The resulting NameOfWave(wRef)+"_map" wave will 
 	/// have the axis x corresponsing to φ = 0 for the spin axis.
 	
 	fastFit = ParamIsDefault(fastFit) ? 1 : fastFit
@@ -308,7 +308,7 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	SetScale/I x, gATH_firstAngleRad, lastAngleRad, wcos, dfr:cursorBeamProfile
 	variable x0 = wOff[p0][q0]
 	variable A = wA[p0][q0]
-	variable phase = wRef[p0][q0]
+	variable phase = wRef[p0][q0] // in degrees!
 	// N.B: Change here if you change the fitting function
 	wcos = x0 + A * cos(2*(x + phase*0.01745329)) // Phase to rad
 	RemoveFromGraph/W=$plotNameStr/ALL
