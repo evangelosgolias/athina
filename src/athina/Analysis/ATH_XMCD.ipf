@@ -167,8 +167,6 @@ static Function CalculateXMCD3D(WAVE w3d1, WAVE w3d2)
 	else
 		MatrixOP $saveWaveName = (w3d1 - w3d2)/(w3d1 + w3d2)
 	endif
-	variable 	microSeconds = StopMSTimer(timerRefNum)
-	Print microSeconds/10000, "microseconds per iteration"	
 	string noteStr = "XMC(L)D = (w1 - w2)/(w1 + w2)\nw1: " + GetWavesDataFolder(w3d1,2) + "\nw2: " + GetWavesDataFolder(w3d2,2)
 	CopyScales w3d1, $saveWaveName
 	Note $saveWaveName, noteStr
