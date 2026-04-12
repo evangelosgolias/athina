@@ -424,13 +424,12 @@ static Function/S StrGetBasicMetadataInfoFromDAT(string datafile, variable Metad
 		/// For example in MAXPEEM by default we choose to display the start 
 		/// voltage, therefore its value is 0x26 (38 decimal). If the value is recorded
 		/// but not shown on the image the value would be 0xA6 (166 decimal)
-		if (buffer == 255)
+		
+		if (buffer == 0xff)
 			continue
 		endif
-				
-		if (buffer > 127)
-			buffer -= 128
-		endif
+		
+		buffer = (buffer & 0x80) ? buffer-128 : buffer
 		
 		// LEEM modules from 0..99 have a fixed format
 		// address-name(str)-unit(ASCIII digit)-0-value(float)
@@ -525,7 +524,7 @@ static Function/S StrGetBasicMetadataInfoFromDAT(string datafile, variable Metad
 			sscanf strbuffer, "%eµm", buffer
 			ATHMetaDataStr += "FOV(µm):" + num2str(buffer) + "\n"
 			FBinRead/F=4 numRef, buffer //FOV calculation factor
-			//ATHMetaDataStr += "FOV calc. fact.:" + num2str(buffer) + "\n"
+			ATHMetaDataStr += "FOV calc. fact.:" + num2str(buffer) + "\n"
 		elseif(buffer == 111) //drop
 			FBinRead/F=4 numRef, buffer // phi
 			FBinRead/F=4 numRef, buffer // theta
@@ -578,14 +577,12 @@ static Function/S StrGetAllMetadataInfoFromDAT(string datafile, variable Metadat
 		/// voltage, therefore its value is 0x26 (38 decimal). If the value is recorded
 		/// but not shown on the image the value would be 0xA6 (166 decimal)
 		
-		if (buffer == 255)
+		if (buffer == 0xff)
 			continue
 		endif
-				
-		if (buffer > 127)
-			buffer -= 128
-		endif
 		
+		buffer = (buffer & 0x80) ? buffer-128 : buffer
+
 		// LEEM modules from 0..99 have a fixed format
 		// address-name(str)-unit(ASCII digit)-0-value(float)
 		// unit: ";V;mA;A;ºC;K;mV;pA;nA;µA"
@@ -1085,7 +1082,7 @@ static Function LoadDATFilesFromFolderMT([int displayImg])
 	SetScale/I y, 0, FoV, $stackNameStr
 	string indices = ATH_String#ExpandRangeStr("0-"+num2str(filesnr-1))	
 	Note $stackNameStr, "Loaded from folder: " + folder + "\n"	
-	Note $stackNameStr, "---* Stacked waves *---\n" + \
+	Note $stackNameStr, "---* Imported waves *---\n" + \
 	ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=">") + \
 	"*--------------------------*\n"
 	if(displayImg)
@@ -1132,7 +1129,7 @@ static Function LoadMultiplyDATFilesMT([int displayImg])
 	SetScale/I x, 0, FoV, $stackNameStr
 	SetScale/I y, 0, FoV, $stackNameStr
 	string indices = ATH_String#ExpandRangeStr("0-"+num2str(nrloadFiles-1))	
-	Note $stackNameStr, "---* Stacked waves *---\n" + \
+	Note $stackNameStr, "---* Imported waves *---\n" + \
 	ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=">") + \
 	"*--------------------------*\n"
 	
@@ -1196,7 +1193,7 @@ static Function LoadDATFilesMatchingPattternToStackMT([int displayImg, int patte
 	string noteStr = "Loaded files matching pattern: " + patternStr	+ "\n" +\
 					 "Source: " + folder + "\n"
 	Note $stackNameStr, noteStr
-	Note $stackNameStr, "---* Stacked waves *---\n" + \
+	Note $stackNameStr, "---* Imported waves *---\n" + \
 	ATH_String#ThreadStr(indices, ATH_TWave#TextWaveToString(filesW), joinstr=">") + \
 	"*--------------------------*\n"
 	
@@ -1241,205 +1238,3 @@ static Function ReadFovFromDATFile(string filepathStr)
 	FoV = (numtype(FoV) == 2)? 0: FoV 
 	return FoV
 End
-
-//---
-
-//static Function/WAVE WAVELoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int overwrite])
-//	///< Function to load a single Elmitec binary .dat file by skipping reading the metadata.
-//	/// We assume here that the image starts at sizeOfFile - kpixelsTVIPS^2 * 16
-//	/// @param filepathStr string filename (including) pathname.
-//	/// If "" a dialog opens to select the file.
-//	/// @param waveNameStr name of the imported wave.
-//	/// If "" the wave name is the filename without the path and extention.
-//	/// @param skipmetadata int optional and if set to a non-zero value it skips metadata.
-//	/// @return wave reference
-//	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
-//	variable numRef
-//	string separatorchar = ":"
-//	string fileFilters = "dat File (*.dat):.dat;"
-//	fileFilters += "All Files:.*;"
-//	string message
-//	if (!strlen(filepathStr) && !strlen(waveNameStr))
-//		message = "Select .dat file. \nFilename will be wave's name. (overwrite)\n "
-//		Open/F=fileFilters/M=message/D/R numref
-//		filepathStr = S_filename
-//
-//		if(!strlen(filepathStr)) // user cancel?
-//			return $""
-//		endif
-//
-//		Open/F=fileFilters/R numRef as filepathStr
-//		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
-//
-//	elseif (strlen(filepathStr) && !strlen(waveNameStr))
-//		message = "Select .dat file. \nWave names are filenames /O.\n "
-//		Open/F=fileFilters/R numRef as filepathStr
-//		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
-//
-//	elseif (strlen(filepathStr) && strlen(waveNameStr))
-//		message = "Select .dat file. \n Destination wave will be overwritten.\n "
-//		Open/F=fileFilters/R numRef as filepathStr
-//
-//	elseif (!strlen(filepathStr) && strlen(waveNameStr))
-//		message = "Select .dat file. \n Destination wave will be overwritten\n "
-//		Open/F=fileFilters/M=message/D/R numref
-//		filepathStr = S_filename
-//
-//		if(!strlen(filepathStr)) // user cancel?
-//			return $""
-//		endif
-//
-//		message = "Select .dat file. \nWave names are filenames /O.\n "
-//		Open/F=fileFilters/R numRef as filepathStr
-//	else
-//		Abort "Path for datafile not specified (check ATH_Uview#WAVELoadSingleDATFile)!"
-//	endif
-//
-//	FStatus numRef
-//	// change here if needed
-//	variable imgSizeinBytes = kpixelsTVIPS^2 * 2
-//	variable ImageDataStart = V_logEOF - imgSizeinBytes
-//	FSetPos numRef, ImageDataStart
-//
-//	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
-//	if(overwrite)
-//		Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr
-//		WAVE datWave = $waveNameStr
-//	else
-//		waveNameStr = CreateDataObjectName(GetDataFolderDFR(), waveNameStr, 1,0,1)
-//		Make/W/U/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr
-//		WAVE datWave = $waveNameStr
-//	endif
-//	FBinRead/F=2/B=3 numRef, datWave
-//	Close numRef
-//
-//	return datwave
-//End
-//
-//static Function LoadSingleCorruptedDATFile(string filepathStr, string waveNameStr, [int waveDataType, int overwrite])
-//	///< Function to load a single Elmitec binary .dat file by skipping reading the metadata.
-//	/// We assume here that the image starts at sizeOfFile - kpixelsTVIPS^2 * 2
-//	/// @param filepathStr string filename (including) pathname. 
-//	/// If "" a dialog opens to select the file.
-//	/// @param waveNameStr name of the imported wave. 
-//	/// If "" the wave name is the filename without the path and extention.
-//	/// @param skipmetadata int optional and if set to a non-zero value it skips metadata.
-//	/// @param waveDataType int optional and sets the Wavetype of the loaded wave to single 
-//	/// /S of double (= 1) or /D precision (= 2). Default is (=0) uint 16-bit
-//	/// @return wave reference
-//	
-//	waveDataType = ParamIsDefault(waveDataType) ? 0: waveDataType
-//	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
-//
-//	variable numRef
-//	string separatorchar = ":"
-//	string fileFilters = "dat File (*.dat):.dat;"
-//	fileFilters += "All Files:.*;"
-//	string message
-//    if (!strlen(filepathStr) && !strlen(waveNameStr)) 
-//		message = "Select .dat file. \nFilename will be wave's name. (overwrite)\n "
-//   		Open/F=fileFilters/M=message/D/R numref
-//   		filepathStr = S_filename
-//   		
-//   		if(!strlen(filepathStr)) // user cancel?
-//   			return NaN
-//   		endif
-//
-//   		Open/F=fileFilters/R numRef as filepathStr
-//		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
-//		
-//	elseif (strlen(filepathStr) && !strlen(waveNameStr))
-//		message = "Select .dat file. \nWave names are filenames /O.\n "
-//		Open/F=fileFilters/R numRef as filepathStr
-//		waveNameStr = ParseFilePath(3, filepathStr, separatorchar, 0, 0)
-//		
-//	elseif (strlen(filepathStr) && strlen(waveNameStr))
-//		message = "Select .dat file. \n Destination wave will be overwritten.\n "
-//		Open/F=fileFilters/R numRef as filepathStr
-//		
-//	elseif (!strlen(filepathStr) && strlen(waveNameStr))
-//		message = "Select .dat file. \n Destination wave will be overwritten\n "
-//   		Open/F=fileFilters/M=message/D/R numref
-//   		filepathStr = S_filename
-//   		
-//   		if(!strlen(filepathStr)) // user cancel?
-//   			return NaN
-//   		endif
-//   		
-//		message = "Select .dat file. \nWave names are filenames /O.\n "
-//		Open/F=fileFilters/R numRef as filepathStr
-//	else
-//		Abort "Path for datafile not specified (check ATH_Uview#WAVELoadSingleDATFile)!"
-//	endif
-//		
-//	FStatus numRef
-//	// change here if needed
-//	variable imgSizeinBytes = kpixelsTVIPS^2 * 2 
-//	variable ImageDataStart = V_logEOF - imgSizeinBytes
-//	FSetPos numRef, ImageDataStart
-//		
-//	//Now read the image [unsigned int 16-bit, /F=2 2 bytes per pixel]
-//	if(overwrite)
-//		Make/W/U/O/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr
-//		WAVE datWave = $waveNameStr
-//	else
-//		waveNameStr = CreateDataObjectName(GetDataFolderDFR(), waveNameStr, 1,0,1)
-//		Make/W/U/N=(kpixelsTVIPS, kpixelsTVIPS) $waveNameStr
-//		WAVE datWave = $waveNameStr
-//	endif
-//		
-//	FBinRead/F=2/B=3 numRef, datWave
-//	Close numRef
-//	
-//	// Convert to SP or DP 	
-//	if(waveDataType == 1)
-//		Redimension/S datWave
-//	endif
-//	
-//	if(waveDataType == 2)
-//		Redimension/D datWave
-//	endif
-//	
-//	return 0
-//End
-
-//static Function [variable byteOffset, variable width, variable height] GetOffSetAndDimsFromDAT(string filepathStr)
-//
-//	STRUCT UKFileHeader ATHFileHeader
-//   	variable numRef
-//   	Open/R numRef as filepathStr
-//	FBinRead numRef, ATHFileHeader
-//	byteOffset = 0
-//	if(ATHFileHeader.version == 9)
-//		byteOffset = 16384
-//		Close numRef
-//		return [byteOffset, ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight]
-//	else
-//		STRUCT UKImageHeader ATHImageHeader
-//		byteoffset = ATHFileHeader.size
-//		if(ATHFileHeader.attachedRecipeSize > 0)
-//			byteOffset += 128
-//		endif		
-//		FSetPos numRef, ATHFileHeader.size
-//		FBinRead numRef, ATHImageHeader
-//
-//		if(ATHImageHeader.attachedMarkupSize == 0)
-//			byteOffset += 288
-//		else
-//			byteOffset += 288 + 128 * ((trunc(ATHImageHeader.attachedMarkupSize/128))+1)
-//		endif
-//	
-//		byteOffset += ATHImageHeader.LEEMdataVersion <= 2 ? 0: ATHImageHeader.LEEMdataVersion
-//		Close numRef
-//		return [byteOffset, ATHFileHeader.ImageWidth, ATHFileHeader.ImageHeight]
-//	endif
-//End
-//
-//
-//static Function/WAVE WaveLoadDATFileImage(variable numRef, variable byteOffset, 
-//					 variable width, variable height)
-//	FSetPos numRef, 0
-//	FBinRead numRef, byteOffset
-//	Make/W/U/N=(width, height)/FREE UviewFile		
-//	return UviewFile
-//End

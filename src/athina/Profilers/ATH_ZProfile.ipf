@@ -399,7 +399,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
 					variable nlayersTW = DimSize(twinWRef, 2)
 					MatrixOP/O/FREE partitionMask = subrange(M_ROIMask, rs, re, cs, ce)
-					MatrixOP/O profile = sum(subrange(twinWRef, rs, re, cs, ce) * partitionMask) // Removed /NTHR=0
+					MatrixOP/O/NTHR=0 profile = sum(subrange(twinWRef, rs, re, cs, ce) * partitionMask) // Removed /NTHR=0
 					Redimension/E=1/N=(nlayersTW) profileTwin
 				endif				
 				KillWaves/Z M_ROIMask				
@@ -420,7 +420,7 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 				Redimension/E=1/N=(gATH_nLayers) profile
 				if(gATH_TwinPlotSwitch && WaveExists(twinWRef))
 					nlayersTW = DimSize(twinWRef, 2)
-					MatrixOP/S/O profileTwin =sum(subrange(twinWRef, rs, re, cs, ce)) // Removed /NTHR=0
+					MatrixOP/S/O/NTHR=0 profileTwin =sum(subrange(twinWRef, rs, re, cs, ce)) // Removed /NTHR=0
 					Redimension/E=1/N=(nlayersTW) profileTwin
 				endif
 				// Redraw ROI

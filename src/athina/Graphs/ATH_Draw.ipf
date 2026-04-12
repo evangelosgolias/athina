@@ -180,3 +180,44 @@ static Function ImageScaleBar(variable barlen, [string grfName])
 	
 	return sf
 End
+
+//Function DrawArrowsUsingCDIntensity()
+//	string grfName = WinName(0, 1, 1), axisX, axisY
+//	[axisX, axisY] = ATH_Graph#GetAxes(grfName=grfName)
+//	variable flag, left, right, top, bottom
+//	[flag, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex(axisX=axisX, axisY=axisY)
+//	if (!flag)
+//		return 1
+//	endif
+//	WAVE wRef = ATH_Graph#TopImageToWaveRef(grfName = grfName)
+//	variable layerN = ATH_Graph#GetgLayer(grfName)
+//	if(layerN > -1)
+//		Duplicate/FREE/RMD=[left,right][top,bottom][layerN] wRef, regionFREE
+//	else
+//		Duplicate/FREE/RMD=[left,right][top,bottom] wRef, regionFREE
+//	endif
+//
+//	variable avgSize = 5
+//	variable arrowLength = 10
+//	variable zeroaAngle = 0
+//	Prompt avgSize, "Average nxn - use n odd"
+//	Prompt arrowLength, "Arrow length"
+//	Prompt zeroaAngle, "x-axis rotation (FoV Rotation)"		
+//	DoPrompt "Process selected aread", avgSize, arrowLength, zeroaAngle
+//	
+//		
+//	ImageInterpolate/PXSZ={avgSize,avgSize} Pixelate regionFREE
+//	WAVE/Z M_PixelatedImage
+//	// Normalize the region
+//	//MatrixOP/FREE rF = scale(regionFREE, 0 , pi)
+//	//Set up user input
+//
+//	//ImageFilter/N=(avgSize) avg regionFREE
+////	WaveStats/Q M_PixelatedImage
+////	M_PixelatedImage -= V_avg // I0
+////	WaveStats/Q M_PixelatedImage	
+////	M_PixelatedImage /= (V_max-V_min) // A
+//	MatrixOP/O M_PixelatedImageFREE = scale(M_PixelatedImage, -1, 1)
+//	MatrixOP/O angles = acos(M_PixelatedImageFREE)
+//	KillWaves/Z M_PixelatedImage
+//End

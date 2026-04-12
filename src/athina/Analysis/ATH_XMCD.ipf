@@ -216,6 +216,52 @@ static Function CalculateXMCDComb(WAVE w3d)
 	return 0
 End
 
+/// @function CalculateXMCDDomino
+/// @brief Compute XMCD/XMLD for all consecutive layers
+/// @details
+/// Iterates over all unique layer pairs in `w3d`, computes a normalized contrast map
+/// for each pair, and stacks the results into a new output wave.
+/// @param w3d Wave Input 3D stack.
+/// @returns Variable Returns 0 on success and -1 if `w3d` is not three-dimensional.
+/// @note The output stack is saved in the current data folder under a generated name based on `XMCD_Domn`.
+///
+static Function CalculateXMCDDomino(WAVE w3d)
+	/// Calculate XMC(L)D = (w3d1 - w3d2)/(w3d1 + w3d2)
+	/// for all for layers (N-1, N)
+	variable nlayers = DimSize(w3d, 2), i, j, cnt = 0
+	if(WaveDims(w3d) != 3 || DimSize(w3d,2)==1)
+		return -1
+	endif
+	string buffer = "" 
+	string noteStr = "Source: " + GetWavesDataFolder(w3d, 2) + "\n"
+	DFREF saveDF = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	for(i = 0; i < nlayers - 1; i++)
+		MatrixOP/FREE clayer = layer(w3d, i)
+		MatrixOP/FREE nlayer = layer(w3d, i+1)
+		buffer = "ATHWaveToStack_idx_" + num2str(i)
+		CalculateXMCDWAVE(clayer, nlayer, outWave = buffer)
+		noteStr += num2str(i) + "> (" + num2str(IndexToScale(w3d, i, 2)) \
+				+", "+ num2str(IndexToScale(w3d, i+1, 2))+")\n"
+	endfor
+	string saveStackNameStr = CreatedataObjectName(saveDF, "XMCD_Domn", 1, 0, 1)
+	if(nlayers == 2)
+		WAVE wXMCD = $"ATHWaveToStack_idx_0"
+		Note wXMCD, "XMCD = (l0-l1)/(l0+l1) of " + GetWavesDataFolder(w3d, 2) + "\n"
+		CopyScales w3d, wXMCD
+		MoveWave wXMCD, saveDF:$saveStackNameStr
+	else
+		ImageTransform/NP=(nlayers - 1) stackImages $"ATHWaveToStack_idx_0"
+		WAVE M_Stack
+		CopyScales w3d, M_Stack
+		Note M_stack, "XMCD = (w0-w1)/(w0+w1) for (w0, w1)\n---* Stacked waves *---\n" + \
+		noteStr + "*--------------------------*\n"
+		MoveWave M_stack, saveDF:$saveStackNameStr
+	endif
+	SetDataFolder saveDF
+	return 0
+End
+
 /// @function XMCDStack4L
 /// @brief Compute a difference of two XMCD images from a four-layer stack.
 /// @details
