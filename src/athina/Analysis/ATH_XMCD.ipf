@@ -248,12 +248,10 @@ static Function CalculateXMCDDomino(WAVE w3d)
 	if(nlayers == 2)
 		WAVE wXMCD = $"ATHWaveToStack_idx_0"
 		Note wXMCD, "XMCD = (l0-l1)/(l0+l1) of " + GetWavesDataFolder(w3d, 2) + "\n"
-		CopyScales w3d, wXMCD
 		MoveWave wXMCD, saveDF:$saveStackNameStr
 	else
 		ImageTransform/NP=(nlayers - 1) stackImages $"ATHWaveToStack_idx_0"
 		WAVE M_Stack
-		CopyScales w3d, M_Stack
 		Note M_stack, "XMCD = (w0-w1)/(w0+w1) for (w0, w1)\n---* Stacked waves *---\n" + \
 		noteStr + "*--------------------------*\n"
 		MoveWave M_stack, saveDF:$saveStackNameStr
