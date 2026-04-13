@@ -440,7 +440,9 @@ static Function LinkGraphRanges([string grfName])
 		ModifyGraph/W=$grfName axRGB($axisY)=(0,0,0),tlblRGB($axisY)=(0,0,0)				
 		[axisX, axisY] = ATH_Graph#GetAxes(grfName=linkedGraph)		
 		ModifyGraph/W=$linkedGraph axRGB($axisX)=(0,0,0),tlblRGB($axisX)=(0,0,0)
-		ModifyGraph/W=$linkedGraph axRGB($axisY)=(0,0,0),tlblRGB($axisY)=(0,0,0)		
+		ModifyGraph/W=$linkedGraph axRGB($axisY)=(0,0,0),tlblRGB($axisY)=(0,0,0)
+		DrawAction/L=Overlay/W=$grfName delete
+		DrawAction/L=Overlay/W=$linkedGraph delete		
 		return 0
 	endif
 	string wnList = WinList("*",";","WIN:1")
@@ -477,6 +479,7 @@ static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 	string linkedGraph = GetUserData(s.winName, "", "ATH_LinkedGraphAxesRangesStr")
 	switch (s.eventCode)
 		case 2:
+			DrawAction/L=Overlay/W=$linkedGraph delete
 			string axisX, axisY
 			SetWindow $linkedGraph userdata(ATH_LinkedGraphAxesRangesStr) = ""
 			SetWindow $linkedGraph hook(ATH_LinkedGraphAxesRangeHook) = $""
@@ -530,7 +533,6 @@ static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 				hookResult = 0
 				break
 			endif
-			//hookResult = 1		
 		break
 	endswitch
 	return hookResult

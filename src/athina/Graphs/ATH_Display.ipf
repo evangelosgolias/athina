@@ -59,6 +59,8 @@ static Function/S NewImg(WAVE wRef, [string grfname])
 
 	if(WaveDims(wRef)==3)
 		Append3DImageSlider(grfName=grfName)
+		string wavelistStr = ATH_string#GetStackNamesFromNote(wRef)
+		ModifyControl ATH_W3DSlider win=$grfName, userdata(ATH_StackedWaveList) = waveListStr		
 	endif
 
 	// Error handling
@@ -326,17 +328,6 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				case 112: // p
 					ATH_PlaneZProfile#MainMenu()
 					hookResult = 1										
-					break
-				case 113: // q
-					// Attach the list of waves to the controller
-					if(strlen(GetUserData(s.winName, "ATH_W3DSlider", "ATH_StackedWaveList")))
-						ModifyControl ATH_W3DSlider win=$s.winName, userdata(ATH_StackedWaveList) = ""
-						DoWindow/T $s.winName, GetWavesDataFolder(w,2)						
-					else
-						string wavelistStr = ATH_string#GetStackNamesFromNote(w)
-						ModifyControl ATH_W3DSlider win=$s.winName, userdata(ATH_StackedWaveList) = waveListStr
-					endif
-					hookResult = 1
 					break		
 				case 114: // r
 					ATH_Range#pnl(s.winName)
