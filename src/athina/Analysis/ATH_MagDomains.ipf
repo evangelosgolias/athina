@@ -196,6 +196,7 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	KillWaves/Z W_sigma, ATH_FitCoeff, fit__free_ // Cleanup the garbage
 End
 
+
 /// Helping functions moved from ATH_Cursors
 /// Beam fitting map
 /// Generic interaction using a cursor and a CallbackFunction

@@ -100,6 +100,7 @@ static Function CreatePanel()
 	string/G dfr:gATH_w3dNameStr = NameOfWave(w3dref)
 	string/G dfr:gATH_w3dBackupPathNameStr = GetWavesDataFolder(dfr:$backupNameStr, 2)
 	string/G dfr:gATH_w3dBackupNameStr = PossiblyQuoteName(backupNameStr)
+	string/G dfr:gATH_w3dNoteStr = note(w3dref)
 	variable/G dfr:gATH_w3dnlayers = DimSize(w3dref, 2) // 0 for 2D wave
 	variable/G dfr:gATH_AnchorPositionX = NaN // Not set
 	variable/G dfr:gATH_AnchorPositionY = NaN
@@ -297,7 +298,7 @@ static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when pan
 		case 2: // Kill the window
 			variable hookresult = 0
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgAlignFolder"))
-			SVAR/SDFR=dfr gATH_WindowNameStr, gATH_w3dBackupPathNameStr, gATH_w3dPathName
+			SVAR/SDFR=dfr gATH_WindowNameStr, gATH_w3dBackupPathNameStr, gATH_w3dPathName, gATH_w3dNoteStr
 			CopyScales/I $gATH_w3dBackupPathNameStr, $gATH_w3dPathName
 			SetWindow $s.winName, hook(iDriftPanelHook) = $""
 			SetWindow $gATH_WindowNameStr, hook(iDriftWindowHook) = $""

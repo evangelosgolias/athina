@@ -1395,29 +1395,59 @@ static Function ScaleImagePreserveDims(WAVE wRef, variable factor, [variable fac
 	
 End
 
-/// @function ScaleFoVWithObjectiveCurrent
-/// @brief Description of ScaleFoVWithObjectiveCurrent.
+/// @function ScaleFoVWithFactor
+/// @brief Description of ScaleFoVWithFactor.
 /// @details
 /// Auto-generated documentation stub for function `ScaleFoVWithObjectiveCurrent`.
 /// @param wRef Parameter wRef.
-/// @param mobj Parameter mobj.
+/// @param factor Parameter factor.
 /// @param interval] Parameter interval].
 /// @returns Variable Return value.
 
-//static Function ScaleFoVWithObjectiveCurrent(WAVE wRef, variable mobj,[int interval])
-//	// Scale image using the M. Obj current in mA
-//	// Applies to the current settings of the MAXPEEM microscope
-//	// variable factor = (2150/mobj)^2
-//	variable x0 = DimOffset(wRef, 0), y0 = DimOffset(wRef, 1)
-//	variable dx = DimDelta(wRef, 0), dy = DimDelta(wRef, 1)
-//	if(interval)
-//		variable lenx = (DimSize(wRef, 0) - 1) * dx
-//		variable leny = (DimSize(wRef, 1) - 1) * dy		
-//		SetScale/I x, x0, x0+lenx*factor, wRef
-//		SetScale/I y, y0, y0+leny*factor, wRef	
-//	else
-//		SetScale/P x, x0, dx*factor, wRef
-//		SetScale/P y, y0, dy*factor, wRef	
-//	endif
-//	return 0
-//End
+static Function ScaleFoVWithFactor(WAVE wRef, variable factor,[int interval])
+	// Scale image with factor 
+	variable x0 = DimOffset(wRef, 0), y0 = DimOffset(wRef, 1)
+	variable dx = DimDelta(wRef, 0), dy = DimDelta(wRef, 1)
+	if(interval)
+		variable lenx = (DimSize(wRef, 0) - 1) * dx
+		variable leny = (DimSize(wRef, 1) - 1) * dy		
+		SetScale/I x, x0, x0+lenx*factor, wRef
+		SetScale/I y, y0, y0+leny*factor, wRef	
+	else
+		SetScale/P x, x0, dx*factor, wRef
+		SetScale/P y, y0, dy*factor, wRef	
+	endif
+	return 0
+End
+
+
+/// @function ComputeZScore
+/// @brief Description of ComputeZScore.
+/// @details
+/// Auto-generated documentation stub for function `ComputeZScore`.
+/// @param wRef Parameter wRef..
+/// @returns Variable Return value.
+
+static Function ComputeImageZScore(Wave wRef, [string grfName])
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	SetDrawLayer/W=$grfName ProgFront
+	ImageGenerateROIMask/E=1/I=0/W=$grfName $NameOfWave(wRef)
+	if(V_flag) 
+		WAVE M_ROIMask
+		ImageStats/R=M_ROIMask wRef
+		KillWaves M_ROIMask
+	else // 0 no M_ROIMask
+		ImageStats wRef
+	endif
+	SetDrawLayer/W=$grfName UserFront
+	DFREF dfr = GetWavesDataFolderDFR(wRef)
+	string basename = NameOfWave(wRef) + "_zscr"
+	string w_zcsr = CreateDataObjectName(dfr, basename, 1, 0 , 1)
+	Duplicate wRef, dfr:$w_zcsr
+	WAVE wz = dfr:$w_zcsr
+	wz = (wRef - V_avg)/V_sdev
+	string noteStr = "Z-score of " + GetWavesDataFolder(wRef, 2) + "\nV_avg = " + num2str(V_avg)
+	noteStr += " , V_sdev = "+ num2str(V_sdev)
+	Note/K wz, noteStr
+	return 0
+End

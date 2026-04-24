@@ -259,7 +259,14 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ATH_Launch#PixelateSingleImageOrStack()
 						hookResult = 1										
 					endif
-					break						
+					break
+				case 81: // Q // works with SHIFT + Q only!
+					if(s.eventMod & 2)
+						/// Apply range to all windows in Space!
+						ATH_Launch#SetRangeAndCTabForAllGraphsInSpace()
+					endif
+					hookResult = 1										
+					break										
 				case 82: // R
 					if(s.eventMod & 2) // works with SHIFT + R only!
 						ATH_Launch#ImageResample()
@@ -269,7 +276,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				case 83: // S
 					if(s.eventMod & 2) // works with SHIFT + S only!
 						ATH_Launch#SaveAxesRangeAndCtab()
-						hookResult = 1											
+						hookResult = 1								
 					endif
 					break			
 				case 85: // U
@@ -328,7 +335,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 				case 112: // p
 					ATH_PlaneZProfile#MainMenu()
 					hookResult = 1										
-					break		
+					break					
 				case 114: // r
 					ATH_Range#pnl(s.winName)
 					hookResult = 1										

@@ -430,7 +430,43 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	variable refP = V_maxRowLoc
 	variable refQ = V_maxColLoc	
 	// Release the threads.
+	MultiThreadingControl setMode=0
 	MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, M_ImagePlane, refP, refQ, p)	
+	MultiThreadingControl setMode=1	
+	// At this point, ww holds wave references to numplanes free waves
+	// created by DriftCorrelation_Worker.
+	// So, now repack all layers.
+	Concatenate/O {ww}, $GetWavesDataFolder(w3D,2)
+	// ww holds references to the free waves. By killing ww, we kill
+	// the last reference to the free waves which causes them to be
+	// automatically deleted.
+	KillWaves ww, M_ImagePlane
+End
+
+static Function MultiThreadRegistrationDriftCorrection(WAVE w3D, 
+	 WAVE w3DPart, variable ref, [variable RotZ])
+
+	if(!(WaveType(w3D) & 0x02))
+		Redimension/S w3D
+	endif
+	if(!(WaveType(w3DPart) & 0x02))
+		Redimension/S w3DPart
+	endif
+	
+	// Normalize the stack to avoid issues with ImageRegistration
+	MatrixOP/FREE w3DPart_n = scale(w3DPart,0,1)
+	// Create a wave to hold wave references returned by DriftCorrelation_Worker.
+	variable numPlanes = DimSize(w3D,2)
+	Make/WAVE/N=(numPlanes) ww	
+	// Get the reference layer from the partitioned wave
+	ImageTransform/P=(ref) getPlane w3DPart
+	Wave M_ImagePlane // Reference layer
+	Make/FREE/N=(DimSize(w3D,0),DimSize(w3D,1)) ATH_ROIMask
+	FastOp ATH_ROIMask = 1
+	// Release the threads.
+	MultiThreadingControl setMode=0	
+	MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart_n, M_ImagePlane, ATH_ROIMask, p, RotZ = RotZ)	
+	MultiThreadingControl setMode=1	
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
 	// So, now repack all layers.
@@ -455,7 +491,7 @@ ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE
 	if(RotZ)
 		ImageRegistration/Q/CONV=1/TRNS={1,1,0}/ROT={0,0,1}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW
 	else
-		ImageRegistration/Q/CONV=1/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW	
+		ImageRegistration/Q/CONV=0/TRNS={1,1,0}/ROT={0,0,0}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW	
 	endif
 	WAVE W_RegParams
 	Duplicate W_RegParams, ATH_RegParams
@@ -475,57 +511,6 @@ ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE
 	return M_RegOut		// Return a reference to the free M_Affine wave
 End
 
-static Function MultiThreadRegistrationDriftCorrection(WAVE w3D, 
-	 WAVE w3DPart, variable ref, [variable RotZ])
-
-	if(!(WaveType(w3D) & 0x02))
-		Redimension/S w3D
-	endif
-	if(!(WaveType(w3DPart) & 0x02))
-		Redimension/S w3DPart
-	endif
-	
-	// Normalize the stack to avoid issues with ImageRegistration
-	MatrixOP/FREE w3DPart_n = scale(w3DPart,0,1)
-	// Create a wave to hold wave references returned by DriftCorrelation_Worker.
-	variable numPlanes = DimSize(w3D,2)
-	Make/WAVE/N=(numPlanes) ww	
-	// Get the reference layer from the partitioned wave
-	ImageTransform/P=(ref) getPlane w3DPart
-	Wave M_ImagePlane // Reference layer
-	Make/FREE/N=(DimSize(w3D,0),DimSize(w3D,1)) ATH_ROIMask
-	FastOp ATH_ROIMask = 1
-	// Release the threads.
-	MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart_n, M_ImagePlane, ATH_ROIMask, p, RotZ = RotZ)	
-	// At this point, ww holds wave references to numplanes free waves
-	// created by DriftCorrelation_Worker.
-	// So, now repack all layers.
-	Concatenate/O {ww}, $GetWavesDataFolder(w3D,2)
-	
-	// ww holds references to the free waves. By killing ww, we kill
-	// the last reference to the free waves which causes them to be
-	// automatically deleted.
-	KillWaves ww, M_ImagePlane
-End
-
-
-// Multithreaded Registration
-ThreadSafe static Function/WAVE ImageRegistration_Worker(WAVE w3D, WAVE wRef, variable plane)
-	
-	DFREF dfSav= GetDataFolderDFR()
-
-	// Create a free data folder and set it as the current data folder
-	SetDataFolder NewFreeDataFolder()
-	ImageTransform/P=(plane) getPlane w3D
-	Wave M_ImagePlane
-	ImageRegistration/Q/CONV=1/TRNS={1,1,1}/ROT={0,0,1}/PRDL=1/TSTM=0/BVAL=0 refwave = wRef, testwave = M_ImagePlane
-	WAVE M_RegOut	
-	// Restore the current data folder
-	SetDataFolder dfSav
-
-	return M_RegOut		// Return a reference to the free M_RegOut wave
-End
-
 /// @function MultiThreadImageRegistration
 /// @brief Description of MultiThreadImageRegistration.
 /// @details
@@ -534,27 +519,44 @@ End
 /// @param ref Parameter ref.
 /// @returns Variable Return value.
 
-static Function MultiThreadImageRegistration(WAVE w3D, variable ref)
-
-	if(!(WaveType(w3D) & 0x02))
-		Redimension/S w3D
-	endif
-	
-	// Create a wave to hold wave references returned by DriftCorrelation_Worker.
-	variable numPlanes = DimSize(w3D,2)
-	Make/WAVE/N=(numPlanes) ww	
-	// Get the reference layer from the partitioned wave
-	ImageTransform/P=(ref) getPlane w3D
-	Wave M_ImagePlane // Reference layer
-	// Release the threads.
-	MultiThread ww = ImageRegistration_Worker(w3D, M_ImagePlane, p)
-	// At this point, ww holds wave references to numplanes free waves
-	// created by DriftCorrelation_Worker.
-	// So, now repack all layers.
-	Concatenate/O {ww}, $GetWavesDataFolder(w3D,2)
-	
-	// ww holds references to the free waves. By killing ww, we kill
-	// the last reference to the free waves which causes them to be
-	// automatically deleted.
-	KillWaves ww, M_ImagePlane
-End
+//static Function MultiThreadImageRegistration(WAVE w3D, variable ref)
+//
+//	if(!(WaveType(w3D) & 0x02))
+//		Redimension/S w3D
+//	endif
+//	
+//	// Create a wave to hold wave references returned by DriftCorrelation_Worker.
+//	variable numPlanes = DimSize(w3D,2)
+//	Make/WAVE/N=(numPlanes) ww	
+//	// Get the reference layer from the partitioned wave
+//	ImageTransform/P=(ref) getPlane w3D
+//	Wave M_ImagePlane // Reference layer
+//	// Release the threads.
+//	MultiThread ww = ImageRegistration_Worker(w3D, M_ImagePlane, p)
+//	// At this point, ww holds wave references to numplanes free waves
+//	// created by DriftCorrelation_Worker.
+//	// So, now repack all layers.
+//	Concatenate/O {ww}, $GetWavesDataFolder(w3D,2)
+//	
+//	// ww holds references to the free waves. By killing ww, we kill
+//	// the last reference to the free waves which causes them to be
+//	// automatically deleted.
+//	KillWaves ww, M_ImagePlane
+//End
+//
+//// Multithreaded Registration
+//ThreadSafe static Function/WAVE ImageRegistration_Worker(WAVE w3D, WAVE wRef, variable plane)
+//	
+//	DFREF dfSav= GetDataFolderDFR()
+//
+//	// Create a free data folder and set it as the current data folder
+//	SetDataFolder NewFreeDataFolder()
+//	ImageTransform/P=(plane) getPlane w3D
+//	Wave M_ImagePlane
+//	ImageRegistration/Q/CONV=1/TRNS={1,1,1}/ROT={0,0,1}/PRDL=1/TSTM=0/BVAL=0 refwave = wRef, testwave = M_ImagePlane
+//	WAVE M_RegOut	
+//	// Restore the current data folder
+//	SetDataFolder dfSav
+//
+//	return M_RegOut		// Return a reference to the free M_RegOut wave
+//End

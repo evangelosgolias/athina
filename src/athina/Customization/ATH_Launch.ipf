@@ -393,13 +393,7 @@ static Function ImageStackAlignmentPartition()
 	variable nlayers = DimSize(wRef, 2)
 	if(method == 1)
 		if(nlayers > kATH_DriftCorrectionMT)
-			// There is a bug in IP9, IP crashes when you run ImageRegistration in MT.
-			#if IgorVersion() >= 10
-				ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2)
-			#else
-				print "Multithreading is disabled for ImageRegistration IP ver < 10"
-				ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
-			#endif
+			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2)
 		else
 			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
 		endif
@@ -1536,7 +1530,7 @@ static Function SetAxesRangeAndCtabFromSaved([string grfName, variable setCtab, 
 			print "SetAxis/R/W="+grfName+" "+gATH_AxisY+" "+num2str(gATH_AxisMinY)+", "+num2str(gATH_AxisMaxY)
 			print "- - - - - - - - - - - - - - - - -"
 		endif
-		if(setCtab)
+		if(setCtab) // Default = 0
 			ATH_Graph#SetGraphCtabStr(gATH_GraphCtabStr, grfName = grfName)
 		endif
 	endif
@@ -1724,34 +1718,6 @@ static Function ImageResample()
 	return 0
 End
 
-/// @function SetCorrectedFoVImages
-/// @brief Description of SetCorrectedFoVImages.
-/// @details
-/// Auto-generated documentation stub for function `SetCorrectedFoVImages`.
-/// @returns Variable Return value.
-
-//static Function SetCorrectedFoVImages()
-//	/// Set the correct FoV in MAXPEEM images	
-//	string wlistStr = ATH_Dialog#GetSelectedWavesInDataBrowser()
-//	if(strlen(wlistStr))
-//		WAVE wRefList = ATH_WaveOp#WaveListStrToWaveRef(wlistStr, isFree = 1)
-//	endif
-//	variable mobj = 1900, interval = 2
-//	Prompt mobj, "Magnetic Objective current in mA"	
-//	Prompt interval, "Scale per point", popup, "Yes;No"	
-//	DoPrompt "Correct selected images FoV", mobj, interval
-//	if(V_flag)
-//		return -1
-//	endif
-//	if(mobj < 1000 || mobj > 2250)
-//		print "Extreme values, please check your input"	
-//		return NaN
-//	endif
-//	for(WAVE wRef : wRefList)
-//		ATH_ImgOp#ScaleFoVWithObjectiveCurrent(wRef, mobj, interval = interval - 1)
-//	endfor
-//End
-
 /// @function DrawScaleBar
 /// @brief Description of DrawScaleBar.
 /// @details
@@ -1777,3 +1743,30 @@ static Function DrawScaleBar([string grfName])
 	endif
 	return scaleFactor
 End
+
+static Function ImageZScore([string grfName])
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
+	WAVE wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
+	ATH_ImgOp#ComputeImageZScore(wRef, grfName=grfName)
+	return 0
+End
+
+static Function SetRangeAndCTabForAllGraphsInSpace([string spaceTagStr, variable setCtab])
+	
+	if(ParamIsDefault(spaceTagStr))
+		string grfName = WinName(0, 1, 1)
+		spaceTagStr = GetUserData(grfName, "", "ATH_SpacesTag")
+	endif
+	string winNameStr, getSpacetagStr
+	string allWindowsStr = SortList(RemoveFromList("ATH_SpacesPanel",WinList("*",";","WIN:87")), ";", 16)
+	variable i, imax = ItemsInList(allWindowsStr)
+	for(i = 0; i < imax; i++)
+		winNameStr = StringFromList(i, allWindowsStr)
+		getSpacetagStr = GetUserData(winNameStr, "", "ATH_SpacesTag")
+		if(!cmpstr(getSpacetagStr, spacetagStr, 0)) // comparison is case-insensitive. 		
+			ATH_Launch#SetAxesRangeAndCtabFromSaved(grfName=winNameStr,setCtab=setCtab)
+		endif
+	endfor
+	return 0
+End
+

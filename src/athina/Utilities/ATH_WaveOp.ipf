@@ -888,3 +888,67 @@ static Function GetWaveMaxPos(WAVE wRef)
 	endfor
 	return imax
 End
+
+/// @function AverageEvenOddLayers
+/// @brief Description of AverageEvenOddLayers.
+/// @details
+/// Auto-generated documentation stub for function `AverageEvenOddLayers`.
+/// @param wRef Parameter wRef.
+/// @param offset Parameter offset.
+/// @returns Variable Return value.
+
+static Function AverageEvenOddLayers(WAVE wRef, [variable offset])
+	// Not absolute even/odd referenence when offset!=0
+	if(WaveDims(wRef) != 3)
+		return 1
+	endif
+	
+	SplitWave/FREE/OREF=ATH_wRefListFree wRef
+	DFREF dfr = GetDataFolderDFR()
+	string wNameOdd = CreateDataObjectName(dfr, NameOfWave(wRef)+"_odd", 1, 0, 1)	
+	string wNameEven = CreateDataObjectName(dfr, NameOfWave(wRef)+"_even", 1, 0, 1)
+	MatrixOP $wNameOdd = layer(wRef,0)
+	Duplicate $wNameOdd, $wNameEven
+	WAVE w0 = $wNameEven	
+	WAVE w1 = $wNameOdd
+	w0 = 0
+	w1 = 0
+	variable nlayers = DimSize(wRef, 2), i
+	for(i = offset; i < nlayers- 1; i = i + 2)
+		WAVE wE = ATH_wRefListFree[i]
+		FastOP w0 += wE
+		WAVE wO = ATH_wRefListFree[i+1]
+		FastOP w1 += wO
+	endfor
+	CopyScales/I wRef, w0, w1
+	KillWaves/Z ATH_wRefListFree
+	return 0
+End
+
+/// @function AverageSplitStack
+/// @brief Splits a stack of images and averages the two parts
+/// @details
+/// Two waves are created for the first half (_half1) and the second half (_half2)
+/// @param wRef Parameter wRef.
+/// @returns Variable 0 if all ok, 1 if the wave is not 3D)
+
+static Function AverageSplitStack(WAVE wRef)
+	// Not absolute even/odd referenence when offset!=0
+	if(WaveDims(wRef) != 3 || DimSize(wRef,2) == 1)
+		return 1
+	endif
+		
+	DFREF dfr = GetDataFolderDFR()
+	string wfNameStr = CreateDataObjectName(dfr, NameOfWave(wRef)+"_half1", 1, 0, 1)	
+	string wlNameStr = CreateDataObjectName(dfr, NameOfWave(wRef)+"_half2", 1, 0, 1)
+	variable nlayers = DimSize(wRef, 2)
+	variable startLayer = mod(nlayers,2) ? 1 : 0
+	variable nl = mod(nlayers,2) ? (nlayers-1)/2 : nlayers/2 
+	
+	Duplicate/FREE/RMD=[][][startLayer, startLayer+nl - 1] wRef, wFree
+	MatrixOP $wfNameStr = sumbeams(wFree)/nl
+	Duplicate/O/FREE/RMD=[][][startLayer+nl, nlayers - 1] wRef, wFree
+	MatrixOP $wlNameStr = sumbeams(wFree)/nl	
+	CopyScales/I wRef, $wfNameStr, $wlNameStr	
+	return 0
+End
