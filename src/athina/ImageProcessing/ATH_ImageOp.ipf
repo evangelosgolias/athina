@@ -483,27 +483,48 @@ End
 /// @param overwrite] Parameter overwrite].
 /// @returns Variable Return value.
 
-static Function ImageEdgeDetectionToStack(WAVE w3dref, string method, [variable overwrite])
+static Function ImageEdgeDetectionToStack(WAVE w3dref, string cmd, [variable overwrite])
 	/// Applied the edge detection operation to w3dref
 	/// and outputs a wave with name NameofWave(w3dref) + "_ed"
 	/// You can optionally ovewrite the input wave
 	
 	overwrite = ParamIsDefault(overwrite) ? 0: overwrite
+
+	if(WaveType(w3dref) & 0x10) // If WORD (int16)
+		Redimension/S w3dref
+	endif
 	
-	variable numlayers = DimSize(w3dref, 2), i
+	variable nlayers = DimSize(w3dref, 2), i
 	
 	DFREF saveDF = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
 	
-	for(i = 0; i < numlayers; i++)
-		ImageEdgeDetection/P=(i)/M=-1 $method w3dref
+	string cmdExe, dumpStr, errMessage
+	SplitString/E="(^.*(?=\s+\S+\s*$))(.*)" cmd, cmdExe, dumpStr
+	//If user gives the command without the wave name
+	string methods = "canny;frei;kirsch;marr;prewitt;roberts;shen;sobel"
+	dumpStr = ATH_String#RemoveCharFromString(dumpStr, " ")
+	if(WhichListItem(dumpStr, methods,";", 0, 0) == - 1)
+		cmdExe += " M_ImagePlane"
+	else
+		cmdExe = cmd +" M_ImagePlane"
+	endif
+	
+	for(i = 0; i < nlayers; i++)
+		ImageTransform/P=(i) getPlane w3dref
+		WAVE M_ImagePlane
+		Execute/Q/Z cmdExe
 		WAVE M_ImageEdges		
 		Rename M_ImageEdges, $("ATHWaveToStack_idx_" + num2str(i))
 	endfor
-	
-	ImageTransform/NP=(numlayers) stackImages $"ATHWaveToStack_idx_0"
+	variable err = GetRTError(1)
+	if(err)
+		SetDataFolder saveDF
+		return -1
+	endif
+	ImageTransform/NP=(nlayers) stackImages $"ATHWaveToStack_idx_0"
 	WAVE M_Stack
-	string stacknameStr = CreateDataObjectName(saveDF, NameofWave(w3dref) + "_ed", 1, 0, 1)
+	string stacknameStr = CreateDataObjectName(saveDF, NameofWave(w3dref) + "_edgeD", 1, 0, 1)
 	if(overwrite)
 		Duplicate/O M_stack, w3dref
 	else

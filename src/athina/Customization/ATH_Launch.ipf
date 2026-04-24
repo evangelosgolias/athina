@@ -1790,3 +1790,19 @@ static Function SetRangeAndCTabForAllGraphsInSpace([string spaceTagStr, variable
 	return 0
 End
 
+static Function ApplyEdgeDetectionCommandToStack([string grfName])
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
+	if(WaveDims(wRef) != 3 || DimSize(wRef, 2) == 1)
+		return 1
+	endif
+	string cmd 
+	Prompt cmd, "Paste edge detection command"
+	DoPrompt "Edge detection 3D", cmd
+	if(V_flag || !strlen(cmd))
+		return -1
+	endif
+	ATH_DFR#BackupWaveInWaveDF(wRef)
+	ATH_ImgOp#ImageEdgeDetectionToStack(wRef, cmd, overwrite = 1)
+	return 0
+End

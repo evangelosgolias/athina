@@ -259,21 +259,6 @@ static Function/S RemoveFileExtention(string str)
 	return name
 End
 
-/// @function ReplaceRegexWithString
-/// @brief Description of ReplaceRegexWithString.
-/// @details
-/// Auto-generated documentation stub for function `ReplaceRegexWithString`.
-/// @param str Parameter str.
-/// @returns String Return value.
-
-static Function/S ReplaceRegexWithString(string instr, string regex, string replacestr)
-	string beforestr, discardstr, afterstr
-	string pattern = "(.*(?="+regex+"))"
-	SplitString/E=(pattern) instr, beforest
-	print beforestr, discardstr, afterstr
-	return ""
-End
-
 /// @function StartsWith
 /// @brief Description of StartsWith.
 /// @details
