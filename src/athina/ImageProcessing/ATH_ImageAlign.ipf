@@ -489,7 +489,6 @@ static Function MultiThreadRegistrationDriftCorrection(WAVE w3D,
 		string noteStr = "Drift correction using Registration with reference layer #"+num2str(ref)
 		noteStr += " of " + GetWavesDataFolder(w3D, 2) + "\n"
 		Note/K wDC, noteStr 
-		WAVE wDC = $""
 	endif	
 	// Get the reference layer from the partitioned wave
 	ImageTransform/P=(ref) getPlane w3DPart
