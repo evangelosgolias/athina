@@ -364,13 +364,26 @@ static Function ImageStackAlignmentPartition()
 	variable method = 2
 	variable layerN = ATH_Graph#GetgLayer("")
 	variable  RotZ = 2
+	variable saveDrift = 2
+	variable applySavedDrifts = 2
 	string msg = "Align " + NameOfWave(wRef) + " using part of the image."
 	
-	Prompt method, "Method", popup, "Registration (sub-pixel); Correlation (pixel)" // Registration = 1, Correlation = 2
+	DFREF dfr = $"root:Packages:ATH_DataFolder:SavedDriftCorrections"
+	WAVE/Z/SDFR=dfr wDC = ath_driftCorr
+	if(WaveExists(wDC) && (DimSize(wDC, 1) == DimSize(wRef, 2)))	
+		string methodStr = "Registration (sub-pixel); Correlation (pixel); Apply Saved Drift Corrections"
+	else
+		methodStr = "Registration (sub-pixel); Correlation (pixel)"
+	endif
+	
+	
+	Prompt method, "Method", popup, methodStr // Registration = 1, Correlation = 2, Saved Drifts = 1
 	Prompt layerN, "Reference layer"
 	Prompt RotZ, "Z-rotations (Registration only)",  popup, "Yes;No" // Yes = 1, No = 2!
-
-	DoPrompt msg, method, layerN, RotZ
+	Prompt saveDrift, "Save Drifts",  popup, "Yes;No" // Yes = 1, No = 2!
+	
+	DoPrompt msg, method, layerN, RotZ, saveDrift
+			
 	if(V_flag) // User cancelled
 		return -1
 	endif
@@ -393,24 +406,31 @@ static Function ImageStackAlignmentPartition()
 	variable nlayers = DimSize(wRef, 2)
 	if(method == 1)
 		if(nlayers > kATH_DriftCorrectionMT)
-			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2)
+			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2, saveDrift = saveDrift - 2)
 		else
 			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
 		endif
 	elseif(method == 2)
 		if(nlayers > kATH_DriftCorrectionMT)
-			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN)
+			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = 1)
 		else
 			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN)
 		endif
+	elseif(method==3)
+		ATH_ImgAlign#MultiThreadApplySavedDriftCorrections(wRef)
 	else
 		print "Please check ATH_Launch#ImageStackAlignmentPartition() method."
 		return NaN
 	endif
 	ATH_WaveOp#SetScalesP(wRef,x0, y0, z0, dx, dy, dz)
-	driftCorrectionNoteStr = "\nDrift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
-	driftCorrectionNoteStr += "z-rotation: " + StringFromList(RotZ, "dummy;Yes;No") + "\n"
-	driftCorrectionOriginalNoteStr += driftCorrectionNoteStr
+	if(method == 3)
+		driftCorrectionNoteStr = "\n(DC from saved parameters: " + note(wDc)
+		driftCorrectionOriginalNoteStr += driftCorrectionNoteStr		
+	else
+		driftCorrectionNoteStr = "\nDrift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
+		driftCorrectionNoteStr += "z-rotation: " + StringFromList(RotZ, "dummy;Yes;No") + "\n"
+		driftCorrectionOriginalNoteStr += driftCorrectionNoteStr		
+	endif
 	KillWaves partitionWave
 	Note wRef, driftCorrectionOriginalNoteStr
 End
