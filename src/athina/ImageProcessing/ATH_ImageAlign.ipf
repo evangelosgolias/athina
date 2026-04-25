@@ -388,7 +388,7 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	// Create a wave to hold wave references returned by DriftCorrelation_Worker.
 	variable numPlanes = DimSize(w3D,2)
 	Make/WAVE/N=(numPlanes) ww	
-
+	
 	if(saveDrift)
 		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedDriftCorrections:")
 		Make/D/O/N=(2, numPlanes) dfr:ath_driftCorr /WAVE = wDC
@@ -418,6 +418,8 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	if(filter)
 		MatrixFilter /N=3 avg ATH_RefImg
 	endif
+	
+	ImageWindow/O Hanning ATH_RefImg
 	
 	MatrixOP/FREE correlationW = correlate(ATH_RefImg, ATH_RefImg, 0)
 	WaveStats/M=1/Q/P correlationW	
@@ -459,7 +461,9 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 	if(filter)
 		MatrixFilter /N=3 avg ATH_RefImg
 	endif
-
+	
+	ImageWindow/O Hanning ATH_RefImg
+	
 	MatrixOP/O/FREE correlationW = correlate(w3DPartRef, ATH_RefImg, 0)
 	WaveStats/M=1/Q/P correlationW
 	pD = V_maxRowLoc 
