@@ -203,7 +203,7 @@ static Function ImgStackPartitionCorrelation(WAVE w3d,
 	SetDataFolder NewFreeDataFolder()
 
 	MatrixOP/FREE refLayerWave = layer(partitionW3d, layerN)
-
+	ImageWindow/O Hanning refLayerWave
 	MatrixOP/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
 	WaveStats/M=1/Q/P autocorrelationW
 	variable p0 = V_maxRowLoc, q0 = V_maxColLoc, p1, q1, i
@@ -213,6 +213,7 @@ static Function ImgStackPartitionCorrelation(WAVE w3d,
 	for(i = 0; i < layers; i++)
 		if(i != layerN)
 			MatrixOP/O/FREE freeLayer = layer(partitionW3d, i)
+			ImageWindow/O Hanning freeLayer
 			MatrixOP/O/FREE correlationW = correlate(refLayerWave, freeLayer, 0)
 			WaveStats/M=1/Q/P correlationW
 			p1 = V_maxRowLoc
@@ -221,7 +222,7 @@ static Function ImgStackPartitionCorrelation(WAVE w3d,
 			dq[i] = q0 - q1
 		endif
 	endfor
-
+	
 	//Now translate each wave in the stack (w3d)
 	for(i = 0; i < layers; i++)
 		if(dp[i] == 0 && dq[i] == 0)
