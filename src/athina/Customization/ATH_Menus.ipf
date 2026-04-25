@@ -101,7 +101,7 @@ Menu "athina"
 	End
 	
 	Submenu "Drift Correction"
-		"Using a feature (TG, 3D)", /Q, ATH_Launch#ImageStackAlignmentPartition()
+		"Using a feature (TG, 3D)", /Q, ATH_Launch#ImageStackAlignmentUsingAFeature()
 		"Linear drift correction (TG, 3D)",/Q, ATH_Launch#LinearDriftCorrestionStackABCursors()
 		"Linear drift correction [Range] (TG, 3D)",/Q, ATH_Launch#LinearDriftCorrestionPlanesABCursors()
 	End

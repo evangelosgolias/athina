@@ -356,7 +356,7 @@ End
 /// Auto-generated documentation stub for function `ImageStackAlignmentPartition`.
 /// @returns Variable Return value.
 
-static Function ImageStackAlignmentPartition()
+static Function ImageStackAlignmentUsingAFeature()
 	//
 	WAVE wRef = ATH_Graph#TopGraphToWaveRef()
 	if(!WaveExists(wRef))
@@ -366,6 +366,7 @@ static Function ImageStackAlignmentPartition()
 	variable layerN = ATH_Graph#GetgLayer("")
 	variable RotZ = 2
 	variable upscale = 1
+	variable filter = 2
 	variable saveDrift = 2
 	variable applySavedDrifts = 2
 	string msg = "Align " + NameOfWave(wRef) + " using part of the image."
@@ -382,10 +383,11 @@ static Function ImageStackAlignmentPartition()
 	Prompt method, "Method", popup, methodStr // Registration = 1, Correlation = 2, Saved Drifts = 1
 	Prompt layerN, "Reference layer"
 	Prompt upscale, "Upscale factor (Correlation only)"
+	Prompt filter, "Apply filtering",  popup, "Yes;No" // Yes = 1, No = 2!	
 	Prompt RotZ, "Z-rotations (Registration only)",  popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt saveDrift, "Save Drifts",  popup, "Yes;No" // Yes = 1, No = 2!
 	
-	DoPrompt msg, method, layerN, upscale,  RotZ, saveDrift
+	DoPrompt msg, method, layerN, upscale, filter, RotZ, saveDrift
 			
 	if(V_flag) // User cancelled
 		return -1
@@ -409,13 +411,15 @@ static Function ImageStackAlignmentPartition()
 	variable nlayers = DimSize(wRef, 2)
 	if(method == 1)
 		if(nlayers > kATH_DriftCorrectionMT)
-			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2, saveDrift = saveDrift - 2)
+			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2, \
+			saveDrift = saveDrift - 2, filter = filter - 2)
 		else
 			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
 		endif
 	elseif(method == 2)
 		if(nlayers > kATH_DriftCorrectionMT)
-			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = 1, upscale = upscale)
+			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = 1, \
+			upscale = upscale, filter = filter - 2)
 		else
 			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN)
 		endif

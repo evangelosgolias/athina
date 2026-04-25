@@ -376,7 +376,7 @@ End
 // // Multithreaded Drift Correction using Correlation
 
 static Function MultiThreadCorrelationDriftCorrection(WAVE w3D, 
-	 WAVE w3DPart, variable layerN, [variable saveDrift, variable upscale])
+	 WAVE w3DPart, variable layerN, [variable saveDrift, variable filter, variable upscale])
 
 	if(!(WaveType(w3D) & 0x02))
 		Redimension/S w3D
@@ -406,22 +406,26 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 
 	// Get the reference layer from the partitioned wave
 	ImageTransform/P=(layerN) getPlane w3DPart
-	Wave M_ImagePlane // Reference layer
-		
+	WAVE M_ImagePlane // Reference layer
+
+	
 	if(upscale > 1)		
 		ImageInterpolate/FUNC=bilinear/TRNS={scaleShift, 0, upscale, 0, upscale}/DEST=ATH_RefImg Resample M_ImagePlane
 	else
 		WAVE ATH_RefImg = M_ImagePlane
 	endif
 	
-
+	if(filter)
+		MatrixFilter /N=3 avg ATH_RefImg
+	endif
+	
 	MatrixOP/FREE correlationW = correlate(ATH_RefImg, ATH_RefImg, 0)
 	WaveStats/M=1/Q/P correlationW	
 	variable refP = V_maxRowLoc
 	variable refQ = V_maxColLoc	
 	// Release the threads.
 	MultiThreadingControl setMode=0
-	MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, ATH_RefImg, refP, refQ, p, wDC, upscale = upscale)	
+	MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, ATH_RefImg, refP, refQ, p, wDC, upscale = upscale, filter = filter)	
 	MultiThreadingControl setMode=1	
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
@@ -435,7 +439,7 @@ End
 
 ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart,
 					WAVE w3DPartRef, variable refP, 
-					variable refQ, variable plane, WAVE/Z wDC, [variable upscale])
+					variable refQ, variable plane, WAVE/Z wDC, [variable upscale, variable filter])
 	
 	DFREF dfSav= GetDataFolderDFR()
 
@@ -451,7 +455,11 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 	else
 		WAVE ATH_RefImg = M_ImagePlane
 	endif
-		
+	
+	if(filter)
+		MatrixFilter /N=3 avg ATH_RefImg
+	endif
+
 	MatrixOP/O/FREE correlationW = correlate(w3DPartRef, ATH_RefImg, 0)
 	WaveStats/M=1/Q/P correlationW
 	pD = V_maxRowLoc 
@@ -482,7 +490,7 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 End
 
 static Function MultiThreadRegistrationDriftCorrection(WAVE w3D, 
-	 WAVE w3DPart, variable layerN, [variable RotZ, variable saveDrift])
+	 WAVE w3DPart, variable layerN, [variable RotZ, variable saveDrift, variable filter])
 
 	if(!(WaveType(w3D) & 0x02))
 		Redimension/S w3D
@@ -515,11 +523,16 @@ static Function MultiThreadRegistrationDriftCorrection(WAVE w3D,
 	// Get the reference layer from the partitioned wave
 	ImageTransform/P=(layerN) getPlane w3DPart
 	Wave M_ImagePlane // Reference layer
+	
+	if(filter)
+		MatrixFilter /N=3 avg M_ImagePlane
+	endif
+
 	Make/FREE/N=(DimSize(w3D,0),DimSize(w3D,1)) ATH_ROIMask
 	FastOp ATH_ROIMask = 1
 	// Release the threads.
 	MultiThreadingControl setMode=0	
-	MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart_n, M_ImagePlane, ATH_ROIMask, p, RotZ = RotZ, wDC = wDC)	
+	MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart_n, M_ImagePlane, ATH_ROIMask, p, RotZ = RotZ, wDC = wDC, filter = filter)	
 	MultiThreadingControl setMode=1	
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
@@ -534,7 +547,7 @@ End
 
 // Multithreaded Drift Correction using Registration
 ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE w3DPart,
-					WAVE w3DPartRef, WAVE wROIMask, variable plane, [variable RotZ, WAVE/Z wDC])
+					WAVE w3DPartRef, WAVE wROIMask, variable plane, [variable RotZ, WAVE/Z wDC, variable filter])
 	
 	DFREF dfSav= GetDataFolderDFR()
 
@@ -542,6 +555,11 @@ ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE
 	SetDataFolder NewFreeDataFolder()
 	// Calculate drift
 	MatrixOP testPartitionW = layer(w3DPart,plane)
+	
+	if(filter)
+		MatrixFilter /N=3 avg testPartitionW
+	endif	
+	
 	if(RotZ)
 		ImageRegistration/Q/CONV=1/TRNS={1,1,0}/ROT={0,0,1}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW
 	else
@@ -569,6 +587,11 @@ ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE
 End
 
 /// ---------- ////
+// TODO: We can accelerate by noop when there is no drift for a layer
+// Filter before Concatenate with a loop over all layers.
+//
+// TODO: We can accumulate drifts to allow user to drift correct more
+// than once if needed.
 
 static Function MultiThreadApplySavedDriftCorrections(WAVE w3D)
 
