@@ -377,7 +377,7 @@ End
 // // Multithreaded Drift Correction using Correlation
 
 static Function MultiThreadCorrelationDriftCorrection(WAVE w3D, 
-	 WAVE w3DPart, variable layerN, [variable saveDrift, variable filter, variable upscale])
+	 WAVE w3DPart, variable layerN, [variable saveDrift, variable filter, variable upscale, variable windowing])
 
 	if(!(WaveType(w3D) & 0x02))
 		Redimension/S w3D
@@ -420,8 +420,9 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 		MatrixFilter /N=3 avg ATH_RefImg
 	endif
 	
-	ImageWindow/O Hanning ATH_RefImg
-	
+	if(windowing)
+		ImageWindow/O Hanning ATH_RefImg
+	endif
 	MatrixOP/FREE correlationW = correlate(ATH_RefImg, ATH_RefImg, 0)
 	WaveStats/M=1/Q/P correlationW	
 	variable refP = V_maxRowLoc
@@ -442,7 +443,7 @@ End
 
 ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart,
 					WAVE w3DPartRef, variable refP, 
-					variable refQ, variable plane, WAVE/Z wDC, [variable upscale, variable filter])
+					variable refQ, variable plane, WAVE/Z wDC, [variable upscale, variable filter, variable windowing])
 	
 	DFREF dfSav= GetDataFolderDFR()
 
@@ -463,8 +464,10 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 		MatrixFilter /N=3 avg ATH_RefImg
 	endif
 	
-	ImageWindow/O Hanning ATH_RefImg
-	
+	if(windowing)
+		ImageWindow/O Hanning ATH_RefImg
+	endif
+		
 	MatrixOP/O/FREE correlationW = correlate(w3DPartRef, ATH_RefImg, 0)
 	WaveStats/M=1/Q/P correlationW
 	pD = V_maxRowLoc 
@@ -598,8 +601,8 @@ End
 // TODO: We can accumulate drifts to allow user to drift correct more
 // than once if needed.
 
-static Function MultiThreadApplySavedDriftCorrections(WAVE w3D)
-
+static Function MultiThreadApplySavedDriftCorrections(WAVE w3D, [WAVE/Z cDriftW])
+	
 	if(!(WaveType(w3D) & 0x02))
 		Redimension/S w3D
 	endif
@@ -609,9 +612,12 @@ static Function MultiThreadApplySavedDriftCorrections(WAVE w3D)
 		
 	Make/FREE/N=(DimSize(w3D,0),DimSize(w3D,1)) ATH_ROIMask
 	FastOp ATH_ROIMask = 1
-
-	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedDriftCorrections:")
-	WAVE/SDFR=dfr wDC = ath_driftCorr
+	if(ParamIsDefault(cDriftW))
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedDriftCorrections:")
+		WAVE/SDFR=dfr wDC = ath_driftCorr
+	else
+		WAVE wDC = cDriftW // Apply another way with drift parameters
+	endif
 	if(DimSize(w3D, 2) != DimSize(wDC,1))
 		print "Dimension mismatch ... MultiThreadApplySavedDriftCorrections exits."
 		return 1

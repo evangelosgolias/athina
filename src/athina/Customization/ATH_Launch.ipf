@@ -356,23 +356,41 @@ End
 /// Auto-generated documentation stub for function `ImageStackAlignmentPartition`.
 /// @returns Variable Return value.
 
-static Function ImageStackAlignmentUsingAFeature()
+static Function ImageStackAlignmentUsingAFeature() // Key function for the package
 	//
 	WAVE wRef = ATH_Graph#TopGraphToWaveRef()
 	if(!WaveExists(wRef))
 		return NaN
 	endif
-	variable method = 2
-	variable layerN = ATH_Graph#GetgLayer("")
-	variable RotZ = 2
-	variable upscale = 1
-	variable filter = 2
+	
+	variable method, RotZ, upscale, filter, windowing
+	// Save drift correction parameters
+	string dfrStr = "root:Packages:ATH_DataFolder:DriftCorrectionSettings"
+	if(!DataFolderExists(dfrStr))
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
+		variable/G dfr:gATH_method = 2
+		variable/G dfr:gATH_RotZ = 2
+		variable/G dfr:gATH_upscale = 1
+		variable/G dfr:gATH_filter = 2
+		variable/G dfr:gATH_windowing = 2
+	else
+		DFREF dfr = $dfrStr
+	endif
+	
+	NVAR/SDFR=dfr gATH_method, gATH_RotZ, gATH_upscale, gATH_filter, gATH_windowing
+	method = gATH_method
+	RotZ = gATH_RotZ
+	upscale = gATH_upscale
+	filter = gATH_filter
+	windowing = gATH_windowing
+	// Local variables only, not saved.
 	variable saveDrift = 2
-	variable applySavedDrifts = 2
+	variable layerN =  ATH_Graph#GetgLayer("")
+	
 	string msg = "Align " + NameOfWave(wRef) + " using part of the image."
 	
-	DFREF dfr = $"root:Packages:ATH_DataFolder:SavedDriftCorrections"
-	WAVE/Z/SDFR=dfr wDC = ath_driftCorr
+	DFREF dfrSave = $"root:Packages:ATH_DataFolder:SavedDriftCorrections"
+	WAVE/Z/SDFR=dfrSave wDC = ath_driftCorr
 	if(WaveExists(wDC) && (DimSize(wDC, 1) == DimSize(wRef, 2)))	
 		string methodStr = "Registration (sub-pixel); Correlation (pixel); Apply Saved Drift Corrections"
 	else
@@ -380,28 +398,45 @@ static Function ImageStackAlignmentUsingAFeature()
 	endif
 	
 	
-	Prompt method, "Method", popup, methodStr // Registration = 1, Correlation = 2, Saved Drifts = 1
+	Prompt method, "Method", popup, methodStr // Registration = 1, Correlation = 2, SavedDrifts = 3
 	Prompt layerN, "Reference layer"
-	Prompt upscale, "Upscale factor (Correlation only)"
-	Prompt filter, "Apply filtering",  popup, "Yes;No" // Yes = 1, No = 2!	
-	Prompt RotZ, "Z-rotations (Registration only)",  popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt upscale, "Upscale (Correlation)"
+	Prompt filter, "Filtering",  popup, "Yes;No" // Yes = 1, No = 2!	
+	Prompt windowing, "Windowing",  popup, "Yes;No" // Yes = 1, No = 2!		
+	Prompt RotZ, "Rotation (Registration)",  popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt saveDrift, "Save Drifts",  popup, "Yes;No" // Yes = 1, No = 2!
 	
-	DoPrompt msg, method, layerN, upscale, filter, RotZ, saveDrift
+	DoPrompt msg, method, layerN, upscale, filter, windowing, RotZ, saveDrift
 			
 	if(V_flag) // User cancelled
 		return -1
 	endif
 	
+	// Save settings
+	gATH_method = method
+	gATH_RotZ = RotZ
+	gATH_upscale = upscale
+	gATH_filter = filter
+	gATH_windowing = windowing
+	//
+	
 	ATH_DFR#BackupWaveInWaveDF(wRef)
 	string driftCorrectionOriginalNoteStr = note(wRef), driftCorrectionNoteStr // Grab early the original wave note
 	variable left, right, top, bottom
+	string xaxis, yaxis
+	[xaxis, yaxis] = ATH_Graph#GetAxes()
+	GetMarquee/K $xaxis, $yaxis
+	if(V_flag)
+		left = V_left
+		right = V_right
+		top = V_top
+		bottom = V_bottom
+	else			
+		STRUCT sUserMarqueePositions s
+		[left, right, top, bottom] = ATH_Marquee#UserGetMarqueePositions(s)		
+	endif
 
-	STRUCT sUserMarqueePositions s
-	[left, right, top, bottom] = ATH_Marquee#UserGetMarqueePositions(s)
-	DFREF currDFR = GetDataFolderDFR()
-	
-	string partitionWaveStr =  CreatedataObjectName(currDFR, "ATH_DRFCorr_PART", 1, 0, 0)
+	string partitionWaveStr =  CreatedataObjectName(GetDataFolderDFR()	, "ATH_DRFCorr_PART", 1, 0, 0)
 	ATH_WaveOp#WavePartition(wRef, partitionWaveStr, left, right, top, bottom, evenNum = 1)
 	WAVE partitionWave = $partitionWaveStr
 
@@ -419,7 +454,7 @@ static Function ImageStackAlignmentUsingAFeature()
 	elseif(method == 2)
 		if(nlayers > kATH_DriftCorrectionMT)
 			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = 1, \
-			upscale = upscale, filter = filter - 2)
+			upscale = upscale, filter = filter - 2, windowing = windowing - 2)
 		else
 			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN)
 		endif
