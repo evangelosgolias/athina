@@ -401,12 +401,12 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	Prompt method, "Method", popup, methodStr // Registration = 1, Correlation = 2, SavedDrifts = 3
 	Prompt layerN, "Reference layer"
 	Prompt upscale, "Upscale (Correlation)"
+	Prompt windowing, "Windowing (Correlation)",  popup, "Yes;No" // Yes = 1, No = 2!			
 	Prompt filter, "Filtering",  popup, "Yes;No" // Yes = 1, No = 2!	
-	Prompt windowing, "Windowing",  popup, "Yes;No" // Yes = 1, No = 2!		
 	Prompt RotZ, "Rotation (Registration)",  popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt saveDrift, "Save Drifts",  popup, "Yes;No" // Yes = 1, No = 2!
 	
-	DoPrompt msg, method, layerN, upscale, filter, windowing, RotZ, saveDrift
+	DoPrompt msg, method, layerN, upscale, windowing, filter, RotZ, saveDrift
 			
 	if(V_flag) // User cancelled
 		return -1
