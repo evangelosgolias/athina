@@ -72,7 +72,7 @@ Function BrowserActionMakeStack()
 	string wNameStr
 	Prompt wNameStr, "Name your stack"
 	DoPrompt "Stacking waves ...", wNameStr
-	wNameStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection(wNameStr, autoPath = 1) // stack in sourcedir if all waves in the same folder, otherwise in cwd
+	wNameStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection(wNameStr) // stack in sourcedir if all waves in the same folder, otherwise in cwd
 	return 0
 End
 
@@ -103,9 +103,9 @@ static Function Make3DWaveDataBrowserSelection([int displayStack, int transientS
 	displayStack = ParamIsDefault(displayStack) ? 0: displayStack // Give any non-zero to display the stack
 	transientStack = ParamIsDefault(transientStack) ? 0: transientStack 
 	if(transientStack)
-		string wname3dStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection(ksATH_TransientStackPrefix, autoPath = 1)
+		string wname3dStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection(ksATH_TransientStackPrefix)
 	else
-		wname3dStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection(ksATH_StackPrefix, autoPath = 1) // stack in sourcedir if all waves in the same folder, otherwise in cwd
+		wname3dStr = ATH_WaveOp#ConcatenateWavesInDataBrowserSelection(ksATH_StackPrefix) // stack in sourcedir if all waves in the same folder, otherwise in cwd
 	endif
 	// Do you want to display the stack?
 	if(displayStack && strlen(wname3dStr)) // wname3dStr = "" when you select no or one wave

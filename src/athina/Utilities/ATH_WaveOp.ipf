@@ -84,7 +84,7 @@ End
 /// @param autoPath] Parameter autoPath].
 /// @returns String Return value.
 
-static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [variable makeInSourceDFR, variable autoPath])
+static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr)
 	// Concatenate wave from data folder selection
 	// For 2D, 3D waves:
 	// Use it to stack 2D, 3D waves
@@ -93,14 +93,7 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	//
 	// For 1D waves:
 	// Use it to concatenate over columns
-	//
-	// makeInSourceDFR: Created stack in the cwd or in the sourceDir?
-	// autoPath: The program sets makeInSourceDFR. If all waves in the same
-	// folder then makeInSourceDFR = 1, otherwise makeInSourceDFR = 0
-	
-	makeInSourceDFR = ParamIsDefault(makeInSourceDFR) ? 0: makeInSourceDFR
-	autoPath = ParamIsDefault(autoPath) ? 0: autoPath
-	
+
 	// Comment out to sort as seen in DB, not alphanumeically because
 	// it fails with decimals
 	// listOfSelectedWaves = SortList(listOfSelectedWaves,";", 16)
@@ -116,25 +109,14 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 
 	WAVE wref = $wname
 	
-	variable nx = DimSize(wref,0)
-	variable ny = DimSize(wref,1)
 	// List of all waves
 	WAVE/WAVE waveListFree = ATH_WaveOp#WaveListStrToWaveRef(listOfSelectedWaves, isFree = 1)	
 	// Checks if all waves are in the same folder
-	if(autoPath)
-		makeInSourceDFR = ATH_DFR#AllWavesSamePathQ(waveListFree)
-	endif
-	if(makeInSourceDFR)
-		DFREF saveDF = GetDataFolderDFR()
-		SetDataFolder GetWavesDataFolderDFR(wref)
-		DFREF currDFR = GetDataFolderDFR()
-	else
-		DFREF currDFR = GetDataFolderDFR()	
-	endif
+
 	// Here get the path where the wave will be created
 	string folder = GetDataFolder(1)
 	
-	wname3dStr = CreatedataObjectName(currDFR, wname3dStr, 1, 0, 0)
+	wname3dStr = CreatedataObjectName(GetDataFolderDFR(), wname3dStr, 1, 0, 0)
 	
 	// Works for 1D waves because AllImagesEqualDimensionsQ
 	// returns true for 1D waves even when the DimSize is not
@@ -157,16 +139,13 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr, [var
 	// Add a note about the stacked waves
 	
 	string expandedWaveList = ATH_String#ComposeWaveListsFromWaveNotes(listOfSelectedWaves)
-	if(strlen(expandedWaveList)) // ATH_String#ComposeWaveListsFromWaveNotes return "" if it cannot resolve all the wave names (incl. 3D)
+	if(strlen(expandedWaveList) && !AllWaves2DQ(waveListFree)) // ATH_String#ComposeWaveListsFromWaveNotes return "" if it cannot resolve all the wave names (incl. 3D)
+		// This slows down the whole process
 		ATH_String#UpdateStackWaveNote($wname3dStr, -1, explicitWaveList = ReplaceString(";", expandedWaveList, "\n"))	// use the default option
 	else
 		ATH_String#SetStackNamesInNote($wname3dStr, listOfSelectedWaves)	// use the default option
 	endif
 
-	// Go back to the cwd
-	if(makeInSourceDFR)
-		SetDataFolder saveDF
-	endif
 	return (folder + wname3dStr)
 End
 
@@ -518,22 +497,25 @@ static Function SetWaveOffsetZero(WAVE wRef, [int dim])
 	return 0
 End
 
-/// @function Wave2DDimensionsEqualQ
-/// @brief Description of Wave2DDimensionsEqualQ.
-/// @details
-/// Auto-generated documentation stub for function `Wave2DDimensionsEqualQ`.
-/// @param w1 Parameter w1.
-/// @param w2 Parameter w2.
+
+
+/// @function AllWaves2DQ
+/// @brief Description of AllWaves2DQ.
+/// @details Are all waves 2D?
+/// Auto-generated documentation stub for function `AllWaves2DQ`.
+/// @param wRefw Parameter wRefw.
 /// @returns Variable Return value.
 
-static Function WaveLateralDimensionsEqualQ(WAVE w1, WAVE w2)
-	// Return 1 if images have equal number of rows, cols and 0 otherwise.
-	// Works for 2D and 3D waves.
-	if(WaveDims(w1) > 1 && WaveDims(w1) < 4 && WaveDims(w2) > 1 && WaveDims(w2) < 4)
-		return ((DimSize(w1, 0) == DimSize(w2, 0)) && (DimSize(w1, 1) == DimSize(w2, 1)) ? 1: 0)
-	endif
-	return 0 // Zero if w1, w2 are 1D or 4D waves!
+static Function AllWaves2DQ(WAVE/WAVE wRefw)
+	// Check whether all images have the same rows, cols
+	for(WAVE w: wRefW)
+		if(DimSize(w,2))
+			return 0
+		endif
+	endfor
+	return 1
 End
+
 
 /// @function AllImagesEqualDimensionsQ
 /// @brief Description of AllImagesEqualDimensionsQ.
@@ -551,11 +533,25 @@ static Function AllImagesEqualDimensionsQ(WAVE/WAVE wRefw)
 	WAVE w1 = wRefw[0]
 	for(i = 1; i < nwaves; i++)
 		WAVE w2 = wRefw[i]
-		if(!ATH_WaveOp#WaveLateralDimensionsEqualQ(w1, w2))
+		if(!ATH_WaveOp#ImagesDimensionsEqualQ(w1, w2))
 			return 0
 		endif
 	endfor
 	return 1
+End
+
+/// @function WaveDimensionsEqualQ
+/// @brief Description of WaveDimensionsEqualQ.
+/// @details
+/// Auto-generated documentation stub for function `WaveDimensionsEqualQ`.
+/// @param w1 Parameter w1.
+/// @param w2 Parameter w2.
+/// @returns Variable Return value.
+
+static Function ImagesDimensionsEqualQ(WAVE w1, WAVE w2)
+	// Return 1 if waves have the same num of elements in all dims
+	// Works for any wave
+	return ((DimSize(w1, 0) == DimSize(w2, 0)) && (DimSize(w1, 1) == DimSize(w2, 1)) ? 1 : 0)
 End
 
 /// @function WaveDimensionsEqualQ
@@ -571,6 +567,28 @@ static Function WaveDimensionsEqualQ(WAVE w1, WAVE w2)
 	// Works for any wave
 	return ((DimSize(w1, 0) == DimSize(w2, 0)) && (DimSize(w1, 1) == DimSize(w2, 1)\
 	&& DimSize(w1, 2) == DimSize(w2, 2)) && (DimSize(w1, 3) == DimSize(w2, 3)) ? 1 : 0)
+End
+
+/// @function WaveDimensionsEqualQ
+/// @brief Description of WaveDimensionsEqualQ.
+/// @details
+/// Auto-generated documentation stub for function `WaveDimensionsEqualQ`.
+/// @param w1 Parameter w1.
+/// @param w2 Parameter w2.
+/// @returns Variable Return value.
+
+static Function AllWavesEqualDimensionsQ(WAVE/WAVE wRefw)
+	// Return 1 if waves have the same num of elements in all dims
+	// Works for any wave
+	variable nwaves = DimSize(wRefw, 0), i
+	WAVE w1 = wRefw[0]
+	for(i = 1; i < nwaves; i++)
+		WAVE w2 = wRefw[i]
+		if(!WaveDimensionsEqualQ(w1, w2))
+			return 0
+		endif
+	endfor
+	return 1
 End
 
 /// @function MatchWaveTypes
