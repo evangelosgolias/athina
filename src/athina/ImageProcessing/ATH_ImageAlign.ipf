@@ -417,7 +417,7 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	endif
 	
 	if(filter)
-		MatrixFilter /N=3 avg ATH_RefImg
+		MatrixFilter /N=3 /P=(filter) avg ATH_RefImg
 	endif
 	
 	if(windowing)
@@ -533,7 +533,7 @@ static Function MultiThreadRegistrationDriftCorrection(WAVE w3D,
 	Wave M_ImagePlane // Reference layer
 	
 	if(filter)
-		MatrixFilter /N=3 avg M_ImagePlane
+		MatrixFilter /N=3 /P=(filter) avg M_ImagePlane
 	endif
 
 	Make/FREE/N=(DimSize(w3D,0),DimSize(w3D,1)) ATH_ROIMask

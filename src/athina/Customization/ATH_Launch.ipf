@@ -371,7 +371,7 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 		variable/G dfr:gATH_method = 2
 		variable/G dfr:gATH_RotZ = 2
 		variable/G dfr:gATH_upscale = 1
-		variable/G dfr:gATH_filter = 2
+		variable/G dfr:gATH_filter = 0
 		variable/G dfr:gATH_windowing = 2
 	else
 		DFREF dfr = $dfrStr
@@ -402,7 +402,7 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	Prompt layerN, "Reference layer"
 	Prompt upscale, "Upscale (Correlation)"
 	Prompt windowing, "Windowing (Correlation)",  popup, "Yes;No" // Yes = 1, No = 2!			
-	Prompt filter, "Filtering",  popup, "Yes;No" // Yes = 1, No = 2!	
+	Prompt filter, "Filtering"	
 	Prompt RotZ, "Rotation (Registration)",  popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt saveDrift, "Save Drifts",  popup, "Yes;No" // Yes = 1, No = 2!
 	
@@ -416,7 +416,7 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	gATH_method = method
 	gATH_RotZ = RotZ
 	gATH_upscale = upscale
-	gATH_filter = filter
+	gATH_filter = floor(filter)
 	gATH_windowing = windowing
 	//
 	
@@ -447,14 +447,14 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	if(method == 1)
 		if(nlayers > kATH_DriftCorrectionMT)
 			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2, \
-			saveDrift = saveDrift - 2, filter = filter - 2)
+			saveDrift = saveDrift - 2, filter = gATH_filter)
 		else
 			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
 		endif
 	elseif(method == 2)
 		if(nlayers > kATH_DriftCorrectionMT)
 			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = 1, \
-			upscale = upscale, filter = filter - 2, windowing = windowing - 2)
+			upscale = upscale, filter = gATH_filter, windowing = windowing - 2)
 		else
 			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN)
 		endif

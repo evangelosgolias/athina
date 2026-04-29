@@ -216,6 +216,12 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						hookResult = 1										
 					endif
 					break
+				case 68: // D
+					if(s.eventMod & 2) // works with SHIFT + D only!
+						ATH_iDriftCorrection#CreatePanel()
+						hookResult = 1										
+					endif
+					break					
 				case 69: // E
 					if(s.eventMod & 2) // works with SHIFT + E only!
 						ATH_Launch#ExtractLayerRangeToStack()
@@ -254,7 +260,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					endif
 					break
 				case 80: // P
-					if(s.eventMod & 2) // works with SHIFT + D only!
+					if(s.eventMod & 2) // works with SHIFT + P only!
 						ATH_Launch#PixelateSingleImageOrStack()
 						hookResult = 1										
 					endif
@@ -301,12 +307,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					hookResult = 1										
 					break					
 				case 100: // d - not capital here
-					GetMarquee/W=$s.winName // Just check if there is Marquee, no axes.
-					if(V_flag)
-						ATH_Launch#ImageStackAlignmentUsingAFeature() // If marquee present launch partition dc
-					else
-						ATH_iDriftCorrection#CreatePanel() // otherwise start the interactive panel
-					endif
+					ATH_Launch#ImageStackAlignmentUsingAFeature()
 					hookResult = 1					
 					break
 				case 102: // f

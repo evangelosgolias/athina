@@ -20,8 +20,8 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 **ATH NewImage - Keyboard shortcuts**
 
 - **a** : average image stack and display.
-- **b** : remove background (if marquee is present calculate background using selected area.)
-- **d** : *if marquee is present* launch automatic drift correction, if not launch interactive drift correction.
+- **b** : remove background (if marquee is present calculate background using selected area).
+- **d** : launch automatic drift correction.
 - **f** : set top image data folder as your current data folder.
 - **i** : measure distance on images using cursors.
 - **l** : launch image line profiler.
@@ -33,6 +33,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **z** : launch z profiler *if marquee is present on the graph*.
 - **SHIFT + b** : restore image from backup if any.
 - **SHIFT + c** : select color map.
+- **SHIFT + d** : launch manual drift correction.
 - **SHIFT + e** : Extract stack layers (many options).
 - **SHIFT + f** : FFT Magnitude aka Power Spectrum (if there is marquee, calculate only the enclosed part).
 - **SHIFT + l** : link/unlink graph sliders (select graph from popup).
@@ -42,6 +43,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **SHIFT + r** : resample image.
 - **SHIFT + s** : Save current axes range and ctab.
 - **SHIFT + CTLR + u** : Unpack stack layers to source waves (as read from wavenote)!!! (Experts only, SHIFT+CMD on Mac)
+- **SHIFT + Q : apply the last saved axes range to all visible graphs
 - **SHIFT + x** : launch interactive PES (XPS) extractor
 - **SHIFT + mousewheel** : zoom image centered at the cursor.
 
