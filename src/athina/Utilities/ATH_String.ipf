@@ -734,3 +734,30 @@ static Function UpdateStackWaveNote(WAVE wRef, int op, [string rangeStr, string 
 	Note/K wRef, noteStr 
 	return 0
 End
+
+/// @function RandomSampleStringList
+/// @brief Return a random sample from a string list
+/// @details
+/// Return a random sample from a string list
+/// @param String Parameter list.
+/// @param variable Parameter sampleN.
+/// @returns Variable 0 if all ok, 1 if the wave is not 3D)
+
+static Function/S RandomSampleStringList(string list, variable sampleN)
+	// A stack has layer indices 0...N-1 so listN = N. Therefore the first pick
+	// in the for look is floor(abs(enoise(listN))). So, we incude the layer N-1
+	// in the selection (floor!),  When we call it to sample a stack,
+	// we have to use ATH_String#ExpandRangeStr("0-"+num2str(nlayers-1)) as list
+	variable listN = ItemsInList(list)
+	if(sampleN > listN)
+		return ""
+	endif
+	variable i, item
+	string rList = ""
+	for(i = 0 ; i < sampleN; i++)
+		item = floor(abs(enoise(listN-i))) // reduce enoise range as you pop an item from the list
+		rlist += StringFromList(item, list) + ";"		
+		list = RemoveListItem(item,list)
+	endfor
+	return rlist
+End

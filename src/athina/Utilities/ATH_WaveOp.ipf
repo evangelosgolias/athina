@@ -970,3 +970,44 @@ static Function AverageSplitStack(WAVE wRef)
 	CopyScales/I wRef, $wfNameStr, $wlNameStr	
 	return 0
 End
+
+/// @function AverageRandomStackSample
+/// @brief Splits a stack of images and averages the two parts
+/// @details
+/// Random sample N layers from stack (M) when N < M/2
+/// @param wRef Parameter wRef.
+/// @param sampleN Parameter sampleN.
+/// @returns Variable 0 if all ok, 1 if the wave is not 3D)
+
+static Function AverageRandomStackSample(WAVE wRef, variable sampleN)
+
+	variable nlayers = DimSize(wRef, 2)
+	if(!nlayers || sampleN > 0.75*nlayers)
+		return 1
+	endif
+		
+	DFREF dfr = GetDataFolderDFR()
+	string waveNameStr = CreateDataObjectName(dfr, NameOfWave(wRef)+"_rndSample", 1, 0, 1)
+	variable cnt
+	string listRangeStr = ATH_String#ExpandRangeStr("0-"+num2str(nlayers-1))
+	string listStr = ATH_String#RandomSampleStringList(listRangeStr, sampleN)
+	SetDataFolder NewFreeDataFolder()
+	variable i, layerN
+	string rList = ""
+	for(i = 0 ; i < sampleN; i++)
+		layerN = str2num(StringFromList(i,listStr))
+		ImageTransform/P=(layerN) getPlane wRef
+		WAVE M_ImagePlane
+		Rename M_ImagePlane, $("Img2Stack_"+num2str(i))
+	endfor
+	ImageTransform/NP=(sampleN) stackImages $"Img2Stack_0"	
+	WAVE M_Stack
+	MatrixOP $waveNameStr = sumbeams(M_Stack)/sampleN
+	WAVE wRndSample = $waveNameStr
+	CopyScales wRef, wRndSample
+	Note wRndSample, "Average of "+num2str(sampleN)+" randomly selected layers (" +listStr+ ") of wave " + GetWavesDataFolder(wRef, 2) + "\n"
+	MoveWave wRndSample, dfr
+	SetDataFolder dfr
+	return 0
+End
+
