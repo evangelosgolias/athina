@@ -306,6 +306,7 @@ static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when pan
 			SetDrawLayer/W=$gATH_WindowNameStr Overlay
 			DrawAction/W=$gATH_WindowNameStr delete
 			SetDrawLayer/W=$gATH_WindowNameStr UserFront
+			Note/K $gATH_w3dPathName, gATH_w3dNoteStr
 			KillDataFolder/Z dfr
 			hookresult = 1
 			break
