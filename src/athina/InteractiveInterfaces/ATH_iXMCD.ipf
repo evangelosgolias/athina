@@ -51,6 +51,9 @@ static Function MenuLaunch()
 	if(waveN==2) // If you have selected two waves only then procceed without New Browser Selection.
 		string wave1NameStr = GetBrowserSelection(0)
 		string wave2NameStr = GetBrowserSelection(1)
+		if(WaveDims($wave1NameStr) != 2 || WaveDims($wave2NameStr) != 2)
+			return -1
+		endif
 		string selectedWavesStr = wave1NameStr + ";" + wave2NameStr
 	else
 		string msg = "Select two waves for XMC(L)D calculation. Use Ctrl (Windows) or Cmd (Mac)."

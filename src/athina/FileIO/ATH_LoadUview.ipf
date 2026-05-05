@@ -1151,8 +1151,8 @@ static Function LoadDATFilesMatchingPattternToStackMT([int displayImg, int patte
 
 	displayImg = ParamIsDefault(displayImg) ? 0: !!displayImg
 	pattern = ParamIsDefault(pattern) ? 0: !!pattern	
-	variable numRef, idx, i
-	string loadFiles, basenameStr, folder, patternStr, filteredFiles
+	variable numRef, i
+	string loadFiles, basenameStr, folder, patternStr, filteredFiles, idxStr
 	
 	NewPath/M="Select a folder to load .dat files (pattern popup follows)"/Q/O ATH_DATFilesPathTMP
 	if(V_flag)
@@ -1169,9 +1169,10 @@ static Function LoadDATFilesMatchingPattternToStackMT([int displayImg, int patte
 		DoPrompt "Enter pattern to match files", patternStr
 		filteredFiles = ListMatch(loadFiles, patternStr)		
 	else // ScanGUI measurement ID
-		Prompt idx, "Load files from ScanID [MAXPEEM, ScanGUI] (e.g. 0042)"
-		DoPrompt "Enter ScanID to load matched files", idx
-		filteredFiles = ListMatch(loadFiles, "*-"+num2str(idx)+"-*")		
+		Prompt idxStr, "Load files from ScanID [MAXPEEM, ScanGUI] (e.g. 0042)"
+		DoPrompt "Enter ScanID to load matched files", idxStr
+		patternStr = "*-"+idxStr+"-*"
+		filteredFiles = ListMatch(loadFiles, patternStr)	
 	endif
 
 	loadFiles = SortList(filteredFiles, ";", 80)	
