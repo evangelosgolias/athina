@@ -1092,7 +1092,7 @@ End
 /// @param orderN Parameter orderN.
 /// @returns Variable Return value.
 
-static Function ImgRemoveBackgroundCols(WAVE wRef, variable orderN) //TODO! Fix
+static Function ImgRemoveBackgroundCols(WAVE wRef, variable orderN) //TODO! Fix it!
 	// Image Remove 1-d background from each column
 	//Make/O/N=(DimSize(wRef,1), orderN) fitCoeff
 	if(WaveType(wRef) & 0x10) // If WORD (int16)
@@ -1213,10 +1213,10 @@ End
 /// @param overwite] Parameter overwite].
 /// @returns Variable Return value.
 
-static Function MatrixFilter3D(WAVE wRef, string method, variable size, variable passes, [int overwite])
+static Function ImageFilter3D(WAVE wRef, string method, variable size, variable passes, [int overwrite])
 	/// Applies the MatrixFilter/N=size/P=passes method wRef
 	/// to each layer of wRef
-	overwite = ParamIsDefault(overwite) ? 1 : overwite // default overwite (used in drift correction)
+	overwrite = ParamIsDefault(overwrite) ? 1 : overwrite // default overwite (used in drift correction)
 	string allmethods = "gauss;avg;median:max;min"
 	variable ifunc = WhichListItem(method, allmethods)
 	if(ifunc == -1 || WaveDims(wRef) != 3)
@@ -1235,11 +1235,14 @@ static Function MatrixFilter3D(WAVE wRef, string method, variable size, variable
 	WAVE M_Stack
 	// Restore scale here
 	CopyScales wRef, M_Stack
-	if(overwite)
+	string noteStr = "Applied MatrixFilter/N="+num2str(size)+"/P="+num2str(passes)+ " " + method + " " + NameofWave(wRef)
+	if(overwrite)
 		Duplicate/O M_Stack, saveDF:$NameofWave(wRef)
+		Note saveDF:$NameofWave(wRef), noteStr
 	else
-		string newWaveNameStr = NameofWave(wRef) + "_flt"
+		string newWaveNameStr = CreateDataObjectName(saveDF, NameofWave(wRef) + "_filter", 1, 0, 1)
 		Duplicate/O M_Stack, saveDF:$newWaveNameStr
+		Note saveDF:$newWaveNameStr, noteStr
 	endif		
 	SetDataFolder saveDF
 	return 0

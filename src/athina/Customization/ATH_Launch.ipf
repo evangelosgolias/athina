@@ -1650,6 +1650,22 @@ static Function CloseTopWindowAndDeleteSource([int deleteBackUp, string grfName]
 	return 0
 End
 
+/// @function DeleteBackupWave
+/// @brief Description of DeleteBackupWave.
+/// @details
+/// Auto-generated documentation stub for function `DeleteBackupWave`.
+/// @returns Variable Return value.
+
+static Function DeleteBackupWave([string grfName])
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	WAVE wref = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
+	WAVE/Z wRefBck = $(NameOfWave(wRef) + ksATHBackupWaveExtention)
+	if(WaveExists(wRefBck))
+		Killwaves/Z wRefBck
+	endif
+	return 0
+End
+
 /// @function MirrorPositionToWaveValues
 /// @brief Description of MirrorPositionToWaveValues.
 /// @details
@@ -1848,3 +1864,41 @@ static Function ApplyEdgeDetectionCommandToStack([string grfName])
 	ATH_ImgOp#ImageEdgeDetectionToStack(wRef, cmd, overwrite = 1)
 	return 0
 End
+
+static Function ImageFilter3D([string grfName])
+	// Implement it here and add it to the menu
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	WAVE wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
+	
+	string msg = "Image filter 3D"
+	variable method = 1, size = 3,  passes = 1, overwrite = 2
+	Prompt method, "Filtering method", popup, "gauss;avg;median;max;min" // gauss == 1
+	Prompt size, "Size"
+	Prompt passes, "Passes"
+	Prompt overwrite, "Overwrite", popup, "Yes;No" // Yes = 1, No = 2!	
+	DoPrompt msg, method, size, passes, overwrite
+	if(V_flag)
+		return 0
+	endif
+	string applyMethod = StringFromList(method,"dummy;gauss;avg;median;max;min")
+	
+	if(overwrite-2)
+		ATH_DFR#BackupWaveInWaveDF(wRef) // backup the wave
+	endif
+	
+	if(WaveDims(wRef) == 2) // Deal with 2D waves here
+		DFREF saveDF = GetDataFolderDFR()
+		string noteStr = "Applied MatrixFilter/N="+num2str(size)+"/P="+num2str(passes)+ " " + applyMethod + " " + NameofWave(wRef)
+		if(overwrite-2)
+			MatrixFilter/N=(size)/P=(passes) $applyMethod wRef
+			Note wRef, noteStr
+		else
+			string newWaveNameStr = CreateDataObjectName(saveDF, NameofWave(wRef) + "_filter", 1, 0, 1)
+			Duplicate wRef, saveDF:$newWaveNameStr
+			MatrixFilter/N=(size)/P=(passes) $applyMethod $newWaveNameStr
+			Note saveDF:$newWaveNameStr, noteStr
+		endif
+	endif
+	ATH_ImgOp#ImageFilter3D(wRef, applyMethod, size, passes, overwrite = overwrite-2)
+	return 0
+	End

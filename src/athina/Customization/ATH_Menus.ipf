@@ -86,7 +86,8 @@ Menu "athina"
 		"RGB to gray 16-bit (DB, 3D)", /Q, ATH_Launch#ImgRGB2Gray16()
 		"Duplicate image and data (TG, 2D, 3D)", /Q, ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
 		"Backup Image (TG)", /Q, ATH_ImgOp#BackupTopImage()	
-		"Apply Edge Detection to stack (TG, 3D)",/Q, ATH_Launch#ApplyEdgeDetectionCommandToStack()
+		"Apply Image Filter (TG, 3D, 2D)", /Q, ATH_Launch#ImageFilter3D()
+		"Apply Edge Detection to stack (TG, 3D, 2D)",/Q, ATH_Launch#ApplyEdgeDetectionCommandToStack()
 		"Restore image from backup (TG)", /Q, ATH_ImgOp#RestoreTopImageFromBackup()
 		"Center image histogram (TG)", /Q, ATH_Launch#HistogramShiftToGaussianCenter()
 		"Rotate 3d wave axes (TG, 3D)", /Q, ATH_Launch#Rotate3DWaveAxes()
@@ -212,5 +213,6 @@ Menu "GraphPopup" // Right click not on a trace or in the margin of an image
 End
 
 Menu "AllTracesPopup" // Use SHIFT + right click
+	"ATH Delete backup wave (TG)", /Q, ATH_Launch#DeleteBackupWave()
 	"ATH Close and delete (TG)", /Q, ATH_Launch#CloseTopWindowAndDeleteSource(deleteBackUp=1)
 End
