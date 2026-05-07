@@ -1441,7 +1441,7 @@ End
 static Function ImgRemoveBackground([variable w3d]) // ImageRemoveBackground is an Igor operation
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	variable order = 1
-	variable doFullStack = 1
+	variable doFullStack = 2
 	if(WaveDims(wRef) == 3)
 		Prompt order, "Background order (plane = 1, op. overwrites destination wave)"
 		Prompt doFullStack, "Apply to all layers?", popup "No;Yes" // 1-No, 2-Yes
