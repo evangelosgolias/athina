@@ -1887,7 +1887,7 @@ static Function ImageFilter3D([string grfName])
 	endif
 	
 	if(WaveDims(wRef) == 2) // Deal with 2D waves here
-		DFREF saveDF = GetDataFolderDFR()
+		DFREF saveDF = GetWavesDataFolderDFR(wRef)
 		string noteStr = "Applied MatrixFilter/N="+num2str(size)+"/P="+num2str(passes)+ " " + applyMethod + " " + NameofWave(wRef)
 		if(overwrite-2)
 			MatrixFilter/N=(size)/P=(passes) $applyMethod wRef
@@ -1895,7 +1895,7 @@ static Function ImageFilter3D([string grfName])
 		else
 			string newWaveNameStr = CreateDataObjectName(saveDF, NameofWave(wRef) + "_filter", 1, 0, 1)
 			Duplicate wRef, saveDF:$newWaveNameStr
-			MatrixFilter/N=(size)/P=(passes) $applyMethod $newWaveNameStr
+			MatrixFilter/N=(size)/P=(passes) $applyMethod saveDF:$newWaveNameStr
 			Note saveDF:$newWaveNameStr, noteStr
 		endif
 	endif

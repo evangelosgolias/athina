@@ -40,7 +40,6 @@
 /// /Q is used in all menu entries to supress command printing.
 
 Menu "athina"
-
 	Submenu "Import"
 		Submenu "Elmitec .dat"
 			"Files...", /Q, ATH_Uview#LoadMultiplyDATFiles(autoscale = 1) // Single thread
