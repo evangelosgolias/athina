@@ -1223,7 +1223,7 @@ static Function ImageFilter3D(WAVE wRef, string method, variable size, variable 
 		return -1
 	endif
 	variable nlayers = DimSize(wRef, 2), i
-	DFREF saveDF = GetDataFolderDFR()
+	DFREF currDF = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
 	string buffer = "getStacklayer_", waveNameStr
 	for(i = 0; i < nlayers; i++)
@@ -1233,6 +1233,7 @@ static Function ImageFilter3D(WAVE wRef, string method, variable size, variable 
 	endfor
 	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
 	WAVE M_Stack
+	DFREF saveDF = GetWavesDataFolderDFR(wRef)
 	// Restore scale here
 	CopyScales wRef, M_Stack
 	string noteStr = "Applied MatrixFilter/N="+num2str(size)+"/P="+num2str(passes)+ " " + method + " " + NameofWave(wRef)
@@ -1244,7 +1245,7 @@ static Function ImageFilter3D(WAVE wRef, string method, variable size, variable 
 		Duplicate/O M_Stack, saveDF:$newWaveNameStr
 		Note saveDF:$newWaveNameStr, noteStr
 	endif		
-	SetDataFolder saveDF
+	SetDataFolder currDF
 	return 0
 End
 
