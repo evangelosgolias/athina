@@ -1217,7 +1217,7 @@ static Function ImageFilter3D(WAVE wRef, string method, variable size, variable 
 	/// Applies the MatrixFilter/N=size/P=passes method wRef
 	/// to each layer of wRef
 	overwrite = ParamIsDefault(overwrite) ? 1 : overwrite // default overwite (used in drift correction)
-	string allmethods = "gauss;avg;median:max;min"
+	string allmethods = "gauss;avg;median;max;min"
 	variable ifunc = WhichListItem(method, allmethods)
 	if(ifunc == -1 || WaveDims(wRef) != 3)
 		return -1
@@ -1244,7 +1244,7 @@ static Function ImageFilter3D(WAVE wRef, string method, variable size, variable 
 		string newWaveNameStr = CreateDataObjectName(saveDF, NameofWave(wRef) + "_filter", 1, 0, 1)
 		Duplicate/O M_Stack, saveDF:$newWaveNameStr
 		Note saveDF:$newWaveNameStr, noteStr
-	endif		
+	endif
 	SetDataFolder currDF
 	return 0
 End
