@@ -1264,7 +1264,7 @@ static Function FlattenImage3D(WAVE wRef, string method, string kind, variable s
 	/// Applies the MatrixFilter/N=size/P=passes method wRef
 	/// to each layer of wRef
 	overwrite = ParamIsDefault(overwrite) ? 1 : overwrite // default overwite (used in drift correction)
-	string allmethods = "gauss;avg;median:max;min"
+	string allmethods = "gauss;avg;median;max;min"
 	variable ifunc = WhichListItem(method, allmethods)
 	string allkinds = "additive;multiplicative" // kind
 	variable ikind = WhichListItem(kind, allkinds)	

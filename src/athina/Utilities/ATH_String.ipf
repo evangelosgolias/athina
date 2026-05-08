@@ -346,12 +346,32 @@ End
 /// Auto-generated documentation stub for function `GetSelectedWaveNamesinDB`.
 /// @returns String Return value.
 
-static Function/S GetSelectedWaveNamesinDB()
+static Function/S GetSelectedImagesinDB()
 	string buffer, listOfSelectedWaves = ""
 	variable i = 0
 	do
 		buffer = GetBrowserSelection(i)
 		if(WaveExists($buffer) && (WaveDims($buffer)==2 || WaveDims($buffer)==3))
+			listOfSelectedWaves += buffer + ";" // Match stored at S_value
+		endif
+		i++
+	while (strlen(GetBrowserSelection(i)))
+	return listOfSelectedWaves
+End
+
+/// @function GetSelectedWavesinDB
+/// @brief Description of GetSelectedWavesinDB.
+/// @details
+/// Auto-generated documentation stub for function `GetSelectedWavesinDB`.
+/// @returns String Return value.
+
+static Function/S GetSelectedWavesinDB([variable dim])
+	dim = ParamIsDefault(dim) ? 2 : dim
+	string buffer, listOfSelectedWaves = ""
+	variable i = 0
+	do
+		buffer = GetBrowserSelection(i)
+		if(WaveExists($buffer) && WaveDims($buffer)==dim)
 			listOfSelectedWaves += buffer + ";" // Match stored at S_value
 		endif
 		i++

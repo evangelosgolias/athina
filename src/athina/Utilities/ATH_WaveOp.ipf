@@ -98,7 +98,7 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr)
 	// it fails with decimals
 	// listOfSelectedWaves = SortList(listOfSelectedWaves,";", 16)
 	
-	string listOfSelectedWaves = ATH_String#GetSelectedWaveNamesinDB()
+	string listOfSelectedWaves = ATH_String#GetSelectedImagesinDB()
 	
 	variable nrwaves = ItemsInList(listOfSelectedWaves)
 	if (nrwaves < 2)
