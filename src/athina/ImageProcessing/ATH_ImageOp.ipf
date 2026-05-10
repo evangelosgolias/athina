@@ -1477,3 +1477,40 @@ static Function ComputeImageZScore(Wave wRef, [string grfName])
 	Note/K wz, noteStr
 	return 0
 End
+
+// generic function, implement it properly
+//static Function ApplyCommand3D(WAVE wRef, string cmdStr, [variable overwrite, string endStr])
+//
+//	overwrite = ParamIsDefault(overwrite) ? 1 : overwrite // default overwite (used in drift correction)
+//	if(WaveDims(wRef) != 3)
+//		return -1
+//	endif
+//	variable nlayers = DimSize(wRef, 2), i
+//	DFREF currDF = GetDataFolderDFR()
+//	string folderNameStr = CreateDataObjectName(currDF, "ApplyCommand3D_buffer_folder_", 11, 0, 1)
+//	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(":"+folderNameStr, setDF=1)
+//	string buffer = "getStacklayer_", waveNameStr
+//	for(i = 0; i < nlayers; i++)
+//		waveNameStr = buffer + num2str(i)
+//		MatrixOP $waveNameStr = layer(wRef, i)
+//		Execute/P/Q cmdStr +GetWavesDataFolder($waveNameStr, 2)
+//	endfor
+//	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
+//	WAVE M_Stack
+//	DFREF saveDF = GetWavesDataFolderDFR(wRef)
+//	// Restore scale here
+//	CopyScales wRef, M_Stack
+//	Note M_Stack, note(wRef) // Get the note of the wave, see ATH_String#WaveLogging below
+//	string noteStr = "ApplyCommand3D: " + cmdStr
+//	if(overwrite)
+//		Duplicate/O M_Stack, saveDF:$NameofWave(wRef)
+//		ATH_String#WaveLogging(saveDF:$NameofWave(wRef), noteStr, prepend=1)
+//	else
+//		string newWaveNameStr = CreateDataObjectName(saveDF, NameofWave(wRef) + endStr, 1, 0, 1)
+//		Duplicate/O M_Stack, saveDF:$newWaveNameStr
+//		ATH_String#WaveLogging(saveDF:$newWaveNameStr, noteStr,prepend=1)
+//	endif
+//	SetDataFolder currDF
+//	//KillDataFolder/Z dfr
+//	return 0
+//End

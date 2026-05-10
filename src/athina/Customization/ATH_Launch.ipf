@@ -1901,4 +1901,86 @@ static Function ImageFilter3D([string grfName])
 	endif
 	ATH_ImgOp#ImageFilter3D(wRef, applyMethod, size, passes, overwrite = overwrite-2)
 	return 0
-	End
+End
+
+static Function ImageSmooth3D([string grfName])
+	// The Smooth operation smooths the named waves using binomial (Gaussian) smoothing, 
+	// boxcar (sliding average) smoothing, Savitzky-Golay (polynomial) smoothing, or 
+	// running-median filtering.
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	WAVE wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
+	
+	string msg = "Image Smoothing 3D"
+	variable method = 1, SGorder = 1,  points = 3, percentile= 50, dim = -1, overwrite = 1
+	Prompt method, "Smoothing method", popup, "Gauss;Sliding average;Polynomial;Running median" // gauss == 1
+	Prompt points, "Points"
+	Prompt SGorder, "Polynomial algorithm",  popup, "2;4"
+	Prompt percentile, "Sliding average passes"
+	Prompt dim, "Operate (dim)"	
+	Prompt overwrite, "Overwrite", popup, "Yes;No" // Yes = 1, No = 2!	
+	DoPrompt msg, method, points, SGorder, percentile, dim, overwrite
+	if(V_flag)
+		return 0
+	endif
+	string commandStr = "Smooth " + StringFromList(method,"dummy; ;/B ;/S ;/M ")
+	
+	// Filter parameters
+	
+		
+	if(dim >= 0)
+		dim = dim > 4 ? -1 : dim
+		commandStr += "/DIM="+num2str(dim) + " "
+	endif
+	
+	if(method == 1) // box
+		points = (points < 4) ? 3 : points
+		commandStr += num2str(points)
+	elseif(method == 2)
+		points = (points < 2) ? 2 : points
+		if(!mod(points,2))
+			commandStr += "/EVEN "
+		endif
+		commandStr += num2str(points)
+	elseif(method == 3)
+		if(SGorder==1)
+			points = points < 5 ? 5 : points
+			points = points > 5 ? 25 : points
+			commandStr += "=2 " + num2str(points)
+		elseif(SGorder==2)
+			points = points < 7 ? 7 : points
+			points = points > 5 ? 25 : points
+			commandStr += "=4 " + num2str(points)
+		else
+			Abort
+		endif
+	elseif(method == 4)
+		points = points < 2 ? 2 : points
+		points = points > 32767 ? 32767 : points
+		percentile = (percentile > 0 && percentile < 100) ? percentile : 50
+		if(percentile!=50)
+			commandStr += "=0/MPCT="+num2str(percentile) // =0 to add to /M
+		endif
+		commandStr += " " + num2str(points)
+	else
+		Abort
+	endif
+
+	
+	if(overwrite-2)
+		ATH_DFR#BackupWaveInWaveDF(wRef) // backup the wave
+	endif	
+		
+	DFREF saveDF = GetWavesDataFolderDFR(wRef)
+	string noteStr = "Applied Smoothing: " + commandStr
+	if(overwrite-2)
+		Execute/P/Q (commandStr + ", " + GetWavesDataFolder(wRef,2))
+		ATH_String#WaveLogging(wRef, noteStr, prepend=1)
+	else
+		string newWaveNameStr = CreateDataObjectName(saveDF, NameofWave(wRef) + "_smth", 1, 0, 1)
+		Duplicate wRef, saveDF:$newWaveNameStr
+		Execute/P/Q (commandStr + ", " + GetWavesDataFolder(saveDF:$newWaveNameStr,2))
+		ATH_String#WaveLogging(saveDF:$newWaveNameStr, noteStr, prepend=1)
+	endif
+	
+	return 0
+End
