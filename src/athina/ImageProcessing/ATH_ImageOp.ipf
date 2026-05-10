@@ -1236,14 +1236,15 @@ static Function ImageFilter3D(WAVE wRef, string method, variable size, variable 
 	DFREF saveDF = GetWavesDataFolderDFR(wRef)
 	// Restore scale here
 	CopyScales wRef, M_Stack
+	Note M_Stack, note(wRef) // Get the note of the wave, see ATH_String#WaveLogging below
 	string noteStr = "Applied MatrixFilter/N="+num2str(size)+"/P="+num2str(passes)+ " " + method + " " + NameofWave(wRef)
 	if(overwrite)
 		Duplicate/O M_Stack, saveDF:$NameofWave(wRef)
-		Note saveDF:$NameofWave(wRef), noteStr
+		ATH_String#WaveLogging(saveDF:$NameofWave(wRef), noteStr, prepend=1)
 	else
 		string newWaveNameStr = CreateDataObjectName(saveDF, NameofWave(wRef) + "_filter", 1, 0, 1)
 		Duplicate/O M_Stack, saveDF:$newWaveNameStr
-		Note saveDF:$newWaveNameStr, noteStr
+		ATH_String#WaveLogging(saveDF:$newWaveNameStr, noteStr,prepend=1)
 	endif
 	SetDataFolder currDF
 	return 0

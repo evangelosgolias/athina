@@ -78,28 +78,28 @@ STATIC FUNCTION Graph_Creation()
 	//Controls whose names start with V are always enabled, controls with names that start with H are always hidden, and controls whose names start with T
 	//are disabled depending on what is going on
 	
-	Button V0_Button_Help,pos={5.00,3.00},size={50.00,20.00}, proc=IgorThief2#Help_Button,title="Help",fSize=11,fStyle=1,fColor=(49151,65535,49151)
+	Button V0_Button_Help,pos={5.00,3.00},size={50.00,20.00}, proc=IE_IgorThief2#Help_Button,title="Help",fSize=11,fStyle=1,fColor=(49151,65535,49151)
 	
 	TitleBox V0_Title_ToDo,pos={60.00,3.00},size={165.00,24.00},frame=5,fColor=(65535,0,0), fSize=12, fStyle=1, title="To start, select an image"
 	
-	PopupMenu T1_Pop_Image_Name,pos={5,27.00},size={87.00,20.00},title="1. Select image",proc=IgorThief2#Image_Pop_Load_Change_Image, mode=1,popvalue="New Image",value=#"\"New Image;\"+sortlist(WaveList(\"*\", \";\", \"TEXT:0,DIMS:2\")+WaveList(\"*\", \";\", \"TEXT:0,DIMS:3\"), \";\", 16)"
+	PopupMenu T1_Pop_Image_Name,pos={5,27.00},size={87.00,20.00},title="1. Select image",proc=IE_IgorThief2#Image_Pop_Load_Change_Image, mode=1,popvalue="New Image",value=#"\"New Image;\"+sortlist(WaveList(\"*\", \";\", \"TEXT:0,DIMS:2\")+WaveList(\"*\", \";\", \"TEXT:0,DIMS:3\"), \";\", 16)"
 
 	TitleBox T2_Title_Points_Lines,pos={5.00,49.00},size={118.00,16.00},title="Set axis min/max with:",frame=0,disable=2
-	CheckBox T2_Check_Use_Lines,pos={4,69.00},size={43.00,16.00},title="Lines",value=kvUse_Lines_as_Default,mode=1,help={"Set the axis min/max locations with lines.  Use if the graph is unrotated."},proc=IgorThief2#Graph_CheckBox_Use_Points_Lines,disable=2
-	CheckBox T2_Check_Use_Points,pos={70,69},size={56.00,16.00},title="Points",value=!kvUse_Lines_as_Default,mode=1,help={"Set XY points for the axis min/max locations.  Use if the graph is rotated."},proc=IgorThief2#Graph_CheckBox_Use_Points_Lines,disable=2
+	CheckBox T2_Check_Use_Lines,pos={4,69.00},size={43.00,16.00},title="Lines",value=kvUse_Lines_as_Default,mode=1,help={"Set the axis min/max locations with lines.  Use if the graph is unrotated."},proc=IE_IgorThief2#Graph_CheckBox_Use_Points_Lines,disable=2
+	CheckBox T2_Check_Use_Points,pos={70,69},size={56.00,16.00},title="Points",value=!kvUse_Lines_as_Default,mode=1,help={"Set XY points for the axis min/max locations.  Use if the graph is rotated."},proc=IE_IgorThief2#Graph_CheckBox_Use_Points_Lines,disable=2
 	
-	PopupMenu T2_Pop_X_Axis_Type,pos={136.00,48.00},size={108.00,20},title="2a. X axis:",mode=1,popvalue="Linear",value=#"\"Linear;Log10;ln;Recip;Sqrt\"",proc=IgorThief2#Graph_Pop_Axis_Type,disable=2
-	PopupMenu T2_Pop_Y_Axis_Type,pos={136.00,69.00},size={108.00,20},title="2b. Y axis:",mode=1,popvalue="Linear",value=#"\"Linear;Log10;ln;Recip;Sqrt\"",proc=IgorThief2#Graph_Pop_Axis_Type,disable=2
+	PopupMenu T2_Pop_X_Axis_Type,pos={136.00,48.00},size={108.00,20},title="2a. X axis:",mode=1,popvalue="Linear",value=#"\"Linear;Log10;ln;Recip;Sqrt\"",proc=IE_IgorThief2#Graph_Pop_Axis_Type,disable=2
+	PopupMenu T2_Pop_Y_Axis_Type,pos={136.00,69.00},size={108.00,20},title="2b. Y axis:",mode=1,popvalue="Linear",value=#"\"Linear;Log10;ln;Recip;Sqrt\"",proc=IE_IgorThief2#Graph_Pop_Axis_Type,disable=2
 
 //	CheckBox T2_Checkbox_Log_X_Axis,pos={141,51},size={50,25},title="2a. Log X",value=0, proc=IgorThief2#Graph_CheckBox_Log_Axes,disable=2
 //	CheckBox T2_Checkbox_Log_Y_Axis,pos={141,72},size={50,25},title="2b. Log Y",value=0, proc=IgorThief2#Graph_CheckBox_Log_Axes,disable=2
 	
-	PopupMenu T3_Pop_X_Wave, mode=1,pos={250,48.00},size={135.00,20.00},title="3a. X Data", proc=IgorThief2#Graph_Pop_Wave_Selection,value=#"\"New Wave;\"+sortlist(WaveList(\"*\", \";\", \"TEXT:0,MAXCOLS:0\"), \";\", 16)",disable=2
-	PopupMenu T3_Pop_Y_Wave, mode=1,pos={249,69.00},size={135.00,20.00},title="3b. Y Data", proc=IgorThief2#Graph_Pop_Wave_Selection,value=#"\"New Wave;\"+sortlist(WaveList(\"*\", \";\", \"TEXT:0,MAXCOLS:0\"), \";\", 16)",disable=2
+	PopupMenu T3_Pop_X_Wave, mode=1,pos={250,48.00},size={135.00,20.00},title="3a. X Data", proc=IE_IgorThief2#Graph_Pop_Wave_Selection,value=#"\"New Wave;\"+sortlist(WaveList(\"*\", \";\", \"TEXT:0,MAXCOLS:0\"), \";\", 16)",disable=2
+	PopupMenu T3_Pop_Y_Wave, mode=1,pos={249,69.00},size={135.00,20.00},title="3b. Y Data", proc=IE_IgorThief2#Graph_Pop_Wave_Selection,value=#"\"New Wave;\"+sortlist(WaveList(\"*\", \";\", \"TEXT:0,MAXCOLS:0\"), \";\", 16)",disable=2
 
-	Button T4_Button_Digitize,pos={5,90},size={110,20},proc=IgorThief2#Digitization_Button_Start_Stop,title="4a. Start Digitizing",disable=2
+	Button T4_Button_Digitize,pos={5,90},size={110,20},proc=IE_IgorThief2#Digitization_Button_Start_Stop,title="4a. Start Digitizing",disable=2
 	
-	Button T5_Button_Edit,pos={120,90},size={95,20},proc=IgorThief2#Editing_Button_Start_Stop,title="5a. Start Editing",disable=2
+	Button T5_Button_Edit,pos={120,90},size={95,20},proc=IE_IgorThief2#Editing_Button_Start_Stop,title="5a. Start Editing",disable=2
 	
 	String strCoordinate
 	sprintf strCoordinate, "%5g", NaN
@@ -896,7 +896,7 @@ STATIC FUNCTION Image_Update(STRING strGraph_Name, WAVE/Z Image_Wave)
 		
 		String strHelp_Text=SelectString(iCsrDex<2, "Y", "X")+num2str(mod(iCsrDex, 2)+1)+", Csr "+strCsr_Name+"\r"+SelectString(vUse_Points, strLines_Help_Text, strPoints_Help_Text)
 		
-		SetVariable $"Csr_SetVar_"+strCsr_Name, win=$strGraph_Name, value=_NUM:NaN, limits={-Inf,Inf,0}, size={kvSetVar_Body_Width,23}, bodywidth=kvSetVar_Body_Width,fsize=14,proc=IgorThief2#Graph_SetVar_XY_Min_Max
+		SetVariable $"Csr_SetVar_"+strCsr_Name, win=$strGraph_Name, value=_NUM:NaN, limits={-Inf,Inf,0}, size={kvSetVar_Body_Width,23}, bodywidth=kvSetVar_Body_Width,fsize=14,proc=IE_IgorThief2#Graph_SetVar_XY_Min_Max
 		SetVariable $"Csr_SetVar_"+strCsr_Name, win=$strGraph_Name, valueColor=(65535*(iCsrDex>1),0, 65535*(iCsrDex<2)),valueBackColor=(SelectNUmber(iCsrDex>1,59110, 65535),59110,SelectNUmber(iCsrDex>1,65535,59110))
 		SetVariable $"Csr_SetVar_"+strCsr_Name, win=$strGraph_Name, help={strHelp_Text}, disable=0
 		ControlInfo/W=$strGraph_Name $"Csr_SetVar_"+strCsr_Name

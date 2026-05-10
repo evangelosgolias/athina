@@ -1891,12 +1891,12 @@ static Function ImageFilter3D([string grfName])
 		string noteStr = "Applied MatrixFilter/N="+num2str(size)+"/P="+num2str(passes)+ " " + applyMethod + " " + NameofWave(wRef)
 		if(overwrite-2)
 			MatrixFilter/N=(size)/P=(passes) $applyMethod wRef
-			Note wRef, noteStr
+			ATH_String#WaveLogging(wRef, noteStr, prepend=1)
 		else
 			string newWaveNameStr = CreateDataObjectName(saveDF, NameofWave(wRef) + "_filter", 1, 0, 1)
 			Duplicate wRef, saveDF:$newWaveNameStr
 			MatrixFilter/N=(size)/P=(passes) $applyMethod saveDF:$newWaveNameStr
-			Note saveDF:$newWaveNameStr, noteStr
+			ATH_String#WaveLogging(saveDF:$newWaveNameStr, noteStr, prepend=1)
 		endif
 	endif
 	ATH_ImgOp#ImageFilter3D(wRef, applyMethod, size, passes, overwrite = overwrite-2)
