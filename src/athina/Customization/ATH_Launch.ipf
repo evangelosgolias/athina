@@ -1915,7 +1915,7 @@ static Function ImageSmooth3D([string grfName])
 	Prompt method, "Smoothing method", popup, "Gauss;Sliding average;Polynomial;Running median" // gauss == 1
 	Prompt points, "Points"
 	Prompt SGorder, "Polynomial algorithm",  popup, "2;4"
-	Prompt percentile, "Sliding average passes"
+	Prompt percentile, "Running median percentile"
 	Prompt dim, "Operate (dim)"	
 	Prompt overwrite, "Overwrite", popup, "Yes;No" // Yes = 1, No = 2!	
 	DoPrompt msg, method, points, SGorder, percentile, dim, overwrite
@@ -1964,7 +1964,6 @@ static Function ImageSmooth3D([string grfName])
 	else
 		Abort
 	endif
-
 	
 	if(overwrite-2)
 		ATH_DFR#BackupWaveInWaveDF(wRef) // backup the wave
