@@ -1556,7 +1556,7 @@ End
 //End
 
 // Added for ATH_Launch#ImageRegistrationStack()
-static Function MultiThreadLoess3D(WAVE wRef, variable npts,variable order, variable passes,
+static Function/S MultiThreadLoess3D(WAVE wRef, variable npts,variable order, variable passes,
 				 variable extrapolate, variable robust, [variable overwrite])
 
 	if(!(WaveType(wRef) & 0x02 || WaveType(wRef) & 0x04))
@@ -1573,19 +1573,22 @@ static Function MultiThreadLoess3D(WAVE wRef, variable npts,variable order, vari
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
 	// So, now repack all layers.
-	string wRefNote = note(wRef)
+	string wRefNote = note(wRef), returnWave
 	if(overwrite)
-		Concatenate/O {ww}, $GetWavesDataFolder(wRef,2)
-		Note $GetWavesDataFolder(wRef,2), wRefNote
+		returnWave = GetWavesDataFolder(wRef,2)
+		Concatenate/O {ww}, $returnWave
+		Note $returnWave, wRefNote
 	else
 		string waveNameStr = CreateDataObjectName(currDF, NameOfWave(wRef)+"_loess", 1, 0, 1)
-		Concatenate {ww}, $waveNameStr
-		Note $waveNameStr, wRefNote
+		returnWave = GetWavesDataFolder($waveNameStr,2)
+		Concatenate {ww}, $returnWave
+		Note $returnWave, wRefNote
 	endif
 	// ww holds references to the free waves. By killing ww, we kill
 	// the last reference to the free waves which causes them to be
 	// automatically deleted.	
 	KillWaves ww
+	return returnWave
 End
 
 ThreadSafe static Function/WAVE Loess3D_Worker(WAVE wRef, variable npts,variable order, variable passes,

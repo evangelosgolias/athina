@@ -1910,9 +1910,9 @@ static Function ImageSmooth3D([string grfName])
 	WAVE wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
 	
 	string msg = "Image Smoothing (Loess)"
-	variable radius = 2, order = 3,  extrapolate = 2, robust = 2, passes = 4, overwrite = 1
+	variable radius = 1.5, order = 3,  extrapolate = 2, robust = 2, passes = 4, overwrite = 1
 	Prompt radius, "Radius r (npts ~ π * r^2)"
-	Prompt order, "Order",  popup, "0;1;2"  // 0->1, 1->2, 2->3	
+	Prompt order, "Order",  popup, "Constant;Lowess;Loess"  // 0->1, 1->2, 2->3	
 	Prompt passes, "Passes"		
 	Prompt extrapolate, "Extrapolate", popup, "Yes;No"  // Yes = 1, No = 2!	
 	Prompt robust, "Robust", popup, "Yes;No"  // Yes = 1, No = 2!	
@@ -1924,8 +1924,6 @@ static Function ImageSmooth3D([string grfName])
 	variable npts = floor(pi*radius^2)
 	variable totalPnts = numpnts(wRef)
 	npts = npts > totalPnts ? npts : npts
-	string commandStr = "Loess/NORM=0/N="+num2str(npts)+"/R="+num2str(robust-2)+"/E="+num2str(extrapolate-2)
-	commandStr += "/ORD="+num2str(order-1) + " srcWave=%s"
 	
 	// Filter parameters
 	
@@ -1934,7 +1932,8 @@ static Function ImageSmooth3D([string grfName])
 	endif	
 	
 	DFREF saveDF = GetWavesDataFolderDFR(wRef)
-	string noteStr = "Applied Smoothing: " + commandStr
+	string noteStr = "Applied Smoothing: Loess/NORM=0/N="+num2str(npts)+"/R="+num2str(robust-2)+"/E="+\
+	num2str(extrapolate-2) + "/ORD="+num2str(order-1) + " srcWave=" + GetWavesDataFolder(wRef,2)
 	
 	if(WaveDims(wRef) == 2) // Deal with 2D waves here
 		DFREF saveDF = GetWavesDataFolderDFR(wRef)
@@ -1948,8 +1947,8 @@ static Function ImageSmooth3D([string grfName])
 			ATH_String#WaveLogging(saveDF:$newWaveNameStr, noteStr, prepend=1)
 		endif
 	elseif(WaveDims(wRef) == 3)
-		string wRefNote = note(wRef)
-		ATH_ImgOp#MultiThreadLoess3D(wRef, npts, order-1, passes, extrapolate-2, robust-2, overwrite = overwrite-2)
+		string waveNameStr = ATH_ImgOp#MultiThreadLoess3D(wRef, npts, order-1, passes, extrapolate-2, robust-2, overwrite = overwrite-2)
+		ATH_String#WaveLogging($waveNameStr, noteStr, prepend=1)
 	else
 		return -1
 	endif
