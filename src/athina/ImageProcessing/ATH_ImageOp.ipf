@@ -1514,3 +1514,91 @@ End
 //	//KillDataFolder/Z dfr
 //	return 0
 //End
+
+/// We will make the function MT as it can be slow
+/// @function ExecuteCommand3D
+/// @brief Description of ExecuteCommand3D.
+/// @details
+/// Auto-generated documentation stub for function `ExecuteCommand3D`.
+/// @param wRef Parameter wRef.
+/// @param cmdStr String cmdStr.
+/// @param overwite] Parameter overwite].
+/// @returns Variable Return value.
+
+//static Function Loess3D(WAVE wRef, variable radius,variable order, variable passes
+//				 variable extrapolate, variable robust, [int overwrite])
+//	/// Applies the MatrixFilter/N=size/P=passes method wRef
+//	/// to each layer of wRef
+//	overwrite = ParamIsDefault(overwrite) ? 1 : overwrite // default overwite (used in drift correction)
+//	variable nlayers = DimSize(wRef, 2), i
+//	SetDataFolder NewFreeDataFolder()
+//	string waveNameStr, cmdExe
+//	for(i = 0; i < nlayers; i++)
+//		waveNameStr = "getStacklayer_" + num2str(i)
+//		MatrixOP $waveNameStr = layer(wRef, i)
+//		sprintf cmdExe, cmdStr, GetWavesDataFolder($waveNameStr,2)
+//		Execute/P/Q cmdExe
+//	endfor
+//	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
+//	WAVE M_Stack
+//	DFREF saveDF = GetWavesDataFolderDFR(wRef)
+//	// Restore scale here
+//	CopyScales wRef, M_Stack
+//	Note M_stack, note(wRef)
+//	if(overwrite)
+//		Duplicate/O M_Stack, saveDF:$NameofWave(wRef)
+//	else
+//		string newWaveNameStr = CreateDataObjectName(saveDF, NameofWave(wRef) + "_loess", 1, 0, 1)
+//		Duplicate/O M_Stack, saveDF:$newWaveNameStr
+//	endif
+//	SetDataFolder currDF
+//	return 0
+//End
+
+// Added for ATH_Launch#ImageRegistrationStack()
+static Function MultiThreadLoess3D(WAVE wRef, variable npts,variable order, variable passes,
+				 variable extrapolate, variable robust, [variable overwrite])
+
+	if(!(WaveType(wRef) & 0x02 || WaveType(wRef) & 0x04))
+		Redimension/S wRef
+	endif
+	
+	// Create a wave to hold wave references returned by DriftCorrelation_Worker.
+	variable numPlanes = DimSize(wRef,2)
+	Make/WAVE/N=(numPlanes) ww	
+	// Release the threads.
+	MultiThreadingControl setMode=0	
+	MultiThread ww = Loess3D_Worker(wRef, npts,order,passes, extrapolate, robust, p)
+	MultiThreadingControl setMode=1	
+	// At this point, ww holds wave references to numplanes free waves
+	// created by DriftCorrelation_Worker.
+	// So, now repack all layers.
+	string wRefNote = note(wRef)
+	if(overwrite)
+		Concatenate/O {ww}, $GetWavesDataFolder(wRef,2)
+		Note $GetWavesDataFolder(wRef,2), wRefNote
+	else
+		string waveNameStr = CreateDataObjectName(currDF, NameOfWave(wRef)+"_loess", 1, 0, 1)
+		Concatenate {ww}, $waveNameStr
+		Note $waveNameStr, wRefNote
+	endif
+	// ww holds references to the free waves. By killing ww, we kill
+	// the last reference to the free waves which causes them to be
+	// automatically deleted.	
+	KillWaves ww
+End
+
+ThreadSafe static Function/WAVE Loess3D_Worker(WAVE wRef, variable npts,variable order, variable passes,
+				 variable extrapolate, variable robust, variable plane)
+	
+	DFREF dfSav= GetDataFolderDFR()
+
+	// Create a free data folder and set it as the current data folder
+	SetDataFolder NewFreeDataFolder()
+	ImageTransform/P=(plane) getPlane wRef
+	Wave M_ImagePlane
+	Loess/NORM=0/N=(npts)/R=(robust)/E=(extrapolate)/ORD=(order) srcWave=M_ImagePlane
+	// Restore the current data folder
+	SetDataFolder dfSav
+	return M_ImagePlane		// Return a reference to the free M_RegOut wave
+End

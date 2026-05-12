@@ -86,10 +86,11 @@ Menu "athina"
 		"Duplicate image and data (TG, 2D, 3D)", /Q, ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
 		"Backup Image (TG)", /Q, ATH_ImgOp#BackupTopImage()	
 		"Apply Image Filter (TG, 3D, 2D)", /Q, ATH_Launch#ImageFilter3D()
-		"Image Smoothing (TG, 2D, 3D)",/Q, ATH_Launch#ImageSmooth3D()
-		"Apply Edge Detection to stack (TG, 3D, 2D)",/Q, ATH_Launch#ApplyEdgeDetectionCommandToStack()
+		"Image Loess Smoothing (TG, 2D, 3D)",/Q, ATH_Launch#ImageSmooth3D()
+		"Edge Detection to stack (TG, 3D, 2D)",/Q, ATH_Launch#ApplyEdgeDetectionCommandToStack()
 		"Restore image from backup (TG)", /Q, ATH_ImgOp#RestoreTopImageFromBackup()
 		"Center image histogram (TG)", /Q, ATH_Launch#HistogramShiftToGaussianCenter()
+		"Wave smoothing (TG, 3D, 2D)", /Q, ATH_Launch#SmoothWave()		
 		"Rotate 3d wave axes (TG, 3D)", /Q, ATH_Launch#Rotate3DWaveAxes()
 	End
 	

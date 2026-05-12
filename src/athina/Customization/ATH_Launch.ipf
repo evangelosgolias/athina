@@ -1903,14 +1903,69 @@ static Function ImageFilter3D([string grfName])
 	return 0
 End
 
+
 static Function ImageSmooth3D([string grfName])
+	// Loess image smoothing
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	WAVE wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
+	
+	string msg = "Image Smoothing (Loess)"
+	variable radius = 1, order = 3,  extrapolate = 2, robust = 2, passes = 4, overwrite = 1
+	Prompt radius, "Radius r (npts ~ π * r^2)"
+	Prompt order, "Order",  popup, "0;1;2"  // 0->1, 1->2, 2->3	
+	Prompt passes, "Passes"		
+	Prompt extrapolate, "Extrapolate", popup, "Yes;No"  // Yes = 1, No = 2!	
+	Prompt robust, "Operate (dim)", popup, "Yes;No"  // Yes = 1, No = 2!	
+	Prompt overwrite, "Overwrite", popup, "Yes;No" // Yes = 1, No = 2!	
+	DoPrompt msg, radius, order, passes, extrapolate, robust, overwrite
+	if(V_flag)
+		return 0
+	endif
+	variable npts = floor(pi*radius^2)
+	variable totalPnts = numpnts(wRef)
+	npts = npts > totalPnts ? npts : npts
+	string commandStr = "Loess/NORM=0/N="+num2str(npts)+"/R="+num2str(robust-2)+"/E="+num2str(extrapolate-2)
+	commandStr += "/ORD="+num2str(order-1) + " srcWave=%s"
+	
+	// Filter parameters
+	
+	if(overwrite-2)
+		ATH_DFR#BackupWaveInWaveDF(wRef) // backup the wave
+	endif	
+	
+	DFREF saveDF = GetWavesDataFolderDFR(wRef)
+	string noteStr = "Applied Smoothing: " + commandStr
+	
+	if(WaveDims(wRef) == 2) // Deal with 2D waves here
+		DFREF saveDF = GetWavesDataFolderDFR(wRef)
+		if(overwrite-2)
+			Loess/NORM=0/N=(npts)/R=(robust-2)/E=(extrapolate-2)/ORD=(order-1) srcWave=wRef
+			ATH_String#WaveLogging(wRef, noteStr, prepend=1)
+		else
+			string newWaveNameStr = CreateDataObjectName(saveDF, NameofWave(wRef) + "_filter", 1, 0, 1)
+			Duplicate wRef, saveDF:$newWaveNameStr
+			Loess/NORM=0/N=(npts)/R=(robust-2)/E=(extrapolate-2)/ORD=(order-1) srcWave=saveDF:$newWaveNameStr
+			ATH_String#WaveLogging(saveDF:$newWaveNameStr, noteStr, prepend=1)
+		endif
+	elseif(WaveDims(wRef) == 3)
+		string wRefNote = note(wRef)
+		ATH_ImgOp#MultiThreadLoess3D(wRef, npts, order-1, passes, extrapolate-2, robust-2, overwrite = overwrite-2)
+	else
+		return -1
+	endif
+	return 0
+End
+
+
+
+static Function SmoothWave([string grfName])
 	// The Smooth operation smooths the named waves using binomial (Gaussian) smoothing, 
 	// boxcar (sliding average) smoothing, Savitzky-Golay (polynomial) smoothing, or 
 	// running-median filtering.
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	WAVE wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
 	
-	string msg = "Image Smoothing 3D"
+	string msg = "Smooth Wave"
 	variable method = 1, SGorder = 1,  points = 3, percentile= 50, dim = -1, overwrite = 1
 	Prompt method, "Smoothing method", popup, "Gauss;Sliding average;Polynomial;Running median" // gauss == 1
 	Prompt points, "Points"
