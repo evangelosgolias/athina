@@ -1910,12 +1910,12 @@ static Function ImageSmooth3D([string grfName])
 	WAVE wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
 	
 	string msg = "Image Smoothing (Loess)"
-	variable radius = 1, order = 3,  extrapolate = 2, robust = 2, passes = 4, overwrite = 1
+	variable radius = 2, order = 3,  extrapolate = 2, robust = 2, passes = 4, overwrite = 1
 	Prompt radius, "Radius r (npts ~ π * r^2)"
 	Prompt order, "Order",  popup, "0;1;2"  // 0->1, 1->2, 2->3	
 	Prompt passes, "Passes"		
 	Prompt extrapolate, "Extrapolate", popup, "Yes;No"  // Yes = 1, No = 2!	
-	Prompt robust, "Operate (dim)", popup, "Yes;No"  // Yes = 1, No = 2!	
+	Prompt robust, "Robust", popup, "Yes;No"  // Yes = 1, No = 2!	
 	Prompt overwrite, "Overwrite", popup, "Yes;No" // Yes = 1, No = 2!	
 	DoPrompt msg, radius, order, passes, extrapolate, robust, overwrite
 	if(V_flag)
