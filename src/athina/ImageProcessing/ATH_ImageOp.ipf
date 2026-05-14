@@ -1568,7 +1568,7 @@ static Function/S MultiThreadLoess3D(WAVE wRef, variable npts,variable order, va
 	Make/WAVE/N=(numPlanes) ww	
 	// Release the threads.
 	MultiThreadingControl setMode=0	
-	MultiThread ww = Loess3D_Worker(wRef, npts,order,passes, extrapolate, robust, p)
+	MultiThread ww = Loess3D_Worker(wRef, npts, order, passes, extrapolate, robust, p)
 	MultiThreadingControl setMode=1	
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
@@ -1600,7 +1600,7 @@ ThreadSafe static Function/WAVE Loess3D_Worker(WAVE wRef, variable npts,variable
 	SetDataFolder NewFreeDataFolder()
 	ImageTransform/P=(plane) getPlane wRef
 	Wave M_ImagePlane
-	Loess/NORM=0/N=(npts)/R=(robust)/E=(extrapolate)/ORD=(order) srcWave=M_ImagePlane
+	Loess/NORM=0/N=(npts)/R=(robust)/E=(extrapolate)/PASS=(passes)/ORD=(order) srcWave=M_ImagePlane
 	// Restore the current data folder
 	SetDataFolder dfSav
 	return M_ImagePlane		// Return a reference to the free M_RegOut wave

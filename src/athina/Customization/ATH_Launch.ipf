@@ -1933,17 +1933,17 @@ static Function ImageSmooth3D([string grfName])
 	
 	DFREF saveDF = GetWavesDataFolderDFR(wRef)
 	string noteStr = "Applied Smoothing: Loess/NORM=0/N="+num2str(npts)+"/R="+num2str(robust-2)+"/E="+\
-	num2str(extrapolate-2) + "/ORD="+num2str(order-1) + " srcWave=" + GetWavesDataFolder(wRef,2)
+	num2str(extrapolate-2) + "/PASS="+num2str(passes) + "/ORD="+num2str(order-1) + " srcWave=" + GetWavesDataFolder(wRef,2)
 	
 	if(WaveDims(wRef) == 2) // Deal with 2D waves here
 		DFREF saveDF = GetWavesDataFolderDFR(wRef)
 		if(overwrite-2)
-			Loess/NORM=0/N=(npts)/R=(robust-2)/E=(extrapolate-2)/ORD=(order-1) srcWave=wRef
+			Loess/NORM=0/N=(npts)/R=(robust-2)/E=(extrapolate-2)/PASS=(passes)/ORD=(order-1) srcWave=wRef
 			ATH_String#WaveLogging(wRef, noteStr, prepend=1)
 		else
 			string newWaveNameStr = CreateDataObjectName(saveDF, NameofWave(wRef) + "_filter", 1, 0, 1)
 			Duplicate wRef, saveDF:$newWaveNameStr
-			Loess/NORM=0/N=(npts)/R=(robust-2)/E=(extrapolate-2)/ORD=(order-1) srcWave=saveDF:$newWaveNameStr
+			Loess/NORM=0/N=(npts)/R=(robust-2)/E=(extrapolate-2)/PASS=(passes)/ORD=(order-1) srcWave=saveDF:$newWaveNameStr
 			ATH_String#WaveLogging(saveDF:$newWaveNameStr, noteStr, prepend=1)
 		endif
 	elseif(WaveDims(wRef) == 3)
