@@ -1962,7 +1962,7 @@ static Function SmoothWave([string grfName])
 	// boxcar (sliding average) smoothing, Savitzky-Golay (polynomial) smoothing, or 
 	// running-median filtering.
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
-	WAVE wRef = ATH_Graph#TopImageToWaveRef(grfName=grfName)
+	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
 	
 	string msg = "Smooth Wave"
 	variable method = 1, SGorder = 1,  points = 3, percentile= 50, dim = -1, overwrite = 1

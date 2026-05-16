@@ -54,8 +54,11 @@ static Function LoadVASPBandStructure([int plotQ, int eFermi])
 	endif
 End
 
-static Function GetEFermi(string basePathStr)
+static Function GetEFermi(string basePathStr, [variable sc])
 	// Where is Efermi
+	// sc = 1 to select E-fermi from sc calculation step
+	variable selection = ParamIsDefault(sc) ? 1 : 0
+	string dosStr = StringFromList(selection, "electron_dos;electron_dos_kpoints_opt")
 	string pathStr = basePathStr + "electron_dos"
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(pathStr)
 	WAVE/SDFR=dfr efermi
