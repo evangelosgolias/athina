@@ -376,12 +376,10 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 		DFREF dfr = $skATH_DriftCorrectionSettings
 	endif
 	
-	NVAR/SDFR=dfr gATH_method, gATH_RotZ, gATH_subpixel, gATH_filter, gATH_windowing
+	NVAR/SDFR=dfr gATH_method, gATH_RotZ, gATH_subpixel
 	method = gATH_method
 	RotZ = gATH_RotZ
 	subpixel = gATH_subpixel
-	filter = gATH_filter
-	windowing = gATH_windowing
 	// Local variables only, not saved.
 	variable saveDrift = 2
 	variable layerN =  ATH_Graph#GetgLayer("")
@@ -399,13 +397,11 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	
 	Prompt method, "Method", popup, methodStr // Registration = 1, Correlation (Real) = 2, , Correlation (Phase) = 3, SavedDrifts = 4
 	Prompt layerN, "Reference layer"
-	Prompt subpixel, "Subpixel (Phase Correlation)", popup, "Yes;No" // Yes = 1, No = 2!		
-	Prompt windowing, "Windowing (Correlation)",  popup, "Yes;No" // Yes = 1, No = 2!			
-	Prompt filter, "Filtering (Correlation)", popup, "None;FindEdges;Sharpen" // None = 1, FindEdges = 2, Sharpen = 3!
+	Prompt subpixel, "Subpixel (Phase Correlation)", popup, "Yes;No" // Yes = 1, No = 2!			
 	Prompt RotZ, "Rotation (Registration)",  popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt saveDrift, "Save Drifts",  popup, "Yes;No" // Yes = 1, No = 2!
 	
-	DoPrompt msg, method, layerN, subpixel, windowing, filter, RotZ, saveDrift
+	DoPrompt msg, method, layerN, subpixel, RotZ, saveDrift
 			
 	if(V_flag) // User cancelled
 		return -1
@@ -415,8 +411,6 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	gATH_method = method
 	gATH_RotZ = RotZ // Yes = 1, No = 2!	
 	gATH_subpixel = subpixel // Yes = 1, No = 2!	
-	gATH_filter = filter // FindEdges = 1, Sharpen = 2 in ATH_ImageAlign functions
-	gATH_windowing = windowing// Yes = 1, No = 2!	
 	//
 	
 	ATH_DFR#BackupWaveInWaveDF(wRef)
@@ -453,7 +447,7 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	elseif(method == 2 || method == 3)
 		if(nlayers > kATH_DriftCorrectionMT)
 			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = 1, \
-			subpixel = gATH_subpixel - 2, filter = gATH_filter - 1, windowing = gATH_windowing - 2)
+			subpixel = gATH_subpixel - 2)
 		else
 			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN)
 		endif	
