@@ -104,6 +104,7 @@ static Function/C PhaseCorrelation(WAVE wRef, WAVE wTest, [variable subpixel,
 		qdrift = cols/2 - V_MaxColLoc
 	endif
 	KillWaves/Z W_coef, W_sigma
+	print pdrift,qdrift
 	return cmplx(pdrift,qdrift)
 End
 

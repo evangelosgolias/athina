@@ -391,15 +391,15 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	DFREF dfrSave = $skATH_SaveImageStackDriftCorrections
 	WAVE/Z/SDFR=dfrSave wDC = ath_driftCorr
 	if(WaveExists(wDC) && (DimSize(wDC, 1) == DimSize(wRef, 2)))	
-		string methodStr = "Registration (sub-pixel); Correlation (pixel); Apply Saved Drift Corrections"
+		string methodStr = "Registration; Correlation (Real - Pixel); Correlation (Phase); Apply Saved Drift Corrections"
 	else
-		methodStr = "Registration (sub-pixel); Correlation (pixel)"
+		methodStr = "Registration; Correlation (Real - Pixel); Correlation (Phase)"
 	endif
 	
 	
-	Prompt method, "Method", popup, methodStr // Registration = 1, Correlation = 2, SavedDrifts = 3
+	Prompt method, "Method", popup, methodStr // Registration = 1, Correlation (Real) = 2, , Correlation (Phase) = 3, SavedDrifts = 4
 	Prompt layerN, "Reference layer"
-	Prompt subpixel, "Subpixel (Correlation)", popup, "Yes;No" // Yes = 1, No = 2!		
+	Prompt subpixel, "Subpixel (Phase Correlation)", popup, "Yes;No" // Yes = 1, No = 2!		
 	Prompt windowing, "Windowing (Correlation)",  popup, "Yes;No" // Yes = 1, No = 2!			
 	Prompt filter, "Filtering (Correlation)", popup, "None;FindEdges;Sharpen" // None = 1, FindEdges = 2, Sharpen = 3!
 	Prompt RotZ, "Rotation (Registration)",  popup, "Yes;No" // Yes = 1, No = 2!
@@ -413,10 +413,10 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	
 	// Save settings, use zero/non-zero for flags
 	gATH_method = method
-	gATH_RotZ = RotZ - 2 // Yes = 1, No = 2!	
-	gATH_subpixel = subpixel - 2 // Yes = 1, No = 2!	
-	gATH_filter = filter - 1 // FindEdges = 1, Sharpen = 2 in ATH_ImageAlign functions
-	gATH_windowing = windowing - 2 // Yes = 1, No = 2!	
+	gATH_RotZ = RotZ // Yes = 1, No = 2!	
+	gATH_subpixel = subpixel // Yes = 1, No = 2!	
+	gATH_filter = filter // FindEdges = 1, Sharpen = 2 in ATH_ImageAlign functions
+	gATH_windowing = windowing// Yes = 1, No = 2!	
 	//
 	
 	ATH_DFR#BackupWaveInWaveDF(wRef)
@@ -445,30 +445,29 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	variable nlayers = DimSize(wRef, 2)
 	if(method == 1)
 		if(nlayers > kATH_DriftCorrectionMT)
-			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = gATH_RotZ, \
+			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = gATH_RotZ - 2, \
 			saveDrift = saveDrift - 2)
 		else
-			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = gATH_RotZ)
+			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = gATH_RotZ - 2)
 		endif
-	elseif(method == 2)
+	elseif(method == 2 || method == 3)
 		if(nlayers > kATH_DriftCorrectionMT)
 			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = 1, \
-			subpixel = gATH_subpixel, filter = gATH_filter, windowing = gATH_windowing)
+			subpixel = gATH_subpixel - 2, filter = gATH_filter - 1, windowing = gATH_windowing - 2)
 		else
 			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN)
-		endif
-	elseif(method==3)
-		ATH_ImgAlign#MultiThreadApplySavedDriftCorrections(wRef)
+		endif	
 	else
 		print "Please check ATH_Launch#ImageStackAlignmentPartition() method."
 		return NaN
 	endif
 	ATH_WaveOp#SetScalesP(wRef,x0, y0, z0, dx, dy, dz)
-	if(method == 3)
+	if(method == 4)
 		driftCorrectionNoteStr = "\n(DC from saved parameters: " + note(wDc)
 		driftCorrectionOriginalNoteStr += driftCorrectionNoteStr		
 	else
-		driftCorrectionNoteStr = "\nDrift correction using " + StringFromList(method, "dummy;Registration;Correlation") + " with reference layer #"+num2str(layerN)+"\n"
+		driftCorrectionNoteStr = "\nDrift correction using " + StringFromList(gATH_method, "dummy;Registration;Correlation (Real);Correlation (Phase)")
+		driftCorrectionNoteStr += " with reference layer #"+num2str(layerN)+" and "+StringFromList(gATH_subpixel,"dummy;sub-pixel;pixel")+" resolution.\n"
 		driftCorrectionNoteStr += "z-rotation: " + StringFromList(RotZ, "dummy;Yes;No") + "\n"
 		driftCorrectionOriginalNoteStr += driftCorrectionNoteStr		
 	endif

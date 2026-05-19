@@ -377,8 +377,9 @@ End
 // // Multithreaded Drift Correction using Correlation
 
 static Function MultiThreadCorrelationDriftCorrection(WAVE w3D, 
-	 WAVE w3DPart, variable layerN, [variable saveDrift, variable filter, variable subpixel, variable windowing])
-
+	 WAVE w3DPart, variable layerN, [variable saveDrift, variable filter, variable subpixel, variable windowing, variable method])
+	// method 0 - real correlation
+	// method 1 - phase correlation
 	if(!(WaveType(w3D) & 0x02))
 		Redimension/S w3D
 	endif
@@ -393,12 +394,12 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	if(saveDrift)
 		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedDriftCorrections:")
 		Make/D/O/N=(2, numPlanes) dfr:ath_driftCorr /WAVE = wDC
-		string noteStr = "Apply drift corrections: Correlation with reference layer #"+num2str(layerN)
-		noteStr += " of " + GetWavesDataFolder(w3D, 2)
+		string noteStr = "Apply drift corrections: " + StringFromList(method, "Correlation (Real);Correlation(Phase)")
+		noteStr += "with reference layer #"+num2str(layerN) + " of " + GetWavesDataFolder(w3D, 2)
 		if(subpixel)
-			noteStr += " using subpixel correlation."
+			noteStr += " using subpixel resolution.\n"
 		else
-			noteStr +=  "\n"
+			noteStr +=  " using pixel resolution.\n"
 		endif
 		Note/K wDC, noteStr
 	else 
@@ -423,17 +424,14 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	
 	// Release the threads.
 	MultiThreadingControl setMode=0
-	if(subpixel)
-		print "Running Phase correlation"
+	if(method)
 		MatrixOP/FREE refImagPhase = imag(r2polar(fft(M_ImagePlane,1)))
-		MultiThread ww = DriftPhaseCorrelationPartition_Worker(w3D, w3dPart, refImagPhase, p, wDC, filter = filter, windowing = windowing)
+		MultiThread ww = DriftPhaseCorrelationPartition_Worker(w3D, w3dPart, refImagPhase, p, wDC,\
+		subpixel = subpixel, filter = filter, windowing = windowing)			
 	else
 		MatrixOP/FREE refImg = M_ImagePlane - mean(M_ImagePlane)
-		MatrixOP/FREE correlationW = correlate(refImg, refImg, 0)
-		WaveStats/M=1/Q/P correlationW	
-		variable refP = V_maxRowLoc
-		variable refQ = V_maxColLoc	
-		MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, refImg, refP, refQ, p, wDC, filter = filter, windowing = windowing)
+		variable refP = DimSize(refImg,0)/2, refQ = DimSize(refImg,1)/2
+		MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, refImg, refP, refQ, p, wDC, filter = filter, windowing = windowing)			
 	endif
 	MultiThreadingControl setMode=1	
 	// At this point, ww holds wave references to numplanes free waves
@@ -469,7 +467,7 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 		ImageWindow/O Hanning M_ImagePlane
 	endif
 		
-	MatrixOP/O/FREE correlationW = correlate(w3DPartRef, M_ImagePlane, 0)
+	MatrixOP/O/FREE correlationW = correlate(w3DPartRef, M_ImagePlane - mean(M_ImagePlane), 0)
 	WaveStats/M=1/Q/P correlationW
 	pD = V_maxRowLoc 
 	qD = V_maxColLoc
@@ -499,7 +497,7 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 End
 
 ThreadSafe static Function/WAVE DriftPhaseCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart,
-					WAVE w3DPartRef, variable plane, WAVE/Z wDC, [variable filter, variable windowing])
+					WAVE w3DPartRef, variable plane, WAVE/Z wDC, [variable filter, variable windowing, variable subpixel])
 	
 	DFREF dfSav= GetDataFolderDFR()
 
@@ -523,17 +521,21 @@ ThreadSafe static Function/WAVE DriftPhaseCorrelationPartition_Worker(WAVE w3D, 
 	MatrixOP/FREE/O invFFT = sqrt(powR(ifft(p2rect(cmplx(1, w3DPartRef - imag(r2polar(fft(M_ImagePlane,1))))), 5),2))
 	ImageStats invFFT
 	variable pdrift,qdrift
-	variable rows = DimSize(w3DPartRef,0), cols = DimSize(w3DPartRef,1)
-	variable pmin, pmax, qmin, qmax, fitWidthPixels = max(10, max(rows, cols)*0.1)
-	pmax = max(0,V_MaxRowLoc - fitWidthPixels)
-	pmin = min(V_MaxRowLoc + fitWidthPixels, rows-1)
-	qmax = max(0, V_MaxColLoc - fitWidthPixels)
-	qmin = min(V_MaxColLoc + fitWidthPixels, cols-1)
-	CurveFit/Q Gauss2D  invfft[pmin,pmax][qmin,qmax] /D 
-	WAVE W_coef
-	pdrift = rows/2 - W_coef[2]
-	qdrift = cols/2 - W_coef[4]
-	
+	variable rows = DimSize(M_ImagePlane,0), cols = DimSize(M_ImagePlane,1)
+	if(subpixel)
+		variable pmin, pmax, qmin, qmax, fitWidthPixels = max(10, max(rows, cols)*0.1)
+		pmax = max(0,V_MaxRowLoc - fitWidthPixels)
+		pmin = min(V_MaxRowLoc + fitWidthPixels, rows-1)
+		qmax = max(0, V_MaxColLoc - fitWidthPixels)
+		qmin = min(V_MaxColLoc + fitWidthPixels, cols-1)
+		CurveFit/Q Gauss2D  invfft[pmin,pmax][qmin,qmax] /D 
+		WAVE W_coef
+		pdrift = W_coef[2] - rows/2 
+		qdrift = W_coef[4] - cols/2 
+	else
+		pdrift = V_MaxRowLoc - rows/2 	
+		qdrift = V_MaxColLoc - cols/2
+	endif
 	if(WaveExists(wDC))
 		wDC[0][plane] = pdrift
 		wDC[1][plane] = qdrift
