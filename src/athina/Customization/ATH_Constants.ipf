@@ -17,3 +17,8 @@ constant kATH_ScaleBarRelFactorRed = 0.51 // relative values of x-axis above whi
 // Wave names
 strconstant ksATH_StackPrefix = "ath_stack"
 strconstant ksATH_TransientStackPrefix = "ath_tr_stack"
+
+//Special dir
+strConstant skATH_W3DImageSliderParentDFR = "root:Packages:ATH_DataFolder:W3DImageSlider:" // Ends with semicolon
+strConstant skATH_DriftCorrectionSettings =  "root:Packages:ATH_DataFolder:DriftCorrectionSettings"
+strConstant skATH_SaveImageStackDriftCorrections = "root:Packages:ATH_DataFolder:SavedDriftCorrections"

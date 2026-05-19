@@ -363,24 +363,23 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 		return NaN
 	endif
 	
-	variable method, RotZ, upscale, filter, windowing
+	variable method, RotZ, subpixel, filter, windowing
 	// Save drift correction parameters
-	string dfrStr = "root:Packages:ATH_DataFolder:DriftCorrectionSettings"
-	if(!DataFolderExists(dfrStr))
-		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(dfrStr)
+	if(!DataFolderExists(skATH_DriftCorrectionSettings))
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(skATH_DriftCorrectionSettings)
 		variable/G dfr:gATH_method = 2
 		variable/G dfr:gATH_RotZ = 2
-		variable/G dfr:gATH_upscale = 1
-		variable/G dfr:gATH_filter = 0
-		variable/G dfr:gATH_windowing = 2
+		variable/G dfr:gATH_subpixel = 2
+		variable/G dfr:gATH_filter = 1
+		variable/G dfr:gATH_windowing = 1
 	else
-		DFREF dfr = $dfrStr
+		DFREF dfr = $skATH_DriftCorrectionSettings
 	endif
 	
-	NVAR/SDFR=dfr gATH_method, gATH_RotZ, gATH_upscale, gATH_filter, gATH_windowing
+	NVAR/SDFR=dfr gATH_method, gATH_RotZ, gATH_subpixel, gATH_filter, gATH_windowing
 	method = gATH_method
 	RotZ = gATH_RotZ
-	upscale = gATH_upscale
+	subpixel = gATH_subpixel
 	filter = gATH_filter
 	windowing = gATH_windowing
 	// Local variables only, not saved.
@@ -389,7 +388,7 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	
 	string msg = "Align " + NameOfWave(wRef) + " using part of the image."
 	
-	DFREF dfrSave = $"root:Packages:ATH_DataFolder:SavedDriftCorrections"
+	DFREF dfrSave = $skATH_SaveImageStackDriftCorrections
 	WAVE/Z/SDFR=dfrSave wDC = ath_driftCorr
 	if(WaveExists(wDC) && (DimSize(wDC, 1) == DimSize(wRef, 2)))	
 		string methodStr = "Registration (sub-pixel); Correlation (pixel); Apply Saved Drift Corrections"
@@ -400,24 +399,24 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	
 	Prompt method, "Method", popup, methodStr // Registration = 1, Correlation = 2, SavedDrifts = 3
 	Prompt layerN, "Reference layer"
-	Prompt upscale, "Upscale (Correlation)"
+	Prompt subpixel, "Subpixel (Correlation)", popup, "Yes;No" // Yes = 1, No = 2!		
 	Prompt windowing, "Windowing (Correlation)",  popup, "Yes;No" // Yes = 1, No = 2!			
-	Prompt filter, "Filtering"	
+	Prompt filter, "Filtering (Correlation)", popup, "None;FindEdges;Sharpen" // None = 1, FindEdges = 2, Sharpen = 3!
 	Prompt RotZ, "Rotation (Registration)",  popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt saveDrift, "Save Drifts",  popup, "Yes;No" // Yes = 1, No = 2!
 	
-	DoPrompt msg, method, layerN, upscale, windowing, filter, RotZ, saveDrift
+	DoPrompt msg, method, layerN, subpixel, windowing, filter, RotZ, saveDrift
 			
 	if(V_flag) // User cancelled
 		return -1
 	endif
 	
-	// Save settings
+	// Save settings, use zero/non-zero for flags
 	gATH_method = method
-	gATH_RotZ = RotZ
-	gATH_upscale = upscale
-	gATH_filter = floor(filter)
-	gATH_windowing = windowing
+	gATH_RotZ = RotZ - 2 // Yes = 1, No = 2!	
+	gATH_subpixel = subpixel - 2 // Yes = 1, No = 2!	
+	gATH_filter = filter - 1 // FindEdges = 1, Sharpen = 2 in ATH_ImageAlign functions
+	gATH_windowing = windowing - 2 // Yes = 1, No = 2!	
 	//
 	
 	ATH_DFR#BackupWaveInWaveDF(wRef)
@@ -446,15 +445,15 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	variable nlayers = DimSize(wRef, 2)
 	if(method == 1)
 		if(nlayers > kATH_DriftCorrectionMT)
-			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = RotZ - 2, \
-			saveDrift = saveDrift - 2, filter = gATH_filter)
+			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = gATH_RotZ, \
+			saveDrift = saveDrift - 2)
 		else
-			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = RotZ - 2)
+			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = gATH_RotZ)
 		endif
 	elseif(method == 2)
 		if(nlayers > kATH_DriftCorrectionMT)
 			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = 1, \
-			upscale = upscale, filter = gATH_filter, windowing = windowing - 2)
+			subpixel = gATH_subpixel, filter = gATH_filter, windowing = gATH_windowing)
 		else
 			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN)
 		endif

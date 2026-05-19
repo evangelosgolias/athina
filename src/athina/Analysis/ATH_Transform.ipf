@@ -52,12 +52,59 @@ End
 ///
 /// @param wRef WAVE Reference image
 /// @param [mode] WAVE Test image
-/// @returns WAVE Phase correlation 
+/// @returns /C Cmplx row (real) and col (imag) drift
 ///
-static Function/WAVE PhaseCorrelation(WAVE/C wRef, WAVE/C wTest)
+static Function/C PhaseCorrelation(WAVE wRef, WAVE wTest, [variable subpixel, 
+				   variable filter, variable smth])
 	
-	// Implement it here.
-	// https://raw.githubusercontent.com/scikit-image/scikit-image/v0.23.2/skimage/registration/_phase_cross_correlation.py
+	if (filter==1) 
+	    ImageFilter findEdges wRef
+		ImageFilter findEdges wTest
+	elseif (filter==2) 
+		ImageFilter sharpen wRef
+		ImageFilter sharpen wTest
+	endif
+	
+	//    Combine all these statements in a single MatrixOP operation
+	//    FFT/OUT=1/DEST=fftR/WINF=Hanning wRef
+	//	  FFT/OUT=1/DEST=fftT/WINF=Hanning wTest	
+	//	  Combine all in one MatrixOP
+	//    fftR = r2polar(fftR)
+	//    fftT = r2polar(fftT)
+	//    fftR = cmplx(1, imag(fftR)-imag(fftT))
+	//    fftR = p2rect(fftR)
+	//    IFFT/DEST=invFFT/R fftR
+	//    ImageTransform Swap invfft // Put the cross-correalation peak at the center
+	//    invfft = sqrt(invfft^2)	
+	//
+	
+	MatrixOP/FREE/O invFFT = sqrt(powR(ifft(p2rect(cmplx(1, imag(r2polar(fft(wRef,1))) - imag(r2polar(fft(wTest,1))))), 5),2))
+	
+	if (smth)
+		Smooth/DIM=0 (smth), invFFT
+		Smooth/DIM=1 (smth), invFFT
+	endif
+
+	//Find local maximum
+	ImageStats invFFT
+	variable pdrift,qdrift
+	variable rows = DimSize(wRef,0), cols = DimSize(wRef,1)
+	if(subpixel)
+		variable pmin, pmax, qmin, qmax, fitWidthPixels = max(10, max(rows, cols)*0.1)
+		pmax = max(0,V_MaxRowLoc - fitWidthPixels)
+		pmin = min(V_MaxRowLoc + fitWidthPixels, rows-1)
+		qmax = max(0, V_MaxColLoc - fitWidthPixels)
+		qmin = min(V_MaxColLoc + fitWidthPixels, cols-1)
+		CurveFit/Q Gauss2D  invfft[pmin,pmax][qmin,qmax] /D 
+		WAVE W_coef
+		pdrift = rows/2 - W_coef[2]
+		qdrift = cols/2 - W_coef[4]
+	else
+		pdrift = rows/2 - V_MaxRowLoc	
+		qdrift = cols/2 - V_MaxColLoc
+	endif
+	KillWaves/Z W_coef, W_sigma
+	return cmplx(pdrift,qdrift)
 End
 
 /// @function HighLowScale

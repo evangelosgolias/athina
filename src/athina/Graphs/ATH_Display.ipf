@@ -39,7 +39,7 @@
 /// related to ATH Display functionality.
 
 // Visible everywhere, global constant.
-strConstant skATH_W3DImageSliderParentDFR = "root:Packages:ATH_DataFolder:W3DImageSlider:" // Ends with semicolon
+//strConstant skATH_W3DImageSliderParentDFR = "root:Packages:ATH_DataFolder:W3DImageSlider:" // Ends with semicolon
 
 static Function/S NewImg(WAVE wRef, [string grfname])
 	if(!WaveExists(wRef))

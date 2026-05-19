@@ -377,7 +377,7 @@ End
 // // Multithreaded Drift Correction using Correlation
 
 static Function MultiThreadCorrelationDriftCorrection(WAVE w3D, 
-	 WAVE w3DPart, variable layerN, [variable saveDrift, variable filter, variable upscale, variable windowing])
+	 WAVE w3DPart, variable layerN, [variable saveDrift, variable filter, variable subpixel, variable windowing])
 
 	if(!(WaveType(w3D) & 0x02))
 		Redimension/S w3D
@@ -395,8 +395,8 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 		Make/D/O/N=(2, numPlanes) dfr:ath_driftCorr /WAVE = wDC
 		string noteStr = "Apply drift corrections: Correlation with reference layer #"+num2str(layerN)
 		noteStr += " of " + GetWavesDataFolder(w3D, 2)
-		if(upscale > 1)
-			noteStr += " using Upscale Factor="+num2str(upscale)+ "\n"
+		if(subpixel)
+			noteStr += " using subpixel correlation."
 		else
 			noteStr +=  "\n"
 		endif
@@ -408,28 +408,33 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	// Get the reference layer from the partitioned wave
 	ImageTransform/P=(layerN) getPlane w3DPart
 	WAVE M_ImagePlane // Reference layer
-
 	
-	if(upscale > 1)		
-		ImageInterpolate/FUNC=bilinear/TRNS={scaleShift, 0, upscale, 0, upscale}/DEST=ATH_RefImg Resample M_ImagePlane
-	else
-		WAVE ATH_RefImg = M_ImagePlane
+	// Filtering 
+	if (filter == 1) 
+	    ImageFilter findEdges M_ImagePlane
+	elseif (filter == 2) 
+		ImageFilter sharpen M_ImagePlane
 	endif
 	
-	if(filter)
-		MatrixFilter /N=3 /P=(filter) avg ATH_RefImg
-	endif
-	
+	// Hanning windowing
 	if(windowing)
-		ImageWindow/O Hanning ATH_RefImg
+		ImageWindow/O Hanning M_ImagePlane
 	endif
-	MatrixOP/FREE correlationW = correlate(ATH_RefImg, ATH_RefImg, 0)
-	WaveStats/M=1/Q/P correlationW	
-	variable refP = V_maxRowLoc
-	variable refQ = V_maxColLoc	
+	
 	// Release the threads.
 	MultiThreadingControl setMode=0
-	MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, ATH_RefImg, refP, refQ, p, wDC, upscale = upscale, filter = filter)	
+	if(subpixel)
+		print "Running Phase correlation"
+		MatrixOP/FREE refImagPhase = imag(r2polar(fft(M_ImagePlane,1)))
+		MultiThread ww = DriftPhaseCorrelationPartition_Worker(w3D, w3dPart, refImagPhase, p, wDC, filter = filter, windowing = windowing)
+	else
+		MatrixOP/FREE refImg = M_ImagePlane - mean(M_ImagePlane)
+		MatrixOP/FREE correlationW = correlate(refImg, refImg, 0)
+		WaveStats/M=1/Q/P correlationW	
+		variable refP = V_maxRowLoc
+		variable refQ = V_maxColLoc	
+		MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, refImg, refP, refQ, p, wDC, filter = filter, windowing = windowing)
+	endif
 	MultiThreadingControl setMode=1	
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
@@ -438,12 +443,12 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	// ww holds references to the free waves. By killing ww, we kill
 	// the last reference to the free waves which causes them to be
 	// automatically deleted.
-	KillWaves/Z ww, M_ImagePlane, ATH_RefImg
+	KillWaves/Z ww, M_ImagePlane
 End
 
 ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart,
-					WAVE w3DPartRef, variable refP, 
-					variable refQ, variable plane, WAVE/Z wDC, [variable upscale, variable filter, variable windowing])
+					WAVE w3DPartRef, variable refP, variable refQ, variable plane,
+					WAVE/Z wDC, [variable filter, variable windowing])
 	
 	DFREF dfSav= GetDataFolderDFR()
 
@@ -453,28 +458,24 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 	// Calculate drift
 	ImageTransform/P=(plane) getPlane w3DPart // Get plane from partitioned wave
 	Wave M_ImagePlane
-
-	if(upscale > 1)		
-		ImageInterpolate/FUNC=bilinear/TRNS={scaleShift, 0, upscale, 0, upscale}/DEST=ATH_RefImg Resample M_ImagePlane
-	else
-		WAVE ATH_RefImg = M_ImagePlane
-	endif
 	
-	if(filter)
-		MatrixFilter /N=3 avg ATH_RefImg
+	if (filter==1) 
+	    ImageFilter findEdges M_ImagePlane
+	elseif (filter==2) 
+		ImageFilter sharpen M_ImagePlane
 	endif
 	
 	if(windowing)
-		ImageWindow/O Hanning ATH_RefImg
+		ImageWindow/O Hanning M_ImagePlane
 	endif
 		
-	MatrixOP/O/FREE correlationW = correlate(w3DPartRef, ATH_RefImg, 0)
+	MatrixOP/O/FREE correlationW = correlate(w3DPartRef, M_ImagePlane, 0)
 	WaveStats/M=1/Q/P correlationW
 	pD = V_maxRowLoc 
 	qD = V_maxColLoc
 	// If there is an upscale, save the upscaled drifts
-	drfP = upscale > 1 ? (refP - pD)/upscale : refP - pD // Calculate drifts
-	drfQ = upscale > 1 ? (refQ - qD)/upscale : refQ - qD
+	drfP = refP - pD // Calculate drifts
+	drfQ = refQ - qD
 	//
 	if(WaveExists(wDC))
 		wDC[0][plane] = drfP
@@ -497,8 +498,65 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 	return M_Affine		// Return a reference to the free M_Affine wave
 End
 
+ThreadSafe static Function/WAVE DriftPhaseCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart,
+					WAVE w3DPartRef, variable plane, WAVE/Z wDC, [variable filter, variable windowing])
+	
+	DFREF dfSav= GetDataFolderDFR()
+
+	// Create a free data folder and set it as the current data folder
+	SetDataFolder NewFreeDataFolder()
+	variable pD, qD, drfP, drfQ
+	// Calculate drift
+	ImageTransform/P=(plane) getPlane w3DPart // Get plane from partitioned wave
+	Wave M_ImagePlane
+	
+	if (filter==1) 
+	    ImageFilter findEdges M_ImagePlane
+	elseif (filter==2) 
+		ImageFilter sharpen M_ImagePlane
+	endif
+	
+	if(windowing)
+		ImageWindow/O Hanning M_ImagePlane
+	endif
+	// See ATH_Transform#PhaseCorrelation 
+	MatrixOP/FREE/O invFFT = sqrt(powR(ifft(p2rect(cmplx(1, w3DPartRef - imag(r2polar(fft(M_ImagePlane,1))))), 5),2))
+	ImageStats invFFT
+	variable pdrift,qdrift
+	variable rows = DimSize(w3DPartRef,0), cols = DimSize(w3DPartRef,1)
+	variable pmin, pmax, qmin, qmax, fitWidthPixels = max(10, max(rows, cols)*0.1)
+	pmax = max(0,V_MaxRowLoc - fitWidthPixels)
+	pmin = min(V_MaxRowLoc + fitWidthPixels, rows-1)
+	qmax = max(0, V_MaxColLoc - fitWidthPixels)
+	qmin = min(V_MaxColLoc + fitWidthPixels, cols-1)
+	CurveFit/Q Gauss2D  invfft[pmin,pmax][qmin,qmax] /D 
+	WAVE W_coef
+	pdrift = rows/2 - W_coef[2]
+	qdrift = cols/2 - W_coef[4]
+	
+	if(WaveExists(wDC))
+		wDC[0][plane] = pdrift
+		wDC[1][plane] = qdrift
+	endif
+	// Drift the whole image
+	ImageTransform/P=(plane) getPlane w3D
+	Wave M_ImagePlane
+	ImageInterpolate/APRM={1,0,pdrift,0,1,qdrift,1,0} Affine2D M_ImagePlane
+	WAVE M_Affine
+	// Restore the current data folder
+	SetDataFolder dfSav
+
+	// Since the only reference to the free data folder created above
+	// was the current data folder, there are now no references it.
+	// Therefore, Igor has automatically deleted it.
+	// Since there IS a reference to the M_Affine wave in the free
+	// data folder, M_Affine is not deleted but becomes a free wave.
+
+	return M_Affine		// Return a reference to the free M_Affine wave
+End
+
 static Function MultiThreadRegistrationDriftCorrection(WAVE w3D, 
-	 WAVE w3DPart, variable layerN, [variable RotZ, variable saveDrift, variable filter])
+	 WAVE w3DPart, variable layerN, [variable RotZ, variable saveDrift])
 
 	if(!(WaveType(w3D) & 0x02))
 		Redimension/S w3D
@@ -532,15 +590,11 @@ static Function MultiThreadRegistrationDriftCorrection(WAVE w3D,
 	ImageTransform/P=(layerN) getPlane w3DPart
 	Wave M_ImagePlane // Reference layer
 	
-	if(filter)
-		MatrixFilter /N=3 /P=(filter) avg M_ImagePlane
-	endif
-
 	Make/FREE/N=(DimSize(w3D,0),DimSize(w3D,1)) ATH_ROIMask
 	FastOp ATH_ROIMask = 1
 	// Release the threads.
 	MultiThreadingControl setMode=0	
-	MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart_n, M_ImagePlane, ATH_ROIMask, p, RotZ = RotZ, wDC = wDC, filter = filter)	
+	MultiThread ww = DriftRegistrationPartition_Worker(w3D, w3DPart_n, M_ImagePlane, ATH_ROIMask, p, RotZ = RotZ, wDC = wDC)	
 	MultiThreadingControl setMode=1	
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
@@ -555,7 +609,7 @@ End
 
 // Multithreaded Drift Correction using Registration
 ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE w3DPart,
-					WAVE w3DPartRef, WAVE wROIMask, variable plane, [variable RotZ, WAVE/Z wDC, variable filter])
+					WAVE w3DPartRef, WAVE wROIMask, variable plane, [variable RotZ, WAVE/Z wDC])
 	
 	DFREF dfSav= GetDataFolderDFR()
 
@@ -563,10 +617,6 @@ ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE
 	SetDataFolder NewFreeDataFolder()
 	// Calculate drift
 	MatrixOP testPartitionW = layer(w3DPart,plane)
-	
-	if(filter)
-		MatrixFilter /N=3 avg testPartitionW
-	endif	
 	
 	if(RotZ)
 		ImageRegistration/Q/CONV=1/TRNS={1,1,0}/ROT={0,0,1}/TSTM=0/BVAL=0 refwave = w3DPartRef, testwave = testPartitionW
