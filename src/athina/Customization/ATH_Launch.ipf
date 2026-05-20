@@ -389,9 +389,9 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	DFREF dfrSave = $skATH_SaveImageStackDriftCorrections
 	WAVE/Z/SDFR=dfrSave wDC = ath_driftCorr
 	if(WaveExists(wDC) && (DimSize(wDC, 1) == DimSize(wRef, 2)))	
-		string methodStr = "Registration; Correlation (Real - Pixel); Correlation (Phase); Apply Saved Drift Corrections"
+		string methodStr = "Registration (sub-pixel); Correlation (Pixel); Phase Correlation (pixel/sub-pixel); Apply Saved Drift Corrections"
 	else
-		methodStr = "Registration; Correlation (Real - Pixel); Correlation (Phase)"
+		methodStr = "Registration (sub-pixel); Correlation (Pixel); Phase Correlation (pixel/sub-pixel)"
 	endif
 	
 	
@@ -424,7 +424,9 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 		right = V_right
 		top = V_top
 		bottom = V_bottom
-	else			
+	elseif(method==4)
+		// Do nothing
+	else
 		STRUCT sUserMarqueePositions s
 		[left, right, top, bottom] = ATH_Marquee#UserGetMarqueePositions(s)		
 	endif
@@ -447,17 +449,19 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	elseif(method == 2 || method == 3)
 		if(nlayers > kATH_DriftCorrectionMT)
 			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = 1, \
-			subpixel = gATH_subpixel - 2)
+			method = gATH_method, subpixel = gATH_subpixel - 2)
 		else
 			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN)
-		endif	
+		endif
+	elseif(method == 4)
+			ATH_ImgAlign#MultiThreadApplySavedDriftCorrections(wRef, cDriftW = wDC)
 	else
 		print "Please check ATH_Launch#ImageStackAlignmentPartition() method."
 		return NaN
 	endif
 	ATH_WaveOp#SetScalesP(wRef,x0, y0, z0, dx, dy, dz)
 	if(method == 4)
-		driftCorrectionNoteStr = "\n(DC from saved parameters: " + note(wDc)
+		driftCorrectionNoteStr = "\n(Drift Correction from saved parameters: " + note(wDc)
 		driftCorrectionOriginalNoteStr += driftCorrectionNoteStr		
 	else
 		driftCorrectionNoteStr = "\nDrift correction using " + StringFromList(gATH_method, "dummy;Registration;Correlation (Real);Correlation (Phase)")
@@ -467,6 +471,7 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	endif
 	KillWaves partitionWave
 	Note wRef, driftCorrectionOriginalNoteStr
+	return 0
 End
 
 /// @function LinearDriftCorrestionStackABCursors

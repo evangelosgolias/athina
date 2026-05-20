@@ -392,7 +392,7 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	Make/WAVE/N=(numPlanes) ww	
 	
 	if(saveDrift)
-		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedDriftCorrections:")
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(skATH_SaveImageStackDriftCorrections)
 		Make/D/O/N=(2, numPlanes) dfr:ath_driftCorr /WAVE = wDC
 		string noteStr = "Apply drift corrections: " + StringFromList(method, "Correlation (Real);Correlation(Phase)")
 		noteStr += "with reference layer #"+num2str(layerN) + " of " + GetWavesDataFolder(w3D, 2)
@@ -542,7 +542,7 @@ static Function MultiThreadRegistrationDriftCorrection(WAVE w3D,
 	Make/WAVE/N=(numPlanes) ww	
 	//
 	if(saveDrift)
-		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedDriftCorrections:")
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(skATH_SaveImageStackDriftCorrections)
 		Make/D/O/N=(22, numPlanes) dfr:ath_driftCorr /WAVE = wDC
 		SetDimLabel 0,0, dx,wDC;SetDimLabel 0,1, dy,wDC;SetDimLabel 0,2, dz,wDC
 		SetDimLabel 0,3, a11,wDC;SetDimLabel 0,4, a12,wDC;SetDimLabel 0,5, a13,wDC
@@ -633,7 +633,7 @@ static Function MultiThreadApplySavedDriftCorrections(WAVE w3D, [WAVE/Z cDriftW]
 	Make/FREE/N=(DimSize(w3D,0),DimSize(w3D,1)) ATH_ROIMask
 	FastOp ATH_ROIMask = 1
 	if(ParamIsDefault(cDriftW))
-		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:SavedDriftCorrections:")
+		DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(skATH_SaveImageStackDriftCorrections)
 		WAVE/SDFR=dfr wDC = ath_driftCorr
 	else
 		WAVE wDC = cDriftW // Apply another way with drift parameters

@@ -10,7 +10,7 @@ strconstant ksATHBackupWaveExtention = "_undo"
 // Number of layers above which the MT drift correction is called
 constant kATH_DriftCorrectionMT = 9
 
-// Draw
+// Drawing
 constant kATH_ScaleBarRelFactorRed = 0.51 // relative values of x-axis above which the bar is red
 
 
@@ -18,7 +18,7 @@ constant kATH_ScaleBarRelFactorRed = 0.51 // relative values of x-axis above whi
 strconstant ksATH_StackPrefix = "ath_stack"
 strconstant ksATH_TransientStackPrefix = "ath_tr_stack"
 
-//Special dir
+//Special dirs
 strConstant skATH_W3DImageSliderParentDFR = "root:Packages:ATH_DataFolder:W3DImageSlider:" // Ends with semicolon
 strConstant skATH_DriftCorrectionSettings =  "root:Packages:ATH_DataFolder:DriftCorrectionSettings"
 strConstant skATH_SaveImageStackDriftCorrections = "root:Packages:ATH_DataFolder:SavedDriftCorrections"
