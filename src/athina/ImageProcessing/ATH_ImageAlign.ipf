@@ -412,7 +412,7 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	
 	// Release the threads.
 	MultiThreadingControl setMode=0
-	if(method)
+	if(method)		
 		MatrixOP/FREE refImagPhase = imag(r2polar(fft(M_ImagePlane,1)))
 		MultiThread ww = DriftPhaseCorrelationPartition_Worker(w3D, w3dPart, refImagPhase, p, wDC, subpixel = subpixel)			
 	else
@@ -508,6 +508,7 @@ ThreadSafe static Function/WAVE DriftPhaseCorrelationPartition_Worker(WAVE w3D, 
 		wDC[0][plane] = pdrift
 		wDC[1][plane] = qdrift
 	endif
+	print plane, pdrift, qdrift
 	// Drift the whole image
 	ImageTransform/P=(plane) getPlane w3D
 	Wave M_ImagePlane

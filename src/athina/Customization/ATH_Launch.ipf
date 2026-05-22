@@ -449,7 +449,7 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	elseif(method == 2 || method == 3)
 		if(nlayers > kATH_DriftCorrectionMT)
 			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = 1, \
-			method = gATH_method, subpixel = gATH_subpixel - 2)
+			method = gATH_method-2, subpixel = gATH_subpixel - 2)
 		else
 			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN)
 		endif
