@@ -413,7 +413,7 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	// Release the threads.
 	MultiThreadingControl setMode=0
 	if(method)		
-		MatrixOP/FREE refImagPhase = imag(r2polar(fft(M_ImagePlane,1)))
+		MatrixOP/FREE refImagPhase = imag(r2polar(fft(M_ImagePlane,2)))
 		MultiThread ww = DriftPhaseCorrelationPartition_Worker(w3D, w3dPart, refImagPhase, p, wDC, subpixel = subpixel)			
 	else
 		MatrixOP/FREE refImg = M_ImagePlane - mean(M_ImagePlane)
@@ -474,7 +474,7 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 End
 
 ThreadSafe static Function/WAVE DriftPhaseCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart,
-					WAVE w3DPartRef, variable plane, WAVE/Z wDC, [variable subpixel])
+					WAVE fftRef, variable plane, WAVE/Z wDC, [variable subpixel])
 	
 	DFREF dfSav= GetDataFolderDFR()
 
@@ -486,29 +486,29 @@ ThreadSafe static Function/WAVE DriftPhaseCorrelationPartition_Worker(WAVE w3D, 
 	Wave M_ImagePlane
 	
 	// See ATH_Transform#PhaseCorrelation 
-	MatrixOP/FREE/O invFFT = sqrt(powR(ifft(p2rect(cmplx(1, w3DPartRef - imag(r2polar(fft(M_ImagePlane,1))))), 5),2))
+	MatrixOP/FREE/O invFFT = sqrt(powR(ifft(p2rect(cmplx(1, fftRef - imag(r2polar(fft(M_ImagePlane,2))))), 5),2))
 	ImageStats invFFT
 	variable pdrift,qdrift
 	variable rows = DimSize(M_ImagePlane,0), cols = DimSize(M_ImagePlane,1)
 	if(subpixel)
-		variable pmin, pmax, qmin, qmax, fitWidthPixels = max(10, max(rows, cols)*0.1)
+		variable pmin, pmax, qmin, qmax, fitWidthPixels = 15
 		pmax = max(0,V_MaxRowLoc - fitWidthPixels)
 		pmin = min(V_MaxRowLoc + fitWidthPixels, rows-1)
 		qmax = max(0, V_MaxColLoc - fitWidthPixels)
 		qmin = min(V_MaxColLoc + fitWidthPixels, cols-1)
 		CurveFit/Q Gauss2D  invfft[pmin,pmax][qmin,qmax] /D 
 		WAVE W_coef
-		pdrift = W_coef[2] - rows/2 
-		qdrift = W_coef[4] - cols/2 
+		pdrift = W_coef[2] - rows/2
+		qdrift = W_coef[4] - cols/2
 	else
-		pdrift = V_MaxRowLoc - rows/2 	
+		pdrift = V_MaxRowLoc - rows/2
 		qdrift = V_MaxColLoc - cols/2
 	endif
 	if(WaveExists(wDC))
 		wDC[0][plane] = pdrift
 		wDC[1][plane] = qdrift
 	endif
-	print plane, pdrift, qdrift
+	
 	// Drift the whole image
 	ImageTransform/P=(plane) getPlane w3D
 	Wave M_ImagePlane

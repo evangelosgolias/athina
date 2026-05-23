@@ -65,20 +65,19 @@ static Function/C PhaseCorrelation(WAVE wRef, WAVE wTest, [variable subpixel,
 		ImageFilter sharpen wTest
 	endif
 	
-	//    Combine all these statements in a single MatrixOP operation
-	//    FFT/OUT=1/DEST=fftR/WINF=Hanning wRef
-	//	  FFT/OUT=1/DEST=fftT/WINF=Hanning wTest	
-	//	  Combine all in one MatrixOP
-	//    fftR = r2polar(fftR)
-	//    fftT = r2polar(fftT)
-	//    fftR = cmplx(1, imag(fftR)-imag(fftT))
-	//    fftR = p2rect(fftR)
-	//    IFFT/DEST=invFFT/R fftR
-	//    ImageTransform Swap invfft // Put the cross-correalation peak at the center
-	//    invfft = sqrt(invfft^2)	
-	//
+//	//    Combine all these statements in a single MatrixOP operation
+//	    FFT/OUT=1/DEST=fftR/WINF=Hanning wRef
+//		FFT/OUT=1/DEST=fftT/WINF=Hanning wTest	
+//	    fftR = r2polar(fftR)
+//	    fftT = r2polar(fftT)
+//	    fftR = cmplx(1, imag(fftR)-imag(fftT))
+//	    fftR = p2rect(fftR)
+//	    IFFT/DEST=invFFT/R fftR
+//	    ImageTransform Swap invfft // Put the cross-correalation peak at the center
+//	    invfft = sqrt(invfft^2)	
+//	//
 	
-	MatrixOP/FREE/O invFFT = sqrt(powR(ifft(p2rect(cmplx(1, imag(r2polar(fft(wRef,1))) - imag(r2polar(fft(wTest,1))))), 5),2))
+	MatrixOP/FREE/O invFFT = sqrt(powR(ifft(p2rect(cmplx(1, imag(r2polar(fft(wRef,2))) - imag(r2polar(fft(wTest,2))))), 5),2))
 	
 	if (smth)
 		Smooth/DIM=0 (smth), invFFT
@@ -104,7 +103,6 @@ static Function/C PhaseCorrelation(WAVE wRef, WAVE wTest, [variable subpixel,
 		qdrift = cols/2 - V_MaxColLoc
 	endif
 	KillWaves/Z W_coef, W_sigma
-	print pdrift,qdrift
 	return cmplx(pdrift,qdrift)
 End
 
