@@ -418,7 +418,7 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	variable left, right, top, bottom
 	string xaxis, yaxis
 	[xaxis, yaxis] = ATH_Graph#GetAxes()
-	GetMarquee/K $xaxis, $yaxis
+	GetMarquee $xaxis, $yaxis
 	if(V_flag)
 		left = V_left
 		right = V_right

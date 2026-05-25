@@ -263,7 +263,6 @@ static Function GetScaledZoominImageWindow([string grfName, variable w3d, int ev
 				noteStr = NameOfWave(wref) + "_layer_" + num2str(gLayer) + "_ZM"
 				sprintf noteStr, "CmdToZM:Duplicate/R=(%.4f, %.4f)(%.4f, %.4f) %s", minX, maxX, minY, maxY, GetWavesDataFolder(wRef,2)
 			else
-				print "Entered here"
 				wavenameStr = NameOfWave(wref) + "_ZM"
 				wavenameStr = CreateDataObjectName(cdfr, wavenameStr, 1, 0, 5)
 				MatrixOP/FREE getLayerFREE = layer(wRef, gLayer)

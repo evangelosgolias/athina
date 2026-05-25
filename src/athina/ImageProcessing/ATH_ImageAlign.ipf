@@ -204,9 +204,10 @@ static Function ImgStackPartitionCorrelation(WAVE w3d,
 
 	MatrixOP/FREE refLayerWave = layer(partitionW3d, layerN)
 	ImageWindow/O Hanning refLayerWave
-	MatrixOP/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
-	WaveStats/M=1/Q/P autocorrelationW
-	variable p0 = V_maxRowLoc, q0 = V_maxColLoc, p1, q1, i
+	//MatrixOP/FREE autocorrelationW = correlate(refLayerWave, refLayerWave, 0)
+	//WaveStats/M=1/Q/P autocorrelationW
+	//variable p0 = V_maxRowLoc, q0 = V_maxColLoc, p1, q1, i
+	variable p0 = DimSize(refLayerWave,0), q0 = DimSize(refLayerWave,1), p1, q1, i
 	variable layers = DimSize(w3d, 2)
 	Make/FREE/N=(layers) dp, dq
 
@@ -418,8 +419,9 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	else
 		MatrixOP/FREE refImg = M_ImagePlane - mean(M_ImagePlane)
 		variable refP = DimSize(refImg,0)/2, refQ = DimSize(refImg,1)/2
-		MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, refImg, refP, refQ, p, wDC)			
+		MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, refImg, refP, refQ, p, wDC, subpixel = subpixel)			
 	endif
+	
 	MultiThreadingControl setMode=1	
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
@@ -433,33 +435,44 @@ End
 
 ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart,
 					WAVE w3DPartRef, variable refP, variable refQ, variable plane,
-					WAVE/Z wDC)
+					WAVE/Z wDC, [variable subpixel])
 	
 	DFREF dfSav= GetDataFolderDFR()
 
 	// Create a free data folder and set it as the current data folder
 	SetDataFolder NewFreeDataFolder()
-	variable pD, qD, drfP, drfQ
+	variable pdrift, qdrift
 	// Calculate drift
 	ImageTransform/P=(plane) getPlane w3DPart // Get plane from partitioned wave
 	Wave M_ImagePlane
-		
 	MatrixOP/O/FREE correlationW = correlate(w3DPartRef, M_ImagePlane - mean(M_ImagePlane), 0)
-	WaveStats/M=1/Q/P correlationW
-	pD = V_maxRowLoc 
-	qD = V_maxColLoc
-	// If there is an upscale, save the upscaled drifts
-	drfP = refP - pD // Calculate drifts
-	drfQ = refQ - qD
-	//
+	ImageStats correlationW
+	if(subpixel)
+		variable rows = DimSize(M_ImagePlane,0), cols = DimSize(M_ImagePlane,1)
+		variable pmin, pmax, qmin, qmax, fitWidthPixels = 15
+		pmin = max(0,V_MaxRowLoc - fitWidthPixels)
+		pmax = min(V_MaxRowLoc + fitWidthPixels, rows-1)
+		qmin = max(0, V_MaxColLoc - fitWidthPixels)
+		qmax = min(V_MaxColLoc + fitWidthPixels, cols-1)
+		CurveFit/Q Gauss2D  correlationW[pmin,pmax][qmin,qmax] /D 
+		WAVE W_coef
+		pdrift = refP - W_coef[2]
+		qdrift = refQ - W_coef[4]
+		//print "SP: ", pdrift, qdrift, refP, W_coef[2], refQ, W_coef[4]		
+	else
+		pdrift = refP - V_MaxRowLoc
+		qdrift = refQ - V_MaxColLoc
+		//print "P: ", pdrift, qdrift, refP, V_MaxRowLoc, refQ, V_MaxColLoc
+	endif
+	
 	if(WaveExists(wDC))
-		wDC[0][plane] = drfP
-		wDC[1][plane] = drfQ
+		wDC[0][plane] = pdrift
+		wDC[1][plane] = qdrift
 	endif
 	// Drift the whole image
 	ImageTransform/P=(plane) getPlane w3D
 	Wave M_ImagePlane
-	ImageInterpolate/APRM={1,0,drfP,0,1,drfQ,1,0} Affine2D M_ImagePlane
+	ImageInterpolate/APRM={1,0,pdrift,0,1,qdrift,1,0} Affine2D M_ImagePlane
 	WAVE M_Affine
 	// Restore the current data folder
 	SetDataFolder dfSav
@@ -486,23 +499,25 @@ ThreadSafe static Function/WAVE DriftPhaseCorrelationPartition_Worker(WAVE w3D, 
 	Wave M_ImagePlane
 	
 	// See ATH_Transform#PhaseCorrelation 
-	MatrixOP/FREE/O invFFT = sqrt(powR(ifft(p2rect(cmplx(1, fftRef - imag(r2polar(fft(M_ImagePlane,2))))), 5),2))
+	MatrixOP/FREE invFFT = sqrt(powR(ifft(p2rect(cmplx(1, fftRef - imag(r2polar(fft(M_ImagePlane,2))))), 5),2))
 	ImageStats invFFT
 	variable pdrift,qdrift
 	variable rows = DimSize(M_ImagePlane,0), cols = DimSize(M_ImagePlane,1)
 	if(subpixel)
 		variable pmin, pmax, qmin, qmax, fitWidthPixels = 15
-		pmax = max(0,V_MaxRowLoc - fitWidthPixels)
-		pmin = min(V_MaxRowLoc + fitWidthPixels, rows-1)
-		qmax = max(0, V_MaxColLoc - fitWidthPixels)
-		qmin = min(V_MaxColLoc + fitWidthPixels, cols-1)
+		pmin = max(0,V_MaxRowLoc - fitWidthPixels)
+		pmax = min(V_MaxRowLoc + fitWidthPixels, rows-1)
+		qmin = max(0, V_MaxColLoc - fitWidthPixels)
+		qmax = min(V_MaxColLoc + fitWidthPixels, cols-1)
 		CurveFit/Q Gauss2D  invfft[pmin,pmax][qmin,qmax] /D 
 		WAVE W_coef
 		pdrift = W_coef[2] - rows/2
 		qdrift = W_coef[4] - cols/2
+		//print "SP: ", pdrift, qdrift, rows/2, W_coef[2], cols/2, W_coef[4]
 	else
 		pdrift = V_MaxRowLoc - rows/2
 		qdrift = V_MaxColLoc - cols/2
+		//print "P: ", pdrift, qdrift, rows/2, V_MaxRowLoc, cols/2, V_MaxColLoc
 	endif
 	if(WaveExists(wDC))
 		wDC[0][plane] = pdrift
@@ -516,7 +531,7 @@ ThreadSafe static Function/WAVE DriftPhaseCorrelationPartition_Worker(WAVE w3D, 
 	WAVE M_Affine
 	// Restore the current data folder
 	SetDataFolder dfSav
-
+	
 	// Since the only reference to the free data folder created above
 	// was the current data folder, there are now no references it.
 	// Therefore, Igor has automatically deleted it.
