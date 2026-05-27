@@ -449,7 +449,7 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 	ImageStats correlationW
 	if(subpixel)
 		variable rows = DimSize(M_ImagePlane,0), cols = DimSize(M_ImagePlane,1)
-		variable pmin, pmax, qmin, qmax, fitWidthPixels = 15
+		variable pmin, pmax, qmin, qmax, fitWidthPixels = 20
 		pmin = max(0,V_MaxRowLoc - fitWidthPixels)
 		pmax = min(V_MaxRowLoc + fitWidthPixels, rows-1)
 		qmin = max(0, V_MaxColLoc - fitWidthPixels)
@@ -504,7 +504,7 @@ ThreadSafe static Function/WAVE DriftPhaseCorrelationPartition_Worker(WAVE w3D, 
 	variable pdrift,qdrift
 	variable rows = DimSize(M_ImagePlane,0), cols = DimSize(M_ImagePlane,1)
 	if(subpixel)
-		variable pmin, pmax, qmin, qmax, fitWidthPixels = 15
+		variable pmin, pmax, qmin, qmax, fitWidthPixels = 20
 		pmin = max(0,V_MaxRowLoc - fitWidthPixels)
 		pmax = min(V_MaxRowLoc + fitWidthPixels, rows-1)
 		qmin = max(0, V_MaxColLoc - fitWidthPixels)

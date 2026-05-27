@@ -389,7 +389,7 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	DFREF dfrSave = $skATH_SaveImageStackDriftCorrections
 	WAVE/Z/SDFR=dfrSave wDC = ath_driftCorr
 	if(WaveExists(wDC) && (DimSize(wDC, 1) == DimSize(wRef, 2)))	
-		string methodStr = "Registration (sub-pixel); Correlation (Pixel); Phase Correlation (pixel/sub-pixel); Apply Saved Drift Corrections"
+		string methodStr = "Registration (sub-pixel); Correlation (pixel/sub-pixel); Phase Correlation (pixel/sub-pixel); Apply Saved Drift Corrections"
 	else
 		methodStr = "Registration (sub-pixel); Correlation (Pixel); Phase Correlation (pixel/sub-pixel)"
 	endif
@@ -397,7 +397,7 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	
 	Prompt method, "Method", popup, methodStr // Registration = 1, Correlation (Real) = 2, , Correlation (Phase) = 3, SavedDrifts = 4
 	Prompt layerN, "Reference layer"
-	Prompt subpixel, "Subpixel (Phase Correlation)", popup, "Yes;No" // Yes = 1, No = 2!			
+	Prompt subpixel, "Sub-pixel drift", popup, "Yes;No" // Yes = 1, No = 2!			
 	Prompt RotZ, "Rotation (Registration)",  popup, "Yes;No" // Yes = 1, No = 2!
 	Prompt saveDrift, "Save Drifts",  popup, "Yes;No" // Yes = 1, No = 2!
 	
