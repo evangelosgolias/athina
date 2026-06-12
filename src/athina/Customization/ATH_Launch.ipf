@@ -1837,6 +1837,10 @@ static Function SetRangeAndCTabForAllGraphsInSpace([string spaceTagStr, variable
 	variable i, imax = ItemsInList(allWindowsStr)
 	for(i = 0; i < imax; i++)
 		winNameStr = StringFromList(i, allWindowsStr)
+		getSpacetagStr = GetUserData(winNameStr, "", "ATH_SpacesTag") // Do not apply it to pinned windows
+		if(!cmpstr(getSpacetagStr, "ATH__PinnedWindow__ATH", 0))
+			continue
+		endif
 		if(WaveExists(ATH_Graph#TopGraphToWaveRef(grfName=winNameStr)))
 			ATH_Launch#SetAxesRangeAndCtabFromSaved(grfName=winNameStr,setCtab=setCtab)
 		endif

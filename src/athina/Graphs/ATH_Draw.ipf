@@ -164,7 +164,7 @@ static Function ImageScaleBar(variable barlen, [string grfName])
 		DrawAction/W=$grfName delete = V_startPos, V_endPos
 		SetDrawEnv/W=$grfName gstart,gname= athScaleBar
 		SetDrawEnv/W=$grfName xcoord= axrel,ycoord= axrel, fillfgc = (65535,0,0)
-		DrawRect/W=$grfName 0.95-sf, 0.935, 0.95, 0.95
+		DrawRect/W=$grfName 0.95-sf, 0.925, 0.95, 0.95
 		SetDrawEnv/W=$grfName gstop	
 		SetDrawLayer/W=$grfName UserFront
 	else 
@@ -173,7 +173,7 @@ static Function ImageScaleBar(variable barlen, [string grfName])
 		DrawAction/W=$grfName delete = V_startPos, V_endPos
 		SetDrawEnv/W=$grfName gstart,gname= athScaleBar
 		SetDrawEnv/W=$grfName xcoord= axrel,ycoord= axrel
-		DrawRect/W=$grfName 0.95-sf, 0.935, 0.95, 0.95
+		DrawRect/W=$grfName 0.95-sf, 0.925, 0.95, 0.95
 		SetDrawEnv/W=$grfName gstop	
 		SetDrawLayer/W=$grfName UserFront
 	endif
