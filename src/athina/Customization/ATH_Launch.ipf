@@ -391,7 +391,7 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	if(WaveExists(wDC) && (DimSize(wDC, 1) == DimSize(wRef, 2)))	
 		string methodStr = "Registration (sub-pixel); Correlation (pixel/sub-pixel); Phase Correlation (pixel/sub-pixel); Apply Saved Drift Corrections"
 	else
-		methodStr = "Registration (sub-pixel); Correlation (Pixel); Phase Correlation (pixel/sub-pixel)"
+		methodStr = "Registration (sub-pixel); Correlation (pixel/sub-pixel); Phase Correlation (pixel/sub-pixel)"
 	endif
 	
 	
@@ -1833,12 +1833,11 @@ static Function SetRangeAndCTabForAllGraphsInSpace([string spaceTagStr, variable
 		spaceTagStr = GetUserData(grfName, "", "ATH_SpacesTag")
 	endif
 	string winNameStr, getSpacetagStr
-	string allWindowsStr = SortList(RemoveFromList("ATH_SpacesPanel",WinList("*",";","WIN:87")), ";", 16)
+	string allWindowsStr = SortList(RemoveFromList("ATH_SpacesPanel",WinList("*",";","WIN:1,VISIBLE:1")), ";", 16)
 	variable i, imax = ItemsInList(allWindowsStr)
 	for(i = 0; i < imax; i++)
 		winNameStr = StringFromList(i, allWindowsStr)
-		getSpacetagStr = GetUserData(winNameStr, "", "ATH_SpacesTag")
-		if(!cmpstr(getSpacetagStr, spacetagStr, 0)) // comparison is case-insensitive. 		
+		if(WaveExists(ATH_Graph#TopGraphToWaveRef(grfName=winNameStr)))
 			ATH_Launch#SetAxesRangeAndCtabFromSaved(grfName=winNameStr,setCtab=setCtab)
 		endif
 	endfor

@@ -417,11 +417,10 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 		MatrixOP/FREE refImagPhase = imag(r2polar(fft(M_ImagePlane,2)))
 		MultiThread ww = DriftPhaseCorrelationPartition_Worker(w3D, w3dPart, refImagPhase, p, wDC, subpixel = subpixel)			
 	else
-		MatrixOP/FREE refImg = M_ImagePlane - mean(M_ImagePlane)
+		MatrixOP/FREE refImg = scale(M_ImagePlane, 0 , 1)//M_ImagePlane - mean(M_ImagePlane)
 		variable refP = DimSize(refImg,0)/2, refQ = DimSize(refImg,1)/2
 		MultiThread ww = DriftCorrelationPartition_Worker(w3D, w3dPart, refImg, refP, refQ, p, wDC, subpixel = subpixel)			
 	endif
-	
 	MultiThreadingControl setMode=1	
 	// At this point, ww holds wave references to numplanes free waves
 	// created by DriftCorrelation_Worker.
@@ -445,7 +444,7 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 	// Calculate drift
 	ImageTransform/P=(plane) getPlane w3DPart // Get plane from partitioned wave
 	Wave M_ImagePlane
-	MatrixOP/O/FREE correlationW = correlate(w3DPartRef, M_ImagePlane - mean(M_ImagePlane), 0)
+	MatrixOP/O/FREE correlationW = correlate(w3DPartRef, scale(M_ImagePlane, 0 , 1), 0)
 	ImageStats correlationW
 	if(subpixel)
 		variable rows = DimSize(M_ImagePlane,0), cols = DimSize(M_ImagePlane,1)
