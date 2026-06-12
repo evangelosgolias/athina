@@ -1573,6 +1573,8 @@ static Function SetAxesRangeAndCtabFromSaved([string grfName, variable setCtab, 
 	NVAR/Z/SDFR=dfr gATH_AxisMinX
 	if(!NVAR_Exists(gATH_AxisMinX))
 		return 1
+	elseif(WaveDims(ATH_Graph#TopImageToWaveRef(grfName=grfName)) < 2)
+		return -1
 	else
 		NVAR/Z/SDFR=dfr gATH_AxisMinX
 		NVAR/Z/SDFR=dfr gATH_AxisMaxX

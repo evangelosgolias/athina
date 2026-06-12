@@ -296,6 +296,16 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						hookResult = 1										
 					endif
 					break
+//				case 90: // Z
+//					if(s.eventMod & 2) // works with SHIFT + Z only!
+//						if(strsearch(WinRecreation(s.winName,0) ,"hook(ATH_ShowZScale)",0) == -1)
+//							SetWindow $s.winName hook(ATH_ShowZScale)=ATH_Graph#ShowZScaleInGraph
+//						else
+//							SetWindow $s.winName hook(ATH_ShowZScale)=$""
+//						endif
+//						hookResult = 1										
+//					endif
+//					break					
 				case 97: // a - average if you have a 3d wave
 					if(is3d)
 						NewImg(ATH_WaveOp#AverageImageStack(w))
@@ -338,7 +348,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break
 				case 113: // q
 						if(!strlen(GetUserData(s.winName, "ATH_W3DSlider", "ATH_StackedWaveList")))
-							string waveListToTitle = ATH_string#GetStackNamesFromNote(w)
+							string waveListToTitle = ATH_String#GetStackNamesFromNote(w)
 							ModifyControl ATH_W3DSlider win=$s.winName, userdata(ATH_StackedWaveList) = waveListToTitle
 						else
 							ModifyControl ATH_W3DSlider win=$s.winName, userdata(ATH_StackedWaveList) = ""

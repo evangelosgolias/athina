@@ -538,5 +538,20 @@ static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 	return hookResult
 End
 
-
-
+//static Function ShowZScaleInGraph(STRUCT WMWinHookStruct &s)
+//
+//	WAVE wRef = ATH_Graph#TopImageToWaveRef()
+//	variable hookResult
+//	DFREF dfr = $(skATH_W3DImageSliderParentDFR + s.winName)
+//	NVAR/SDFR=dfr gLayer
+//	switch (s.eventCode)
+//		case 8:
+//			string zScaleStr = num2str(DimOffset(wRef,2) + gLayer*DimDelta(wRef,2))
+//			//string cmdStr = "TextBox/W="+s.winName+"/C/N=ath_display_Z_Scale/A=RT/F=0/B=0"+\
+//	 		//		" \"" + "\K(65535,16385,16385)" + "\Z13" + zScaleStr + "\"" 
+//			//Execute/P/Z cmdStr		
+//			print zScaleStr
+//		break
+//	endswitch
+//	return hookResult
+//End
