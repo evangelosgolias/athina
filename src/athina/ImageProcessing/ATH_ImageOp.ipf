@@ -310,21 +310,26 @@ End
 /// @returns Variable Return value.
 
 static Function GetLayerFromImageStack()
-	
-	string winNameStr = WinName(0, 1, 1)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
-	Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
-	string msg
-	NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(winNameStr):gLayer	
-	if(NVAR_Exists(gLayer) && WaveDims(w3dref) == 3)
-		string layerSaveStr = NameOfWave(w3dref) + "_layer_" + num2str(gLayer)
-		MatrixOP/O $layerSaveStr = layer(w3dref, gLayer)
-		sprintf msg, "Slice %d from wave %s", gLayer, imgNameTopGraphStr
-		CopyScales/I w3dref, $layerSaveStr
-		Note $layerSaveStr, msg
-	else
-		Abort "Operation needs a stack (3d wave) with an active slider."
-	endif
+    
+    string winNameStr = WinName(0, 1, 1)
+    string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+    Wave w3dref = ImageNameToWaveRef("", imgNameTopGraphStr) // full path of wave
+    string msg, layerSaveStr
+    NVAR/Z gLayer = root:Packages:ATH_DataFolder:W3DImageSlider:$(winNameStr):gLayer    
+    if(NVAR_Exists(gLayer) && WaveDims(w3dref) == 3)
+        string dimLabel = GetDimLabel(w3dref, 2, gLayer)
+        if(strlen(dimLabel))
+            layerSaveStr = NameOfWave(w3dref) + "_" + CleanupName(dimLabel, 0)
+        else
+            layerSaveStr = NameOfWave(w3dref) + "_layer_" + num2str(gLayer)
+        endif
+        MatrixOP/O $layerSaveStr = layer(w3dref, gLayer)
+        sprintf msg, "Slice %d (%s) from wave %s", gLayer, dimLabel, imgNameTopGraphStr
+        CopyScales/I w3dref, $layerSaveStr
+        Note $layerSaveStr, msg
+    else
+        Abort "Operation needs a stack (3d wave) with an active slider."
+    endif
 End
 
 /// @function RemoveImagesFromImageStack
