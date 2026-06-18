@@ -440,19 +440,11 @@ static Function ImageStackAlignmentUsingAFeature() // Key function for the packa
 	[x0, y0, z0, dx, dy, dz] = ATH_WaveOp#GetScalesP(wRef)
 	variable nlayers = DimSize(wRef, 2)
 	if(method == 1)
-		if(nlayers > kATH_DriftCorrectionMT)
-			ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = gATH_RotZ - 2, \
+		ATH_ImgAlign#MultiThreadRegistrationDriftCorrection(wRef, partitionWave, layerN, RotZ = gATH_RotZ - 2, \
 			saveDrift = saveDrift - 2)
-		else
-			ATH_ImgAlign#ImgStackPartitionRegistration(wRef, partitionWave, layerN = layerN, RotZ = gATH_RotZ - 2)
-		endif
 	elseif(method == 2 || method == 3)
-		if(nlayers > kATH_DriftCorrectionMT)
-			ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = 1, \
-			method = gATH_method-2, subpixel = gATH_subpixel - 2)
-		else
-			ATH_ImgAlign#ImgStackPartitionCorrelation(wRef, partitionWave, layerN = layerN)
-		endif
+		ATH_ImgAlign#MultiThreadCorrelationDriftCorrection(wRef, partitionWave, layerN, saveDrift = 1, \
+			method = gATH_method-2, subpixel = gATH_subpixel - 2)	
 	elseif(method == 4)
 			ATH_ImgAlign#MultiThreadApplySavedDriftCorrections(wRef, cDriftW = wDC)
 	else
