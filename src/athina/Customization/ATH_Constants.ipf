@@ -8,7 +8,7 @@
 strconstant ksATHBackupWaveExtention = "_undo"
 
 // Number of layers above which the MT drift correction is called
-constant kATH_DriftCorrectionMT = 9
+constant kATH_DriftCorrectionMT = 0 // Quick fix in 18.06.2026 until we fix the single threaded functions
 
 // Drawing
 constant kATH_ScaleBarRelFactorRed = 0.51 // relative values of x-axis above which the bar is red

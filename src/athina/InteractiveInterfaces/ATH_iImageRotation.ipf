@@ -118,6 +118,11 @@ static Function FlipRowsCheckBox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	SVAR/SDFR=dfr gATH_wPathname, gATH_wBackupPathNameStr
 	WAVE wRef = $gATH_wPathname
 	WAVE wRefbck = $gATH_wBackupPathNameStr
+	// Added 17.06.2026
+	if(cb.eventMod==1) // Now works for Windows!
+		return 0
+	endif
+	// That's ugly
 	switch(cb.checked)
 		case 1:
 			gATH_FlipCols = 1

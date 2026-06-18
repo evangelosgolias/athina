@@ -570,7 +570,7 @@ static Function ImageRotateAndScale(WAVE wRef, variable angle, [variable backup,
 	endif
 	string noteStr = ""
 	if(flipY)
-		ImageTransform flipCols wRef // flip the y-axis, MatrixOP reverseRows is equivalent!
+		ImageTransform flipCols wRef // flip the y-axis
 		noteStr += "Flipped  y-axis (rows)\n"
 	endif
 	ImageRotate/O/E=0/A=(-angle) wRef

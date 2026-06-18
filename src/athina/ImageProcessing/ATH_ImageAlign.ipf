@@ -214,7 +214,7 @@ static Function ImgStackPartitionCorrelation(WAVE w3d,
 	for(i = 0; i < layers; i++)
 		if(i != layerN)
 			MatrixOP/O/FREE freeLayer = layer(partitionW3d, i)
-			ImageWindow/O Hanning freeLayer
+			//ImageWindow/O Hanning freeLayer
 			MatrixOP/O/FREE correlationW = correlate(refLayerWave, freeLayer, 0)
 			WaveStats/M=1/Q/P correlationW
 			p1 = V_maxRowLoc

@@ -46,7 +46,7 @@ Menu "athina"
 			"Folder to stack .../1", /Q, ATH_Uview#LoadDATFilesFromFolderMT(displayImg = 1) 									
 			"Files to stack .../2", /Q, ATH_Uview#LoadMultiplyDATFilesMT(displayImg = 1) // MT - Mutlithread
 			"Measuremnt ID to stack (ScanGUI) ...", /Q, ATH_Uview#LoadDATFilesMatchingPattternToStackMT(displayImg = 1)
-			"Filename pattern matching to stack .../3", /Q, ATH_Uview#LoadDATFilesMatchingPattternToStackMT(displayImg = 1, pattern = 1)			
+			"Filename pattern matching to stack .../3", /Q, ATH_Uview#LoadDATFilesMatchingPattternToStackMT(displayImg = 1, pattern = 1)
 		End
 		Submenu "tif"
 			".tif (EMMENU5)...", /Q, ATH_LoadImg#LoadTiff("", "", displayImg = 1)	
@@ -61,7 +61,11 @@ Menu "athina"
 		End
 		Submenu "NeXus"
 			".nxs NeXus files (Diamond) ...",/Q, ATH_HDF5#LoadNXSDataSets()
-		End		
+		End
+		
+		//Submenu "Asylum"
+		//	".ibw ...", /Q, ATH_Asylum#LoadAsylumIBW()
+		//End
 	End
 	
 	Submenu "Image Operations"
