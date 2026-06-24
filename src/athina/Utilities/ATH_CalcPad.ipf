@@ -48,12 +48,9 @@ Structure PackagePrefs
 EndStructure
 
 /// @function PrefsSetDefaults
-/// @brief Description of PrefsSetDefaults.
-/// @details
-/// Auto-generated documentation stub for function `PrefsSetDefaults`.
-/// @param &prefs Parameter &prefs.
-/// @returns Variable Return value.
-
+/// @brief Initialize calculator preferences with their default values.
+/// @param prefs Input/output structure carrying the operation's settings and results.
+/// @returns Zero after completing the operation.
 static Function PrefsSetDefaults(STRUCT PackagePrefs &prefs)
 	prefs.version       = kPrefsVersion
 	prefs.font_size     = 14
@@ -80,12 +77,9 @@ static Function PrefsSetDefaults(STRUCT PackagePrefs &prefs)
 end
 
 /// @function LoadPrefs
-/// @brief Description of LoadPrefs.
-/// @details
-/// Auto-generated documentation stub for function `LoadPrefs`.
-/// @param &prefs Parameter &prefs.
-/// @returns Variable Return value.
-
+/// @brief Load prefs.
+/// @param prefs Input/output structure carrying the operation's settings and results.
+/// @returns Zero after completing the operation.
 static Function LoadPrefs(STRUCT PackagePrefs &prefs)
 	LoadPackagePreferences ksPackageName, ksPrefsFileName, 0, prefs
 	if (V_flag!=0 || V_bytesRead==0 || prefs.version!=kPrefsVersion)
@@ -94,11 +88,8 @@ static Function LoadPrefs(STRUCT PackagePrefs &prefs)
 end
 
 /// @function CalcPad
-/// @brief Description of CalcPad.
-/// @details
-/// Auto-generated documentation stub for function `CalcPad`.
-/// @returns Variable Return value.
-
+/// @brief Create or bring forward the calculator pad.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function CalcPad()
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:CalcPad")
 	STRUCT PackagePrefs prefs
@@ -120,12 +111,11 @@ static Function CalcPad()
 end
 
 /// @function CalcPadHook
-/// @brief Description of CalcPadHook.
+/// @brief Handle calc pad hook events.
 /// @details
-/// Auto-generated documentation stub for function `CalcPadHook`.
-/// @param &H_Struct Parameter &H_Struct.
-/// @returns Variable Return value.
-
+/// Make sure that we're typing on the last line store position find last paragraph.
+/// @param H_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function CalcPadHook(STRUCT WMWinHookStruct &H_Struct)
 	
 	if (H_Struct.eventcode == 2) // kill window
@@ -292,11 +282,10 @@ static Function CalcPadHook(STRUCT WMWinHookStruct &H_Struct)
 end
 
 /// @function PreventPaste
-/// @brief Description of PreventPaste.
+/// @brief Prevent paste.
 /// @details
-/// Auto-generated documentation stub for function `PreventPaste`.
-/// @returns Variable Return value.
-
+/// Store position find last paragraph restore current position.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function PreventPaste()
 	GetSelection Notebook, CalcPadNB, 1 // get current position in notebook
 	// store position
@@ -317,11 +306,11 @@ end
 // record some settings and clean up when notebook is closed
 
 /// @function SaveWindow
-/// @brief Description of SaveWindow.
+/// @brief Save window.
 /// @details
-/// Auto-generated documentation stub for function `SaveWindow`.
-/// @param strWin Parameter strWin.
-/// @returns Variable Return value.
+/// Save window position save window magnification.
+/// @param strWin Name of the target window.
+/// @returns Zero after completing the operation.
 static Function SaveWindow(string strWin)
 	
 	STRUCT PackagePrefs prefs
@@ -345,11 +334,8 @@ static Function SaveWindow(string strWin)
 end
 
 /// @function makePrefsPanel
-/// @brief Description of makePrefsPanel.
-/// @details
-/// Auto-generated documentation stub for function `makePrefsPanel`.
-/// @returns Variable Return value.
-
+/// @brief Create the calculator preferences panel.
+/// @returns Zero after completing the operation.
 static Function makePrefsPanel()
 	STRUCT PackagePrefs prefs
 	LoadPrefs(prefs)
@@ -412,12 +398,11 @@ static Function makePrefsPanel()
 end
 
 /// @function ButtonProc
-/// @brief Description of ButtonProc.
+/// @brief Handle the continue button for the panel.
 /// @details
-/// Auto-generated documentation stub for function `ButtonProc`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Reset controls.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function ButtonProc(STRUCT WMButtonAction &s)
 	if (s.eventCode !=2 )
 		return 0
@@ -442,12 +427,9 @@ static Function ButtonProc(STRUCT WMButtonAction &s)
 end
 
 /// @function CheckProc
-/// @brief Description of CheckProc.
-/// @details
-/// Auto-generated documentation stub for function `CheckProc`.
-/// @param &cba Parameter &cba.
-/// @returns Variable Return value.
-
+/// @brief Handle the panel checkbox action.
+/// @param cba Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function CheckProc(STRUCT WMCheckboxAction &cba)
 	if (cba.eventCode != 2)
 		return 0
@@ -470,12 +452,11 @@ static Function CheckProc(STRUCT WMCheckboxAction &cba)
 end
 
 /// @function SetVarProc
-/// @brief Description of SetVarProc.
+/// @brief Handle changes to the panel set-variable control.
 /// @details
-/// Auto-generated documentation stub for function `SetVarProc`.
-/// @param &sva Parameter &sva.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param sva Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SetVarProc(STRUCT WMSetVariableAction &sva)
 	switch( sva.eventCode )
 		case 1: // mouse up
@@ -491,12 +472,9 @@ static Function SetVarProc(STRUCT WMSetVariableAction &sva)
 end
 
 /// @function PopMenuProc
-/// @brief Description of PopMenuProc.
-/// @details
-/// Auto-generated documentation stub for function `PopMenuProc`.
-/// @param &pa Parameter &pa.
-/// @returns Variable Return value.
-
+/// @brief Handle the panel pop-up menu action.
+/// @param pa Igor control-action structure.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function PopMenuProc(STRUCT WMPopupAction &pa)
 	if (pa.eventCode != 2)
 		return 0

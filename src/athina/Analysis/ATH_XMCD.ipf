@@ -48,8 +48,8 @@
 /// a provided destination wave reference.
 /// @param w1 Wave First input image.
 /// @param w2 Wave Second input image.
-/// @param outWave String Optional output-wave name. Exactly one of `outWave` or `wRef` must be provided.
-/// @param wRef Wave Optional destination wave reference. Exactly one of `outWave` or `wRef` must be provided.
+/// @param outWave (optional) String Optional output-wave name. Exactly one of `outWave` or `wRef` must be provided.
+/// @param wRef (optional) Wave Optional destination wave reference. Exactly one of `outWave` or `wRef` must be provided.
 /// @returns Wave Reference to the output wave. Returns a null wave reference on invalid argument usage.
 ///
 static Function/WAVE CalculateXMCDWAVE(WAVE w1, WAVE w2, [string outWave, WAVE wRef])
@@ -112,7 +112,7 @@ End
 /// Extracts the first two layers of `w3d` and computes `(w0 - w1) / (w0 + w1)`.
 /// The output is written to `wXMCD` or to a user-specified wave name.
 /// @param w3d Wave Input 3D wave with exactly two layers.
-/// @param wnameStr String Optional output-wave name.
+/// @param wnameStr (optional) String Optional output-wave name.
 /// @returns Variable Returns 0 on success and 1 if the stack does not have exactly two layers.
 ///
 static Function StackToXMCD(WAVE w3d, [string wnameStr])
@@ -266,9 +266,9 @@ End
 /// Forms XMCD for layer pairs `(l0,l1)` and `(l2,l3)` according to `order`, then
 /// subtracts the second XMCD image from the first. The result is written to `outWave`.
 /// @param wRef Wave Input 3D stack with four layers.
-/// @param order String Optional permutation string specifying layer order, default `0123`.
-/// @param overwrite Variable Optional flag controlling whether an existing output wave may be overwritten.
-/// @param outWave String Optional output-wave name.
+/// @param order (optional) String Optional permutation string specifying layer order, default `0123`.
+/// @param overwrite (optional) Variable Optional flag controlling whether an existing output wave may be overwritten.
+/// @param outWave (optional) String Optional output-wave name.
 /// @returns Variable Returns 0 on success and -1 on invalid input or output creation failure.
 ///
 static Function XMCDStack4L(WAVE wRef, [string order, int overwrite, string outWave])

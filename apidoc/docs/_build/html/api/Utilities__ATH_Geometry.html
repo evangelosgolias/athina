@@ -49,10 +49,12 @@
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_Transform.html">ATH_Transform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XMCD.html">ATH_XMCD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XPSBackgroundRemoval.html">ATH_XPSBackgroundRemoval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Constants.html">ATH_Constants</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Dialog.html">ATH_Dialog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Launch.html">ATH_Launch</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Menus.html">ATH_Menus</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Datasets__ATH_XPSData.html">ATH_XPSData</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Asylum.html">ATH_Asylum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Beamtime.html">ATH_Beamtime</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Export.html">ATH_Export_Repeat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_HDF5.html">ATH_HDF5</a></li>
@@ -83,24 +85,54 @@
 <li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_DFR.html">ATH_DFR</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Utilities__ATH_Execute.html">ATH_Execute</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ATH_Geometry</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#slopeperpendiculartolinesegment"><code class="docutils literal notranslate"><span class="pre">SlopePerpendicularToLineSegment</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getsinglepointwithdistancefromline"><code class="docutils literal notranslate"><span class="pre">GetSinglePointWithDistanceFromLine</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#returns">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#getantipodalpoint"><code class="docutils literal notranslate"><span class="pre">GetAntipodalPoint</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getbothpointswithdistancefromline"><code class="docutils literal notranslate"><span class="pre">GetBothPointsWithDistanceFromLine</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id1">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id2">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#linecoefficientsfromcursors"><code class="docutils literal notranslate"><span class="pre">LineCoefficientsFromCursors</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#slopeperpendiculartolinesegment"><code class="docutils literal notranslate"><span class="pre">SlopePerpendicularToLineSegment</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id3">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id4">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#getlinefromcursors"><code class="docutils literal notranslate"><span class="pre">GetLineFromCursors</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#getverticesperpendiculartoline"><code class="docutils literal notranslate"><span class="pre">GetVerticesPerpendicularToLine</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id5">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id6">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#symmetriclineshrink"><code class="docutils literal notranslate"><span class="pre">SymmetricLineShrink</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getantipodalpoint"><code class="docutils literal notranslate"><span class="pre">GetAntipodalPoint</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#lineequationfromtwopoints"><code class="docutils literal notranslate"><span class="pre">LineEquationFromTwoPoints</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#linecoefficientsfromcursors"><code class="docutils literal notranslate"><span class="pre">LineCoefficientsFromCursors</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getlinefromcursors"><code class="docutils literal notranslate"><span class="pre">GetLineFromCursors</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id15">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#xywavesoflinefromtwopoints"><code class="docutils literal notranslate"><span class="pre">XYWavesOfLineFromTwoPoints</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id17">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id18">Returns</a></li>
 </ul>
 </li>
 </ul>
@@ -141,130 +173,313 @@
   <section id="ath-geometry">
 <h1>ATH_Geometry<a class="headerlink" href="#ath-geometry" title="Link to this heading"></a></h1>
 <p><strong>Source file:</strong> <code class="docutils literal notranslate"><span class="pre">Utilities/ATH_Geometry.ipf</span></code></p>
-<p>Module ATH_Geometry.</p>
+<p>Calculate a point at a signed distance along a line through a reference point.</p>
 <p>This module belongs to the ATH Igor Pro toolkit and contains procedures
-related to ATH Geometry functionality.</p>
+related to ATH Geometry functionality.
+&#64;function GetSinglePointWithDistanceFromLine</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#slopeperpendiculartolinesegment" id="id7"><code class="docutils literal notranslate"><span class="pre">SlopePerpendicularToLineSegment</span></code></a></p>
+<li><p><a class="reference internal" href="#getsinglepointwithdistancefromline" id="id19"><code class="docutils literal notranslate"><span class="pre">GetSinglePointWithDistanceFromLine</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#parameters" id="id8">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#returns" id="id9">Returns</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id20">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#returns" id="id21">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#getantipodalpoint" id="id10"><code class="docutils literal notranslate"><span class="pre">GetAntipodalPoint</span></code></a></p>
+<li><p><a class="reference internal" href="#getbothpointswithdistancefromline" id="id22"><code class="docutils literal notranslate"><span class="pre">GetBothPointsWithDistanceFromLine</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id1" id="id11">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id2" id="id12">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id1" id="id23">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id24">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#linecoefficientsfromcursors" id="id13"><code class="docutils literal notranslate"><span class="pre">LineCoefficientsFromCursors</span></code></a></p>
+<li><p><a class="reference internal" href="#slopeperpendiculartolinesegment" id="id25"><code class="docutils literal notranslate"><span class="pre">SlopePerpendicularToLineSegment</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id3" id="id14">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id4" id="id15">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id26">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id27">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#getlinefromcursors" id="id16"><code class="docutils literal notranslate"><span class="pre">GetLineFromCursors</span></code></a></p>
+<li><p><a class="reference internal" href="#getverticesperpendiculartoline" id="id28"><code class="docutils literal notranslate"><span class="pre">GetVerticesPerpendicularToLine</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id5" id="id17">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id6" id="id18">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id29">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id6" id="id30">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#symmetriclineshrink" id="id31"><code class="docutils literal notranslate"><span class="pre">SymmetricLineShrink</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id7" id="id32">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id8" id="id33">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#getantipodalpoint" id="id34"><code class="docutils literal notranslate"><span class="pre">GetAntipodalPoint</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id9" id="id35">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id10" id="id36">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#lineequationfromtwopoints" id="id37"><code class="docutils literal notranslate"><span class="pre">LineEquationFromTwoPoints</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id11" id="id38">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id12" id="id39">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#linecoefficientsfromcursors" id="id40"><code class="docutils literal notranslate"><span class="pre">LineCoefficientsFromCursors</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id13" id="id41">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id14" id="id42">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#getlinefromcursors" id="id43"><code class="docutils literal notranslate"><span class="pre">GetLineFromCursors</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id15" id="id44">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id16" id="id45">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#xywavesoflinefromtwopoints" id="id46"><code class="docutils literal notranslate"><span class="pre">XYWavesOfLineFromTwoPoints</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id17" id="id47">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id18" id="id48">Returns</a></p></li>
 </ul>
 </li>
 </ul>
 </nav>
+<section id="getsinglepointwithdistancefromline">
+<h2><a class="toc-backref" href="#id19" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GetSinglePointWithDistanceFromLine</span></code></a><a class="headerlink" href="#getsinglepointwithdistancefromline" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>GetSinglePointWithDistanceFromLine(<span class="kt">variable</span><span class="w"> </span>x1,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>y1,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>s,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>d)
+</pre></div>
+</div>
+<p>Calculate a point at a signed distance along a line through a reference point.</p>
+<p>This module belongs to the ATH Igor Pro toolkit and contains procedures
+related to ATH Geometry functionality.</p>
+<section id="parameters">
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">x1</span></code> <em>(Variable)</em>: Second x coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y1</span></code> <em>(Variable)</em>: Second y coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(Variable)</em>: Slope of the line along which to offset the point.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">d</span></code> <em>(Variable)</em>: Signed distance from the reference point.</p></li>
+</ul>
+</section>
+<section id="returns">
+<h3><a class="toc-backref" href="#id21" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Multiple values</strong>: The calculated x and y coordinates.</p></li>
+</ul>
+</section>
+</section>
+<section id="getbothpointswithdistancefromline">
+<h2><a class="toc-backref" href="#id22" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GetBothPointsWithDistanceFromLine</span></code></a><a class="headerlink" href="#getbothpointswithdistancefromline" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>GetBothPointsWithDistanceFromLine(<span class="kt">variable</span><span class="w"> </span>x1,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>y1,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>s,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>d)
+</pre></div>
+</div>
+<p>Calculate the two points separated by a requested distance along a line.</p>
+<p>The returned points lie on opposite sides of the reference point and are separated by <code class="docutils literal notranslate"><span class="pre">d</span></code>.</p>
+<section id="id1">
+<h3><a class="toc-backref" href="#id23" role="doc-backlink">Parameters</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">x1</span></code> <em>(Variable)</em>: Second x coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y1</span></code> <em>(Variable)</em>: Second y coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(Variable)</em>: Slope of the line on which the returned points lie.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">d</span></code> <em>(Variable)</em>: Distance separating the two returned points.</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3><a class="toc-backref" href="#id24" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Multiple values</strong>: The x and y coordinates of both calculated points.</p></li>
+</ul>
+</section>
+</section>
 <section id="slopeperpendiculartolinesegment">
-<h2><a class="toc-backref" href="#id7" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SlopePerpendicularToLineSegment</span></code></a><a class="headerlink" href="#slopeperpendiculartolinesegment" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id25" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SlopePerpendicularToLineSegment</span></code></a><a class="headerlink" href="#slopeperpendiculartolinesegment" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SlopePerpendicularToLineSegment(<span class="kt">variable</span><span class="w"> </span>x1,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>y1,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>x2,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>y2)
 </pre></div>
 </div>
-<p>Description of SlopePerpendicularToLineSegment.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">SlopePerpendicularToLineSegment</span></code>.</p>
-<section id="parameters">
-<h3><a class="toc-backref" href="#id8" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<p>Calculate slope perpendicular to line segment.</p>
+<p>Return the slope of a line perpendicular to the line segment defined by (x1, y1) and (x2, y2).</p>
+<section id="id3">
+<h3><a class="toc-backref" href="#id26" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">x1</span></code> <em>(Parameter)</em>: x1.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">y1</span></code> <em>(Parameter)</em>: y1.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">x2</span></code> <em>(Parameter)</em>: x2.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">y2</span></code> <em>(Parameter)</em>: y2.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x1</span></code> <em>(Variable)</em>: Second x coordinate or range bound.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y1</span></code> <em>(Variable)</em>: Second y coordinate or range bound.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x2</span></code> <em>(Variable)</em>: Second point’s x coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y2</span></code> <em>(Variable)</em>: Second point’s y coordinate.</p></li>
 </ul>
 </section>
-<section id="returns">
-<h3><a class="toc-backref" href="#id9" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<section id="id4">
+<h3><a class="toc-backref" href="#id27" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: The calculated slope perpendicular to line segment.</p></li>
+</ul>
+</section>
+</section>
+<section id="getverticesperpendiculartoline">
+<h2><a class="toc-backref" href="#id28" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GetVerticesPerpendicularToLine</span></code></a><a class="headerlink" href="#getverticesperpendiculartoline" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>GetVerticesPerpendicularToLine(<span class="kt">variable</span><span class="w"> </span>radius,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>slope)
+</pre></div>
+</div>
+<p>Calculate the x and y offsets from a circle center to a line intersection.</p>
+<p>The offsets are the nonnegative x component and signed y component for a line through the origin
+intersecting a circle of the requested radius.</p>
+<section id="id5">
+<h3><a class="toc-backref" href="#id29" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">radius</span></code> <em>(Variable)</em>: Radius of the circle.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">slope</span></code> <em>(Variable)</em>: Slope of the line through the circle center.</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3><a class="toc-backref" href="#id30" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Multiple values</strong>: The x and y offsets from the circle center.</p></li>
+</ul>
+</section>
+</section>
+<section id="symmetriclineshrink">
+<h2><a class="toc-backref" href="#id31" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SymmetricLineShrink</span></code></a><a class="headerlink" href="#symmetriclineshrink" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SymmetricLineShrink(<span class="kt">variable</span><span class="w"> </span>x1,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>y1,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>x2,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>y2,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>Sfactor)
+</pre></div>
+</div>
+<p>Scale a line segment about its midpoint.</p>
+<p>A factor below one shortens the segment and a factor above one lengthens it without moving its midpoint.</p>
+<section id="id7">
+<h3><a class="toc-backref" href="#id32" role="doc-backlink">Parameters</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">x1</span></code> <em>(Variable)</em>: Second x coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y1</span></code> <em>(Variable)</em>: Second y coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x2</span></code> <em>(Variable)</em>: Second endpoint’s x coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y2</span></code> <em>(Variable)</em>: Second endpoint’s y coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Sfactor</span></code> <em>(Variable)</em>: Scale factor applied to the segment length about its midpoint.</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3><a class="toc-backref" href="#id33" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Multiple values</strong>: The two endpoints of the scaled line segment.</p></li>
 </ul>
 </section>
 </section>
 <section id="getantipodalpoint">
-<h2><a class="toc-backref" href="#id10" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GetAntipodalPoint</span></code></a><a class="headerlink" href="#getantipodalpoint" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id34" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GetAntipodalPoint</span></code></a><a class="headerlink" href="#getantipodalpoint" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>GetAntipodalPoint(<span class="kt">variable</span><span class="w"> </span>x1,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>y1,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>x0,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>y0)
 </pre></div>
 </div>
-<p>Description of GetAntipodalPoint.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">GetAntipodalPoint</span></code>.</p>
-<section id="id1">
-<h3><a class="toc-backref" href="#id11" role="doc-backlink">Parameters</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>Return antipodal point.</p>
+<p>Returns the antipodal point (xn, yn) of (x1, x2) of a circle with center (x0, y0) return [xn, yn].</p>
+<section id="id9">
+<h3><a class="toc-backref" href="#id35" role="doc-backlink">Parameters</a><a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">x1</span></code> <em>(Parameter)</em>: x1.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">y1</span></code> <em>(Parameter)</em>: y1.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">x0</span></code> <em>(Parameter)</em>: x0.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">y0</span></code> <em>(Parameter)</em>: y0.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x1</span></code> <em>(Variable)</em>: Second x coordinate or range bound.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y1</span></code> <em>(Variable)</em>: Second y coordinate or range bound.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x0</span></code> <em>(Variable)</em>: First x coordinate or range bound.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y0</span></code> <em>(Variable)</em>: First y coordinate or range bound.</p></li>
 </ul>
 </section>
-<section id="id2">
-<h3><a class="toc-backref" href="#id12" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<section id="id10">
+<h3><a class="toc-backref" href="#id36" role="doc-backlink">Returns</a><a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="lineequationfromtwopoints">
+<h2><a class="toc-backref" href="#id37" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">LineEquationFromTwoPoints</span></code></a><a class="headerlink" href="#lineequationfromtwopoints" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>LineEquationFromTwoPoints(<span class="kt">variable</span><span class="w"> </span>x0,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>y0,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>x1,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>y1)
+</pre></div>
+</div>
+<p>Calculate slope and intercept for the line through two points.</p>
+<section id="id11">
+<h3><a class="toc-backref" href="#id38" role="doc-backlink">Parameters</a><a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">x0</span></code> <em>(Variable)</em>: First x coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y0</span></code> <em>(Variable)</em>: First y coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x1</span></code> <em>(Variable)</em>: Second x coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y1</span></code> <em>(Variable)</em>: Second y coordinate.</p></li>
+</ul>
+</section>
+<section id="id12">
+<h3><a class="toc-backref" href="#id39" role="doc-backlink">Returns</a><a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Multiple values</strong>: The line slope and y intercept; a vertical line returns an infinite slope and zero intercept.</p></li>
 </ul>
 </section>
 </section>
 <section id="linecoefficientsfromcursors">
-<h2><a class="toc-backref" href="#id13" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">LineCoefficientsFromCursors</span></code></a><a class="headerlink" href="#linecoefficientsfromcursors" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id40" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">LineCoefficientsFromCursors</span></code></a><a class="headerlink" href="#linecoefficientsfromcursors" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>LineCoefficientsFromCursors(<span class="kt">string</span><span class="w"> </span>csr0,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>csr1,<span class="w"> </span>[<span class="kt">int</span><span class="w"> </span>free,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>grfName])
 </pre></div>
 </div>
-<p>Description of LineCoefficientsFromCursors.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">LineCoefficientsFromCursors</span></code>.</p>
-<section id="id3">
-<h3><a class="toc-backref" href="#id14" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>Line coefficients from cursors.</p>
+<p>Get a WAVE with the coefficients of a line defined by csr0 &amp; csr1. N.B: Wave scaling is taken into
+account here! Use poly function to make the polynomial.</p>
+<section id="id13">
+<h3><a class="toc-backref" href="#id41" role="doc-backlink">Parameters</a><a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">csr0</span></code> <em>(Parameter)</em>: csr0.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">csr1</span></code> <em>(Parameter)</em>: csr1.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">free</span></code> <em>(Parameter)</em>: free.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">grfName]</span></code> <em>(Parameter)</em>: grfName].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">csr0</span></code> <em>(String)</em>: Name or index of the first cursor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">csr1</span></code> <em>(String)</em>: Name or index of the second cursor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">free</span></code> <em>(Integer, optional)</em>: If nonzero, create a free wave rather than a data-folder wave.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
 </ul>
 </section>
-<section id="id4">
-<h3><a class="toc-backref" href="#id15" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<section id="id14">
+<h3><a class="toc-backref" href="#id42" role="doc-backlink">Returns</a><a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Wave</strong>: Return value.</p></li>
+<li><p><strong>Wave</strong>: Reference to the result wave; a null reference indicates failure where supported.</p></li>
 </ul>
 </section>
 </section>
 <section id="getlinefromcursors">
-<h2><a class="toc-backref" href="#id16" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GetLineFromCursors</span></code></a><a class="headerlink" href="#getlinefromcursors" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id43" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GetLineFromCursors</span></code></a><a class="headerlink" href="#getlinefromcursors" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>GetLineFromCursors(<span class="kt">string</span><span class="w"> </span>csr0,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>csr1,<span class="w"> </span>[<span class="kt">int</span><span class="w"> </span>free,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>grfName])
 </pre></div>
 </div>
-<p>Description of GetLineFromCursors.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">GetLineFromCursors</span></code>.</p>
-<section id="id5">
-<h3><a class="toc-backref" href="#id17" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>Return line from cursors.</p>
+<p>Get a WAVE with the coefficients of a line defined by csr0 &amp; csr1. N.B: Wave scaling is taken into
+account here! Use poly function to make the polynomial.</p>
+<section id="id15">
+<h3><a class="toc-backref" href="#id44" role="doc-backlink">Parameters</a><a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">csr0</span></code> <em>(Parameter)</em>: csr0.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">csr1</span></code> <em>(Parameter)</em>: csr1.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">free</span></code> <em>(Parameter)</em>: free.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">grfName]</span></code> <em>(Parameter)</em>: grfName].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">csr0</span></code> <em>(String)</em>: Name or index of the first cursor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">csr1</span></code> <em>(String)</em>: Name or index of the second cursor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">free</span></code> <em>(Integer, optional)</em>: If nonzero, create a free wave rather than a data-folder wave.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3><a class="toc-backref" href="#id18" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="id16">
+<h3><a class="toc-backref" href="#id45" role="doc-backlink">Returns</a><a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Wave</strong>: Return value.</p></li>
+<li><p><strong>Wave</strong>: Reference to the result wave; a null reference indicates failure where supported.</p></li>
+</ul>
+</section>
+</section>
+<section id="xywavesoflinefromtwopoints">
+<h2><a class="toc-backref" href="#id46" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">XYWavesOfLineFromTwoPoints</span></code></a><a class="headerlink" href="#xywavesoflinefromtwopoints" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>XYWavesOfLineFromTwoPoints(<span class="kt">variable</span><span class="w"> </span>x0,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>y0,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>x1,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>y1,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>npts)
+</pre></div>
+</div>
+<p>Create coordinate waves sampling the segment between two points.</p>
+<section id="id17">
+<h3><a class="toc-backref" href="#id47" role="doc-backlink">Parameters</a><a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">x0</span></code> <em>(Variable)</em>: First x coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y0</span></code> <em>(Variable)</em>: First y coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x1</span></code> <em>(Variable)</em>: Second x coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y1</span></code> <em>(Variable)</em>: Second y coordinate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">npts</span></code> <em>(Variable)</em>: Number of output points or LOESS neighborhood size, as applicable.</p></li>
+</ul>
+</section>
+<section id="id18">
+<h3><a class="toc-backref" href="#id48" role="doc-backlink">Returns</a><a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Multiple values</strong>: Free waves containing the sampled x and y coordinates.</p></li>
 </ul>
 </section>
 </section>

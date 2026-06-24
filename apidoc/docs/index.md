@@ -9,10 +9,12 @@ api/Analysis__ATH_MagDomains
 api/Analysis__ATH_Transform
 api/Analysis__ATH_XMCD
 api/Analysis__ATH_XPSBackgroundRemoval
+api/Customization__ATH_Constants
 api/Customization__ATH_Dialog
 api/Customization__ATH_Launch
 api/Customization__ATH_Menus
 api/Datasets__ATH_XPSData
+api/FileIO__ATH_Asylum
 api/FileIO__ATH_Beamtime
 api/FileIO__ATH_Export
 api/FileIO__ATH_HDF5

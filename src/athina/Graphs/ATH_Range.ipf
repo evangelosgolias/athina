@@ -73,6 +73,15 @@ Static Constant DEFALUT_BINS = 64			//	number of bins
 //		The minimum and maximum value of the range.
 //		The meaning of value depends on `zminmode` and `zmaxmode`.
 //@
+/// @function SIDAMRange
+/// @brief Open or update the image z-range controls for a graph.
+/// @param grfName (optional) Name of the graph window.
+/// @param imgList (optional) Semicolon-separated image names to modify.
+/// @param zmin (optional) Lower image color-range endpoint.
+/// @param zmax (optional) Upper image color-range endpoint.
+/// @param zminmode (optional) Mode used to determine the lower color-range endpoint.
+/// @param zmaxmode (optional) Mode used to determine the upper color-range endpoint.
+/// @returns Igor status code; zero indicates success and nonzero values report failure or cancellation.
 static Function SIDAMRange([String grfName, String imgList, Variable zmin,
 	Variable zmax, int zminmode, int zmaxmode])
 
@@ -108,6 +117,10 @@ static Function SIDAMRange([String grfName, String imgList, Variable zmin,
 	endif
 End
 
+/// @function validate
+/// @brief Validate z-range parameters and resolve the target images.
+/// @param s Z-range parameter structure to validate and normalize.
+/// @returns Igor status code; zero indicates success and nonzero values report failure or cancellation.
 Static Function validate(STRUCT paramStruct &s)
 
 	s.errMsg = PRESTR_CAUTION + "SIDAMRange gave error: "
@@ -169,6 +182,13 @@ EndStructure
 //	Set first z and last z to an image
 //	"auto" if zmin=NaN or zmax=NaN
 //******************************************************************************
+/// @function applyZRange
+/// @brief Apply explicit minimum and maximum color limits to an image.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @param zmin Lower image color-range endpoint.
+/// @param zmax Upper image color-range endpoint.
+/// @returns Zero after completing the operation.
 Static Function applyZRange(String grfName, String imgName, Variable zmin, Variable zmax)
 
 	String ctab = SIDAM_ColorTableForImage(grfName, imgName)
@@ -198,6 +218,10 @@ Static StrConstant HIST = "ATH_Range_hist"			//	Name of a histogram wave
 Static StrConstant HISTCLR = "ATH_Range_histclr"	//	Name of a color histogram wave
 Static StrConstant PNAME = "ATH_Range"
 
+/// @function pnl
+/// @brief Create the image z-range control panel.
+/// @param grfName Name of the graph window.
+/// @returns Zero after completing the operation.
 Static Function pnl(String grfName)
 	String targetWin = StringFromList(0, grfName, "#")
 	if (SIDAMWindowExists(targetWin+"#"+PNAME))
@@ -336,6 +360,13 @@ Static Function pnl(String grfName)
 	SetActiveSubwindow $grfName
 End
 
+/// @function pnlInit
+/// @brief Initialize z-range panel state for the selected image.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @param zmin Lower image color-range endpoint.
+/// @param zmax Upper image color-range endpoint.
+/// @returns The full name of the initialized z-range panel.
 Static Function/S pnlInit(String grfName, String imgName, Variable zmin, Variable zmax)
 	String dfTmp = SIDAMNewDF(StringFromList(0, grfName, "#"),"Range")
 	Wave w0 = SIDAMImageNameToWaveRef(grfName, imgName=imgName, displayed=1)
@@ -368,6 +399,10 @@ End
 //	(3) the wave of an image is changed
 //	(4) an image is removed
 //-------------------------------------------------------------
+/// @function pnlHookParent
+/// @brief Handle changes in the z-range panel's parent graph.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 Static Function pnlHookParent(STRUCT WMWinHookStruct &s)
 
 	if (s.eventCode != 8)	//	modified only 
@@ -423,6 +458,11 @@ Static Function pnlHookParent(STRUCT WMWinHookStruct &s)
 	return 0
 End
 
+/// @function pnlHookParentIgorDialog
+/// @brief Handle modal dialogs opened from the z-range panel's parent graph.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @returns Zero after restoring the panel state; a nonzero value if the graph or image is unavailable.
 Static Function pnlHookParentIgorDialog(String grfName, String imgName)
 
 	//	Recorded z range
@@ -457,11 +497,22 @@ End
 
 //	Return if the z range is auto or not
 //	minormax 0 for min, 1 for max
+/// @function isZAuto
+/// @brief Test whether one side of an image color range is automatic.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @param minormax Selects the lower or upper color-range endpoint.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 Static Function isZAuto(String grfName, String imgName, int minormax)
 	String ctabInfo = WM_ImageColorTabInfo(grfName,imgName)
 	return strlen(ctabInfo) ? Stringmatch("*", StringFromList(minormax,ctabInfo,",")) : 0
 End
 
+/// @function pnlHookParentLayerChanged
+/// @brief Update the z-range panel after the displayed image layer changes.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @returns Igor status code; zero indicates success and nonzero values report failure or cancellation.
 Static Function pnlHookParentLayerChanged(String grfName, String imgName)
 
 	Variable recorded = getZmodeValue(grfName, imgName, "layer")	//	nan for no record
@@ -474,6 +525,11 @@ Static Function pnlHookParentLayerChanged(String grfName, String imgName)
 	endif
 End
 
+/// @function pnlHookParentWaveModified
+/// @brief Update the z-range panel after the image wave changes.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @returns Igor status code; zero indicates success and nonzero values report failure or cancellation.
 Static Function pnlHookParentWaveModified(String grfName, String imgName)
 	Variable recorded = getZmodeValue(grfName, imgName, "modtime")		//	nan for no record
 	Variable present = NumberByKey("MODTIME",WaveInfo(ImageNameToWaveRef(grfName,imgName),0))
@@ -485,6 +541,10 @@ Static Function pnlHookParentWaveModified(String grfName, String imgName)
 	endif
 End
 
+/// @function pnlHookParentUpdatePanel
+/// @brief Synchronize the z-range panel with its parent graph.
+/// @param grfName Name of the graph window.
+/// @returns Igor status code; zero indicates success and nonzero values report failure or cancellation.
 Static Function pnlHookParentUpdatePanel(String grfName)
 
 	String pnlName = grfName + "#" + PNAME
@@ -516,6 +576,10 @@ End
 //----------------------------------------------------------------------
 //	Hook function for the panel
 //----------------------------------------------------------------------
+/// @function pnlHook
+/// @brief Handle events from the image z-range panel.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Static Function pnlHook(STRUCT WMWinHookStruct &s)
 
 	switch (s.eventCode)
@@ -553,6 +617,10 @@ Static Function pnlHook(STRUCT WMWinHookStruct &s)
 End
 
 //	Behavior when the panel is closed
+/// @function pnlHookClose
+/// @brief Clean up z-range state when the panel closes.
+/// @param pnlName Name of the panel window.
+/// @returns Zero after completing the operation.
 Static Function pnlHookClose(String pnlName)
 
 	String grfName = StringFromList(0, pnlName, "#")
@@ -571,6 +639,10 @@ Static Function pnlHookClose(String pnlName)
 End
 
 //	Behavior when a cursor is moved by a user
+/// @function pnlHookCursor
+/// @brief Update z-range values after a graph cursor moves.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 Static Function pnlHookCursor(STRUCT WMWinHookStruct &s)
 
 	//	s.winName = Graph0#Range#G0
@@ -605,6 +677,10 @@ Static Function pnlHookCursor(STRUCT WMWinHookStruct &s)
 	updateZRange(GetUserData(pnlName,"","grf"), pause=1)
 End
 
+/// @function pnlAxHook
+/// @brief Update the z range after an axis-range event.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Static Function pnlAxHook(STRUCT WMAxisHookStruct &s)
 	GetAxis/Q/W=$s.win $s.mastName
 	s.min = 10^V_min
@@ -616,6 +692,10 @@ End
 //	Controls
 //******************************************************************************
 //	SetVariable
+/// @function pnlSetVar
+/// @brief Handle numeric edits in the z-range panel.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Static Function pnlSetVar(STRUCT WMSetVariableAction &s)
 
 	//	Handle either mouse up, enter key, or begin edit
@@ -641,6 +721,10 @@ Static Function pnlSetVar(STRUCT WMSetVariableAction &s)
 End
 
 //	PopupMenu
+/// @function pnlPopup
+/// @brief Handle pop-up selections in the z-range panel.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Static Function pnlPopup(STRUCT WMPopupAction &s)
 
 	if (s.eventCode != 2)
@@ -660,6 +744,10 @@ Static Function pnlPopup(STRUCT WMPopupAction &s)
 End
 
 //	Button
+/// @function pnlButton
+/// @brief Handle button actions in the z-range panel.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Static Function pnlButton(STRUCT WMButtonAction &s)
 
 	if (s.eventCode != 2)
@@ -710,6 +798,10 @@ Static Function pnlButton(STRUCT WMButtonAction &s)
 End
 
 //	Checkbox
+/// @function pnlCheck
+/// @brief Handle checkbox actions in the z-range panel.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Static Function pnlCheck(STRUCT WMCheckboxAction &s)
 
 	if (s.eventCode != 2)
@@ -731,6 +823,10 @@ End
 //******************************************************************************
 //	Helper functions of controls
 //******************************************************************************
+/// @function revertZmode
+/// @brief Restore the z-range mode saved when the panel opened.
+/// @param pnlName Name of the panel window.
+/// @returns Zero after completing the operation.
 Static Function revertZmode(String pnlName)
 
 	String grfName = GetUserData(pnlName,"","grf")
@@ -749,6 +845,10 @@ Static Function revertZmode(String pnlName)
 End
 
 //	Put the present z range to zminV and zmaxV
+/// @function updatePnlPresentValues
+/// @brief Refresh panel controls from the image's current z-range state.
+/// @param pnlName Name of the panel window.
+/// @returns Zero after completing the operation.
 Static Function updatePnlPresentValues(String pnlName)
 
 	String grfName = GetUserData(pnlName,"","grf")
@@ -764,6 +864,10 @@ End
 //		after the panel is created (pnl)
 //		when a target wave is changed from the popupmenu (pnlPopup)
 //		when the parent window is modified, e.g., displayed layer (pnlHookParent)
+/// @function resetPnlCtrls
+/// @brief Reset z-range panel controls to their default state.
+/// @param pnlName Name of the panel window.
+/// @returns Zero after completing the operation.
 Static Function resetPnlCtrls(String pnlName)
 
 	String grfName = GetUserData(pnlName,"","grf")
@@ -795,6 +899,11 @@ Static Function resetPnlCtrls(String pnlName)
 End
 
 //	Check the selected ratiobox and uncheck the others in the same group
+/// @function updatePnlRadioBox
+/// @brief Update the z-range mode radio-button group.
+/// @param pnlName Name of the panel window.
+/// @param ctrlName Name of the Igor control.
+/// @returns Zero after completing the operation.
 Static Function updatePnlRadioBox(String pnlName, String ctrlName)
 
 	String minOrMax = (ctrlName)[0,3]
@@ -808,6 +917,10 @@ Static Function updatePnlRadioBox(String pnlName, String ctrlName)
 End
 
 //	Update the cursor positions to reflect the present values of the range
+/// @function updatePnlCursorsPos
+/// @brief Synchronize z-range cursors with the panel values.
+/// @param pnlName Name of the panel window.
+/// @returns Zero after completing the operation.
 Static Function updatePnlCursorsPos(String pnlName)
 
 	String grfName = GetUserData(pnlName, "", "grf")
@@ -823,6 +936,10 @@ Static Function updatePnlCursorsPos(String pnlName)
 End
 
 //	Update the color histogram to reflect the present values of the range
+/// @function updatePnlColor
+/// @brief Refresh the panel color-scale preview.
+/// @param pnlName Name of the panel window.
+/// @returns Zero after completing the operation.
 Static Function updatePnlColor(String pnlName)
 
 	String grfName = GetUserData(pnlName, "", "grf")
@@ -855,6 +972,11 @@ End
 //	The mode determines the range of the histogram
 //	mode 0: the range larger than the present one by 5%
 //	mode 1: the range between the min and the max of the displayed area
+/// @function updatePnlHistogram
+/// @brief Recalculate and display the image histogram in the panel.
+/// @param pnlName Name of the panel window.
+/// @param mode Operation mode selector.
+/// @returns Zero after completing the operation.
 Static Function updatePnlHistogram(String pnlName, int mode)
 
 	ControlInfo/W=$pnlName imageP
@@ -882,6 +1004,10 @@ Static Function updatePnlHistogram(String pnlName, int mode)
 	DoUpdate/W=$pnlName
 End
 
+/// @function updatePnlAxis
+/// @brief Refresh the histogram axes in the z-range panel.
+/// @param pnlName Name of the panel window.
+/// @returns Zero after completing the operation.
 Static Function updatePnlAxis(String pnlName)
 	ControlInfo/W=$pnlName imageP
 	int isLog = SIDAM_ColorTableLog(GetUserData(pnlName, "", "grf"), S_Value)
@@ -892,6 +1018,10 @@ End
 
 //	Update the Z mode values of the parent window based on
 //	the selected values in the panel
+/// @function updateZmode
+/// @brief Apply the z-range mode selected in the panel.
+/// @param pnlName Name of the panel window.
+/// @returns Zero after completing the operation.
 Static Function updateZmode(String pnlName)
 
 	//	z mode of first Z and last Z
@@ -916,6 +1046,10 @@ Static Function updateZmode(String pnlName)
 End
 
 //	0: auto; 1: fix; 2: sigma; 3: cut, 4: logsigma
+/// @function findSelectedMode
+/// @brief Return the selected lower- and upper-range modes.
+/// @param pnlName Name of the panel window.
+/// @returns The selected lower- and upper-range mode codes.
 Static Function [int m0, int m1] findSelectedMode(String pnlName)
 	Wave minw = SIDAMGetCtrlValues(pnlName, "zminAutoC;zminC;zminSigmaC;zminCutC;zminLogsigmaC")
 	Wave maxw = SIDAMGetCtrlValues(pnlName, "zmaxAutoC;zmaxC;zmaxSigmaC;zmaxCutC;zmaxLogsigmaC")
@@ -926,6 +1060,11 @@ Static Function [int m0, int m1] findSelectedMode(String pnlName)
 End
 
 //	Set the z range based on the z mode
+/// @function updateZRange
+/// @brief Recalculate color limits for images in a graph.
+/// @param grfName Name of the graph window.
+/// @param pause (optional) If nonzero, defer graph updates while applying the range.
+/// @returns Zero after completing the operation.
 Static Function updateZRange(String grfName, [int pause])
 
 	String listStr = ImageNameList(grfName,";"), imgName
@@ -955,6 +1094,15 @@ Static Function updateZRange(String grfName, [int pause])
 	endfor
 End
 
+/// @function updateZRange_getValues
+/// @brief Calculate z-range limits for one image and mode combination.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @param m0 Lower-range mode.
+/// @param v0 Explicit lower-range value.
+/// @param m1 Upper-range mode.
+/// @param v1 Explicit upper-range value.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 Static Function/WAVE updateZRange_getValues(String grfName, String imgName,
 	int m0, Variable v0, int m1, Variable v1)
 	//EG edit to work with Marquee
@@ -1061,6 +1209,10 @@ Static StrConstant MODEKEY = "SIDAMRangeSettings"
 
 //	If a graph has no z mode information, write the present status to revert
 //	when the cancel button of the panel is pressed.
+/// @function initializeZmodeValue
+/// @brief Store initial z-range metadata for graph images.
+/// @param grfName Name of the graph window.
+/// @returns Zero after completing the operation.
 Static Function initializeZmodeValue(String grfName)
 	int hasRecord = strlen(GetUserData(grfName, "", MODEKEY)) > 0
 	if (hasRecord)
@@ -1080,6 +1232,13 @@ Static Function initializeZmodeValue(String grfName)
 	endfor
 End
 
+/// @function setZmodeValue
+/// @brief Write a z-range metadata value for a list of images.
+/// @param grfName Name of the graph window.
+/// @param imgList Semicolon-separated image names to modify.
+/// @param key Metadata or settings key.
+/// @param var Numeric value to apply.
+/// @returns Zero after completing the operation.
 Static Function setZmodeValue(String grfName, String imgList, String key, Variable var)
 
 	String allImagesSettings = GetUserData(grfName, "", MODEKEY)
@@ -1098,6 +1257,12 @@ Static Function setZmodeValue(String grfName, String imgList, String key, Variab
 	SetWindow $grfName userData($MODEKEY)=allImagesSettings
 End
 
+/// @function getZmodeValue
+/// @brief Read a z-range metadata value for an image.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @param key Metadata or settings key.
+/// @returns The requested zmode value.
 Static Function getZmodeValue(String grfName, String imgName, String key)
 
 	//	no graph or no image
@@ -1139,6 +1304,10 @@ Static Function getZmodeValue(String grfName, String imgName, String key)
 End
 
 //	Delete the z mode info about deleted (not included in the graph) images
+/// @function cleanZmodeValue
+/// @brief Remove obsolete z-range metadata from a graph.
+/// @param grfName Name of the graph window.
+/// @returns Nonzero if obsolete z-range metadata was removed; otherwise zero.
 Static Function cleanZmodeValue(String grfName)
 
 	String allImagesSettings = GetUserData(grfName, "", MODEKEY)
@@ -1159,11 +1328,19 @@ Static Function cleanZmodeValue(String grfName)
 End
 
 //	Delete all the information about the z mode
+/// @function deleteZmodeValues
+/// @brief Delete stored z-range metadata for a graph.
+/// @param grfName Name of the graph window.
+/// @returns Zero after completing the operation.
 Static Function deleteZmodeValues(String grfName)
 	SetWindow $grfName userdata($MODEKEY)=""
 End
 
 //	Return 1 if all the images have the z mode values of 0 or 1
+/// @function canZmodeBeDeleted
+/// @brief Test whether stored z-range metadata is no longer required.
+/// @param grfName Name of the graph window.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 Static Function canZmodeBeDeleted(String grfName)
 
 	cleanZmodeValue(grfName)
@@ -1199,11 +1376,12 @@ End
 //@
 
 /// @function SIDAMWindowExists
-/// @brief Description of SIDAMWindowExists.
+/// @brief Test whether a named host window or child window exists.
 /// @details
-/// Auto-generated documentation stub for function `SIDAMWindowExists`.
-/// @param pnlName Parameter pnlName.
-/// @returns Variable Return value.
+/// ListStr is empty if "hostName" does not exist or "hostName" does not have a child window. Extension of
+/// WMImageInfo.
+/// @param pnlName Name of the panel window.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function SIDAMWindowExists(String pnlName)
 	if (!strlen(pnlName))
 		return 0
@@ -1242,6 +1420,11 @@ End
 //		Name of a color table or absolute path to a color table wave.
 //		Empty When the image is not found.
 //@
+/// @function SIDAM_ColorTableForImage
+/// @brief Return the active color table and range for an image.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @returns The image color-table specification from the graph recreation string.
 static Function/S SIDAM_ColorTableForImage(String grfName, String imgName)
 	String str = WM_ColorTableForImage(grfName,imgName)
 	if (GetRTError(1) || !strlen(str))
@@ -1273,6 +1456,14 @@ End
 //		* 0: Normal exit
 //		* 1: Any error
 //@
+/// @function SIDAM_GetColorTableMinMax
+/// @brief Return numeric endpoints from an image color-table specification.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @param zmin Lower image color-range endpoint.
+/// @param zmax Upper image color-range endpoint.
+/// @param allowNaN (optional) If nonzero, accept NaN color-range endpoints.
+/// @returns Zero after writing the resolved minimum and maximum through the reference parameters.
 static Function SIDAM_GetColorTableMinMax(String grfName, String imgName,
 	Variable &zmin, Variable &zmax, [int allowNaN])
 	
@@ -1305,6 +1496,11 @@ End
 //	Create SIDAM temporary folder root:Packages:ATH_DataFolder:Range:grfName and
 //	return a string containing the path.
 //******************************************************************************
+/// @function SIDAMNewDF
+/// @brief Create and return a uniquely named data folder.
+/// @param grfName Name of the graph window.
+/// @param procName Procedure name used as part of the generated data-folder name.
+/// @returns The full path of the newly created data folder.
 static Function/S SIDAMNewDF(String grfName, String procName)
 	String path = SIDAM_DF+":"
 	if (strlen(procName))
@@ -1342,6 +1538,12 @@ End
 //		A wave reference to an image in the window, or a free wave which is
 //		a part of a wave shown in the window.
 //@
+/// @function SIDAMImageNameToWaveRef
+/// @brief Resolve an image name to its source wave reference.
+/// @param grfName Name of the graph window.
+/// @param imgName (optional) Name of the image trace.
+/// @param displayed (optional) If nonzero, resolve the displayed layer wave rather than the source image wave.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 static Function/WAVE SIDAMImageNameToWaveRef(String grfName, [String imgName, int displayed])
 	if (ParamIsDefault(imgName))
 		imgName = StringFromList(0, ImageNameList(grfName, ";"))
@@ -1419,12 +1621,12 @@ End
 //@
 
 /// @function SIDAM_ColorTableLog
-/// @brief Description of SIDAM_ColorTableLog.
+/// @brief Test whether an image uses logarithmic color mapping.
 /// @details
-/// Auto-generated documentation stub for function `SIDAM_ColorTableLog`.
-/// @param grfName Parameter grfName.
-/// @param imgName Parameter imgName.
-/// @returns Variable Return value.
+/// EG: Modified Hist Functions as param Structures are the same across different files in SIDAM.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @returns Nonzero when logarithmic color mapping is enabled; otherwise zero.
 static Function SIDAM_ColorTableLog(String grfName, String imgName)
 	String info = ImageInfo(grfName, imgName, 0)
 	if (GetRTError(1))
@@ -1466,6 +1668,18 @@ End
 //	wave
 //		Histogram wave.
 //@
+/// @function SIDAMHistogram
+/// @brief Calculate a histogram for an image wave or displayed layer.
+/// @param w Input wave.
+/// @param startz (optional) Lower histogram bound.
+/// @param endz (optional) Upper histogram bound.
+/// @param deltaz (optional) Histogram bin width.
+/// @param bins (optional) Number of histogram bins.
+/// @param cumulative (optional) If nonzero, return a cumulative histogram.
+/// @param normalize (optional) If nonzero, normalize the histogram.
+/// @param cmplxmode (optional) Complex-wave component selected for analysis.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 static Function/WAVE SIDAMHistogram(Wave/Z w, [variable startz, variable endz,
 	variable deltaz, int bins, int cumulative, int normalize, int cmplxmode, string grfName])
 
@@ -1512,6 +1726,10 @@ static Function/WAVE SIDAMHistogram(Wave/Z w, [variable startz, variable endz,
 	endif
 End
 
+/// @function validateHist
+/// @brief Validate histogram parameters and establish output defaults.
+/// @param s Histogram parameter structure to validate and normalize.
+/// @returns Igor status code; zero indicates success and nonzero values report failure or cancellation.
 Static Function validateHist(STRUCT paramStructHist &s)
 	
 	s.errMsg = PRESTR_CAUTION + "SIDAMHistogram gave error: "
@@ -1576,12 +1794,10 @@ End
 //@
 
 /// @function SIDAMGetLayerIndex
-/// @brief Description of SIDAMGetLayerIndex.
-/// @details
-/// Auto-generated documentation stub for function `SIDAMGetLayerIndex`.
-/// @param grfName Parameter grfName.
-/// @param w] Parameter w].
-/// @returns Variable Return value.
+/// @brief Get layer index.
+/// @param grfName Name of the graph window.
+/// @param w (optional) Input wave.
+/// @returns NaN if input validation fails; otherwise zero after completing the operation.
 static Function SIDAMGetLayerIndex(String grfName, [Wave/Z w])
 	if (ParamIsDefault(w))
 		Wave/Z w =  SIDAMImageNameToWaveRef(grfName)
@@ -1609,11 +1825,9 @@ End
 //******************************************************************************
 
 /// @function SIDAMKillDataFolder
-/// @brief Description of SIDAMKillDataFolder.
-/// @details
-/// Auto-generated documentation stub for function `SIDAMKillDataFolder`.
-/// @param dfr Parameter dfr.
-/// @returns Variable Return value.
+/// @brief Kill data folder.
+/// @param dfr Reference to the data folder to inspect or modify.
+/// @returns Recursive status: zero on completion, one for the protected package folder, two for remaining child objects, or three for waves that could not be removed.
 static Function SIDAMKillDataFolder(DFREF dfr) // Recursion here
 	if (!DataFolderRefStatus(dfr))
 		return 0
@@ -1647,12 +1861,10 @@ End
 //******************************************************************************
 
 /// @function SIDAMPopupTo
-/// @brief Description of SIDAMPopupTo.
-/// @details
-/// Auto-generated documentation stub for function `SIDAMPopupTo`.
-/// @param &s Parameter &s.
-/// @param paramStr Parameter paramStr.
-/// @returns Variable Return value.
+/// @brief Send a panel value to the command line or clipboard.
+/// @param s Igor action structure describing the control or window event.
+/// @param paramStr Text containing the param str.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SIDAMPopupTo(STRUCT WMPopupAction &s, String paramStr)
 	switch (s.popNum)
 		case 1:
@@ -1668,6 +1880,11 @@ End
 //	Retern a wave containing values of controls in a graph/panel
 //******************************************************************************
 //	Return a numeric wave containing number values of controls in a graph/panel.
+/// @function SIDAMGetCtrlValues
+/// @brief Return numeric values from a list of panel controls.
+/// @param win Name of the panel or graph containing the controls.
+/// @param ctrlList Semicolon-separated list of control names.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 static Function/WAVE SIDAMGetCtrlValues(String win, String ctrlList)
 
 	Make/D/N=(ItemsInList(ctrlList))/FREE resw
@@ -1741,6 +1958,10 @@ EndStructure
 //******************************************************************************
 //	Make a histogram from a 2D wave
 //******************************************************************************
+/// @function histogramFrom2D
+/// @brief Calculate a histogram from a two-dimensional wave region.
+/// @param s Validated histogram parameters for a two-dimensional image.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 Static Function/WAVE histogramFrom2D(STRUCT paramStructHist &s)
 	
 	if (WaveType(s.w) & 0x01)
@@ -1786,6 +2007,10 @@ End
 //	Make a histogram from a 3D wave
 //	Repeat the 2D function for each layer
 //******************************************************************************
+/// @function histogramFrom3D
+/// @brief Calculate a histogram from a three-dimensional wave region.
+/// @param s Validated histogram parameters for a three-dimensional image or layer range.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 Static Function/WAVE histogramFrom3D(STRUCT paramStructHist &s)
 
 	Make/N=(s.bins,DimSize(s.w,2))/FREE hw
@@ -1811,6 +2036,12 @@ Static Function/WAVE histogramFrom3D(STRUCT paramStructHist &s)
 End
 
 //	returns the minimum and the maximum values of the wave
+/// @function getMinMax
+/// @brief Return minimum and maximum values for a wave or displayed region.
+/// @param w Input wave.
+/// @param grfName Name of the graph window.
+/// @param cmplxmode (optional) Complex-wave component selected for analysis.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 Static Function/WAVE getMinMax(Wave w, String grfName, [int cmplxmode])
 	Make/D/N=2/FREE rtnw
 
@@ -1845,6 +2076,10 @@ End
 
 //	Kill dependence to all waves, variables, and strings in a datafolder
 //	@param dfr	Datafolder
+/// @function killDependence
+/// @brief Remove graph dependencies that prevent temporary waves from being deleted.
+/// @param dfr Data-folder reference.
+/// @returns Zero after completing the operation.
 Static Function killDependence(DFREF dfr)
 	int type, i, n
 	for (type = 1; type <= 3; type++)
@@ -1859,6 +2094,10 @@ End
 //	them from graphs. Kill a subfolder if it's empty after killing waves
 //	@param dfr	Datafolder
 //	@return		Number of waves remaining in the datafolder without being killed
+/// @function killWaveDataFolder
+/// @brief Remove deletable waves from a data folder.
+/// @param dfr Data-folder reference.
+/// @returns The number of waves that could not be removed from the data folder.
 Static Function killWaveDataFolder(DFREF dfr)	//	tested
 	int i, n, count = 0
 	DFREF dfrSav = GetDataFolderDFR()
@@ -1888,6 +2127,10 @@ Static Function killWaveDataFolder(DFREF dfr)	//	tested
 End
 
 //	Return type of variable used for a SetVariable control
+/// @function valueType
+/// @brief Classify a serialized Igor value by type.
+/// @param recreationStr Igor window or control recreation string.
+/// @returns A code identifying the serialized value as numeric, text, wave, or unsupported.
 Static Function valueType(String recreationStr)
 	Variable n0 = strsearch(recreationStr, "value=", 0)
 	Variable n1 = strsearch(recreationStr, ",", n0)
@@ -1910,6 +2153,10 @@ Static Function valueType(String recreationStr)
 	endif
 End
 
+/// @function eval
+/// @brief Evaluate a serialized numeric Igor expression.
+/// @param str Serialized Igor numeric expression.
+/// @returns The numeric value represented by the serialized Igor expression.
 Static Function eval(String str)
 	DFREF dfrSav = GetDataFolderDFR(), dfrTmp = NewFreeDataFolder()
 	SetDataFolder dfrTmp
@@ -1927,6 +2174,10 @@ End
 //	Remove traces and images of waves in a datafolder from all displayed graphs
 //	Color table waves are not removed.
 //	@param dfr	DataFolder
+/// @function removeImageTrace
+/// @brief Remove graph image traces that reference waves in a data folder.
+/// @param dfr Data-folder reference.
+/// @returns Zero after completing the operation.
 Static Function removeImageTrace(DFREF dfr)	//	tested
 	//	Not only graphs but also panels are included in the list because
 	//	panels may contain graphs in subwindows
@@ -1937,6 +2188,11 @@ Static Function removeImageTrace(DFREF dfr)	//	tested
 	endfor
 End
 
+/// @function removeImageTraceHelper
+/// @brief Remove matching image traces from one graph.
+/// @param dfr Data-folder reference.
+/// @param grfName Name of the graph window.
+/// @returns Zero after completing the operation.
 Static Function removeImageTraceHelper(DFREF dfr, String grfName)
 	int i, j, n
 	String imgList, imgName, trcList, trcName
@@ -1978,6 +2234,10 @@ Static Function removeImageTraceHelper(DFREF dfr, String grfName)
 End
 
 
+/// @function GetMarqueeToIndex
+/// @brief Convert the active graph marquee to wave-index bounds.
+/// @param grfName (optional) Name of the graph window.
+/// @returns A validity flag followed by the left, right, top, and bottom wave-index bounds.
 static Function [variable flag, variable leftR, variable rightR, variable topR, variable bottomR] GetMarqueeToIndex([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	string axisX, axisY
@@ -1998,6 +2258,10 @@ static Function [variable flag, variable leftR, variable rightR, variable topR, 
 	return [flag, leftR, rightR, topR, bottomR]
 End
 
+/// @function TopImageToWaveRef
+/// @brief Return a reference to the top image in a graph.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 static Function/WAVE TopImageToWaveRef([string grfName])
 	// Return a wave reference from the top graph
 	

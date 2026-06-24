@@ -20,19 +20,20 @@ related to ATH TextWaves functionality.
 TWaveRemoveEntriesFromPatters(WAVE/T textW, string patternStr, [WAVE otherW])
 ```
 
-Description of TWaveRemoveEntriesFromPatters.
+Remove text-wave entries whose values match any supplied pattern.
 
-Auto-generated documentation stub for function `TWaveRemoveEntriesFromPatters`.
+Remove entries from textW that start with pathbase. Optionally we can remove the same entries from
+another wave otherW. We use this in ATH_LaunchDeleteBigWaves.
 
 ### Parameters
 
-- `textW` *(Parameter)*: textW.
-- `patternStr` *(Parameter)*: patternStr.
-- `otherW]` *(Parameter)*: otherW].
+- `textW` *(Wave/T)*: Input text wave.
+- `patternStr` *(String)*: Text containing the pattern str.
+- `otherW` *(Wave, optional)*: Second text wave used for comparison or concatenation.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `DeleteWavesInTextWave`
@@ -43,17 +44,17 @@ Auto-generated documentation stub for function `TWaveRemoveEntriesFromPatters`.
 DeleteWavesInTextWave(WAVE/T textW)
 ```
 
-Description of DeleteWavesInTextWave.
+Remove waves in text wave.
 
-Auto-generated documentation stub for function `DeleteWavesInTextWave`.
+Delete big waves listed in textW.
 
 ### Parameters
 
-- `textW` *(Parameter)*: textW.
+- `textW` *(Wave/T)*: Input text wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `TextWaveToString`
@@ -64,18 +65,18 @@ Auto-generated documentation stub for function `DeleteWavesInTextWave`.
 TextWaveToString(WAVE/T textW, [string sep])
 ```
 
-Description of TextWaveToString.
+Text wave to string.
 
-Auto-generated documentation stub for function `TextWaveToString`.
+Make a string from a textwave.
 
 ### Parameters
 
-- `textW` *(Parameter)*: textW.
-- `sep]` *(Parameter)*: sep].
+- `textW` *(Wave/T)*: Input text wave.
+- `sep` *(String, optional)*: Delimiter used between list items.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `StringListToTextWave`
@@ -86,18 +87,16 @@ Auto-generated documentation stub for function `TextWaveToString`.
 StringListToTextWave(string stringListStr, string sep)
 ```
 
-Description of StringListToTextWave.
-
-Auto-generated documentation stub for function `StringListToTextWave`.
+String list to text wave.
 
 ### Parameters
 
-- `stringListStr` *(Parameter)*: stringListStr.
-- `sep` *(Parameter)*: sep.
+- `stringListStr` *(String)*: Text containing the string list str.
+- `sep` *(String)*: Delimiter used between list items.
 
 ### Returns
 
-- **Wave**: Return value.
+- **Wave**: Reference to the result wave; a null reference indicates failure where supported.
 
 
 ## `TWaveRemoveEntriesFromStringList`
@@ -108,16 +107,17 @@ Auto-generated documentation stub for function `StringListToTextWave`.
 TWaveRemoveEntriesFromStringList(WAVE/T textW, string stringListStr, [WAVE otherW])
 ```
 
-Description of TWaveRemoveEntriesFromStringList.
+Remove text-wave entries listed in a delimited string.
 
-Auto-generated documentation stub for function `TWaveRemoveEntriesFromStringList`.
+Remove entries from textW in stringListStr. Optionally we can remove the same entries from another wave
+otherW. We use this in ATH_LaunchDeleteBigWavesDisplayed.
 
 ### Parameters
 
-- `textW` *(Parameter)*: textW.
-- `stringListStr` *(Parameter)*: stringListStr.
-- `otherW]` *(Parameter)*: otherW].
+- `textW` *(Wave/T)*: Input text wave.
+- `stringListStr` *(String)*: Text containing the string list str.
+- `otherW` *(Wave, optional)*: Second text wave used for comparison or concatenation.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.

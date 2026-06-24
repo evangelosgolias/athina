@@ -33,7 +33,7 @@ the existing folder is returned.
 ### Parameters
 
 - `fullpath` *(String)*: Full data folder path to create or access.
-- `setDF` *(Variable)*: Optional flag. If nonzero, sets the current data folder to the returned folder.
+- `setDF` *(Integer, optional)*: Optional flag. If nonzero, sets the current data folder to the returned folder.
 
 ### Returns
 
@@ -59,17 +59,17 @@ the existing folder is returned.
 SanitizePath(string path)
 ```
 
-Description of SanitizePath.
+Sanitize path.
 
-Auto-generated documentation stub for function `SanitizePath`.
+Fix liberal relative pathnames in fullpath.
 
 ### Parameters
 
-- `path` *(Parameter)*: path.
+- `path` *(String)*: Path.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting path string, or an empty string when it cannot be determined.
 
 
 ## `ZapDataInFolderTree`
@@ -80,17 +80,18 @@ Auto-generated documentation stub for function `SanitizePath`.
 ZapDataInFolderTree(string path)
 ```
 
-Description of ZapDataInFolderTree.
+Remove data in folder tree.
 
-Auto-generated documentation stub for function `ZapDataInFolderTree`.
+Kills the contents of a data folder and the contents of its children without killing any data folders and
+without attempting to kill any waves that may be in use.
 
 ### Parameters
 
-- `path` *(Parameter)*: path.
+- `path` *(String)*: Path.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `ZapAllDataFoldersInPath`
@@ -101,17 +102,17 @@ Auto-generated documentation stub for function `ZapDataInFolderTree`.
 ZapAllDataFoldersInPath(string path)
 ```
 
-Description of ZapAllDataFoldersInPath.
+Remove all data folders in path.
 
-Auto-generated documentation stub for function `ZapAllDataFoldersInPath`.
+Kills all data folders in path.
 
 ### Parameters
 
-- `path` *(Parameter)*: path.
+- `path` *(String)*: Path.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `PrintFoldersAndFiles`
@@ -122,20 +123,21 @@ Auto-generated documentation stub for function `ZapAllDataFoldersInPath`.
 PrintFoldersAndFiles(string pathName, string extension, variable recurse, variable level)
 ```
 
-Description of PrintFoldersAndFiles.
+Print folders and files.
 
-Auto-generated documentation stub for function `PrintFoldersAndFiles`.
+This is a Wavemetrics function. Striwng pathName Name of symbolic path in which to look for folders and
+files. String extensios File name extension (e.g., ".txt") or "????" for all files.
 
 ### Parameters
 
-- `pathName` *(Parameter)*: pathName.
-- `extension` *(Parameter)*: extension.
-- `recurse` *(Parameter)*: recurse.
-- `level` *(Parameter)*: level.
+- `pathName` *(String)*: Name of an Igor symbolic path.
+- `extension` *(String)*: File-name extension.
+- `recurse` *(Variable)*: If nonzero, include nested data folders.
+- `level` *(Variable)*: Level.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `CleanGlobalWavesVarAndStrInFolder`
@@ -146,17 +148,18 @@ Auto-generated documentation stub for function `PrintFoldersAndFiles`.
 CleanGlobalWavesVarAndStrInFolder(DFREF dfr)
 ```
 
-Description of CleanGlobalWavesVarAndStrInFolder.
+Remove global waves, numeric variables, and strings from a data folder.
 
-Auto-generated documentation stub for function `CleanGlobalWavesVarAndStrInFolder`.
+Move from current working directory to dfr kill all global variables and strings and return to the
+working directory.
 
 ### Parameters
 
-- `dfr` *(Parameter)*: dfr.
+- `dfr` *(DFREF)*: Reference to the data folder to inspect or modify.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `DeleteEverythingButSomeFolders`
@@ -167,18 +170,19 @@ Auto-generated documentation stub for function `CleanGlobalWavesVarAndStrInFolde
 DeleteEverythingButSomeFolders(string baseFolderPattern, string keepFolders)
 ```
 
-Description of DeleteEverythingButSomeFolders.
+Remove everything but some folders.
 
-Auto-generated documentation stub for function `DeleteEverythingButSomeFolders`.
+Delete waves and child folders in folders that match baseFolderPattern but keep keepFolders
+WM_ZapDataInFolderTree(nextPath).
 
 ### Parameters
 
-- `baseFolderPattern` *(Parameter)*: baseFolderPattern.
-- `keepFolders` *(Parameter)*: keepFolders.
+- `baseFolderPattern` *(String)*: Pattern selecting root data folders.
+- `keepFolders` *(String)*: If nonzero, remove contents but retain matching folders.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `FindBigWaves`
@@ -189,20 +193,20 @@ Auto-generated documentation stub for function `DeleteEverythingButSomeFolders`.
 FindBigWaves(variable minSizeInMB[,DFREF df,variable depth,variable noShow])
 ```
 
-Description of FindBigWaves.
+Find big waves.
 
-Auto-generated documentation stub for function `FindBigWaves`.
+See https.
 
 ### Parameters
 
-- `minSizeInMB[` *(Parameter)*: minSizeInMB[.
-- `df` *(Parameter)*: df.
-- `depth` *(Parameter)*: depth.
-- `noShow]` *(Parameter)*: noShow].
+- `minSizeInMB` *(Variable, optional)*: Lower or starting min size in mb.
+- `df` *(DFREF, optional)*: Data-folder reference or path.
+- `depth` *(Variable, optional)*: Maximum recursion depth.
+- `noShow` *(Variable, optional)*: If nonzero, do not open the results window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `AllWavesSamePathQ`
@@ -213,17 +217,17 @@ Auto-generated documentation stub for function `FindBigWaves`.
 AllWavesSamePathQ(WAVE/WAVE wWAVEList)
 ```
 
-Description of AllWavesSamePathQ.
+Test whether all waves same path.
 
-Auto-generated documentation stub for function `AllWavesSamePathQ`.
+Function checks whether all have are in the same data folder 0 - no, 1 - yes.
 
 ### Parameters
 
-- `wWAVEList` *(Parameter)*: wWAVEList.
+- `wWAVEList` *(Wave/WAVE)*: used by the operation.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `BackupWaveInWaveDF`
@@ -234,17 +238,18 @@ Auto-generated documentation stub for function `AllWavesSamePathQ`.
 BackupWaveInWaveDF(WAVE wref)
 ```
 
-Description of BackupWaveInWaveDF.
+Create a backup beside a wave in its source data folder.
 
-Auto-generated documentation stub for function `BackupWaveInWaveDF`.
+Backup a wave in the same DF. If a wave with wavename_undo exists, nothing is done. The function returns
+a string of backupWavePathStr.
 
 ### Parameters
 
-- `wref` *(Parameter)*: wref.
+- `wref` *(Wave)*: Input wave.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `BackupWaveInWaveDFQ`
@@ -255,17 +260,18 @@ Auto-generated documentation stub for function `BackupWaveInWaveDF`.
 BackupWaveInWaveDFQ(WAVE wref)
 ```
 
-Description of BackupWaveInWaveDFQ.
+Test whether a wave has a backup in its source data folder.
 
-Auto-generated documentation stub for function `BackupWaveInWaveDFQ`.
+Backup a wave in the same DF. If a wave with wavename_undo exists the user is prompted to proceed and
+overwrite the destination wave or not. The function returns a string of backupWavePathStr.
 
 ### Parameters
 
-- `wref` *(Parameter)*: wref.
+- `wref` *(Wave)*: Input wave.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `GetAllWavesStrDF`
@@ -276,14 +282,14 @@ Auto-generated documentation stub for function `BackupWaveInWaveDFQ`.
 GetAllWavesStrDF(DFREF dfr)
 ```
 
-Description of GetAllWavesStrDF.
+Return a list of all waves in a data folder tree.
 
-Auto-generated documentation stub for function `GetAllWavesStrDF`.
+Return a string of all fullpaths of waves in the data folder dfr. Not used, cleanup 14.11.2024.
 
 ### Parameters
 
-- `dfr` *(Parameter)*: dfr.
+- `dfr` *(DFREF)*: Reference to the data folder to inspect or modify.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.

@@ -20,13 +20,32 @@ related to ATH LineProfile functionality.
 MainMenu()
 ```
 
-Description of MainMenu.
+Launch the line-profile tool for the active image.
 
-Auto-generated documentation stub for function `MainMenu`.
+When autoscaled then SETAXISCMD is SetAxis/A.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
+
+
+## `InitialiseFolder`
+
+**Signature**
+
+```igorpro
+InitialiseFolder(string winNameStr)
+```
+
+Create and initialize state for a graph's line-profile tool.
+
+### Parameters
+
+- `winNameStr` *(String)*: Name of the target graph or panel window.
+
+### Returns
+
+- **DFREF**: Reference to the resulting data folder.
 
 
 ## `InitialiseGraph`
@@ -37,17 +56,17 @@ Auto-generated documentation stub for function `MainMenu`.
 InitialiseGraph(DFREF dfr)
 ```
 
-Description of InitialiseGraph.
+Initialize the graph used by the line-profile tool.
 
-Auto-generated documentation stub for function `InitialiseGraph`.
+Here we will create the profile plot and graph and plot the profile.
 
 ### Parameters
 
-- `dfr` *(Parameter)*: dfr.
+- `dfr` *(DFREF)*: Reference to the data folder to inspect or modify.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `CreatePlot`
@@ -58,17 +77,18 @@ Auto-generated documentation stub for function `InitialiseGraph`.
 CreatePlot(DFREF dfr)
 ```
 
-Description of CreatePlot.
+Create plot.
 
-Auto-generated documentation stub for function `CreatePlot`.
+ModifyGraph
+mode=7,useNegRGB=1,usePlusRGB=1,hbFill=5,negRGB=(65535,32768,32768),plusRGB=(32768,40777,65535).
 
 ### Parameters
 
-- `dfr` *(Parameter)*: dfr.
+- `dfr` *(DFREF)*: Reference to the data folder to inspect or modify.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `ClearLineMarkings`
@@ -79,17 +99,15 @@ Auto-generated documentation stub for function `CreatePlot`.
 ClearLineMarkings(string winNameStr)
 ```
 
-Description of ClearLineMarkings.
-
-Auto-generated documentation stub for function `ClearLineMarkings`.
+Clear line markings.
 
 ### Parameters
 
-- `winNameStr` *(Parameter)*: winNameStr.
+- `winNameStr` *(String)*: Win name str.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `DrawLineUserFront`
@@ -100,24 +118,22 @@ Auto-generated documentation stub for function `ClearLineMarkings`.
 DrawLineUserFront(string winNameStr, variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
 ```
 
-Description of DrawLineUserFront.
-
-Auto-generated documentation stub for function `DrawLineUserFront`.
+Draw line user front.
 
 ### Parameters
 
-- `winNameStr` *(Parameter)*: winNameStr.
-- `x0` *(Parameter)*: x0.
-- `y0` *(Parameter)*: y0.
-- `x1` *(Parameter)*: x1.
-- `y1` *(Parameter)*: y1.
-- `red` *(Parameter)*: red.
-- `green` *(Parameter)*: green.
-- `blue` *(Parameter)*: blue.
+- `winNameStr` *(String)*: Win name str.
+- `x0` *(Variable)*: First x coordinate or range bound.
+- `y0` *(Variable)*: First y coordinate or range bound.
+- `x1` *(Variable)*: Second x coordinate or range bound.
+- `y1` *(Variable)*: Second y coordinate or range bound.
+- `red` *(Variable)*: Red-channel value or wave.
+- `green` *(Variable)*: Green-channel value or wave.
+- `blue` *(Variable)*: Blue-channel value or wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `CursorsHookFunction`
@@ -128,17 +144,18 @@ Auto-generated documentation stub for function `DrawLineUserFront`.
 CursorsHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of CursorsHookFunction.
+Handle cursors hook events.
 
-Auto-generated documentation stub for function `CursorsHookFunction`.
+Window hook function. The line profile is drawn from E to F. To revise. Case 17 is not recommended to use
+for killing windows. See JW's email.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `GraphHookFunction`
@@ -149,17 +166,18 @@ Auto-generated documentation stub for function `CursorsHookFunction`.
 GraphHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of GraphHookFunction.
+Handle panel hook events.
 
-Auto-generated documentation stub for function `GraphHookFunction`.
+ParentImageWinStr -- winNameStr. Kill the MyLineProfileHook. We need to reset the link between
+parentImageWinStr (winNameStr) and ATH_LinkedWinImageLPP.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SaveProfile`
@@ -170,17 +188,17 @@ Auto-generated documentation stub for function `GraphHookFunction`.
 SaveProfile(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of SaveProfile.
+Save profile.
 
-Auto-generated documentation stub for function `SaveProfile`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SaveDefaultSettings`
@@ -191,17 +209,38 @@ Auto-generated documentation stub for function `SaveProfile`.
 SaveDefaultSettings(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of SaveDefaultSettings.
+Save default settings.
 
-Auto-generated documentation stub for function `SaveDefaultSettings`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
+
+
+## `SetLineProfileScale`
+
+**Signature**
+
+```igorpro
+SetLineProfileScale(STRUCT WMButtonAction &B_Struct)
+```
+
+Set the line-profile scale from a user-entered cursor distance.
+
+Converts the entered physical distance to a per-point scaling factor. A value of zero restores nominal image scaling; anisotropic image pixels disable custom scaling.
+
+### Parameters
+
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor button-action structure describing the event and panel window.
+
+### Returns
+
+- **Variable**: Zero after updating the scale, one if the prompt is cancelled, or -1 for anisotropic image pixels.
 
 
 ## `RestoreDefaultSettings`
@@ -212,17 +251,17 @@ Auto-generated documentation stub for function `SaveDefaultSettings`.
 RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of RestoreDefaultSettings.
+Restore default settings.
 
-Auto-generated documentation stub for function `RestoreDefaultSettings`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `ShowProfileWidth`
@@ -233,17 +272,17 @@ Auto-generated documentation stub for function `RestoreDefaultSettings`.
 ShowProfileWidth(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of ShowProfileWidth.
+Show profile width.
 
-Auto-generated documentation stub for function `ShowProfileWidth`.
+We have to find the vertices of the polygon representing.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `CheckboxPlotProfile`
@@ -254,17 +293,15 @@ Auto-generated documentation stub for function `ShowProfileWidth`.
 CheckboxPlotProfile(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of CheckboxPlotProfile.
-
-Auto-generated documentation stub for function `CheckboxPlotProfile`.
+Handle the plot-profile checkbox action.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `ProfileLayer3D`
@@ -275,17 +312,15 @@ Auto-generated documentation stub for function `CheckboxPlotProfile`.
 ProfileLayer3D(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of ProfileLayer3D.
-
-Auto-generated documentation stub for function `ProfileLayer3D`.
+Profile layer 3D.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
 
 
 ## `CheckboxMarkLines`
@@ -296,17 +331,15 @@ Auto-generated documentation stub for function `ProfileLayer3D`.
 CheckboxMarkLines(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of CheckboxMarkLines.
-
-Auto-generated documentation stub for function `CheckboxMarkLines`.
+Handle the mark-lines checkbox action.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SetVariableWidth`
@@ -317,17 +350,43 @@ Auto-generated documentation stub for function `CheckboxMarkLines`.
 SetVariableWidth(STRUCT WMSetVariableAction& sv)
 ```
 
-Description of SetVariableWidth.
+Set variable width.
 
-Auto-generated documentation stub for function `SetVariableWidth`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `sv` *(Parameter)*: sv.
+- `sv` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
+
+
+## `DrawLineProfileRectangle`
+
+**Signature**
+
+```igorpro
+DrawLineProfileRectangle(variable C1x,variable C1y,variable C2x, variable C2y, variable dx, variable dy, variable width, string grfName)
+```
+
+Draw the polygon representing a line profile's sampling width.
+
+### Parameters
+
+- `C1x` *(Variable)*: X coordinate of the profile's first endpoint.
+- `C1y` *(Variable)*: Y coordinate of the profile's first endpoint.
+- `C2x` *(Variable)*: X coordinate of the profile's second endpoint.
+- `C2y` *(Variable)*: Y coordinate of the profile's second endpoint.
+- `dx` *(Variable)*: Horizontal pixel size.
+- `dy` *(Variable)*: Vertical pixel size.
+- `width` *(Variable)*: Half-width of the sampled line profile in pixels.
+- `grfName` *(String)*: Name of the graph window.
+
+### Returns
+
+- **Variable**: Zero after drawing the sampling-width polygon.
 
 
 ## `DeleleLineProfileRectangle`
@@ -338,14 +397,12 @@ Auto-generated documentation stub for function `SetVariableWidth`.
 DeleleLineProfileRectangle(string grfName)
 ```
 
-Description of DeleleLineProfileRectangle.
-
-Auto-generated documentation stub for function `DeleleLineProfileRectangle`.
+Delete the rectangle marking the line-profile width.
 
 ### Parameters
 
-- `grfName` *(Parameter)*: grfName.
+- `grfName` *(String)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.

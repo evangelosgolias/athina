@@ -20,13 +20,11 @@ related to ATH Launch functionality.
 BrowserActionDoXMDC()
 ```
 
-Description of BrowserActionDoXMDC.
-
-Auto-generated documentation stub for function `BrowserActionDoXMDC`.
+Calculate XMCD from the two waves selected in the Data Browser.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: NaN if input validation fails; otherwise zero after completing the operation.
 
 
 ## `BrowserActionMakeStack`
@@ -37,13 +35,11 @@ Auto-generated documentation stub for function `BrowserActionDoXMDC`.
 BrowserActionMakeStack()
 ```
 
-Description of BrowserActionMakeStack.
-
-Auto-generated documentation stub for function `BrowserActionMakeStack`.
+Create a stack from the waves selected in the Data Browser.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `Make3DWaveUsingPattern`
@@ -54,13 +50,11 @@ Auto-generated documentation stub for function `BrowserActionMakeStack`.
 Make3DWaveUsingPattern()
 ```
 
-Description of Make3DWaveUsingPattern.
-
-Auto-generated documentation stub for function `Make3DWaveUsingPattern`.
+Create a 3D wave by stacking waves whose names match a pattern.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `Make3DWaveDataBrowserSelection`
@@ -71,18 +65,16 @@ Auto-generated documentation stub for function `Make3DWaveUsingPattern`.
 Make3DWaveDataBrowserSelection([int displayStack, int transientStack])
 ```
 
-Description of Make3DWaveDataBrowserSelection.
-
-Auto-generated documentation stub for function `Make3DWaveDataBrowserSelection`.
+Create a 3D wave from the waves selected in the Data Browser.
 
 ### Parameters
 
-- `displayStack` *(Parameter)*: displayStack.
-- `transientStack]` *(Parameter)*: transientStack].
+- `displayStack` *(Integer, optional)*: If nonzero, display the newly assembled stack.
+- `transientStack` *(Integer, optional)*: If nonzero, mark the stack as temporary in the graph metadata.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero when a stack is created and displayed; one when no displayable stack is available.
 
 
 ## `LoadHDF5GroupsFromFile`
@@ -93,13 +85,11 @@ Auto-generated documentation stub for function `Make3DWaveDataBrowserSelection`.
 LoadHDF5GroupsFromFile()
 ```
 
-Description of LoadHDF5GroupsFromFile.
-
-Auto-generated documentation stub for function `LoadHDF5GroupsFromFile`.
+Load selected groups from an HDF5 file.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `AverageStackToImageFromMenu`
@@ -110,13 +100,11 @@ Auto-generated documentation stub for function `LoadHDF5GroupsFromFile`.
 AverageStackToImageFromMenu()
 ```
 
-Description of AverageStackToImageFromMenu.
-
-Auto-generated documentation stub for function `AverageStackToImageFromMenu`.
+Average a selected 3D stack into an image from a menu command.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `AverageStackToImageFromTraceMenu`
@@ -127,13 +115,11 @@ Auto-generated documentation stub for function `AverageStackToImageFromMenu`.
 AverageStackToImageFromTraceMenu()
 ```
 
-Description of AverageStackToImageFromTraceMenu.
-
-Auto-generated documentation stub for function `AverageStackToImageFromTraceMenu`.
+Average the stack associated with the active trace-menu command.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `AverageStackToImageFromBrowserMenu`
@@ -144,13 +130,11 @@ Auto-generated documentation stub for function `AverageStackToImageFromTraceMenu
 AverageStackToImageFromBrowserMenu()
 ```
 
-Description of AverageStackToImageFromBrowserMenu.
-
-Auto-generated documentation stub for function `AverageStackToImageFromBrowserMenu`.
+Average a stack selected in the Data Browser into an image.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: NaN if input validation fails; otherwise zero after completing the operation.
 
 
 ## `CalculateXMCDFromStack`
@@ -161,13 +145,11 @@ Auto-generated documentation stub for function `AverageStackToImageFromBrowserMe
 CalculateXMCDFromStack()
 ```
 
-Description of CalculateXMCDFromStack.
-
-Auto-generated documentation stub for function `CalculateXMCDFromStack`.
+Calculate XMCD from a selected two-layer stack.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
 
 
 ## `CalculationXMCD`
@@ -178,13 +160,14 @@ Auto-generated documentation stub for function `CalculateXMCDFromStack`.
 CalculationXMCD()
 ```
 
-Description of CalculationXMCD.
+Calculate XMCD.
 
-Auto-generated documentation stub for function `CalculationXMCD`.
+S_fileName is a carriage-return-separated list of full paths to one or more files. as many times as the
+dialog will be displayed. Equavalenty, it can. Set defaults.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The calculated calculation XMCD.
 
 
 ## `CalculationXMCD3D`
@@ -195,13 +178,14 @@ Auto-generated documentation stub for function `CalculationXMCD`.
 CalculationXMCD3D()
 ```
 
-Description of CalculationXMCD3D.
+Calculate XMCD 3D.
 
-Auto-generated documentation stub for function `CalculationXMCD3D`.
+S_fileName is a carriage-return-separated list of full paths to one or more files. as many times as the
+dialog will be displayed. Equavalenty, it can. Set defaults.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The calculated calculation XMCD 3D.
 
 
 ## `ImageRegistrationStack`
@@ -212,30 +196,29 @@ Auto-generated documentation stub for function `CalculationXMCD3D`.
 ImageRegistrationStack()
 ```
 
-Description of ImageRegistrationStack.
-
-Auto-generated documentation stub for function `ImageRegistrationStack`.
+Register all layers of an image stack to a reference layer.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: NaN if input validation fails; otherwise zero after completing the operation.
 
 
-## `ImageStackAlignmentPartition`
+## `ImageStackAlignmentUsingAFeature`
 
 **Signature**
 
 ```igorpro
-ImageStackAlignmentPartition()
+ImageStackAlignmentUsingAFeature()
 ```
 
-Description of ImageStackAlignmentPartition.
+Align an image stack in independently processed spatial partitions.
 
-Auto-generated documentation stub for function `ImageStackAlignmentPartition`.
+Save drift correction parameters. Local variables only, not saved. Save settings, use zero/non-zero for
+flags.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: NaN if input validation fails; otherwise zero after completing the operation.
 
 
 ## `LinearDriftCorrestionStackABCursors`
@@ -246,13 +229,14 @@ Auto-generated documentation stub for function `ImageStackAlignmentPartition`.
 LinearDriftCorrestionStackABCursors()
 ```
 
-Description of LinearDriftCorrestionStackABCursors.
+Correct linear stack drift from the displacement between cursors A and B.
 
-Auto-generated documentation stub for function `LinearDriftCorrestionStackABCursors`.
+Use AB to linearly correct an image stack drift WAVE/Z wx, wy ImageInterpolate needs pixels, multiply by
+-1 to have the proper behavior in /ARPM={...}.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `LinearDriftCorrestionPlanesABCursors`
@@ -263,13 +247,14 @@ Auto-generated documentation stub for function `LinearDriftCorrestionStackABCurs
 LinearDriftCorrestionPlanesABCursors()
 ```
 
-Description of LinearDriftCorrestionPlanesABCursors.
+Correct linear drift across selected layers using cursors A and B.
 
-Auto-generated documentation stub for function `LinearDriftCorrestionPlanesABCursors`.
+Use AB to linearly correct planes in an image stack. Set the slider to the starting layer before
+launching the operation. Set cursors and the last layer using the.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `NewImageFromBrowserSelection`
@@ -280,13 +265,13 @@ Auto-generated documentation stub for function `LinearDriftCorrestionPlanesABCur
 NewImageFromBrowserSelection()
 ```
 
-Description of NewImageFromBrowserSelection.
+New image from browser selection.
 
-Auto-generated documentation stub for function `NewImageFromBrowserSelection`.
+Display selected images. Verify that you did not misclicked and prevent opening many images (bummer).
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `ImageBackupFromBrowserSelection`
@@ -297,13 +282,11 @@ Auto-generated documentation stub for function `NewImageFromBrowserSelection`.
 ImageBackupFromBrowserSelection()
 ```
 
-Description of ImageBackupFromBrowserSelection.
-
-Auto-generated documentation stub for function `ImageBackupFromBrowserSelection`.
+Image backup from browser selection.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `XPSProfileFromDefaultSettings`
@@ -314,13 +297,13 @@ Auto-generated documentation stub for function `ImageBackupFromBrowserSelection`
 XPSProfileFromDefaultSettings()
 ```
 
-Description of XPSProfileFromDefaultSettings.
+Generate an XPS profile using the saved default settings.
 
-Auto-generated documentation stub for function `XPSProfileFromDefaultSettings`.
+Extract selected PES profiles for selected images in DB.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
 
 
 ## `NormalisationImageStackWithImage`
@@ -331,13 +314,13 @@ Auto-generated documentation stub for function `XPSProfileFromDefaultSettings`.
 NormalisationImageStackWithImage()
 ```
 
-Description of NormalisationImageStackWithImage.
+Normalize every stack layer by a selected 2D reference image.
 
-Auto-generated documentation stub for function `NormalisationImageStackWithImage`.
+Consistency check.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `NormalisationImageStackWithProfile`
@@ -348,13 +331,13 @@ Auto-generated documentation stub for function `NormalisationImageStackWithImage
 NormalisationImageStackWithProfile()
 ```
 
-Description of NormalisationImageStackWithProfile.
+Normalize stack layers by the corresponding values of a 1D profile.
 
-Auto-generated documentation stub for function `NormalisationImageStackWithProfile`.
+Consistency check.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `NormalisationImageStackWithImageStack`
@@ -365,13 +348,14 @@ Auto-generated documentation stub for function `NormalisationImageStackWithProfi
 NormalisationImageStackWithImageStack()
 ```
 
-Description of NormalisationImageStackWithImageStack.
+Normalize one image stack by a second stack.
 
-Auto-generated documentation stub for function `NormalisationImageStackWithImageStack`.
+Consistency check. Select how many layers would you like to use for normalisation. Handle here unique
+output name.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `RemoveImagesFromImageStack`
@@ -382,30 +366,11 @@ Auto-generated documentation stub for function `NormalisationImageStackWithImage
 RemoveImagesFromImageStack()
 ```
 
-Description of RemoveImagesFromImageStack.
-
-Auto-generated documentation stub for function `RemoveImagesFromImageStack`.
+Remove images from image stack.
 
 ### Returns
 
-- **Variable**: Return value.
-
-
-## `StackImagesToImageStack`
-
-**Signature**
-
-```igorpro
-StackImagesToImageStack()
-```
-
-Description of StackImagesToImageStack.
-
-Auto-generated documentation stub for function `StackImagesToImageStack`.
-
-### Returns
-
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `InsertImagesToStack`
@@ -413,16 +378,21 @@ Auto-generated documentation stub for function `StackImagesToImageStack`.
 **Signature**
 
 ```igorpro
-InsertImagesToStack()
+InsertImagesToStack([variable extend])
 ```
 
-Description of InsertImagesToStack.
+Insert images to stack.
 
-Auto-generated documentation stub for function `InsertImagesToStack`.
+We selected at least an image. Let's sort things here a bit. First lets expand the wave note when we
+insert a 3D wave.
+
+### Parameters
+
+- `extend` *(Variable, optional)*: If nonzero, extend the destination rather than replacing its current extent.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `ImgRGB2Gray16`
@@ -433,13 +403,11 @@ Auto-generated documentation stub for function `InsertImagesToStack`.
 ImgRGB2Gray16()
 ```
 
-Description of ImgRGB2Gray16.
-
-Auto-generated documentation stub for function `ImgRGB2Gray16`.
+Convert the top RGB image to 16-bit grayscale.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `Rotate3DWaveAxes`
@@ -450,13 +418,11 @@ Auto-generated documentation stub for function `ImgRGB2Gray16`.
 Rotate3DWaveAxes()
 ```
 
-Description of Rotate3DWaveAxes.
-
-Auto-generated documentation stub for function `Rotate3DWaveAxes`.
+Rotate 3D wave axes.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `ImageRotateAndScaleFromMetadata`
@@ -467,13 +433,14 @@ Auto-generated documentation stub for function `Rotate3DWaveAxes`.
 ImageRotateAndScaleFromMetadata()
 ```
 
-Description of ImageRotateAndScaleFromMetadata.
+Restore microscope orientation and field-of-view scaling from image metadata.
 
-Auto-generated documentation stub for function `ImageRotateAndScaleFromMetadata`.
+This operation transform the image as seen in the microscope when the angular compensation is on for
+different FoVs. The combination of ImageRotation and ImageTransform flipRows wRef restores the image.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `ImageFFTTransform`
@@ -484,19 +451,20 @@ Auto-generated documentation stub for function `ImageRotateAndScaleFromMetadata`
 ImageFFTTransform([int noPlot, int sourceDF, int mode])
 ```
 
-Description of ImageFFTTransform.
+Calculate the Fourier transform of the active image.
 
-Auto-generated documentation stub for function `ImageFFTTransform`.
+FFT of the top image. If Marquee is present the transform happends at the marked region FFT wave in the
+cwd.
 
 ### Parameters
 
-- `noPlot` *(Parameter)*: noPlot.
-- `sourceDF` *(Parameter)*: sourceDF.
-- `mode]` *(Parameter)*: mode].
+- `noPlot` *(Integer, optional)*: If nonzero, suppress creation of a result graph.
+- `sourceDF` *(Integer, optional)*: Source data-folder reference or path.
+- `mode` *(Integer, optional)*: Mode selector.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `AverageLayersRange`
@@ -507,13 +475,11 @@ Auto-generated documentation stub for function `ImageFFTTransform`.
 AverageLayersRange()
 ```
 
-Description of AverageLayersRange.
-
-Auto-generated documentation stub for function `AverageLayersRange`.
+Average a user-selected range of image-stack layers.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `ExtractLayerRangeToStack`
@@ -524,13 +490,11 @@ Auto-generated documentation stub for function `AverageLayersRange`.
 ExtractLayerRangeToStack()
 ```
 
-Description of ExtractLayerRangeToStack.
-
-Auto-generated documentation stub for function `ExtractLayerRangeToStack`.
+Extract a selected layer range into a new image stack.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `FlipStackPlanes`
@@ -541,13 +505,11 @@ Auto-generated documentation stub for function `ExtractLayerRangeToStack`.
 FlipStackPlanes()
 ```
 
-Description of FlipStackPlanes.
-
-Auto-generated documentation stub for function `FlipStackPlanes`.
+Reverse the layer order of the active image stack.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `AverageImageStack`
@@ -558,13 +520,11 @@ Auto-generated documentation stub for function `FlipStackPlanes`.
 AverageImageStack()
 ```
 
-Description of AverageImageStack.
-
-Auto-generated documentation stub for function `AverageImageStack`.
+Average image stack.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `HistogramShiftToGaussianCenter`
@@ -575,13 +535,11 @@ Auto-generated documentation stub for function `AverageImageStack`.
 HistogramShiftToGaussianCenter()
 ```
 
-Description of HistogramShiftToGaussianCenter.
-
-Auto-generated documentation stub for function `HistogramShiftToGaussianCenter`.
+Histogram shift to gaussian center.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `TwoTraceCalcs`
@@ -592,13 +550,13 @@ Auto-generated documentation stub for function `HistogramShiftToGaussianCenter`.
 TwoTraceCalcs()
 ```
 
-Description of TwoTraceCalcs.
+Perform a selected arithmetic operation on two graph traces.
 
-Auto-generated documentation stub for function `TwoTraceCalcs`.
+Creates a separate result wave, leaving the input wave available to the caller.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `QuickTextAnnotation`
@@ -609,13 +567,11 @@ Auto-generated documentation stub for function `TwoTraceCalcs`.
 QuickTextAnnotation()
 ```
 
-Description of QuickTextAnnotation.
-
-Auto-generated documentation stub for function `QuickTextAnnotation`.
+Prompt for text and add it as an annotation to the active graph.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
 
 
 ## `MakeWaveFromSavedROI`
@@ -626,13 +582,11 @@ Auto-generated documentation stub for function `QuickTextAnnotation`.
 MakeWaveFromSavedROI()
 ```
 
-Description of MakeWaveFromSavedROI.
-
-Auto-generated documentation stub for function `MakeWaveFromSavedROI`.
+Create wave from saved ROI.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `XMCDCombinations`
@@ -643,13 +597,13 @@ Auto-generated documentation stub for function `MakeWaveFromSavedROI`.
 XMCDCombinations()
 ```
 
-Description of XMCDCombinations.
+Calculate XMCD for all layer pairs in the active image stack.
 
-Auto-generated documentation stub for function `XMCDCombinations`.
+S_fileName is a carriage-return-separated list of full paths to one or more files.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `DeleteBigWaves`
@@ -660,13 +614,14 @@ Auto-generated documentation stub for function `XMCDCombinations`.
 DeleteBigWaves()
 ```
 
-Description of DeleteBigWaves.
+Find and optionally remove waves above a user-selected size threshold.
 
-Auto-generated documentation stub for function `DeleteBigWaves`.
+Delete filter larger than minFileSizeMB. The textWave that pops to check the waves can be edited to
+remove the waves you want to keep (an invalid path.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
 
 
 ## `DeleteBigWavesDisplayed`
@@ -677,13 +632,11 @@ Auto-generated documentation stub for function `DeleteBigWaves`.
 DeleteBigWavesDisplayed()
 ```
 
-Description of DeleteBigWavesDisplayed.
-
-Auto-generated documentation stub for function `DeleteBigWavesDisplayed`.
+Close displays of oversized waves before removing those waves.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
 
 
 ## `PixelateSingleImageOrStack`
@@ -694,13 +647,11 @@ Auto-generated documentation stub for function `DeleteBigWavesDisplayed`.
 PixelateSingleImageOrStack()
 ```
 
-Description of PixelateSingleImageOrStack.
-
-Auto-generated documentation stub for function `PixelateSingleImageOrStack`.
+Pixelate either a single image or every layer of an image stack.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `SetTopGraphDF`
@@ -711,13 +662,13 @@ Auto-generated documentation stub for function `PixelateSingleImageOrStack`.
 SetTopGraphDF()
 ```
 
-Description of SetTopGraphDF.
+Switch the current data folder to the top graph's source folder.
 
-Auto-generated documentation stub for function `SetTopGraphDF`.
+Sets the DF of the top image or top trace. Remove background.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `ImgRemoveBackground`
@@ -728,17 +679,17 @@ Auto-generated documentation stub for function `SetTopGraphDF`.
 ImgRemoveBackground([variable w3d])
 ```
 
-Description of ImgRemoveBackground.
+Launch background removal for the active image or stack.
 
-Auto-generated documentation stub for function `ImgRemoveBackground`.
+Return 1 for successful Mask creation, 0 otherwise. Flatten Image.
 
 ### Parameters
 
-- `w3d]` *(Parameter)*: w3d].
+- `w3d` *(Variable, optional)*: Input 3D wave or image stack.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `FlattenImage`
@@ -746,22 +697,16 @@ Auto-generated documentation stub for function `ImgRemoveBackground`.
 **Signature**
 
 ```igorpro
-FlattenImage([string method, variable kernelN, variable iterN])
+FlattenImage()
 ```
 
-Description of FlattenImage.
+Flatten image.
 
-Auto-generated documentation stub for function `FlattenImage`.
-
-### Parameters
-
-- `method` *(Parameter)*: method.
-- `kernelN` *(Parameter)*: kernelN.
-- `iterN]` *(Parameter)*: iterN].
+Create backup here. Resolve the. Get and set image range and ctab.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `SaveAxesRangeAndCtab`
@@ -772,17 +717,15 @@ Auto-generated documentation stub for function `FlattenImage`.
 SaveAxesRangeAndCtab([string grfName])
 ```
 
-Description of SaveAxesRangeAndCtab.
-
-Auto-generated documentation stub for function `SaveAxesRangeAndCtab`.
+Save axes range and color table.
 
 ### Parameters
 
-- `grfName]` *(Parameter)*: grfName].
+- `grfName` *(String, optional)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SetAxesRangeAndCtabFromSaved`
@@ -793,19 +736,17 @@ Auto-generated documentation stub for function `SaveAxesRangeAndCtab`.
 SetAxesRangeAndCtabFromSaved([string grfName, variable setCtab, variable printCmd])
 ```
 
-Description of SetAxesRangeAndCtabFromSaved.
-
-Auto-generated documentation stub for function `SetAxesRangeAndCtabFromSaved`.
+Set axes range and color table from saved.
 
 ### Parameters
 
-- `grfName` *(Parameter)*: grfName.
-- `setCtab` *(Parameter)*: setCtab.
-- `printCmd]` *(Parameter)*: printCmd].
+- `grfName` *(String, optional)*: Name of the graph window.
+- `setCtab` *(Variable, optional)*: If nonzero, restore the saved image color table.
+- `printCmd` *(Variable, optional)*: If nonzero, print the generated Igor command to history.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `HistogramEqualisation`
@@ -816,13 +757,11 @@ Auto-generated documentation stub for function `SetAxesRangeAndCtabFromSaved`.
 HistogramEqualisation()
 ```
 
-Description of HistogramEqualisation.
-
-Auto-generated documentation stub for function `HistogramEqualisation`.
+Apply histogram equalization to the active image.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `CloseTopWindowAndDeleteSource`
@@ -833,18 +772,37 @@ Auto-generated documentation stub for function `HistogramEqualisation`.
 CloseTopWindowAndDeleteSource([int deleteBackUp, string grfName])
 ```
 
-Description of CloseTopWindowAndDeleteSource.
+Close the active graph and delete its displayed source wave.
 
-Auto-generated documentation stub for function `CloseTopWindowAndDeleteSource`.
+Close topwindow and delete the top image or trace.
 
 ### Parameters
 
-- `deleteBackUp` *(Parameter)*: deleteBackUp.
-- `grfName]` *(Parameter)*: grfName].
+- `deleteBackUp` *(Integer, optional)*: If nonzero, delete the image's backup wave as well.
+- `grfName` *(String, optional)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
+
+
+## `DeleteBackupWave`
+
+**Signature**
+
+```igorpro
+DeleteBackupWave([string grfName])
+```
+
+Remove backup wave.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
+
+### Returns
+
+- **Variable**: Zero after completing the operation.
 
 
 ## `MirrorPositionToWaveValues`
@@ -855,13 +813,13 @@ Auto-generated documentation stub for function `CloseTopWindowAndDeleteSource`.
 MirrorPositionToWaveValues()
 ```
 
-Description of MirrorPositionToWaveValues.
+Mirror the current graph position into stored wave values.
 
-Auto-generated documentation stub for function `MirrorPositionToWaveValues`.
+S_fileName is a carriage-return-separated list of full paths to one or more files.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `DrawSavedROIOnGraph`
@@ -872,19 +830,19 @@ Auto-generated documentation stub for function `MirrorPositionToWaveValues`.
 DrawSavedROIOnGraph(string grfName, WAVE wRef, [variable bypass])
 ```
 
-Description of DrawSavedROIOnGraph.
+Draw a saved ROI on the active graph.
 
-Auto-generated documentation stub for function `DrawSavedROIOnGraph`.
+Draw the ROI saved in wRef on grfName set bypass to draw ROI on any graph.
 
 ### Parameters
 
-- `grfName` *(Parameter)*: grfName.
-- `wRef` *(Parameter)*: wRef.
-- `bypass]` *(Parameter)*: bypass].
+- `grfName` *(String)*: Name of the graph window.
+- `wRef` *(Wave)*: Input wave.
+- `bypass` *(Variable, optional)*: If nonzero, skip the normal validation or selection step.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `iImgFFTFilter`
@@ -895,17 +853,15 @@ Auto-generated documentation stub for function `DrawSavedROIOnGraph`.
 iImgFFTFilter([string grfName])
 ```
 
-Description of iImgFFTFilter.
-
-Auto-generated documentation stub for function `iImgFFTFilter`.
+Launch the interactive FFT filter for the active image.
 
 ### Parameters
 
-- `grfName]` *(Parameter)*: grfName].
+- `grfName` *(String, optional)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `UnpackStackToSources`
@@ -916,17 +872,15 @@ Auto-generated documentation stub for function `iImgFFTFilter`.
 UnpackStackToSources([string grfName])
 ```
 
-Description of UnpackStackToSources.
-
-Auto-generated documentation stub for function `UnpackStackToSources`.
+Restore image-stack layers to their source waves using stack metadata.
 
 ### Parameters
 
-- `grfName]` *(Parameter)*: grfName].
+- `grfName` *(String, optional)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `ImageResample`
@@ -937,30 +891,13 @@ Auto-generated documentation stub for function `UnpackStackToSources`.
 ImageResample()
 ```
 
-Description of ImageResample.
+Resample the active image using a selected interpolation method and scale.
 
-Auto-generated documentation stub for function `ImageResample`.
-
-### Returns
-
-- **Variable**: Return value.
-
-
-## `SetCorrectedFoVImages`
-
-**Signature**
-
-```igorpro
-SetCorrectedFoVImages()
-```
-
-Description of SetCorrectedFoVImages.
-
-Auto-generated documentation stub for function `SetCorrectedFoVImages`.
+Resample and offset image. Copyscales/I wRef, $resampledWaveName.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: NaN if input validation fails; otherwise zero after completing the operation.
 
 
 ## `DrawScaleBar`
@@ -968,13 +905,132 @@ Auto-generated documentation stub for function `SetCorrectedFoVImages`.
 **Signature**
 
 ```igorpro
-DrawScaleBar()
+DrawScaleBar([string grfName])
 ```
 
-Description of DrawScaleBar.
+Prompt for a physical length and draw a scale bar on the active image graph.
 
-Auto-generated documentation stub for function `DrawScaleBar`.
+String axisX, axisY variable minVX, maxVX, minVY, maxVY, sf.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The scale-bar width as a fraction of the visible x-axis range, or -1 if the prompt is cancelled or invalid.
+
+
+## `ImageZScore`
+
+**Signature**
+
+```igorpro
+ImageZScore([string grfName])
+```
+
+Create a z-score-normalized copy of the active image.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
+
+### Returns
+
+- **Variable**: Zero after completing the operation.
+
+
+## `SetRangeAndCTabForAllGraphsInSpace`
+
+**Signature**
+
+```igorpro
+SetRangeAndCTabForAllGraphsInSpace([string spaceTagStr, variable setCtab])
+```
+
+Apply saved axis ranges and color tables to every graph in an ATH space.
+
+### Parameters
+
+- `spaceTagStr` *(String, optional)*: ATH space tag selecting graph windows.
+- `setCtab` *(Variable, optional)*: If nonzero, also apply the saved color table.
+
+### Returns
+
+- **Variable**: Zero after completing the operation.
+
+
+## `ApplyEdgeDetectionCommandToStack`
+
+**Signature**
+
+```igorpro
+ApplyEdgeDetectionCommandToStack([string grfName])
+```
+
+Apply an edge-detection command to the active image stack.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
+
+### Returns
+
+- **Variable**: Igor status code; zero indicates success and nonzero values report failure or cancellation.
+
+
+## `ImageFilter3D`
+
+**Signature**
+
+```igorpro
+ImageFilter3D([string grfName])
+```
+
+Apply a selected matrix filter to every layer of an image stack.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
+
+### Returns
+
+- **Variable**: Zero after completing the operation.
+
+
+## `ImageSmooth3D`
+
+**Signature**
+
+```igorpro
+ImageSmooth3D([string grfName])
+```
+
+Smooth every layer of an image stack.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
+
+### Returns
+
+- **Variable**: Igor status code; zero indicates success and nonzero values report failure or cancellation.
+
+
+## `SmoothWave`
+
+**Signature**
+
+```igorpro
+SmoothWave([string grfName])
+```
+
+Smooth the selected wave using user-provided settings.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
+
+### Returns
+
+- **Variable**: Zero after completing the operation.

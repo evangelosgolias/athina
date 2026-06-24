@@ -40,6 +40,10 @@
 
 static constant kCBOFFSET = 30 // height slider in 3d waves
 
+/// @function GetActiveCursors
+/// @brief Return a list of cursors currently attached to graph traces.
+/// @param grfName (optional) Name of the graph window.
+/// @returns A semicolon-separated list of active cursor names.
 static Function/S GetActiveCursors([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName), grfName, WinName(0,1,1))
 	if (WinType(grfName) != 1)
@@ -59,13 +63,12 @@ static Function/S GetActiveCursors([string grfName])
 End
 
 /// @function GetDistanceFromCursors
-/// @brief Description of GetDistanceFromCursors.
+/// @brief Return distance from cursors.
 /// @details
-/// Auto-generated documentation stub for function `GetDistanceFromCursors`.
-/// @param C1 Parameter C1.
-/// @param C2 Parameter C2.
-/// @returns Variable Return value.
-
+/// Returns the distance between C1 and C2 if given. Interactive functionality.
+/// @param C1 Name of the first graph cursor.
+/// @param C2 Name of the second graph cursor.
+/// @returns The returned value is distance from cursors.
 static Function GetDistanceFromCursors(string C1, string C2)
 	/// Returns the distance between C1 and C2 if given.
 	return sqrt((hcsr($C1) - hcsr($C2))^2 + (vcsr($C1) - vcsr($C2))^2)
@@ -74,10 +77,11 @@ End
 // Interactive functionality
 
 /// @function MeasureDistanceUsingFreeCursors
-/// @brief Description of MeasureDistanceUsingFreeCursors.
+/// @brief Measure distance using free cursors.
 /// @details
-/// Auto-generated documentation stub for function `MeasureDistanceUsingFreeCursors`.
-/// @returns Variable Return value.
+/// Use Cursors I, J (Free) to measure distances in a graph. Uses ATH_MeasureDistanceUsingFreeCursorsIJHook.
+/// Add metadata.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function MeasureDistanceUsingFreeCursors()	
 	/// Use Cursors I, J (Free) to measure distances in a graph
 	/// Uses ATH_MeasureDistanceUsingFreeCursorsIJHook.
@@ -132,12 +136,12 @@ static Function MeasureDistanceUsingFreeCursors()
 End
 
 /// @function MeasureDistanceUsingFreeCursorsHook
-/// @brief Description of MeasureDistanceUsingFreeCursorsHook.
+/// @brief Handle measure distance using free cursors hook events.
 /// @details
-/// Auto-generated documentation stub for function `MeasureDistanceUsingFreeCursorsHook`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Hook function for ATH_MeasureDistanceUsingFreeCursorsIJ() currently button is disabled for wavedims != 1
+/// SetDrawEnv/W=$s.winName xcoord= axrel,ycoord= $axisY.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 	/// Hook function for ATH_MeasureDistanceUsingFreeCursorsIJ()
 	variable hookResult = 0
@@ -337,6 +341,10 @@ static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 	return hookResult
 End
 
+/// @function MeasureDistanceButton
+/// @brief Handle actions from the cursor-distance measurement panel.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Static Function MeasureDistanceButton(STRUCT WMButtonAction &s) // Todo: change this behavior
 
 	if (s.eventCode != 2) // If not pressed return, otherwise chaos
@@ -558,6 +566,10 @@ Structure sUserCursorPositions
 EndStructure
 
 // The following three function let you set two cursors (AB) on an image stack
+/// @function UserGetABCursorPositions
+/// @brief Pause for the user to position cursors A and B.
+/// @param s Input/output structure containing graph, axis, and cursor settings.
+/// @returns The start and end coordinates selected with cursors A and B.
 static Function [variable xstart, variable ystart , variable xend, variable yend] UserGetABCursorPositions(STRUCT sUserCursorPositions &s)
 	//
 	string winNameStr = WinName(0, 1, 1)	
@@ -595,12 +607,11 @@ static Function [variable xstart, variable ystart , variable xend, variable yend
 End
 
 /// @function UserGetCursorsPositions_ContButtonProc
-/// @brief Description of UserGetCursorsPositions_ContButtonProc.
+/// @brief Handle the continue button for user get cursors positions.
 /// @details
-/// Auto-generated documentation stub for function `UserGetCursorsPositions_ContButtonProc`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function UserGetCursorsPositions_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -626,12 +637,11 @@ static Function UserGetCursorsPositions_ContButtonProc(STRUCT WMButtonAction &B_
 End
 
 /// @function UserGetCursorsPositions_CancelBProc
-/// @brief Description of UserGetCursorsPositions_CancelBProc.
+/// @brief Handle the cancel button for user get cursors positions.
 /// @details
-/// Auto-generated documentation stub for function `UserGetCursorsPositions_CancelBProc`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// End of Cursor positions with PauseforUser.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function UserGetCursorsPositions_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -655,16 +665,15 @@ End
 // End of Cursor positions with PauseforUser
 
 /// @function ThreeCursorsToAngle
-/// @brief Description of ThreeCursorsToAngle.
+/// @brief Calculate the angle formed by three graph cursors.
 /// @details
-/// Auto-generated documentation stub for function `ThreeCursorsToAngle`.
-/// @param Cursor1 Parameter Cursor1.
-/// @param Cursor2 Parameter Cursor2.
-/// @param Cursor3 Parameter Cursor3.
-/// @param [ Parameter [.
-/// @param deg] Parameter deg].
-/// @returns Variable Return value.
-
+/// Returns the angle formed by the cursors Cursor1, Cursor2 & Cursor3 (*corner of angle at Cursor2*) in rad
+/// or degrees.
+/// @param Cursor1 Name of the first graph cursor.
+/// @param Cursor2 Name of the second graph cursor.
+/// @param Cursor3 Name of the third graph cursor.
+/// @param deg (optional) If nonzero, return the angle in degrees instead of radians.
+/// @returns The angle in radians, or in degrees when `deg` is nonzero.
 static Function ThreeCursorsToAngle(string Cursor1, string Cursor2, string Cursor3, [, variable deg]) 
 	//
 	// Returns  the angle formed by the cursors 
@@ -705,13 +714,11 @@ static Function ThreeCursorsToAngle(string Cursor1, string Cursor2, string Curso
 End
 
 /// @function MirrorCursorPositionToWaveValues
-/// @brief Description of MirrorCursorPositionToWaveValues.
+/// @brief Mirror cursor position to wave values.
 /// @details
-/// Auto-generated documentation stub for function `MirrorCursorPositionToWaveValues`.
-/// @param wRef Parameter wRef.
-/// @returns Variable Return value.
-
-
+/// Add a textbox with values from two graphs in the same cursor position.
+/// @param wRef Input wave.
+/// @returns Zero after completing the operation.
 static Function MirrorCursorPositionToWaveValues(WAVE wRef)
 	// Add a textbox with values from two graphs in the same cursor position
 	string grfName = WinName(0,1,1)
@@ -736,12 +743,11 @@ static Function MirrorCursorPositionToWaveValues(WAVE wRef)
 End
 
 /// @function SyncCursorsInGraphsHook
-/// @brief Description of SyncCursorsInGraphsHook.
+/// @brief Handle sync cursors in graphs hook events.
 /// @details
-/// Auto-generated documentation stub for function `SyncCursorsInGraphsHook`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SyncCursorsInGraphsHook(STRUCT WMWinHookStruct &s)
 
 	variable hookResult, layerN

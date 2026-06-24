@@ -36,6 +36,12 @@
 /// related to ATH Dialog functionality.
 
 
+/// @function GenericSinglePopupStrPrompt
+/// @brief Prompt for one value chosen from a pop-up list.
+/// @param strPrompt Prompt text shown beside the input control.
+/// @param popupStrSelection Semicolon-separated choices for the pop-up control.
+/// @param msgDialog Title or explanatory text for the prompt dialog.
+/// @returns The selected pop-up item, or an empty string if the dialog is cancelled.
 static Function/S GenericSinglePopupStrPrompt(string strPrompt, string popupStrSelection, string msgDialog)
 	string returnStrVar 
 	Prompt returnStrVar, strPrompt, popup, popupStrSelection
@@ -46,6 +52,11 @@ static Function/S GenericSinglePopupStrPrompt(string strPrompt, string popupStrS
 	return returnStrVar
 End
 
+/// @function GenericSingleStrPrompt
+/// @brief Prompt for one text value.
+/// @param strPrompt Prompt text shown beside the input control.
+/// @param msgDialog Title or explanatory text for the prompt dialog.
+/// @returns The entered text, or an empty string if the dialog is cancelled.
 static Function/S GenericSingleStrPrompt(string strPrompt, string msgDialog)
 	string returnStrVar 
 	Prompt returnStrVar, strPrompt
@@ -56,6 +67,13 @@ static Function/S GenericSingleStrPrompt(string strPrompt, string msgDialog)
 	return returnStrVar
 End
 
+/// @function GenericSingleStrPromptAndPopup
+/// @brief Prompt for one pop-up selection and one text value.
+/// @param strPrompt1 Prompt text for the first value.
+/// @param strPrompt2 Prompt text for the second value.
+/// @param popupStrSelection1 Choices for the first pop-up control.
+/// @param msgDialog Title or explanatory text for the prompt dialog.
+/// @returns The entered text and the selected pop-up item.
 static Function [string returnStrVar1, string returnStrVar2] GenericSingleStrPromptAndPopup(string strPrompt1,string strPrompt2, string popupStrSelection1, string msgDialog)
 	string strVar1, strVar2
 	Prompt strVar1, strPrompt1, popup, popupStrSelection1
@@ -69,6 +87,14 @@ static Function [string returnStrVar1, string returnStrVar2] GenericSingleStrPro
 	return [returnStrVar1, returnStrVar2] 
 End
 
+/// @function GenericDoubleStrPromptPopup
+/// @brief Prompt for two values chosen from pop-up lists.
+/// @param strPrompt1 Prompt text for the first value.
+/// @param strPrompt2 Prompt text for the second value.
+/// @param popupStrSelection1 Choices for the first pop-up control.
+/// @param popupStrSelection2 Choices for the second pop-up control.
+/// @param msgDialog Title or explanatory text for the prompt dialog.
+/// @returns The two selected pop-up items.
 static Function [string returnStrVar1, string returnStrVar2] GenericDoubleStrPromptPopup(string strPrompt1, string strPrompt2, string popupStrSelection1, string popupStrSelection2, string msgDialog)
 	string strVar1, strVar2
 	Prompt strVar1, strPrompt1, popup, popupStrSelection1
@@ -82,6 +108,12 @@ static Function [string returnStrVar1, string returnStrVar2] GenericDoubleStrPro
 	return [returnStrVar1, returnStrVar2] 
 End
 
+/// @function GenericDoubleStrPrompt
+/// @brief Prompt for two text values.
+/// @param strPrompt1 Prompt text for the first value.
+/// @param strPrompt2 Prompt text for the second value.
+/// @param msgDialog Title or explanatory text for the prompt dialog.
+/// @returns The two entered text values.
 static Function [string returnStrVar1, string returnStrVar2] GenericDoubleStrPrompt(string strPrompt1, string strPrompt2, string msgDialog)
 	string strVar1, strVar2
 	Prompt strVar1, strPrompt1
@@ -97,6 +129,10 @@ End
 
 // Browser selection
 
+/// @function SelectWavesInModalDataBrowser
+/// @brief Open a modal Data Browser and return the selected waves.
+/// @param msg Message displayed to the user.
+/// @returns A semicolon-separated list of selected wave paths, or an empty string if none are selected.
 static Function/S SelectWavesInModalDataBrowser(string msg)
 	/// Launch modal browser to select waves
 	
@@ -121,11 +157,10 @@ End
 /// Helper function
 
 /// @function CountSelectedObjectsInDataBrowser
-/// @brief Description of CountSelectedObjectsInDataBrowser.
+/// @brief Count all objects selected in the Data Browser.
 /// @details
-/// Auto-generated documentation stub for function `CountSelectedObjectsInDataBrowser`.
-/// @returns Variable Return value.
-
+/// Return how many objects of any kind you have selected in the data browser.
+/// @returns The number of matching items.
 static Function CountSelectedObjectsInDataBrowser()
 	/// return how many objects of any kind you have 
 	/// selected in the data browser 
@@ -143,12 +178,12 @@ static Function CountSelectedObjectsInDataBrowser()
 End
 
 /// @function CountSelectedWavesInDataBrowser
-/// @brief Description of CountSelectedWavesInDataBrowser.
+/// @brief Count waves selected in the Data Browser, optionally by dimensionality.
 /// @details
-/// Auto-generated documentation stub for function `CountSelectedWavesInDataBrowser`.
-/// @param wDim] Parameter wDim].
-/// @returns Variable Return value.
-
+/// Return how many waves are selected in the data browser. Function returns selected waves of dimensionality
+/// wDims.
+/// @param wDim (optional) Wave dimensionality to require; zero counts waves of any dimensionality.
+/// @returns The number of matching items.
 static Function CountSelectedWavesInDataBrowser([variable wDim])
 	/// return how many waves are selected in the data browser
 	/// Function returns selected waves of dimensionality wDims
@@ -175,6 +210,10 @@ static Function CountSelectedWavesInDataBrowser([variable wDim])
 	return cnt
 End
 
+/// @function GetSelectedWavesInDataBrowser
+/// @brief Return waves selected in the Data Browser, optionally filtered by dimensionality.
+/// @param wDim (optional) Required wave dimensionality; zero accepts any dimensionality.
+/// @returns A semicolon-separated list of selected wave paths matching the dimensionality filter.
 static Function/S GetSelectedWavesInDataBrowser([variable wDim])
 	/// returns a string list with selected wave in the data browser
 	/// selects only waves with wDim if variable is set.
@@ -208,13 +247,10 @@ End
 // Code does not work, check similar function in MarqueeOperations.ipf
 
 /// @function WaitForUserActions
-/// @brief Description of WaitForUserActions.
-/// @details
-/// Auto-generated documentation stub for function `WaitForUserActions`.
-/// @param &s Parameter &s.
-/// @param vWinType] Parameter vWinType].
-/// @returns Variable Return value.
-
+/// @brief Open a modal panel and wait for the user to continue or cancel.
+/// @param s Input/output structure carrying the operation's settings and results.
+/// @param vWinType (optional) Igor window-type code used to choose the parent window; defaults to a graph.
+/// @returns One if the user cancels; zero if the user continues.
 static Function WaitForUserActions(STRUCT sUserMarqueePositions &s, [variable vWinType])
 	// vWinType = 1 (default) graphs
 	// vWinType = 2 Tables
@@ -250,12 +286,11 @@ static Function WaitForUserActions(STRUCT sUserMarqueePositions &s, [variable vW
 End
 
 /// @function WaitForUserActions_ContButtonProc
-/// @brief Description of WaitForUserActions_ContButtonProc.
+/// @brief Handle the continue button in the modal user-action panel.
 /// @details
-/// Auto-generated documentation stub for function `WaitForUserActions_ContButtonProc`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function WaitForUserActions_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -271,12 +306,11 @@ static Function WaitForUserActions_ContButtonProc(STRUCT WMButtonAction &B_Struc
 End
 
 /// @function WaitForUserActions_CancelBProc
-/// @brief Description of WaitForUserActions_CancelBProc.
+/// @brief Handle the cancel button in the modal user-action panel.
 /// @details
-/// Auto-generated documentation stub for function `WaitForUserActions_CancelBProc`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// End of wait to complete operations.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function WaitForUserActions_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch

@@ -39,13 +39,11 @@
 
 
 /// @function WavesToTIFFDB
-/// @brief Description of WavesToTIFFDB.
+/// @brief Export waves selected in the Data Browser as TIFF files.
 /// @details
-/// Auto-generated documentation stub for function `WavesToTIFFDB`.
-/// @param byte32] Parameter byte32].
-/// @returns Variable Return value.
-
-
+/// Export all traces selected in Data Browser.
+/// @param byte32 (optional) If nonzero, export 32-bit rather than 16-bit data.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function WavesToTIFFDB([int byte32])
 	// Export all traces selected in Data Browser
 	byte32 = ParamIsDefault(byte32) ? 1 : byte32 // Use max 32 bits per pixel -- Default TRUE
@@ -81,12 +79,11 @@ static Function WavesToTIFFDB([int byte32])
 end
 
 /// @function Wave3DToTIFFsDB
-/// @brief Description of Wave3DToTIFFsDB.
+/// @brief Export each layer of a selected 3D wave as a TIFF file.
 /// @details
-/// Auto-generated documentation stub for function `Wave3DToTIFFsDB`.
-/// @param byte32] Parameter byte32].
-/// @returns Variable Return value.
-
+/// Export all layers of a 3D wave to a folder.
+/// @param byte32 (optional) If nonzero, export 32-bit rather than 16-bit data.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function Wave3DToTIFFsDB([int byte32])
 	// Export all layers of a 3D wave to a folder
 	byte32 = ParamIsDefault(byte32) ? 0 : byte32  // Use max 32 bits per pixel -- Default TRUE
@@ -115,11 +112,10 @@ static Function Wave3DToTIFFsDB([int byte32])
 end
 
 /// @function TracesToGeneralTextDB
-/// @brief Description of TracesToGeneralTextDB.
+/// @brief Export selected graph traces as general-text files.
 /// @details
-/// Auto-generated documentation stub for function `TracesToGeneralTextDB`.
-/// @returns Variable Return value.
-
+/// Export all traces selected in Data Browser.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function TracesToGeneralTextDB()
 	// Export all traces selected in Data Browser
 

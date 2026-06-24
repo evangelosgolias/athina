@@ -38,12 +38,11 @@
 /// related to ATH iXMCD functionality.
 
 /// @function MenuLaunch
-/// @brief Description of MenuLaunch.
+/// @brief Launch the interactive XMCD workflow from the active image stack.
 /// @details
-/// Auto-generated documentation stub for function `MenuLaunch`.
-/// @returns Variable Return value.
-
-
+/// Function to interactively drift images and get an updated graph of the XMC(L)D contrast. S_fileName is a
+/// carriage-return-separated list of full paths to one or more files.
+/// @returns NaN if input validation fails; otherwise zero after completing the operation.
 static Function MenuLaunch()
 	/// Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
@@ -118,12 +117,11 @@ static Function MenuLaunch()
 End
 
 /// @function CreateiXMCDPanel
-/// @brief Description of CreateiXMCDPanel.
+/// @brief Create the interactive XMCD calculation panel.
 /// @details
-/// Auto-generated documentation stub for function `CreateiXMCDPanel`.
-/// @param wXMCD Parameter wXMCD.
-/// @returns Variable Return value.
-
+/// Set the path to all windows.
+/// @param wXMCD Destination wave for the XMCD result.
+/// @returns Zero after completing the operation.
 static Function CreateiXMCDPanel(WAVE wXMCD)
 	DFREF dfr = GetWavesDataFolderDFR(wXMCD) // Recover the dfr	
 	NVAR/SDFR=dfr gATH_driftStep, gATH_IntensityScale
@@ -153,12 +151,12 @@ static Function CreateiXMCDPanel(WAVE wXMCD)
 End
 
 /// @function iXMCDWindowHook
-/// @brief Description of iXMCDWindowHook.
+/// @brief Handle events from the interactive XMCD graph window.
 /// @details
-/// Auto-generated documentation stub for function `iXMCDWindowHook`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Window is about to be killed case 17. Needed if you want more than one hook functions to be able to
+/// cleanup/close windows linked a parent window.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iXMCDPath"))
 	if(s.specialKeyCode)
@@ -212,12 +210,11 @@ static Function iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 End
 
 /// @function RestoreImagesButton
-/// @brief Description of RestoreImagesButton.
+/// @brief Handle the restore images button action.
 /// @details
-/// Auto-generated documentation stub for function `RestoreImagesButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -234,12 +231,11 @@ static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 End
 
 /// @function SaveXMCDImageButton
-/// @brief Description of SaveXMCDImageButton.
+/// @brief Save the current XMCD result when the panel button is pressed.
 /// @details
-/// Auto-generated documentation stub for function `SaveXMCDImageButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Gather metadata.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -276,12 +272,11 @@ static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 End
 
 /// @function SetDriftStepVar
-/// @brief Description of SetDriftStepVar.
+/// @brief Set drift step var.
 /// @details
-/// Auto-generated documentation stub for function `SetDriftStepVar`.
-/// @param &sva Parameter &sva.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param sva Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
 	switch (sva.eventCode)
@@ -301,13 +296,12 @@ static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableCo
 End
 
 /// @function SetIntensityScale
-/// @brief Description of SetIntensityScale.
+/// @brief Set intensity scale.
 /// @details
-/// Auto-generated documentation stub for function `SetIntensityScale`.
-/// @param &sva Parameter &sva.
-/// @returns Variable Return value.
-
-
+/// Here get the old factor and calculate the next to avoid duplications. Give info about the ratio of
+/// signals in marquee if present. Grab normalisation region.
+/// @param sva Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
 	switch (sva.eventCode)

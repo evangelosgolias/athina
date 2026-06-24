@@ -64,11 +64,8 @@
 /// (now marked with an asterisk). Current data folder changes when you select spaces with asterisk.
 
 /// @function MenuLaunch
-/// @brief Description of MenuLaunch.
-/// @details
-/// Launch Spaces named ATH_Spaces#MenuLaunch().
-/// @returns Variable 0
-
+/// @brief Menu launch.
+/// @returns Zero after completing the operation.
 static Function MenuLaunch()
 	
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
@@ -142,6 +139,10 @@ static Function MakePanel()
 	return 0
 End
 
+/// @function SpacesButton
+/// @brief Handle creation, deletion, and visibility commands in the ATH Spaces panel.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Zero after handling the button event.
 Static Function SpacesButton(STRUCT WMButtonAction &s)
 
 	if (s.eventCode != 2)
@@ -223,6 +224,13 @@ Static Function SpacesButton(STRUCT WMButtonAction &s)
 	return 0
 End
 
+/// @function ListBoxFunction
+/// @brief Handle selecting, renaming, linking, pinning, and unpinning ATH spaces.
+/// @details
+/// Modifier-clicks associate the top window with a space, pin it to every space, or remove its space
+/// assignment. Double-clicking renames a space.
+/// @param LB_Struct Igor action structure describing the control or window event.
+/// @returns Igor list-box callback status; nonzero indicates that the event was handled.
 static Function ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:Spaces")
@@ -395,7 +403,7 @@ End
 /// Change the name of a space. All windows with tags linked to the space are renamed.
 /// The function is used by Spaces when a space is renamed. Do not call the function directly.
 /// @param oldspaceTagStr String Current space name
-/// @param newspaceTagStr Parameter New space name
+/// @param newspaceTagStr New space name.
 /// @returns Variable 0
 
 

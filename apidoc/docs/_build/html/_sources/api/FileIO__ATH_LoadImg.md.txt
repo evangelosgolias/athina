@@ -20,20 +20,20 @@ related to ATH LoadImg functionality.
 Loadtiff(string filepathStr, string waveNameStr, [int displayImg, int overwrite])
 ```
 
-Description of Loadtiff.
+Load TIFF.
 
-Auto-generated documentation stub for function `Loadtiff`.
+Guess the dimenions.
 
 ### Parameters
 
-- `filepathStr` *(Parameter)*: filepathStr.
-- `waveNameStr` *(Parameter)*: waveNameStr.
-- `displayImg` *(Parameter)*: displayImg.
-- `overwrite]` *(Parameter)*: overwrite].
+- `filepathStr` *(String)*: Filepath str.
+- `waveNameStr` *(String)*: Wave used by the operation.
+- `displayImg` *(Integer, optional)*: If nonzero, display the result image.
+- `overwrite` *(Integer, optional)*: If nonzero, replace the source or an existing destination.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `Loadtiffs`
@@ -44,19 +44,37 @@ Auto-generated documentation stub for function `Loadtiff`.
 Loadtiffs([int numImages, int displayImg, int stack3d])
 ```
 
-Description of Loadtiffs.
-
-Auto-generated documentation stub for function `Loadtiffs`.
+Load tiffs.
 
 ### Parameters
 
-- `numImages` *(Parameter)*: numImages.
-- `displayImg` *(Parameter)*: displayImg.
-- `stack3d]` *(Parameter)*: stack3d].
+- `numImages` *(Integer, optional)*: Maximum number of images to load.
+- `displayImg` *(Integer, optional)*: If nonzero, display the result image.
+- `stack3d` *(Integer, optional)*: Input 3D image stack.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
+
+
+## `PEEM3File`
+
+**Signature**
+
+```igorpro
+PEEM3File(string filepathStr, [variable mkdir])
+```
+
+Load a PEEM3 image file and its metadata.
+
+### Parameters
+
+- `filepathStr` *(String)*: Full path of the input file.
+- `mkdir` *(Variable, optional)*: If nonzero, create a destination data folder for the loaded file.
+
+### Returns
+
+- **String**: The name of the loaded image wave, or an empty string if file selection is cancelled.
 
 
 ## `PEEM3Files`
@@ -67,14 +85,14 @@ Auto-generated documentation stub for function `Loadtiffs`.
 PEEM3Files([int stack3d])
 ```
 
-Description of PEEM3Files.
+Load PEEM3 image files into Igor waves.
 
-Auto-generated documentation stub for function `PEEM3Files`.
+Get the first wave to have the scale.
 
 ### Parameters
 
-- `stack3d]` *(Parameter)*: stack3d].
+- `stack3d` *(Integer, optional)*: Input 3D image stack.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: NaN if input validation fails; otherwise zero after completing the operation.

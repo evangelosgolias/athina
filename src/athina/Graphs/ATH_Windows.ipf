@@ -38,6 +38,11 @@
 /// related to ATH Windows functionality.
 
 
+/// @function GetListOfNamedWindowHookFunctions
+/// @brief List named hook functions installed on a window.
+/// @param winNameStr (optional) Name of the target graph or panel window.
+/// @param hookFuncNameStr (optional) Optional hook-function name used to filter the result.
+/// @returns A semicolon-separated list of matching named hook functions.
 static Function/S GetListOfNamedWindowHookFunctions([string winNameStr, string hookFuncNameStr])
 	// Copy from https://www.wavemetrics.com/code-snippet/get-list-named-window-hook-functions
     variable all
@@ -73,14 +78,13 @@ static Function/S GetListOfNamedWindowHookFunctions([string winNameStr, string h
 End
 
 /// @function SetNamedHookFunctionToWindow
-/// @brief Description of SetNamedHookFunctionToWindow.
+/// @brief Set named hook function to window.
 /// @details
-/// Auto-generated documentation stub for function `SetNamedHookFunctionToWindow`.
-/// @param hookFuncNameStr Parameter hookFuncNameStr.
-/// @param hookFuncStr Parameter hookFuncStr.
-/// @param grfName] Parameter grfName].
-/// @returns Variable Return value.
-
+/// Set the the named hook function hookFuncStr as hook(hookFuncNameStr) at grfName (TG if default).
+/// @param hookFuncNameStr Hook func name str.
+/// @param hookFuncStr Text containing the hook func str.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SetNamedHookFunctionToWindow(string hookFuncNameStr, string hookFuncStr, [string grfName])
 	// Set the the named hook function hookFuncStr as hook(hookFuncNameStr) 
 	// at grfName (TG if default)
@@ -97,6 +101,10 @@ End
 
 // Dev -- need testing
 
+/// @function WindowNameOfDisplayedImageWaveRef
+/// @brief Find the image window displaying a specified wave.
+/// @param wRef Image wave to locate in open graph windows.
+/// @returns The matching image-window name, or an empty string if the wave is not displayed.
 static Function/S WindowNameOfDisplayedImageWaveRef(WAVE wRef)
 	// Returns a semicolon separated string of the name 
 	// of the graph names wRef is displayed on. Return "" if
@@ -122,12 +130,11 @@ static Function/S WindowNameOfDisplayedImageWaveRef(WAVE wRef)
 End
 
 /// @function KillWindowsInListString
-/// @brief Description of KillWindowsInListString.
+/// @brief Remove windows in list string.
 /// @details
-/// Auto-generated documentation stub for function `KillWindowsInListString`.
-/// @param windowsListStr Parameter windowsListStr.
-/// @returns Variable Return value.
-
+/// Kill all windows in winListstr (;).
+/// @param windowsListStr Text containing the windows list str.
+/// @returns Zero after completing the operation.
 static Function KillWindowsInListString(string windowsListStr)
 	// Kill all windows in winListstr (;)
 	variable numWindows = ItemsInList(windowsListStr), i

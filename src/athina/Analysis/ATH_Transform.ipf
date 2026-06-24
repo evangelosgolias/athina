@@ -19,7 +19,7 @@
 /// Performs a 2D FFT, and stores the result in the source wave's data 
 /// folder using the suffix `_FFT`.
 /// @param wRef WAVE Input 2D wave.
-/// @param [mode] Variable Optional FFT output mode:
+/// @param mode (optional) FFT output mode:
 /// mode = 1:	Default for complex output (default)
 /// mode = 2:	Real output
 /// mode = 3:	Magnitude
@@ -47,12 +47,13 @@ End
 /// @function PhaseCorrelation
 /// @brief Compute the phase correlation between two images.
 /// @details
-/// 
-/// Add documentation here 
-///
-/// @param wRef WAVE Reference image
-/// @param [mode] WAVE Test image
-/// @returns /C Cmplx row (real) and col (imag) drift
+/// Forms a normalized cross-power spectrum, transforms it back to obtain the correlation peak, and measures the row and column displacement from the image center. Optional edge or sharpening filters can be applied before correlation; optional smoothing and a 2D Gaussian fit provide subpixel peak localization.
+/// @param wRef Reference image.
+/// @param wTest Image to register against `wRef`.
+/// @param subpixel (optional) If nonzero, fit the correlation peak with a 2D Gaussian for subpixel displacement.
+/// @param filter (optional) Preprocessing mode: 1 applies edge detection, 2 applies sharpening, and other values apply no filter.
+/// @param smth (optional) Smoothing width applied to both dimensions of the correlation image.
+/// @returns Complex displacement with row drift in the real component and column drift in the imaginary component.
 ///
 static Function/C PhaseCorrelation(WAVE wRef, WAVE wTest, [variable subpixel, 
 				   variable filter, variable smth])
@@ -158,11 +159,12 @@ Function/WAVE GetAffine2DMapping(WAVE src, WAVE dest)
 End
 
 /// @function MakeImageRegistrationParamsWave
-/// @brief Brief here.
+/// @brief Create an empty, dimension-labelled parameter wave for Igor image registration.
 /// @details
-/// Add details here
-/// @param wname String wPathName Path name for t
-/// @returns Variable Returns 0 on completion.
+/// Allocates either one 22-element parameter vector or a 22-by-layer matrix and labels every parameter row from `dx` through `SNR`.
+/// @param wPathName Full data-folder path and name for the parameter wave.
+/// @param nlayers (optional) Number of image layers; omit or pass zero to create a 1D parameter vector.
+/// @returns Zero after creating and labelling the wave.
 ///
 static Function MakeImageRegistrationParamsWave(string wPathName, [variable nlayers])
 

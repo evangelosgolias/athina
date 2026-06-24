@@ -40,6 +40,13 @@
 
 static constant kCBOFFSET = 30 // height slider in 3d waves
 
+/// @function ThresholdImageRangeToMask
+/// @brief Create a mask selecting image values inside a threshold range.
+/// @param grfName (optional) Name of the graph window.
+/// @param minV (optional) Lower inclusive threshold.
+/// @param maxV (optional) Upper inclusive threshold.
+/// @param complexM (optional) Complex-wave component selected for thresholding.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 static Function/WAVE ThresholdImageRangeToMask([string grfName, variable minV, variable maxV, int complexM])
 	// Apply custom ImageThreshold to top image based on current ctab values
 	// Mask created with 0 and 1 values. The operation is applied on mag, real, imag or phase
@@ -103,12 +110,11 @@ End
 //// iFFTFilter Panel
 
 /// @function iFFTImgFilter
-/// @brief Description of iFFTImgFilter.
+/// @brief Create the interactive FFT image-filtering interface.
 /// @details
-/// Auto-generated documentation stub for function `iFFTImgFilter`.
-/// @param wRef Parameter wRef.
-/// @returns Variable Return value.
-
+/// Note wRef_fft, "FFT " + GetWavesDataFolder(wRef,2). Set globals. End of globals.
+/// @param wRef Input wave.
+/// @returns Zero after completing the operation.
 static Function iFFTImgFilter(WAVE wRef)
 	DFREF saveDF = GetDataFolderDFR()
 	string winNameStr = ATH_Display#NewImg(wRef)
@@ -155,12 +161,11 @@ static Function iFFTImgFilter(WAVE wRef)
 End
 
 /// @function iImgFilterHookFunction
-/// @brief Description of iImgFilterHookFunction.
+/// @brief Handle graph events for the interactive image filter.
 /// @details
-/// Auto-generated documentation stub for function `iImgFilterHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Function iImgFilterHookFunction(STRUCT WMWinHookStruct &s)
 		
 	variable hookResult = 0	// 0 if we do not handle event, 1 if we handle it.
@@ -176,12 +181,11 @@ Function iImgFilterHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 /// @function iImgFilterButton
-/// @brief Description of iImgFilterButton.
+/// @brief Apply or reset the interactive image filter from its button controls.
 /// @details
-/// Auto-generated documentation stub for function `iImgFilterButton`.
-/// @param &ba Parameter &ba.
-/// @returns Variable Return value.
-
+/// Creates a separate result wave, leaving the input wave available to the caller.
+/// @param ba Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function iImgFilterButton(STRUCT WMButtonAction &ba) : ButtonControl
 	if (ba.eventCode != 2)
 		return 0
@@ -235,12 +239,11 @@ static Function iImgFilterButton(STRUCT WMButtonAction &ba) : ButtonControl
 End
 
 /// @function iImgFilterSetGValues
-/// @brief Description of iImgFilterSetGValues.
+/// @brief Update the interactive filter's global parameter values.
 /// @details
-/// Auto-generated documentation stub for function `iImgFilterSetGValues`.
-/// @param &sva Parameter &sva.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param sva Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function iImgFilterSetGValues(STRUCT WMSetVariableAction &sva) : SetVariableControl
 	DFREF dfr = $GetUserData(sva.win,"","iImgFilterDFREF")
 	NVAR/SDFR=dfr gATH_Gx, gATH_Gy	

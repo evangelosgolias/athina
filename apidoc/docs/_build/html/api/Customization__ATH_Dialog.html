@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="ATH_Launch" href="Customization__ATH_Launch.html" />
-    <link rel="prev" title="ATH_XPSBackgroundRemoval" href="Analysis__ATH_XPSBackgroundRemoval.html" /> 
+    <link rel="prev" title="ATH_Constants" href="Customization__ATH_Constants.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -49,33 +49,65 @@
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_Transform.html">ATH_Transform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XMCD.html">ATH_XMCD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XPSBackgroundRemoval.html">ATH_XPSBackgroundRemoval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Constants.html">ATH_Constants</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ATH_Dialog</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#genericsinglepopupstrprompt"><code class="docutils literal notranslate"><span class="pre">GenericSinglePopupStrPrompt</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#returns">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#countselectedobjectsindatabrowser"><code class="docutils literal notranslate"><span class="pre">CountSelectedObjectsInDataBrowser</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Returns</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#countselectedwavesindatabrowser"><code class="docutils literal notranslate"><span class="pre">CountSelectedWavesInDataBrowser</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#genericsinglestrprompt"><code class="docutils literal notranslate"><span class="pre">GenericSingleStrPrompt</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id2">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#waitforuseractions"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#genericsinglestrpromptandpopup"><code class="docutils literal notranslate"><span class="pre">GenericSingleStrPromptAndPopup</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id3">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id4">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#waitforuseractions-contbuttonproc"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_ContButtonProc</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#genericdoublestrpromptpopup"><code class="docutils literal notranslate"><span class="pre">GenericDoubleStrPromptPopup</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id5">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id6">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#waitforuseractions-cancelbproc"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_CancelBProc</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#genericdoublestrprompt"><code class="docutils literal notranslate"><span class="pre">GenericDoubleStrPrompt</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id7">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id8">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#selectwavesinmodaldatabrowser"><code class="docutils literal notranslate"><span class="pre">SelectWavesInModalDataBrowser</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#countselectedobjectsindatabrowser"><code class="docutils literal notranslate"><span class="pre">CountSelectedObjectsInDataBrowser</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#countselectedwavesindatabrowser"><code class="docutils literal notranslate"><span class="pre">CountSelectedWavesInDataBrowser</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getselectedwavesindatabrowser"><code class="docutils literal notranslate"><span class="pre">GetSelectedWavesInDataBrowser</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id14">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#waitforuseractions"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id16">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id17">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#waitforuseractions-contbuttonproc"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_ContButtonProc</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id18">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id19">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#waitforuseractions-cancelbproc"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_CancelBProc</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id20">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id21">Returns</a></li>
 </ul>
 </li>
 </ul>
@@ -83,6 +115,7 @@
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Launch.html">ATH_Launch</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Menus.html">ATH_Menus</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Datasets__ATH_XPSData.html">ATH_XPSData</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Asylum.html">ATH_Asylum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Beamtime.html">ATH_Beamtime</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Export.html">ATH_Export_Repeat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_HDF5.html">ATH_HDF5</a></li>
@@ -154,155 +187,328 @@
 related to ATH Dialog functionality.</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#genericsinglepopupstrprompt" id="id9"><code class="docutils literal notranslate"><span class="pre">GenericSinglePopupStrPrompt</span></code></a></p>
+<li><p><a class="reference internal" href="#genericsinglepopupstrprompt" id="id22"><code class="docutils literal notranslate"><span class="pre">GenericSinglePopupStrPrompt</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#returns" id="id10">Returns</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id23">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#returns" id="id24">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#countselectedobjectsindatabrowser" id="id11"><code class="docutils literal notranslate"><span class="pre">CountSelectedObjectsInDataBrowser</span></code></a></p>
+<li><p><a class="reference internal" href="#genericsinglestrprompt" id="id25"><code class="docutils literal notranslate"><span class="pre">GenericSingleStrPrompt</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id1" id="id12">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id1" id="id26">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id27">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#countselectedwavesindatabrowser" id="id13"><code class="docutils literal notranslate"><span class="pre">CountSelectedWavesInDataBrowser</span></code></a></p>
+<li><p><a class="reference internal" href="#genericsinglestrpromptandpopup" id="id28"><code class="docutils literal notranslate"><span class="pre">GenericSingleStrPromptAndPopup</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#parameters" id="id14">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id2" id="id15">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id29">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id30">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#waitforuseractions" id="id16"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions</span></code></a></p>
+<li><p><a class="reference internal" href="#genericdoublestrpromptpopup" id="id31"><code class="docutils literal notranslate"><span class="pre">GenericDoubleStrPromptPopup</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id3" id="id17">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id4" id="id18">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id32">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id6" id="id33">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#waitforuseractions-contbuttonproc" id="id19"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_ContButtonProc</span></code></a></p>
+<li><p><a class="reference internal" href="#genericdoublestrprompt" id="id34"><code class="docutils literal notranslate"><span class="pre">GenericDoubleStrPrompt</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id5" id="id20">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id6" id="id21">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id7" id="id35">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id8" id="id36">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#waitforuseractions-cancelbproc" id="id22"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_CancelBProc</span></code></a></p>
+<li><p><a class="reference internal" href="#selectwavesinmodaldatabrowser" id="id37"><code class="docutils literal notranslate"><span class="pre">SelectWavesInModalDataBrowser</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id7" id="id23">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id8" id="id24">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id9" id="id38">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id10" id="id39">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#countselectedobjectsindatabrowser" id="id40"><code class="docutils literal notranslate"><span class="pre">CountSelectedObjectsInDataBrowser</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id11" id="id41">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#countselectedwavesindatabrowser" id="id42"><code class="docutils literal notranslate"><span class="pre">CountSelectedWavesInDataBrowser</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id12" id="id43">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id13" id="id44">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#getselectedwavesindatabrowser" id="id45"><code class="docutils literal notranslate"><span class="pre">GetSelectedWavesInDataBrowser</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id14" id="id46">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id15" id="id47">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#waitforuseractions" id="id48"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id16" id="id49">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id17" id="id50">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#waitforuseractions-contbuttonproc" id="id51"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_ContButtonProc</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id18" id="id52">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id19" id="id53">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#waitforuseractions-cancelbproc" id="id54"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_CancelBProc</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id20" id="id55">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id21" id="id56">Returns</a></p></li>
 </ul>
 </li>
 </ul>
 </nav>
 <section id="genericsinglepopupstrprompt">
-<h2><a class="toc-backref" href="#id9" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GenericSinglePopupStrPrompt</span></code></a><a class="headerlink" href="#genericsinglepopupstrprompt" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id22" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GenericSinglePopupStrPrompt</span></code></a><a class="headerlink" href="#genericsinglepopupstrprompt" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>GenericSinglePopupStrPrompt(<span class="kt">string</span><span class="w"> </span>strPrompt,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>popupStrSelection,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>msgDialog)
 </pre></div>
 </div>
-<p>Module ATH_Dialog.</p>
-<p>This module belongs to the ATH Igor Pro toolkit and contains procedures
-related to ATH Dialog functionality.</p>
-<section id="returns">
-<h3><a class="toc-backref" href="#id10" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<p>Prompt for one value chosen from a pop-up list.</p>
+<section id="parameters">
+<h3><a class="toc-backref" href="#id23" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>String</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">strPrompt</span></code> <em>(String)</em>: Prompt text shown beside the input control.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">popupStrSelection</span></code> <em>(String)</em>: Semicolon-separated choices for the pop-up control.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">msgDialog</span></code> <em>(String)</em>: Title or explanatory text for the prompt dialog.</p></li>
+</ul>
+</section>
+<section id="returns">
+<h3><a class="toc-backref" href="#id24" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: The selected pop-up item, or an empty string if the dialog is cancelled.</p></li>
+</ul>
+</section>
+</section>
+<section id="genericsinglestrprompt">
+<h2><a class="toc-backref" href="#id25" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GenericSingleStrPrompt</span></code></a><a class="headerlink" href="#genericsinglestrprompt" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>GenericSingleStrPrompt(<span class="kt">string</span><span class="w"> </span>strPrompt,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>msgDialog)
+</pre></div>
+</div>
+<p>Prompt for one text value.</p>
+<section id="id1">
+<h3><a class="toc-backref" href="#id26" role="doc-backlink">Parameters</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">strPrompt</span></code> <em>(String)</em>: Prompt text shown beside the input control.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">msgDialog</span></code> <em>(String)</em>: Title or explanatory text for the prompt dialog.</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3><a class="toc-backref" href="#id27" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: The entered text, or an empty string if the dialog is cancelled.</p></li>
+</ul>
+</section>
+</section>
+<section id="genericsinglestrpromptandpopup">
+<h2><a class="toc-backref" href="#id28" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GenericSingleStrPromptAndPopup</span></code></a><a class="headerlink" href="#genericsinglestrpromptandpopup" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>GenericSingleStrPromptAndPopup(<span class="kt">string</span><span class="w"> </span>strPrompt1,<span class="kt">string</span><span class="w"> </span>strPrompt2,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>popupStrSelection1,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>msgDialog)
+</pre></div>
+</div>
+<p>Prompt for one pop-up selection and one text value.</p>
+<section id="id3">
+<h3><a class="toc-backref" href="#id29" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">strPrompt1</span></code> <em>(String)</em>: Prompt text for the first value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">strPrompt2</span></code> <em>(String)</em>: Prompt text for the second value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">popupStrSelection1</span></code> <em>(String)</em>: Choices for the first pop-up control.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">msgDialog</span></code> <em>(String)</em>: Title or explanatory text for the prompt dialog.</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3><a class="toc-backref" href="#id30" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Multiple values</strong>: The entered text and the selected pop-up item.</p></li>
+</ul>
+</section>
+</section>
+<section id="genericdoublestrpromptpopup">
+<h2><a class="toc-backref" href="#id31" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GenericDoubleStrPromptPopup</span></code></a><a class="headerlink" href="#genericdoublestrpromptpopup" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>GenericDoubleStrPromptPopup(<span class="kt">string</span><span class="w"> </span>strPrompt1,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>strPrompt2,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>popupStrSelection1,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>popupStrSelection2,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>msgDialog)
+</pre></div>
+</div>
+<p>Prompt for two values chosen from pop-up lists.</p>
+<section id="id5">
+<h3><a class="toc-backref" href="#id32" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">strPrompt1</span></code> <em>(String)</em>: Prompt text for the first value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">strPrompt2</span></code> <em>(String)</em>: Prompt text for the second value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">popupStrSelection1</span></code> <em>(String)</em>: Choices for the first pop-up control.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">popupStrSelection2</span></code> <em>(String)</em>: Choices for the second pop-up control.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">msgDialog</span></code> <em>(String)</em>: Title or explanatory text for the prompt dialog.</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3><a class="toc-backref" href="#id33" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Multiple values</strong>: The two selected pop-up items.</p></li>
+</ul>
+</section>
+</section>
+<section id="genericdoublestrprompt">
+<h2><a class="toc-backref" href="#id34" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GenericDoubleStrPrompt</span></code></a><a class="headerlink" href="#genericdoublestrprompt" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>GenericDoubleStrPrompt(<span class="kt">string</span><span class="w"> </span>strPrompt1,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>strPrompt2,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>msgDialog)
+</pre></div>
+</div>
+<p>Prompt for two text values.</p>
+<section id="id7">
+<h3><a class="toc-backref" href="#id35" role="doc-backlink">Parameters</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">strPrompt1</span></code> <em>(String)</em>: Prompt text for the first value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">strPrompt2</span></code> <em>(String)</em>: Prompt text for the second value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">msgDialog</span></code> <em>(String)</em>: Title or explanatory text for the prompt dialog.</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3><a class="toc-backref" href="#id36" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Multiple values</strong>: The two entered text values.</p></li>
+</ul>
+</section>
+</section>
+<section id="selectwavesinmodaldatabrowser">
+<h2><a class="toc-backref" href="#id37" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SelectWavesInModalDataBrowser</span></code></a><a class="headerlink" href="#selectwavesinmodaldatabrowser" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SelectWavesInModalDataBrowser(<span class="kt">string</span><span class="w"> </span>msg)
+</pre></div>
+</div>
+<p>Open a modal Data Browser and return the selected waves.</p>
+<section id="id9">
+<h3><a class="toc-backref" href="#id38" role="doc-backlink">Parameters</a><a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">msg</span></code> <em>(String)</em>: Message displayed to the user.</p></li>
+</ul>
+</section>
+<section id="id10">
+<h3><a class="toc-backref" href="#id39" role="doc-backlink">Returns</a><a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: A semicolon-separated list of selected wave paths, or an empty string if none are selected.</p></li>
 </ul>
 </section>
 </section>
 <section id="countselectedobjectsindatabrowser">
-<h2><a class="toc-backref" href="#id11" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CountSelectedObjectsInDataBrowser</span></code></a><a class="headerlink" href="#countselectedobjectsindatabrowser" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id40" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CountSelectedObjectsInDataBrowser</span></code></a><a class="headerlink" href="#countselectedobjectsindatabrowser" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>CountSelectedObjectsInDataBrowser()
 </pre></div>
 </div>
-<p>Description of CountSelectedObjectsInDataBrowser.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">CountSelectedObjectsInDataBrowser</span></code>.</p>
-<section id="id1">
-<h3><a class="toc-backref" href="#id12" role="doc-backlink">Returns</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>Count all objects selected in the Data Browser.</p>
+<p>Return how many objects of any kind you have selected in the data browser.</p>
+<section id="id11">
+<h3><a class="toc-backref" href="#id41" role="doc-backlink">Returns</a><a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: The number of matching items.</p></li>
 </ul>
 </section>
 </section>
 <section id="countselectedwavesindatabrowser">
-<h2><a class="toc-backref" href="#id13" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CountSelectedWavesInDataBrowser</span></code></a><a class="headerlink" href="#countselectedwavesindatabrowser" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id42" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CountSelectedWavesInDataBrowser</span></code></a><a class="headerlink" href="#countselectedwavesindatabrowser" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>CountSelectedWavesInDataBrowser([<span class="kt">variable</span><span class="w"> </span>wDim])
 </pre></div>
 </div>
-<p>Description of CountSelectedWavesInDataBrowser.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">CountSelectedWavesInDataBrowser</span></code>.</p>
-<section id="parameters">
-<h3><a class="toc-backref" href="#id14" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<p>Count waves selected in the Data Browser, optionally by dimensionality.</p>
+<p>Return how many waves are selected in the data browser. Function returns selected waves of dimensionality
+wDims.</p>
+<section id="id12">
+<h3><a class="toc-backref" href="#id43" role="doc-backlink">Parameters</a><a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">wDim]</span></code> <em>(Parameter)</em>: wDim].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wDim</span></code> <em>(Variable, optional)</em>: Wave dimensionality to require; zero counts waves of any dimensionality.</p></li>
 </ul>
 </section>
-<section id="id2">
-<h3><a class="toc-backref" href="#id15" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<section id="id13">
+<h3><a class="toc-backref" href="#id44" role="doc-backlink">Returns</a><a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: The number of matching items.</p></li>
+</ul>
+</section>
+</section>
+<section id="getselectedwavesindatabrowser">
+<h2><a class="toc-backref" href="#id45" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">GetSelectedWavesInDataBrowser</span></code></a><a class="headerlink" href="#getselectedwavesindatabrowser" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>GetSelectedWavesInDataBrowser([<span class="kt">variable</span><span class="w"> </span>wDim])
+</pre></div>
+</div>
+<p>Return waves selected in the Data Browser, optionally filtered by dimensionality.</p>
+<section id="id14">
+<h3><a class="toc-backref" href="#id46" role="doc-backlink">Parameters</a><a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wDim</span></code> <em>(Variable, optional)</em>: Required wave dimensionality; zero accepts any dimensionality.</p></li>
+</ul>
+</section>
+<section id="id15">
+<h3><a class="toc-backref" href="#id47" role="doc-backlink">Returns</a><a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: A semicolon-separated list of selected wave paths matching the dimensionality filter.</p></li>
 </ul>
 </section>
 </section>
 <section id="waitforuseractions">
-<h2><a class="toc-backref" href="#id16" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions</span></code></a><a class="headerlink" href="#waitforuseractions" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id48" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions</span></code></a><a class="headerlink" href="#waitforuseractions" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>WaitForUserActions(<span class="kt">STRUCT</span><span class="w"> </span>sUserMarqueePositions<span class="w"> </span>&amp;s,<span class="w"> </span>[<span class="kt">variable</span><span class="w"> </span>vWinType])
 </pre></div>
 </div>
-<p>Description of WaitForUserActions.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">WaitForUserActions</span></code>.</p>
-<section id="id3">
-<h3><a class="toc-backref" href="#id17" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>Open a modal panel and wait for the user to continue or cancel.</p>
+<section id="id16">
+<h3><a class="toc-backref" href="#id49" role="doc-backlink">Parameters</a><a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&amp;s</span></code> <em>(Parameter)</em>: &amp;s.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">vWinType]</span></code> <em>(Parameter)</em>: vWinType].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT sUserMarqueePositions)</em>: Input/output structure carrying the operation’s settings and results.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vWinType</span></code> <em>(Variable, optional)</em>: Igor window-type code used to choose the parent window; defaults to a graph.</p></li>
 </ul>
 </section>
-<section id="id4">
-<h3><a class="toc-backref" href="#id18" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<section id="id17">
+<h3><a class="toc-backref" href="#id50" role="doc-backlink">Returns</a><a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: One if the user cancels; zero if the user continues.</p></li>
 </ul>
 </section>
 </section>
 <section id="waitforuseractions-contbuttonproc">
-<h2><a class="toc-backref" href="#id19" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_ContButtonProc</span></code></a><a class="headerlink" href="#waitforuseractions-contbuttonproc" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id51" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_ContButtonProc</span></code></a><a class="headerlink" href="#waitforuseractions-contbuttonproc" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>WaitForUserActions_ContButtonProc(<span class="kt">STRUCT</span><span class="w"> </span>WMButtonAction<span class="w"> </span>&amp;B_Struct)
 </pre></div>
 </div>
-<p>Description of WaitForUserActions_ContButtonProc.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">WaitForUserActions_ContButtonProc</span></code>.</p>
-<section id="id5">
-<h3><a class="toc-backref" href="#id20" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>Handle the continue button in the modal user-action panel.</p>
+<p>Dispatches the relevant Igor control event and ignores unsupported event codes.</p>
+<section id="id18">
+<h3><a class="toc-backref" href="#id52" role="doc-backlink">Parameters</a><a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&amp;B_Struct</span></code> <em>(Parameter)</em>: &amp;B_Struct.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B_Struct</span></code> <em>(STRUCT WMButtonAction)</em>: Igor action structure describing the control or window event.</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3><a class="toc-backref" href="#id21" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="id19">
+<h3><a class="toc-backref" href="#id53" role="doc-backlink">Returns</a><a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
 </ul>
 </section>
 </section>
 <section id="waitforuseractions-cancelbproc">
-<h2><a class="toc-backref" href="#id22" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_CancelBProc</span></code></a><a class="headerlink" href="#waitforuseractions-cancelbproc" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id54" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">WaitForUserActions_CancelBProc</span></code></a><a class="headerlink" href="#waitforuseractions-cancelbproc" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>WaitForUserActions_CancelBProc(<span class="kt">STRUCT</span><span class="w"> </span>WMButtonAction<span class="w"> </span>&amp;B_Struct)
 </pre></div>
 </div>
-<p>Description of WaitForUserActions_CancelBProc.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">WaitForUserActions_CancelBProc</span></code>.</p>
-<section id="id7">
-<h3><a class="toc-backref" href="#id23" role="doc-backlink">Parameters</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>Handle the cancel button in the modal user-action panel.</p>
+<p>End of wait to complete operations.</p>
+<section id="id20">
+<h3><a class="toc-backref" href="#id55" role="doc-backlink">Parameters</a><a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&amp;B_Struct</span></code> <em>(Parameter)</em>: &amp;B_Struct.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">B_Struct</span></code> <em>(STRUCT WMButtonAction)</em>: Igor action structure describing the control or window event.</p></li>
 </ul>
 </section>
-<section id="id8">
-<h3><a class="toc-backref" href="#id24" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<section id="id21">
+<h3><a class="toc-backref" href="#id56" role="doc-backlink">Returns</a><a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
 </ul>
 </section>
 </section>
@@ -312,7 +518,7 @@ related to ATH Dialog functionality.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="Analysis__ATH_XPSBackgroundRemoval.html" class="btn btn-neutral float-left" title="ATH_XPSBackgroundRemoval" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Customization__ATH_Constants.html" class="btn btn-neutral float-left" title="ATH_Constants" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="Customization__ATH_Launch.html" class="btn btn-neutral float-right" title="ATH_Launch" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

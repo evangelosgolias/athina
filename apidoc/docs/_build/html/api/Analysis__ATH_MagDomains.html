@@ -66,15 +66,22 @@
 <li class="toctree-l3"><a class="reference internal" href="#id6">Returns</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#sortmapperpolarangle"><code class="docutils literal notranslate"><span class="pre">SortMapPerPolarAngle</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Returns</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_Transform.html">ATH_Transform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XMCD.html">ATH_XMCD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XPSBackgroundRemoval.html">ATH_XPSBackgroundRemoval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Constants.html">ATH_Constants</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Dialog.html">ATH_Dialog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Launch.html">ATH_Launch</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Menus.html">ATH_Menus</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Datasets__ATH_XPSData.html">ATH_XPSData</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Asylum.html">ATH_Asylum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Beamtime.html">ATH_Beamtime</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Export.html">ATH_Export_Repeat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_HDF5.html">ATH_HDF5</a></li>
@@ -147,34 +154,40 @@ pixel and for interactively inspecting the fitted phase, offset, and amplitude
 at selected image positions.</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#fitxmldmap" id="id7"><code class="docutils literal notranslate"><span class="pre">FitXMLDMap</span></code></a></p>
+<li><p><a class="reference internal" href="#fitxmldmap" id="id9"><code class="docutils literal notranslate"><span class="pre">FitXMLDMap</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#parameters" id="id8">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#returns" id="id9">Returns</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id10">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#returns" id="id11">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#interactivexmldfitinspection" id="id10"><code class="docutils literal notranslate"><span class="pre">InteractiveXMLDFitInspection</span></code></a></p>
+<li><p><a class="reference internal" href="#interactivexmldfitinspection" id="id12"><code class="docutils literal notranslate"><span class="pre">InteractiveXMLDFitInspection</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id1" id="id11">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id2" id="id12">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id1" id="id13">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id14">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#icursorusingcallbackhookfunction" id="id13"><code class="docutils literal notranslate"><span class="pre">iCursorUsingCallbackHookFunction</span></code></a></p>
+<li><p><a class="reference internal" href="#icursorusingcallbackhookfunction" id="id15"><code class="docutils literal notranslate"><span class="pre">iCursorUsingCallbackHookFunction</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id3" id="id14">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id4" id="id15">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id16">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id17">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#cursorcallback" id="id16"><code class="docutils literal notranslate"><span class="pre">CursorCallBack</span></code></a></p>
+<li><p><a class="reference internal" href="#cursorcallback" id="id18"><code class="docutils literal notranslate"><span class="pre">CursorCallBack</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id5" id="id17">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id6" id="id18">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id19">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id6" id="id20">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#sortmapperpolarangle" id="id21"><code class="docutils literal notranslate"><span class="pre">SortMapPerPolarAngle</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id7" id="id22">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id8" id="id23">Returns</a></p></li>
 </ul>
 </li>
 </ul>
 </nav>
 <section id="fitxmldmap">
-<h2><a class="toc-backref" href="#id7" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">FitXMLDMap</span></code></a><a class="headerlink" href="#fitxmldmap" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id9" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">FitXMLDMap</span></code></a><a class="headerlink" href="#fitxmldmap" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>FitXMLDMap(<span class="kt">WAVE</span><span class="w"> </span>wRef,<span class="w"> </span>[<span class="kt">string</span><span class="w"> </span>fitFunc,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>firstAngle,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>angleStep,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>fastFit])
 </pre></div>
@@ -185,17 +198,17 @@ angular model along the layer axis and generates three 2D output maps:
 phase, offset, and amplitude. By default it uses
 <code class="docutils literal notranslate"><span class="pre">ATH_FuncFit#XMLDCos2xIntensity</span></code>.</p>
 <section id="parameters">
-<h3><a class="toc-backref" href="#id8" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">wRef</span></code> <em>(Wave)</em>: Input 3D wave whose third dimension contains images acquired at different angles.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">fitFunc</span></code> <em>(String)</em>: Optional fully qualified fit-function name. Defaults to <code class="docutils literal notranslate"><span class="pre">ATH_FuncFit#XMLDCos2xIntensity</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">firstAngle</span></code> <em>(Variable)</em>: Optional angle in degrees assigned to the first layer. Defaults to -90.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">angleStep</span></code> <em>(Variable)</em>: Optional angular increment in degrees between successive layers. Defaults to 10.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">fastFit</span></code> <em>(Variable)</em>: Optional flag controlling the fitting strategy. Non-zero uses one initial phase guess; zero tests multiple initial phases.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fitFunc</span></code> <em>(String, optional)</em>: Optional fully qualified fit-function name. Defaults to <code class="docutils literal notranslate"><span class="pre">ATH_FuncFit#XMLDCos2xIntensity</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">firstAngle</span></code> <em>(Variable, optional)</em>: Optional angle in degrees assigned to the first layer. Defaults to -90.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angleStep</span></code> <em>(Variable, optional)</em>: Optional angular increment in degrees between successive layers. Defaults to 10.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fastFit</span></code> <em>(Integer, optional)</em>: Optional flag controlling the fitting strategy. Non-zero uses one initial phase guess; zero tests multiple initial phases.</p></li>
 </ul>
 </section>
 <section id="returns">
-<h3><a class="toc-backref" href="#id9" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>Variable</strong>: Returns 0 on completion. Returns 1 if the input has no layers.</p></li>
 </ul>
@@ -206,7 +219,7 @@ phase, offset, and amplitude. By default it uses
 </section>
 </section>
 <section id="interactivexmldfitinspection">
-<h2><a class="toc-backref" href="#id10" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">InteractiveXMLDFitInspection</span></code></a><a class="headerlink" href="#interactivexmldfitinspection" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id12" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">InteractiveXMLDFitInspection</span></code></a><a class="headerlink" href="#interactivexmldfitinspection" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>InteractiveXMLDFitInspection(<span class="kt">WAVE</span><span class="w"> </span>wSrc,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>wRef,[<span class="kt">variable</span><span class="w"> </span>firstAngle,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>angleStep])
 </pre></div>
@@ -215,23 +228,23 @@ phase, offset, and amplitude. By default it uses
 <p>Displays the fitted map and opens a companion plot window. Moving cursor <code class="docutils literal notranslate"><span class="pre">J</span></code>
 over the image updates the beam profile and overlayed fit curve for the selected pixel.</p>
 <section id="id1">
-<h3><a class="toc-backref" href="#id11" role="doc-backlink">Parameters</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">Parameters</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">wSrc</span></code> <em>(Wave)</em>: Source 3D XMLD image stack used to extract beam profiles.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">wRef</span></code> <em>(Wave)</em>: 2D phase map produced by <code class="docutils literal notranslate"><span class="pre">FitXMLDMap</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">firstAngle</span></code> <em>(Variable)</em>: Optional first angle in degrees for the source stack. Defaults to -90.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">angleStep</span></code> <em>(Variable)</em>: Optional angle increment in degrees. Defaults to 10.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">firstAngle</span></code> <em>(Variable, optional)</em>: Optional first angle in degrees for the source stack. Defaults to -90.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angleStep</span></code> <em>(Variable, optional)</em>: Optional angle increment in degrees. Defaults to 10.</p></li>
 </ul>
 </section>
 <section id="id2">
-<h3><a class="toc-backref" href="#id12" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>Variable</strong>: Returns 0 on completion.</p></li>
 </ul>
 </section>
 </section>
 <section id="icursorusingcallbackhookfunction">
-<h2><a class="toc-backref" href="#id13" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">iCursorUsingCallbackHookFunction</span></code></a><a class="headerlink" href="#icursorusingcallbackhookfunction" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id15" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">iCursorUsingCallbackHookFunction</span></code></a><a class="headerlink" href="#icursorusingcallbackhookfunction" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>iCursorUsingCallbackHookFunction(<span class="kt">STRUCT</span><span class="w"> </span>WMWinHookStruct<span class="w"> </span>&amp;s)
 </pre></div>
@@ -240,20 +253,20 @@ over the image updates the beam profile and overlayed fit curve for the selected
 <p>Handles window close, cursor movement, and keyboard events for the interactive
 XMLD inspection workflow.</p>
 <section id="id3">
-<h3><a class="toc-backref" href="#id14" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id16" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(Struct)</em>: Igor window hook structure supplied by the event system.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMWinHookStruct)</em>: Struct Igor window hook structure supplied by the event system.</p></li>
 </ul>
 </section>
 <section id="id4">
-<h3><a class="toc-backref" href="#id15" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id17" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>Variable</strong>: Hook return code. Returns 1 when the event is handled, otherwise 0.</p></li>
 </ul>
 </section>
 </section>
 <section id="cursorcallback">
-<h2><a class="toc-backref" href="#id16" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CursorCallBack</span></code></a><a class="headerlink" href="#cursorcallback" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id18" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CursorCallBack</span></code></a><a class="headerlink" href="#cursorcallback" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>CursorCallBack(<span class="kt">WAVE</span><span class="w"> </span>wSrc,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>wRef,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>p0,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>q0)
 </pre></div>
@@ -262,7 +275,7 @@ XMLD inspection workflow.</p>
 <p>Extracts the beam profile at <code class="docutils literal notranslate"><span class="pre">(p0,</span> <span class="pre">q0)</span></code>, reconstructs the fitted angular dependence
 from the stored fit maps, and redraws the inspection plot.</p>
 <section id="id5">
-<h3><a class="toc-backref" href="#id17" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id19" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">wSrc</span></code> <em>(Wave)</em>: Source 3D XMLD image stack.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">wRef</span></code> <em>(Wave)</em>: Phase map returned by <code class="docutils literal notranslate"><span class="pre">FitXMLDMap</span></code>.</p></li>
@@ -271,9 +284,30 @@ from the stored fit maps, and redraws the inspection plot.</p>
 </ul>
 </section>
 <section id="id6">
-<h3><a class="toc-backref" href="#id18" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>Variable</strong>: Returns 0 on completion.</p></li>
+</ul>
+</section>
+</section>
+<section id="sortmapperpolarangle">
+<h2><a class="toc-backref" href="#id21" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SortMapPerPolarAngle</span></code></a><a class="headerlink" href="#sortmapperpolarangle" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SortMapPerPolarAngle(<span class="kt">WAVE</span><span class="w"> </span>wRef,<span class="w"> </span>[<span class="kt">variable</span><span class="w"> </span>angleRange])
+</pre></div>
+</div>
+<p>Reorder an angular map by increasing polar angle.</p>
+<section id="id7">
+<h3><a class="toc-backref" href="#id22" role="doc-backlink">Parameters</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wRef</span></code> <em>(Wave)</em>: Angular map whose rows are reordered in place.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">angleRange</span></code> <em>(Variable, optional)</em>: Angular interval represented by the map.</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3><a class="toc-backref" href="#id23" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>

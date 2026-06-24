@@ -47,10 +47,10 @@
 /// phase, offset, and amplitude. By default it uses
 /// `ATH_FuncFit#XMLDCos2xIntensity`.
 /// @param wRef Wave Input 3D wave whose third dimension contains images acquired at different angles.
-/// @param fitFunc String Optional fully qualified fit-function name. Defaults to `ATH_FuncFit#XMLDCos2xIntensity`.
-/// @param firstAngle Variable Optional angle in degrees assigned to the first layer. Defaults to -90.
-/// @param angleStep Variable Optional angular increment in degrees between successive layers. Defaults to 10.
-/// @param fastFit Variable Optional flag controlling the fitting strategy. Non-zero uses one initial phase guess; zero tests multiple initial phases.
+/// @param fitFunc (optional) String Optional fully qualified fit-function name. Defaults to `ATH_FuncFit#XMLDCos2xIntensity`.
+/// @param firstAngle (optional) Variable Optional angle in degrees assigned to the first layer. Defaults to -90.
+/// @param angleStep (optional) Variable Optional angular increment in degrees between successive layers. Defaults to 10.
+/// @param fastFit (optional) Variable Optional flag controlling the fitting strategy. Non-zero uses one initial phase guess; zero tests multiple initial phases.
 /// @returns Variable Returns 0 on completion. Returns 1 if the input has no layers.
 /// @note Creates output waves named `<input>_map`, `<input>_map_offset`, and `<input>_map_amplitude`.
 ///
@@ -208,8 +208,8 @@ End
 /// over the image updates the beam profile and overlayed fit curve for the selected pixel.
 /// @param wSrc Wave Source 3D XMLD image stack used to extract beam profiles.
 /// @param wRef Wave 2D phase map produced by `FitXMLDMap`.
-/// @param firstAngle Variable Optional first angle in degrees for the source stack. Defaults to -90.
-/// @param angleStep Variable Optional angle increment in degrees. Defaults to 10.
+/// @param firstAngle (optional) Variable Optional first angle in degrees for the source stack. Defaults to -90.
+/// @param angleStep (optional) Variable Optional angle increment in degrees. Defaults to 10.
 /// @returns Variable Returns 0 on completion.
 ///
 static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef,[variable firstAngle, variable angleStep])
@@ -319,4 +319,23 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	ModifyGraph/W=$plotNameStr lsize(fitPlotW)=2,rgb(fitPlotW)=(1,16019,65535)
 	TextBox/W=$plotNameStr/C/F=0/N=phaseTag "\\Z16φ="+num2str(phase)		
 	return 0
+End
+
+//-----
+
+/// @function SortMapPerPolarAngle
+/// @brief Reorder an angular map by increasing polar angle.
+/// @param wRef Angular map whose rows are reordered in place.
+/// @param angleRange (optional) Angular interval represented by the map.
+/// @returns Zero after completing the operation.
+static Function SortMapPerPolarAngle(WAVE wRef, [variable angleRange])
+	// Sort spin axis angles to create a polar plot
+	// angle will come from spin axis and will be set in the x-wave scaling
+	// 90, 180 or 360. The radius will be another wave you select, for example 
+	// amplitutde or XMLD singnal (default). The latter should come from another wave.
+	angleRange = ParamIsDefault(angleRange) ? 180 : angleRange
+	
+	// You need to wrap a histogram around, if its
+	
+	// Check /P option of Histogram
 End

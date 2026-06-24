@@ -32,6 +32,12 @@
 
 // Initial idea George Fratian (Brown University). Code edited by in-house developers.
 
+static constant kCBOFFSET = 30 // height slider in 3d waves
+
+/// @function LabelAsylumStack
+/// @brief Apply Asylum AFM dimension labels and metadata to an image stack.
+/// @param wRef Input wave.
+/// @returns Igor status code; zero indicates success and nonzero values report failure or cancellation.
 static Function LabelAsylumStack(WAVE wRef)
     
     if(!WaveExists(wRef))
@@ -69,6 +75,9 @@ static Function LabelAsylumStack(WAVE wRef)
     return 0
 End
 
+/// @function LoadAsylumIBW
+/// @brief Load an Asylum IBW file and display its image channels.
+/// @returns Igor status code; zero indicates success and nonzero values report failure or cancellation.
 static Function LoadAsylumIBW()
     // Define file filters for Asylum IBW
     string fileFilters = "Asylum IBW Files (*.ibw):.ibw;"
@@ -113,12 +122,23 @@ static Function LoadAsylumIBW()
         SetWindow $grfname, hook(AsylumDisplayHook) = ATH_Asylum#AsylumDisplayHook // Set the hook
         ModifyGraph/W=$grfName margin(right)=120
 		ColorScale/W=$grfName/C/N=ath_asylum_cbar/E=2/A=RC/X=2/Y=0 width=15
+
+//		variable pntConv = (CmpStr(IgorInfo(2), "Windows") == 0 && ScreenResolution >= 96)? 1 : 72/ScreenResolution
+//		ControlInfo kwControlBar
+//		variable lCBOFFSET = V_Height
+//		ControlBar/W=$grfname (lCBOFFSET + kCBOFFSET)*pntConv
+//		Button scaleCrsB pos={10,4+lCBOFFSET}, size={60,20}, title="Scale", win=$grfname
+//		Button scaleCrsB help = {"Amplitude * cos(phase*π/180)"},proc=ATH_Asylum#AsylumButtons,win=$grfname		
         return 0
     endif
     
     return -1
 End
 
+/// @function AsylumDisplayHook
+/// @brief Keep an Asylum image graph square when its window is resized.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function AsylumDisplayHook(STRUCT WMWinHookStruct &s)
 	//
 	variable hookResult = 0
@@ -145,9 +165,26 @@ static Function AsylumDisplayHook(STRUCT WMWinHookStruct &s)
 	return 0
 End
 
+/// @function DisplayAsylum
+/// @brief Display an Asylum image wave with its stored color and scale settings.
+/// @param w Asylum image wave to display.
+/// @returns The name of the graph displaying the Asylum image.
 static Function/S DisplayAsylum(WAVE w)
     string grfName = ATH_Display#NewImg(w)
     SetWindow $grfname, hook(AsylumDisplayHook) = ATH_Asylum#AsylumDisplayHook // Set the hook
 	ModifyGraph/W=$grfName margin(right)=120
 	return grfName
 End
+
+//Static Function AsylumButtons(STRUCT WMButtonAction &s) // Todo: change this behavior
+//
+//	if (s.eventCode != 2) // If not pressed return, otherwise chaos
+//		return 0
+//	endif
+//
+//	strswitch (s.ctrlName)
+//		case "scaleCrsB":
+//			break
+//	endswitch
+//	return 0
+//End

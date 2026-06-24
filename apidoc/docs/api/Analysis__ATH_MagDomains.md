@@ -31,10 +31,10 @@ phase, offset, and amplitude. By default it uses
 ### Parameters
 
 - `wRef` *(Wave)*: Input 3D wave whose third dimension contains images acquired at different angles.
-- `fitFunc` *(String)*: Optional fully qualified fit-function name. Defaults to `ATH_FuncFit#XMLDCos2xIntensity`.
-- `firstAngle` *(Variable)*: Optional angle in degrees assigned to the first layer. Defaults to -90.
-- `angleStep` *(Variable)*: Optional angular increment in degrees between successive layers. Defaults to 10.
-- `fastFit` *(Variable)*: Optional flag controlling the fitting strategy. Non-zero uses one initial phase guess; zero tests multiple initial phases.
+- `fitFunc` *(String, optional)*: Optional fully qualified fit-function name. Defaults to `ATH_FuncFit#XMLDCos2xIntensity`.
+- `firstAngle` *(Variable, optional)*: Optional angle in degrees assigned to the first layer. Defaults to -90.
+- `angleStep` *(Variable, optional)*: Optional angular increment in degrees between successive layers. Defaults to 10.
+- `fastFit` *(Integer, optional)*: Optional flag controlling the fitting strategy. Non-zero uses one initial phase guess; zero tests multiple initial phases.
 
 ### Returns
 
@@ -62,8 +62,8 @@ over the image updates the beam profile and overlayed fit curve for the selected
 
 - `wSrc` *(Wave)*: Source 3D XMLD image stack used to extract beam profiles.
 - `wRef` *(Wave)*: 2D phase map produced by `FitXMLDMap`.
-- `firstAngle` *(Variable)*: Optional first angle in degrees for the source stack. Defaults to -90.
-- `angleStep` *(Variable)*: Optional angle increment in degrees. Defaults to 10.
+- `firstAngle` *(Variable, optional)*: Optional first angle in degrees for the source stack. Defaults to -90.
+- `angleStep` *(Variable, optional)*: Optional angle increment in degrees. Defaults to 10.
 
 ### Returns
 
@@ -85,7 +85,7 @@ XMLD inspection workflow.
 
 ### Parameters
 
-- `s` *(Struct)*: Igor window hook structure supplied by the event system.
+- `s` *(STRUCT WMWinHookStruct)*: Struct Igor window hook structure supplied by the event system.
 
 ### Returns
 
@@ -115,3 +115,23 @@ from the stored fit maps, and redraws the inspection plot.
 ### Returns
 
 - **Variable**: Returns 0 on completion.
+
+
+## `SortMapPerPolarAngle`
+
+**Signature**
+
+```igorpro
+SortMapPerPolarAngle(WAVE wRef, [variable angleRange])
+```
+
+Reorder an angular map by increasing polar angle.
+
+### Parameters
+
+- `wRef` *(Wave)*: Angular map whose rows are reordered in place.
+- `angleRange` *(Variable, optional)*: Angular interval represented by the map.
+
+### Returns
+
+- **Variable**: Zero after completing the operation.

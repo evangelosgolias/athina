@@ -49,12 +49,10 @@
 /// related to ATH LineProfile functionality.
 
 /// @function MainMenu
-/// @brief Description of MainMenu.
+/// @brief Launch the line-profile tool for the active image.
 /// @details
-/// Auto-generated documentation stub for function `MainMenu`.
-/// @returns Variable Return value.
-
-
+/// When autoscaled then SETAXISCMD is SetAxis/A.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function MainMenu()
 	
 	string winNameStr = WinName(0, 1, 1)
@@ -99,6 +97,10 @@ static Function MainMenu()
 	return 0
 End
 
+/// @function InitialiseFolder
+/// @brief Create and initialize state for a graph's line-profile tool.
+/// @param winNameStr Name of the target graph or panel window.
+/// @returns Reference to the resulting data folder.
 static Function/DF InitialiseFolder(string winNameStr)
 	/// All initialisation happens here. Folders, waves and local/global variables
 	/// needed are created here. Use the 3D wave in top window.
@@ -163,12 +165,11 @@ static Function/DF InitialiseFolder(string winNameStr)
 End
 
 /// @function InitialiseGraph
-/// @brief Description of InitialiseGraph.
+/// @brief Initialize the graph used by the line-profile tool.
 /// @details
-/// Auto-generated documentation stub for function `InitialiseGraph`.
-/// @param dfr Parameter dfr.
-/// @returns Variable Return value.
-
+/// Here we will create the profile plot and graph and plot the profile.
+/// @param dfr Reference to the data folder to inspect or modify.
+/// @returns Zero after completing the operation.
 static Function InitialiseGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
 	string plotNameStr = "ATH_LineProf_" + GetDataFolder(0, dfr)
@@ -181,12 +182,12 @@ static Function InitialiseGraph(DFREF dfr)
 End
 
 /// @function CreatePlot
-/// @brief Description of CreatePlot.
+/// @brief Create plot.
 /// @details
-/// Auto-generated documentation stub for function `CreatePlot`.
-/// @param dfr Parameter dfr.
-/// @returns Variable Return value.
-
+/// ModifyGraph
+/// mode=7,useNegRGB=1,usePlusRGB=1,hbFill=5,negRGB=(65535,32768,32768),plusRGB=(32768,40777,65535).
+/// @param dfr Reference to the data folder to inspect or modify.
+/// @returns Zero after completing the operation.
 static Function CreatePlot(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(rootFolderStr)
@@ -227,12 +228,9 @@ static Function CreatePlot(DFREF dfr)
 End
 
 /// @function ClearLineMarkings
-/// @brief Description of ClearLineMarkings.
-/// @details
-/// Auto-generated documentation stub for function `ClearLineMarkings`.
-/// @param winNameStr Parameter winNameStr.
-/// @returns Variable Return value.
-
+/// @brief Clear line markings.
+/// @param winNameStr Win name str.
+/// @returns Zero after completing the operation.
 static Function ClearLineMarkings(string winNameStr)
 	SetDrawLayer/W=$winNameStr UserFront
 	DrawAction/W=$winNameStr delete
@@ -241,19 +239,16 @@ static Function ClearLineMarkings(string winNameStr)
 End
 
 /// @function DrawLineUserFront
-/// @brief Description of DrawLineUserFront.
-/// @details
-/// Auto-generated documentation stub for function `DrawLineUserFront`.
-/// @param winNameStr Parameter winNameStr.
-/// @param x0 Parameter x0.
-/// @param y0 Parameter y0.
-/// @param x1 Parameter x1.
-/// @param y1 Parameter y1.
-/// @param red Parameter red.
-/// @param green Parameter green.
-/// @param blue Parameter blue.
-/// @returns Variable Return value.
-
+/// @brief Draw line user front.
+/// @param winNameStr Win name str.
+/// @param x0 First x coordinate or range bound.
+/// @param y0 First y coordinate or range bound.
+/// @param x1 Second x coordinate or range bound.
+/// @param y1 Second y coordinate or range bound.
+/// @param red Red-channel value or wave.
+/// @param green Green-channel value or wave.
+/// @param blue Blue-channel value or wave.
+/// @returns Zero after completing the operation.
 static Function DrawLineUserFront(string winNameStr, variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
 	SetDrawLayer/W=$winNameStr UserFront 
 	SetDrawEnv/W=$winNameStr linefgc = (red, green, blue), fillpat = 0, linethick = 2, dash= 2, xcoord= top, ycoord= left
@@ -262,12 +257,12 @@ static Function DrawLineUserFront(string winNameStr, variable x0, variable y0, v
 End
 
 /// @function CursorsHookFunction
-/// @brief Description of CursorsHookFunction.
+/// @brief Handle cursors hook events.
 /// @details
-/// Auto-generated documentation stub for function `CursorsHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Window hook function. The line profile is drawn from E to F. To revise. Case 17 is not recommended to use
+/// for killing windows. See JW's email.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	/// The line profile is drawn from E to F
@@ -361,12 +356,12 @@ static Function CursorsHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 /// @function GraphHookFunction
-/// @brief Description of GraphHookFunction.
+/// @brief Handle panel hook events.
 /// @details
-/// Auto-generated documentation stub for function `GraphHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// ParentImageWinStr -- winNameStr. Kill the MyLineProfileHook. We need to reset the link between
+/// parentImageWinStr (winNameStr) and ATH_LinkedWinImageLPP.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentImageWinStr = GetUserData(s.winName, "", "ATH_LinkedWinImageSource")
 	switch(s.eventCode)
@@ -394,13 +389,11 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 /// @function SaveProfile
-/// @brief Description of SaveProfile.
+/// @brief Save profile.
 /// @details
-/// Auto-generated documentation stub for function `SaveProfile`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -456,12 +449,11 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 /// @function SaveDefaultSettings
-/// @brief Description of SaveDefaultSettings.
+/// @brief Save default settings.
 /// @details
-/// Auto-generated documentation stub for function `SaveDefaultSettings`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -485,12 +477,12 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 	endswitch
 End
 
-// @function SetLineProfileScale
-/// @brief Description of SetLineProfileScale.
+/// @function SetLineProfileScale
+/// @brief Set the line-profile scale from a user-entered cursor distance.
 /// @details
-/// Auto-generated documentation stub for function `SetLineProfileScale`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
+/// Converts the entered physical distance to a per-point scaling factor. A value of zero restores nominal image scaling; anisotropic image pixels disable custom scaling.
+/// @param B_Struct Igor button-action structure describing the event and panel window.
+/// @returns Zero after updating the scale, one if the prompt is cancelled, or -1 for anisotropic image pixels.
 static Function SetLineProfileScale(STRUCT WMButtonAction &B_Struct): ButtonControl
 	
 	switch(B_Struct.eventCode)	// numeric switch
@@ -527,11 +519,11 @@ static Function SetLineProfileScale(STRUCT WMButtonAction &B_Struct): ButtonCont
 End
 
 /// @function RestoreDefaultSettings
-/// @brief Description of RestoreDefaultSettings.
+/// @brief Restore default settings.
 /// @details
-/// Auto-generated documentation stub for function `RestoreDefaultSettings`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -555,12 +547,11 @@ static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonC
 End
 
 /// @function ShowProfileWidth
-/// @brief Description of ShowProfileWidth.
+/// @brief Show profile width.
 /// @details
-/// Auto-generated documentation stub for function `ShowProfileWidth`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// We have to find the vertices of the polygon representing.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	/// We have to find the vertices of the polygon representing
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_LineProfRootDF"))
@@ -579,12 +570,9 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 /// @function CheckboxPlotProfile
-/// @brief Description of CheckboxPlotProfile.
-/// @details
-/// Auto-generated documentation stub for function `CheckboxPlotProfile`.
-/// @param cb Parameter cb.
-/// @returns Variable Return value.
-
+/// @brief Handle the plot-profile checkbox action.
+/// @param cb Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
@@ -601,12 +589,9 @@ static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxContr
 End
 
 /// @function ProfileLayer3D
-/// @brief Description of ProfileLayer3D.
-/// @details
-/// Auto-generated documentation stub for function `ProfileLayer3D`.
-/// @param cb Parameter cb.
-/// @returns Variable Return value.
-
+/// @brief Profile layer 3D.
+/// @param cb Igor action structure describing the control or window event.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function ProfileLayer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
@@ -632,12 +617,9 @@ static Function ProfileLayer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 /// @function CheckboxMarkLines
-/// @brief Description of CheckboxMarkLines.
-/// @details
-/// Auto-generated documentation stub for function `CheckboxMarkLines`.
-/// @param cb Parameter cb.
-/// @returns Variable Return value.
-
+/// @brief Handle the mark-lines checkbox action.
+/// @param cb Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function CheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_LineProfRootDF"))
@@ -654,12 +636,11 @@ static Function CheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 /// @function SetVariableWidth
-/// @brief Description of SetVariableWidth.
+/// @brief Set variable width.
 /// @details
-/// Auto-generated documentation stub for function `SetVariableWidth`.
-/// @param sv Parameter sv.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param sv Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 
@@ -688,6 +669,17 @@ static Function SetVariableWidth(STRUCT WMSetVariableAction& sv) : SetVariableCo
 	return 0
 End
 
+/// @function DrawLineProfileRectangle
+/// @brief Draw the polygon representing a line profile's sampling width.
+/// @param C1x X coordinate of the profile's first endpoint.
+/// @param C1y Y coordinate of the profile's first endpoint.
+/// @param C2x X coordinate of the profile's second endpoint.
+/// @param C2y Y coordinate of the profile's second endpoint.
+/// @param dx Horizontal pixel size.
+/// @param dy Vertical pixel size.
+/// @param width Half-width of the sampled line profile in pixels.
+/// @param grfName Name of the graph window.
+/// @returns Zero after drawing the sampling-width polygon.
 static Function DrawLineProfileRectangle(variable C1x,variable C1y,variable C2x, variable C2y, 
 							 variable dx, variable dy, variable width, string grfName)
 
@@ -730,12 +722,9 @@ static Function DrawLineProfileRectangle(variable C1x,variable C1y,variable C2x,
 End
 
 /// @function DeleleLineProfileRectangle
-/// @brief Description of DeleleLineProfileRectangle.
-/// @details
-/// Auto-generated documentation stub for function `DeleleLineProfileRectangle`.
-/// @param grfName Parameter grfName.
-/// @returns Variable Return value.
-
+/// @brief Delete the rectangle marking the line-profile width.
+/// @param grfName Name of the graph window.
+/// @returns Zero after completing the operation.
 static Function DeleleLineProfileRectangle(string grfName)
 	SetDrawLayer/W=$grfName ProgFront
 	DrawAction/W=$grfName getgroup = lineProfileWidth

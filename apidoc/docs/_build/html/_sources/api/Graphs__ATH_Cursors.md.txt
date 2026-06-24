@@ -12,6 +12,25 @@ related to ATH Cursors functionality.
 :depth: 2
 ```
 
+## `GetActiveCursors`
+
+**Signature**
+
+```igorpro
+GetActiveCursors([string grfName])
+```
+
+Return a list of cursors currently attached to graph traces.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
+
+### Returns
+
+- **String**: A semicolon-separated list of active cursor names.
+
+
 ## `GetDistanceFromCursors`
 
 **Signature**
@@ -20,18 +39,18 @@ related to ATH Cursors functionality.
 GetDistanceFromCursors(string C1, string C2)
 ```
 
-Description of GetDistanceFromCursors.
+Return distance from cursors.
 
-Auto-generated documentation stub for function `GetDistanceFromCursors`.
+Returns the distance between C1 and C2 if given. Interactive functionality.
 
 ### Parameters
 
-- `C1` *(Parameter)*: C1.
-- `C2` *(Parameter)*: C2.
+- `C1` *(String)*: Name of the first graph cursor.
+- `C2` *(String)*: Name of the second graph cursor.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The returned value is distance from cursors.
 
 
 ## `MeasureDistanceUsingFreeCursors`
@@ -42,13 +61,14 @@ Auto-generated documentation stub for function `GetDistanceFromCursors`.
 MeasureDistanceUsingFreeCursors()
 ```
 
-Description of MeasureDistanceUsingFreeCursors.
+Measure distance using free cursors.
 
-Auto-generated documentation stub for function `MeasureDistanceUsingFreeCursors`.
+Use Cursors I, J (Free) to measure distances in a graph. Uses ATH_MeasureDistanceUsingFreeCursorsIJHook.
+Add metadata.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
 
 
 ## `MeasureDistanceUsingFreeCursorsHook`
@@ -59,17 +79,56 @@ Auto-generated documentation stub for function `MeasureDistanceUsingFreeCursors`
 MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 ```
 
-Description of MeasureDistanceUsingFreeCursorsHook.
+Handle measure distance using free cursors hook events.
 
-Auto-generated documentation stub for function `MeasureDistanceUsingFreeCursorsHook`.
+Hook function for ATH_MeasureDistanceUsingFreeCursorsIJ() currently button is disabled for wavedims != 1
+SetDrawEnv/W=$s.winName xcoord= axrel,ycoord= $axisY.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
+
+
+## `MeasureDistanceButton`
+
+**Signature**
+
+```igorpro
+MeasureDistanceButton(STRUCT WMButtonAction &s)
+```
+
+Handle actions from the cursor-distance measurement panel.
+
+### Parameters
+
+- `s` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
+
+### Returns
+
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
+
+
+## `UserGetABCursorPositions`
+
+**Signature**
+
+```igorpro
+UserGetABCursorPositions(STRUCT sUserCursorPositions &s)
+```
+
+Pause for the user to position cursors A and B.
+
+### Parameters
+
+- `s` *(STRUCT sUserCursorPositions)*: Input/output structure containing graph, axis, and cursor settings.
+
+### Returns
+
+- **Multiple values**: The start and end coordinates selected with cursors A and B.
 
 
 ## `UserGetCursorsPositions_ContButtonProc`
@@ -80,17 +139,17 @@ Auto-generated documentation stub for function `MeasureDistanceUsingFreeCursorsH
 UserGetCursorsPositions_ContButtonProc(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of UserGetCursorsPositions_ContButtonProc.
+Handle the continue button for user get cursors positions.
 
-Auto-generated documentation stub for function `UserGetCursorsPositions_ContButtonProc`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `UserGetCursorsPositions_CancelBProc`
@@ -101,17 +160,17 @@ Auto-generated documentation stub for function `UserGetCursorsPositions_ContButt
 UserGetCursorsPositions_CancelBProc(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of UserGetCursorsPositions_CancelBProc.
+Handle the cancel button for user get cursors positions.
 
-Auto-generated documentation stub for function `UserGetCursorsPositions_CancelBProc`.
+End of Cursor positions with PauseforUser.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `ThreeCursorsToAngle`
@@ -122,21 +181,21 @@ Auto-generated documentation stub for function `UserGetCursorsPositions_CancelBP
 ThreeCursorsToAngle(string Cursor1, string Cursor2, string Cursor3, [, variable deg])
 ```
 
-Description of ThreeCursorsToAngle.
+Calculate the angle formed by three graph cursors.
 
-Auto-generated documentation stub for function `ThreeCursorsToAngle`.
+Returns the angle formed by the cursors Cursor1, Cursor2 & Cursor3 (*corner of angle at Cursor2*) in rad
+or degrees.
 
 ### Parameters
 
-- `Cursor1` *(Parameter)*: Cursor1.
-- `Cursor2` *(Parameter)*: Cursor2.
-- `Cursor3` *(Parameter)*: Cursor3.
-- `[` *(Parameter)*: [.
-- `deg]` *(Parameter)*: deg].
+- `Cursor1` *(String)*: Name of the first graph cursor.
+- `Cursor2` *(String)*: Name of the second graph cursor.
+- `Cursor3` *(String)*: Name of the third graph cursor.
+- `deg` *(Variable, optional)*: If nonzero, return the angle in degrees instead of radians.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The angle in radians, or in degrees when `deg` is nonzero.
 
 
 ## `MirrorCursorPositionToWaveValues`
@@ -147,17 +206,17 @@ Auto-generated documentation stub for function `ThreeCursorsToAngle`.
 MirrorCursorPositionToWaveValues(WAVE wRef)
 ```
 
-Description of MirrorCursorPositionToWaveValues.
+Mirror cursor position to wave values.
 
-Auto-generated documentation stub for function `MirrorCursorPositionToWaveValues`.
+Add a textbox with values from two graphs in the same cursor position.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
+- `wRef` *(Wave)*: Input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SyncCursorsInGraphsHook`
@@ -168,14 +227,14 @@ Auto-generated documentation stub for function `MirrorCursorPositionToWaveValues
 SyncCursorsInGraphsHook(STRUCT WMWinHookStruct &s)
 ```
 
-Description of SyncCursorsInGraphsHook.
+Handle sync cursors in graphs hook events.
 
-Auto-generated documentation stub for function `SyncCursorsInGraphsHook`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.

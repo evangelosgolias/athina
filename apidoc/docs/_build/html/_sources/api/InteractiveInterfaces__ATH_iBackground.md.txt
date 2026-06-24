@@ -20,13 +20,13 @@ related to ATH iBackground functionality.
 CreatelPanel()
 ```
 
-Description of CreatelPanel.
+Create the interactive background-removal panel.
 
-Auto-generated documentation stub for function `CreatelPanel`.
+Check if you have already created the panel. We need a 2d or 3d wave. Duplicate the wave for backup.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `GraphHookFunction`
@@ -37,17 +37,17 @@ Auto-generated documentation stub for function `CreatelPanel`.
 GraphHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of GraphHookFunction.
+Handle panel hook events.
 
-Auto-generated documentation stub for function `GraphHookFunction`.
+Restore wave scaling here as ImageTransform works better with non-scaled waves.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `PanelHookFunction`
@@ -58,17 +58,18 @@ Auto-generated documentation stub for function `GraphHookFunction`.
 PanelHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of PanelHookFunction.
+Handle panel hook events.
 
-Auto-generated documentation stub for function `PanelHookFunction`.
+Cleanup when window is closed. Restore wave scaling here as ImageTransform works better with non-scaled
+waves CopyScales/I $gATH_wRefBackupPathNameStr, $gATH_wRefPathNameStr.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `OverwriteAndCloseButton`
@@ -79,17 +80,17 @@ Auto-generated documentation stub for function `PanelHookFunction`.
 OverwriteAndCloseButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of OverwriteAndCloseButton.
+Handle the overwrite and close button action.
 
-Auto-generated documentation stub for function `OverwriteAndCloseButton`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `RemoveBackgroundButton`
@@ -100,14 +101,14 @@ Auto-generated documentation stub for function `OverwriteAndCloseButton`.
 RemoveBackgroundButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of RemoveBackgroundButton.
+Handle the remove background button action.
 
-Auto-generated documentation stub for function `RemoveBackgroundButton`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.

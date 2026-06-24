@@ -49,10 +49,11 @@
 // to the same spot wrt to the axes.
 
 /// @function CreatePanel
-/// @brief Description of CreatePanel.
+/// @brief Create panel.
 /// @details
-/// Auto-generated documentation stub for function `CreatePanel`.
-/// @returns Variable Return value.
+/// Check if you have already created the panel. When autoscaled then SETAXISCMD is SetAxis/A. Duplicate the
+/// wave for backup.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function CreatePanel()
 
 	string winNameStr = WinName(0, 1, 1)
@@ -190,12 +191,11 @@ static Function CreatePanel()
 End
 
 /// @function GraphHookFunction
-/// @brief Description of GraphHookFunction.
+/// @brief Handle panel hook events.
 /// @details
-/// Auto-generated documentation stub for function `GraphHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Cleanup when window is closed. Same behavior with /F or not.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
@@ -286,12 +286,11 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 End
 
 /// @function PanelHookFunction
-/// @brief Description of PanelHookFunction.
+/// @brief Handle panel hook events.
 /// @details
-/// Auto-generated documentation stub for function `PanelHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when panel is closed
 
 	switch(s.eventCode)
@@ -315,12 +314,11 @@ static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when pan
 End
 
 /// @function SetAnchorCursorButton
-/// @brief Description of SetAnchorCursorButton.
+/// @brief Handle the set anchor cursor button action.
 /// @details
-/// Auto-generated documentation stub for function `SetAnchorCursorButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// String variables. Wave and numeric variables. Image dimensions.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -362,12 +360,11 @@ static Function SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct): ButtonCo
 End
 
 /// @function DriftImageButton
-/// @brief Description of DriftImageButton.
+/// @brief Handle the drift image button action.
 /// @details
-/// Auto-generated documentation stub for function `DriftImageButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// String variables. Wave references. Numeric variables.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -404,12 +401,11 @@ static Function DriftImageButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 /// @function ToggleSubPixelModeButton
-/// @brief Description of ToggleSubPixelModeButton.
+/// @brief Handle the toggle sub pixel mode button action.
 /// @details
-/// Auto-generated documentation stub for function `ToggleSubPixelModeButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// String variables. Wave reference. Numeric variables.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function ToggleSubPixelModeButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -446,12 +442,11 @@ static Function ToggleSubPixelModeButton(STRUCT WMButtonAction &B_Struct): Butto
 End
 
 /// @function SetStartLayerButton
-/// @brief Description of SetStartLayerButton.
+/// @brief Handle the set start layer button action.
 /// @details
-/// Auto-generated documentation stub for function `SetStartLayerButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-				
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SetStartLayerButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -486,12 +481,11 @@ static Function SetStartLayerButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 End
 
 /// @function SetEndLayerButton
-/// @brief Description of SetEndLayerButton.
+/// @brief Handle the set end layer button action.
 /// @details
-/// Auto-generated documentation stub for function `SetEndLayerButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// String variable. External numeric variable. Numeric variables from dfr.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SetEndLayerButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -525,12 +519,12 @@ static Function SetEndLayerButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 End
 
 /// @function LinearDCButton
-/// @brief Description of LinearDCButton.
+/// @brief Handle the linear dc button action.
 /// @details
-/// Auto-generated documentation stub for function `LinearDCButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Relative s, y shifts for Drift Correction ImageInterpolate needs pixels, multiply by -1 to have the
+/// proper behavior in /ARPM={...}.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -567,12 +561,11 @@ static Function LinearDCButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 /// @function CheckpointButton
-/// @brief Description of CheckpointButton.
+/// @brief Handle the checkpoint button action.
 /// @details
-/// Auto-generated documentation stub for function `CheckpointButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function CheckpointButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -589,12 +582,11 @@ static Function CheckpointButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 /// @function RestoreWaveButton
-/// @brief Description of RestoreWaveButton.
+/// @brief Handle the restore wave button action.
 /// @details
-/// Auto-generated documentation stub for function `RestoreWaveButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function RestoreWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	//Complete
 
@@ -612,12 +604,11 @@ static Function RestoreWaveButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 End
 
 /// @function DriftSelectedLayers3DWaveButton
-/// @brief Description of DriftSelectedLayers3DWaveButton.
+/// @brief Handle the drift selected layers 3D wave button action.
 /// @details
-/// Auto-generated documentation stub for function `DriftSelectedLayers3DWaveButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -674,12 +665,11 @@ static Function DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct)
 End
 
 /// @function CascadeDrift3DWaveButton
-/// @brief Description of CascadeDrift3DWaveButton.
+/// @brief Handle the cascade drift 3D wave button action.
 /// @details
-/// Auto-generated documentation stub for function `CascadeDrift3DWaveButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	variable hookresult = 0
 
@@ -727,12 +717,12 @@ static Function CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct): Butto
 End
 
 /// @function FastModeCheckbox
-/// @brief Description of FastModeCheckbox.
+/// @brief Handle the fast mode checkbox action.
 /// @details
-/// Auto-generated documentation stub for function `FastModeCheckbox`.
-/// @param cb Parameter cb.
-/// @returns Variable Return value.
-
+/// DrawTheRefCross(w3dRef,gATH_AnchorPositionX, gATH_AnchorPositionY,grfName=gATH_WindowNameStr). Copy code
+/// here. When autoscaled then SETAXISCMD is SetAxis/A.
+/// @param cb Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function FastModeCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	variable hookresult = 0
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_iImgAlignFolder"))
@@ -799,12 +789,12 @@ static Function FastModeCheckbox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 /// @function InterStackAlignmentButton
-/// @brief Description of InterStackAlignmentButton.
+/// @brief Handle the inter stack alignment button action.
 /// @details
-/// Auto-generated documentation stub for function `InterStackAlignmentButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Fast exit if not eventCode is not 2 NB: Save coordinates in pixels! We shouldn't depend on wave scaling.
+/// Reference should be relative, between 0 and 1 as the number of pixels and scale might be different.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 	// fast exit if not eventCode is not 2
 	if (B_Struct.eventCode != 2)
@@ -871,16 +861,15 @@ static Function InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct): Butt
 End
 
 /// @function DrawTheRefCross
-/// @brief Description of DrawTheRefCross.
+/// @brief Draw the ref cross.
 /// @details
-/// Auto-generated documentation stub for function `DrawTheRefCross`.
-/// @param wRef Parameter wRef.
-/// @param xv Parameter xv.
-/// @param yv Parameter yv.
-/// @param grfName Parameter grfName.
-/// @param axisRel] Parameter axisRel].
-/// @returns Variable Return value.
-
+/// Draw the ref line.
+/// @param wRef Input wave.
+/// @param xv X-coordinate value or wave.
+/// @param yv Y-coordinate value or wave.
+/// @param grfName (optional) Name of the graph window.
+/// @param axisRel (optional) If nonzero, interpret coordinates relative to the graph axes.
+/// @returns Zero after completing the operation.
 static Function DrawTheRefCross(WAVE wRef, variable xv, variable yv, [string grfName, int axisRel])
 	// Draw the ref line
 	string axisX, axisY

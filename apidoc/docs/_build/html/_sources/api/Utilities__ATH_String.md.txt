@@ -20,17 +20,18 @@ related to ATH String functionality.
 ExpandRangeStr(string rangeStr)
 ```
 
-Description of ExpandRangeStr.
+Expand a compact integer-range expression into an Igor string list.
 
-Auto-generated documentation stub for function `ExpandRangeStr`.
+Expand a string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50" now check str to see if it is a range
+like "20-23".
 
 ### Parameters
 
-- `rangeStr` *(Parameter)*: rangeStr.
+- `rangeStr` *(String)*: Range str.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `GetPhotonEnergyFromFilename`
@@ -41,17 +42,18 @@ Auto-generated documentation stub for function `ExpandRangeStr`.
 GetPhotonEnergyFromFilename(string nameStr)
 ```
 
-Description of GetPhotonEnergyFromFilename.
+Return photon energy from filename.
 
-Auto-generated documentation stub for function `GetPhotonEnergyFromFilename`.
+MAXPEEM specific: extract the photon energy from the filename and return it as number regex compiles the
+most common ways of writing the energy in a filename.
 
 ### Parameters
 
-- `nameStr` *(Parameter)*: nameStr.
+- `nameStr` *(String)*: Name str.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The returned value is photon energy from filename.
 
 
 ## `UniquifyStringList`
@@ -62,18 +64,18 @@ Auto-generated documentation stub for function `GetPhotonEnergyFromFilename`.
 UniquifyStringList(string stringListStr, string sep)
 ```
 
-Description of UniquifyStringList.
+Remove duplicate items from a delimited string list.
 
-Auto-generated documentation stub for function `UniquifyStringList`.
+Remove duplicates from a sting list. Remove duplicates.
 
 ### Parameters
 
-- `stringListStr` *(Parameter)*: stringListStr.
-- `sep` *(Parameter)*: sep.
+- `stringListStr` *(String)*: Text containing the string list str.
+- `sep` *(String)*: Delimiter used between list items.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `isLiberalQ`
@@ -84,17 +86,17 @@ Auto-generated documentation stub for function `UniquifyStringList`.
 isLiberalQ(string str)
 ```
 
-Description of isLiberalQ.
+Test whether a string is invalid as an Igor liberal object name.
 
-Auto-generated documentation stub for function `isLiberalQ`.
+Checks if a string is liberal. Returns 0 for empty string.
 
 ### Parameters
 
-- `str` *(Parameter)*: str.
+- `str` *(String)*: Text containing the str.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `StringToNonLiberal`
@@ -105,17 +107,15 @@ Auto-generated documentation stub for function `isLiberalQ`.
 StringToNonLiberal(string str)
 ```
 
-Description of StringToNonLiberal.
-
-Auto-generated documentation stub for function `StringToNonLiberal`.
+Convert arbitrary text into a valid Igor liberal object name.
 
 ### Parameters
 
-- `str` *(Parameter)*: str.
+- `str` *(String)*: Text containing the str.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `isEXTWindow`
@@ -126,17 +126,15 @@ Auto-generated documentation stub for function `StringToNonLiberal`.
 isEXTWindow(string str)
 ```
 
-Description of isEXTWindow.
-
-Auto-generated documentation stub for function `isEXTWindow`.
+Test whether a window name identifies an external window.
 
 ### Parameters
 
-- `str` *(Parameter)*: str.
+- `str` *(String)*: Text containing the str.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `isPathStringLegalQ`
@@ -147,17 +145,15 @@ Auto-generated documentation stub for function `isEXTWindow`.
 isPathStringLegalQ(string path)
 ```
 
-Description of isPathStringLegalQ.
-
-Auto-generated documentation stub for function `isPathStringLegalQ`.
+Test whether a string is a syntactically valid Igor data-folder path.
 
 ### Parameters
 
-- `path` *(Parameter)*: path.
+- `path` *(String)*: Path.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `ExtendPathStr`
@@ -168,18 +164,19 @@ Auto-generated documentation stub for function `isPathStringLegalQ`.
 ExtendPathStr(string str, string ext)
 ```
 
-Description of ExtendPathStr.
+Append a child component to an Igor data-folder path.
 
-Auto-generated documentation stub for function `ExtendPathStr`.
+Add ext to s, which is usually a full path to a wave. Works for liberal and proper paths. Add
+ksATHBackupWaveExtention to the root:'2434w' -> root:'2434w_undo' !.
 
 ### Parameters
 
-- `str` *(Parameter)*: str.
-- `ext` *(Parameter)*: ext.
+- `str` *(String)*: Text containing the str.
+- `ext` *(String)*: File-name extension.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting path string, or an empty string when it cannot be determined.
 
 
 ## `InsertListAtPosition`
@@ -190,20 +187,21 @@ Auto-generated documentation stub for function `ExtendPathStr`.
 InsertListAtPosition(string listStr, string insertList, variable pos, [string sep])
 ```
 
-Description of InsertListAtPosition.
+Insert list at position.
 
-Auto-generated documentation stub for function `InsertListAtPosition`.
+We insert list insertList at the position pos of listStr. the element at pos is moved and becomes the
+first after the last element of insertList.
 
 ### Parameters
 
-- `listStr` *(Parameter)*: listStr.
-- `insertList` *(Parameter)*: insertList.
-- `pos` *(Parameter)*: pos.
-- `sep]` *(Parameter)*: sep].
+- `listStr` *(String)*: Text containing the list str.
+- `insertList` *(String)*: List of items to insert.
+- `pos` *(Variable)*: Zero-based insertion position.
+- `sep` *(String, optional)*: Delimiter used between list items.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `RemoveFileExtention`
@@ -214,17 +212,15 @@ Auto-generated documentation stub for function `InsertListAtPosition`.
 RemoveFileExtention(string str)
 ```
 
-Description of RemoveFileExtention.
-
-Auto-generated documentation stub for function `RemoveFileExtention`.
+Remove the final extension from a file name.
 
 ### Parameters
 
-- `str` *(Parameter)*: str.
+- `str` *(String)*: Text containing the str.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `StartsWith`
@@ -235,18 +231,16 @@ Auto-generated documentation stub for function `RemoveFileExtention`.
 StartsWith(string str, string part)
 ```
 
-Description of StartsWith.
-
-Auto-generated documentation stub for function `StartsWith`.
+Test whether a string starts with a given substring.
 
 ### Parameters
 
-- `str` *(Parameter)*: str.
-- `part` *(Parameter)*: part.
+- `str` *(String)*: Text containing the str.
+- `part` *(String)*: Prefix or suffix text to test for.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `EndsWith`
@@ -257,18 +251,16 @@ Auto-generated documentation stub for function `StartsWith`.
 EndsWith(string str, string part)
 ```
 
-Description of EndsWith.
-
-Auto-generated documentation stub for function `EndsWith`.
+Test whether a string ends with a given substring.
 
 ### Parameters
 
-- `str` *(Parameter)*: str.
-- `part` *(Parameter)*: part.
+- `str` *(String)*: Text containing the str.
+- `part` *(String)*: Prefix or suffix text to test for.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `WaveLogging`
@@ -279,19 +271,19 @@ Auto-generated documentation stub for function `EndsWith`.
 WaveLogging(Wave wRef, string msg, [int prepend])
 ```
 
-Description of WaveLogging.
+Wave logging.
 
-Auto-generated documentation stub for function `WaveLogging`.
+Add str to the note of wRef. Use prepend = 1 to add string at the start.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `msg` *(Parameter)*: msg.
-- `prepend]` *(Parameter)*: prepend].
+- `wRef` *(Wave)*: Input wave.
+- `msg` *(String)*: Message shown to the user.
+- `prepend` *(Integer, optional)*: If nonzero, insert the new text before the existing list.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `WaveToString`
@@ -302,35 +294,52 @@ Auto-generated documentation stub for function `WaveLogging`.
 WaveToString(WAVE w, [string sep])
 ```
 
-Description of WaveToString.
+Wave to string.
 
-Auto-generated documentation stub for function `WaveToString`.
+Make a string from a textwave.
 
 ### Parameters
 
-- `w` *(Parameter)*: w.
-- `sep]` *(Parameter)*: sep].
+- `w` *(Wave)*: to modify in place.
+- `sep` *(String, optional)*: Delimiter used between list items.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
-## `GetSelectedWaveNamesinDB`
+## `GetSelectedImagesinDB`
 
 **Signature**
 
 ```igorpro
-GetSelectedWaveNamesinDB()
+GetSelectedImagesinDB()
 ```
 
-Description of GetSelectedWaveNamesinDB.
-
-Auto-generated documentation stub for function `GetSelectedWaveNamesinDB`.
+Return the names of waves selected in the Data Browser.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting name, or an empty string when no match is available.
+
+
+## `GetSelectedWavesinDB`
+
+**Signature**
+
+```igorpro
+GetSelectedWavesinDB([variable dim])
+```
+
+Return references to waves selected in the Data Browser.
+
+### Parameters
+
+- `dim` *(Variable, optional)*: Zero-based wave-dimension index.
+
+### Returns
+
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `AppendToStringList`
@@ -341,20 +350,66 @@ Auto-generated documentation stub for function `GetSelectedWaveNamesinDB`.
 AppendToStringList(string base, string strlist, [string sep, int rev])
 ```
 
-Description of AppendToStringList.
+Append to string list.
 
-Auto-generated documentation stub for function `AppendToStringList`.
+Append on prepand the string base to each item in strList.
 
 ### Parameters
 
-- `base` *(Parameter)*: base.
-- `strlist` *(Parameter)*: strlist.
-- `sep` *(Parameter)*: sep.
-- `rev]` *(Parameter)*: rev].
+- `base` *(String)*: Base string used to build the result.
+- `strlist` *(String)*: Input string list.
+- `sep` *(String, optional)*: Delimiter used between list items.
+- `rev` *(Integer, optional)*: If nonzero, reverse the requested order or color table.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
+
+
+## `ThreadStr`
+
+**Signature**
+
+```igorpro
+ThreadStr(string strlist0, string strlist1, [string joinstr, string sep, string listsep0, string listsep1])
+```
+
+Combine corresponding items from two string lists.
+
+### Parameters
+
+- `strlist0` *(String)*: First input string list.
+- `strlist1` *(String)*: Second input string list.
+- `joinstr` *(String, optional)*: Text inserted between the paired list items.
+- `sep` *(String, optional)*: String-list delimiter.
+- `listsep0` *(String, optional)*: Delimiter for the first input list.
+- `listsep1` *(String, optional)*: Delimiter for the second input list.
+
+### Returns
+
+- **String**: A string list containing the paired and joined items.
+
+
+## `RemoveIndexKeysFromList`
+
+**Signature**
+
+```igorpro
+RemoveIndexKeysFromList(string listStr, [string keySep, string listSep, int startIndex])
+```
+
+Remove numeric index prefixes from a keyed string list.
+
+### Parameters
+
+- `listStr` *(String)*: List str.
+- `keySep` *(String, optional)*: Delimiter between an index key and its value.
+- `listSep` *(String, optional)*: String-list delimiter.
+- `startIndex` *(Integer, optional)*: Smallest numeric key to remove.
+
+### Returns
+
+- **String**: The input list with matching numeric key prefixes removed.
 
 
 ## `GetRangeItemsFromList`
@@ -365,20 +420,20 @@ Auto-generated documentation stub for function `AppendToStringList`.
 GetRangeItemsFromList(string listStr, string listSep, int startIndex, int endIndex)
 ```
 
-Description of GetRangeItemsFromList.
+Return range items from list.
 
-Auto-generated documentation stub for function `GetRangeItemsFromList`.
+Get the items from startIndex to endIndex from a list with listSep.
 
 ### Parameters
 
-- `listStr` *(Parameter)*: listStr.
-- `listSep` *(Parameter)*: listSep.
-- `startIndex` *(Parameter)*: startIndex.
-- `endIndex` *(Parameter)*: endIndex.
+- `listStr` *(String)*: Text containing the list str.
+- `listSep` *(String)*: Delimiter used by the input or output list.
+- `startIndex` *(Integer)*: Lower or starting start index.
+- `endIndex` *(Integer)*: Upper or ending end index.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `RemoveCharFromString`
@@ -389,18 +444,18 @@ Auto-generated documentation stub for function `GetRangeItemsFromList`.
 RemoveCharFromString(string str, string cc)
 ```
 
-Description of RemoveCharFromString.
+Remove char from string.
 
-Auto-generated documentation stub for function `RemoveCharFromString`.
+Remove the character cc from string str.
 
 ### Parameters
 
-- `str` *(Parameter)*: str.
-- `cc` *(Parameter)*: cc.
+- `str` *(String)*: Text containing the str.
+- `cc` *(String)*: Character or character code to test.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `ComposeWaveListsFromWaveNotes`
@@ -411,18 +466,19 @@ Auto-generated documentation stub for function `RemoveCharFromString`.
 ComposeWaveListsFromWaveNotes(string wavelistStr, [string sep])
 ```
 
-Description of ComposeWaveListsFromWaveNotes.
+Compose wave lists from wave notes.
 
-Auto-generated documentation stub for function `ComposeWaveListsFromWaveNotes`.
+Given a list of 2D/3D waves in wavelist compose a wave list with all waves: names and add them to the
+list. At the end you will end up with a list of all 2D waves in the list of wavelistStr.
 
 ### Parameters
 
-- `wavelistStr` *(Parameter)*: wavelistStr.
-- `sep]` *(Parameter)*: sep].
+- `wavelistStr` *(String)*: Wave used by the operation.
+- `sep` *(String, optional)*: Delimiter used between list items.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `GetStackNamesFromNote`
@@ -433,17 +489,17 @@ Auto-generated documentation stub for function `ComposeWaveListsFromWaveNotes`.
 GetStackNamesFromNote(WAVE wref)
 ```
 
-Description of GetStackNamesFromNote.
+Return stack names from note.
 
-Auto-generated documentation stub for function `GetStackNamesFromNote`.
+Get the stings with the pathnames of all layers stacked in wave.
 
 ### Parameters
 
-- `wref` *(Parameter)*: wref.
+- `wref` *(Wave)*: Input wave.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting name, or an empty string when no match is available.
 
 
 ## `SetStackNamesInNote`
@@ -454,20 +510,21 @@ Auto-generated documentation stub for function `GetStackNamesFromNote`.
 SetStackNamesInNote(WAVE wref, string waveNamesList,[string listSepI,string listSepW])
 ```
 
-Description of SetStackNamesInNote.
+Set stack names in note.
 
-Auto-generated documentation stub for function `SetStackNamesInNote`.
+Add list of stacked waves to wRef. Special listSep=";" as by default most functions send lists with ";"
+sep. listSepI: sep the indices (usually ";").
 
 ### Parameters
 
-- `wref` *(Parameter)*: wref.
-- `waveNamesList` *(Parameter)*: waveNamesList.
-- `listSepI` *(Parameter)*: listSepI.
-- `listSepW]` *(Parameter)*: listSepW].
+- `wref` *(Wave)*: Input wave.
+- `waveNamesList` *(String)*: Wave used by the operation.
+- `listSepI` *(String, optional)*: Delimiter used by the input list.
+- `listSepW` *(String, optional)*: Delimiter used by the wave-name list.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `StackNamesInNoteStr`
@@ -478,18 +535,18 @@ Auto-generated documentation stub for function `SetStackNamesInNote`.
 StackNamesInNoteStr(string waveNamesList,[string listSep])
 ```
 
-Description of StackNamesInNoteStr.
+Format a stack's source-wave names for storage in a wave note.
 
-Auto-generated documentation stub for function `StackNamesInNoteStr`.
+Add list of stacked waves to wRef NB. indices sep is ";", waveNameList is "\n".
 
 ### Parameters
 
-- `waveNamesList` *(Parameter)*: waveNamesList.
-- `listSep]` *(Parameter)*: listSep].
+- `waveNamesList` *(String)*: Wave used by the operation.
+- `listSep` *(String, optional)*: Delimiter used by the input or output list.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting name, or an empty string when no match is available.
 
 
 ## `GetStackNamesForWaveNote`
@@ -500,21 +557,22 @@ Auto-generated documentation stub for function `StackNamesInNoteStr`.
 GetStackNamesForWaveNote(WAVE wRef, int op, [string rangeStr, string wlist, string noteStr])
 ```
 
-Description of GetStackNamesForWaveNote.
+Return stack names for wave note.
 
-Auto-generated documentation stub for function `GetStackNamesForWaveNote`.
+Add/remove layer names in wave note, update the note in wRef rangeStr can be "2-5,7,9-12,50" expand a
+string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50".
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `op` *(Parameter)*: op.
-- `rangeStr` *(Parameter)*: rangeStr.
-- `wlist` *(Parameter)*: wlist.
-- `noteStr]` *(Parameter)*: noteStr].
+- `wRef` *(Wave)*: Input wave.
+- `op` *(Integer)*: Operation selector.
+- `rangeStr` *(String, optional)*: Range str.
+- `wlist` *(String, optional)*: List of wave names.
+- `noteStr` *(String, optional)*: Text containing the note str.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting name, or an empty string when no match is available.
 
 
 ## `UpdateStackWaveNote`
@@ -525,19 +583,42 @@ Auto-generated documentation stub for function `GetStackNamesForWaveNote`.
 UpdateStackWaveNote(WAVE wRef, int op, [string rangeStr, string wlist, string noteStr, string explicitWaveList])
 ```
 
-Description of UpdateStackWaveNote.
+Update stack wave note.
 
-Auto-generated documentation stub for function `UpdateStackWaveNote`.
+Add/remove layer names in wave note, update the note in wRef rangeStr can be "2-5,7,9-12,50" expand a
+string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50".
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `op` *(Parameter)*: op.
-- `rangeStr` *(Parameter)*: rangeStr.
-- `wlist` *(Parameter)*: wlist.
-- `noteStr` *(Parameter)*: noteStr.
-- `explicitWaveList]` *(Parameter)*: explicitWaveList].
+- `wRef` *(Wave)*: Input wave.
+- `op` *(Integer)*: Operation selector.
+- `rangeStr` *(String, optional)*: Range str.
+- `wlist` *(String, optional)*: List of wave names.
+- `noteStr` *(String, optional)*: Text containing the note str.
+- `explicitWaveList` *(String, optional)*: Wave used by the operation.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
+
+
+## `RandomSampleStringList`
+
+**Signature**
+
+```igorpro
+RandomSampleStringList(string list, variable sampleN)
+```
+
+Select a random sample from a string list without replacement.
+
+Removes each selected item from the candidate list so an item cannot be chosen twice.
+
+### Parameters
+
+- `list` *(String)*: Input string list.
+- `sampleN` *(Variable)*: Number of items to select.
+
+### Returns
+
+- **String**: A semicolon-separated sample, or an empty string if `sampleN` exceeds the list length.

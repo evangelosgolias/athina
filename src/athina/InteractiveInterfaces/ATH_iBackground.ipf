@@ -38,11 +38,10 @@
 /// related to ATH iBackground functionality.
 
 /// @function CreatelPanel
-/// @brief Description of CreatelPanel.
+/// @brief Create the interactive background-removal panel.
 /// @details
-/// Auto-generated documentation stub for function `CreatelPanel`.
-/// @returns Variable Return value.
-
+/// Check if you have already created the panel. We need a 2d or 3d wave. Duplicate the wave for backup.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function CreatelPanel()
 	
 	string winNameStr = WinName(0, 1, 1)
@@ -112,12 +111,11 @@ static Function CreatelPanel()
 End
 
 /// @function GraphHookFunction
-/// @brief Description of GraphHookFunction.
+/// @brief Handle panel hook events.
 /// @details
-/// Auto-generated documentation stub for function `GraphHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Restore wave scaling here as ImageTransform works better with non-scaled waves.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	variable hookresult = 0
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImageBackgroundRemovalFolder"))
@@ -142,12 +140,12 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 End
 
 /// @function PanelHookFunction
-/// @brief Description of PanelHookFunction.
+/// @brief Handle panel hook events.
 /// @details
-/// Auto-generated documentation stub for function `PanelHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Cleanup when window is closed. Restore wave scaling here as ImageTransform works better with non-scaled
+/// waves CopyScales/I $gATH_wRefBackupPathNameStr, $gATH_wRefPathNameStr.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 	//Cleanup when window is closed
 	variable hookresult = 0
@@ -168,12 +166,11 @@ static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 End
 
 /// @function OverwriteAndCloseButton
-/// @brief Description of OverwriteAndCloseButton.
+/// @brief Handle the overwrite and close button action.
 /// @details
-/// Auto-generated documentation stub for function `OverwriteAndCloseButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function OverwriteAndCloseButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -191,12 +188,11 @@ static Function OverwriteAndCloseButton(STRUCT WMButtonAction &B_Struct): Button
 End
 
 /// @function RemoveBackgroundButton
-/// @brief Description of RemoveBackgroundButton.
+/// @brief Handle the remove background button action.
 /// @details
-/// Auto-generated documentation stub for function `RemoveBackgroundButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function RemoveBackgroundButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch

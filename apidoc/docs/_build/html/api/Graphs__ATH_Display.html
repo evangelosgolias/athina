@@ -49,10 +49,12 @@
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_Transform.html">ATH_Transform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XMCD.html">ATH_XMCD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XPSBackgroundRemoval.html">ATH_XPSBackgroundRemoval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Constants.html">ATH_Constants</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Dialog.html">ATH_Dialog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Launch.html">ATH_Launch</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Menus.html">ATH_Menus</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Datasets__ATH_XPSData.html">ATH_XPSData</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Asylum.html">ATH_Asylum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Beamtime.html">ATH_Beamtime</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Export.html">ATH_Export_Repeat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_HDF5.html">ATH_HDF5</a></li>
@@ -61,29 +63,39 @@
 <li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Color.html">ATH_Color</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Graphs__ATH_Cursors.html">ATH_Cursors</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ATH_Display</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#displayhookfunction"><code class="docutils literal notranslate"><span class="pre">DisplayHookFunction</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#newimg"><code class="docutils literal notranslate"><span class="pre">NewImg</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#returns">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#append3dimageslider"><code class="docutils literal notranslate"><span class="pre">Append3DImageSlider</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#displayhookfunction"><code class="docutils literal notranslate"><span class="pre">DisplayHookFunction</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id1">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id2">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#newimgsliderhook"><code class="docutils literal notranslate"><span class="pre">NewImgSliderHook</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#append3dimageslider"><code class="docutils literal notranslate"><span class="pre">Append3DImageSlider</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id3">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id4">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#imageslidersetvar"><code class="docutils literal notranslate"><span class="pre">ImageSliderSetVar</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#newimgsliderhook"><code class="docutils literal notranslate"><span class="pre">NewImgSliderHook</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id5">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id6">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#restartw3dimageslider"><code class="docutils literal notranslate"><span class="pre">RestartW3DImageSlider</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#imageslidersetvar"><code class="docutils literal notranslate"><span class="pre">ImageSliderSetVar</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id7">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id8">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mangify"><code class="docutils literal notranslate"><span class="pre">Mangify</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#restartw3dimageslider"><code class="docutils literal notranslate"><span class="pre">RestartW3DImageSlider</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Returns</a></li>
 </ul>
 </li>
 </ul>
@@ -151,140 +163,194 @@
 related to ATH Display functionality.</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#displayhookfunction" id="id9"><code class="docutils literal notranslate"><span class="pre">DisplayHookFunction</span></code></a></p>
+<li><p><a class="reference internal" href="#newimg" id="id13"><code class="docutils literal notranslate"><span class="pre">NewImg</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#parameters" id="id10">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#returns" id="id11">Returns</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id14">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#returns" id="id15">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#append3dimageslider" id="id12"><code class="docutils literal notranslate"><span class="pre">Append3DImageSlider</span></code></a></p>
+<li><p><a class="reference internal" href="#displayhookfunction" id="id16"><code class="docutils literal notranslate"><span class="pre">DisplayHookFunction</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id1" id="id13">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id2" id="id14">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id1" id="id17">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id18">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#newimgsliderhook" id="id15"><code class="docutils literal notranslate"><span class="pre">NewImgSliderHook</span></code></a></p>
+<li><p><a class="reference internal" href="#append3dimageslider" id="id19"><code class="docutils literal notranslate"><span class="pre">Append3DImageSlider</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id3" id="id16">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id4" id="id17">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id20">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id21">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#imageslidersetvar" id="id18"><code class="docutils literal notranslate"><span class="pre">ImageSliderSetVar</span></code></a></p>
+<li><p><a class="reference internal" href="#newimgsliderhook" id="id22"><code class="docutils literal notranslate"><span class="pre">NewImgSliderHook</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id5" id="id19">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id6" id="id20">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id23">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id6" id="id24">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#restartw3dimageslider" id="id21"><code class="docutils literal notranslate"><span class="pre">RestartW3DImageSlider</span></code></a></p>
+<li><p><a class="reference internal" href="#imageslidersetvar" id="id25"><code class="docutils literal notranslate"><span class="pre">ImageSliderSetVar</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id7" id="id22">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id8" id="id23">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id7" id="id26">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id8" id="id27">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#mangify" id="id28"><code class="docutils literal notranslate"><span class="pre">Mangify</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id9" id="id29">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id10" id="id30">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#restartw3dimageslider" id="id31"><code class="docutils literal notranslate"><span class="pre">RestartW3DImageSlider</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id11" id="id32">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id12" id="id33">Returns</a></p></li>
 </ul>
 </li>
 </ul>
 </nav>
+<section id="newimg">
+<h2><a class="toc-backref" href="#id13" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">NewImg</span></code></a><a class="headerlink" href="#newimg" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>NewImg(<span class="kt">WAVE</span><span class="w"> </span>wRef,<span class="w"> </span>[<span class="kt">string</span><span class="w"> </span>grfname])
+</pre></div>
+</div>
+<p>Display a wave as a new image graph.</p>
+<section id="parameters">
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wRef</span></code> <em>(Wave)</em>: Input wave.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfname</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
+</ul>
+</section>
+<section id="returns">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: The name of the graph displaying the image.</p></li>
+</ul>
+</section>
+</section>
 <section id="displayhookfunction">
-<h2><a class="toc-backref" href="#id9" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">DisplayHookFunction</span></code></a><a class="headerlink" href="#displayhookfunction" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id16" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">DisplayHookFunction</span></code></a><a class="headerlink" href="#displayhookfunction" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>DisplayHookFunction(<span class="kt">STRUCT</span><span class="w"> </span>WMWinHookStruct<span class="w"> </span>&amp;s)
 </pre></div>
 </div>
-<p>Description of DisplayHookFunction.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">DisplayHookFunction</span></code>.</p>
-<section id="parameters">
-<h3><a class="toc-backref" href="#id10" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<p>Handle display hook events.</p>
+<p>31.08.2024: Deal with calls from /EXT windows. We control using the wave reference. This is patchwork, we
+need to find a more stable solution.</p>
+<section id="id1">
+<h3><a class="toc-backref" href="#id17" role="doc-backlink">Parameters</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&amp;s</span></code> <em>(Parameter)</em>: &amp;s.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMWinHookStruct)</em>: Igor action structure describing the control or window event.</p></li>
 </ul>
 </section>
-<section id="returns">
-<h3><a class="toc-backref" href="#id11" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<section id="id2">
+<h3><a class="toc-backref" href="#id18" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
 </ul>
 </section>
 </section>
 <section id="append3dimageslider">
-<h2><a class="toc-backref" href="#id12" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Append3DImageSlider</span></code></a><a class="headerlink" href="#append3dimageslider" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id19" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Append3DImageSlider</span></code></a><a class="headerlink" href="#append3dimageslider" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>Append3DImageSlider([<span class="kt">string</span><span class="w"> </span>grfName])
 </pre></div>
 </div>
-<p>Description of Append3DImageSlider.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">Append3DImageSlider</span></code>.</p>
-<section id="id1">
-<h3><a class="toc-backref" href="#id13" role="doc-backlink">Parameters</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>Append 3D image slider.</p>
+<p>Append a slider if you have a stack. Wave in top graph. Reads graph outer dimensions into V_left.</p>
+<section id="id3">
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">grfName]</span></code> <em>(Parameter)</em>: grfName].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
 </ul>
 </section>
-<section id="id2">
-<h3><a class="toc-backref" href="#id14" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<section id="id4">
+<h3><a class="toc-backref" href="#id21" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
 </ul>
 </section>
 </section>
 <section id="newimgsliderhook">
-<h2><a class="toc-backref" href="#id15" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">NewImgSliderHook</span></code></a><a class="headerlink" href="#newimgsliderhook" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id22" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">NewImgSliderHook</span></code></a><a class="headerlink" href="#newimgsliderhook" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>NewImgSliderHook(<span class="kt">STRUCT</span><span class="w"> </span>WMSliderAction<span class="w"> </span>&amp;sa)
 </pre></div>
 </div>
-<p>Description of NewImgSliderHook.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">NewImgSliderHook</span></code>.</p>
-<section id="id3">
-<h3><a class="toc-backref" href="#id16" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>Handle new image slider hook events.</p>
+<p>Creates a separate result wave, leaving the input wave available to the caller.</p>
+<section id="id5">
+<h3><a class="toc-backref" href="#id23" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&amp;sa</span></code> <em>(Parameter)</em>: &amp;sa.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sa</span></code> <em>(STRUCT WMSliderAction)</em>: Igor action structure describing the control or window event.</p></li>
 </ul>
 </section>
-<section id="id4">
-<h3><a class="toc-backref" href="#id17" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<section id="id6">
+<h3><a class="toc-backref" href="#id24" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
 </ul>
 </section>
 </section>
 <section id="imageslidersetvar">
-<h2><a class="toc-backref" href="#id18" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageSliderSetVar</span></code></a><a class="headerlink" href="#imageslidersetvar" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id25" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageSliderSetVar</span></code></a><a class="headerlink" href="#imageslidersetvar" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ImageSliderSetVar(<span class="kt">STRUCT</span><span class="w"> </span>WMSetVariableAction<span class="w"> </span>&amp;sva)
 </pre></div>
 </div>
-<p>Description of ImageSliderSetVar.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ImageSliderSetVar</span></code>.</p>
-<section id="id5">
-<h3><a class="toc-backref" href="#id19" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>Update the displayed 3D image layer from its slider control.</p>
+<p>Added 02.10.2025. End of addition.</p>
+<section id="id7">
+<h3><a class="toc-backref" href="#id26" role="doc-backlink">Parameters</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&amp;sva</span></code> <em>(Parameter)</em>: &amp;sva.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sva</span></code> <em>(STRUCT WMSetVariableAction)</em>: Igor action structure describing the control or window event.</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3><a class="toc-backref" href="#id20" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="id8">
+<h3><a class="toc-backref" href="#id27" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
+</ul>
+</section>
+</section>
+<section id="mangify">
+<h2><a class="toc-backref" href="#id28" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Mangify</span></code></a><a class="headerlink" href="#mangify" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>Mangify(<span class="kt">STRUCT</span><span class="w"> </span>WMWinHookStruct<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Magnify the active graph around the cursor position.</p>
+<section id="id9">
+<h3><a class="toc-backref" href="#id29" role="doc-backlink">Parameters</a><a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMWinHookStruct)</em>: Igor action structure describing the control or window event.</p></li>
+</ul>
+</section>
+<section id="id10">
+<h3><a class="toc-backref" href="#id30" role="doc-backlink">Returns</a><a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="restartw3dimageslider">
-<h2><a class="toc-backref" href="#id21" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">RestartW3DImageSlider</span></code></a><a class="headerlink" href="#restartw3dimageslider" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id31" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">RestartW3DImageSlider</span></code></a><a class="headerlink" href="#restartw3dimageslider" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>RestartW3DImageSlider([<span class="kt">string</span><span class="w"> </span>grfName])
 </pre></div>
 </div>
-<p>Description of RestartW3DImageSlider.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">RestartW3DImageSlider</span></code>.</p>
-<section id="id7">
-<h3><a class="toc-backref" href="#id22" role="doc-backlink">Parameters</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>Recreate the layer slider for a displayed 3D wave.</p>
+<p>Of changes in the source 3d wave.</p>
+<section id="id11">
+<h3><a class="toc-backref" href="#id32" role="doc-backlink">Parameters</a><a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">grfName]</span></code> <em>(Parameter)</em>: grfName].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
 </ul>
 </section>
-<section id="id8">
-<h3><a class="toc-backref" href="#id23" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<section id="id12">
+<h3><a class="toc-backref" href="#id33" role="doc-backlink">Returns</a><a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
 </ul>
 </section>
 </section>

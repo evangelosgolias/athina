@@ -49,6 +49,7 @@
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_Transform.html">ATH_Transform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XMCD.html">ATH_XMCD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XPSBackgroundRemoval.html">ATH_XPSBackgroundRemoval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Constants.html">ATH_Constants</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Dialog.html">ATH_Dialog</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ATH_Launch</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#browseractiondoxmdc"><code class="docutils literal notranslate"><span class="pre">BrowserActionDoXMDC</span></code></a><ul>
@@ -100,7 +101,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#id11">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#imagestackalignmentpartition"><code class="docutils literal notranslate"><span class="pre">ImageStackAlignmentPartition</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#imagestackalignmentusingafeature"><code class="docutils literal notranslate"><span class="pre">ImageStackAlignmentUsingAFeature</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id12">Returns</a></li>
 </ul>
 </li>
@@ -140,11 +141,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#id21">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#stackimagestoimagestack"><code class="docutils literal notranslate"><span class="pre">StackImagesToImageStack</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id22">Returns</a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="#insertimagestostack"><code class="docutils literal notranslate"><span class="pre">InsertImagesToStack</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id22">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id23">Returns</a></li>
 </ul>
 </li>
@@ -223,64 +221,96 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#flattenimage"><code class="docutils literal notranslate"><span class="pre">FlattenImage</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id44">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id45">Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id44">Returns</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#saveaxesrangeandctab"><code class="docutils literal notranslate"><span class="pre">SaveAxesRangeAndCtab</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id46">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id47">Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id45">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id46">Returns</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#setaxesrangeandctabfromsaved"><code class="docutils literal notranslate"><span class="pre">SetAxesRangeAndCtabFromSaved</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id48">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id49">Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id47">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id48">Returns</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#histogramequalisation"><code class="docutils literal notranslate"><span class="pre">HistogramEqualisation</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id50">Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id49">Returns</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#closetopwindowanddeletesource"><code class="docutils literal notranslate"><span class="pre">CloseTopWindowAndDeleteSource</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id51">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id52">Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id50">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id51">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#mirrorpositiontowavevalues"><code class="docutils literal notranslate"><span class="pre">MirrorPositionToWaveValues</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#deletebackupwave"><code class="docutils literal notranslate"><span class="pre">DeleteBackupWave</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id52">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id53">Returns</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#mirrorpositiontowavevalues"><code class="docutils literal notranslate"><span class="pre">MirrorPositionToWaveValues</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id54">Returns</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#drawsavedroiongraph"><code class="docutils literal notranslate"><span class="pre">DrawSavedROIOnGraph</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id54">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id55">Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id55">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id56">Returns</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#iimgfftfilter"><code class="docutils literal notranslate"><span class="pre">iImgFFTFilter</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id56">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id57">Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id57">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id58">Returns</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#unpackstacktosources"><code class="docutils literal notranslate"><span class="pre">UnpackStackToSources</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id58">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id59">Returns</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#imageresample"><code class="docutils literal notranslate"><span class="pre">ImageResample</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id59">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id60">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#setcorrectedfovimages"><code class="docutils literal notranslate"><span class="pre">SetCorrectedFoVImages</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#imageresample"><code class="docutils literal notranslate"><span class="pre">ImageResample</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id61">Returns</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#drawscalebar"><code class="docutils literal notranslate"><span class="pre">DrawScaleBar</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id62">Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id62">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id63">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#imagezscore"><code class="docutils literal notranslate"><span class="pre">ImageZScore</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id64">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id65">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#setrangeandctabforallgraphsinspace"><code class="docutils literal notranslate"><span class="pre">SetRangeAndCTabForAllGraphsInSpace</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id66">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id67">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#applyedgedetectioncommandtostack"><code class="docutils literal notranslate"><span class="pre">ApplyEdgeDetectionCommandToStack</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id68">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id69">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#imagefilter3d"><code class="docutils literal notranslate"><span class="pre">ImageFilter3D</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id70">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id71">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#imagesmooth3d"><code class="docutils literal notranslate"><span class="pre">ImageSmooth3D</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id72">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id73">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#smoothwave"><code class="docutils literal notranslate"><span class="pre">SmoothWave</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id74">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id75">Returns</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Menus.html">ATH_Menus</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Datasets__ATH_XPSData.html">ATH_XPSData</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Asylum.html">ATH_Asylum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Beamtime.html">ATH_Beamtime</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Export.html">ATH_Export_Repeat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_HDF5.html">ATH_HDF5</a></li>
@@ -352,1165 +382,1295 @@
 related to ATH Launch functionality.</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#browseractiondoxmdc" id="id63"><code class="docutils literal notranslate"><span class="pre">BrowserActionDoXMDC</span></code></a></p>
+<li><p><a class="reference internal" href="#browseractiondoxmdc" id="id76"><code class="docutils literal notranslate"><span class="pre">BrowserActionDoXMDC</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#returns" id="id64">Returns</a></p></li>
+<li><p><a class="reference internal" href="#returns" id="id77">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#browseractionmakestack" id="id65"><code class="docutils literal notranslate"><span class="pre">BrowserActionMakeStack</span></code></a></p>
+<li><p><a class="reference internal" href="#browseractionmakestack" id="id78"><code class="docutils literal notranslate"><span class="pre">BrowserActionMakeStack</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id1" id="id66">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id1" id="id79">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#make3dwaveusingpattern" id="id67"><code class="docutils literal notranslate"><span class="pre">Make3DWaveUsingPattern</span></code></a></p>
+<li><p><a class="reference internal" href="#make3dwaveusingpattern" id="id80"><code class="docutils literal notranslate"><span class="pre">Make3DWaveUsingPattern</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id2" id="id68">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id81">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#make3dwavedatabrowserselection" id="id69"><code class="docutils literal notranslate"><span class="pre">Make3DWaveDataBrowserSelection</span></code></a></p>
+<li><p><a class="reference internal" href="#make3dwavedatabrowserselection" id="id82"><code class="docutils literal notranslate"><span class="pre">Make3DWaveDataBrowserSelection</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#parameters" id="id70">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id3" id="id71">Returns</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id83">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id84">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#loadhdf5groupsfromfile" id="id72"><code class="docutils literal notranslate"><span class="pre">LoadHDF5GroupsFromFile</span></code></a></p>
+<li><p><a class="reference internal" href="#loadhdf5groupsfromfile" id="id85"><code class="docutils literal notranslate"><span class="pre">LoadHDF5GroupsFromFile</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id4" id="id73">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id86">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#averagestacktoimagefrommenu" id="id74"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromMenu</span></code></a></p>
+<li><p><a class="reference internal" href="#averagestacktoimagefrommenu" id="id87"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromMenu</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id5" id="id75">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id88">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#averagestacktoimagefromtracemenu" id="id76"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromTraceMenu</span></code></a></p>
+<li><p><a class="reference internal" href="#averagestacktoimagefromtracemenu" id="id89"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromTraceMenu</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id6" id="id77">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id6" id="id90">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#averagestacktoimagefrombrowsermenu" id="id78"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromBrowserMenu</span></code></a></p>
+<li><p><a class="reference internal" href="#averagestacktoimagefrombrowsermenu" id="id91"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromBrowserMenu</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id7" id="id79">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id7" id="id92">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#calculatexmcdfromstack" id="id80"><code class="docutils literal notranslate"><span class="pre">CalculateXMCDFromStack</span></code></a></p>
+<li><p><a class="reference internal" href="#calculatexmcdfromstack" id="id93"><code class="docutils literal notranslate"><span class="pre">CalculateXMCDFromStack</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id8" id="id81">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id8" id="id94">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#calculationxmcd" id="id82"><code class="docutils literal notranslate"><span class="pre">CalculationXMCD</span></code></a></p>
+<li><p><a class="reference internal" href="#calculationxmcd" id="id95"><code class="docutils literal notranslate"><span class="pre">CalculationXMCD</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id9" id="id83">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id9" id="id96">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#calculationxmcd3d" id="id84"><code class="docutils literal notranslate"><span class="pre">CalculationXMCD3D</span></code></a></p>
+<li><p><a class="reference internal" href="#calculationxmcd3d" id="id97"><code class="docutils literal notranslate"><span class="pre">CalculationXMCD3D</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id10" id="id85">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id10" id="id98">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#imageregistrationstack" id="id86"><code class="docutils literal notranslate"><span class="pre">ImageRegistrationStack</span></code></a></p>
+<li><p><a class="reference internal" href="#imageregistrationstack" id="id99"><code class="docutils literal notranslate"><span class="pre">ImageRegistrationStack</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id11" id="id87">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id11" id="id100">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#imagestackalignmentpartition" id="id88"><code class="docutils literal notranslate"><span class="pre">ImageStackAlignmentPartition</span></code></a></p>
+<li><p><a class="reference internal" href="#imagestackalignmentusingafeature" id="id101"><code class="docutils literal notranslate"><span class="pre">ImageStackAlignmentUsingAFeature</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id12" id="id89">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id12" id="id102">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#lineardriftcorrestionstackabcursors" id="id90"><code class="docutils literal notranslate"><span class="pre">LinearDriftCorrestionStackABCursors</span></code></a></p>
+<li><p><a class="reference internal" href="#lineardriftcorrestionstackabcursors" id="id103"><code class="docutils literal notranslate"><span class="pre">LinearDriftCorrestionStackABCursors</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id13" id="id91">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id13" id="id104">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#lineardriftcorrestionplanesabcursors" id="id92"><code class="docutils literal notranslate"><span class="pre">LinearDriftCorrestionPlanesABCursors</span></code></a></p>
+<li><p><a class="reference internal" href="#lineardriftcorrestionplanesabcursors" id="id105"><code class="docutils literal notranslate"><span class="pre">LinearDriftCorrestionPlanesABCursors</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id14" id="id93">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id14" id="id106">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#newimagefrombrowserselection" id="id94"><code class="docutils literal notranslate"><span class="pre">NewImageFromBrowserSelection</span></code></a></p>
+<li><p><a class="reference internal" href="#newimagefrombrowserselection" id="id107"><code class="docutils literal notranslate"><span class="pre">NewImageFromBrowserSelection</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id15" id="id95">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id15" id="id108">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#imagebackupfrombrowserselection" id="id96"><code class="docutils literal notranslate"><span class="pre">ImageBackupFromBrowserSelection</span></code></a></p>
+<li><p><a class="reference internal" href="#imagebackupfrombrowserselection" id="id109"><code class="docutils literal notranslate"><span class="pre">ImageBackupFromBrowserSelection</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id16" id="id97">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id16" id="id110">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#xpsprofilefromdefaultsettings" id="id98"><code class="docutils literal notranslate"><span class="pre">XPSProfileFromDefaultSettings</span></code></a></p>
+<li><p><a class="reference internal" href="#xpsprofilefromdefaultsettings" id="id111"><code class="docutils literal notranslate"><span class="pre">XPSProfileFromDefaultSettings</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id17" id="id99">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id17" id="id112">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#normalisationimagestackwithimage" id="id100"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithImage</span></code></a></p>
+<li><p><a class="reference internal" href="#normalisationimagestackwithimage" id="id113"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithImage</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id18" id="id101">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id18" id="id114">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#normalisationimagestackwithprofile" id="id102"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithProfile</span></code></a></p>
+<li><p><a class="reference internal" href="#normalisationimagestackwithprofile" id="id115"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithProfile</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id19" id="id103">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id19" id="id116">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#normalisationimagestackwithimagestack" id="id104"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithImageStack</span></code></a></p>
+<li><p><a class="reference internal" href="#normalisationimagestackwithimagestack" id="id117"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithImageStack</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id20" id="id105">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id20" id="id118">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#removeimagesfromimagestack" id="id106"><code class="docutils literal notranslate"><span class="pre">RemoveImagesFromImageStack</span></code></a></p>
+<li><p><a class="reference internal" href="#removeimagesfromimagestack" id="id119"><code class="docutils literal notranslate"><span class="pre">RemoveImagesFromImageStack</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id21" id="id107">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id21" id="id120">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#stackimagestoimagestack" id="id108"><code class="docutils literal notranslate"><span class="pre">StackImagesToImageStack</span></code></a></p>
+<li><p><a class="reference internal" href="#insertimagestostack" id="id121"><code class="docutils literal notranslate"><span class="pre">InsertImagesToStack</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id22" id="id109">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id22" id="id122">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id23" id="id123">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#insertimagestostack" id="id110"><code class="docutils literal notranslate"><span class="pre">InsertImagesToStack</span></code></a></p>
+<li><p><a class="reference internal" href="#imgrgb2gray16" id="id124"><code class="docutils literal notranslate"><span class="pre">ImgRGB2Gray16</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id23" id="id111">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id24" id="id125">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#imgrgb2gray16" id="id112"><code class="docutils literal notranslate"><span class="pre">ImgRGB2Gray16</span></code></a></p>
+<li><p><a class="reference internal" href="#rotate3dwaveaxes" id="id126"><code class="docutils literal notranslate"><span class="pre">Rotate3DWaveAxes</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id24" id="id113">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id25" id="id127">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#rotate3dwaveaxes" id="id114"><code class="docutils literal notranslate"><span class="pre">Rotate3DWaveAxes</span></code></a></p>
+<li><p><a class="reference internal" href="#imagerotateandscalefrommetadata" id="id128"><code class="docutils literal notranslate"><span class="pre">ImageRotateAndScaleFromMetadata</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id25" id="id115">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id26" id="id129">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#imagerotateandscalefrommetadata" id="id116"><code class="docutils literal notranslate"><span class="pre">ImageRotateAndScaleFromMetadata</span></code></a></p>
+<li><p><a class="reference internal" href="#imageffttransform" id="id130"><code class="docutils literal notranslate"><span class="pre">ImageFFTTransform</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id26" id="id117">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id27" id="id131">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id28" id="id132">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#imageffttransform" id="id118"><code class="docutils literal notranslate"><span class="pre">ImageFFTTransform</span></code></a></p>
+<li><p><a class="reference internal" href="#averagelayersrange" id="id133"><code class="docutils literal notranslate"><span class="pre">AverageLayersRange</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id27" id="id119">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id28" id="id120">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id29" id="id134">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#averagelayersrange" id="id121"><code class="docutils literal notranslate"><span class="pre">AverageLayersRange</span></code></a></p>
+<li><p><a class="reference internal" href="#extractlayerrangetostack" id="id135"><code class="docutils literal notranslate"><span class="pre">ExtractLayerRangeToStack</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id29" id="id122">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id30" id="id136">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#extractlayerrangetostack" id="id123"><code class="docutils literal notranslate"><span class="pre">ExtractLayerRangeToStack</span></code></a></p>
+<li><p><a class="reference internal" href="#flipstackplanes" id="id137"><code class="docutils literal notranslate"><span class="pre">FlipStackPlanes</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id30" id="id124">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id31" id="id138">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#flipstackplanes" id="id125"><code class="docutils literal notranslate"><span class="pre">FlipStackPlanes</span></code></a></p>
+<li><p><a class="reference internal" href="#averageimagestack" id="id139"><code class="docutils literal notranslate"><span class="pre">AverageImageStack</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id31" id="id126">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id32" id="id140">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#averageimagestack" id="id127"><code class="docutils literal notranslate"><span class="pre">AverageImageStack</span></code></a></p>
+<li><p><a class="reference internal" href="#histogramshifttogaussiancenter" id="id141"><code class="docutils literal notranslate"><span class="pre">HistogramShiftToGaussianCenter</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id32" id="id128">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id33" id="id142">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#histogramshifttogaussiancenter" id="id129"><code class="docutils literal notranslate"><span class="pre">HistogramShiftToGaussianCenter</span></code></a></p>
+<li><p><a class="reference internal" href="#twotracecalcs" id="id143"><code class="docutils literal notranslate"><span class="pre">TwoTraceCalcs</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id33" id="id130">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id34" id="id144">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#twotracecalcs" id="id131"><code class="docutils literal notranslate"><span class="pre">TwoTraceCalcs</span></code></a></p>
+<li><p><a class="reference internal" href="#quicktextannotation" id="id145"><code class="docutils literal notranslate"><span class="pre">QuickTextAnnotation</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id34" id="id132">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id35" id="id146">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#quicktextannotation" id="id133"><code class="docutils literal notranslate"><span class="pre">QuickTextAnnotation</span></code></a></p>
+<li><p><a class="reference internal" href="#makewavefromsavedroi" id="id147"><code class="docutils literal notranslate"><span class="pre">MakeWaveFromSavedROI</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id35" id="id134">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id36" id="id148">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#makewavefromsavedroi" id="id135"><code class="docutils literal notranslate"><span class="pre">MakeWaveFromSavedROI</span></code></a></p>
+<li><p><a class="reference internal" href="#xmcdcombinations" id="id149"><code class="docutils literal notranslate"><span class="pre">XMCDCombinations</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id36" id="id136">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id37" id="id150">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#xmcdcombinations" id="id137"><code class="docutils literal notranslate"><span class="pre">XMCDCombinations</span></code></a></p>
+<li><p><a class="reference internal" href="#deletebigwaves" id="id151"><code class="docutils literal notranslate"><span class="pre">DeleteBigWaves</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id37" id="id138">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id38" id="id152">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#deletebigwaves" id="id139"><code class="docutils literal notranslate"><span class="pre">DeleteBigWaves</span></code></a></p>
+<li><p><a class="reference internal" href="#deletebigwavesdisplayed" id="id153"><code class="docutils literal notranslate"><span class="pre">DeleteBigWavesDisplayed</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id38" id="id140">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id39" id="id154">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#deletebigwavesdisplayed" id="id141"><code class="docutils literal notranslate"><span class="pre">DeleteBigWavesDisplayed</span></code></a></p>
+<li><p><a class="reference internal" href="#pixelatesingleimageorstack" id="id155"><code class="docutils literal notranslate"><span class="pre">PixelateSingleImageOrStack</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id39" id="id142">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id40" id="id156">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#pixelatesingleimageorstack" id="id143"><code class="docutils literal notranslate"><span class="pre">PixelateSingleImageOrStack</span></code></a></p>
+<li><p><a class="reference internal" href="#settopgraphdf" id="id157"><code class="docutils literal notranslate"><span class="pre">SetTopGraphDF</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id40" id="id144">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id41" id="id158">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#settopgraphdf" id="id145"><code class="docutils literal notranslate"><span class="pre">SetTopGraphDF</span></code></a></p>
+<li><p><a class="reference internal" href="#imgremovebackground" id="id159"><code class="docutils literal notranslate"><span class="pre">ImgRemoveBackground</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id41" id="id146">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id42" id="id160">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id43" id="id161">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#imgremovebackground" id="id147"><code class="docutils literal notranslate"><span class="pre">ImgRemoveBackground</span></code></a></p>
+<li><p><a class="reference internal" href="#flattenimage" id="id162"><code class="docutils literal notranslate"><span class="pre">FlattenImage</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id42" id="id148">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id43" id="id149">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id44" id="id163">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#flattenimage" id="id150"><code class="docutils literal notranslate"><span class="pre">FlattenImage</span></code></a></p>
+<li><p><a class="reference internal" href="#saveaxesrangeandctab" id="id164"><code class="docutils literal notranslate"><span class="pre">SaveAxesRangeAndCtab</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id44" id="id151">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id45" id="id152">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id45" id="id165">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id46" id="id166">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#saveaxesrangeandctab" id="id153"><code class="docutils literal notranslate"><span class="pre">SaveAxesRangeAndCtab</span></code></a></p>
+<li><p><a class="reference internal" href="#setaxesrangeandctabfromsaved" id="id167"><code class="docutils literal notranslate"><span class="pre">SetAxesRangeAndCtabFromSaved</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id46" id="id154">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id47" id="id155">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id47" id="id168">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id48" id="id169">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#setaxesrangeandctabfromsaved" id="id156"><code class="docutils literal notranslate"><span class="pre">SetAxesRangeAndCtabFromSaved</span></code></a></p>
+<li><p><a class="reference internal" href="#histogramequalisation" id="id170"><code class="docutils literal notranslate"><span class="pre">HistogramEqualisation</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id48" id="id157">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id49" id="id158">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id49" id="id171">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#histogramequalisation" id="id159"><code class="docutils literal notranslate"><span class="pre">HistogramEqualisation</span></code></a></p>
+<li><p><a class="reference internal" href="#closetopwindowanddeletesource" id="id172"><code class="docutils literal notranslate"><span class="pre">CloseTopWindowAndDeleteSource</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id50" id="id160">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id50" id="id173">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id51" id="id174">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#closetopwindowanddeletesource" id="id161"><code class="docutils literal notranslate"><span class="pre">CloseTopWindowAndDeleteSource</span></code></a></p>
+<li><p><a class="reference internal" href="#deletebackupwave" id="id175"><code class="docutils literal notranslate"><span class="pre">DeleteBackupWave</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id51" id="id162">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id52" id="id163">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id52" id="id176">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id53" id="id177">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#mirrorpositiontowavevalues" id="id164"><code class="docutils literal notranslate"><span class="pre">MirrorPositionToWaveValues</span></code></a></p>
+<li><p><a class="reference internal" href="#mirrorpositiontowavevalues" id="id178"><code class="docutils literal notranslate"><span class="pre">MirrorPositionToWaveValues</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id53" id="id165">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id54" id="id179">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#drawsavedroiongraph" id="id166"><code class="docutils literal notranslate"><span class="pre">DrawSavedROIOnGraph</span></code></a></p>
+<li><p><a class="reference internal" href="#drawsavedroiongraph" id="id180"><code class="docutils literal notranslate"><span class="pre">DrawSavedROIOnGraph</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id54" id="id167">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id55" id="id168">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id55" id="id181">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id56" id="id182">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#iimgfftfilter" id="id169"><code class="docutils literal notranslate"><span class="pre">iImgFFTFilter</span></code></a></p>
+<li><p><a class="reference internal" href="#iimgfftfilter" id="id183"><code class="docutils literal notranslate"><span class="pre">iImgFFTFilter</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id56" id="id170">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id57" id="id171">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id57" id="id184">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id58" id="id185">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#unpackstacktosources" id="id172"><code class="docutils literal notranslate"><span class="pre">UnpackStackToSources</span></code></a></p>
+<li><p><a class="reference internal" href="#unpackstacktosources" id="id186"><code class="docutils literal notranslate"><span class="pre">UnpackStackToSources</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id58" id="id173">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id59" id="id174">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id59" id="id187">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id60" id="id188">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#imageresample" id="id175"><code class="docutils literal notranslate"><span class="pre">ImageResample</span></code></a></p>
+<li><p><a class="reference internal" href="#imageresample" id="id189"><code class="docutils literal notranslate"><span class="pre">ImageResample</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id60" id="id176">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id61" id="id190">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#setcorrectedfovimages" id="id177"><code class="docutils literal notranslate"><span class="pre">SetCorrectedFoVImages</span></code></a></p>
+<li><p><a class="reference internal" href="#drawscalebar" id="id191"><code class="docutils literal notranslate"><span class="pre">DrawScaleBar</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id61" id="id178">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id62" id="id192">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id63" id="id193">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#drawscalebar" id="id179"><code class="docutils literal notranslate"><span class="pre">DrawScaleBar</span></code></a></p>
+<li><p><a class="reference internal" href="#imagezscore" id="id194"><code class="docutils literal notranslate"><span class="pre">ImageZScore</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id62" id="id180">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id64" id="id195">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id65" id="id196">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#setrangeandctabforallgraphsinspace" id="id197"><code class="docutils literal notranslate"><span class="pre">SetRangeAndCTabForAllGraphsInSpace</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id66" id="id198">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id67" id="id199">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#applyedgedetectioncommandtostack" id="id200"><code class="docutils literal notranslate"><span class="pre">ApplyEdgeDetectionCommandToStack</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id68" id="id201">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id69" id="id202">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#imagefilter3d" id="id203"><code class="docutils literal notranslate"><span class="pre">ImageFilter3D</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id70" id="id204">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id71" id="id205">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#imagesmooth3d" id="id206"><code class="docutils literal notranslate"><span class="pre">ImageSmooth3D</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id72" id="id207">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id73" id="id208">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#smoothwave" id="id209"><code class="docutils literal notranslate"><span class="pre">SmoothWave</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id74" id="id210">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id75" id="id211">Returns</a></p></li>
 </ul>
 </li>
 </ul>
 </nav>
 <section id="browseractiondoxmdc">
-<h2><a class="toc-backref" href="#id63" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">BrowserActionDoXMDC</span></code></a><a class="headerlink" href="#browseractiondoxmdc" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id76" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">BrowserActionDoXMDC</span></code></a><a class="headerlink" href="#browseractiondoxmdc" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>BrowserActionDoXMDC()
 </pre></div>
 </div>
-<p>Description of BrowserActionDoXMDC.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">BrowserActionDoXMDC</span></code>.</p>
+<p>Calculate XMCD from the two waves selected in the Data Browser.</p>
 <section id="returns">
-<h3><a class="toc-backref" href="#id64" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id77" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: NaN if input validation fails; otherwise zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="browseractionmakestack">
-<h2><a class="toc-backref" href="#id65" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">BrowserActionMakeStack</span></code></a><a class="headerlink" href="#browseractionmakestack" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id78" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">BrowserActionMakeStack</span></code></a><a class="headerlink" href="#browseractionmakestack" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>BrowserActionMakeStack()
 </pre></div>
 </div>
-<p>Description of BrowserActionMakeStack.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">BrowserActionMakeStack</span></code>.</p>
+<p>Create a stack from the waves selected in the Data Browser.</p>
 <section id="id1">
-<h3><a class="toc-backref" href="#id66" role="doc-backlink">Returns</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id79" role="doc-backlink">Returns</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="make3dwaveusingpattern">
-<h2><a class="toc-backref" href="#id67" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Make3DWaveUsingPattern</span></code></a><a class="headerlink" href="#make3dwaveusingpattern" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id80" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Make3DWaveUsingPattern</span></code></a><a class="headerlink" href="#make3dwaveusingpattern" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>Make3DWaveUsingPattern()
 </pre></div>
 </div>
-<p>Description of Make3DWaveUsingPattern.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">Make3DWaveUsingPattern</span></code>.</p>
+<p>Create a 3D wave by stacking waves whose names match a pattern.</p>
 <section id="id2">
-<h3><a class="toc-backref" href="#id68" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id81" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="make3dwavedatabrowserselection">
-<h2><a class="toc-backref" href="#id69" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Make3DWaveDataBrowserSelection</span></code></a><a class="headerlink" href="#make3dwavedatabrowserselection" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id82" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Make3DWaveDataBrowserSelection</span></code></a><a class="headerlink" href="#make3dwavedatabrowserselection" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>Make3DWaveDataBrowserSelection([<span class="kt">int</span><span class="w"> </span>displayStack,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>transientStack])
 </pre></div>
 </div>
-<p>Description of Make3DWaveDataBrowserSelection.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">Make3DWaveDataBrowserSelection</span></code>.</p>
+<p>Create a 3D wave from the waves selected in the Data Browser.</p>
 <section id="parameters">
-<h3><a class="toc-backref" href="#id70" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id83" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">displayStack</span></code> <em>(Parameter)</em>: displayStack.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">transientStack]</span></code> <em>(Parameter)</em>: transientStack].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">displayStack</span></code> <em>(Integer, optional)</em>: If nonzero, display the newly assembled stack.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">transientStack</span></code> <em>(Integer, optional)</em>: If nonzero, mark the stack as temporary in the graph metadata.</p></li>
 </ul>
 </section>
 <section id="id3">
-<h3><a class="toc-backref" href="#id71" role="doc-backlink">Returns</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id84" role="doc-backlink">Returns</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero when a stack is created and displayed; one when no displayable stack is available.</p></li>
 </ul>
 </section>
 </section>
 <section id="loadhdf5groupsfromfile">
-<h2><a class="toc-backref" href="#id72" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">LoadHDF5GroupsFromFile</span></code></a><a class="headerlink" href="#loadhdf5groupsfromfile" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id85" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">LoadHDF5GroupsFromFile</span></code></a><a class="headerlink" href="#loadhdf5groupsfromfile" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>LoadHDF5GroupsFromFile()
 </pre></div>
 </div>
-<p>Description of LoadHDF5GroupsFromFile.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">LoadHDF5GroupsFromFile</span></code>.</p>
+<p>Load selected groups from an HDF5 file.</p>
 <section id="id4">
-<h3><a class="toc-backref" href="#id73" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id86" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="averagestacktoimagefrommenu">
-<h2><a class="toc-backref" href="#id74" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromMenu</span></code></a><a class="headerlink" href="#averagestacktoimagefrommenu" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id87" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromMenu</span></code></a><a class="headerlink" href="#averagestacktoimagefrommenu" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>AverageStackToImageFromMenu()
 </pre></div>
 </div>
-<p>Description of AverageStackToImageFromMenu.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromMenu</span></code>.</p>
+<p>Average a selected 3D stack into an image from a menu command.</p>
 <section id="id5">
-<h3><a class="toc-backref" href="#id75" role="doc-backlink">Returns</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id88" role="doc-backlink">Returns</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="averagestacktoimagefromtracemenu">
-<h2><a class="toc-backref" href="#id76" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromTraceMenu</span></code></a><a class="headerlink" href="#averagestacktoimagefromtracemenu" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id89" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromTraceMenu</span></code></a><a class="headerlink" href="#averagestacktoimagefromtracemenu" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>AverageStackToImageFromTraceMenu()
 </pre></div>
 </div>
-<p>Description of AverageStackToImageFromTraceMenu.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromTraceMenu</span></code>.</p>
+<p>Average the stack associated with the active trace-menu command.</p>
 <section id="id6">
-<h3><a class="toc-backref" href="#id77" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id90" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="averagestacktoimagefrombrowsermenu">
-<h2><a class="toc-backref" href="#id78" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromBrowserMenu</span></code></a><a class="headerlink" href="#averagestacktoimagefrombrowsermenu" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id91" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromBrowserMenu</span></code></a><a class="headerlink" href="#averagestacktoimagefrombrowsermenu" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>AverageStackToImageFromBrowserMenu()
 </pre></div>
 </div>
-<p>Description of AverageStackToImageFromBrowserMenu.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">AverageStackToImageFromBrowserMenu</span></code>.</p>
+<p>Average a stack selected in the Data Browser into an image.</p>
 <section id="id7">
-<h3><a class="toc-backref" href="#id79" role="doc-backlink">Returns</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id92" role="doc-backlink">Returns</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: NaN if input validation fails; otherwise zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="calculatexmcdfromstack">
-<h2><a class="toc-backref" href="#id80" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CalculateXMCDFromStack</span></code></a><a class="headerlink" href="#calculatexmcdfromstack" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id93" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CalculateXMCDFromStack</span></code></a><a class="headerlink" href="#calculatexmcdfromstack" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>CalculateXMCDFromStack()
 </pre></div>
 </div>
-<p>Description of CalculateXMCDFromStack.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">CalculateXMCDFromStack</span></code>.</p>
+<p>Calculate XMCD from a selected two-layer stack.</p>
 <section id="id8">
-<h3><a class="toc-backref" href="#id81" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id94" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: One when the requested condition or operation succeeds; otherwise zero.</p></li>
 </ul>
 </section>
 </section>
 <section id="calculationxmcd">
-<h2><a class="toc-backref" href="#id82" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CalculationXMCD</span></code></a><a class="headerlink" href="#calculationxmcd" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id95" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CalculationXMCD</span></code></a><a class="headerlink" href="#calculationxmcd" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>CalculationXMCD()
 </pre></div>
 </div>
-<p>Description of CalculationXMCD.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">CalculationXMCD</span></code>.</p>
+<p>Calculate XMCD.</p>
+<p>S_fileName is a carriage-return-separated list of full paths to one or more files. as many times as the
+dialog will be displayed. Equavalenty, it can. Set defaults.</p>
 <section id="id9">
-<h3><a class="toc-backref" href="#id83" role="doc-backlink">Returns</a><a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id96" role="doc-backlink">Returns</a><a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: The calculated calculation XMCD.</p></li>
 </ul>
 </section>
 </section>
 <section id="calculationxmcd3d">
-<h2><a class="toc-backref" href="#id84" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CalculationXMCD3D</span></code></a><a class="headerlink" href="#calculationxmcd3d" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id97" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CalculationXMCD3D</span></code></a><a class="headerlink" href="#calculationxmcd3d" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>CalculationXMCD3D()
 </pre></div>
 </div>
-<p>Description of CalculationXMCD3D.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">CalculationXMCD3D</span></code>.</p>
+<p>Calculate XMCD 3D.</p>
+<p>S_fileName is a carriage-return-separated list of full paths to one or more files. as many times as the
+dialog will be displayed. Equavalenty, it can. Set defaults.</p>
 <section id="id10">
-<h3><a class="toc-backref" href="#id85" role="doc-backlink">Returns</a><a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id98" role="doc-backlink">Returns</a><a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: The calculated calculation XMCD 3D.</p></li>
 </ul>
 </section>
 </section>
 <section id="imageregistrationstack">
-<h2><a class="toc-backref" href="#id86" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageRegistrationStack</span></code></a><a class="headerlink" href="#imageregistrationstack" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id99" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageRegistrationStack</span></code></a><a class="headerlink" href="#imageregistrationstack" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ImageRegistrationStack()
 </pre></div>
 </div>
-<p>Description of ImageRegistrationStack.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ImageRegistrationStack</span></code>.</p>
+<p>Register all layers of an image stack to a reference layer.</p>
 <section id="id11">
-<h3><a class="toc-backref" href="#id87" role="doc-backlink">Returns</a><a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id100" role="doc-backlink">Returns</a><a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: NaN if input validation fails; otherwise zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
-<section id="imagestackalignmentpartition">
-<h2><a class="toc-backref" href="#id88" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageStackAlignmentPartition</span></code></a><a class="headerlink" href="#imagestackalignmentpartition" title="Link to this heading"></a></h2>
+<section id="imagestackalignmentusingafeature">
+<h2><a class="toc-backref" href="#id101" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageStackAlignmentUsingAFeature</span></code></a><a class="headerlink" href="#imagestackalignmentusingafeature" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
-<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ImageStackAlignmentPartition()
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ImageStackAlignmentUsingAFeature()
 </pre></div>
 </div>
-<p>Description of ImageStackAlignmentPartition.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ImageStackAlignmentPartition</span></code>.</p>
+<p>Align an image stack in independently processed spatial partitions.</p>
+<p>Save drift correction parameters. Local variables only, not saved. Save settings, use zero/non-zero for
+flags.</p>
 <section id="id12">
-<h3><a class="toc-backref" href="#id89" role="doc-backlink">Returns</a><a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id102" role="doc-backlink">Returns</a><a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: NaN if input validation fails; otherwise zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="lineardriftcorrestionstackabcursors">
-<h2><a class="toc-backref" href="#id90" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">LinearDriftCorrestionStackABCursors</span></code></a><a class="headerlink" href="#lineardriftcorrestionstackabcursors" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id103" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">LinearDriftCorrestionStackABCursors</span></code></a><a class="headerlink" href="#lineardriftcorrestionstackabcursors" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>LinearDriftCorrestionStackABCursors()
 </pre></div>
 </div>
-<p>Description of LinearDriftCorrestionStackABCursors.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">LinearDriftCorrestionStackABCursors</span></code>.</p>
+<p>Correct linear stack drift from the displacement between cursors A and B.</p>
+<p>Use AB to linearly correct an image stack drift WAVE/Z wx, wy ImageInterpolate needs pixels, multiply by
+-1 to have the proper behavior in /ARPM={…}.</p>
 <section id="id13">
-<h3><a class="toc-backref" href="#id91" role="doc-backlink">Returns</a><a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id104" role="doc-backlink">Returns</a><a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="lineardriftcorrestionplanesabcursors">
-<h2><a class="toc-backref" href="#id92" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">LinearDriftCorrestionPlanesABCursors</span></code></a><a class="headerlink" href="#lineardriftcorrestionplanesabcursors" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id105" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">LinearDriftCorrestionPlanesABCursors</span></code></a><a class="headerlink" href="#lineardriftcorrestionplanesabcursors" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>LinearDriftCorrestionPlanesABCursors()
 </pre></div>
 </div>
-<p>Description of LinearDriftCorrestionPlanesABCursors.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">LinearDriftCorrestionPlanesABCursors</span></code>.</p>
+<p>Correct linear drift across selected layers using cursors A and B.</p>
+<p>Use AB to linearly correct planes in an image stack. Set the slider to the starting layer before
+launching the operation. Set cursors and the last layer using the.</p>
 <section id="id14">
-<h3><a class="toc-backref" href="#id93" role="doc-backlink">Returns</a><a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id106" role="doc-backlink">Returns</a><a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="newimagefrombrowserselection">
-<h2><a class="toc-backref" href="#id94" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">NewImageFromBrowserSelection</span></code></a><a class="headerlink" href="#newimagefrombrowserselection" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id107" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">NewImageFromBrowserSelection</span></code></a><a class="headerlink" href="#newimagefrombrowserselection" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>NewImageFromBrowserSelection()
 </pre></div>
 </div>
-<p>Description of NewImageFromBrowserSelection.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">NewImageFromBrowserSelection</span></code>.</p>
+<p>New image from browser selection.</p>
+<p>Display selected images. Verify that you did not misclicked and prevent opening many images (bummer).</p>
 <section id="id15">
-<h3><a class="toc-backref" href="#id95" role="doc-backlink">Returns</a><a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id108" role="doc-backlink">Returns</a><a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="imagebackupfrombrowserselection">
-<h2><a class="toc-backref" href="#id96" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageBackupFromBrowserSelection</span></code></a><a class="headerlink" href="#imagebackupfrombrowserselection" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id109" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageBackupFromBrowserSelection</span></code></a><a class="headerlink" href="#imagebackupfrombrowserselection" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ImageBackupFromBrowserSelection()
 </pre></div>
 </div>
-<p>Description of ImageBackupFromBrowserSelection.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ImageBackupFromBrowserSelection</span></code>.</p>
+<p>Image backup from browser selection.</p>
 <section id="id16">
-<h3><a class="toc-backref" href="#id97" role="doc-backlink">Returns</a><a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id110" role="doc-backlink">Returns</a><a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="xpsprofilefromdefaultsettings">
-<h2><a class="toc-backref" href="#id98" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">XPSProfileFromDefaultSettings</span></code></a><a class="headerlink" href="#xpsprofilefromdefaultsettings" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id111" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">XPSProfileFromDefaultSettings</span></code></a><a class="headerlink" href="#xpsprofilefromdefaultsettings" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>XPSProfileFromDefaultSettings()
 </pre></div>
 </div>
-<p>Description of XPSProfileFromDefaultSettings.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">XPSProfileFromDefaultSettings</span></code>.</p>
+<p>Generate an XPS profile using the saved default settings.</p>
+<p>Extract selected PES profiles for selected images in DB.</p>
 <section id="id17">
-<h3><a class="toc-backref" href="#id99" role="doc-backlink">Returns</a><a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id112" role="doc-backlink">Returns</a><a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: One when the requested condition or operation succeeds; otherwise zero.</p></li>
 </ul>
 </section>
 </section>
 <section id="normalisationimagestackwithimage">
-<h2><a class="toc-backref" href="#id100" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithImage</span></code></a><a class="headerlink" href="#normalisationimagestackwithimage" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id113" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithImage</span></code></a><a class="headerlink" href="#normalisationimagestackwithimage" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>NormalisationImageStackWithImage()
 </pre></div>
 </div>
-<p>Description of NormalisationImageStackWithImage.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithImage</span></code>.</p>
+<p>Normalize every stack layer by a selected 2D reference image.</p>
+<p>Consistency check.</p>
 <section id="id18">
-<h3><a class="toc-backref" href="#id101" role="doc-backlink">Returns</a><a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id114" role="doc-backlink">Returns</a><a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="normalisationimagestackwithprofile">
-<h2><a class="toc-backref" href="#id102" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithProfile</span></code></a><a class="headerlink" href="#normalisationimagestackwithprofile" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id115" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithProfile</span></code></a><a class="headerlink" href="#normalisationimagestackwithprofile" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>NormalisationImageStackWithProfile()
 </pre></div>
 </div>
-<p>Description of NormalisationImageStackWithProfile.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithProfile</span></code>.</p>
+<p>Normalize stack layers by the corresponding values of a 1D profile.</p>
+<p>Consistency check.</p>
 <section id="id19">
-<h3><a class="toc-backref" href="#id103" role="doc-backlink">Returns</a><a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id116" role="doc-backlink">Returns</a><a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="normalisationimagestackwithimagestack">
-<h2><a class="toc-backref" href="#id104" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithImageStack</span></code></a><a class="headerlink" href="#normalisationimagestackwithimagestack" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id117" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithImageStack</span></code></a><a class="headerlink" href="#normalisationimagestackwithimagestack" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>NormalisationImageStackWithImageStack()
 </pre></div>
 </div>
-<p>Description of NormalisationImageStackWithImageStack.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">NormalisationImageStackWithImageStack</span></code>.</p>
+<p>Normalize one image stack by a second stack.</p>
+<p>Consistency check. Select how many layers would you like to use for normalisation. Handle here unique
+output name.</p>
 <section id="id20">
-<h3><a class="toc-backref" href="#id105" role="doc-backlink">Returns</a><a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id118" role="doc-backlink">Returns</a><a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="removeimagesfromimagestack">
-<h2><a class="toc-backref" href="#id106" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">RemoveImagesFromImageStack</span></code></a><a class="headerlink" href="#removeimagesfromimagestack" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id119" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">RemoveImagesFromImageStack</span></code></a><a class="headerlink" href="#removeimagesfromimagestack" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>RemoveImagesFromImageStack()
 </pre></div>
 </div>
-<p>Description of RemoveImagesFromImageStack.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">RemoveImagesFromImageStack</span></code>.</p>
+<p>Remove images from image stack.</p>
 <section id="id21">
-<h3><a class="toc-backref" href="#id107" role="doc-backlink">Returns</a><a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id120" role="doc-backlink">Returns</a><a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
-</ul>
-</section>
-</section>
-<section id="stackimagestoimagestack">
-<h2><a class="toc-backref" href="#id108" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">StackImagesToImageStack</span></code></a><a class="headerlink" href="#stackimagestoimagestack" title="Link to this heading"></a></h2>
-<p><strong>Signature</strong></p>
-<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>StackImagesToImageStack()
-</pre></div>
-</div>
-<p>Description of StackImagesToImageStack.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">StackImagesToImageStack</span></code>.</p>
-<section id="id22">
-<h3><a class="toc-backref" href="#id109" role="doc-backlink">Returns</a><a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="insertimagestostack">
-<h2><a class="toc-backref" href="#id110" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">InsertImagesToStack</span></code></a><a class="headerlink" href="#insertimagestostack" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id121" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">InsertImagesToStack</span></code></a><a class="headerlink" href="#insertimagestostack" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
-<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>InsertImagesToStack()
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>InsertImagesToStack([<span class="kt">variable</span><span class="w"> </span>extend])
 </pre></div>
 </div>
-<p>Description of InsertImagesToStack.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">InsertImagesToStack</span></code>.</p>
-<section id="id23">
-<h3><a class="toc-backref" href="#id111" role="doc-backlink">Returns</a><a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<p>Insert images to stack.</p>
+<p>We selected at least an image. Let’s sort things here a bit. First lets expand the wave note when we
+insert a 3D wave.</p>
+<section id="id22">
+<h3><a class="toc-backref" href="#id122" role="doc-backlink">Parameters</a><a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extend</span></code> <em>(Variable, optional)</em>: If nonzero, extend the destination rather than replacing its current extent.</p></li>
+</ul>
+</section>
+<section id="id23">
+<h3><a class="toc-backref" href="#id123" role="doc-backlink">Returns</a><a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="imgrgb2gray16">
-<h2><a class="toc-backref" href="#id112" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImgRGB2Gray16</span></code></a><a class="headerlink" href="#imgrgb2gray16" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id124" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImgRGB2Gray16</span></code></a><a class="headerlink" href="#imgrgb2gray16" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ImgRGB2Gray16()
 </pre></div>
 </div>
-<p>Description of ImgRGB2Gray16.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ImgRGB2Gray16</span></code>.</p>
+<p>Convert the top RGB image to 16-bit grayscale.</p>
 <section id="id24">
-<h3><a class="toc-backref" href="#id113" role="doc-backlink">Returns</a><a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id125" role="doc-backlink">Returns</a><a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="rotate3dwaveaxes">
-<h2><a class="toc-backref" href="#id114" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Rotate3DWaveAxes</span></code></a><a class="headerlink" href="#rotate3dwaveaxes" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id126" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Rotate3DWaveAxes</span></code></a><a class="headerlink" href="#rotate3dwaveaxes" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>Rotate3DWaveAxes()
 </pre></div>
 </div>
-<p>Description of Rotate3DWaveAxes.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">Rotate3DWaveAxes</span></code>.</p>
+<p>Rotate 3D wave axes.</p>
 <section id="id25">
-<h3><a class="toc-backref" href="#id115" role="doc-backlink">Returns</a><a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id127" role="doc-backlink">Returns</a><a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="imagerotateandscalefrommetadata">
-<h2><a class="toc-backref" href="#id116" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageRotateAndScaleFromMetadata</span></code></a><a class="headerlink" href="#imagerotateandscalefrommetadata" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id128" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageRotateAndScaleFromMetadata</span></code></a><a class="headerlink" href="#imagerotateandscalefrommetadata" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ImageRotateAndScaleFromMetadata()
 </pre></div>
 </div>
-<p>Description of ImageRotateAndScaleFromMetadata.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ImageRotateAndScaleFromMetadata</span></code>.</p>
+<p>Restore microscope orientation and field-of-view scaling from image metadata.</p>
+<p>This operation transform the image as seen in the microscope when the angular compensation is on for
+different FoVs. The combination of ImageRotation and ImageTransform flipRows wRef restores the image.</p>
 <section id="id26">
-<h3><a class="toc-backref" href="#id117" role="doc-backlink">Returns</a><a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id129" role="doc-backlink">Returns</a><a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="imageffttransform">
-<h2><a class="toc-backref" href="#id118" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageFFTTransform</span></code></a><a class="headerlink" href="#imageffttransform" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id130" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageFFTTransform</span></code></a><a class="headerlink" href="#imageffttransform" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ImageFFTTransform([<span class="kt">int</span><span class="w"> </span>noPlot,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>sourceDF,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>mode])
 </pre></div>
 </div>
-<p>Description of ImageFFTTransform.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ImageFFTTransform</span></code>.</p>
+<p>Calculate the Fourier transform of the active image.</p>
+<p>FFT of the top image. If Marquee is present the transform happends at the marked region FFT wave in the
+cwd.</p>
 <section id="id27">
-<h3><a class="toc-backref" href="#id119" role="doc-backlink">Parameters</a><a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id131" role="doc-backlink">Parameters</a><a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">noPlot</span></code> <em>(Parameter)</em>: noPlot.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sourceDF</span></code> <em>(Parameter)</em>: sourceDF.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">mode]</span></code> <em>(Parameter)</em>: mode].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">noPlot</span></code> <em>(Integer, optional)</em>: If nonzero, suppress creation of a result graph.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sourceDF</span></code> <em>(Integer, optional)</em>: Source data-folder reference or path.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mode</span></code> <em>(Integer, optional)</em>: Mode selector.</p></li>
 </ul>
 </section>
 <section id="id28">
-<h3><a class="toc-backref" href="#id120" role="doc-backlink">Returns</a><a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id132" role="doc-backlink">Returns</a><a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="averagelayersrange">
-<h2><a class="toc-backref" href="#id121" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">AverageLayersRange</span></code></a><a class="headerlink" href="#averagelayersrange" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id133" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">AverageLayersRange</span></code></a><a class="headerlink" href="#averagelayersrange" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>AverageLayersRange()
 </pre></div>
 </div>
-<p>Description of AverageLayersRange.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">AverageLayersRange</span></code>.</p>
+<p>Average a user-selected range of image-stack layers.</p>
 <section id="id29">
-<h3><a class="toc-backref" href="#id122" role="doc-backlink">Returns</a><a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id134" role="doc-backlink">Returns</a><a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="extractlayerrangetostack">
-<h2><a class="toc-backref" href="#id123" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ExtractLayerRangeToStack</span></code></a><a class="headerlink" href="#extractlayerrangetostack" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id135" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ExtractLayerRangeToStack</span></code></a><a class="headerlink" href="#extractlayerrangetostack" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ExtractLayerRangeToStack()
 </pre></div>
 </div>
-<p>Description of ExtractLayerRangeToStack.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ExtractLayerRangeToStack</span></code>.</p>
+<p>Extract a selected layer range into a new image stack.</p>
 <section id="id30">
-<h3><a class="toc-backref" href="#id124" role="doc-backlink">Returns</a><a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id136" role="doc-backlink">Returns</a><a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="flipstackplanes">
-<h2><a class="toc-backref" href="#id125" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">FlipStackPlanes</span></code></a><a class="headerlink" href="#flipstackplanes" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id137" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">FlipStackPlanes</span></code></a><a class="headerlink" href="#flipstackplanes" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>FlipStackPlanes()
 </pre></div>
 </div>
-<p>Description of FlipStackPlanes.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">FlipStackPlanes</span></code>.</p>
+<p>Reverse the layer order of the active image stack.</p>
 <section id="id31">
-<h3><a class="toc-backref" href="#id126" role="doc-backlink">Returns</a><a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id138" role="doc-backlink">Returns</a><a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="averageimagestack">
-<h2><a class="toc-backref" href="#id127" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">AverageImageStack</span></code></a><a class="headerlink" href="#averageimagestack" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id139" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">AverageImageStack</span></code></a><a class="headerlink" href="#averageimagestack" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>AverageImageStack()
 </pre></div>
 </div>
-<p>Description of AverageImageStack.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">AverageImageStack</span></code>.</p>
+<p>Average image stack.</p>
 <section id="id32">
-<h3><a class="toc-backref" href="#id128" role="doc-backlink">Returns</a><a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id140" role="doc-backlink">Returns</a><a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="histogramshifttogaussiancenter">
-<h2><a class="toc-backref" href="#id129" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">HistogramShiftToGaussianCenter</span></code></a><a class="headerlink" href="#histogramshifttogaussiancenter" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id141" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">HistogramShiftToGaussianCenter</span></code></a><a class="headerlink" href="#histogramshifttogaussiancenter" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>HistogramShiftToGaussianCenter()
 </pre></div>
 </div>
-<p>Description of HistogramShiftToGaussianCenter.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">HistogramShiftToGaussianCenter</span></code>.</p>
+<p>Histogram shift to gaussian center.</p>
 <section id="id33">
-<h3><a class="toc-backref" href="#id130" role="doc-backlink">Returns</a><a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id142" role="doc-backlink">Returns</a><a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="twotracecalcs">
-<h2><a class="toc-backref" href="#id131" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">TwoTraceCalcs</span></code></a><a class="headerlink" href="#twotracecalcs" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id143" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">TwoTraceCalcs</span></code></a><a class="headerlink" href="#twotracecalcs" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>TwoTraceCalcs()
 </pre></div>
 </div>
-<p>Description of TwoTraceCalcs.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">TwoTraceCalcs</span></code>.</p>
+<p>Perform a selected arithmetic operation on two graph traces.</p>
+<p>Creates a separate result wave, leaving the input wave available to the caller.</p>
 <section id="id34">
-<h3><a class="toc-backref" href="#id132" role="doc-backlink">Returns</a><a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id144" role="doc-backlink">Returns</a><a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="quicktextannotation">
-<h2><a class="toc-backref" href="#id133" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">QuickTextAnnotation</span></code></a><a class="headerlink" href="#quicktextannotation" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id145" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">QuickTextAnnotation</span></code></a><a class="headerlink" href="#quicktextannotation" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>QuickTextAnnotation()
 </pre></div>
 </div>
-<p>Description of QuickTextAnnotation.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">QuickTextAnnotation</span></code>.</p>
+<p>Prompt for text and add it as an annotation to the active graph.</p>
 <section id="id35">
-<h3><a class="toc-backref" href="#id134" role="doc-backlink">Returns</a><a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id146" role="doc-backlink">Returns</a><a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: One when the requested condition or operation succeeds; otherwise zero.</p></li>
 </ul>
 </section>
 </section>
 <section id="makewavefromsavedroi">
-<h2><a class="toc-backref" href="#id135" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">MakeWaveFromSavedROI</span></code></a><a class="headerlink" href="#makewavefromsavedroi" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id147" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">MakeWaveFromSavedROI</span></code></a><a class="headerlink" href="#makewavefromsavedroi" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>MakeWaveFromSavedROI()
 </pre></div>
 </div>
-<p>Description of MakeWaveFromSavedROI.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">MakeWaveFromSavedROI</span></code>.</p>
+<p>Create wave from saved ROI.</p>
 <section id="id36">
-<h3><a class="toc-backref" href="#id136" role="doc-backlink">Returns</a><a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id148" role="doc-backlink">Returns</a><a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="xmcdcombinations">
-<h2><a class="toc-backref" href="#id137" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">XMCDCombinations</span></code></a><a class="headerlink" href="#xmcdcombinations" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id149" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">XMCDCombinations</span></code></a><a class="headerlink" href="#xmcdcombinations" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>XMCDCombinations()
 </pre></div>
 </div>
-<p>Description of XMCDCombinations.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">XMCDCombinations</span></code>.</p>
+<p>Calculate XMCD for all layer pairs in the active image stack.</p>
+<p>S_fileName is a carriage-return-separated list of full paths to one or more files.</p>
 <section id="id37">
-<h3><a class="toc-backref" href="#id138" role="doc-backlink">Returns</a><a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id150" role="doc-backlink">Returns</a><a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="deletebigwaves">
-<h2><a class="toc-backref" href="#id139" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">DeleteBigWaves</span></code></a><a class="headerlink" href="#deletebigwaves" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id151" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">DeleteBigWaves</span></code></a><a class="headerlink" href="#deletebigwaves" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>DeleteBigWaves()
 </pre></div>
 </div>
-<p>Description of DeleteBigWaves.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">DeleteBigWaves</span></code>.</p>
+<p>Find and optionally remove waves above a user-selected size threshold.</p>
+<p>Delete filter larger than minFileSizeMB. The textWave that pops to check the waves can be edited to
+remove the waves you want to keep (an invalid path.</p>
 <section id="id38">
-<h3><a class="toc-backref" href="#id140" role="doc-backlink">Returns</a><a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id152" role="doc-backlink">Returns</a><a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: One when the requested condition or operation succeeds; otherwise zero.</p></li>
 </ul>
 </section>
 </section>
 <section id="deletebigwavesdisplayed">
-<h2><a class="toc-backref" href="#id141" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">DeleteBigWavesDisplayed</span></code></a><a class="headerlink" href="#deletebigwavesdisplayed" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id153" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">DeleteBigWavesDisplayed</span></code></a><a class="headerlink" href="#deletebigwavesdisplayed" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>DeleteBigWavesDisplayed()
 </pre></div>
 </div>
-<p>Description of DeleteBigWavesDisplayed.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">DeleteBigWavesDisplayed</span></code>.</p>
+<p>Close displays of oversized waves before removing those waves.</p>
 <section id="id39">
-<h3><a class="toc-backref" href="#id142" role="doc-backlink">Returns</a><a class="headerlink" href="#id39" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id154" role="doc-backlink">Returns</a><a class="headerlink" href="#id39" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: One when the requested condition or operation succeeds; otherwise zero.</p></li>
 </ul>
 </section>
 </section>
 <section id="pixelatesingleimageorstack">
-<h2><a class="toc-backref" href="#id143" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">PixelateSingleImageOrStack</span></code></a><a class="headerlink" href="#pixelatesingleimageorstack" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id155" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">PixelateSingleImageOrStack</span></code></a><a class="headerlink" href="#pixelatesingleimageorstack" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>PixelateSingleImageOrStack()
 </pre></div>
 </div>
-<p>Description of PixelateSingleImageOrStack.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">PixelateSingleImageOrStack</span></code>.</p>
+<p>Pixelate either a single image or every layer of an image stack.</p>
 <section id="id40">
-<h3><a class="toc-backref" href="#id144" role="doc-backlink">Returns</a><a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id156" role="doc-backlink">Returns</a><a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="settopgraphdf">
-<h2><a class="toc-backref" href="#id145" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SetTopGraphDF</span></code></a><a class="headerlink" href="#settopgraphdf" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id157" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SetTopGraphDF</span></code></a><a class="headerlink" href="#settopgraphdf" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SetTopGraphDF()
 </pre></div>
 </div>
-<p>Description of SetTopGraphDF.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">SetTopGraphDF</span></code>.</p>
+<p>Switch the current data folder to the top graph’s source folder.</p>
+<p>Sets the DF of the top image or top trace. Remove background.</p>
 <section id="id41">
-<h3><a class="toc-backref" href="#id146" role="doc-backlink">Returns</a><a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id158" role="doc-backlink">Returns</a><a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="imgremovebackground">
-<h2><a class="toc-backref" href="#id147" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImgRemoveBackground</span></code></a><a class="headerlink" href="#imgremovebackground" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id159" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImgRemoveBackground</span></code></a><a class="headerlink" href="#imgremovebackground" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ImgRemoveBackground([<span class="kt">variable</span><span class="w"> </span>w3d])
 </pre></div>
 </div>
-<p>Description of ImgRemoveBackground.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ImgRemoveBackground</span></code>.</p>
+<p>Launch background removal for the active image or stack.</p>
+<p>Return 1 for successful Mask creation, 0 otherwise. Flatten Image.</p>
 <section id="id42">
-<h3><a class="toc-backref" href="#id148" role="doc-backlink">Parameters</a><a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id160" role="doc-backlink">Parameters</a><a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">w3d]</span></code> <em>(Parameter)</em>: w3d].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w3d</span></code> <em>(Variable, optional)</em>: Input 3D wave or image stack.</p></li>
 </ul>
 </section>
 <section id="id43">
-<h3><a class="toc-backref" href="#id149" role="doc-backlink">Returns</a><a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id161" role="doc-backlink">Returns</a><a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="flattenimage">
-<h2><a class="toc-backref" href="#id150" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">FlattenImage</span></code></a><a class="headerlink" href="#flattenimage" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id162" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">FlattenImage</span></code></a><a class="headerlink" href="#flattenimage" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
-<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>FlattenImage([<span class="kt">string</span><span class="w"> </span>method,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>kernelN,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>iterN])
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>FlattenImage()
 </pre></div>
 </div>
-<p>Description of FlattenImage.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">FlattenImage</span></code>.</p>
+<p>Flatten image.</p>
+<p>Create backup here. Resolve the. Get and set image range and ctab.</p>
 <section id="id44">
-<h3><a class="toc-backref" href="#id151" role="doc-backlink">Parameters</a><a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id163" role="doc-backlink">Returns</a><a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">method</span></code> <em>(Parameter)</em>: method.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">kernelN</span></code> <em>(Parameter)</em>: kernelN.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">iterN]</span></code> <em>(Parameter)</em>: iterN].</p></li>
-</ul>
-</section>
-<section id="id45">
-<h3><a class="toc-backref" href="#id152" role="doc-backlink">Returns</a><a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="saveaxesrangeandctab">
-<h2><a class="toc-backref" href="#id153" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SaveAxesRangeAndCtab</span></code></a><a class="headerlink" href="#saveaxesrangeandctab" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id164" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SaveAxesRangeAndCtab</span></code></a><a class="headerlink" href="#saveaxesrangeandctab" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SaveAxesRangeAndCtab([<span class="kt">string</span><span class="w"> </span>grfName])
 </pre></div>
 </div>
-<p>Description of SaveAxesRangeAndCtab.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">SaveAxesRangeAndCtab</span></code>.</p>
-<section id="id46">
-<h3><a class="toc-backref" href="#id154" role="doc-backlink">Parameters</a><a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
+<p>Save axes range and color table.</p>
+<section id="id45">
+<h3><a class="toc-backref" href="#id165" role="doc-backlink">Parameters</a><a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">grfName]</span></code> <em>(Parameter)</em>: grfName].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
 </ul>
 </section>
-<section id="id47">
-<h3><a class="toc-backref" href="#id155" role="doc-backlink">Returns</a><a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
+<section id="id46">
+<h3><a class="toc-backref" href="#id166" role="doc-backlink">Returns</a><a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="setaxesrangeandctabfromsaved">
-<h2><a class="toc-backref" href="#id156" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SetAxesRangeAndCtabFromSaved</span></code></a><a class="headerlink" href="#setaxesrangeandctabfromsaved" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id167" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SetAxesRangeAndCtabFromSaved</span></code></a><a class="headerlink" href="#setaxesrangeandctabfromsaved" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SetAxesRangeAndCtabFromSaved([<span class="kt">string</span><span class="w"> </span>grfName,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>setCtab,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>printCmd])
 </pre></div>
 </div>
-<p>Description of SetAxesRangeAndCtabFromSaved.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">SetAxesRangeAndCtabFromSaved</span></code>.</p>
-<section id="id48">
-<h3><a class="toc-backref" href="#id157" role="doc-backlink">Parameters</a><a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
+<p>Set axes range and color table from saved.</p>
+<section id="id47">
+<h3><a class="toc-backref" href="#id168" role="doc-backlink">Parameters</a><a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(Parameter)</em>: grfName.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">setCtab</span></code> <em>(Parameter)</em>: setCtab.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">printCmd]</span></code> <em>(Parameter)</em>: printCmd].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">setCtab</span></code> <em>(Variable, optional)</em>: If nonzero, restore the saved image color table.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">printCmd</span></code> <em>(Variable, optional)</em>: If nonzero, print the generated Igor command to history.</p></li>
 </ul>
 </section>
-<section id="id49">
-<h3><a class="toc-backref" href="#id158" role="doc-backlink">Returns</a><a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
+<section id="id48">
+<h3><a class="toc-backref" href="#id169" role="doc-backlink">Returns</a><a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="histogramequalisation">
-<h2><a class="toc-backref" href="#id159" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">HistogramEqualisation</span></code></a><a class="headerlink" href="#histogramequalisation" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id170" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">HistogramEqualisation</span></code></a><a class="headerlink" href="#histogramequalisation" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>HistogramEqualisation()
 </pre></div>
 </div>
-<p>Description of HistogramEqualisation.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">HistogramEqualisation</span></code>.</p>
-<section id="id50">
-<h3><a class="toc-backref" href="#id160" role="doc-backlink">Returns</a><a class="headerlink" href="#id50" title="Link to this heading"></a></h3>
+<p>Apply histogram equalization to the active image.</p>
+<section id="id49">
+<h3><a class="toc-backref" href="#id171" role="doc-backlink">Returns</a><a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="closetopwindowanddeletesource">
-<h2><a class="toc-backref" href="#id161" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CloseTopWindowAndDeleteSource</span></code></a><a class="headerlink" href="#closetopwindowanddeletesource" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id172" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">CloseTopWindowAndDeleteSource</span></code></a><a class="headerlink" href="#closetopwindowanddeletesource" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>CloseTopWindowAndDeleteSource([<span class="kt">int</span><span class="w"> </span>deleteBackUp,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>grfName])
 </pre></div>
 </div>
-<p>Description of CloseTopWindowAndDeleteSource.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">CloseTopWindowAndDeleteSource</span></code>.</p>
-<section id="id51">
-<h3><a class="toc-backref" href="#id162" role="doc-backlink">Parameters</a><a class="headerlink" href="#id51" title="Link to this heading"></a></h3>
+<p>Close the active graph and delete its displayed source wave.</p>
+<p>Close topwindow and delete the top image or trace.</p>
+<section id="id50">
+<h3><a class="toc-backref" href="#id173" role="doc-backlink">Parameters</a><a class="headerlink" href="#id50" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">deleteBackUp</span></code> <em>(Parameter)</em>: deleteBackUp.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">grfName]</span></code> <em>(Parameter)</em>: grfName].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deleteBackUp</span></code> <em>(Integer, optional)</em>: If nonzero, delete the image’s backup wave as well.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
 </ul>
 </section>
-<section id="id52">
-<h3><a class="toc-backref" href="#id163" role="doc-backlink">Returns</a><a class="headerlink" href="#id52" title="Link to this heading"></a></h3>
+<section id="id51">
+<h3><a class="toc-backref" href="#id174" role="doc-backlink">Returns</a><a class="headerlink" href="#id51" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
+</ul>
+</section>
+</section>
+<section id="deletebackupwave">
+<h2><a class="toc-backref" href="#id175" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">DeleteBackupWave</span></code></a><a class="headerlink" href="#deletebackupwave" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>DeleteBackupWave([<span class="kt">string</span><span class="w"> </span>grfName])
+</pre></div>
+</div>
+<p>Remove backup wave.</p>
+<section id="id52">
+<h3><a class="toc-backref" href="#id176" role="doc-backlink">Parameters</a><a class="headerlink" href="#id52" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
+</ul>
+</section>
+<section id="id53">
+<h3><a class="toc-backref" href="#id177" role="doc-backlink">Returns</a><a class="headerlink" href="#id53" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="mirrorpositiontowavevalues">
-<h2><a class="toc-backref" href="#id164" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">MirrorPositionToWaveValues</span></code></a><a class="headerlink" href="#mirrorpositiontowavevalues" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id178" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">MirrorPositionToWaveValues</span></code></a><a class="headerlink" href="#mirrorpositiontowavevalues" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>MirrorPositionToWaveValues()
 </pre></div>
 </div>
-<p>Description of MirrorPositionToWaveValues.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">MirrorPositionToWaveValues</span></code>.</p>
-<section id="id53">
-<h3><a class="toc-backref" href="#id165" role="doc-backlink">Returns</a><a class="headerlink" href="#id53" title="Link to this heading"></a></h3>
+<p>Mirror the current graph position into stored wave values.</p>
+<p>S_fileName is a carriage-return-separated list of full paths to one or more files.</p>
+<section id="id54">
+<h3><a class="toc-backref" href="#id179" role="doc-backlink">Returns</a><a class="headerlink" href="#id54" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="drawsavedroiongraph">
-<h2><a class="toc-backref" href="#id166" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">DrawSavedROIOnGraph</span></code></a><a class="headerlink" href="#drawsavedroiongraph" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id180" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">DrawSavedROIOnGraph</span></code></a><a class="headerlink" href="#drawsavedroiongraph" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>DrawSavedROIOnGraph(<span class="kt">string</span><span class="w"> </span>grfName,<span class="w"> </span><span class="kt">WAVE</span><span class="w"> </span>wRef,<span class="w"> </span>[<span class="kt">variable</span><span class="w"> </span>bypass])
 </pre></div>
 </div>
-<p>Description of DrawSavedROIOnGraph.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">DrawSavedROIOnGraph</span></code>.</p>
-<section id="id54">
-<h3><a class="toc-backref" href="#id167" role="doc-backlink">Parameters</a><a class="headerlink" href="#id54" title="Link to this heading"></a></h3>
+<p>Draw a saved ROI on the active graph.</p>
+<p>Draw the ROI saved in wRef on grfName set bypass to draw ROI on any graph.</p>
+<section id="id55">
+<h3><a class="toc-backref" href="#id181" role="doc-backlink">Parameters</a><a class="headerlink" href="#id55" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(Parameter)</em>: grfName.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">wRef</span></code> <em>(Parameter)</em>: wRef.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">bypass]</span></code> <em>(Parameter)</em>: bypass].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String)</em>: Name of the graph window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wRef</span></code> <em>(Wave)</em>: Input wave.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bypass</span></code> <em>(Variable, optional)</em>: If nonzero, skip the normal validation or selection step.</p></li>
 </ul>
 </section>
-<section id="id55">
-<h3><a class="toc-backref" href="#id168" role="doc-backlink">Returns</a><a class="headerlink" href="#id55" title="Link to this heading"></a></h3>
+<section id="id56">
+<h3><a class="toc-backref" href="#id182" role="doc-backlink">Returns</a><a class="headerlink" href="#id56" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="iimgfftfilter">
-<h2><a class="toc-backref" href="#id169" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">iImgFFTFilter</span></code></a><a class="headerlink" href="#iimgfftfilter" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id183" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">iImgFFTFilter</span></code></a><a class="headerlink" href="#iimgfftfilter" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>iImgFFTFilter([<span class="kt">string</span><span class="w"> </span>grfName])
 </pre></div>
 </div>
-<p>Description of iImgFFTFilter.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">iImgFFTFilter</span></code>.</p>
-<section id="id56">
-<h3><a class="toc-backref" href="#id170" role="doc-backlink">Parameters</a><a class="headerlink" href="#id56" title="Link to this heading"></a></h3>
+<p>Launch the interactive FFT filter for the active image.</p>
+<section id="id57">
+<h3><a class="toc-backref" href="#id184" role="doc-backlink">Parameters</a><a class="headerlink" href="#id57" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">grfName]</span></code> <em>(Parameter)</em>: grfName].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
 </ul>
 </section>
-<section id="id57">
-<h3><a class="toc-backref" href="#id171" role="doc-backlink">Returns</a><a class="headerlink" href="#id57" title="Link to this heading"></a></h3>
+<section id="id58">
+<h3><a class="toc-backref" href="#id185" role="doc-backlink">Returns</a><a class="headerlink" href="#id58" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="unpackstacktosources">
-<h2><a class="toc-backref" href="#id172" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">UnpackStackToSources</span></code></a><a class="headerlink" href="#unpackstacktosources" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id186" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">UnpackStackToSources</span></code></a><a class="headerlink" href="#unpackstacktosources" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>UnpackStackToSources([<span class="kt">string</span><span class="w"> </span>grfName])
 </pre></div>
 </div>
-<p>Description of UnpackStackToSources.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">UnpackStackToSources</span></code>.</p>
-<section id="id58">
-<h3><a class="toc-backref" href="#id173" role="doc-backlink">Parameters</a><a class="headerlink" href="#id58" title="Link to this heading"></a></h3>
+<p>Restore image-stack layers to their source waves using stack metadata.</p>
+<section id="id59">
+<h3><a class="toc-backref" href="#id187" role="doc-backlink">Parameters</a><a class="headerlink" href="#id59" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">grfName]</span></code> <em>(Parameter)</em>: grfName].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
 </ul>
 </section>
-<section id="id59">
-<h3><a class="toc-backref" href="#id174" role="doc-backlink">Returns</a><a class="headerlink" href="#id59" title="Link to this heading"></a></h3>
+<section id="id60">
+<h3><a class="toc-backref" href="#id188" role="doc-backlink">Returns</a><a class="headerlink" href="#id60" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.</p></li>
 </ul>
 </section>
 </section>
 <section id="imageresample">
-<h2><a class="toc-backref" href="#id175" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageResample</span></code></a><a class="headerlink" href="#imageresample" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id189" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageResample</span></code></a><a class="headerlink" href="#imageresample" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ImageResample()
 </pre></div>
 </div>
-<p>Description of ImageResample.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ImageResample</span></code>.</p>
-<section id="id60">
-<h3><a class="toc-backref" href="#id176" role="doc-backlink">Returns</a><a class="headerlink" href="#id60" title="Link to this heading"></a></h3>
-<ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
-</ul>
-</section>
-</section>
-<section id="setcorrectedfovimages">
-<h2><a class="toc-backref" href="#id177" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SetCorrectedFoVImages</span></code></a><a class="headerlink" href="#setcorrectedfovimages" title="Link to this heading"></a></h2>
-<p><strong>Signature</strong></p>
-<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SetCorrectedFoVImages()
-</pre></div>
-</div>
-<p>Description of SetCorrectedFoVImages.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">SetCorrectedFoVImages</span></code>.</p>
+<p>Resample the active image using a selected interpolation method and scale.</p>
+<p>Resample and offset image. Copyscales/I wRef, $resampledWaveName.</p>
 <section id="id61">
-<h3><a class="toc-backref" href="#id178" role="doc-backlink">Returns</a><a class="headerlink" href="#id61" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id190" role="doc-backlink">Returns</a><a class="headerlink" href="#id61" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: NaN if input validation fails; otherwise zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="drawscalebar">
-<h2><a class="toc-backref" href="#id179" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">DrawScaleBar</span></code></a><a class="headerlink" href="#drawscalebar" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id191" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">DrawScaleBar</span></code></a><a class="headerlink" href="#drawscalebar" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
-<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>DrawScaleBar()
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>DrawScaleBar([<span class="kt">string</span><span class="w"> </span>grfName])
 </pre></div>
 </div>
-<p>Description of DrawScaleBar.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">DrawScaleBar</span></code>.</p>
+<p>Prompt for a physical length and draw a scale bar on the active image graph.</p>
+<p>String axisX, axisY variable minVX, maxVX, minVY, maxVY, sf.</p>
 <section id="id62">
-<h3><a class="toc-backref" href="#id180" role="doc-backlink">Returns</a><a class="headerlink" href="#id62" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id192" role="doc-backlink">Parameters</a><a class="headerlink" href="#id62" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
+</ul>
+</section>
+<section id="id63">
+<h3><a class="toc-backref" href="#id193" role="doc-backlink">Returns</a><a class="headerlink" href="#id63" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: The scale-bar width as a fraction of the visible x-axis range, or -1 if the prompt is cancelled or invalid.</p></li>
+</ul>
+</section>
+</section>
+<section id="imagezscore">
+<h2><a class="toc-backref" href="#id194" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageZScore</span></code></a><a class="headerlink" href="#imagezscore" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ImageZScore([<span class="kt">string</span><span class="w"> </span>grfName])
+</pre></div>
+</div>
+<p>Create a z-score-normalized copy of the active image.</p>
+<section id="id64">
+<h3><a class="toc-backref" href="#id195" role="doc-backlink">Parameters</a><a class="headerlink" href="#id64" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
+</ul>
+</section>
+<section id="id65">
+<h3><a class="toc-backref" href="#id196" role="doc-backlink">Returns</a><a class="headerlink" href="#id65" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="setrangeandctabforallgraphsinspace">
+<h2><a class="toc-backref" href="#id197" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SetRangeAndCTabForAllGraphsInSpace</span></code></a><a class="headerlink" href="#setrangeandctabforallgraphsinspace" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SetRangeAndCTabForAllGraphsInSpace([<span class="kt">string</span><span class="w"> </span>spaceTagStr,<span class="w"> </span><span class="kt">variable</span><span class="w"> </span>setCtab])
+</pre></div>
+</div>
+<p>Apply saved axis ranges and color tables to every graph in an ATH space.</p>
+<section id="id66">
+<h3><a class="toc-backref" href="#id198" role="doc-backlink">Parameters</a><a class="headerlink" href="#id66" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">spaceTagStr</span></code> <em>(String, optional)</em>: ATH space tag selecting graph windows.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">setCtab</span></code> <em>(Variable, optional)</em>: If nonzero, also apply the saved color table.</p></li>
+</ul>
+</section>
+<section id="id67">
+<h3><a class="toc-backref" href="#id199" role="doc-backlink">Returns</a><a class="headerlink" href="#id67" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="applyedgedetectioncommandtostack">
+<h2><a class="toc-backref" href="#id200" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ApplyEdgeDetectionCommandToStack</span></code></a><a class="headerlink" href="#applyedgedetectioncommandtostack" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ApplyEdgeDetectionCommandToStack([<span class="kt">string</span><span class="w"> </span>grfName])
+</pre></div>
+</div>
+<p>Apply an edge-detection command to the active image stack.</p>
+<section id="id68">
+<h3><a class="toc-backref" href="#id201" role="doc-backlink">Parameters</a><a class="headerlink" href="#id68" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
+</ul>
+</section>
+<section id="id69">
+<h3><a class="toc-backref" href="#id202" role="doc-backlink">Returns</a><a class="headerlink" href="#id69" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Igor status code; zero indicates success and nonzero values report failure or cancellation.</p></li>
+</ul>
+</section>
+</section>
+<section id="imagefilter3d">
+<h2><a class="toc-backref" href="#id203" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageFilter3D</span></code></a><a class="headerlink" href="#imagefilter3d" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ImageFilter3D([<span class="kt">string</span><span class="w"> </span>grfName])
+</pre></div>
+</div>
+<p>Apply a selected matrix filter to every layer of an image stack.</p>
+<section id="id70">
+<h3><a class="toc-backref" href="#id204" role="doc-backlink">Parameters</a><a class="headerlink" href="#id70" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
+</ul>
+</section>
+<section id="id71">
+<h3><a class="toc-backref" href="#id205" role="doc-backlink">Returns</a><a class="headerlink" href="#id71" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="imagesmooth3d">
+<h2><a class="toc-backref" href="#id206" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ImageSmooth3D</span></code></a><a class="headerlink" href="#imagesmooth3d" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ImageSmooth3D([<span class="kt">string</span><span class="w"> </span>grfName])
+</pre></div>
+</div>
+<p>Smooth every layer of an image stack.</p>
+<section id="id72">
+<h3><a class="toc-backref" href="#id207" role="doc-backlink">Parameters</a><a class="headerlink" href="#id72" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
+</ul>
+</section>
+<section id="id73">
+<h3><a class="toc-backref" href="#id208" role="doc-backlink">Returns</a><a class="headerlink" href="#id73" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Igor status code; zero indicates success and nonzero values report failure or cancellation.</p></li>
+</ul>
+</section>
+</section>
+<section id="smoothwave">
+<h2><a class="toc-backref" href="#id209" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SmoothWave</span></code></a><a class="headerlink" href="#smoothwave" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SmoothWave([<span class="kt">string</span><span class="w"> </span>grfName])
+</pre></div>
+</div>
+<p>Smooth the selected wave using user-provided settings.</p>
+<section id="id74">
+<h3><a class="toc-backref" href="#id210" role="doc-backlink">Parameters</a><a class="headerlink" href="#id74" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
+</ul>
+</section>
+<section id="id75">
+<h3><a class="toc-backref" href="#id211" role="doc-backlink">Returns</a><a class="headerlink" href="#id75" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>

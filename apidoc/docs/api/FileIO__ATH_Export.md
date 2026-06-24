@@ -20,17 +20,17 @@ related to ATH Export Repeat functionality.
 WavesToTIFFDB([int byte32])
 ```
 
-Description of WavesToTIFFDB.
+Export waves selected in the Data Browser as TIFF files.
 
-Auto-generated documentation stub for function `WavesToTIFFDB`.
+Export all traces selected in Data Browser.
 
 ### Parameters
 
-- `byte32]` *(Parameter)*: byte32].
+- `byte32` *(Integer, optional)*: If nonzero, export 32-bit rather than 16-bit data.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
 
 
 ## `Wave3DToTIFFsDB`
@@ -41,17 +41,17 @@ Auto-generated documentation stub for function `WavesToTIFFDB`.
 Wave3DToTIFFsDB([int byte32])
 ```
 
-Description of Wave3DToTIFFsDB.
+Export each layer of a selected 3D wave as a TIFF file.
 
-Auto-generated documentation stub for function `Wave3DToTIFFsDB`.
+Export all layers of a 3D wave to a folder.
 
 ### Parameters
 
-- `byte32]` *(Parameter)*: byte32].
+- `byte32` *(Integer, optional)*: If nonzero, export 32-bit rather than 16-bit data.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
 
 
 ## `TracesToGeneralTextDB`
@@ -62,10 +62,10 @@ Auto-generated documentation stub for function `Wave3DToTIFFsDB`.
 TracesToGeneralTextDB()
 ```
 
-Description of TracesToGeneralTextDB.
+Export selected graph traces as general-text files.
 
-Auto-generated documentation stub for function `TracesToGeneralTextDB`.
+Export all traces selected in Data Browser.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.

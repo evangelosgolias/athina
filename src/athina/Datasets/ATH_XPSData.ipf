@@ -94,10 +94,10 @@ EndStructure
 // this is the starting point for creating the periodic table panel
 
 /// @function XPSReferenceData
-/// @brief Description of XPSReferenceData.
+/// @brief Create and display the XPS reference-data selection panel.
 /// @details
-/// Auto-generated documentation stub for function `XPSReferenceData`.
-/// @returns Variable Return value.
+/// New folder and display panel bring an existing panel forward.
+/// @returns Zero after completing the operation.
 static Function XPSReferenceData() : Panel
 
 	if (!DataFolderExists("root:Packages:ATH_DataFolder:XPSReferenceData"))
@@ -120,6 +120,10 @@ static Function XPSReferenceData() : Panel
 End
 
 //************************************************************
+/// @function PTInitGlobals
+/// @brief Initialize global state for the periodic-table panel.
+/// @param ptpig Periodic-table panel state structure.
+/// @returns Zero after completing the operation.
 Static Function PTInitGlobals(ptpig)
 	STRUCT PTPanelInitGlobals &ptpig
 	ptpig.ptwidth=260
@@ -132,6 +136,9 @@ End
 //************************************************************
 // PTInitPanel()
 // initialize the periodic table panel folders and globals
+/// @function PTInitPanel
+/// @brief Create the periodic-table element-selection panel.
+/// @returns The Igor panel-creation status.
 Static Function PTInitPanel()
 	
 	// create new data folder for Periodic Table information
@@ -223,6 +230,9 @@ End
 //************************************************************
 // PTDisplayPanel()
 // create the panel and element buttons
+/// @function PTDisplayPanel
+/// @brief Display and populate the periodic-table panel.
+/// @returns Zero after completing the operation.
 Static Function PTDisplayPanel()
 	NVAR gscf = root:Packages:ATH_DataFolder:XPSReferenceData:scf
 	NVAR gptleft = root:Packages:ATH_DataFolder:XPSReferenceData:ptleft
@@ -438,11 +448,11 @@ End
 //
 
 /// @function SetVariableFunction
-/// @brief Description of SetVariableFunction.
+/// @brief Handle changes to the panel set-variable control.
 /// @details
-/// Auto-generated documentation stub for function `SetVariableFunction`.
-/// @param sv Parameter sv.
-/// @returns Variable Return value.
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param sv Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SetVariableFunction(STRUCT WMSetVariableAction& sv) : SetVariableControl
 
 		NVAR ghv = root:Packages:ATH_DataFolder:XPSReferenceData:ghv
@@ -475,11 +485,11 @@ End
 // Resize PT Panel
 
 /// @function PTResizePanel
-/// @brief Description of PTResizePanel.
+/// @brief Resize and reposition the periodic-table selection panel.
 /// @details
-/// Auto-generated documentation stub for function `PTResizePanel`.
-/// @param pa Parameter pa.
-/// @returns Variable Return value.
+/// Wait for mouse up event store current states redraw panel at new scale factor.
+/// @param pa Igor control-action structure.
+/// @returns Zero after completing the operation.
 static Function PTResizePanel(pa) : PopupMenuControl
 	STRUCT WMPopupAction &pa
 	
@@ -513,11 +523,9 @@ End
 //************************************************************
 
 /// @function GetAtNr
-/// @brief Description of GetAtNr.
-/// @details
-/// Auto-generated documentation stub for function `GetAtNr`.
-/// @param Estr Parameter Estr.
-/// @returns Variable Return value.
+/// @brief Return the atomic number for an element symbol.
+/// @param Estr Text containing the estr.
+/// @returns The the atomic number for an element symbol.
 static Function GetAtNr(Estr)
 	string Estr
 	wave AtNr= root:Packages:ATH_DataFolder:XPSReferenceData:AtNr
@@ -537,11 +545,11 @@ end
 //************************************************************
 
 /// @function ShowButtonProc
-/// @brief Description of ShowButtonProc.
+/// @brief Handle the continue button for show.
 /// @details
-/// Auto-generated documentation stub for function `ShowButtonProc`.
-/// @param &ba Parameter &ba.
-/// @returns Variable Return value.
+/// CAUTION: Tiling hard-coded, change /A=(x, y) if you like.
+/// @param ba Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function ShowButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 
 	switch( ba.eventCode )
@@ -600,11 +608,11 @@ End
 //************************************************************
 
 /// @function ClearButtonProc
-/// @brief Description of ClearButtonProc.
+/// @brief Handle the continue button for clear.
 /// @details
-/// Auto-generated documentation stub for function `ClearButtonProc`.
-/// @param &ba Parameter &ba.
-/// @returns Variable Return value.
+/// Kill graphs. Clear selected button in the panel and reset ElemSelect wave.
+/// @param ba Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function ClearButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 	
 	switch( ba.eventCode )
@@ -646,12 +654,11 @@ static Function ClearButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 End
 
 /// @function KEButtonProc
-/// @brief Description of KEButtonProc.
+/// @brief Handle the continue button for kinetic energy.
 /// @details
-/// Auto-generated documentation stub for function `KEButtonProc`.
-/// @param &ba Parameter &ba.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param ba Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function KEButtonProc(STRUCT WMButtonAction &ba) : ButtonControl
 	NVAR gkE = root:Packages:ATH_DataFolder:XPSReferenceData:gKE
 	
@@ -676,11 +683,11 @@ End
 // is entered, left, or pushed
 
 /// @function PTGetState
-/// @brief Description of PTGetState.
+/// @brief Read the current element selections from the periodic-table panel.
 /// @details
-/// Auto-generated documentation stub for function `PTGetState`.
-/// @param &bs Parameter &bs.
-/// @returns Variable Return value.
+/// DimLabels for the dataset.
+/// @param bs Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function PTGetState(STRUCT WMButtonAction &bs) : ButtonControl
 	
 	wave Col= root:Packages:ATH_DataFolder:XPSReferenceData:Col
@@ -721,6 +728,11 @@ end
 
 // DimLabels for the dataset
 
+/// @function GetSelectedElementsStr
+/// @brief Return the chemical symbols selected in the periodic-table panel.
+/// @param symbolsW Text wave containing chemical-element symbols.
+/// @param selw Selection-state wave for periodic-table elements.
+/// @returns A semicolon-separated list of selected element symbols.
 static Function/S GetSelectedElementsStr(WAVE/T symbolsW, WAVE selw)
 	// Return a string list with the elements currently selected, e.g "Si;Co;Ir;"
 	string selectedElementsStr = ""
@@ -736,6 +748,10 @@ static Function/S GetSelectedElementsStr(WAVE/T symbolsW, WAVE selw)
 	return selectedElementsStr
 End
 
+/// @function GetColumnOrderFromSelectedElement
+/// @brief Return the table-column ordering for a selected element.
+/// @param elementStr Chemical-element symbol.
+/// @returns The column-order specification associated with the element.
 static Function/S GetColumnOrderFromSelectedElement(string elementStr)
 	SVAR ATH_OrbitalOrder = root:Packages:ATH_DataFolder:XPSReferenceData:gATH_OrbitalOrder
 	string RegExpBaseStr = "[1-9]{1}[s,p,d,f]{1}" // Use "Symbol" + RegExpBaseStr
@@ -744,12 +760,11 @@ static Function/S GetColumnOrderFromSelectedElement(string elementStr)
 End
 
 /// @function PlotPhCrossSectionOfElement
-/// @brief Description of PlotPhCrossSectionOfElement.
+/// @brief Plot ph cross section of element.
 /// @details
-/// Auto-generated documentation stub for function `PlotPhCrossSectionOfElement`.
-/// @param elementStr Parameter elementStr.
-/// @returns Variable Return value.
-
+/// Change colors for traces. Add legends.
+/// @param elementStr Text containing the element str.
+/// @returns Zero after completing the operation.
 static Function PlotPhCrossSectionOfElement(string elementStr)
 	string allDimLabels = GetColumnOrderFromSelectedElement(elementStr)
 	wave PhCSWave= root:Packages:ATH_DataFolder:XPSReferenceData:ATH_PhCrossSectionTable
@@ -792,6 +807,10 @@ static Function PlotPhCrossSectionOfElement(string elementStr)
 	Legend/C/N=text0/J/F=0/S=3/A=RB ("\Z12" +legendStr)
 End
 
+/// @function SetTraceColor
+/// @brief Return the RGB values assigned to a trace color index.
+/// @param colorIndex Zero-based index into the standard trace-color palette.
+/// @returns The red, green, and blue values for the selected trace-color index.
 static Function [variable red, variable green, variable blue] SetTraceColor(variable colorIndex)
 	/// Give a RGB triplet for 16 distinct colors.
 	/// https://www.wavemetrics.com/forum/general/different-colors-different-waves
@@ -854,16 +873,13 @@ static Function [variable red, variable green, variable blue] SetTraceColor(vari
 End
 
 /// @function CreateElemSelectCoreLevels
-/// @brief Description of CreateElemSelectCoreLevels.
+/// @brief Create elem select core levels.
 /// @details
-/// Auto-generated documentation stub for function `CreateElemSelectCoreLevels`.
-/// @param KE Parameter KE.
-/// @param hv Parameter hv.
-/// @param wf] Parameter wf].
-/// @returns Variable Return value.
-
-
-
+/// Not the most effective fuction having to call GetCrossSectionAtPhotonEnergy.
+/// @param KE (optional) Kinetic energy in electronvolts.
+/// @param hv (optional) Photon energy in electronvolts.
+/// @param wf (optional) Work function in electronvolts.
+/// @returns Zero after completing the operation.
 Function CreateElemSelectCoreLevels([int KE, variable hv, variable wf])
 
 	if(1) // Here if you tick the core level mode
@@ -895,14 +911,15 @@ End
 // several times
 
 /// @function CreateElemSelectCSAtPhotonEnergy
-/// @brief Description of CreateElemSelectCSAtPhotonEnergy.
+/// @brief Create elem select csat photon energy.
 /// @details
-/// Auto-generated documentation stub for function `CreateElemSelectCSAtPhotonEnergy`.
-/// @param wRef Parameter wRef.
-/// @param hv Parameter hv.
-/// @param normalise Parameter normalise.
-/// @param maskExc] Parameter maskExc].
-/// @returns Variable Return value.
+/// WRef here is root:Packages:ATH_DataFolder:XPSReferenceData:CoreLevelsSelect RSF p3/2 = RSFp * 2/3 RSF
+/// p1/2 = RSFp * 1/3.
+/// @param wRef Input wave.
+/// @param hv Photon energy in electronvolts.
+/// @param normalise (optional) If nonzero, normalize the calculated values.
+/// @param maskExc (optional) If nonzero, mask excluded energy values.
+/// @returns Zero after completing the operation.
 Function CreateElemSelectCSAtPhotonEnergy(WAVE wRef, variable hv, [int normalise, int maskExc])
 	// wRef here is root:Packages:ATH_DataFolder:XPSReferenceData:CoreLevelsSelect
 	//	RSF p3/2 = RSFp * 2/3
@@ -951,14 +968,14 @@ End
 // several times
 
 /// @function GetCrossSectionAtPhotonEnergy
-/// @brief Description of GetCrossSectionAtPhotonEnergy.
+/// @brief Return cross section at photon energy.
 /// @details
-/// Auto-generated documentation stub for function `GetCrossSectionAtPhotonEnergy`.
-/// @param elem Parameter elem.
-/// @param orb Parameter orb.
-/// @param hv Parameter hv.
-/// @returns Variable Return value.
-
+/// Get the ionisation cross-section, use DimLavels. Orb might be given as 2p1/2 but PhCS is given for the
+/// subshell, 2p.
+/// @param elem Chemical-element symbol.
+/// @param orb Atomic orbital label.
+/// @param hv Photon energy in electronvolts.
+/// @returns The returned value is cross section at photon energy.
 Function GetCrossSectionAtPhotonEnergy(string elem, string orb, variable hv)
 	// Get the ionisation cross-section, use DimLavels
 	
@@ -983,12 +1000,12 @@ Function GetCrossSectionAtPhotonEnergy(string elem, string orb, variable hv)
 End
 
 /// @function soRSF
-/// @brief Description of soRSF.
+/// @brief Return the spin-orbit relative sensitivity factor for an orbital.
 /// @details
-/// Auto-generated documentation stub for function `soRSF`.
-/// @param orbital Parameter orbital.
-/// @returns Variable Return value.
-
+/// Return relative sensitivity factor orbital is a string of the for 2p, 2p3/2 N.B No checks for valid
+/// inputs!!!!.
+/// @param orbital Atomic orbital label, including spin-orbit component when applicable.
+/// @returns The the spin-orbit relative sensitivity factor for an orbital.
 Function soRSF(string orbital)
 	// Return relative sensitivity factor
 	// orbital is a string of the for 2p, 2p3/2
@@ -1025,6 +1042,20 @@ Function soRSF(string orbital)
 	endif
 End
 
+/// @function CoreLevelsInEnergyRange
+/// @brief List core levels and Auger transitions inside an energy range.
+/// @details
+/// The range can be interpreted as binding or kinetic energy and can include photoelectron core levels, Auger
+/// transitions, or both.
+/// @param Elow Lower energy bound in electronvolts.
+/// @param Ehigh Upper energy bound in electronvolts.
+/// @param KE (optional) If nonzero, interpret the range as kinetic energy.
+/// @param hv (optional) Photon energy in electronvolts.
+/// @param wf (optional) Work function in electronvolts.
+/// @param elements (optional) Optional element-symbol filter.
+/// @param core (optional) If nonzero, include photoelectron core levels.
+/// @param auger (optional) If nonzero, include Auger transitions.
+/// @returns A formatted list of matching transitions and energies.
 Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 	[int KE, variable hv, variable wf, string elements, variable core, variable auger])
 	//
@@ -1106,6 +1137,17 @@ Function/S CoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 	return report
 End
 
+/// @function ShowNotebookCoreLevelsInEnergyRange
+/// @brief Show matching core levels and Auger transitions in a notebook.
+/// @param Elow Lower energy bound in electronvolts.
+/// @param Ehigh Upper energy bound in electronvolts.
+/// @param KE (optional) If nonzero, interpret the range as kinetic energy.
+/// @param hv (optional) Photon energy in electronvolts.
+/// @param wf (optional) Work function in electronvolts.
+/// @param elements (optional) Optional element-symbol filter.
+/// @param core (optional) If nonzero, include photoelectron core levels.
+/// @param auger (optional) If nonzero, include Auger transitions.
+/// @returns Igor status code; zero indicates success and nonzero values report failure or cancellation.
 static Function ShowNotebookCoreLevelsInEnergyRange(variable Elow, variable Ehigh,
 	[int KE, variable hv, variable wf, string elements, variable core, variable auger])
 	KillWindow/Z ATH_xraydata

@@ -20,13 +20,32 @@ related to ATH iXPS functionality.
 MainMenu()
 ```
 
-Description of MainMenu.
+Launch the interactive XPS profiling workflow from the active image.
 
-Auto-generated documentation stub for function `MainMenu`.
+Cursors to set the scale. Cursors to get the profile.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
+
+
+## `InitialiseFolder`
+
+**Signature**
+
+```igorpro
+InitialiseFolder(string winNameStr)
+```
+
+Create the data folder and state used by an interactive XPS profile window.
+
+### Parameters
+
+- `winNameStr` *(String)*: Name of the target graph or panel window.
+
+### Returns
+
+- **DFREF**: Reference to the resulting data folder.
 
 
 ## `InitialiseGraph`
@@ -37,17 +56,17 @@ Auto-generated documentation stub for function `MainMenu`.
 InitialiseGraph(DFREF dfr)
 ```
 
-Description of InitialiseGraph.
+Initialize the graph used by the interactive XPS profiler.
 
-Auto-generated documentation stub for function `InitialiseGraph`.
+Here we will create the profile plot and graph and plot the profile.
 
 ### Parameters
 
-- `dfr` *(Parameter)*: dfr.
+- `dfr` *(DFREF)*: Reference to the data folder to inspect or modify.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `XPSPlot`
@@ -58,17 +77,17 @@ Auto-generated documentation stub for function `InitialiseGraph`.
 XPSPlot(DFREF dfr)
 ```
 
-Description of XPSPlot.
+Create or update the interactive XPS profile plot.
 
-Auto-generated documentation stub for function `XPSPlot`.
+Let's set SaveProfileButton to red if nothing is set or green otherwise.
 
 ### Parameters
 
-- `dfr` *(Parameter)*: dfr.
+- `dfr` *(DFREF)*: Reference to the data folder to inspect or modify.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `ClearXPSMarkings`
@@ -79,13 +98,11 @@ Auto-generated documentation stub for function `XPSPlot`.
 ClearXPSMarkings()
 ```
 
-Description of ClearXPSMarkings.
-
-Auto-generated documentation stub for function `ClearXPSMarkings`.
+Clear cursor and width markings used by the XPS profiler.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `CursorHookFunction`
@@ -96,17 +113,18 @@ Auto-generated documentation stub for function `ClearXPSMarkings`.
 CursorHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of CursorHookFunction.
+Handle cursor hook events.
 
-Auto-generated documentation stub for function `CursorHookFunction`.
+Window hook function. The XPS profile is plotted from E to F. Activate window, e.g after pressing
+"Restore Settings".
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `GraphHookFunction`
@@ -117,17 +135,19 @@ Auto-generated documentation stub for function `CursorHookFunction`.
 GraphHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of GraphHookFunction.
+Handle panel hook events.
 
-Auto-generated documentation stub for function `GraphHookFunction`.
+Window is about to be killed. When using case 2 then I cannot KillWindow and KillDataFolder. See the
+discussion with Wavemetrics. If you want to use case 2, then you need to invoke. Execute/P cmdStr. I do
+not see any issue in using here case 17 (14.12.2023).
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SaveProfile`
@@ -138,17 +158,18 @@ Auto-generated documentation stub for function `GraphHookFunction`.
 SaveProfile(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of SaveProfile.
+Save profile.
 
-Auto-generated documentation stub for function `SaveProfile`.
+String and wave references. Numeric variables from the data folder. It has to come first, it is used to
+scale to BE.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SaveDefaultSettings`
@@ -159,17 +180,17 @@ Auto-generated documentation stub for function `SaveProfile`.
 SaveDefaultSettings(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of SaveDefaultSettings.
+Save default settings.
 
-Auto-generated documentation stub for function `SaveDefaultSettings`.
+From main data folder. From default settings folder.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `RestoreDefaultSettings`
@@ -180,17 +201,17 @@ Auto-generated documentation stub for function `SaveDefaultSettings`.
 RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of RestoreDefaultSettings.
+Restore default settings.
 
-Auto-generated documentation stub for function `RestoreDefaultSettings`.
+Current settings. Default settings. Use the same local variables for the second line.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `ShowProfileWidth`
@@ -201,17 +222,17 @@ Auto-generated documentation stub for function `RestoreDefaultSettings`.
 ShowProfileWidth(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of ShowProfileWidth.
+Show profile width.
 
-Auto-generated documentation stub for function `ShowProfileWidth`.
+We have to find the vertices of the polygon representing.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `PlotProfile`
@@ -222,17 +243,15 @@ Auto-generated documentation stub for function `ShowProfileWidth`.
 PlotProfile(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of PlotProfile.
-
-Auto-generated documentation stub for function `PlotProfile`.
+Plot profile.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `Layer3D`
@@ -243,17 +262,15 @@ Auto-generated documentation stub for function `PlotProfile`.
 Layer3D(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of Layer3D.
-
-Auto-generated documentation stub for function `Layer3D`.
+Layer 3D.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
 
 
 ## `SetProfileWidth`
@@ -264,17 +281,17 @@ Auto-generated documentation stub for function `Layer3D`.
 SetProfileWidth(STRUCT WMSetVariableAction& sv)
 ```
 
-Description of SetProfileWidth.
+Set profile width.
 
-Auto-generated documentation stub for function `SetProfileWidth`.
+Numeric variables. String and wave references. Local variables.
 
 ### Parameters
 
-- `sv` *(Parameter)*: sv.
+- `sv` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SetCursorsGH`
@@ -285,17 +302,18 @@ Auto-generated documentation stub for function `SetProfileWidth`.
 SetCursorsGH(STRUCT WMButtonAction &B_Struct): ButtonControl)
 ```
 
-Description of SetCursorsGH.
+Set the profile cursors from the stored graph coordinates.
 
-Auto-generated documentation stub for function `SetCursorsGH`.
+Numeric variables. Use the same local variables for the second line. Draw the midpoint using the same
+lcoal variable.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `ButtonControl` *(STRUCT WMButtonAction &B_Struct):)*
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `UseBE`
@@ -306,17 +324,15 @@ Auto-generated documentation stub for function `SetCursorsGH`.
 UseBE(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of UseBE.
-
-Auto-generated documentation stub for function `UseBE`.
+Use binding energy.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `Sethv`
@@ -327,17 +343,17 @@ Auto-generated documentation stub for function `UseBE`.
 Sethv(STRUCT WMSetVariableAction& sv)
 ```
 
-Description of Sethv.
+Set photon energy.
 
-Auto-generated documentation stub for function `Sethv`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `sv` *(Parameter)*: sv.
+- `sv` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SetWf`
@@ -348,17 +364,17 @@ Auto-generated documentation stub for function `Sethv`.
 SetWf(STRUCT WMSetVariableAction& sv)
 ```
 
-Description of SetWf.
+Set work function.
 
-Auto-generated documentation stub for function `SetWf`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `sv` *(Parameter)*: sv.
+- `sv` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SetEPP`
@@ -369,17 +385,17 @@ Auto-generated documentation stub for function `SetWf`.
 SetEPP(STRUCT WMSetVariableAction& sv)
 ```
 
-Description of SetEPP.
+Set energy per point.
 
-Auto-generated documentation stub for function `SetEPP`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `sv` *(Parameter)*: sv.
+- `sv` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SetSTV`
@@ -390,17 +406,17 @@ Auto-generated documentation stub for function `SetEPP`.
 SetSTV(STRUCT WMSetVariableAction& sv)
 ```
 
-Description of SetSTV.
+Set stv.
 
-Auto-generated documentation stub for function `SetSTV`.
+This is used to for waves selected in the DB, not here.
 
 ### Parameters
 
-- `sv` *(Parameter)*: sv.
+- `sv` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `GetProfileUsingDefaults`
@@ -411,15 +427,15 @@ Auto-generated documentation stub for function `SetSTV`.
 GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
 ```
 
-Description of GetProfileUsingDefaults.
+Return profile using defaults.
 
-Auto-generated documentation stub for function `GetProfileUsingDefaults`.
+Get a profile from wRef using the default saved settings.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `BEscaleQ]` *(Parameter)*: BEscaleQ].
+- `wRef` *(Wave)*: Input wave.
+- `BEscaleQ` *(Variable, optional)*: B escale q.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The profile using defaults.

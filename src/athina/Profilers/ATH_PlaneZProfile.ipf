@@ -39,11 +39,10 @@
 
 
 /// @function MainMenu
-/// @brief Description of MainMenu.
+/// @brief Launch the plane z-profile tool for the active stack.
 /// @details
-/// Auto-generated documentation stub for function `MainMenu`.
-/// @returns Variable Return value.
-
+/// User selected a wave, check if it's 3d name to the windows hook to kill the plot after completion.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function MainMenu()
 
 	string winNameStr = WinName(0, 1, 1)
@@ -79,6 +78,9 @@ static Function MainMenu()
 	return 0
 End
 
+/// @function InitialiseFolder
+/// @brief Create and initialize state for a plane-averaged z profile.
+/// @returns Reference to the resulting data folder.
 static Function/DF InitialiseFolder()
 	/// All initialisation happens here. Folders, waves and local/global variables
 	/// needed are created here. Use the 3D wave in top window.
@@ -170,12 +172,11 @@ static Function/DF InitialiseFolder()
 End
 
 /// @function InitialiseGraph
-/// @brief Description of InitialiseGraph.
+/// @brief Initialize the graph used by the plane z-profile tool.
 /// @details
-/// Auto-generated documentation stub for function `InitialiseGraph`.
-/// @param dfr Parameter dfr.
-/// @returns Variable Return value.
-
+/// Here we will create the profile plot and graph and plot the profile.
+/// @param dfr Reference to the data folder to inspect or modify.
+/// @returns Zero after completing the operation.
 static Function InitialiseGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
 	string plotNameStr = "ATH_ImagePlaneZProf_" + GetDataFolder(0, dfr)
@@ -188,12 +189,11 @@ static Function InitialiseGraph(DFREF dfr)
 End
 
 /// @function CreatePanel
-/// @brief Description of CreatePanel.
+/// @brief Create panel.
 /// @details
-/// Auto-generated documentation stub for function `CreatePanel`.
-/// @param dfr Parameter dfr.
-/// @returns Variable Return value.
-
+/// Not good idea to use it now as long as the "i" options interferes with the ControlBar of the profilert.
+/// @param dfr Reference to the data folder to inspect or modify.
+/// @returns Zero after completing the operation.
 static Function CreatePanel(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(rootFolderStr)
@@ -253,12 +253,11 @@ static Function CreatePanel(DFREF dfr)
 End
 
 /// @function CursorHookFunction
-/// @brief Description of CursorHookFunction.
+/// @brief Handle cursor hook events.
 /// @details
-/// Auto-generated documentation stub for function `CursorHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Window hook function. The line profile is drawn from G to H. Set scale.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	/// The line profile is drawn from G to H
@@ -382,12 +381,12 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 /// @function GraphHookFunction
-/// @brief Description of GraphHookFunction.
+/// @brief Handle panel hook events.
 /// @details
-/// Auto-generated documentation stub for function `GraphHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// ParentGraphWin -- winNameStr. Kill the MyLineProfileHook. We need to reset the link between
+/// parentGraphwin (winNameStr) and ATH_LinkedLineProfilePlotStr.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentGraphWin = GetUserData(s.winName, "", "ATH_LinkedWinImageSource")
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
@@ -420,12 +419,11 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 /// @function SaveProfileButton
-/// @brief Description of SaveProfileButton.
+/// @brief Handle the save profile button action.
 /// @details
-/// Auto-generated documentation stub for function `SaveProfileButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonControl // Change using UniqueName for displaying
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -472,12 +470,11 @@ static Function SaveProfileButton(STRUCT WMButtonAction &B_Struct): ButtonContro
 End
 
 /// @function SetScaleButton
-/// @brief Description of SetScaleButton.
+/// @brief Handle the set scale button action.
 /// @details
-/// Auto-generated documentation stub for function `SetScaleButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -515,12 +512,9 @@ static Function SetScaleButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 /// @function CheckboxPlotProfile
-/// @brief Description of CheckboxPlotProfile.
-/// @details
-/// Auto-generated documentation stub for function `CheckboxPlotProfile`.
-/// @param cb Parameter cb.
-/// @returns Variable Return value.
-
+/// @brief Handle the plot-profile checkbox action.
+/// @param cb Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
@@ -537,13 +531,9 @@ static Function CheckboxPlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxContr
 End
 
 /// @function CheckboxMarkLines
-/// @brief Description of CheckboxMarkLines.
-/// @details
-/// Auto-generated documentation stub for function `CheckboxMarkLines`.
-/// @param cb Parameter cb.
-/// @returns Variable Return value.
-
-
+/// @brief Handle the mark-lines checkbox action.
+/// @param cb Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function CheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
@@ -560,12 +550,9 @@ static Function CheckboxMarkLines(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 /// @function OverrideNx
-/// @brief Description of OverrideNx.
-/// @details
-/// Auto-generated documentation stub for function `OverrideNx`.
-/// @param cb Parameter cb.
-/// @returns Variable Return value.
-
+/// @brief Toggle manual override of the x sample count.
+/// @param cb Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function OverrideNx(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
@@ -582,12 +569,9 @@ static Function OverrideNx(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 /// @function OverrideNy
-/// @brief Description of OverrideNy.
-/// @details
-/// Auto-generated documentation stub for function `OverrideNy`.
-/// @param cb Parameter cb.
-/// @returns Variable Return value.
-
+/// @brief Toggle manual override of the y sample count.
+/// @param cb Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function OverrideNy(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
@@ -604,12 +588,11 @@ static Function OverrideNy(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 /// @function SetVariableNx
-/// @brief Description of SetVariableNx.
+/// @brief Set variable nx.
 /// @details
-/// Auto-generated documentation stub for function `SetVariableNx`.
-/// @param sv Parameter sv.
-/// @returns Variable Return value.
-
+/// SetScale/I y, Ystart, Yend, ww.
+/// @param sv Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SetVariableNx(STRUCT WMSetVariableAction& sv) : SetVariableControl
 
 	switch(sv.eventCode)
@@ -640,12 +623,11 @@ static Function SetVariableNx(STRUCT WMSetVariableAction& sv) : SetVariableContr
 End
 
 /// @function SetVariableNy
-/// @brief Description of SetVariableNy.
+/// @brief Set variable ny.
 /// @details
-/// Auto-generated documentation stub for function `SetVariableNy`.
-/// @param sv Parameter sv.
-/// @returns Variable Return value.
-
+/// SetScale/I x, 0, (normGHCursors * Xfactor), ww.
+/// @param sv Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SetVariableNy(STRUCT WMSetVariableAction& sv) : SetVariableControl
 
 	switch(sv.eventCode)
@@ -676,19 +658,16 @@ static Function SetVariableNy(STRUCT WMSetVariableAction& sv) : SetVariableContr
 End
 
 /// @function DrawLineUserFront
-/// @brief Description of DrawLineUserFront.
-/// @details
-/// Auto-generated documentation stub for function `DrawLineUserFront`.
-/// @param winNameStr Parameter winNameStr.
-/// @param x0 Parameter x0.
-/// @param y0 Parameter y0.
-/// @param x1 Parameter x1.
-/// @param y1 Parameter y1.
-/// @param red Parameter red.
-/// @param green Parameter green.
-/// @param blue Parameter blue.
-/// @returns Variable Return value.
-
+/// @brief Draw line user front.
+/// @param winNameStr Win name str.
+/// @param x0 First x coordinate or range bound.
+/// @param y0 First y coordinate or range bound.
+/// @param x1 Second x coordinate or range bound.
+/// @param y1 Second y coordinate or range bound.
+/// @param red Red-channel value or wave.
+/// @param green Green-channel value or wave.
+/// @param blue Blue-channel value or wave.
+/// @returns Zero after completing the operation.
 static Function DrawLineUserFront(string winNameStr, variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
 	SetDrawLayer/W=$winNameStr UserFront 
 	SetDrawEnv/W=$winNameStr linefgc = (red, green, blue), fillpat = 0, linethick = 1, dash= 2, xcoord= top, ycoord= left

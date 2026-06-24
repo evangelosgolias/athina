@@ -97,6 +97,16 @@ EndStructure
 
 //static constant kpixelsTVIPS = 2048 // Change here if needed. Used for corrupted files only.
 
+/// @function WAVELoadSingleDATFile
+/// @brief Load one UView DAT file and return the image wave.
+/// @param filepathStr Full path of the input file.
+/// @param waveNameStr (optional) Optional destination wave name.
+/// @param skipmetadata (optional) If nonzero, skip reading image metadata.
+/// @param autoScale (optional) If nonzero, derive physical scaling from the file metadata.
+/// @param binX (optional) Horizontal binning factor.
+/// @param binY (optional) Vertical binning factor.
+/// @param overwrite (optional) If nonzero, replace the source or existing destination.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameStr 
 			  [,int skipmetadata, int autoScale,int binX, int binY, int overwrite])
 	///< Function to load a single Elmitec binary .dat file.
@@ -251,6 +261,16 @@ static Function/WAVE WAVELoadSingleDATFile(string filepathStr, string waveNameSt
 	return datWave
 End
 
+/// @function LoadSingleDATFile
+/// @brief Load one UView DAT file into the current data folder.
+/// @param filepathStr Full path of the input file.
+/// @param waveNameStr (optional) Optional destination wave name.
+/// @param skipmetadata (optional) If nonzero, skip reading image metadata.
+/// @param autoScale (optional) If nonzero, derive physical scaling from the file metadata.
+/// @param binX (optional) Horizontal binning factor.
+/// @param binY (optional) Vertical binning factor.
+/// @param overwrite (optional) If nonzero, replace the source or existing destination.
+/// @returns Zero on success; a nonzero status if the file cannot be loaded.
 static Function LoadSingleDATFile(string filepathStr, string waveNameStr
          [,int skipmetadata, int autoScale, int binX, int binY, int overwrite])
 	///< Function to load a single Elmitec binary .dat file.
@@ -399,6 +419,13 @@ static Function LoadSingleDATFile(string filepathStr, string waveNameStr
 	return 0
 End
 
+/// @function StrGetBasicMetadataInfoFromDAT
+/// @brief Read basic acquisition metadata from a UView DAT file.
+/// @param datafile Full path of the UView DAT file.
+/// @param MetadataStartPos Byte offset where metadata begins.
+/// @param MetadataEndPos Byte offset where metadata ends.
+/// @param LEEMDataVersion UView/LEEM file-format version read from the header.
+/// @returns An Igor key-value string containing basic acquisition metadata.
 static Function/S StrGetBasicMetadataInfoFromDAT(string datafile, variable MetadataStartPos, 
 		   variable MetadataEndPos, variable LEEMDataVersion)
 	// Read important metadata from a .dat file. Most metadata are stored in the form
@@ -550,6 +577,13 @@ static Function/S StrGetBasicMetadataInfoFromDAT(string datafile, variable Metad
 	return ATHMetaDataStr // ConvertTextEncoding(ATHMetaDataStr, 1, 1, 3, 2)
 End
 
+/// @function StrGetAllMetadataInfoFromDAT
+/// @brief Read all supported metadata records from a UView DAT file.
+/// @param datafile Full path of the UView DAT file.
+/// @param MetadataStartPos Byte offset where metadata begins.
+/// @param MetadataEndPos Byte offset where metadata ends.
+/// @param LEEMDataVersion UView/LEEM file-format version read from the header.
+/// @returns An Igor key-value string containing all recognized metadata records.
 static Function/S StrGetAllMetadataInfoFromDAT(string datafile, variable MetadataStartPos, 
            variable MetadataEndPos, variable LEEMDataVersion)
 	// Read all metadata from a .dat file. Most metadata are stored in the form
@@ -727,17 +761,18 @@ static Function/S StrGetAllMetadataInfoFromDAT(string datafile, variable Metadat
 End
 
 /// @function LoadDATFilesFromFolder
-/// @brief Description of LoadDATFilesFromFolder.
+/// @brief Load UView DAT files from a selected folder.
 /// @details
-/// Auto-generated documentation stub for function `LoadDATFilesFromFolder`.
-/// @param folder Parameter folder.
-/// @param pattern Parameter pattern.
-/// @param stack3d Parameter stack3d.
-/// @param wname3d Parameter wname3d.
-/// @param autoscale Parameter autoscale.
-/// @param displayImg] Parameter displayImg].
-/// @returns Variable Return value.
-
+/// We use ImageTransform stackImages X to create the 3d wave. Compared to 3d wave assignement it is faster
+/// by nearly 3x. Import .dat files that match a pattern from a folder. Waves are named after their filename.
+/// Get all the .dat files. Use "????" for all files in IndexedFile third argument.
+/// @param folder Source folder path.
+/// @param pattern Pattern used to select names or files.
+/// @param stack3d (optional) Input 3D image stack.
+/// @param wname3d (optional) Wname3d.
+/// @param autoscale (optional) Autoscale.
+/// @param displayImg (optional) If nonzero, display the result image.
+/// @returns NaN if input validation fails; otherwise zero after completing the operation.
 static Function LoadDATFilesFromFolder(string folder, string pattern, [int stack3d, string wname3d, int autoscale, int displayImg])
 	// We use ImageTransform stackImages X to create the 3d wave. Compared to 3d wave assignement it is faster by nearly 3x.
 
@@ -841,6 +876,13 @@ static Function LoadDATFilesFromFolder(string folder, string pattern, [int stack
 	return 0
 End
 
+/// @function WAVELoadDATFilesFromFolder
+/// @brief Load matching UView DAT files from a folder into an image stack.
+/// @param folder Source folder path.
+/// @param pattern Pattern used to select names or files.
+/// @param wname3dStr (optional) Optional destination name for the assembled image stack.
+/// @param autoscale (optional) If nonzero, derive physical scaling from the file metadata.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 static Function/WAVE WAVELoadDATFilesFromFolder(string folder, string pattern, [string wname3dStr, int autoscale])
 	// We use ImageTransform stackImages X to create the 3d wave. Compared to 3d wave assignement it is faster by nearly 3x.
 
@@ -926,15 +968,15 @@ static Function/WAVE WAVELoadDATFilesFromFolder(string folder, string pattern, [
 End
 
 /// @function LoadMultiplyDATFiles
-/// @brief Description of LoadMultiplyDATFiles.
+/// @brief Load multiple UView DAT files selected by the user.
 /// @details
-/// Auto-generated documentation stub for function `LoadMultiplyDATFiles`.
-/// @param skipmetadata Parameter skipmetadata.
-/// @param autoscale Parameter autoscale.
-/// @param stack3d Parameter stack3d.
-/// @param displayImg] Parameter displayImg].
-/// @returns Variable Return value.
-
+/// Load multiply selected .dat files. Note: the selected wave are sort alphanumerically so the first on the
+/// list takes the first name in filenames etc.
+/// @param skipmetadata (optional) If nonzero, skip reading image metadata.
+/// @param autoscale (optional) Autoscale.
+/// @param stack3d (optional) Input 3D image stack.
+/// @param displayImg (optional) If nonzero, display the result image.
+/// @returns NaN if input validation fails; otherwise zero after completing the operation.
 static Function LoadMultiplyDATFiles([int skipmetadata, int autoscale, int stack3d, int displayImg])
 	/// Load multiply selected .dat files
 	/// @param skipmetadata is optional and if set to a non-zero value it skips metadata.
@@ -1000,6 +1042,10 @@ End
 
 //// ------ Multithreaded Load --------////
 
+/// @function UviewLoad_Worker
+/// @brief Load one UView DAT file in a worker thread.
+/// @param filepathStr Full path of the input file.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 ThreadSafe static Function/WAVE UviewLoad_Worker(string filepathStr)
 
 	DFREF dfSav= GetDataFolderDFR()
@@ -1039,12 +1085,11 @@ ThreadSafe static Function/WAVE UviewLoad_Worker(string filepathStr)
 End
 
 /// @function LoadDATFilesFromFolderMT
-/// @brief Description of LoadDATFilesFromFolderMT.
+/// @brief Load a folder of UView DAT files using multithreaded conversion.
 /// @details
-/// Auto-generated documentation stub for function `LoadDATFilesFromFolderMT`.
-/// @param displayImg] Parameter displayImg].
-/// @returns Variable Return value.
-
+/// Get all the .dat files. Use "????" for all files in IndexedFile third argument.
+/// @param displayImg (optional) If nonzero, display the result image.
+/// @returns NaN if input validation fails; otherwise zero after completing the operation.
 static Function LoadDATFilesFromFolderMT([int displayImg])
 
 	displayImg = ParamIsDefault(displayImg) ? 0: !!displayImg
@@ -1092,12 +1137,9 @@ static Function LoadDATFilesFromFolderMT([int displayImg])
 End
 
 /// @function LoadMultiplyDATFilesMT
-/// @brief Description of LoadMultiplyDATFilesMT.
-/// @details
-/// Auto-generated documentation stub for function `LoadMultiplyDATFilesMT`.
-/// @param displayImg] Parameter displayImg].
-/// @returns Variable Return value.
-
+/// @brief Load multiple UView DAT files using multithreaded conversion.
+/// @param displayImg (optional) If nonzero, display the result image.
+/// @returns NaN if input validation fails; otherwise zero after completing the operation.
 static Function LoadMultiplyDATFilesMT([int displayImg])
 
 	displayImg = ParamIsDefault(displayImg) ? 0: !!displayImg
@@ -1140,13 +1182,10 @@ static Function LoadMultiplyDATFilesMT([int displayImg])
 End
 
 /// @function LoadDATFilesMatchingPattternToStackMT
-/// @brief Description of LoadDATFilesMatchingPattternToStackMT.
-/// @details
-/// Auto-generated documentation stub for function `LoadDATFilesMatchingPattternToStackMT`.
-/// @param displayImg Parameter displayImg.
-/// @param pattern] Parameter pattern].
-/// @returns Variable Return value.
-
+/// @brief Load matching UView DAT files into a stack using multithreaded conversion.
+/// @param displayImg (optional) If nonzero, display the result image.
+/// @param pattern (optional) Pattern used to select names or files.
+/// @returns NaN if input validation fails; otherwise zero after completing the operation.
 static Function LoadDATFilesMatchingPattternToStackMT([int displayImg, int pattern])
 
 	displayImg = ParamIsDefault(displayImg) ? 0: !!displayImg
@@ -1205,12 +1244,12 @@ static Function LoadDATFilesMatchingPattternToStackMT([int displayImg, int patte
 End
 
 /// @function ReadFovFromDATFile
-/// @brief Description of ReadFovFromDATFile.
+/// @brief Read the field of view from a UView DAT file header.
 /// @details
-/// Auto-generated documentation stub for function `ReadFovFromDATFile`.
-/// @param filepathStr Parameter filepathStr.
-/// @returns Variable Return value.
-
+/// Elmitec files can have additional markup blocks hence the offsets of 128 bytes no markups. Markup blocks
+/// multiple of 128 bytes after image header.
+/// @param filepathStr Filepath str.
+/// @returns The field of view in micrometres, or zero when the metadata value is unavailable.
 static Function ReadFovFromDATFile(string filepathStr)
 		
 	variable numRef, ImageHeaderSize

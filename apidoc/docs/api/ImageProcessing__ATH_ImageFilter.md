@@ -12,6 +12,28 @@ related to ATH ImageFilter functionality.
 :depth: 2
 ```
 
+## `ThresholdImageRangeToMask`
+
+**Signature**
+
+```igorpro
+ThresholdImageRangeToMask([string grfName, variable minV, variable maxV, int complexM])
+```
+
+Create a mask selecting image values inside a threshold range.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
+- `minV` *(Variable, optional)*: Lower inclusive threshold.
+- `maxV` *(Variable, optional)*: Upper inclusive threshold.
+- `complexM` *(Integer, optional)*: Complex-wave component selected for thresholding.
+
+### Returns
+
+- **Wave**: Reference to the result wave; a null wave reference indicates failure where supported.
+
+
 ## `iFFTImgFilter`
 
 **Signature**
@@ -20,17 +42,17 @@ related to ATH ImageFilter functionality.
 iFFTImgFilter(WAVE wRef)
 ```
 
-Description of iFFTImgFilter.
+Create the interactive FFT image-filtering interface.
 
-Auto-generated documentation stub for function `iFFTImgFilter`.
+Note wRef_fft, "FFT " + GetWavesDataFolder(wRef,2). Set globals. End of globals.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
+- `wRef` *(Wave)*: Input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `iImgFilterHookFunction`
@@ -41,17 +63,17 @@ Auto-generated documentation stub for function `iFFTImgFilter`.
 iImgFilterHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of iImgFilterHookFunction.
+Handle graph events for the interactive image filter.
 
-Auto-generated documentation stub for function `iImgFilterHookFunction`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `iImgFilterButton`
@@ -62,17 +84,17 @@ Auto-generated documentation stub for function `iImgFilterHookFunction`.
 iImgFilterButton(STRUCT WMButtonAction &ba)
 ```
 
-Description of iImgFilterButton.
+Apply or reset the interactive image filter from its button controls.
 
-Auto-generated documentation stub for function `iImgFilterButton`.
+Creates a separate result wave, leaving the input wave available to the caller.
 
 ### Parameters
 
-- `&ba` *(Parameter)*: &ba.
+- `ba` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `iImgFilterSetGValues`
@@ -83,14 +105,14 @@ Auto-generated documentation stub for function `iImgFilterButton`.
 iImgFilterSetGValues(STRUCT WMSetVariableAction &sva)
 ```
 
-Description of iImgFilterSetGValues.
+Update the interactive filter's global parameter values.
 
-Auto-generated documentation stub for function `iImgFilterSetGValues`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&sva` *(Parameter)*: &sva.
+- `sva` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.

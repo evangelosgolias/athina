@@ -20,13 +20,14 @@ related to ATH iXMCD functionality.
 MenuLaunch()
 ```
 
-Description of MenuLaunch.
+Launch the interactive XMCD workflow from the active image stack.
 
-Auto-generated documentation stub for function `MenuLaunch`.
+Function to interactively drift images and get an updated graph of the XMC(L)D contrast. S_fileName is a
+carriage-return-separated list of full paths to one or more files.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: NaN if input validation fails; otherwise zero after completing the operation.
 
 
 ## `CreateiXMCDPanel`
@@ -37,17 +38,17 @@ Auto-generated documentation stub for function `MenuLaunch`.
 CreateiXMCDPanel(WAVE wXMCD)
 ```
 
-Description of CreateiXMCDPanel.
+Create the interactive XMCD calculation panel.
 
-Auto-generated documentation stub for function `CreateiXMCDPanel`.
+Set the path to all windows.
 
 ### Parameters
 
-- `wXMCD` *(Parameter)*: wXMCD.
+- `wXMCD` *(Wave)*: Destination wave for the XMCD result.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `iXMCDWindowHook`
@@ -58,17 +59,18 @@ Auto-generated documentation stub for function `CreateiXMCDPanel`.
 iXMCDWindowHook(STRUCT WMWinHookStruct &s)
 ```
 
-Description of iXMCDWindowHook.
+Handle events from the interactive XMCD graph window.
 
-Auto-generated documentation stub for function `iXMCDWindowHook`.
+Window is about to be killed case 17. Needed if you want more than one hook functions to be able to
+cleanup/close windows linked a parent window.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `RestoreImagesButton`
@@ -79,17 +81,17 @@ Auto-generated documentation stub for function `iXMCDWindowHook`.
 RestoreImagesButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of RestoreImagesButton.
+Handle the restore images button action.
 
-Auto-generated documentation stub for function `RestoreImagesButton`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SaveXMCDImageButton`
@@ -100,17 +102,17 @@ Auto-generated documentation stub for function `RestoreImagesButton`.
 SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of SaveXMCDImageButton.
+Save the current XMCD result when the panel button is pressed.
 
-Auto-generated documentation stub for function `SaveXMCDImageButton`.
+Gather metadata.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SetDriftStepVar`
@@ -121,17 +123,17 @@ Auto-generated documentation stub for function `SaveXMCDImageButton`.
 SetDriftStepVar(STRUCT WMSetVariableAction &sva)
 ```
 
-Description of SetDriftStepVar.
+Set drift step var.
 
-Auto-generated documentation stub for function `SetDriftStepVar`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&sva` *(Parameter)*: &sva.
+- `sva` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SetIntensityScale`
@@ -142,14 +144,15 @@ Auto-generated documentation stub for function `SetDriftStepVar`.
 SetIntensityScale(STRUCT WMSetVariableAction &sva)
 ```
 
-Description of SetIntensityScale.
+Set intensity scale.
 
-Auto-generated documentation stub for function `SetIntensityScale`.
+Here get the old factor and calculate the next to avoid duplications. Give info about the ratio of
+signals in marquee if present. Grab normalisation region.
 
 ### Parameters
 
-- `&sva` *(Parameter)*: &sva.
+- `sva` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.

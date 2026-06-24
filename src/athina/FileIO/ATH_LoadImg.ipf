@@ -43,16 +43,14 @@
 
 
 /// @function Loadtiff
-/// @brief Description of Loadtiff.
+/// @brief Load TIFF.
 /// @details
-/// Auto-generated documentation stub for function `Loadtiff`.
-/// @param filepathStr Parameter filepathStr.
-/// @param waveNameStr Parameter waveNameStr.
-/// @param displayImg Parameter displayImg.
-/// @param overwrite] Parameter overwrite].
-/// @returns Variable Return value.
-
-
+/// Guess the dimenions.
+/// @param filepathStr Filepath str.
+/// @param waveNameStr Wave used by the operation.
+/// @param displayImg (optional) If nonzero, display the result image.
+/// @param overwrite (optional) If nonzero, replace the source or an existing destination.
+/// @returns Zero after completing the operation.
 static Function Loadtiff(string filepathStr, string waveNameStr, [int displayImg, int overwrite])
 	/// @param filepathStr string pathname. 
 	/// If "" a dialog opens to select the file.
@@ -120,14 +118,11 @@ static Function Loadtiff(string filepathStr, string waveNameStr, [int displayImg
 End
 
 /// @function Loadtiffs
-/// @brief Description of Loadtiffs.
-/// @details
-/// Auto-generated documentation stub for function `Loadtiffs`.
-/// @param numImages Parameter numImages.
-/// @param displayImg Parameter displayImg.
-/// @param stack3d] Parameter stack3d].
-/// @returns Variable Return value.
-
+/// @brief Load tiffs.
+/// @param numImages (optional) Maximum number of images to load.
+/// @param displayImg (optional) If nonzero, display the result image.
+/// @param stack3d (optional) Input 3D image stack.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function Loadtiffs([int numImages, int displayImg, int stack3d])
 	/// @param filepathStr string pathname.
 	/// If "" a dialog opens to select the file.
@@ -204,6 +199,11 @@ static Structure dentry
 	int32 dlen
 EndStructure
 
+/// @function PEEM3File
+/// @brief Load a PEEM3 image file and its metadata.
+/// @param filepathStr Full path of the input file.
+/// @param mkdir (optional) If nonzero, create a destination data folder for the loaded file.
+/// @returns The name of the loaded image wave, or an empty string if file selection is cancelled.
 static Function/S PEEM3File(string filepathStr, [variable mkdir])
 	variable numRef
 	string separatorchar = ":", waveNameStr, message
@@ -325,12 +325,11 @@ static Function/S PEEM3File(string filepathStr, [variable mkdir])
 End
 
 /// @function PEEM3Files
-/// @brief Description of PEEM3Files.
+/// @brief Load PEEM3 image files into Igor waves.
 /// @details
-/// Auto-generated documentation stub for function `PEEM3Files`.
-/// @param stack3d] Parameter stack3d].
-/// @returns Variable Return value.
-
+/// Get the first wave to have the scale.
+/// @param stack3d (optional) Input 3D image stack.
+/// @returns NaN if input validation fails; otherwise zero after completing the operation.
 static Function PEEM3Files([int stack3d])
 	stack3d = ParamIsDefault(stack3d) ? 0 : !!stack3d
 	variable numRef, i

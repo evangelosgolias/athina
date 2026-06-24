@@ -37,14 +37,14 @@
 
 
 /// @function TWaveRemoveEntriesFromPatters
-/// @brief Description of TWaveRemoveEntriesFromPatters.
+/// @brief Remove text-wave entries whose values match any supplied pattern.
 /// @details
-/// Auto-generated documentation stub for function `TWaveRemoveEntriesFromPatters`.
-/// @param textW Parameter textW.
-/// @param patternStr Parameter patternStr.
-/// @param otherW] Parameter otherW].
-/// @returns Variable Return value.
-
+/// Remove entries from textW that start with pathbase. Optionally we can remove the same entries from
+/// another wave otherW. We use this in ATH_LaunchDeleteBigWaves.
+/// @param textW Input text wave.
+/// @param patternStr Text containing the pattern str.
+/// @param otherW (optional) Second text wave used for comparison or concatenation.
+/// @returns Zero after completing the operation.
 static Function TWaveRemoveEntriesFromPatters(WAVE/T textW, string patternStr, [WAVE otherW])
 	// Remove entries from textW that start with pathbase
 	// Optionally we can remove the same entries from another wave otherW
@@ -63,12 +63,11 @@ static Function TWaveRemoveEntriesFromPatters(WAVE/T textW, string patternStr, [
 End
 
 /// @function DeleteWavesInTextWave
-/// @brief Description of DeleteWavesInTextWave.
+/// @brief Remove waves in text wave.
 /// @details
-/// Auto-generated documentation stub for function `DeleteWavesInTextWave`.
-/// @param textW Parameter textW.
-/// @returns Variable Return value.
-
+/// Delete big waves listed in textW.
+/// @param textW Input text wave.
+/// @returns Zero after completing the operation.
 static Function DeleteWavesInTextWave(WAVE/T textW)
 	// Delete big waves listed in textW
 	variable nw = DimSize(textW, 0), i
@@ -79,13 +78,12 @@ static Function DeleteWavesInTextWave(WAVE/T textW)
 End
 
 /// @function TextWaveToString
-/// @brief Description of TextWaveToString.
+/// @brief Text wave to string.
 /// @details
-/// Auto-generated documentation stub for function `TextWaveToString`.
-/// @param textW Parameter textW.
-/// @param sep] Parameter sep].
-/// @returns String Return value.
-
+/// Make a string from a textwave.
+/// @param textW Input text wave.
+/// @param sep (optional) Delimiter used between list items.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S TextWaveToString(WAVE/T textW, [string sep])
 	// Make a string from a textwave
 	// If you want to return a list, just set strsep=;
@@ -101,13 +99,10 @@ static Function/S TextWaveToString(WAVE/T textW, [string sep])
 End
 
 /// @function StringListToTextWave
-/// @brief Description of StringListToTextWave.
-/// @details
-/// Auto-generated documentation stub for function `StringListToTextWave`.
-/// @param stringListStr Parameter stringListStr.
-/// @param sep Parameter sep.
-/// @returns Wave Return value.
-
+/// @brief String list to text wave.
+/// @param stringListStr Text containing the string list str.
+/// @param sep Delimiter used between list items.
+/// @returns Reference to the result wave; a null reference indicates failure where supported.
 static Function/WAVE StringListToTextWave(string stringListStr, string sep)
 
 	variable numElem = ItemsInList(stringListStr, sep)
@@ -121,13 +116,14 @@ End
 // Dev -- need testing
 
 /// @function TWaveRemoveEntriesFromStringList
-/// @brief Description of TWaveRemoveEntriesFromStringList.
+/// @brief Remove text-wave entries listed in a delimited string.
 /// @details
-/// Auto-generated documentation stub for function `TWaveRemoveEntriesFromStringList`.
-/// @param textW Parameter textW.
-/// @param stringListStr Parameter stringListStr.
-/// @param otherW] Parameter otherW].
-/// @returns Variable Return value.
+/// Remove entries from textW in stringListStr. Optionally we can remove the same entries from another wave
+/// otherW. We use this in ATH_LaunchDeleteBigWavesDisplayed.
+/// @param textW Input text wave.
+/// @param stringListStr Text containing the string list str.
+/// @param otherW (optional) Second text wave used for comparison or concatenation.
+/// @returns Zero after completing the operation.
 static Function TWaveRemoveEntriesFromStringList(WAVE/T textW, string stringListStr, [WAVE otherW])
 	// Remove entries from textW in stringListStr
 	// Optionally we can remove the same entries from another wave otherW

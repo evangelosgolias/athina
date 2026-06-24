@@ -39,15 +39,15 @@
 /// related to ATH ImageAlign functionality.
 
 /// @function LinearDriftStackABCursors
-/// @brief Description of LinearDriftStackABCursors.
+/// @brief Correct linear drift through a stack using the displacement between cursors A and B.
 /// @details
-/// Auto-generated documentation stub for function `LinearDriftStackABCursors`.
-/// @param w3d Parameter w3d.
-/// @param wx Parameter wx.
-/// @param wy Parameter wy.
-/// @param intPx] Parameter intPx].
-/// @returns Variable Return value.
-
+/// Linear drift correction w3d using wx and wy displacements. Drifts for ImageInterpolate should be in
+/// pixels. Restore scale here.
+/// @param w3d Input 3D wave or image stack.
+/// @param wx Wave containing x drift or displacement values.
+/// @param wy Wave containing y drift or displacement values.
+/// @param intPx (optional) If nonzero, round calculated displacements to integer pixels.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function LinearDriftStackABCursors(WAVE w3d, WAVE wx, WAVE wy, [int intPx])
 	/// Linear drift correction w3d using wx and wy displacements
 
@@ -87,17 +87,17 @@ static Function LinearDriftStackABCursors(WAVE w3d, WAVE wx, WAVE wy, [int intPx
 End
 
 /// @function LinearDriftPlanesABCursors
-/// @brief Description of LinearDriftPlanesABCursors.
+/// @brief Correct linear drift over selected stack layers using cursors A and B.
 /// @details
-/// Auto-generated documentation stub for function `LinearDriftPlanesABCursors`.
-/// @param w3d Parameter w3d.
-/// @param wx Parameter wx.
-/// @param wy Parameter wy.
-/// @param startL Parameter startL.
-/// @param endL Parameter endL.
-/// @param intPx] Parameter intPx].
-/// @returns Variable Return value.
-
+/// Linear drift correction w3d using wx and wy displacements WAVE wx - x coordinates WAVE wy - y
+/// coordinates.
+/// @param w3d Input 3D wave or image stack.
+/// @param wx Wave containing x drift or displacement values.
+/// @param wy Wave containing y drift or displacement values.
+/// @param startL (optional) Lower or starting start l.
+/// @param endL (optional) Upper or ending end l.
+/// @param intPx (optional) If nonzero, round calculated displacements to integer pixels.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function LinearDriftPlanesABCursors(WAVE w3d, WAVE wx, WAVE wy, [variable startL, variable endL, int intPx])
 	/// Linear drift correction w3d using wx and wy displacements
 	/// WAVE wx - x coordinates
@@ -159,6 +159,18 @@ End
 
 // // Multithreaded Drift Correction using Correlation
 
+/// @function MultiThreadCorrelationDriftCorrection
+/// @brief Measure stack drift by multithreaded image correlation.
+/// @details
+/// Uses either normalized real-space correlation or phase correlation against a reference layer, then replaces
+/// the input stack with the aligned layers. Saved drift values are expressed in pixels.
+/// @param w3D Input 3D image stack.
+/// @param w3DPart Preprocessed or cropped stack used to estimate alignment.
+/// @param layerN Zero-based image-stack layer index.
+/// @param saveDrift (optional) If nonzero, save the calculated per-layer drift parameters.
+/// @param subpixel (optional) If nonzero, refine correlation peaks with a two-dimensional Gaussian fit.
+/// @param method (optional) Algorithm or processing method.
+/// @returns Zero after replacing the source stack with the aligned result.
 static Function MultiThreadCorrelationDriftCorrection(WAVE w3D, 
 	 WAVE w3DPart, variable layerN, [variable saveDrift, variable subpixel, variable method])
 	// method 0 - real correlation
@@ -214,6 +226,17 @@ static Function MultiThreadCorrelationDriftCorrection(WAVE w3D,
 	KillWaves/Z ww, M_ImagePlane
 End
 
+/// @function DriftCorrelationPartition_Worker
+/// @brief Register one stack layer by normalized cross-correlation.
+/// @param w3D Input 3D image stack.
+/// @param w3DPart Preprocessed or cropped stack used to estimate alignment.
+/// @param w3DPartRef Reference image used for correlation or registration.
+/// @param refP Reference-row location of the correlation maximum.
+/// @param refQ Reference-column location of the correlation maximum.
+/// @param plane Zero-based image-stack plane index.
+/// @param wDC Optional wave that receives or supplies per-layer drift parameters.
+/// @param subpixel (optional) If nonzero, refine correlation peaks with a two-dimensional Gaussian fit.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart,
 					WAVE w3DPartRef, variable refP, variable refQ, variable plane,
 					WAVE/Z wDC, [variable subpixel])
@@ -267,6 +290,15 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 	return M_Affine		// Return a reference to the free M_Affine wave
 End
 
+/// @function DriftPhaseCorrelationPartition_Worker
+/// @brief Register one stack layer by phase correlation.
+/// @param w3D Input 3D image stack.
+/// @param w3DPart Preprocessed or cropped stack used to estimate alignment.
+/// @param fftRef Phase spectrum of the reference image.
+/// @param plane Zero-based image-stack plane index.
+/// @param wDC Optional wave that receives or supplies per-layer drift parameters.
+/// @param subpixel (optional) If nonzero, refine correlation peaks with a two-dimensional Gaussian fit.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 ThreadSafe static Function/WAVE DriftPhaseCorrelationPartition_Worker(WAVE w3D, WAVE w3DPart,
 					WAVE fftRef, variable plane, WAVE/Z wDC, [variable subpixel])
 	
@@ -322,6 +354,17 @@ ThreadSafe static Function/WAVE DriftPhaseCorrelationPartition_Worker(WAVE w3D, 
 	return M_Affine		// Return a reference to the free M_Affine wave
 End
 
+/// @function MultiThreadRegistrationDriftCorrection
+/// @brief Measure stack drift using multithreaded image registration.
+/// @details
+/// Registers each normalized layer to the selected reference layer and replaces the input stack with the
+/// aligned result.
+/// @param w3D Input 3D image stack.
+/// @param w3DPart Preprocessed or cropped stack used to estimate alignment.
+/// @param layerN Zero-based image-stack layer index.
+/// @param RotZ (optional) If nonzero, allow rotation about the z axis.
+/// @param saveDrift (optional) If nonzero, save the calculated per-layer drift parameters.
+/// @returns Zero after replacing the source stack with the registered result.
 static Function MultiThreadRegistrationDriftCorrection(WAVE w3D, 
 	 WAVE w3DPart, variable layerN, [variable RotZ, variable saveDrift])
 
@@ -375,6 +418,16 @@ static Function MultiThreadRegistrationDriftCorrection(WAVE w3D,
 End
 
 // Multithreaded Drift Correction using Registration
+/// @function DriftRegistrationPartition_Worker
+/// @brief Register one stack layer and optionally record its transformation parameters.
+/// @param w3D Input 3D image stack.
+/// @param w3DPart Preprocessed or cropped stack used to estimate alignment.
+/// @param w3DPartRef Reference image used for correlation or registration.
+/// @param wROIMask Mask defining pixels used by ImageRegistration.
+/// @param plane Zero-based image-stack plane index.
+/// @param RotZ (optional) If nonzero, allow rotation about the z axis.
+/// @param wDC (optional) Optional wave that receives or supplies per-layer drift parameters.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 ThreadSafe static Function/WAVE DriftRegistrationPartition_Worker(WAVE w3D, WAVE w3DPart,
 					WAVE w3DPartRef, WAVE wROIMask, variable plane, [variable RotZ, WAVE/Z wDC])
 	
@@ -418,6 +471,14 @@ End
 // TODO: We can accumulate drifts to allow user to drift correct more
 // than once if needed.
 
+/// @function MultiThreadApplySavedDriftCorrections
+/// @brief Apply stored drift corrections to an image stack in parallel.
+/// @details
+/// Accepts either the two-row translation format produced by correlation or the 22-row transformation format
+/// produced by ImageRegistration.
+/// @param w3D Input 3D image stack.
+/// @param cDriftW (optional) Wave containing saved translation or ImageRegistration parameters.
+/// @returns Igor status code; zero indicates success and nonzero values report failure or cancellation.
 static Function MultiThreadApplySavedDriftCorrections(WAVE w3D, [WAVE/Z cDriftW])
 	
 	if(!(WaveType(w3D) & 0x02))
@@ -456,6 +517,13 @@ static Function MultiThreadApplySavedDriftCorrections(WAVE w3D, [WAVE/Z cDriftW]
 End
 
 // Multithreaded Drift Correction using Registration
+/// @function ApplySavedDriftCorrections_Worker
+/// @brief Apply saved correlation or registration parameters to one stack layer.
+/// @param w3D Input 3D image stack.
+/// @param wROIMask Mask defining pixels used by ImageRegistration.
+/// @param wDC Optional wave that receives or supplies per-layer drift parameters.
+/// @param plane Zero-based image-stack plane index.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 ThreadSafe static Function/WAVE ApplySavedDriftCorrections_Worker(WAVE w3D, WAVE wROIMask, WAVE wDC, variable plane)
 	
 	DFREF dfSav= GetDataFolderDFR()
@@ -485,6 +553,11 @@ ThreadSafe static Function/WAVE ApplySavedDriftCorrections_Worker(WAVE w3D, WAVE
 End
 
 // Added for ATH_Launch#ImageRegistrationStack()
+/// @function MultiThreadImageRegistration
+/// @brief Register image-stack layers in parallel.
+/// @param w3D Input 3D image stack.
+/// @param ref Zero-based index of the reference layer.
+/// @returns Zero after replacing the source stack with the registered result.
 static Function MultiThreadImageRegistration(WAVE w3D, variable ref)
 
 	if(!(WaveType(w3D) & 0x02))
@@ -512,6 +585,12 @@ static Function MultiThreadImageRegistration(WAVE w3D, variable ref)
 	KillWaves ww, M_ImagePlane
 End
 
+/// @function ImageRegistration_Worker
+/// @brief Register one stack layer to a reference image.
+/// @param w3D Input 3D image stack.
+/// @param wRef Reference image used to register the selected layer.
+/// @param plane Zero-based image-stack plane index.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 ThreadSafe static Function/WAVE ImageRegistration_Worker(WAVE w3D, WAVE wRef, variable plane)
 	
 	DFREF dfSav= GetDataFolderDFR()

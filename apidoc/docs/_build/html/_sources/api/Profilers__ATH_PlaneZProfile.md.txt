@@ -20,13 +20,28 @@ related to ATH PlaneZProfile functionality.
 MainMenu()
 ```
 
-Description of MainMenu.
+Launch the plane z-profile tool for the active stack.
 
-Auto-generated documentation stub for function `MainMenu`.
+User selected a wave, check if it's 3d name to the windows hook to kill the plot after completion.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
+
+
+## `InitialiseFolder`
+
+**Signature**
+
+```igorpro
+InitialiseFolder()
+```
+
+Create and initialize state for a plane-averaged z profile.
+
+### Returns
+
+- **DFREF**: Reference to the resulting data folder.
 
 
 ## `InitialiseGraph`
@@ -37,17 +52,17 @@ Auto-generated documentation stub for function `MainMenu`.
 InitialiseGraph(DFREF dfr)
 ```
 
-Description of InitialiseGraph.
+Initialize the graph used by the plane z-profile tool.
 
-Auto-generated documentation stub for function `InitialiseGraph`.
+Here we will create the profile plot and graph and plot the profile.
 
 ### Parameters
 
-- `dfr` *(Parameter)*: dfr.
+- `dfr` *(DFREF)*: Reference to the data folder to inspect or modify.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `CreatePanel`
@@ -58,17 +73,17 @@ Auto-generated documentation stub for function `InitialiseGraph`.
 CreatePanel(DFREF dfr)
 ```
 
-Description of CreatePanel.
+Create panel.
 
-Auto-generated documentation stub for function `CreatePanel`.
+Not good idea to use it now as long as the "i" options interferes with the ControlBar of the profilert.
 
 ### Parameters
 
-- `dfr` *(Parameter)*: dfr.
+- `dfr` *(DFREF)*: Reference to the data folder to inspect or modify.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `CursorHookFunction`
@@ -79,17 +94,17 @@ Auto-generated documentation stub for function `CreatePanel`.
 CursorHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of CursorHookFunction.
+Handle cursor hook events.
 
-Auto-generated documentation stub for function `CursorHookFunction`.
+Window hook function. The line profile is drawn from G to H. Set scale.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `GraphHookFunction`
@@ -100,17 +115,18 @@ Auto-generated documentation stub for function `CursorHookFunction`.
 GraphHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of GraphHookFunction.
+Handle panel hook events.
 
-Auto-generated documentation stub for function `GraphHookFunction`.
+ParentGraphWin -- winNameStr. Kill the MyLineProfileHook. We need to reset the link between
+parentGraphwin (winNameStr) and ATH_LinkedLineProfilePlotStr.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SaveProfileButton`
@@ -121,17 +137,17 @@ Auto-generated documentation stub for function `GraphHookFunction`.
 SaveProfileButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of SaveProfileButton.
+Handle the save profile button action.
 
-Auto-generated documentation stub for function `SaveProfileButton`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SetScaleButton`
@@ -142,17 +158,17 @@ Auto-generated documentation stub for function `SaveProfileButton`.
 SetScaleButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of SetScaleButton.
+Handle the set scale button action.
 
-Auto-generated documentation stub for function `SetScaleButton`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `CheckboxPlotProfile`
@@ -163,17 +179,15 @@ Auto-generated documentation stub for function `SetScaleButton`.
 CheckboxPlotProfile(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of CheckboxPlotProfile.
-
-Auto-generated documentation stub for function `CheckboxPlotProfile`.
+Handle the plot-profile checkbox action.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `CheckboxMarkLines`
@@ -184,17 +198,15 @@ Auto-generated documentation stub for function `CheckboxPlotProfile`.
 CheckboxMarkLines(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of CheckboxMarkLines.
-
-Auto-generated documentation stub for function `CheckboxMarkLines`.
+Handle the mark-lines checkbox action.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `OverrideNx`
@@ -205,17 +217,15 @@ Auto-generated documentation stub for function `CheckboxMarkLines`.
 OverrideNx(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of OverrideNx.
-
-Auto-generated documentation stub for function `OverrideNx`.
+Toggle manual override of the x sample count.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `OverrideNy`
@@ -226,17 +236,15 @@ Auto-generated documentation stub for function `OverrideNx`.
 OverrideNy(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of OverrideNy.
-
-Auto-generated documentation stub for function `OverrideNy`.
+Toggle manual override of the y sample count.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SetVariableNx`
@@ -247,17 +255,17 @@ Auto-generated documentation stub for function `OverrideNy`.
 SetVariableNx(STRUCT WMSetVariableAction& sv)
 ```
 
-Description of SetVariableNx.
+Set variable nx.
 
-Auto-generated documentation stub for function `SetVariableNx`.
+SetScale/I y, Ystart, Yend, ww.
 
 ### Parameters
 
-- `sv` *(Parameter)*: sv.
+- `sv` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SetVariableNy`
@@ -268,17 +276,17 @@ Auto-generated documentation stub for function `SetVariableNx`.
 SetVariableNy(STRUCT WMSetVariableAction& sv)
 ```
 
-Description of SetVariableNy.
+Set variable ny.
 
-Auto-generated documentation stub for function `SetVariableNy`.
+SetScale/I x, 0, (normGHCursors * Xfactor), ww.
 
 ### Parameters
 
-- `sv` *(Parameter)*: sv.
+- `sv` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `DrawLineUserFront`
@@ -289,21 +297,19 @@ Auto-generated documentation stub for function `SetVariableNy`.
 DrawLineUserFront(string winNameStr, variable x0, variable y0, variable x1, variable y1, variable red, variable green, variable blue)
 ```
 
-Description of DrawLineUserFront.
-
-Auto-generated documentation stub for function `DrawLineUserFront`.
+Draw line user front.
 
 ### Parameters
 
-- `winNameStr` *(Parameter)*: winNameStr.
-- `x0` *(Parameter)*: x0.
-- `y0` *(Parameter)*: y0.
-- `x1` *(Parameter)*: x1.
-- `y1` *(Parameter)*: y1.
-- `red` *(Parameter)*: red.
-- `green` *(Parameter)*: green.
-- `blue` *(Parameter)*: blue.
+- `winNameStr` *(String)*: Win name str.
+- `x0` *(Variable)*: First x coordinate or range bound.
+- `y0` *(Variable)*: First y coordinate or range bound.
+- `x1` *(Variable)*: Second x coordinate or range bound.
+- `y1` *(Variable)*: Second y coordinate or range bound.
+- `red` *(Variable)*: Red-channel value or wave.
+- `green` *(Variable)*: Green-channel value or wave.
+- `blue` *(Variable)*: Blue-channel value or wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.

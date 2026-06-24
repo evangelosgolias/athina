@@ -41,6 +41,11 @@
 // Visible everywhere, global constant.
 //strConstant skATH_W3DImageSliderParentDFR = "root:Packages:ATH_DataFolder:W3DImageSlider:" // Ends with semicolon
 
+/// @function NewImg
+/// @brief Display a wave as a new image graph.
+/// @param wRef Input wave.
+/// @param grfname (optional) Name of the graph window.
+/// @returns The name of the graph displaying the image.
 static Function/S NewImg(WAVE wRef, [string grfname])
 	if(!WaveExists(wRef))
 		return ""
@@ -84,13 +89,12 @@ static Function/S NewImg(WAVE wRef, [string grfname])
 End
 
 /// @function DisplayHookFunction
-/// @brief Description of DisplayHookFunction.
+/// @brief Handle display hook events.
 /// @details
-/// Auto-generated documentation stub for function `DisplayHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
-
+/// 31.08.2024: Deal with calls from /EXT windows. We control using the wave reference. This is patchwork, we
+/// need to find a more stable solution.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 	//
 	// 31.08.2024: Deal with calls from /EXT windows. We control
@@ -388,12 +392,11 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 /// @function Append3DImageSlider
-/// @brief Description of Append3DImageSlider.
+/// @brief Append 3D image slider.
 /// @details
-/// Auto-generated documentation stub for function `Append3DImageSlider`.
-/// @param grfName] Parameter grfName].
-/// @returns Variable Return value.
-
+/// Append a slider if you have a stack. Wave in top graph. Reads graph outer dimensions into V_left.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Function Append3DImageSlider([string grfName])
 		// Append a slider if you have a stack
 		// Wave in top graph
@@ -433,12 +436,11 @@ Function Append3DImageSlider([string grfName])
 End
 
 /// @function NewImgSliderHook
-/// @brief Description of NewImgSliderHook.
+/// @brief Handle new image slider hook events.
 /// @details
-/// Auto-generated documentation stub for function `NewImgSliderHook`.
-/// @param &sa Parameter &sa.
-/// @returns Variable Return value.
-
+/// Creates a separate result wave, leaving the input wave available to the caller.
+/// @param sa Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Function NewImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 
 	if (sa.eventCode & 9) // Mouse moved or arrow key moved the slider & Value Set
@@ -464,12 +466,11 @@ Function NewImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 End
 
 /// @function ImageSliderSetVar
-/// @brief Description of ImageSliderSetVar.
+/// @brief Update the displayed 3D image layer from its slider control.
 /// @details
-/// Auto-generated documentation stub for function `ImageSliderSetVar`.
-/// @param &sva Parameter &sva.
-/// @returns Variable Return value.
-
+/// Added 02.10.2025. End of addition.
+/// @param sva Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function ImageSliderSetVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
 	variable hookresult =  0
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_W3DImageSliderDFR"))
@@ -492,6 +493,10 @@ static Function ImageSliderSetVar(STRUCT WMSetVariableAction &sva) : SetVariable
 	return 0
 End
 
+/// @function Mangify
+/// @brief Magnify the active graph around the cursor position.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function Mangify(STRUCT WMWinHookStruct &s)
 	//
 	// Copied from https://www.wavemetrics.com/code-snippet/mousewheel-graph-window-zoom
@@ -549,12 +554,11 @@ static Function Mangify(STRUCT WMWinHookStruct &s)
 End
 
 /// @function RestartW3DImageSlider
-/// @brief Description of RestartW3DImageSlider.
+/// @brief Recreate the layer slider for a displayed 3D wave.
 /// @details
-/// Auto-generated documentation stub for function `RestartW3DImageSlider`.
-/// @param grfName] Parameter grfName].
-/// @returns Variable Return value.
-
+/// Of changes in the source 3d wave.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function RestartW3DImageSlider([string grfName])
 	// Kill and restart ATH_Display#Append3DImageSlider and restart in case 
 	// of changes in the source 3d wave.

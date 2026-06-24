@@ -12,6 +12,26 @@ related to ATH Display functionality.
 :depth: 2
 ```
 
+## `NewImg`
+
+**Signature**
+
+```igorpro
+NewImg(WAVE wRef, [string grfname])
+```
+
+Display a wave as a new image graph.
+
+### Parameters
+
+- `wRef` *(Wave)*: Input wave.
+- `grfname` *(String, optional)*: Name of the graph window.
+
+### Returns
+
+- **String**: The name of the graph displaying the image.
+
+
 ## `DisplayHookFunction`
 
 **Signature**
@@ -20,17 +40,18 @@ related to ATH Display functionality.
 DisplayHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of DisplayHookFunction.
+Handle display hook events.
 
-Auto-generated documentation stub for function `DisplayHookFunction`.
+31.08.2024: Deal with calls from /EXT windows. We control using the wave reference. This is patchwork, we
+need to find a more stable solution.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `Append3DImageSlider`
@@ -41,17 +62,17 @@ Auto-generated documentation stub for function `DisplayHookFunction`.
 Append3DImageSlider([string grfName])
 ```
 
-Description of Append3DImageSlider.
+Append 3D image slider.
 
-Auto-generated documentation stub for function `Append3DImageSlider`.
+Append a slider if you have a stack. Wave in top graph. Reads graph outer dimensions into V_left.
 
 ### Parameters
 
-- `grfName]` *(Parameter)*: grfName].
+- `grfName` *(String, optional)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `NewImgSliderHook`
@@ -62,17 +83,17 @@ Auto-generated documentation stub for function `Append3DImageSlider`.
 NewImgSliderHook(STRUCT WMSliderAction &sa)
 ```
 
-Description of NewImgSliderHook.
+Handle new image slider hook events.
 
-Auto-generated documentation stub for function `NewImgSliderHook`.
+Creates a separate result wave, leaving the input wave available to the caller.
 
 ### Parameters
 
-- `&sa` *(Parameter)*: &sa.
+- `sa` *(STRUCT WMSliderAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `ImageSliderSetVar`
@@ -83,17 +104,36 @@ Auto-generated documentation stub for function `NewImgSliderHook`.
 ImageSliderSetVar(STRUCT WMSetVariableAction &sva)
 ```
 
-Description of ImageSliderSetVar.
+Update the displayed 3D image layer from its slider control.
 
-Auto-generated documentation stub for function `ImageSliderSetVar`.
+Added 02.10.2025. End of addition.
 
 ### Parameters
 
-- `&sva` *(Parameter)*: &sva.
+- `sva` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
+
+
+## `Mangify`
+
+**Signature**
+
+```igorpro
+Mangify(STRUCT WMWinHookStruct &s)
+```
+
+Magnify the active graph around the cursor position.
+
+### Parameters
+
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
+
+### Returns
+
+- **Variable**: Zero after completing the operation.
 
 
 ## `RestartW3DImageSlider`
@@ -104,14 +144,14 @@ Auto-generated documentation stub for function `ImageSliderSetVar`.
 RestartW3DImageSlider([string grfName])
 ```
 
-Description of RestartW3DImageSlider.
+Recreate the layer slider for a displayed 3D wave.
 
-Auto-generated documentation stub for function `RestartW3DImageSlider`.
+Of changes in the source 3d wave.
 
 ### Parameters
 
-- `grfName]` *(Parameter)*: grfName].
+- `grfName` *(String, optional)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.

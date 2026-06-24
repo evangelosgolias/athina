@@ -38,12 +38,12 @@
 /// related to ATH String functionality.
 
 /// @function ExpandRangeStr
-/// @brief Description of ExpandRangeStr.
+/// @brief Expand a compact integer-range expression into an Igor string list.
 /// @details
-/// Auto-generated documentation stub for function `ExpandRangeStr`.
-/// @param rangeStr Parameter rangeStr.
-/// @returns String Return value.
-
+/// Expand a string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50" now check str to see if it is a range
+/// like "20-23".
+/// @param rangeStr Range str.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S ExpandRangeStr(string rangeStr)	
 	// expand a string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50"
 
@@ -77,12 +77,12 @@ static Function/S ExpandRangeStr(string rangeStr)
 End
 
 /// @function GetPhotonEnergyFromFilename
-/// @brief Description of GetPhotonEnergyFromFilename.
+/// @brief Return photon energy from filename.
 /// @details
-/// Auto-generated documentation stub for function `GetPhotonEnergyFromFilename`.
-/// @param nameStr Parameter nameStr.
-/// @returns Variable Return value.
-
+/// MAXPEEM specific: extract the photon energy from the filename and return it as number regex compiles the
+/// most common ways of writing the energy in a filename.
+/// @param nameStr Name str.
+/// @returns The returned value is photon energy from filename.
 static Function GetPhotonEnergyFromFilename(string nameStr)
 	// MAXPEEM specific: extract the photon energy from the filename and return it as number
 	// regex compiles the most  common ways of writing the energy in a filename.
@@ -98,12 +98,12 @@ End
 // Dev -- needs testing
 
 /// @function UniquifyStringList
-/// @brief Description of UniquifyStringList.
+/// @brief Remove duplicate items from a delimited string list.
 /// @details
-/// Auto-generated documentation stub for function `UniquifyStringList`.
-/// @param stringListStr Parameter stringListStr.
-/// @param sep Parameter sep.
-/// @returns String Return value.
+/// Remove duplicates from a sting list. Remove duplicates.
+/// @param stringListStr Text containing the string list str.
+/// @param sep Delimiter used between list items.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S UniquifyStringList(string stringListStr, string sep)	
 	// Remove duplicates from a sting list
 	WAVE/T textW = ATH_TWave#StringListToTextWave(stringListStr, sep)
@@ -118,12 +118,11 @@ static Function/S UniquifyStringList(string stringListStr, string sep)
 End
 
 /// @function isLiberalQ
-/// @brief Description of isLiberalQ.
+/// @brief Test whether a string is invalid as an Igor liberal object name.
 /// @details
-/// Auto-generated documentation stub for function `isLiberalQ`.
-/// @param str Parameter str.
-/// @returns Variable Return value.
-
+/// Checks if a string is liberal. Returns 0 for empty string.
+/// @param str Text containing the str.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function isLiberalQ(string str)
 	// Checks if a string is liberal.
 	// Returns 0 for empty string
@@ -136,12 +135,9 @@ static Function isLiberalQ(string str)
 End
 
 /// @function StringToNonLiberal
-/// @brief Description of StringToNonLiberal.
-/// @details
-/// Auto-generated documentation stub for function `StringToNonLiberal`.
-/// @param str Parameter str.
-/// @returns String Return value.
-
+/// @brief Convert arbitrary text into a valid Igor liberal object name.
+/// @param str Text containing the str.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S StringToNonLiberal(string str)
 	if(ATH_String#IsLiberalQ(str))
 		variable imax = strlen(str), i
@@ -162,24 +158,18 @@ static Function/S StringToNonLiberal(string str)
 End
 
 /// @function isEXTWindow
-/// @brief Description of isEXTWindow.
-/// @details
-/// Auto-generated documentation stub for function `isEXTWindow`.
-/// @param str Parameter str.
-/// @returns Variable Return value.
-
+/// @brief Test whether a window name identifies an external window.
+/// @param str Text containing the str.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function isEXTWindow(string str)
 	// Is s the same of an EXT window, GraphXX#ExtWindowName
 	return strsearch(str, "#", 0) != -1
 End
 
 /// @function isPathStringLegalQ
-/// @brief Description of isPathStringLegalQ.
-/// @details
-/// Auto-generated documentation stub for function `isPathStringLegalQ`.
-/// @param path Parameter path.
-/// @returns Variable Return value.
-
+/// @brief Test whether a string is a syntactically valid Igor data-folder path.
+/// @param path Path.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function isPathStringLegalQ(string path)
 	variable steps = ItemsInlist(path, ":"), i
 	string str
@@ -194,13 +184,13 @@ static Function isPathStringLegalQ(string path)
 End
 
 /// @function ExtendPathStr
-/// @brief Description of ExtendPathStr.
+/// @brief Append a child component to an Igor data-folder path.
 /// @details
-/// Auto-generated documentation stub for function `ExtendPathStr`.
-/// @param str Parameter str.
-/// @param ext Parameter ext.
-/// @returns String Return value.
-
+/// Add ext to s, which is usually a full path to a wave. Works for liberal and proper paths. Add
+/// ksATHBackupWaveExtention to the root:'2434w' -> root:'2434w_undo' !.
+/// @param str Text containing the str.
+/// @param ext File-name extension.
+/// @returns The resulting path string, or an empty string when it cannot be determined.
 static Function/S ExtendPathStr(string str, string ext)
 	// Add ext to s, which is usually a full path to a wave
 	// Works for liberal and proper paths
@@ -215,15 +205,15 @@ static Function/S ExtendPathStr(string str, string ext)
 End
 
 /// @function InsertListAtPosition
-/// @brief Description of InsertListAtPosition.
+/// @brief Insert list at position.
 /// @details
-/// Auto-generated documentation stub for function `InsertListAtPosition`.
-/// @param listStr Parameter listStr.
-/// @param insertList Parameter insertList.
-/// @param pos Parameter pos.
-/// @param sep] Parameter sep].
-/// @returns String Return value.
-
+/// We insert list insertList at the position pos of listStr. the element at pos is moved and becomes the
+/// first after the last element of insertList.
+/// @param listStr Text containing the list str.
+/// @param insertList List of items to insert.
+/// @param pos Zero-based insertion position.
+/// @param sep (optional) Delimiter used between list items.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S InsertListAtPosition(string listStr, string insertList, variable pos, [string sep])
 	// We insert list insertList at the position pos of listStr.
 	// the element at pos is moved and becomes the first after the 
@@ -247,12 +237,9 @@ static Function/S InsertListAtPosition(string listStr, string insertList, variab
 End
 
 /// @function RemoveFileExtention
-/// @brief Description of RemoveFileExtention.
-/// @details
-/// Auto-generated documentation stub for function `RemoveFileExtention`.
-/// @param str Parameter str.
-/// @returns String Return value.
-
+/// @brief Remove the final extension from a file name.
+/// @param str Text containing the str.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S RemoveFileExtention(string str)
 	string name, ext
 	SplitString/E="(.*(?=\.))(.*)" str, name, ext
@@ -260,13 +247,10 @@ static Function/S RemoveFileExtention(string str)
 End
 
 /// @function StartsWith
-/// @brief Description of StartsWith.
-/// @details
-/// Auto-generated documentation stub for function `StartsWith`.
-/// @param str Parameter str.
-/// @param part Parameter part.
-/// @returns Variable Return value.
-
+/// @brief Test whether a string starts with a given substring.
+/// @param str Text containing the str.
+/// @param part Prefix or suffix text to test for.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function StartsWith(string str, string part)
 	
 	variable nStr = strlen(str)
@@ -279,13 +263,10 @@ static Function StartsWith(string str, string part)
 End
 
 /// @function EndsWith
-/// @brief Description of EndsWith.
-/// @details
-/// Auto-generated documentation stub for function `EndsWith`.
-/// @param str Parameter str.
-/// @param part Parameter part.
-/// @returns Variable Return value.
-
+/// @brief Test whether a string ends with a given substring.
+/// @param str Text containing the str.
+/// @param part Prefix or suffix text to test for.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function EndsWith(string str, string part)
 	
 	variable nStr = strlen(str)
@@ -298,14 +279,13 @@ static Function EndsWith(string str, string part)
 End
 
 /// @function WaveLogging
-/// @brief Description of WaveLogging.
+/// @brief Wave logging.
 /// @details
-/// Auto-generated documentation stub for function `WaveLogging`.
-/// @param wRef Parameter wRef.
-/// @param msg Parameter msg.
-/// @param prepend] Parameter prepend].
-/// @returns Variable Return value.
-
+/// Add str to the note of wRef. Use prepend = 1 to add string at the start.
+/// @param wRef Input wave.
+/// @param msg Message shown to the user.
+/// @param prepend (optional) If nonzero, insert the new text before the existing list.
+/// @returns Zero after completing the operation.
 static Function WaveLogging(Wave wRef, string msg, [int prepend])
 	// Add str to the note of wRef.
 	// Use prepend = 1 to add string at the start.
@@ -319,13 +299,12 @@ static Function WaveLogging(Wave wRef, string msg, [int prepend])
 End
 
 /// @function WaveToString
-/// @brief Description of WaveToString.
+/// @brief Wave to string.
 /// @details
-/// Auto-generated documentation stub for function `WaveToString`.
-/// @param w Parameter w.
-/// @param sep] Parameter sep].
-/// @returns String Return value.
-
+/// Make a string from a textwave.
+/// @param w Wave to modify in place.
+/// @param sep (optional) Delimiter used between list items.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S WaveToString(WAVE w, [string sep])
 	// Make a string from a textwave
 	// If you want to return a list, just set strsep=;
@@ -341,11 +320,8 @@ static Function/S WaveToString(WAVE w, [string sep])
 End
 
 /// @function GetSelectedWaveNamesinDB
-/// @brief Description of GetSelectedWaveNamesinDB.
-/// @details
-/// Auto-generated documentation stub for function `GetSelectedWaveNamesinDB`.
-/// @returns String Return value.
-
+/// @brief Return the names of waves selected in the Data Browser.
+/// @returns The resulting name, or an empty string when no match is available.
 static Function/S GetSelectedImagesinDB()
 	string buffer, listOfSelectedWaves = ""
 	variable i = 0
@@ -360,11 +336,9 @@ static Function/S GetSelectedImagesinDB()
 End
 
 /// @function GetSelectedWavesinDB
-/// @brief Description of GetSelectedWavesinDB.
-/// @details
-/// Auto-generated documentation stub for function `GetSelectedWavesinDB`.
-/// @returns String Return value.
-
+/// @brief Return references to waves selected in the Data Browser.
+/// @param dim (optional) Zero-based wave-dimension index.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S GetSelectedWavesinDB([variable dim])
 	dim = ParamIsDefault(dim) ? 2 : dim
 	string buffer, listOfSelectedWaves = ""
@@ -380,15 +354,14 @@ static Function/S GetSelectedWavesinDB([variable dim])
 End
 
 /// @function AppendToStringList
-/// @brief Description of AppendToStringList.
+/// @brief Append to string list.
 /// @details
-/// Auto-generated documentation stub for function `AppendToStringList`.
-/// @param base Parameter base.
-/// @param strlist Parameter strlist.
-/// @param sep Parameter sep.
-/// @param rev] Parameter rev].
-/// @returns String Return value.
-
+/// Append on prepand the string base to each item in strList.
+/// @param base Base string used to build the result.
+/// @param strlist Input string list.
+/// @param sep (optional) Delimiter used between list items.
+/// @param rev (optional) If nonzero, reverse the requested order or color table.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S AppendToStringList(string base, string strlist, [string sep, int rev])
 	// Append on prepand the string base to each item in strList
 	sep = SelectString(ParamIsDefault(sep) ? 0: 1, ";", sep)
@@ -405,6 +378,15 @@ static Function/S AppendToStringList(string base, string strlist, [string sep, i
 	return retStr
 End
 
+/// @function ThreadStr
+/// @brief Combine corresponding items from two string lists.
+/// @param strlist0 First input string list.
+/// @param strlist1 Second input string list.
+/// @param joinstr (optional) Text inserted between the paired list items.
+/// @param sep (optional) String-list delimiter.
+/// @param listsep0 (optional) Delimiter for the first input list.
+/// @param listsep1 (optional) Delimiter for the second input list.
+/// @returns A string list containing the paired and joined items.
 static Function/S ThreadStr(string strlist0, string strlist1, 
 							[string joinstr, string sep, string listsep0, string listsep1])						
 	// Thead strings as in Mathematica. strlist0 and strlist1 should
@@ -428,6 +410,13 @@ static Function/S ThreadStr(string strlist0, string strlist1,
 	return retStr	
 End
 
+/// @function RemoveIndexKeysFromList
+/// @brief Remove numeric index prefixes from a keyed string list.
+/// @param listStr List str.
+/// @param keySep (optional) Delimiter between an index key and its value.
+/// @param listSep (optional) String-list delimiter.
+/// @param startIndex (optional) Smallest numeric key to remove.
+/// @returns The input list with matching numeric key prefixes removed.
 static Function/S RemoveIndexKeysFromList(string listStr, 
 				  [string keySep, string listSep, int startIndex])
 	keySep = SelectString(ParamIsDefault(keySep) ? 0: 1, ":", keySep)			  
@@ -442,15 +431,14 @@ static Function/S RemoveIndexKeysFromList(string listStr,
 End
 
 /// @function GetRangeItemsFromList
-/// @brief Description of GetRangeItemsFromList.
+/// @brief Return range items from list.
 /// @details
-/// Auto-generated documentation stub for function `GetRangeItemsFromList`.
-/// @param listStr Parameter listStr.
-/// @param listSep Parameter listSep.
-/// @param startIndex Parameter startIndex.
-/// @param endIndex Parameter endIndex.
-/// @returns String Return value.
-
+/// Get the items from startIndex to endIndex from a list with listSep.
+/// @param listStr Text containing the list str.
+/// @param listSep Delimiter used by the input or output list.
+/// @param startIndex Lower or starting start index.
+/// @param endIndex Upper or ending end index.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S GetRangeItemsFromList(string listStr, string listSep, int startIndex, int endIndex)
 	// Get the items from startIndex to endIndex from a list with listSep
 	variable i
@@ -465,14 +453,12 @@ static Function/S GetRangeItemsFromList(string listStr, string listSep, int star
 End
 
 /// @function RemoveCharFromString
-/// @brief Description of RemoveCharFromString.
+/// @brief Remove char from string.
 /// @details
-/// Auto-generated documentation stub for function `RemoveCharFromString`.
-/// @param str Parameter str.
-/// @param cc Parameter cc.
-/// @returns String Return value.
-
-
+/// Remove the character cc from string str.
+/// @param str Text containing the str.
+/// @param cc Character or character code to test.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S RemoveCharFromString(string str, string cc)
 	// remove the character cc from string str
 	
@@ -487,13 +473,13 @@ static Function/S RemoveCharFromString(string str, string cc)
 End
 
 /// @function ComposeWaveListsFromWaveNotes
-/// @brief Description of ComposeWaveListsFromWaveNotes.
+/// @brief Compose wave lists from wave notes.
 /// @details
-/// Auto-generated documentation stub for function `ComposeWaveListsFromWaveNotes`.
-/// @param wavelistStr Parameter wavelistStr.
-/// @param sep] Parameter sep].
-/// @returns String Return value.
-
+/// Given a list of 2D/3D waves in wavelist compose a wave list with all waves: names and add them to the
+/// list. At the end you will end up with a list of all 2D waves in the list of wavelistStr.
+/// @param wavelistStr Wave used by the operation.
+/// @param sep (optional) Delimiter used between list items.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S ComposeWaveListsFromWaveNotes(string wavelistStr, [string sep])
 	// Given a list of 2D/3D waves in wavelist compose a wave list with all waves:
 	// If a wave is 2D just add it, if the wave is 3D check its note, expand wave 
@@ -538,14 +524,11 @@ static Function/S ComposeWaveListsFromWaveNotes(string wavelistStr, [string sep]
 End
 
 /// @function GetStackNamesFromNote
-/// @brief Description of GetStackNamesFromNote.
+/// @brief Return stack names from note.
 /// @details
-/// Auto-generated documentation stub for function `GetStackNamesFromNote`.
-/// @param wref Parameter wref.
-/// @returns String Return value.
-
-
-
+/// Get the stings with the pathnames of all layers stacked in wave.
+/// @param wref Input wave.
+/// @returns The resulting name, or an empty string when no match is available.
 static Function/S GetStackNamesFromNote(WAVE wref)
 	//Get the stings with the pathnames of all layers stacked in wave
 	string regex = "([\s\S]*?(?=---\* Stacked waves \*---(?:\r?\n|\r|\n)?))(---\* Stacked waves \*---(?:\r?\n|\r|\n)*)"+\
@@ -556,15 +539,15 @@ static Function/S GetStackNamesFromNote(WAVE wref)
 End
 
 /// @function SetStackNamesInNote
-/// @brief Description of SetStackNamesInNote.
+/// @brief Set stack names in note.
 /// @details
-/// Auto-generated documentation stub for function `SetStackNamesInNote`.
-/// @param wref Parameter wref.
-/// @param waveNamesList Parameter waveNamesList.
-/// @param listSepI Parameter listSepI.
-/// @param listSepW] Parameter listSepW].
-/// @returns Variable Return value.
-
+/// Add list of stacked waves to wRef. Special listSep=";" as by default most functions send lists with ";"
+/// sep. listSepI: sep the indices (usually ";").
+/// @param wref Input wave.
+/// @param waveNamesList Wave used by the operation.
+/// @param listSepI (optional) Delimiter used by the input list.
+/// @param listSepW (optional) Delimiter used by the wave-name list.
+/// @returns Zero after completing the operation.
 static Function SetStackNamesInNote(WAVE wref, string waveNamesList,[string listSepI,string listSepW])
 	// Add list of stacked waves to wRef
 	// Special listSep=";" as by default most functions send lists with ";" sep.
@@ -584,13 +567,12 @@ static Function SetStackNamesInNote(WAVE wref, string waveNamesList,[string list
 End
 
 /// @function StackNamesInNoteStr
-/// @brief Description of StackNamesInNoteStr.
+/// @brief Format a stack's source-wave names for storage in a wave note.
 /// @details
-/// Auto-generated documentation stub for function `StackNamesInNoteStr`.
-/// @param waveNamesList Parameter waveNamesList.
-/// @param listSep] Parameter listSep].
-/// @returns String Return value.
-
+/// Add list of stacked waves to wRef NB. indices sep is ";", waveNameList is "\n".
+/// @param waveNamesList Wave used by the operation.
+/// @param listSep (optional) Delimiter used by the input or output list.
+/// @returns The resulting name, or an empty string when no match is available.
 static Function/S StackNamesInNoteStr(string waveNamesList,[string listSep]) // Special listSep="\n" 
 	// Add list of stacked waves to wRef
 	listsep = SelectString(ParamIsDefault(listsep) ? 0: 1, "\n", listsep)
@@ -608,16 +590,16 @@ static Function/S StackNamesInNoteStr(string waveNamesList,[string listSep]) // 
 End
 
 /// @function GetStackNamesForWaveNote
-/// @brief Description of GetStackNamesForWaveNote.
+/// @brief Return stack names for wave note.
 /// @details
-/// Auto-generated documentation stub for function `GetStackNamesForWaveNote`.
-/// @param wRef Parameter wRef.
-/// @param op Parameter op.
-/// @param rangeStr Parameter rangeStr.
-/// @param wlist Parameter wlist.
-/// @param noteStr] Parameter noteStr].
-/// @returns String Return value.
-
+/// Add/remove layer names in wave note, update the note in wRef rangeStr can be "2-5,7,9-12,50" expand a
+/// string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50".
+/// @param wRef Input wave.
+/// @param op Operation selector.
+/// @param rangeStr (optional) Range str.
+/// @param wlist (optional) List of wave names.
+/// @param noteStr (optional) Text containing the note str.
+/// @returns The resulting name, or an empty string when no match is available.
 static Function/S GetStackNamesForWaveNote(WAVE wRef, int op, [string rangeStr, string wlist, string noteStr])
 	//
 	// Add/remove layer names in wave note, update the note in wRef
@@ -681,17 +663,17 @@ static Function/S GetStackNamesForWaveNote(WAVE wRef, int op, [string rangeStr, 
 End
 
 /// @function UpdateStackWaveNote
-/// @brief Description of UpdateStackWaveNote.
+/// @brief Update stack wave note.
 /// @details
-/// Auto-generated documentation stub for function `UpdateStackWaveNote`.
-/// @param wRef Parameter wRef.
-/// @param op Parameter op.
-/// @param rangeStr Parameter rangeStr.
-/// @param wlist Parameter wlist.
-/// @param noteStr Parameter noteStr.
-/// @param explicitWaveList] Parameter explicitWaveList].
-/// @returns Variable Return value.
-
+/// Add/remove layer names in wave note, update the note in wRef rangeStr can be "2-5,7,9-12,50" expand a
+/// string like "2-5,7,9-12,50" to "2;3;4;5;7;9;10;11;12;50".
+/// @param wRef Input wave.
+/// @param op Operation selector.
+/// @param rangeStr (optional) Range str.
+/// @param wlist (optional) List of wave names.
+/// @param noteStr (optional) Text containing the note str.
+/// @param explicitWaveList (optional) Wave used by the operation.
+/// @returns Zero after completing the operation.
 static Function UpdateStackWaveNote(WAVE wRef, int op, [string rangeStr, string wlist, string noteStr, string explicitWaveList])
 	//
 	// Add/remove layer names in wave note, update the note in wRef
@@ -756,12 +738,12 @@ static Function UpdateStackWaveNote(WAVE wRef, int op, [string rangeStr, string 
 End
 
 /// @function RandomSampleStringList
-/// @brief Return a random sample from a string list
+/// @brief Select a random sample from a string list without replacement.
 /// @details
-/// Return a random sample from a string list
-/// @param String Parameter list.
-/// @param variable Parameter sampleN.
-/// @returns Variable 0 if all ok, 1 if the wave is not 3D)
+/// Removes each selected item from the candidate list so an item cannot be chosen twice.
+/// @param list Input string list.
+/// @param sampleN Number of items to select.
+/// @returns A semicolon-separated sample, or an empty string if `sampleN` exceeds the list length.
 
 static Function/S RandomSampleStringList(string list, variable sampleN)
 	// A stack has layer indices 0...N-1 so listN = N. Therefore the first pick

@@ -20,13 +20,14 @@ related to ATH iImageRotation functionality.
 CreatePanel()
 ```
 
-Description of CreatePanel.
+Create panel.
 
-Auto-generated documentation stub for function `CreatePanel`.
+Check if you have already created the panel. Duplicate the wave for backup. Create the global variables
+for panel.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `FlipRowsCheckBox`
@@ -37,17 +38,17 @@ Auto-generated documentation stub for function `CreatePanel`.
 FlipRowsCheckBox(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of FlipRowsCheckBox.
+Handle the flip rows checkbox action.
 
-Auto-generated documentation stub for function `FlipRowsCheckBox`.
+Added 17.06.2026. That's ugly.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `GraphHookFunction`
@@ -58,17 +59,17 @@ Auto-generated documentation stub for function `FlipRowsCheckBox`.
 GraphHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of GraphHookFunction.
+Handle panel hook events.
 
-Auto-generated documentation stub for function `GraphHookFunction`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `PanelHookFunction`
@@ -79,17 +80,17 @@ Auto-generated documentation stub for function `GraphHookFunction`.
 PanelHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of PanelHookFunction.
+Handle panel hook events.
 
-Auto-generated documentation stub for function `PanelHookFunction`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SliderProc`
@@ -100,17 +101,17 @@ Auto-generated documentation stub for function `PanelHookFunction`.
 SliderProc(STRUCT WMSliderAction &sa)
 ```
 
-Description of SliderProc.
+Handle changes to the panel slider.
 
-Auto-generated documentation stub for function `SliderProc`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&sa` *(Parameter)*: &sa.
+- `sa` *(STRUCT WMSliderAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SetAngle`
@@ -121,17 +122,17 @@ Auto-generated documentation stub for function `SliderProc`.
 SetAngle(STRUCT WMSetVariableAction &sva)
 ```
 
-Description of SetAngle.
+Set angle.
 
-Auto-generated documentation stub for function `SetAngle`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&sva` *(Parameter)*: &sva.
+- `sva` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `iRotButton`
@@ -142,17 +143,17 @@ Auto-generated documentation stub for function `SetAngle`.
 iRotButton(STRUCT WMButtonAction &ba)
 ```
 
-Description of iRotButton.
+Handle the i rot button action.
 
-Auto-generated documentation stub for function `iRotButton`.
+Creates a separate result wave, leaving the input wave available to the caller.
 
 ### Parameters
 
-- `&ba` *(Parameter)*: &ba.
+- `ba` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `ImageRestoreAndRotate`
@@ -163,17 +164,17 @@ Auto-generated documentation stub for function `iRotButton`.
 ImageRestoreAndRotate(WAVE source, WAVE dest, variable angle, [int flipY])
 ```
 
-Description of ImageRestoreAndRotate.
+Image restore and rotate.
 
-Auto-generated documentation stub for function `ImageRestoreAndRotate`.
+Rotate dest, restore source.
 
 ### Parameters
 
-- `source` *(Parameter)*: source.
-- `dest` *(Parameter)*: dest.
-- `angle` *(Parameter)*: angle.
-- `flipY]` *(Parameter)*: flipY].
+- `source` *(Wave)*: Source wave, path, or coordinate array.
+- `dest` *(Wave)*: Destination wave, path, or coordinate array.
+- `angle` *(Variable)*: Angle.
+- `flipY` *(Integer, optional)*: If nonzero, flip the result along y.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.

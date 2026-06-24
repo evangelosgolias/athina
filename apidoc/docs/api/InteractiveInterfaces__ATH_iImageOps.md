@@ -20,13 +20,14 @@ related to ATH iImageOps functionality.
 MainMenu()
 ```
 
-Description of MainMenu.
+Launch the interactive two-image operations workflow.
 
-Auto-generated documentation stub for function `MainMenu`.
+Static Function to interactively drift images and get an updated graph of the XMC(L)D contrast.
+S_fileName is a carriage-return-separated list of full paths to one or more files.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: NaN if input validation fails; otherwise zero after completing the operation.
 
 
 ## `CreateiOpsImgsCalculationPanel`
@@ -37,17 +38,15 @@ Auto-generated documentation stub for function `MainMenu`.
 CreateiOpsImgsCalculationPanel(WAVE wOpResult)
 ```
 
-Description of CreateiOpsImgsCalculationPanel.
-
-Auto-generated documentation stub for function `CreateiOpsImgsCalculationPanel`.
+Create the interactive two-image calculation panel.
 
 ### Parameters
 
-- `wOpResult` *(Parameter)*: wOpResult.
+- `wOpResult` *(Wave)*: that receives the operation result.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `WindowHook`
@@ -58,17 +57,17 @@ Auto-generated documentation stub for function `CreateiOpsImgsCalculationPanel`.
 WindowHook(STRUCT WMWinHookStruct &s)
 ```
 
-Description of WindowHook.
+Handle window hook events.
 
-Auto-generated documentation stub for function `WindowHook`.
+Duplicate/O w2_undo, $wName2Str + " dy:" + num2str(gATH_dy) + " of " + wName2Str. Note w2, note2ImgStr.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `RestoreImagesButton`
@@ -79,17 +78,17 @@ Auto-generated documentation stub for function `WindowHook`.
 RestoreImagesButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of RestoreImagesButton.
+Handle the restore images button action.
 
-Auto-generated documentation stub for function `RestoreImagesButton`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SaveOpResultButton`
@@ -100,17 +99,17 @@ Auto-generated documentation stub for function `RestoreImagesButton`.
 SaveOpResultButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of SaveOpResultButton.
+Handle the save op result button action.
 
-Auto-generated documentation stub for function `SaveOpResultButton`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SetDriftStepVar`
@@ -121,17 +120,17 @@ Auto-generated documentation stub for function `SaveOpResultButton`.
 SetDriftStepVar(STRUCT WMSetVariableAction &sva)
 ```
 
-Description of SetDriftStepVar.
+Set drift step var.
 
-Auto-generated documentation stub for function `SetDriftStepVar`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&sva` *(Parameter)*: &sva.
+- `sva` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SetOpFormula`
@@ -142,17 +141,17 @@ Auto-generated documentation stub for function `SetDriftStepVar`.
 SetOpFormula(STRUCT WMSetVariableAction &sva)
 ```
 
-Description of SetOpFormula.
+Store the primary image-operation formula selected in the panel.
 
-Auto-generated documentation stub for function `SetOpFormula`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&sva` *(Parameter)*: &sva.
+- `sva` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SetSecOpFormula`
@@ -163,17 +162,17 @@ Auto-generated documentation stub for function `SetOpFormula`.
 SetSecOpFormula(STRUCT WMSetVariableAction &sva)
 ```
 
-Description of SetSecOpFormula.
+Store the optional secondary image-operation formula.
 
-Auto-generated documentation stub for function `SetSecOpFormula`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&sva` *(Parameter)*: &sva.
+- `sva` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `CheckBoxSecOp`
@@ -184,14 +183,14 @@ Auto-generated documentation stub for function `SetSecOpFormula`.
 CheckBoxSecOp(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of CheckBoxSecOp.
+Enable or disable the secondary image operation.
 
-Auto-generated documentation stub for function `CheckBoxSecOp`.
+Create the twinwave plot.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.

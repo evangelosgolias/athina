@@ -54,7 +54,7 @@
 /// the existing folder is returned.
 ///
 /// @param fullpath String Full data folder path to create or access.
-/// @param setDF Variable Optional flag. If nonzero, sets the current data folder to the returned folder.
+/// @param setDF (optional) Variable Optional flag. If nonzero, sets the current data folder to the returned folder.
 ///
 /// @returns DFREF Data folder reference to the created or existing folder.
 ///
@@ -110,12 +110,11 @@ static Function/DF CreateDataFolderGetDFREF(string fullpath, [int setDF]) // Cor
 End
 
 /// @function SanitizePath
-/// @brief Description of SanitizePath.
+/// @brief Sanitize path.
 /// @details
-/// Auto-generated documentation stub for function `SanitizePath`.
-/// @param path Parameter path.
-/// @returns String Return value.
-
+/// Fix liberal relative pathnames in fullpath.
+/// @param path Path.
+/// @returns The resulting path string, or an empty string when it cannot be determined.
 static Function/S SanitizePath(string path)
 	// Fix liberal relative pathnames in fullpath
 	variable steps = ItemsInlist(path, ":"), i
@@ -128,12 +127,12 @@ static Function/S SanitizePath(string path)
 End
 
 /// @function ZapDataInFolderTree
-/// @brief Description of ZapDataInFolderTree.
+/// @brief Remove data in folder tree.
 /// @details
-/// Auto-generated documentation stub for function `ZapDataInFolderTree`.
-/// @param path Parameter path.
-/// @returns Variable Return value.
-
+/// Kills the contents of a data folder and the contents of its children without killing any data folders and
+/// without attempting to kill any waves that may be in use.
+/// @param path Path.
+/// @returns Zero after completing the operation.
 static Function ZapDataInFolderTree(string path) 
 	/// Kills the contents of a data folder and the contents of its 
 	/// children without killing any data folders and without attempting 
@@ -157,12 +156,11 @@ static Function ZapDataInFolderTree(string path)
 End
 
 /// @function ZapAllDataFoldersInPath
-/// @brief Description of ZapAllDataFoldersInPath.
+/// @brief Remove all data folders in path.
 /// @details
-/// Auto-generated documentation stub for function `ZapAllDataFoldersInPath`.
-/// @param path Parameter path.
-/// @returns Variable Return value.
-
+/// Kills all data folders in path.
+/// @param path Path.
+/// @returns Zero after completing the operation.
 static Function ZapAllDataFoldersInPath(string path) 
 	/// Kills all data folders in path.
 
@@ -180,15 +178,15 @@ static Function ZapAllDataFoldersInPath(string path)
 End
 
 /// @function PrintFoldersAndFiles
-/// @brief Description of PrintFoldersAndFiles.
+/// @brief Print folders and files.
 /// @details
-/// Auto-generated documentation stub for function `PrintFoldersAndFiles`.
-/// @param pathName Parameter pathName.
-/// @param extension Parameter extension.
-/// @param recurse Parameter recurse.
-/// @param level Parameter level.
-/// @returns Variable Return value.
-
+/// This is a Wavemetrics function. Striwng pathName Name of symbolic path in which to look for folders and
+/// files. String extensios File name extension (e.g., ".txt") or "????" for all files.
+/// @param pathName Name of an Igor symbolic path.
+/// @param extension File-name extension.
+/// @param recurse If nonzero, include nested data folders.
+/// @param level Level.
+/// @returns Zero after completing the operation.
 static Function PrintFoldersAndFiles(string pathName, string extension, variable recurse, variable level)
 	/// This is a Wavemetrics function
 	/// Striwng pathName	Name of symbolic path in which to look for folders and files.
@@ -252,12 +250,12 @@ static Function PrintFoldersAndFiles(string pathName, string extension, variable
 End
 
 /// @function CleanGlobalWavesVarAndStrInFolder
-/// @brief Description of CleanGlobalWavesVarAndStrInFolder.
+/// @brief Remove global waves, numeric variables, and strings from a data folder.
 /// @details
-/// Auto-generated documentation stub for function `CleanGlobalWavesVarAndStrInFolder`.
-/// @param dfr Parameter dfr.
-/// @returns Variable Return value.
-
+/// Move from current working directory to dfr kill all global variables and strings and return to the
+/// working directory.
+/// @param dfr Reference to the data folder to inspect or modify.
+/// @returns Zero after completing the operation.
 static Function CleanGlobalWavesVarAndStrInFolder(DFREF dfr)
 	/// Move from current working directory to dfr
 	/// kill all global variables and strings and 
@@ -272,13 +270,13 @@ static Function CleanGlobalWavesVarAndStrInFolder(DFREF dfr)
 End
 
 /// @function DeleteEverythingButSomeFolders
-/// @brief Description of DeleteEverythingButSomeFolders.
+/// @brief Remove everything but some folders.
 /// @details
-/// Auto-generated documentation stub for function `DeleteEverythingButSomeFolders`.
-/// @param baseFolderPattern Parameter baseFolderPattern.
-/// @param keepFolders Parameter keepFolders.
-/// @returns Variable Return value.
-
+/// Delete waves and child folders in folders that match baseFolderPattern but keep keepFolders
+/// WM_ZapDataInFolderTree(nextPath).
+/// @param baseFolderPattern Pattern selecting root data folders.
+/// @param keepFolders If nonzero, remove contents but retain matching folders.
+/// @returns Zero after completing the operation.
 static Function DeleteEverythingButSomeFolders(string baseFolderPattern, string keepFolders)
 	/// Delete waves and child folders in folders that match baseFolderPattern but keep keepFolders
 	/// @param folderPattern string match folders pattern
@@ -313,15 +311,14 @@ End
 // ----------------------------------------
 
 /// @function FindBigWaves
-/// @brief Description of FindBigWaves.
+/// @brief Find big waves.
 /// @details
-/// Auto-generated documentation stub for function `FindBigWaves`.
-/// @param minSizeInMB[ Parameter minSizeInMB[.
-/// @param df Parameter df.
-/// @param depth Parameter depth.
-/// @param noShow] Parameter noShow].
-/// @returns Variable Return value.
-
+/// See https.
+/// @param minSizeInMB (optional) Lower or starting min size in mb.
+/// @param df (optional) Data-folder reference or path.
+/// @param depth (optional) Maximum recursion depth.
+/// @param noShow (optional) If nonzero, do not open the results window.
+/// @returns Zero after completing the operation.
 static Function FindBigWaves(variable minSizeInMB[,DFREF df,variable depth,variable noShow])
 	/// See https://www.wavemetrics.com/code-snippet/find-big-waves
  
@@ -376,12 +373,11 @@ static Function FindBigWaves(variable minSizeInMB[,DFREF df,variable depth,varia
 End
 
 /// @function AllWavesSamePathQ
-/// @brief Description of AllWavesSamePathQ.
+/// @brief Test whether all waves same path.
 /// @details
-/// Auto-generated documentation stub for function `AllWavesSamePathQ`.
-/// @param wWAVEList Parameter wWAVEList.
-/// @returns Variable Return value.
-
+/// Function checks whether all have are in the same data folder 0 - no, 1 - yes.
+/// @param wWAVEList Wave used by the operation.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function AllWavesSamePathQ(WAVE/WAVE wWAVEList)
 	// Function checks whether all have are in the same data folder
 	// 0 - no, 1 - yes.  
@@ -400,12 +396,12 @@ static Function AllWavesSamePathQ(WAVE/WAVE wWAVEList)
 End
 
 /// @function BackupWaveInWaveDF
-/// @brief Description of BackupWaveInWaveDF.
+/// @brief Create a backup beside a wave in its source data folder.
 /// @details
-/// Auto-generated documentation stub for function `BackupWaveInWaveDF`.
-/// @param wref Parameter wref.
-/// @returns String Return value.
-
+/// Backup a wave in the same DF. If a wave with wavename_undo exists, nothing is done. The function returns
+/// a string of backupWavePathStr.
+/// @param wref Input wave.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S BackupWaveInWaveDF(WAVE wref)
 	// Backup a wave in the same DF. If a wave with wavename_undo exists, nothing is done
 	// If a backup wave is created a message is printed in the command window.
@@ -420,12 +416,12 @@ static Function/S BackupWaveInWaveDF(WAVE wref)
 End
 
 /// @function BackupWaveInWaveDFQ
-/// @brief Description of BackupWaveInWaveDFQ.
+/// @brief Test whether a wave has a backup in its source data folder.
 /// @details
-/// Auto-generated documentation stub for function `BackupWaveInWaveDFQ`.
-/// @param wref Parameter wref.
-/// @returns String Return value.
-
+/// Backup a wave in the same DF. If a wave with wavename_undo exists the user is prompted to proceed and
+/// overwrite the destination wave or not. The function returns a string of backupWavePathStr.
+/// @param wref Input wave.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S BackupWaveInWaveDFQ(WAVE wref)
 	// Backup a wave in the same DF. If a wave with wavename_undo exists
 	// the user is prompted to proceed and overwrite the destination wave or not.
@@ -447,12 +443,11 @@ static Function/S BackupWaveInWaveDFQ(WAVE wref)
 End
 
 /// @function GetAllWavesStrDF
-/// @brief Description of GetAllWavesStrDF.
+/// @brief Return a list of all waves in a data folder tree.
 /// @details
-/// Auto-generated documentation stub for function `GetAllWavesStrDF`.
-/// @param dfr Parameter dfr.
-/// @returns String Return value.
-
+/// Return a string of all fullpaths of waves in the data folder dfr. Not used, cleanup 14.11.2024.
+/// @param dfr Reference to the data folder to inspect or modify.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S GetAllWavesStrDF(DFREF dfr)
 	// Return a string of all fullpaths of waves
 	// in the data folder dfr

@@ -36,6 +36,10 @@
 /// related to ATH Traces functionality.
 
 
+/// @function TopTraceToWaveRef
+/// @brief Return a reference to the top trace in a graph.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 static Function/WAVE TopTraceToWaveRef([string grfName])
 	// Return a wave reference from the top graph
 	
@@ -51,12 +55,11 @@ static Function/WAVE TopTraceToWaveRef([string grfName])
 End
 
 /// @function MarqueeToTraceOperation
-/// @brief Description of MarqueeToTraceOperation.
+/// @brief Marquee to trace operation.
 /// @details
-/// Auto-generated documentation stub for function `MarqueeToTraceOperation`.
-/// @param op Parameter op.
-/// @returns Variable Return value.
-
+/// Op: 0: PullToZero 1: Normalise to one 2: Maximun to one.
+/// @param op Operation selector.
+/// @returns Zero after completing the operation.
 static Function MarqueeToTraceOperation(variable op)
 	// op:  0: PullToZero
 	//		1: Normalise to one
@@ -72,14 +75,13 @@ static Function MarqueeToTraceOperation(variable op)
 End
 
 /// @function OperationsOnGraphTracesWithMarquee
-/// @brief Description of OperationsOnGraphTracesWithMarquee.
+/// @brief Apply an arithmetic operation to graph traces inside the active marquee range.
 /// @details
-/// Auto-generated documentation stub for function `OperationsOnGraphTracesWithMarquee`.
-/// @param left Parameter left.
-/// @param right Parameter right.
-/// @param operationSelection Parameter operationSelection.
-/// @returns Variable Return value.
-
+/// Trace calculations using graph marquee.
+/// @param left Left ROI or marquee bound.
+/// @param right Right ROI or marquee bound.
+/// @param operationSelection Index selecting the arithmetic operation to perform.
+/// @returns Zero after completing the operation.
 static Function OperationsOnGraphTracesWithMarquee(variable left, variable right, variable operationSelection)
 	// Trace calculations using graph marquee
 	string waveListStr, traceNameStr
@@ -138,11 +140,11 @@ static Function OperationsOnGraphTracesWithMarquee(variable left, variable right
 End
 
 /// @function AlignTracesDB
-/// @brief Description of AlignTracesDB.
+/// @brief Align traces selected in the Data Browser.
 /// @details
-/// Auto-generated documentation stub for function `AlignTracesDB`.
-/// @returns Variable Return value.
-
+/// Fix: For stitching to have sense as done here there should be an overlap between regions, i.e. region
+/// width should be larger than the step between traces.
+/// @returns Zero after completing the operation.
 static Function AlignTracesDB() // Experimental
 	// Fix: For stitching to have sense as done here there should be 
 	// an overlap between regions, i.e. region width should be larger

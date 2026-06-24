@@ -20,17 +20,18 @@ related to ATH Graph functionality.
 DuplicateWaveAndDisplayOfTopImage([string grfName])
 ```
 
-Description of DuplicateWaveAndDisplayOfTopImage.
+Duplicate the top image wave and display the copy in a new graph.
 
-Auto-generated documentation stub for function `DuplicateWaveAndDisplayOfTopImage`.
+Duplicate the graph of an image (2d, 3d wave) along with the wave at its data folder (not cwd). Function
+DuplicateTopImage([string grfName]).
 
 ### Parameters
 
-- `grfName]` *(Parameter)*: grfName].
+- `grfName` *(String, optional)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `TextAnnotationOnTopGraph`
@@ -41,19 +42,39 @@ Auto-generated documentation stub for function `DuplicateWaveAndDisplayOfTopImag
 TextAnnotationOnTopGraph(string text, [variable fSize, string color])
 ```
 
-Description of TextAnnotationOnTopGraph.
+Add a text annotation to the active graph.
 
-Auto-generated documentation stub for function `TextAnnotationOnTopGraph`.
+Add text on the top graph. Optionally you can set fSize and text color. Defaults are fSize = 12 and color
+= black. Block using winNameStr.
 
 ### Parameters
 
-- `text` *(Parameter)*: text.
-- `fSize` *(Parameter)*: fSize.
-- `color]` *(Parameter)*: color].
+- `text` *(String)*: Text to display or process.
+- `fSize` *(Variable, optional)*: F size.
+- `color` *(String, optional)*: Color specification.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
+
+
+## `GetColor`
+
+**Signature**
+
+```igorpro
+GetColor(variable colorIndex)
+```
+
+Return the RGB triplet for a standard trace-color index.
+
+### Parameters
+
+- `colorIndex` *(Variable)*: Zero-based index into the standard trace-color palette.
+
+### Returns
+
+- **Multiple values**: The red, green, and blue values for the selected palette index.
 
 
 ## `GetgLayer`
@@ -64,17 +85,55 @@ Auto-generated documentation stub for function `TextAnnotationOnTopGraph`.
 GetgLayer(string grfName)
 ```
 
-Description of GetgLayer.
+Return the displayed layer index for a 3D image wave.
 
-Auto-generated documentation stub for function `GetgLayer`.
+Returns the /P=num plane displayed in windowNameStr.
 
 ### Parameters
 
-- `grfName` *(Parameter)*: grfName.
+- `grfName` *(String)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The zero-based index, or a negative value when no match is found.
+
+
+## `GetAxes`
+
+**Signature**
+
+```igorpro
+GetAxes([string grfName])
+```
+
+Return the x and y axes used by a graph image.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
+
+### Returns
+
+- **Multiple values**: The horizontal and vertical axis names used by the graph image.
+
+
+## `GetGraphCtabStr`
+
+**Signature**
+
+```igorpro
+GetGraphCtabStr([string grfName])
+```
+
+Return the color-table portion of an image recreation string.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
+
+### Returns
+
+- **String**: The image's `ctab` recreation-string field, or an empty string if unavailable.
 
 
 ## `SetGraphCtabStr`
@@ -85,18 +144,115 @@ Auto-generated documentation stub for function `GetgLayer`.
 SetGraphCtabStr(string ctabStr, [string grfName])
 ```
 
-Description of SetGraphCtabStr.
-
-Auto-generated documentation stub for function `SetGraphCtabStr`.
+Apply an Igor color-table recreation string to a graph image.
 
 ### Parameters
 
-- `ctabStr` *(Parameter)*: ctabStr.
-- `grfName]` *(Parameter)*: grfName].
+- `ctabStr` *(String)*: Text containing the color table str.
+- `grfName` *(String, optional)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
+
+
+## `AxisValToRel2D`
+
+**Signature**
+
+```igorpro
+AxisValToRel2D(WAVE w, variable xv, variable yv)
+```
+
+Convert image-axis coordinates to relative graph coordinates.
+
+### Parameters
+
+- `w` *(Wave)*: Displayed image wave used to resolve graph axes and bounds.
+- `xv` *(Variable)*: X-axis coordinate.
+- `yv` *(Variable)*: Y-axis coordinate.
+
+### Returns
+
+- **Multiple values**: The relative x and y coordinates in the graph image rectangle.
+
+
+## `RelToAxisVal2D`
+
+**Signature**
+
+```igorpro
+RelToAxisVal2D(WAVE w, variable xr, variable yr)
+```
+
+Convert relative graph coordinates to image-axis coordinates.
+
+### Parameters
+
+- `w` *(Wave)*: Displayed image wave used to resolve graph axes and bounds.
+- `xr` *(Variable)*: Relative x coordinate in the range 0–1.
+- `yr` *(Variable)*: Relative y coordinate in the range 0–1.
+
+### Returns
+
+- **Multiple values**: The corresponding x and y graph-axis values.
+
+
+## `TopImageToWaveRef`
+
+**Signature**
+
+```igorpro
+TopImageToWaveRef([string grfName])
+```
+
+Return a reference to the top image in a graph.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
+
+### Returns
+
+- **Wave**: Reference to the result wave; a null wave reference indicates failure where supported.
+
+
+## `TopImageName`
+
+**Signature**
+
+```igorpro
+TopImageName([string grfName])
+```
+
+Return the name of the top image in a graph.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
+
+### Returns
+
+- **String**: The top image name, or an empty string if the graph contains no image.
+
+
+## `TopGraphToWaveRef`
+
+**Signature**
+
+```igorpro
+TopGraphToWaveRef([string grfName])
+```
+
+Return the primary wave displayed in the top graph.
+
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
+
+### Returns
+
+- **Wave**: Reference to the result wave; a null wave reference indicates failure where supported.
 
 
 ## `LinkGraphSliders`
@@ -107,17 +263,17 @@ Auto-generated documentation stub for function `SetGraphCtabStr`.
 LinkGraphSliders([string grfName])
 ```
 
-Description of LinkGraphSliders.
+Link the image-layer sliders of multiple graphs.
 
-Auto-generated documentation stub for function `LinkGraphSliders`.
+Link the sliders of two graphs. Have you already set a link between graph sliders.
 
 ### Parameters
 
-- `grfName]` *(Parameter)*: grfName].
+- `grfName` *(String, optional)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `LinkedImgSliderHook`
@@ -128,17 +284,17 @@ Auto-generated documentation stub for function `LinkGraphSliders`.
 LinkedImgSliderHook(STRUCT WMSliderAction &sa)
 ```
 
-Description of LinkedImgSliderHook.
+Handle linked image slider hook events.
 
-Auto-generated documentation stub for function `LinkedImgSliderHook`.
+Remove metadata from the linked graph.
 
 ### Parameters
 
-- `&sa` *(Parameter)*: &sa.
+- `sa` *(STRUCT WMSliderAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `LinkGraphRanges`
@@ -149,17 +305,17 @@ Auto-generated documentation stub for function `LinkedImgSliderHook`.
 LinkGraphRanges([string grfName])
 ```
 
-Description of LinkGraphRanges.
+Link axis ranges across multiple graph windows.
 
-Auto-generated documentation stub for function `LinkGraphRanges`.
+Have you already set a link between graph sliders.
 
 ### Parameters
 
-- `grfName]` *(Parameter)*: grfName].
+- `grfName` *(String, optional)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `LinkedGraphAxesRangeHook`
@@ -170,14 +326,15 @@ Auto-generated documentation stub for function `LinkGraphRanges`.
 LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 ```
 
-Description of LinkedGraphAxesRangeHook.
+Handle linked graph axes range hook events.
 
-Auto-generated documentation stub for function `LinkedGraphAxesRangeHook`.
+Note: On Windows, you have to mouse-click to enable it. Catch vertical expansion static Function
+ShowZScaleInGraph(STRUCT WMWinHookStruct &s).
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.

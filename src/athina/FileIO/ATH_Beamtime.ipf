@@ -40,6 +40,9 @@
 /// This module belongs to the ATH Igor Pro toolkit and contains procedures
 /// related to ATH Beamtime functionality.
 
+/// @function SetOrResetBeamtimeRootFolder
+/// @brief Select or clear the beamtime root folder used by file-loading helpers.
+/// @returns The selected beamtime root path, or an empty string after reset or cancellation.
 static Function/S SetOrResetBeamtimeRootFolder()
 	// Helper function for functions in ATH_LoadFilesDuringBeamtime.ipf.
 	// Set or reset the Igor Path MAXPEEM_USER_ROOT_FOLDER
@@ -58,12 +61,11 @@ static Function/S SetOrResetBeamtimeRootFolder()
 End
 
 /// @function LoadNewestFileInRaw
-/// @brief Description of LoadNewestFileInRaw.
+/// @brief Load newest file in raw.
 /// @details
-/// Auto-generated documentation stub for function `LoadNewestFileInRaw`.
-/// @param extension Parameter extension.
-/// @returns Variable Return value.
-
+/// Load the last file found in the directory tree with root at pathName. Return UNC.
+/// @param extension File-name extension.
+/// @returns Zero after completing the operation.
 static Function LoadNewestFileInRaw(string extension)
 	 // variable timerRefNum = StartMSTimer
 	/// Load the last file found in the directory tree with root at pathName
@@ -78,19 +80,24 @@ static Function LoadNewestFileInRaw(string extension)
 End
 
 /// @function LoadFileFromRaw
-/// @brief Description of LoadFileFromRaw.
-/// @details
-/// Auto-generated documentation stub for function `LoadFileFromRaw`.
-/// @param scanID Parameter scanID.
-/// @returns Variable Return value.
-
-
+/// @brief Load file from raw.
+/// @param scanID Beamline scan identifier.
+/// @returns Zero after completing the operation.
 static Function LoadFileFromRaw(variable scanID)
 	// -- Just call the HDF5S Loader
 	ATH_HDF5#LoadTVIPSH5DataNetwork(scanID)
 	return 0
 End
 
+/// @function GetNewestCreatedFileInPathTree
+/// @brief Find the newest matching file in a folder tree.
+/// @param pathName Name of an Igor symbolic path.
+/// @param extension File-name extension filter.
+/// @param latestfile Input/output path of the newest file found so far.
+/// @param latestctime Input/output creation-time value for the newest item.
+/// @param recurse If nonzero, recurse into subfolders.
+/// @param level Current recursion depth.
+/// @returns The full path of the newest matching file.
 static Function/S GetNewestCreatedFileInPathTree(string pathName, 
 		   string extension, string &latestfile, variable &latestctime, 
 		   variable recurse, variable level)
@@ -168,11 +175,11 @@ static Function/S GetNewestCreatedFileInPathTree(string pathName,
 End
 
 /// @function LoadNewestFolderInPathTreeAndDisplay
-/// @brief Description of LoadNewestFolderInPathTreeAndDisplay.
+/// @brief Load newest folder in path tree and display.
 /// @details
-/// Auto-generated documentation stub for function `LoadNewestFolderInPathTreeAndDisplay`.
-/// @returns Variable Return value.
-
+/// Load the last file found in the directory tree with root at pathName will pop to set pathName. The path
+/// name is saved as pATH_LoadLastFileIgorPath.
+/// @returns Zero after completing the operation.
 static Function LoadNewestFolderInPathTreeAndDisplay()
 	/// Load the last file found in the directory tree with root at pathName
 	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
@@ -187,6 +194,12 @@ static Function LoadNewestFolderInPathTreeAndDisplay()
 	return 0
 End
 
+/// @function GetNewestCreatedFolderInPathTree
+/// @brief Find the newest folder in a folder tree.
+/// @param pathName Name of an Igor symbolic path.
+/// @param latestfolder Input/output path of the newest folder found so far.
+/// @param latestctime Input/output creation-time value for the newest item.
+/// @returns The full path of the newest folder.
 static Function/S GetNewestCreatedFolderInPathTree(string pathName, string &latestfolder, variable &latestctime)
 	//  ATH_GetNewestCreatedFileInPathTree is a modified Wavemetrics code of
 	//	PrintFoldersAndFiles(pathName, extension, recurse, level)
@@ -244,12 +257,12 @@ End
 /// -------------- Python versions of the commands. Writtten before IP10 ---------------------- ///
 
 /// @function LoadNewestFileInPathTreeAndDisplayPython
-/// @brief Description of LoadNewestFileInPathTreeAndDisplayPython.
+/// @brief Load newest file in path tree and display python.
 /// @details
-/// Auto-generated documentation stub for function `LoadNewestFileInPathTreeAndDisplayPython`.
-/// @param ext Parameter ext.
-/// @returns Variable Return value.
-
+/// Load the last file found in the directory tree with root set at pathName will pop to set pathName. The
+/// path name is saved as pATH_LoadLastFileIgorPath.
+/// @param ext File-name extension.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function LoadNewestFileInPathTreeAndDisplayPython(string ext)
 	/// Load the last file found in the directory tree with root set at pathName
 	/// If you haven't set the Igor path (NewPath ... ) a folder selection window 
@@ -268,6 +281,11 @@ static Function LoadNewestFileInPathTreeAndDisplayPython(string ext)
 	return 0
 End
 
+/// @function GetLastSavedFileInFolderTreePython
+/// @brief Find the most recently saved matching file using the Python helper.
+/// @param pathName Name of an Igor symbolic path.
+/// @param ext File-name extension filter.
+/// @returns The full path of the most recently saved matching file.
 static Function/S GetLastSavedFileInFolderTreePython(string pathName, string ext)
 	// valid shell script
 	// do shell script "python3 -c \"from pathlib import Path;from os.path import getmtime;

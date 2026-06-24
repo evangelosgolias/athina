@@ -37,17 +37,17 @@
 /// related to ATH IgorHook functionality.
 
 /// @function BeforeFileOpenHook
-/// @brief Description of BeforeFileOpenHook.
+/// @brief Handle before file open hook events.
 /// @details
-/// Auto-generated documentation stub for function `BeforeFileOpenHook`.
-/// @param refNum Parameter refNum.
-/// @param fileNameStr Parameter fileNameStr.
-/// @param pathNameStr Parameter pathNameStr.
-/// @param fileTypeStr Parameter fileTypeStr.
-/// @param fileCreatorStr Parameter fileCreatorStr.
-/// @param fileKind Parameter fileKind.
-/// @returns Variable Return value.
-
+/// ATH_WAVELoadSingleDATFile(fileToOpen, "", autoscale = 1). Added on the 17.03.2023 to deal with a
+/// corrupted file. AfterWindowCreatedHook - Used in Spaces to assign tags to new windows.
+/// @param refNum Igor file reference number.
+/// @param fileNameStr File name supplied by Igor.
+/// @param pathNameStr Path name str.
+/// @param fileTypeStr File-type identifier.
+/// @param fileCreatorStr File-creator identifier.
+/// @param fileKind Igor file-kind code.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Function BeforeFileOpenHook(variable refNum, string fileNameStr, string pathNameStr, string fileTypeStr, string fileCreatorStr, variable fileKind)
 
     PathInfo $pathNameStr
@@ -73,12 +73,12 @@ End
 // AfterWindowCreatedHook - Used in Spaces to assign tags to new windows
 
 /// @function AfterWindowCreatedHook
-/// @brief Description of AfterWindowCreatedHook.
+/// @brief Handle after window created hook events.
 /// @details
-/// Auto-generated documentation stub for function `AfterWindowCreatedHook`.
-/// @param windowNameStr Parameter windowNameStr.
-/// @param winTypevar Parameter winTypevar.
-/// @returns Variable Return value.
+/// Every window created is assigned to the active Space if the panel is there. Sanitize names.
+/// @param windowNameStr Window name str.
+/// @param winTypevar Igor window-type code.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Function AfterWindowCreatedHook(string windowNameStr, variable winTypevar)
 	// Every window created is assigned to the active Space if the panel is there
 	if(WinType("ATH_SpacesPanel"))
@@ -99,11 +99,8 @@ Function AfterWindowCreatedHook(string windowNameStr, variable winTypevar)
 End
 
 /// @function AfterCompiledHook
-/// @brief Description of AfterCompiledHook.
-/// @details
-/// Auto-generated documentation stub for function `AfterCompiledHook`.
-/// @returns Variable Return value.
-
+/// @brief Handle after compiled hook events.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Function AfterCompiledHook()
     CreateBrowser
 	ModifyBrowser appendUserButton={$"Calc XMCD", "Execute/P/Q \"ATH_Launch#BrowserActionDoXMDC()\""}

@@ -20,13 +20,14 @@ related to ATH iDriftCorrection functionality.
 CreatePanel()
 ```
 
-Description of CreatePanel.
+Create panel.
 
-Auto-generated documentation stub for function `CreatePanel`.
+Check if you have already created the panel. When autoscaled then SETAXISCMD is SetAxis/A. Duplicate the
+wave for backup.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `GraphHookFunction`
@@ -37,17 +38,17 @@ Auto-generated documentation stub for function `CreatePanel`.
 GraphHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of GraphHookFunction.
+Handle panel hook events.
 
-Auto-generated documentation stub for function `GraphHookFunction`.
+Cleanup when window is closed. Same behavior with /F or not.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `PanelHookFunction`
@@ -58,17 +59,17 @@ Auto-generated documentation stub for function `GraphHookFunction`.
 PanelHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of PanelHookFunction.
+Handle panel hook events.
 
-Auto-generated documentation stub for function `PanelHookFunction`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SetAnchorCursorButton`
@@ -79,17 +80,17 @@ Auto-generated documentation stub for function `PanelHookFunction`.
 SetAnchorCursorButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of SetAnchorCursorButton.
+Handle the set anchor cursor button action.
 
-Auto-generated documentation stub for function `SetAnchorCursorButton`.
+String variables. Wave and numeric variables. Image dimensions.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `DriftImageButton`
@@ -100,17 +101,17 @@ Auto-generated documentation stub for function `SetAnchorCursorButton`.
 DriftImageButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of DriftImageButton.
+Handle the drift image button action.
 
-Auto-generated documentation stub for function `DriftImageButton`.
+String variables. Wave references. Numeric variables.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `ToggleSubPixelModeButton`
@@ -121,17 +122,17 @@ Auto-generated documentation stub for function `DriftImageButton`.
 ToggleSubPixelModeButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of ToggleSubPixelModeButton.
+Handle the toggle sub pixel mode button action.
 
-Auto-generated documentation stub for function `ToggleSubPixelModeButton`.
+String variables. Wave reference. Numeric variables.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SetStartLayerButton`
@@ -142,17 +143,17 @@ Auto-generated documentation stub for function `ToggleSubPixelModeButton`.
 SetStartLayerButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of SetStartLayerButton.
+Handle the set start layer button action.
 
-Auto-generated documentation stub for function `SetStartLayerButton`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SetEndLayerButton`
@@ -163,17 +164,17 @@ Auto-generated documentation stub for function `SetStartLayerButton`.
 SetEndLayerButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of SetEndLayerButton.
+Handle the set end layer button action.
 
-Auto-generated documentation stub for function `SetEndLayerButton`.
+String variable. External numeric variable. Numeric variables from dfr.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `LinearDCButton`
@@ -184,17 +185,18 @@ Auto-generated documentation stub for function `SetEndLayerButton`.
 LinearDCButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of LinearDCButton.
+Handle the linear dc button action.
 
-Auto-generated documentation stub for function `LinearDCButton`.
+Relative s, y shifts for Drift Correction ImageInterpolate needs pixels, multiply by -1 to have the
+proper behavior in /ARPM={...}.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `CheckpointButton`
@@ -205,17 +207,17 @@ Auto-generated documentation stub for function `LinearDCButton`.
 CheckpointButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of CheckpointButton.
+Handle the checkpoint button action.
 
-Auto-generated documentation stub for function `CheckpointButton`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `RestoreWaveButton`
@@ -226,17 +228,17 @@ Auto-generated documentation stub for function `CheckpointButton`.
 RestoreWaveButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of RestoreWaveButton.
+Handle the restore wave button action.
 
-Auto-generated documentation stub for function `RestoreWaveButton`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `DriftSelectedLayers3DWaveButton`
@@ -247,17 +249,17 @@ Auto-generated documentation stub for function `RestoreWaveButton`.
 DriftSelectedLayers3DWaveButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of DriftSelectedLayers3DWaveButton.
+Handle the drift selected layers 3D wave button action.
 
-Auto-generated documentation stub for function `DriftSelectedLayers3DWaveButton`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `CascadeDrift3DWaveButton`
@@ -268,17 +270,17 @@ Auto-generated documentation stub for function `DriftSelectedLayers3DWaveButton`
 CascadeDrift3DWaveButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of CascadeDrift3DWaveButton.
+Handle the cascade drift 3D wave button action.
 
-Auto-generated documentation stub for function `CascadeDrift3DWaveButton`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `FastModeCheckbox`
@@ -289,17 +291,18 @@ Auto-generated documentation stub for function `CascadeDrift3DWaveButton`.
 FastModeCheckbox(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of FastModeCheckbox.
+Handle the fast mode checkbox action.
 
-Auto-generated documentation stub for function `FastModeCheckbox`.
+DrawTheRefCross(w3dRef,gATH_AnchorPositionX, gATH_AnchorPositionY,grfName=gATH_WindowNameStr). Copy code
+here. When autoscaled then SETAXISCMD is SetAxis/A.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `InterStackAlignmentButton`
@@ -310,17 +313,18 @@ Auto-generated documentation stub for function `FastModeCheckbox`.
 InterStackAlignmentButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of InterStackAlignmentButton.
+Handle the inter stack alignment button action.
 
-Auto-generated documentation stub for function `InterStackAlignmentButton`.
+Fast exit if not eventCode is not 2 NB: Save coordinates in pixels! We shouldn't depend on wave scaling.
+Reference should be relative, between 0 and 1 as the number of pixels and scale might be different.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `DrawTheRefCross`
@@ -331,18 +335,18 @@ Auto-generated documentation stub for function `InterStackAlignmentButton`.
 DrawTheRefCross(WAVE wRef, variable xv, variable yv, [string grfName, int axisRel])
 ```
 
-Description of DrawTheRefCross.
+Draw the ref cross.
 
-Auto-generated documentation stub for function `DrawTheRefCross`.
+Draw the ref line.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `xv` *(Parameter)*: xv.
-- `yv` *(Parameter)*: yv.
-- `grfName` *(Parameter)*: grfName.
-- `axisRel]` *(Parameter)*: axisRel].
+- `wRef` *(Wave)*: Input wave.
+- `xv` *(Variable)*: X-coordinate value or wave.
+- `yv` *(Variable)*: Y-coordinate value or wave.
+- `grfName` *(String, optional)*: Name of the graph window.
+- `axisRel` *(Integer, optional)*: If nonzero, interpret coordinates relative to the graph axes.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.

@@ -20,13 +20,13 @@ related to ATH ZProfile functionality.
 GraphMarqueeLaunchOval()
 ```
 
-Description of GraphMarqueeLaunchOval.
+Graph marquee launch oval.
 
-Auto-generated documentation stub for function `GraphMarqueeLaunchOval`.
+Reads the current graph interaction state and applies the requested operation to that selection.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `GraphMarqueeLaunchRectangle`
@@ -37,13 +37,13 @@ Auto-generated documentation stub for function `GraphMarqueeLaunchOval`.
 GraphMarqueeLaunchRectangle()
 ```
 
-Description of GraphMarqueeLaunchRectangle.
+Graph marquee launch rectangle.
 
-Auto-generated documentation stub for function `GraphMarqueeLaunchRectangle`.
+Reads the current graph interaction state and applies the requested operation to that selection.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `TracePopupLaunchSavedROI`
@@ -54,13 +54,26 @@ Auto-generated documentation stub for function `GraphMarqueeLaunchRectangle`.
 TracePopupLaunchSavedROI()
 ```
 
-Description of TracePopupLaunchSavedROI.
-
-Auto-generated documentation stub for function `TracePopupLaunchSavedROI`.
+Trace popup launch saved ROI.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
+
+
+## `InitialiseFolder`
+
+**Signature**
+
+```igorpro
+InitialiseFolder()
+```
+
+Create and initialize state for an image-stack z profile.
+
+### Returns
+
+- **DFREF**: Reference to the resulting data folder.
 
 
 ## `DrawOvalImageROI`
@@ -71,24 +84,25 @@ Auto-generated documentation stub for function `TracePopupLaunchSavedROI`.
 DrawOvalImageROI(string winNameStr, variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
 ```
 
-Description of DrawOvalImageROI.
+Draw oval image ROI.
 
-Auto-generated documentation stub for function `DrawOvalImageROI`.
+Use ATH_ZProfileDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook
+function and ImageGenerateROIMask).
 
 ### Parameters
 
-- `winNameStr` *(Parameter)*: winNameStr.
-- `left` *(Parameter)*: left.
-- `top` *(Parameter)*: top.
-- `right` *(Parameter)*: right.
-- `bottom` *(Parameter)*: bottom.
-- `red` *(Parameter)*: red.
-- `green` *(Parameter)*: green.
-- `blue` *(Parameter)*: blue.
+- `winNameStr` *(String)*: Win name str.
+- `left` *(Variable)*: Left ROI or marquee bound.
+- `top` *(Variable)*: Top ROI or marquee bound.
+- `right` *(Variable)*: Right ROI or marquee bound.
+- `bottom` *(Variable)*: Bottom ROI or marquee bound.
+- `red` *(Variable)*: Red-channel value or wave.
+- `green` *(Variable)*: Green-channel value or wave.
+- `blue` *(Variable)*: Blue-channel value or wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `DrawRectImageROI`
@@ -99,24 +113,25 @@ Auto-generated documentation stub for function `DrawOvalImageROI`.
 DrawRectImageROI(string winNameStr, variable left, variable top, variable right, variable bottom, variable red, variable green, variable blue)
 ```
 
-Description of DrawRectImageROI.
+Draw rect image ROI.
 
-Auto-generated documentation stub for function `DrawRectImageROI`.
+Use ATH_ZProfileDrawImageROI to draw on UserFront and then return the ProgFront (used by the hook
+function and ImageGenerateROIMask).
 
 ### Parameters
 
-- `winNameStr` *(Parameter)*: winNameStr.
-- `left` *(Parameter)*: left.
-- `top` *(Parameter)*: top.
-- `right` *(Parameter)*: right.
-- `bottom` *(Parameter)*: bottom.
-- `red` *(Parameter)*: red.
-- `green` *(Parameter)*: green.
-- `blue` *(Parameter)*: blue.
+- `winNameStr` *(String)*: Win name str.
+- `left` *(Variable)*: Left ROI or marquee bound.
+- `top` *(Variable)*: Top ROI or marquee bound.
+- `right` *(Variable)*: Right ROI or marquee bound.
+- `bottom` *(Variable)*: Bottom ROI or marquee bound.
+- `red` *(Variable)*: Red-channel value or wave.
+- `green` *(Variable)*: Green-channel value or wave.
+- `blue` *(Variable)*: Blue-channel value or wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `ClearROIMarkingsUserFront`
@@ -127,17 +142,15 @@ Auto-generated documentation stub for function `DrawRectImageROI`.
 ClearROIMarkingsUserFront(string winNameStr)
 ```
 
-Description of ClearROIMarkingsUserFront.
-
-Auto-generated documentation stub for function `ClearROIMarkingsUserFront`.
+Clear ROI markings from the graph's UserFront drawing layer.
 
 ### Parameters
 
-- `winNameStr` *(Parameter)*: winNameStr.
+- `winNameStr` *(String)*: Win name str.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `InitialiseGraph`
@@ -148,17 +161,19 @@ Auto-generated documentation stub for function `ClearROIMarkingsUserFront`.
 InitialiseGraph(DFREF dfr)
 ```
 
-Description of InitialiseGraph.
+Initialize the graph used by the z-profile tool.
 
-Auto-generated documentation stub for function `InitialiseGraph`.
+Here we will create the profile plot and graph and plot the profile. Note: PopupMenu should follow
+SetWindow commands as the function BuildTwinWaveList() needs to get the userdata(ATH_rootdfrZProfileStr)
+to initialise the menu.
 
 ### Parameters
 
-- `dfr` *(Parameter)*: dfr.
+- `dfr` *(DFREF)*: Reference to the data folder to inspect or modify.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `CursorHookFunction`
@@ -169,17 +184,17 @@ Auto-generated documentation stub for function `InitialiseGraph`.
 CursorHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of CursorHookFunction.
+Handle cursor hook events.
 
-Auto-generated documentation stub for function `CursorHookFunction`.
+Window hook function. Redraw ROI KillWaves/Z M_ROIMask.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `GraphHookFunction`
@@ -190,17 +205,18 @@ Auto-generated documentation stub for function `CursorHookFunction`.
 GraphHookFunction(STRUCT WMWinHookStruct &s)
 ```
 
-Description of GraphHookFunction.
+Handle panel hook events.
 
-Auto-generated documentation stub for function `GraphHookFunction`.
+ParentGraphWin -- winNameStr. Kill the MyLineProfileHook. We need to reset the link between
+parentGraphwin (winNameStr) and ATH_LinkedLineProfilePlotStr.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SaveProfileButton`
@@ -211,17 +227,17 @@ Auto-generated documentation stub for function `GraphHookFunction`.
 SaveProfileButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of SaveProfileButton.
+Handle the save profile button action.
 
-Auto-generated documentation stub for function `SaveProfileButton`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SetScaleButton`
@@ -232,17 +248,17 @@ Auto-generated documentation stub for function `SaveProfileButton`.
 SetScaleButton(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of SetScaleButton.
+Handle the set scale button action.
 
-Auto-generated documentation stub for function `SetScaleButton`.
+Twin wave.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `CheckboxPlotProfile`
@@ -253,17 +269,15 @@ Auto-generated documentation stub for function `SetScaleButton`.
 CheckboxPlotProfile(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of CheckboxPlotProfile.
-
-Auto-generated documentation stub for function `CheckboxPlotProfile`.
+Handle the plot-profile checkbox action.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `CheckboxMarkAreas`
@@ -274,17 +288,15 @@ Auto-generated documentation stub for function `CheckboxPlotProfile`.
 CheckboxMarkAreas(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of CheckboxMarkAreas.
-
-Auto-generated documentation stub for function `CheckboxMarkAreas`.
+Handle the mark-areas checkbox action.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `CheckBoxTwinPlot`
@@ -295,17 +307,17 @@ Auto-generated documentation stub for function `CheckboxMarkAreas`.
 CheckBoxTwinPlot(STRUCT WMCheckboxAction& cb)
 ```
 
-Description of CheckBoxTwinPlot.
+Handle the twin-plot checkbox action.
 
-Auto-generated documentation stub for function `CheckBoxTwinPlot`.
+Create the twinwave plot.
 
 ### Parameters
 
-- `cb` *(Parameter)*: cb.
+- `cb` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SetTwinWavePath`
@@ -316,14 +328,14 @@ Auto-generated documentation stub for function `CheckBoxTwinPlot`.
 SetTwinWavePath(STRUCT WMSetVariableAction &sva)
 ```
 
-Description of SetTwinWavePath.
+Set twin wave path.
 
-Auto-generated documentation stub for function `SetTwinWavePath`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&sva` *(Parameter)*: &sva.
+- `sva` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.

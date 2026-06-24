@@ -20,14 +20,122 @@ related to ATH Dialog functionality.
 GenericSinglePopupStrPrompt(string strPrompt, string popupStrSelection, string msgDialog)
 ```
 
-Module ATH_Dialog.
+Prompt for one value chosen from a pop-up list.
 
-This module belongs to the ATH Igor Pro toolkit and contains procedures
-related to ATH Dialog functionality.
+### Parameters
+
+- `strPrompt` *(String)*: Prompt text shown beside the input control.
+- `popupStrSelection` *(String)*: Semicolon-separated choices for the pop-up control.
+- `msgDialog` *(String)*: Title or explanatory text for the prompt dialog.
 
 ### Returns
 
-- **String**
+- **String**: The selected pop-up item, or an empty string if the dialog is cancelled.
+
+
+## `GenericSingleStrPrompt`
+
+**Signature**
+
+```igorpro
+GenericSingleStrPrompt(string strPrompt, string msgDialog)
+```
+
+Prompt for one text value.
+
+### Parameters
+
+- `strPrompt` *(String)*: Prompt text shown beside the input control.
+- `msgDialog` *(String)*: Title or explanatory text for the prompt dialog.
+
+### Returns
+
+- **String**: The entered text, or an empty string if the dialog is cancelled.
+
+
+## `GenericSingleStrPromptAndPopup`
+
+**Signature**
+
+```igorpro
+GenericSingleStrPromptAndPopup(string strPrompt1,string strPrompt2, string popupStrSelection1, string msgDialog)
+```
+
+Prompt for one pop-up selection and one text value.
+
+### Parameters
+
+- `strPrompt1` *(String)*: Prompt text for the first value.
+- `strPrompt2` *(String)*: Prompt text for the second value.
+- `popupStrSelection1` *(String)*: Choices for the first pop-up control.
+- `msgDialog` *(String)*: Title or explanatory text for the prompt dialog.
+
+### Returns
+
+- **Multiple values**: The entered text and the selected pop-up item.
+
+
+## `GenericDoubleStrPromptPopup`
+
+**Signature**
+
+```igorpro
+GenericDoubleStrPromptPopup(string strPrompt1, string strPrompt2, string popupStrSelection1, string popupStrSelection2, string msgDialog)
+```
+
+Prompt for two values chosen from pop-up lists.
+
+### Parameters
+
+- `strPrompt1` *(String)*: Prompt text for the first value.
+- `strPrompt2` *(String)*: Prompt text for the second value.
+- `popupStrSelection1` *(String)*: Choices for the first pop-up control.
+- `popupStrSelection2` *(String)*: Choices for the second pop-up control.
+- `msgDialog` *(String)*: Title or explanatory text for the prompt dialog.
+
+### Returns
+
+- **Multiple values**: The two selected pop-up items.
+
+
+## `GenericDoubleStrPrompt`
+
+**Signature**
+
+```igorpro
+GenericDoubleStrPrompt(string strPrompt1, string strPrompt2, string msgDialog)
+```
+
+Prompt for two text values.
+
+### Parameters
+
+- `strPrompt1` *(String)*: Prompt text for the first value.
+- `strPrompt2` *(String)*: Prompt text for the second value.
+- `msgDialog` *(String)*: Title or explanatory text for the prompt dialog.
+
+### Returns
+
+- **Multiple values**: The two entered text values.
+
+
+## `SelectWavesInModalDataBrowser`
+
+**Signature**
+
+```igorpro
+SelectWavesInModalDataBrowser(string msg)
+```
+
+Open a modal Data Browser and return the selected waves.
+
+### Parameters
+
+- `msg` *(String)*: Message displayed to the user.
+
+### Returns
+
+- **String**: A semicolon-separated list of selected wave paths, or an empty string if none are selected.
 
 
 ## `CountSelectedObjectsInDataBrowser`
@@ -38,13 +146,13 @@ related to ATH Dialog functionality.
 CountSelectedObjectsInDataBrowser()
 ```
 
-Description of CountSelectedObjectsInDataBrowser.
+Count all objects selected in the Data Browser.
 
-Auto-generated documentation stub for function `CountSelectedObjectsInDataBrowser`.
+Return how many objects of any kind you have selected in the data browser.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The number of matching items.
 
 
 ## `CountSelectedWavesInDataBrowser`
@@ -55,17 +163,37 @@ Auto-generated documentation stub for function `CountSelectedObjectsInDataBrowse
 CountSelectedWavesInDataBrowser([variable wDim])
 ```
 
-Description of CountSelectedWavesInDataBrowser.
+Count waves selected in the Data Browser, optionally by dimensionality.
 
-Auto-generated documentation stub for function `CountSelectedWavesInDataBrowser`.
+Return how many waves are selected in the data browser. Function returns selected waves of dimensionality
+wDims.
 
 ### Parameters
 
-- `wDim]` *(Parameter)*: wDim].
+- `wDim` *(Variable, optional)*: Wave dimensionality to require; zero counts waves of any dimensionality.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The number of matching items.
+
+
+## `GetSelectedWavesInDataBrowser`
+
+**Signature**
+
+```igorpro
+GetSelectedWavesInDataBrowser([variable wDim])
+```
+
+Return waves selected in the Data Browser, optionally filtered by dimensionality.
+
+### Parameters
+
+- `wDim` *(Variable, optional)*: Required wave dimensionality; zero accepts any dimensionality.
+
+### Returns
+
+- **String**: A semicolon-separated list of selected wave paths matching the dimensionality filter.
 
 
 ## `WaitForUserActions`
@@ -76,18 +204,16 @@ Auto-generated documentation stub for function `CountSelectedWavesInDataBrowser`
 WaitForUserActions(STRUCT sUserMarqueePositions &s, [variable vWinType])
 ```
 
-Description of WaitForUserActions.
-
-Auto-generated documentation stub for function `WaitForUserActions`.
+Open a modal panel and wait for the user to continue or cancel.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
-- `vWinType]` *(Parameter)*: vWinType].
+- `s` *(STRUCT sUserMarqueePositions)*: Input/output structure carrying the operation's settings and results.
+- `vWinType` *(Variable, optional)*: Igor window-type code used to choose the parent window; defaults to a graph.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One if the user cancels; zero if the user continues.
 
 
 ## `WaitForUserActions_ContButtonProc`
@@ -98,17 +224,17 @@ Auto-generated documentation stub for function `WaitForUserActions`.
 WaitForUserActions_ContButtonProc(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of WaitForUserActions_ContButtonProc.
+Handle the continue button in the modal user-action panel.
 
-Auto-generated documentation stub for function `WaitForUserActions_ContButtonProc`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `WaitForUserActions_CancelBProc`
@@ -119,14 +245,14 @@ Auto-generated documentation stub for function `WaitForUserActions_ContButtonPro
 WaitForUserActions_CancelBProc(STRUCT WMButtonAction &B_Struct)
 ```
 
-Description of WaitForUserActions_CancelBProc.
+Handle the cancel button in the modal user-action panel.
 
-Auto-generated documentation stub for function `WaitForUserActions_CancelBProc`.
+End of wait to complete operations.
 
 ### Parameters
 
-- `&B_Struct` *(Parameter)*: &B_Struct.
+- `B_Struct` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.

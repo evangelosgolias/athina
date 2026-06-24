@@ -32,8 +32,8 @@ a provided destination wave reference.
 
 - `w1` *(Wave)*: First input image.
 - `w2` *(Wave)*: Second input image.
-- `outWave` *(String)*: Optional output-wave name. Exactly one of `outWave` or `wRef` must be provided.
-- `wRef` *(Wave)*: Optional destination wave reference. Exactly one of `outWave` or `wRef` must be provided.
+- `outWave` *(String, optional)*: Optional output-wave name. Exactly one of `outWave` or `wRef` must be provided.
+- `wRef` *(Wave, optional)*: Optional destination wave reference. Exactly one of `outWave` or `wRef` must be provided.
 
 ### Returns
 
@@ -79,7 +79,7 @@ The output is written to `wXMCD` or to a user-specified wave name.
 ### Parameters
 
 - `w3d` *(Wave)*: Input 3D wave with exactly two layers.
-- `wnameStr` *(String)*: Optional output-wave name.
+- `wnameStr` *(String, optional)*: Optional output-wave name.
 
 ### Returns
 
@@ -135,6 +135,32 @@ The output stack is saved in the current data folder under a generated name base
 ```
 
 
+## `CalculateXMCDDomino`
+
+**Signature**
+
+```igorpro
+CalculateXMCDDomino(WAVE w3d)
+```
+
+Compute XMCD/XMLD for all consecutive layers
+
+Iterates over all unique layer pairs in `w3d`, computes a normalized contrast map
+for each pair, and stacks the results into a new output wave.
+
+### Parameters
+
+- `w3d` *(Wave)*: Input 3D stack.
+
+### Returns
+
+- **Variable**: Returns 0 on success and -1 if `w3d` is not three-dimensional.
+
+```{note}
+The output stack is saved in the current data folder under a generated name based on `XMCD_Domn`.
+```
+
+
 ## `XMCDStack4L`
 
 **Signature**
@@ -151,9 +177,9 @@ subtracts the second XMCD image from the first. The result is written to `outWav
 ### Parameters
 
 - `wRef` *(Wave)*: Input 3D stack with four layers.
-- `order` *(String)*: Optional permutation string specifying layer order, default `0123`.
-- `overwrite` *(Variable)*: Optional flag controlling whether an existing output wave may be overwritten.
-- `outWave` *(String)*: Optional output-wave name.
+- `order` *(String, optional)*: Optional permutation string specifying layer order, default `0123`.
+- `overwrite` *(Integer, optional)*: Optional flag controlling whether an existing output wave may be overwritten.
+- `outWave` *(String, optional)*: Optional output-wave name.
 
 ### Returns
 

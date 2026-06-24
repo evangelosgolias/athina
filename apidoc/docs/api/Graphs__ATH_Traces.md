@@ -20,14 +20,15 @@ related to ATH Traces functionality.
 TopTraceToWaveRef([string grfName])
 ```
 
-Module ATH_Traces.
+Return a reference to the top trace in a graph.
 
-This module belongs to the ATH Igor Pro toolkit and contains procedures
-related to ATH Traces functionality.
+### Parameters
+
+- `grfName` *(String, optional)*: Name of the graph window.
 
 ### Returns
 
-- **Wave**
+- **Wave**: Reference to the result wave; a null wave reference indicates failure where supported.
 
 
 ## `MarqueeToTraceOperation`
@@ -38,17 +39,17 @@ related to ATH Traces functionality.
 MarqueeToTraceOperation(variable op)
 ```
 
-Description of MarqueeToTraceOperation.
+Marquee to trace operation.
 
-Auto-generated documentation stub for function `MarqueeToTraceOperation`.
+Op: 0: PullToZero 1: Normalise to one 2: Maximun to one.
 
 ### Parameters
 
-- `op` *(Parameter)*: op.
+- `op` *(Variable)*: Operation selector.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `OperationsOnGraphTracesWithMarquee`
@@ -59,19 +60,19 @@ Auto-generated documentation stub for function `MarqueeToTraceOperation`.
 OperationsOnGraphTracesWithMarquee(variable left, variable right, variable operationSelection)
 ```
 
-Description of OperationsOnGraphTracesWithMarquee.
+Apply an arithmetic operation to graph traces inside the active marquee range.
 
-Auto-generated documentation stub for function `OperationsOnGraphTracesWithMarquee`.
+Trace calculations using graph marquee.
 
 ### Parameters
 
-- `left` *(Parameter)*: left.
-- `right` *(Parameter)*: right.
-- `operationSelection` *(Parameter)*: operationSelection.
+- `left` *(Variable)*: Left ROI or marquee bound.
+- `right` *(Variable)*: Right ROI or marquee bound.
+- `operationSelection` *(Variable)*: Index selecting the arithmetic operation to perform.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `AlignTracesDB`
@@ -82,10 +83,11 @@ Auto-generated documentation stub for function `OperationsOnGraphTracesWithMarqu
 AlignTracesDB()
 ```
 
-Description of AlignTracesDB.
+Align traces selected in the Data Browser.
 
-Auto-generated documentation stub for function `AlignTracesDB`.
+Fix: For stitching to have sense as done here there should be an overlap between regions, i.e. region
+width should be larger than the step between traces.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.

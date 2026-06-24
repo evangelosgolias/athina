@@ -20,20 +20,20 @@ related to ATH Execute functionality.
 ExecuteShellCommand(uCommand, printCommandInHistory, printResultInHistory [, asAdmin])
 ```
 
-Description of ExecuteShellCommand.
+Execute shell command.
 
-Auto-generated documentation stub for function `ExecuteShellCommand`.
+Copy of Wavemetrics procedure.
 
 ### Parameters
 
-- `uCommand` *(Parameter)*: uCommand.
-- `printCommandInHistory` *(Parameter)*: printCommandInHistory.
-- `[` *(Parameter)*: [.
-- `asAdmin]` *(Parameter)*: asAdmin].
+- `uCommand` *(Variable)*: Igor command to execute.
+- `printCommandInHistory` *(Variable)*: If nonzero, echo the command to Igor's history.
+- `printResultInHistory` *(Variable, optional)*: If nonzero, print the command result to history.
+- `asAdmin` *(Variable, optional)*: If nonzero, request administrator execution where supported.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `CmdExecutionUsingRange`
@@ -44,18 +44,19 @@ Auto-generated documentation stub for function `ExecuteShellCommand`.
 CmdExecutionUsingRange(string cmdStr, string rangeStr)
 ```
 
-Description of CmdExecutionUsingRange.
+Cmd execution using range.
 
-Auto-generated documentation stub for function `CmdExecutionUsingRange`.
+Execute cmdStr with parameters the numbers in rangeStr. See ATH_ExpandRangeStr doc string. e.g.:
+ATH_CmdExecutionUsingRange("NewDataFolder 'FLDR#%s'", "2,3,11-14").
 
 ### Parameters
 
-- `cmdStr` *(Parameter)*: cmdStr.
-- `rangeStr` *(Parameter)*: rangeStr.
+- `cmdStr` *(String)*: Text containing the cmd str.
+- `rangeStr` *(String)*: Range str.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `CmdExecutionInFolderWithPattern`
@@ -66,18 +67,19 @@ Auto-generated documentation stub for function `CmdExecutionUsingRange`.
 CmdExecutionInFolderWithPattern(string cmdStr, string pattern)
 ```
 
-Description of CmdExecutionInFolderWithPattern.
+Cmd execution in folder with pattern.
 
-Auto-generated documentation stub for function `CmdExecutionInFolderWithPattern`.
+Execute cmdStr for wavelist using pattern e.g.: ATH_CmdExecutionInFolderWithPattern("NewDataFolder",
+"waveP*").
 
 ### Parameters
 
-- `cmdStr` *(Parameter)*: cmdStr.
-- `pattern` *(Parameter)*: pattern.
+- `cmdStr` *(String)*: Text containing the cmd str.
+- `pattern` *(String)*: Pattern used to select names or files.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `HandleSimpleError`
@@ -88,17 +90,17 @@ Auto-generated documentation stub for function `CmdExecutionInFolderWithPattern`
 HandleSimpleError(string funName)
 ```
 
-Description of HandleSimpleError.
+Handle simple error.
 
-Auto-generated documentation stub for function `HandleSimpleError`.
+Handle execution error, clear and print a message.
 
 ### Parameters
 
-- `funName` *(Parameter)*: funName.
+- `funName` *(String)*: Fun name.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `GetAndExecuteNoteEntry`
@@ -109,17 +111,17 @@ Auto-generated documentation stub for function `HandleSimpleError`.
 GetAndExecuteNoteEntry(WAVE wRef, string entry, [string sep, string listsep])
 ```
 
-Description of GetAndExecuteNoteEntry.
+Return and execute note entry.
 
-Auto-generated documentation stub for function `GetAndExecuteNoteEntry`.
+Retrieve string entry from wRef note (use sep).
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `entry` *(Parameter)*: entry.
-- `sep` *(Parameter)*: sep.
-- `listsep]` *(Parameter)*: listsep].
+- `wRef` *(Wave)*: Input wave.
+- `entry` *(String)*: Wave-note key or entry to retrieve and execute.
+- `sep` *(String, optional)*: Delimiter used between list items.
+- `listsep` *(String, optional)*: Delimiter used by the input or output list.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.

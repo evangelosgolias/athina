@@ -115,6 +115,10 @@ Structure BackRemoveStruct
 	Variable smoothData	// integer between 3 and 20
 EndStructure
 
+/// @function BackRemoveInitialize
+/// @brief Initialize background removal for a selected spectrum.
+/// @param bs Background-model settings structure.
+/// @returns Zero after completing the operation.
 Function BackRemoveInitialize(bs)
 	STRUCT BackRemoveStruct &bs
 	bs.FuncType		= "Constant"
@@ -138,6 +142,14 @@ End
 
 //################################################################################################
 
+/// @function GenerateBackground
+/// @brief Generate a background wave from the current removal settings.
+/// @param s Background-calculation settings structure.
+/// @param inwave Input spectrum wave.
+/// @param backwave Wave that receives the calculated background.
+/// @param from (optional) Lower x coordinate of the background range.
+/// @param to (optional) Upper x coordinate of the background range.
+/// @returns An empty string on success; otherwise a message describing invalid input or calculation failure.
 Function/S GenerateBackground(s, inwave, backwave, [from, to])
 	STRUCT BackRemoveStruct &s
 	Wave, inwave, backwave
@@ -380,6 +392,9 @@ End
 
 //################################################################################################
 
+/// @function BackgroundSubtractGUI
+/// @brief Launch the interactive XPS background-subtraction panel.
+/// @returns Zero after opening the panel; a negative value if the input wave is invalid.
 Function BackgroundSubtractGUI() //BackgroundSubtractGUI(inwave)
 	string winNameStr = WinName(0, 1, 1)
 	string graphNameStr = StringFromList(0, TraceNameList(winNameStr, ";", 1),";")
@@ -507,6 +522,10 @@ Function BackgroundSubtractGUI() //BackgroundSubtractGUI(inwave)
 	return 0
 End
 //################################################################################################
+/// @function getWorkFolder
+/// @brief Return the package data folder used by background removal.
+/// @param gName Name of the background-removal graph window.
+/// @returns Reference to the resulting data folder.
 static Function/DF getWorkFolder(gName)															// grab current working folder from graph info
 	String gName
 	String folder = ""
@@ -521,6 +540,10 @@ static Function/DF getWorkFolder(gName)															// grab current working fo
 	endif
 End
 //################################################################################################
+/// @function BackRem_WindowHook
+/// @brief Handle window events for the XPS background-removal graph.
+/// @param s Igor window-hook event structure.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Function BackRem_WindowHook(s)																	// main window hook
 	STRUCT WMWinHookStruct &s
 	Variable HookTakeover = 0, Objects = 1
@@ -561,6 +584,12 @@ Function BackRem_WindowHook(s)																	// main window hook
 	return HookTakeover
 End
 //################################################################################################
+/// @function BackRem_InitLoadSettings
+/// @brief Initialize the background-removal panel from defaults or saved wave settings.
+/// @param bs Background-model settings structure.
+/// @param inwave Input spectrum wave.
+/// @param gName Name of the background-removal graph window.
+/// @returns Zero after completing the operation.
 static Function BackRem_InitLoadSettings(bs, inwave, gName)
 	STRUCT BackRemoveStruct &bs
 	Wave inwave
@@ -625,6 +654,11 @@ static Function BackRem_InitLoadSettings(bs, inwave, gName)
 	return 0
 End
 //################################################################################################
+/// @function BackRem_SwitchModeControls
+/// @brief Show the controls required by the selected background model.
+/// @param mode Operation mode selector.
+/// @param gName Name of the background-removal graph window.
+/// @returns Zero after completing the operation.
 static Function BackRem_SwitchModeControls(mode, gName)
 	String mode, gName
 
@@ -683,6 +717,10 @@ static Function BackRem_SwitchModeControls(mode, gName)
 	return 0
 End
 //################################################################################################
+/// @function BackRem_ModeSelect
+/// @brief Handle selection of a background model.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Function BackRem_ModeSelect(s) : PopupMenuControl
 	STRUCT WMPopupAction &s
 	if (s.eventCode == 2)
@@ -692,6 +730,10 @@ Function BackRem_ModeSelect(s) : PopupMenuControl
 	return 0
 End
 //################################################################################################
+/// @function BackRem_CheckAction
+/// @brief Recalculate the background after a checkbox change.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Function BackRem_CheckAction (s) : CheckBoxControl
 	STRUCT WMCheckboxAction &s
 	if (s.eventCode == 2)
@@ -700,6 +742,10 @@ Function BackRem_CheckAction (s) : CheckBoxControl
 	return 0
 End
 //################################################################################################
+/// @function BackRem_CSWaveSelect
+/// @brief Recalculate the background after selecting a cross-section wave.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Function BackRem_CSWaveSelect(s) : PopupMenuControl
 	STRUCT WMPopupAction &s
 	if (s.eventCode == 2)
@@ -708,11 +754,18 @@ Function BackRem_CSWaveSelect(s) : PopupMenuControl
 	return 0
 End
 //+++++++++++++++++++++++++++++++++++++ popup help functions +++++++++++++++++++++++++++++++++++++
+/// @function BackRem_CSWaveList
+/// @brief Return the one-dimensional waves available as scattering cross sections.
+/// @returns A semicolon-separated list of one-dimensional waves.
 Function/S BackRem_CSWaveList()																	// create wave list for the drop down menu
 	String list = "none;" + WaveList("*",";", "DIMS:1")
 	return list
 End
 //################################################################################################
+/// @function BackRem_ButtonAction
+/// @brief Handle subtract, undo, save, and close actions in the background-removal panel.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Function BackRem_ButtonAction(STRUCT WMButtonAction &s) : ButtonControl
 	
 	if (s.eventCode != 2)
@@ -785,6 +838,10 @@ Function BackRem_ButtonAction(STRUCT WMButtonAction &s) : ButtonControl
 	return 0
 End
 //################################################################################################
+/// @function BackRem_VarChange
+/// @brief Update cursors or recalculate the background after a control value changes.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Function BackRem_VarChange(s) : SetVariableControl
 	STRUCT WMSetVariableAction &s
 	
@@ -814,6 +871,12 @@ Function BackRem_VarChange(s) : SetVariableControl
 	return 0
 End
 //################################################################################################
+/// @function BackRem_UpdateCursorControls
+/// @brief Write the current cursor positions into the panel controls.
+/// @param mainCur Primary cursor x coordinate.
+/// @param subCur Secondary cursor x coordinate.
+/// @param gName Name of the background-removal graph window.
+/// @returns Zero after completing the operation.
 static Function BackRem_UpdateCursorControls(mainCur, subCur, gName)							// write cursor locations into the GUI controls
 	Variable mainCur, subCur
 	String gName
@@ -825,6 +888,11 @@ static Function BackRem_UpdateCursorControls(mainCur, subCur, gName)							// wr
 	return 0
 End
 //################################################################################################
+/// @function BackRem_ReadAllPanelSettings
+/// @brief Read all panel controls into a background-model settings structure.
+/// @param info Structure receiving all settings read from the background-removal panel.
+/// @param gName Name of the background-removal graph window.
+/// @returns Zero after completing the operation.
 static Function BackRem_ReadAllPanelSettings(info, gName)										// read all GUI controls
 	STRUCT BackRemoveStruct &info
 	String gName
@@ -853,6 +921,10 @@ static Function BackRem_ReadAllPanelSettings(info, gName)										// read all G
 	return 0
 End
 //################################################################################################
+/// @function BackRem_BackCalc
+/// @brief Recalculate the background and net spectrum for the current panel state.
+/// @param gName Name of the background-removal graph window.
+/// @returns Zero after completing the operation.
 static Function BackRem_BackCalc(gName)
 	String gName
 
@@ -884,6 +956,12 @@ static Function BackRem_BackCalc(gName)
 	return 0
 End
 //################################################################################################
+/// @function GetCursorLoc
+/// @brief Return a cursor's x coordinate in the background-removal graph.
+/// @param mainCur Primary cursor x coordinate.
+/// @param subCur Secondary cursor x coordinate.
+/// @param gName Name of the background-removal graph window.
+/// @returns The requested cursor x coordinate.
 static Function GetCursorLoc(mainCur,subCur, gName)												// updates the current cursor location and gets the position
 	Variable &mainCur, &subCur
 	String gName

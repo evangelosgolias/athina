@@ -20,22 +20,23 @@ related to ATH IgorHook functionality.
 BeforeFileOpenHook(variable refNum, string fileNameStr, string pathNameStr, string fileTypeStr, string fileCreatorStr, variable fileKind)
 ```
 
-Description of BeforeFileOpenHook.
+Handle before file open hook events.
 
-Auto-generated documentation stub for function `BeforeFileOpenHook`.
+ATH_WAVELoadSingleDATFile(fileToOpen, "", autoscale = 1). Added on the 17.03.2023 to deal with a
+corrupted file. AfterWindowCreatedHook - Used in Spaces to assign tags to new windows.
 
 ### Parameters
 
-- `refNum` *(Parameter)*: refNum.
-- `fileNameStr` *(Parameter)*: fileNameStr.
-- `pathNameStr` *(Parameter)*: pathNameStr.
-- `fileTypeStr` *(Parameter)*: fileTypeStr.
-- `fileCreatorStr` *(Parameter)*: fileCreatorStr.
-- `fileKind` *(Parameter)*: fileKind.
+- `refNum` *(Variable)*: Igor file reference number.
+- `fileNameStr` *(String)*: File name supplied by Igor.
+- `pathNameStr` *(String)*: Path name str.
+- `fileTypeStr` *(String)*: File-type identifier.
+- `fileCreatorStr` *(String)*: File-creator identifier.
+- `fileKind` *(Variable)*: Igor file-kind code.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `AfterWindowCreatedHook`
@@ -46,18 +47,18 @@ Auto-generated documentation stub for function `BeforeFileOpenHook`.
 AfterWindowCreatedHook(string windowNameStr, variable winTypevar)
 ```
 
-Description of AfterWindowCreatedHook.
+Handle after window created hook events.
 
-Auto-generated documentation stub for function `AfterWindowCreatedHook`.
+Every window created is assigned to the active Space if the panel is there. Sanitize names.
 
 ### Parameters
 
-- `windowNameStr` *(Parameter)*: windowNameStr.
-- `winTypevar` *(Parameter)*: winTypevar.
+- `windowNameStr` *(String)*: Window name str.
+- `winTypevar` *(Variable)*: Igor window-type code.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `AfterCompiledHook`
@@ -68,10 +69,8 @@ Auto-generated documentation stub for function `AfterWindowCreatedHook`.
 AfterCompiledHook()
 ```
 
-Description of AfterCompiledHook.
-
-Auto-generated documentation stub for function `AfterCompiledHook`.
+Handle after compiled hook events.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.

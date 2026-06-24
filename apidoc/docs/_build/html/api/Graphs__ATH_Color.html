@@ -49,38 +49,327 @@
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_Transform.html">ATH_Transform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XMCD.html">ATH_XMCD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XPSBackgroundRemoval.html">ATH_XPSBackgroundRemoval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Constants.html">ATH_Constants</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Dialog.html">ATH_Dialog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Launch.html">ATH_Launch</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Menus.html">ATH_Menus</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Datasets__ATH_XPSData.html">ATH_XPSData</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Asylum.html">ATH_Asylum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Beamtime.html">ATH_Beamtime</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Export.html">ATH_Export_Repeat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_HDF5.html">ATH_HDF5</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_LoadImg.html">ATH_LoadImg</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_LoadUview.html">ATH_LoadUview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">ATH_Color</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#ath-colorkillwaves"><code class="docutils literal notranslate"><span class="pre">ATH_ColorKillWaves</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#applycmap"><code class="docutils literal notranslate"><span class="pre">applycmap</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#returns">Returns</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#defaultvalues"><code class="docutils literal notranslate"><span class="pre">defaultValues</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#validateinputs"><code class="docutils literal notranslate"><span class="pre">validateInputs</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#printhistory"><code class="docutils literal notranslate"><span class="pre">printHistory</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#applycolortable"><code class="docutils literal notranslate"><span class="pre">applyColorTable</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pnl"><code class="docutils literal notranslate"><span class="pre">pnl</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#showloading"><code class="docutils literal notranslate"><span class="pre">showLoading</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#deleteloading"><code class="docutils literal notranslate"><span class="pre">deleteLoading</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pnlgroupcomponents"><code class="docutils literal notranslate"><span class="pre">pnlGroupComponents</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id15">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fetchwavepathlist"><code class="docutils literal notranslate"><span class="pre">fetchWavepathList</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id17">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id18">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#findgroup"><code class="docutils literal notranslate"><span class="pre">findGroup</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id19">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id20">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#findcheckbox"><code class="docutils literal notranslate"><span class="pre">findCheckBox</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id21">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id22">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#checkboxnamelist"><code class="docutils literal notranslate"><span class="pre">checkBoxNameList</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id23">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id24">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#saveinitialcolor"><code class="docutils literal notranslate"><span class="pre">saveInitialColor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id25">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id26">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pnlhook"><code class="docutils literal notranslate"><span class="pre">pnlHook</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id27">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id28">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pnlhookclose"><code class="docutils literal notranslate"><span class="pre">pnlHookClose</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id29">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id30">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pnlhookarrows"><code class="docutils literal notranslate"><span class="pre">pnlHookArrows</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id31">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id32">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#numofcheckboxes"><code class="docutils literal notranslate"><span class="pre">numOfCheckBoxes</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id33">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id34">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#isdoublecolumns"><code class="docutils literal notranslate"><span class="pre">isDoubleColumns</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id35">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id36">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pnlhookwheel"><code class="docutils literal notranslate"><span class="pre">pnlHookWheel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id37">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id38">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pnlhookparent"><code class="docutils literal notranslate"><span class="pre">pnlHookParent</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id39">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id40">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pnllist"><code class="docutils literal notranslate"><span class="pre">pnlList</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id41">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id42">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pnlcheck"><code class="docutils literal notranslate"><span class="pre">pnlCheck</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id43">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id44">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pnlcheckradio"><code class="docutils literal notranslate"><span class="pre">pnlCheckRadio</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id45">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id46">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pnlcheckctab"><code class="docutils literal notranslate"><span class="pre">pnlCheckCtab</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id47">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id48">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pnlpopup"><code class="docutils literal notranslate"><span class="pre">pnlPopup</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id49">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id50">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pnlbutton"><code class="docutils literal notranslate"><span class="pre">pnlButton</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id51">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id52">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#targetimagelist"><code class="docutils literal notranslate"><span class="pre">targetImageList</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id53">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id54">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#selectgroup"><code class="docutils literal notranslate"><span class="pre">selectGroup</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id55">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id56">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#updateallimaeges"><code class="docutils literal notranslate"><span class="pre">updateAllImaeges</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id57">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id58">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#updateoptioncheckboxes"><code class="docutils literal notranslate"><span class="pre">updateOptionCheckboxes</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id59">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id60">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#updatecolorscalesinpnl"><code class="docutils literal notranslate"><span class="pre">updateColorscalesInPnl</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id61">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id62">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#updatecolorscalesinsubpnl"><code class="docutils literal notranslate"><span class="pre">updateColorscalesInSubpnl</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id63">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id64">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#selectcheckbox"><code class="docutils literal notranslate"><span class="pre">selectCheckBox</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id65">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id66">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#selectctabcheckbox"><code class="docutils literal notranslate"><span class="pre">selectCtabCheckBox</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id67">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id68">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#findselectedcolortable"><code class="docutils literal notranslate"><span class="pre">findSelectedColortable</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id69">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id70">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#revertimagecolor"><code class="docutils literal notranslate"><span class="pre">revertImageColor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id71">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id72">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#makergbwave"><code class="docutils literal notranslate"><span class="pre">makeRGBWave</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id73">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id74">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getrgbfrompanel"><code class="docutils literal notranslate"><span class="pre">getRGBFromPanel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id75">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id76">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getrgbfrompanelhelper"><code class="docutils literal notranslate"><span class="pre">getRGBFromPanelHelper</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id77">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id78">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#printhistoryafterpressingbutton"><code class="docutils literal notranslate"><span class="pre">printHistoryAfterPressingButton</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id79">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id80">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#findchangedparameters"><code class="docutils literal notranslate"><span class="pre">findChangedParameters</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id81">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id82">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fetchpresentparameters"><code class="docutils literal notranslate"><span class="pre">fetchPresentParameters</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id83">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id84">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fetchinitparameters"><code class="docutils literal notranslate"><span class="pre">fetchInitParameters</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id85">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id86">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#loadcolortableall"><code class="docutils literal notranslate"><span class="pre">loadColorTableAll</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id87">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#loadcolortableibwfiles"><code class="docutils literal notranslate"><span class="pre">loadColorTableIbwFiles</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id88">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id89">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#divide3dto1d"><code class="docutils literal notranslate"><span class="pre">divide3Dto1D</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id90">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id91">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#isctabwave"><code class="docutils literal notranslate"><span class="pre">isCtabWave</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id92">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id93">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ath-colorkillwaves"><code class="docutils literal notranslate"><span class="pre">ATH_ColorKillWaves</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id94">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cindexwave2ctabwave"><code class="docutils literal notranslate"><span class="pre">cindexWave2ctabWave</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id95">Returns</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#sidam-colortablelog"><code class="docutils literal notranslate"><span class="pre">SIDAM_ColorTableLog</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id1">Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id96">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id97">Returns</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#sidam-imagecolorrgbmode"><code class="docutils literal notranslate"><span class="pre">SIDAM_ImageColorRGBMode</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id2">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id3">Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id98">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id99">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#sidam-imagecolorrgbvalues"><code class="docutils literal notranslate"><span class="pre">SIDAM_ImageColorRGBValues</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id100">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id101">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#sidamwavetostring"><code class="docutils literal notranslate"><span class="pre">SIDAMWaveToString</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id102">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id103">Returns</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#sidamclickcheckbox"><code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBox</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id4">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id5">Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id104">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id105">Returns</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#sidamclickcheckboxprototype"><code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBoxPrototype</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id6">Parameters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id7">Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id106">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id107">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#join"><code class="docutils literal notranslate"><span class="pre">join</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id108">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id109">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#num2text"><code class="docutils literal notranslate"><span class="pre">num2text</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id110">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id111">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#col"><code class="docutils literal notranslate"><span class="pre">col</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id112">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id113">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getactionfunctionname"><code class="docutils literal notranslate"><span class="pre">getActionFunctionName</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id114">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id115">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getwinrect"><code class="docutils literal notranslate"><span class="pre">getWinRect</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id116">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id117">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getctrlrect"><code class="docutils literal notranslate"><span class="pre">getCtrlRect</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id118">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id119">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#geteventmod"><code class="docutils literal notranslate"><span class="pre">getEventMod</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id120">Returns</a></li>
 </ul>
 </li>
 </ul>
@@ -150,137 +439,1666 @@
 related to ATH Color functionality.</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#ath-colorkillwaves" id="id8"><code class="docutils literal notranslate"><span class="pre">ATH_ColorKillWaves</span></code></a></p>
+<li><p><a class="reference internal" href="#applycmap" id="id121"><code class="docutils literal notranslate"><span class="pre">applycmap</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#returns" id="id9">Returns</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id122">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#returns" id="id123">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#sidam-colortablelog" id="id10"><code class="docutils literal notranslate"><span class="pre">SIDAM_ColorTableLog</span></code></a></p>
+<li><p><a class="reference internal" href="#defaultvalues" id="id124"><code class="docutils literal notranslate"><span class="pre">defaultValues</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#parameters" id="id11">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id1" id="id12">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id1" id="id125">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id126">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#sidam-imagecolorrgbmode" id="id13"><code class="docutils literal notranslate"><span class="pre">SIDAM_ImageColorRGBMode</span></code></a></p>
+<li><p><a class="reference internal" href="#validateinputs" id="id127"><code class="docutils literal notranslate"><span class="pre">validateInputs</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id2" id="id14">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id3" id="id15">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id128">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id129">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#sidamclickcheckbox" id="id16"><code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBox</span></code></a></p>
+<li><p><a class="reference internal" href="#printhistory" id="id130"><code class="docutils literal notranslate"><span class="pre">printHistory</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id4" id="id17">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id5" id="id18">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id5" id="id131">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id6" id="id132">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#sidamclickcheckboxprototype" id="id19"><code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBoxPrototype</span></code></a></p>
+<li><p><a class="reference internal" href="#applycolortable" id="id133"><code class="docutils literal notranslate"><span class="pre">applyColorTable</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id6" id="id20">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id7" id="id21">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id7" id="id134">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id8" id="id135">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pnl" id="id136"><code class="docutils literal notranslate"><span class="pre">pnl</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id9" id="id137">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id10" id="id138">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#showloading" id="id139"><code class="docutils literal notranslate"><span class="pre">showLoading</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id11" id="id140">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id12" id="id141">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#deleteloading" id="id142"><code class="docutils literal notranslate"><span class="pre">deleteLoading</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id13" id="id143">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id14" id="id144">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pnlgroupcomponents" id="id145"><code class="docutils literal notranslate"><span class="pre">pnlGroupComponents</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id15" id="id146">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id16" id="id147">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#fetchwavepathlist" id="id148"><code class="docutils literal notranslate"><span class="pre">fetchWavepathList</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id17" id="id149">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id18" id="id150">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#findgroup" id="id151"><code class="docutils literal notranslate"><span class="pre">findGroup</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id19" id="id152">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id20" id="id153">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#findcheckbox" id="id154"><code class="docutils literal notranslate"><span class="pre">findCheckBox</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id21" id="id155">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id22" id="id156">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#checkboxnamelist" id="id157"><code class="docutils literal notranslate"><span class="pre">checkBoxNameList</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id23" id="id158">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id24" id="id159">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#saveinitialcolor" id="id160"><code class="docutils literal notranslate"><span class="pre">saveInitialColor</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id25" id="id161">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id26" id="id162">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pnlhook" id="id163"><code class="docutils literal notranslate"><span class="pre">pnlHook</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id27" id="id164">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id28" id="id165">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pnlhookclose" id="id166"><code class="docutils literal notranslate"><span class="pre">pnlHookClose</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id29" id="id167">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id30" id="id168">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pnlhookarrows" id="id169"><code class="docutils literal notranslate"><span class="pre">pnlHookArrows</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id31" id="id170">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id32" id="id171">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#numofcheckboxes" id="id172"><code class="docutils literal notranslate"><span class="pre">numOfCheckBoxes</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id33" id="id173">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id34" id="id174">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#isdoublecolumns" id="id175"><code class="docutils literal notranslate"><span class="pre">isDoubleColumns</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id35" id="id176">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id36" id="id177">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pnlhookwheel" id="id178"><code class="docutils literal notranslate"><span class="pre">pnlHookWheel</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id37" id="id179">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id38" id="id180">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pnlhookparent" id="id181"><code class="docutils literal notranslate"><span class="pre">pnlHookParent</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id39" id="id182">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id40" id="id183">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pnllist" id="id184"><code class="docutils literal notranslate"><span class="pre">pnlList</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id41" id="id185">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id42" id="id186">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pnlcheck" id="id187"><code class="docutils literal notranslate"><span class="pre">pnlCheck</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id43" id="id188">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id44" id="id189">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pnlcheckradio" id="id190"><code class="docutils literal notranslate"><span class="pre">pnlCheckRadio</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id45" id="id191">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id46" id="id192">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pnlcheckctab" id="id193"><code class="docutils literal notranslate"><span class="pre">pnlCheckCtab</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id47" id="id194">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id48" id="id195">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pnlpopup" id="id196"><code class="docutils literal notranslate"><span class="pre">pnlPopup</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id49" id="id197">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id50" id="id198">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#pnlbutton" id="id199"><code class="docutils literal notranslate"><span class="pre">pnlButton</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id51" id="id200">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id52" id="id201">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#targetimagelist" id="id202"><code class="docutils literal notranslate"><span class="pre">targetImageList</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id53" id="id203">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id54" id="id204">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#selectgroup" id="id205"><code class="docutils literal notranslate"><span class="pre">selectGroup</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id55" id="id206">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id56" id="id207">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#updateallimaeges" id="id208"><code class="docutils literal notranslate"><span class="pre">updateAllImaeges</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id57" id="id209">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id58" id="id210">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#updateoptioncheckboxes" id="id211"><code class="docutils literal notranslate"><span class="pre">updateOptionCheckboxes</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id59" id="id212">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id60" id="id213">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#updatecolorscalesinpnl" id="id214"><code class="docutils literal notranslate"><span class="pre">updateColorscalesInPnl</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id61" id="id215">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id62" id="id216">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#updatecolorscalesinsubpnl" id="id217"><code class="docutils literal notranslate"><span class="pre">updateColorscalesInSubpnl</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id63" id="id218">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id64" id="id219">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#selectcheckbox" id="id220"><code class="docutils literal notranslate"><span class="pre">selectCheckBox</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id65" id="id221">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id66" id="id222">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#selectctabcheckbox" id="id223"><code class="docutils literal notranslate"><span class="pre">selectCtabCheckBox</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id67" id="id224">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id68" id="id225">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#findselectedcolortable" id="id226"><code class="docutils literal notranslate"><span class="pre">findSelectedColortable</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id69" id="id227">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id70" id="id228">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#revertimagecolor" id="id229"><code class="docutils literal notranslate"><span class="pre">revertImageColor</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id71" id="id230">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id72" id="id231">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#makergbwave" id="id232"><code class="docutils literal notranslate"><span class="pre">makeRGBWave</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id73" id="id233">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id74" id="id234">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#getrgbfrompanel" id="id235"><code class="docutils literal notranslate"><span class="pre">getRGBFromPanel</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id75" id="id236">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id76" id="id237">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#getrgbfrompanelhelper" id="id238"><code class="docutils literal notranslate"><span class="pre">getRGBFromPanelHelper</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id77" id="id239">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id78" id="id240">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#printhistoryafterpressingbutton" id="id241"><code class="docutils literal notranslate"><span class="pre">printHistoryAfterPressingButton</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id79" id="id242">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id80" id="id243">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#findchangedparameters" id="id244"><code class="docutils literal notranslate"><span class="pre">findChangedParameters</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id81" id="id245">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id82" id="id246">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#fetchpresentparameters" id="id247"><code class="docutils literal notranslate"><span class="pre">fetchPresentParameters</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id83" id="id248">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id84" id="id249">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#fetchinitparameters" id="id250"><code class="docutils literal notranslate"><span class="pre">fetchInitParameters</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id85" id="id251">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id86" id="id252">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#loadcolortableall" id="id253"><code class="docutils literal notranslate"><span class="pre">loadColorTableAll</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id87" id="id254">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#loadcolortableibwfiles" id="id255"><code class="docutils literal notranslate"><span class="pre">loadColorTableIbwFiles</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id88" id="id256">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id89" id="id257">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#divide3dto1d" id="id258"><code class="docutils literal notranslate"><span class="pre">divide3Dto1D</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id90" id="id259">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id91" id="id260">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#isctabwave" id="id261"><code class="docutils literal notranslate"><span class="pre">isCtabWave</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id92" id="id262">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id93" id="id263">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#ath-colorkillwaves" id="id264"><code class="docutils literal notranslate"><span class="pre">ATH_ColorKillWaves</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id94" id="id265">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#cindexwave2ctabwave" id="id266"><code class="docutils literal notranslate"><span class="pre">cindexWave2ctabWave</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id95" id="id267">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#sidam-colortablelog" id="id268"><code class="docutils literal notranslate"><span class="pre">SIDAM_ColorTableLog</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id96" id="id269">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id97" id="id270">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#sidam-imagecolorrgbmode" id="id271"><code class="docutils literal notranslate"><span class="pre">SIDAM_ImageColorRGBMode</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id98" id="id272">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id99" id="id273">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#sidam-imagecolorrgbvalues" id="id274"><code class="docutils literal notranslate"><span class="pre">SIDAM_ImageColorRGBValues</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id100" id="id275">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id101" id="id276">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#sidamwavetostring" id="id277"><code class="docutils literal notranslate"><span class="pre">SIDAMWaveToString</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id102" id="id278">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id103" id="id279">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#sidamclickcheckbox" id="id280"><code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBox</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id104" id="id281">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id105" id="id282">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#sidamclickcheckboxprototype" id="id283"><code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBoxPrototype</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id106" id="id284">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id107" id="id285">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#join" id="id286"><code class="docutils literal notranslate"><span class="pre">join</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id108" id="id287">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id109" id="id288">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#num2text" id="id289"><code class="docutils literal notranslate"><span class="pre">num2text</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id110" id="id290">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id111" id="id291">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#col" id="id292"><code class="docutils literal notranslate"><span class="pre">col</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id112" id="id293">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id113" id="id294">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#getactionfunctionname" id="id295"><code class="docutils literal notranslate"><span class="pre">getActionFunctionName</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id114" id="id296">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id115" id="id297">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#getwinrect" id="id298"><code class="docutils literal notranslate"><span class="pre">getWinRect</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id116" id="id299">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id117" id="id300">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#getctrlrect" id="id301"><code class="docutils literal notranslate"><span class="pre">getCtrlRect</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id118" id="id302">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id119" id="id303">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#geteventmod" id="id304"><code class="docutils literal notranslate"><span class="pre">getEventMod</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id120" id="id305">Returns</a></p></li>
 </ul>
 </li>
 </ul>
 </nav>
+<section id="applycmap">
+<h2><a class="toc-backref" href="#id121" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">applycmap</span></code></a><a class="headerlink" href="#applycmap" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>applycmap([<span class="kt">String</span><span class="w"> </span>grfName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>imgList,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>ctable,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>rev,<span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">log</span>,<span class="w"> </span><span class="kt">Wave</span><span class="w"> </span>minRGB,<span class="w"> </span><span class="kt">Wave</span><span class="w"> </span>maxRGB,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>history])
+</pre></div>
+</div>
+<p>Apply a color map to one or more target images.</p>
+<section id="parameters">
+<h3><a class="toc-backref" href="#id122" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String, optional)</em>: Name of the graph window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">imgList</span></code> <em>(String, optional)</em>: Semicolon-separated image names to modify.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ctable</span></code> <em>(String, optional)</em>: Igor color-table name.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rev</span></code> <em>(Integer, optional)</em>: If nonzero, reverse the color table or order.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log</span></code> <em>(Integer, optional)</em>: If nonzero, use logarithmic color mapping.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">minRGB</span></code> <em>(Wave, optional)</em>: RGB values for the lower color-range endpoint.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">maxRGB</span></code> <em>(Wave, optional)</em>: RGB values for the upper color-range endpoint.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">history</span></code> <em>(Integer, optional)</em>: If nonzero, print the generated command to Igor history.</p></li>
+</ul>
+</section>
+<section id="returns">
+<h3><a class="toc-backref" href="#id123" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero on success; a nonzero value if the target graph or parameters are invalid.</p></li>
+</ul>
+</section>
+</section>
+<section id="defaultvalues">
+<h2><a class="toc-backref" href="#id124" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">defaultValues</span></code></a><a class="headerlink" href="#defaultvalues" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>defaultValues(<span class="kt">STRUCT</span><span class="w"> </span>paramStruct<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Populate missing color-panel options with their defaults.</p>
+<section id="id1">
+<h3><a class="toc-backref" href="#id125" role="doc-backlink">Parameters</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT paramStruct)</em>: Color-table parameter structure populated with default values.</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3><a class="toc-backref" href="#id126" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="validateinputs">
+<h2><a class="toc-backref" href="#id127" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">validateInputs</span></code></a><a class="headerlink" href="#validateinputs" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>validateInputs(<span class="kt">STRUCT</span><span class="w"> </span>paramStruct<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Validate color-table parameters and target images.</p>
+<section id="id3">
+<h3><a class="toc-backref" href="#id128" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT paramStruct)</em>: Color-table parameter structure to validate and normalize.</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3><a class="toc-backref" href="#id129" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Igor status code; zero indicates success and nonzero values report failure or cancellation.</p></li>
+</ul>
+</section>
+</section>
+<section id="printhistory">
+<h2><a class="toc-backref" href="#id130" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">printHistory</span></code></a><a class="headerlink" href="#printhistory" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>printHistory(<span class="kt">STRUCT</span><span class="w"> </span>paramStruct<span class="w"> </span>&amp;s,<span class="w"> </span><span class="kt">STRUCT</span><span class="w"> </span>paramStruct<span class="w"> </span>&amp;base)
+</pre></div>
+</div>
+<p>Print a reproducible color-table command to Igor history.</p>
+<section id="id5">
+<h3><a class="toc-backref" href="#id131" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT paramStruct)</em>: Color-table parameters used to construct the command.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">base</span></code> <em>(STRUCT paramStruct)</em>: Reference parameter structure used to identify changed settings.</p></li>
+</ul>
+</section>
+<section id="id6">
+<h3><a class="toc-backref" href="#id132" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="applycolortable">
+<h2><a class="toc-backref" href="#id133" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">applyColorTable</span></code></a><a class="headerlink" href="#applycolortable" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>applyColorTable(<span class="kt">STRUCT</span><span class="w"> </span>paramStruct<span class="w"> </span>&amp;s,<span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">i</span>)
+</pre></div>
+</div>
+<p>Apply the configured color table to one target image.</p>
+<section id="id7">
+<h3><a class="toc-backref" href="#id134" role="doc-backlink">Parameters</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT paramStruct)</em>: Color-table parameters to apply.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">i</span></code> <em>(Integer)</em>: Zero-based target-image index.</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3><a class="toc-backref" href="#id135" role="doc-backlink">Returns</a><a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Igor status code; zero indicates success and nonzero values report failure or cancellation.</p></li>
+</ul>
+</section>
+</section>
+<section id="pnl">
+<h2><a class="toc-backref" href="#id136" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">pnl</span></code></a><a class="headerlink" href="#pnl" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>pnl(<span class="kt">String</span><span class="w"> </span>grfName)
+</pre></div>
+</div>
+<p>Create and initialize the module’s control panel.</p>
+<section id="id9">
+<h3><a class="toc-backref" href="#id137" role="doc-backlink">Parameters</a><a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String)</em>: Name of the graph window.</p></li>
+</ul>
+</section>
+<section id="id10">
+<h3><a class="toc-backref" href="#id138" role="doc-backlink">Returns</a><a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="showloading">
+<h2><a class="toc-backref" href="#id139" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">showLoading</span></code></a><a class="headerlink" href="#showloading" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>showLoading(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>isOpen)
+</pre></div>
+</div>
+<p>Show or hide the color-panel loading indicator.</p>
+<section id="id11">
+<h3><a class="toc-backref" href="#id140" role="doc-backlink">Parameters</a><a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">isOpen</span></code> <em>(Integer)</em>: Nonzero while the loading indicator should be visible.</p></li>
+</ul>
+</section>
+<section id="id12">
+<h3><a class="toc-backref" href="#id141" role="doc-backlink">Returns</a><a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="deleteloading">
+<h2><a class="toc-backref" href="#id142" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">deleteLoading</span></code></a><a class="headerlink" href="#deleteloading" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>deleteLoading(<span class="kt">String</span><span class="w"> </span>pnlName)
+</pre></div>
+</div>
+<p>Remove the color-panel loading indicator.</p>
+<section id="id13">
+<h3><a class="toc-backref" href="#id143" role="doc-backlink">Parameters</a><a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+</ul>
+</section>
+<section id="id14">
+<h3><a class="toc-backref" href="#id144" role="doc-backlink">Returns</a><a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="pnlgroupcomponents">
+<h2><a class="toc-backref" href="#id145" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">pnlGroupComponents</span></code></a><a class="headerlink" href="#pnlgroupcomponents" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>pnlGroupComponents(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>group,<span class="w"> </span>[<span class="kt">int</span><span class="w"> </span>hide,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>rev,<span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">log</span>,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>selected])
+</pre></div>
+</div>
+<p>Update visibility and state for one group of color-panel controls.</p>
+<section id="id15">
+<h3><a class="toc-backref" href="#id146" role="doc-backlink">Parameters</a><a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">group</span></code> <em>(Integer)</em>: Panel-control group number.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hide</span></code> <em>(Integer, optional)</em>: If nonzero, hide the selected control group.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rev</span></code> <em>(Integer, optional)</em>: If nonzero, reverse the color table or order.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log</span></code> <em>(Integer, optional)</em>: If nonzero, use logarithmic color mapping.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">selected</span></code> <em>(String, optional)</em>: Name of the control that should remain selected.</p></li>
+</ul>
+</section>
+<section id="id16">
+<h3><a class="toc-backref" href="#id147" role="doc-backlink">Returns</a><a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="fetchwavepathlist">
+<h2><a class="toc-backref" href="#id148" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">fetchWavepathList</span></code></a><a class="headerlink" href="#fetchwavepathlist" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>fetchWavepathList(<span class="kt">DFREF</span><span class="w"> </span>dfr)
+</pre></div>
+</div>
+<p>Return image-wave paths found below a data folder.</p>
+<section id="id17">
+<h3><a class="toc-backref" href="#id149" role="doc-backlink">Parameters</a><a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dfr</span></code> <em>(DFREF)</em>: Data-folder reference.</p></li>
+</ul>
+</section>
+<section id="id18">
+<h3><a class="toc-backref" href="#id150" role="doc-backlink">Returns</a><a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: A semicolon-separated list of image-wave paths found below the data folder.</p></li>
+</ul>
+</section>
+</section>
+<section id="findgroup">
+<h2><a class="toc-backref" href="#id151" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">findGroup</span></code></a><a class="headerlink" href="#findgroup" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>findGroup(<span class="kt">String</span><span class="w"> </span>grfName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>imgName)
+</pre></div>
+</div>
+<p>Return the color-panel group containing a graph image.</p>
+<section id="id19">
+<h3><a class="toc-backref" href="#id152" role="doc-backlink">Parameters</a><a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String)</em>: Name of the graph window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">imgName</span></code> <em>(String)</em>: Name of the image trace.</p></li>
+</ul>
+</section>
+<section id="id20">
+<h3><a class="toc-backref" href="#id153" role="doc-backlink">Returns</a><a class="headerlink" href="#id20" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: The panel group number containing the image, or a negative value if it is not found.</p></li>
+</ul>
+</section>
+</section>
+<section id="findcheckbox">
+<h2><a class="toc-backref" href="#id154" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">findCheckBox</span></code></a><a class="headerlink" href="#findcheckbox" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>findCheckBox(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>imgName)
+</pre></div>
+</div>
+<p>Return the checkbox associated with an image.</p>
+<section id="id21">
+<h3><a class="toc-backref" href="#id155" role="doc-backlink">Parameters</a><a class="headerlink" href="#id21" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">imgName</span></code> <em>(String)</em>: Name of the image trace.</p></li>
+</ul>
+</section>
+<section id="id22">
+<h3><a class="toc-backref" href="#id156" role="doc-backlink">Returns</a><a class="headerlink" href="#id22" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: The control name of the checkbox associated with the image, or an empty string if absent.</p></li>
+</ul>
+</section>
+</section>
+<section id="checkboxnamelist">
+<h2><a class="toc-backref" href="#id157" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">checkBoxNameList</span></code></a><a class="headerlink" href="#checkboxnamelist" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>checkBoxNameList(<span class="kt">String</span><span class="w"> </span>pnlName)
+</pre></div>
+</div>
+<p>Return the image-selection checkboxes in a color panel.</p>
+<section id="id23">
+<h3><a class="toc-backref" href="#id158" role="doc-backlink">Parameters</a><a class="headerlink" href="#id23" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+</ul>
+</section>
+<section id="id24">
+<h3><a class="toc-backref" href="#id159" role="doc-backlink">Returns</a><a class="headerlink" href="#id24" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: A semicolon-separated list of image-selection checkbox names.</p></li>
+</ul>
+</section>
+</section>
+<section id="saveinitialcolor">
+<h2><a class="toc-backref" href="#id160" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">saveInitialColor</span></code></a><a class="headerlink" href="#saveinitialcolor" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>saveInitialColor(<span class="kt">String</span><span class="w"> </span>pnlName)
+</pre></div>
+</div>
+<p>Save the initial color settings for every image controlled by a panel.</p>
+<section id="id25">
+<h3><a class="toc-backref" href="#id161" role="doc-backlink">Parameters</a><a class="headerlink" href="#id25" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+</ul>
+</section>
+<section id="id26">
+<h3><a class="toc-backref" href="#id162" role="doc-backlink">Returns</a><a class="headerlink" href="#id26" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="pnlhook">
+<h2><a class="toc-backref" href="#id163" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">pnlHook</span></code></a><a class="headerlink" href="#pnlhook" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>pnlHook(<span class="kt">STRUCT</span><span class="w"> </span>WMWinHookStruct<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Handle panel hook events.</p>
+<section id="id27">
+<h3><a class="toc-backref" href="#id164" role="doc-backlink">Parameters</a><a class="headerlink" href="#id27" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMWinHookStruct)</em>: Igor action structure describing the control or window event.</p></li>
+</ul>
+</section>
+<section id="id28">
+<h3><a class="toc-backref" href="#id165" role="doc-backlink">Returns</a><a class="headerlink" href="#id28" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
+</ul>
+</section>
+</section>
+<section id="pnlhookclose">
+<h2><a class="toc-backref" href="#id166" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">pnlHookClose</span></code></a><a class="headerlink" href="#pnlhookclose" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>pnlHookClose(<span class="kt">String</span><span class="w"> </span>pnlName)
+</pre></div>
+</div>
+<p>Clean up color-panel state when the panel closes.</p>
+<section id="id29">
+<h3><a class="toc-backref" href="#id167" role="doc-backlink">Parameters</a><a class="headerlink" href="#id29" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+</ul>
+</section>
+<section id="id30">
+<h3><a class="toc-backref" href="#id168" role="doc-backlink">Returns</a><a class="headerlink" href="#id30" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="pnlhookarrows">
+<h2><a class="toc-backref" href="#id169" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">pnlHookArrows</span></code></a><a class="headerlink" href="#pnlhookarrows" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>pnlHookArrows(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>keycode)
+</pre></div>
+</div>
+<p>Move the color-panel selection in response to arrow keys.</p>
+<section id="id31">
+<h3><a class="toc-backref" href="#id170" role="doc-backlink">Parameters</a><a class="headerlink" href="#id31" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keycode</span></code> <em>(Integer)</em>: Igor key code for the keyboard event.</p></li>
+</ul>
+</section>
+<section id="id32">
+<h3><a class="toc-backref" href="#id171" role="doc-backlink">Returns</a><a class="headerlink" href="#id32" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="numofcheckboxes">
+<h2><a class="toc-backref" href="#id172" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">numOfCheckBoxes</span></code></a><a class="headerlink" href="#numofcheckboxes" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>numOfCheckBoxes(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>group)
+</pre></div>
+</div>
+<p>Count image-selection checkboxes in a panel group.</p>
+<section id="id33">
+<h3><a class="toc-backref" href="#id173" role="doc-backlink">Parameters</a><a class="headerlink" href="#id33" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">group</span></code> <em>(Integer)</em>: Panel-control group number.</p></li>
+</ul>
+</section>
+<section id="id34">
+<h3><a class="toc-backref" href="#id174" role="doc-backlink">Returns</a><a class="headerlink" href="#id34" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: The number of image-selection checkboxes in the group.</p></li>
+</ul>
+</section>
+</section>
+<section id="isdoublecolumns">
+<h2><a class="toc-backref" href="#id175" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">isDoubleColumns</span></code></a><a class="headerlink" href="#isdoublecolumns" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>isDoubleColumns(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>group)
+</pre></div>
+</div>
+<p>Test whether a checkbox group is arranged in two columns.</p>
+<section id="id35">
+<h3><a class="toc-backref" href="#id176" role="doc-backlink">Parameters</a><a class="headerlink" href="#id35" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">group</span></code> <em>(Integer)</em>: Panel-control group number.</p></li>
+</ul>
+</section>
+<section id="id36">
+<h3><a class="toc-backref" href="#id177" role="doc-backlink">Returns</a><a class="headerlink" href="#id36" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Nonzero when the condition is satisfied; otherwise zero.</p></li>
+</ul>
+</section>
+</section>
+<section id="pnlhookwheel">
+<h2><a class="toc-backref" href="#id178" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">pnlHookWheel</span></code></a><a class="headerlink" href="#pnlhookwheel" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>pnlHookWheel(<span class="kt">STRUCT</span><span class="w"> </span>WMWinHookStruct<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Handle mouse-wheel changes in the color panel.</p>
+<section id="id37">
+<h3><a class="toc-backref" href="#id179" role="doc-backlink">Parameters</a><a class="headerlink" href="#id37" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMWinHookStruct)</em>: Igor action structure describing the control or window event.</p></li>
+</ul>
+</section>
+<section id="id38">
+<h3><a class="toc-backref" href="#id180" role="doc-backlink">Returns</a><a class="headerlink" href="#id38" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="pnlhookparent">
+<h2><a class="toc-backref" href="#id181" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">pnlHookParent</span></code></a><a class="headerlink" href="#pnlhookparent" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>pnlHookParent(<span class="kt">STRUCT</span><span class="w"> </span>WMWinHookStruct<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Handle changes in the color panel’s parent graph.</p>
+<section id="id39">
+<h3><a class="toc-backref" href="#id182" role="doc-backlink">Parameters</a><a class="headerlink" href="#id39" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMWinHookStruct)</em>: Igor action structure describing the control or window event.</p></li>
+</ul>
+</section>
+<section id="id40">
+<h3><a class="toc-backref" href="#id183" role="doc-backlink">Returns</a><a class="headerlink" href="#id40" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="pnllist">
+<h2><a class="toc-backref" href="#id184" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">pnlList</span></code></a><a class="headerlink" href="#pnllist" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>pnlList(<span class="kt">STRUCT</span><span class="w"> </span>WMListboxAction<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Handle color-panel list-box events.</p>
+<section id="id41">
+<h3><a class="toc-backref" href="#id185" role="doc-backlink">Parameters</a><a class="headerlink" href="#id41" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMListboxAction)</em>: Igor action structure describing the control or window event.</p></li>
+</ul>
+</section>
+<section id="id42">
+<h3><a class="toc-backref" href="#id186" role="doc-backlink">Returns</a><a class="headerlink" href="#id42" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
+</ul>
+</section>
+</section>
+<section id="pnlcheck">
+<h2><a class="toc-backref" href="#id187" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">pnlCheck</span></code></a><a class="headerlink" href="#pnlcheck" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>pnlCheck(<span class="kt">STRUCT</span><span class="w">  </span>WMCheckboxAction<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Handle the panel checkbox action.</p>
+<section id="id43">
+<h3><a class="toc-backref" href="#id188" role="doc-backlink">Parameters</a><a class="headerlink" href="#id43" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMCheckboxAction)</em>: Igor action structure describing the control or window event.</p></li>
+</ul>
+</section>
+<section id="id44">
+<h3><a class="toc-backref" href="#id189" role="doc-backlink">Returns</a><a class="headerlink" href="#id44" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
+</ul>
+</section>
+</section>
+<section id="pnlcheckradio">
+<h2><a class="toc-backref" href="#id190" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">pnlCheckRadio</span></code></a><a class="headerlink" href="#pnlcheckradio" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>pnlCheckRadio(<span class="kt">STRUCT</span><span class="w"> </span>WMCheckboxAction<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Handle color-panel radio-button changes.</p>
+<section id="id45">
+<h3><a class="toc-backref" href="#id191" role="doc-backlink">Parameters</a><a class="headerlink" href="#id45" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMCheckboxAction)</em>: Igor action structure describing the control or window event.</p></li>
+</ul>
+</section>
+<section id="id46">
+<h3><a class="toc-backref" href="#id192" role="doc-backlink">Returns</a><a class="headerlink" href="#id46" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="pnlcheckctab">
+<h2><a class="toc-backref" href="#id193" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">pnlCheckCtab</span></code></a><a class="headerlink" href="#pnlcheckctab" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>pnlCheckCtab(<span class="kt">STRUCT</span><span class="w"> </span>WMCheckboxAction<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Handle color-table checkbox changes.</p>
+<section id="id47">
+<h3><a class="toc-backref" href="#id194" role="doc-backlink">Parameters</a><a class="headerlink" href="#id47" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMCheckboxAction)</em>: Igor action structure describing the control or window event.</p></li>
+</ul>
+</section>
+<section id="id48">
+<h3><a class="toc-backref" href="#id195" role="doc-backlink">Returns</a><a class="headerlink" href="#id48" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="pnlpopup">
+<h2><a class="toc-backref" href="#id196" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">pnlPopup</span></code></a><a class="headerlink" href="#pnlpopup" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>pnlPopup(<span class="kt">STRUCT</span><span class="w"> </span>WMPopupAction<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Handle the panel pop-up action.</p>
+<section id="id49">
+<h3><a class="toc-backref" href="#id197" role="doc-backlink">Parameters</a><a class="headerlink" href="#id49" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMPopupAction)</em>: Igor action structure describing the control or window event.</p></li>
+</ul>
+</section>
+<section id="id50">
+<h3><a class="toc-backref" href="#id198" role="doc-backlink">Returns</a><a class="headerlink" href="#id50" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
+</ul>
+</section>
+</section>
+<section id="pnlbutton">
+<h2><a class="toc-backref" href="#id199" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">pnlButton</span></code></a><a class="headerlink" href="#pnlbutton" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>pnlButton(<span class="kt">STRUCT</span><span class="w"> </span>WMButtonAction<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Handle the panel button action.</p>
+<section id="id51">
+<h3><a class="toc-backref" href="#id200" role="doc-backlink">Parameters</a><a class="headerlink" href="#id51" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMButtonAction)</em>: Igor action structure describing the control or window event.</p></li>
+</ul>
+</section>
+<section id="id52">
+<h3><a class="toc-backref" href="#id201" role="doc-backlink">Returns</a><a class="headerlink" href="#id52" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
+</ul>
+</section>
+</section>
+<section id="targetimagelist">
+<h2><a class="toc-backref" href="#id202" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">targetImageList</span></code></a><a class="headerlink" href="#targetimagelist" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>targetImageList(<span class="kt">String</span><span class="w"> </span>pnlName)
+</pre></div>
+</div>
+<p>Return the graph images currently targeted by the color panel.</p>
+<section id="id53">
+<h3><a class="toc-backref" href="#id203" role="doc-backlink">Parameters</a><a class="headerlink" href="#id53" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+</ul>
+</section>
+<section id="id54">
+<h3><a class="toc-backref" href="#id204" role="doc-backlink">Returns</a><a class="headerlink" href="#id54" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: A semicolon-separated list of target image names.</p></li>
+</ul>
+</section>
+</section>
+<section id="selectgroup">
+<h2><a class="toc-backref" href="#id205" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">selectGroup</span></code></a><a class="headerlink" href="#selectgroup" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>selectGroup(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>group)
+</pre></div>
+</div>
+<p>Select one image group in the color panel.</p>
+<section id="id55">
+<h3><a class="toc-backref" href="#id206" role="doc-backlink">Parameters</a><a class="headerlink" href="#id55" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">group</span></code> <em>(Integer)</em>: Panel-control group number.</p></li>
+</ul>
+</section>
+<section id="id56">
+<h3><a class="toc-backref" href="#id207" role="doc-backlink">Returns</a><a class="headerlink" href="#id56" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="updateallimaeges">
+<h2><a class="toc-backref" href="#id208" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">updateAllImaeges</span></code></a><a class="headerlink" href="#updateallimaeges" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>updateAllImaeges(<span class="kt">STRUCT</span><span class="w">  </span>WMCheckboxAction<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Apply a color-setting change to every selected image.</p>
+<section id="id57">
+<h3><a class="toc-backref" href="#id209" role="doc-backlink">Parameters</a><a class="headerlink" href="#id57" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMCheckboxAction)</em>: Igor action structure describing the control or window event.</p></li>
+</ul>
+</section>
+<section id="id58">
+<h3><a class="toc-backref" href="#id210" role="doc-backlink">Returns</a><a class="headerlink" href="#id58" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="updateoptioncheckboxes">
+<h2><a class="toc-backref" href="#id211" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">updateOptionCheckboxes</span></code></a><a class="headerlink" href="#updateoptioncheckboxes" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>updateOptionCheckboxes(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>imgName)
+</pre></div>
+</div>
+<p>Update reverse and logarithmic option checkboxes from an image.</p>
+<section id="id59">
+<h3><a class="toc-backref" href="#id212" role="doc-backlink">Parameters</a><a class="headerlink" href="#id59" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">imgName</span></code> <em>(String)</em>: Name of the image trace.</p></li>
+</ul>
+</section>
+<section id="id60">
+<h3><a class="toc-backref" href="#id213" role="doc-backlink">Returns</a><a class="headerlink" href="#id60" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="updatecolorscalesinpnl">
+<h2><a class="toc-backref" href="#id214" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">updateColorscalesInPnl</span></code></a><a class="headerlink" href="#updatecolorscalesinpnl" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>updateColorscalesInPnl(<span class="kt">String</span><span class="w"> </span>pnlName)
+</pre></div>
+</div>
+<p>Refresh all color-scale controls in a panel.</p>
+<section id="id61">
+<h3><a class="toc-backref" href="#id215" role="doc-backlink">Parameters</a><a class="headerlink" href="#id61" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+</ul>
+</section>
+<section id="id62">
+<h3><a class="toc-backref" href="#id216" role="doc-backlink">Returns</a><a class="headerlink" href="#id62" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="updatecolorscalesinsubpnl">
+<h2><a class="toc-backref" href="#id217" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">updateColorscalesInSubpnl</span></code></a><a class="headerlink" href="#updatecolorscalesinsubpnl" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>updateColorscalesInSubpnl(<span class="kt">String</span><span class="w"> </span>subPnlNameFull,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>rev,<span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">log</span>)
+</pre></div>
+</div>
+<p>Refresh the color scales inside one image subpanel.</p>
+<section id="id63">
+<h3><a class="toc-backref" href="#id218" role="doc-backlink">Parameters</a><a class="headerlink" href="#id63" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">subPnlNameFull</span></code> <em>(String)</em>: Full name of the image subpanel.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rev</span></code> <em>(Integer)</em>: If nonzero, reverse the color table or order.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log</span></code> <em>(Integer)</em>: If nonzero, use logarithmic color mapping.</p></li>
+</ul>
+</section>
+<section id="id64">
+<h3><a class="toc-backref" href="#id219" role="doc-backlink">Returns</a><a class="headerlink" href="#id64" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="selectcheckbox">
+<h2><a class="toc-backref" href="#id220" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">selectCheckBox</span></code></a><a class="headerlink" href="#selectcheckbox" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>selectCheckBox(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>ctrlName)
+</pre></div>
+</div>
+<p>Select one image checkbox and clear incompatible selections.</p>
+<section id="id65">
+<h3><a class="toc-backref" href="#id221" role="doc-backlink">Parameters</a><a class="headerlink" href="#id65" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ctrlName</span></code> <em>(String)</em>: Name of the Igor control.</p></li>
+</ul>
+</section>
+<section id="id66">
+<h3><a class="toc-backref" href="#id222" role="doc-backlink">Returns</a><a class="headerlink" href="#id66" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="selectctabcheckbox">
+<h2><a class="toc-backref" href="#id223" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">selectCtabCheckBox</span></code></a><a class="headerlink" href="#selectctabcheckbox" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>selectCtabCheckBox(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>ctrlName)
+</pre></div>
+</div>
+<p>Select one color-table checkbox.</p>
+<section id="id67">
+<h3><a class="toc-backref" href="#id224" role="doc-backlink">Parameters</a><a class="headerlink" href="#id67" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ctrlName</span></code> <em>(String)</em>: Name of the Igor control.</p></li>
+</ul>
+</section>
+<section id="id68">
+<h3><a class="toc-backref" href="#id225" role="doc-backlink">Returns</a><a class="headerlink" href="#id68" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="findselectedcolortable">
+<h2><a class="toc-backref" href="#id226" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">findSelectedColortable</span></code></a><a class="headerlink" href="#findselectedcolortable" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>findSelectedColortable(<span class="kt">String</span><span class="w"> </span>pnlName)
+</pre></div>
+</div>
+<p>Return the color table selected in the panel.</p>
+<section id="id69">
+<h3><a class="toc-backref" href="#id227" role="doc-backlink">Parameters</a><a class="headerlink" href="#id69" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+</ul>
+</section>
+<section id="id70">
+<h3><a class="toc-backref" href="#id228" role="doc-backlink">Returns</a><a class="headerlink" href="#id70" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: The selected Igor color-table name, or an empty string if none is selected.</p></li>
+</ul>
+</section>
+</section>
+<section id="revertimagecolor">
+<h2><a class="toc-backref" href="#id229" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">revertImageColor</span></code></a><a class="headerlink" href="#revertimagecolor" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>revertImageColor(<span class="kt">String</span><span class="w"> </span>pnlName)
+</pre></div>
+</div>
+<p>Restore the images’ color settings saved when the panel opened.</p>
+<section id="id71">
+<h3><a class="toc-backref" href="#id230" role="doc-backlink">Parameters</a><a class="headerlink" href="#id71" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+</ul>
+</section>
+<section id="id72">
+<h3><a class="toc-backref" href="#id231" role="doc-backlink">Returns</a><a class="headerlink" href="#id72" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="makergbwave">
+<h2><a class="toc-backref" href="#id232" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">makeRGBWave</span></code></a><a class="headerlink" href="#makergbwave" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>makeRGBWave(<span class="kt">STRUCT</span><span class="w"> </span>paramStructLite<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Create an RGB color wave from lightweight color parameters.</p>
+<section id="id73">
+<h3><a class="toc-backref" href="#id233" role="doc-backlink">Parameters</a><a class="headerlink" href="#id73" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT paramStructLite)</em>: Lightweight color parameters containing the RGB endpoints.</p></li>
+</ul>
+</section>
+<section id="id74">
+<h3><a class="toc-backref" href="#id234" role="doc-backlink">Returns</a><a class="headerlink" href="#id74" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Wave</strong>: Reference to the result wave; a null wave reference indicates failure where supported.</p></li>
+</ul>
+</section>
+</section>
+<section id="getrgbfrompanel">
+<h2><a class="toc-backref" href="#id235" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">getRGBFromPanel</span></code></a><a class="headerlink" href="#getrgbfrompanel" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>getRGBFromPanel(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">STRUCT</span><span class="w"> </span>paramStruct<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Read the current minimum and maximum RGB values from a color panel.</p>
+<section id="id75">
+<h3><a class="toc-backref" href="#id236" role="doc-backlink">Parameters</a><a class="headerlink" href="#id75" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT paramStruct)</em>: Color-table parameter structure that receives both RGB endpoints.</p></li>
+</ul>
+</section>
+<section id="id76">
+<h3><a class="toc-backref" href="#id237" role="doc-backlink">Returns</a><a class="headerlink" href="#id76" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after reading both RGB endpoints.</p></li>
+</ul>
+</section>
+</section>
+<section id="getrgbfrompanelhelper">
+<h2><a class="toc-backref" href="#id238" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">getRGBFromPanelHelper</span></code></a><a class="headerlink" href="#getrgbfrompanelhelper" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>getRGBFromPanelHelper(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">STRUCT</span><span class="w"> </span>paramStruct<span class="w"> </span>&amp;s,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>mode)
+</pre></div>
+</div>
+<p>Read one RGB endpoint from a color panel.</p>
+<section id="id77">
+<h3><a class="toc-backref" href="#id239" role="doc-backlink">Parameters</a><a class="headerlink" href="#id77" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT paramStruct)</em>: Color-table parameter structure that receives one RGB endpoint.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mode</span></code> <em>(Integer)</em>: Operation mode selector.</p></li>
+</ul>
+</section>
+<section id="id78">
+<h3><a class="toc-backref" href="#id240" role="doc-backlink">Returns</a><a class="headerlink" href="#id78" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after reading the requested RGB endpoint.</p></li>
+</ul>
+</section>
+</section>
+<section id="printhistoryafterpressingbutton">
+<h2><a class="toc-backref" href="#id241" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">printHistoryAfterPressingButton</span></code></a><a class="headerlink" href="#printhistoryafterpressingbutton" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>printHistoryAfterPressingButton(<span class="kt">String</span><span class="w"> </span>pnlName)
+</pre></div>
+</div>
+<p>Print the color command after an apply-button action.</p>
+<section id="id79">
+<h3><a class="toc-backref" href="#id242" role="doc-backlink">Parameters</a><a class="headerlink" href="#id79" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+</ul>
+</section>
+<section id="id80">
+<h3><a class="toc-backref" href="#id243" role="doc-backlink">Returns</a><a class="headerlink" href="#id80" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
+</ul>
+</section>
+</section>
+<section id="findchangedparameters">
+<h2><a class="toc-backref" href="#id244" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">findChangedParameters</span></code></a><a class="headerlink" href="#findchangedparameters" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>findChangedParameters(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">STRUCT</span><span class="w"> </span>paramStruct<span class="w"> </span>&amp;s,<span class="w"> </span><span class="kt">STRUCT</span><span class="w"> </span>paramStruct<span class="w"> </span>&amp;base)
+</pre></div>
+</div>
+<p>Determine which color parameters differ from their initial values.</p>
+<section id="id81">
+<h3><a class="toc-backref" href="#id245" role="doc-backlink">Parameters</a><a class="headerlink" href="#id81" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT paramStruct)</em>: Current color-table parameters to compare.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">base</span></code> <em>(STRUCT paramStruct)</em>: Reference parameter structure used to identify changed settings.</p></li>
+</ul>
+</section>
+<section id="id82">
+<h3><a class="toc-backref" href="#id246" role="doc-backlink">Returns</a><a class="headerlink" href="#id82" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: The matching changed parameters, or a negative value if no match is found.</p></li>
+</ul>
+</section>
+</section>
+<section id="fetchpresentparameters">
+<h2><a class="toc-backref" href="#id247" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">fetchPresentParameters</span></code></a><a class="headerlink" href="#fetchpresentparameters" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>fetchPresentParameters(<span class="kt">STRUCT</span><span class="w"> </span>paramStruct<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Read the current color parameters from the target image.</p>
+<section id="id83">
+<h3><a class="toc-backref" href="#id248" role="doc-backlink">Parameters</a><a class="headerlink" href="#id83" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT paramStruct)</em>: Color-table parameter structure populated from the displayed image.</p></li>
+</ul>
+</section>
+<section id="id84">
+<h3><a class="toc-backref" href="#id249" role="doc-backlink">Returns</a><a class="headerlink" href="#id84" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="fetchinitparameters">
+<h2><a class="toc-backref" href="#id250" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">fetchInitParameters</span></code></a><a class="headerlink" href="#fetchinitparameters" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>fetchInitParameters(<span class="kt">String</span><span class="w"> </span>infoStr,<span class="w"> </span><span class="kt">STRUCT</span><span class="w"> </span>paramStruct<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Read initial color parameters from a saved recreation string.</p>
+<section id="id85">
+<h3><a class="toc-backref" href="#id251" role="doc-backlink">Parameters</a><a class="headerlink" href="#id85" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">infoStr</span></code> <em>(String)</em>: Igor recreation or metadata string.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT paramStruct)</em>: Color-table parameter structure populated from the saved recreation string.</p></li>
+</ul>
+</section>
+<section id="id86">
+<h3><a class="toc-backref" href="#id252" role="doc-backlink">Returns</a><a class="headerlink" href="#id86" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="loadcolortableall">
+<h2><a class="toc-backref" href="#id253" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">loadColorTableAll</span></code></a><a class="headerlink" href="#loadcolortableall" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>loadColorTableAll()
+</pre></div>
+</div>
+<p>Load all supported user color-table wave files.</p>
+<section id="id87">
+<h3><a class="toc-backref" href="#id254" role="doc-backlink">Returns</a><a class="headerlink" href="#id87" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="loadcolortableibwfiles">
+<h2><a class="toc-backref" href="#id255" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">loadColorTableIbwFiles</span></code></a><a class="headerlink" href="#loadcolortableibwfiles" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>loadColorTableIbwFiles(<span class="kt">String</span><span class="w"> </span>dfStr,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>pathStr)
+</pre></div>
+</div>
+<p>Load color-table IBW files from one symbolic path.</p>
+<section id="id88">
+<h3><a class="toc-backref" href="#id256" role="doc-backlink">Parameters</a><a class="headerlink" href="#id88" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dfStr</span></code> <em>(String)</em>: Destination data-folder path.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pathStr</span></code> <em>(String)</em>: Symbolic or file-system path.</p></li>
+</ul>
+</section>
+<section id="id89">
+<h3><a class="toc-backref" href="#id257" role="doc-backlink">Returns</a><a class="headerlink" href="#id89" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="divide3dto1d">
+<h2><a class="toc-backref" href="#id258" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">divide3Dto1D</span></code></a><a class="headerlink" href="#divide3dto1d" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>divide3Dto1D(<span class="kt">Wave</span><span class="w"> </span>w,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>makesubdir)
+</pre></div>
+</div>
+<p>Split 3D color-table waves into individual 1D color tables.</p>
+<section id="id90">
+<h3><a class="toc-backref" href="#id259" role="doc-backlink">Parameters</a><a class="headerlink" href="#id90" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code> <em>(Wave)</em>: Three-dimensional wave containing one or more color tables.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">makesubdir</span></code> <em>(Integer)</em>: If nonzero, create a subfolder for each converted table.</p></li>
+</ul>
+</section>
+<section id="id91">
+<h3><a class="toc-backref" href="#id260" role="doc-backlink">Returns</a><a class="headerlink" href="#id91" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="isctabwave">
+<h2><a class="toc-backref" href="#id261" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">isCtabWave</span></code></a><a class="headerlink" href="#isctabwave" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>isCtabWave(<span class="kt">String</span><span class="w"> </span>pathName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>wName)
+</pre></div>
+</div>
+<p>Test whether a wave has the dimensions required for a color table.</p>
+<section id="id92">
+<h3><a class="toc-backref" href="#id262" role="doc-backlink">Parameters</a><a class="headerlink" href="#id92" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pathName</span></code> <em>(String)</em>: Name of an Igor symbolic path.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wName</span></code> <em>(String)</em>: Wave name.</p></li>
+</ul>
+</section>
+<section id="id93">
+<h3><a class="toc-backref" href="#id263" role="doc-backlink">Returns</a><a class="headerlink" href="#id93" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Nonzero when the condition is satisfied; otherwise zero.</p></li>
+</ul>
+</section>
+</section>
 <section id="ath-colorkillwaves">
-<h2><a class="toc-backref" href="#id8" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ATH_ColorKillWaves</span></code></a><a class="headerlink" href="#ath-colorkillwaves" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id264" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">ATH_ColorKillWaves</span></code></a><a class="headerlink" href="#ath-colorkillwaves" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>ATH_ColorKillWaves()
 </pre></div>
 </div>
-<p>Description of ATH_ColorKillWaves.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">ATH_ColorKillWaves</span></code>.</p>
-<section id="returns">
-<h3><a class="toc-backref" href="#id9" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<p>Remove temporary color-table waves created by the color panel.</p>
+<p>Waves when the panel is opened next time.</p>
+<section id="id94">
+<h3><a class="toc-backref" href="#id265" role="doc-backlink">Returns</a><a class="headerlink" href="#id94" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
+</ul>
+</section>
+</section>
+<section id="cindexwave2ctabwave">
+<h2><a class="toc-backref" href="#id266" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">cindexWave2ctabWave</span></code></a><a class="headerlink" href="#cindexwave2ctabwave" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>cindexWave2ctabWave()
+</pre></div>
+</div>
+<p>Convert indexed color waves into Igor color-table waves.</p>
+<section id="id95">
+<h3><a class="toc-backref" href="#id267" role="doc-backlink">Returns</a><a class="headerlink" href="#id95" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="sidam-colortablelog">
-<h2><a class="toc-backref" href="#id10" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SIDAM_ColorTableLog</span></code></a><a class="headerlink" href="#sidam-colortablelog" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id268" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SIDAM_ColorTableLog</span></code></a><a class="headerlink" href="#sidam-colortablelog" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SIDAM_ColorTableLog(<span class="kt">String</span><span class="w"> </span>grfName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>imgName)
 </pre></div>
 </div>
-<p>Description of SIDAM_ColorTableLog.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">SIDAM_ColorTableLog</span></code>.</p>
-<section id="parameters">
-<h3><a class="toc-backref" href="#id11" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<p>Test whether an image uses logarithmic color mapping.</p>
+<section id="id96">
+<h3><a class="toc-backref" href="#id269" role="doc-backlink">Parameters</a><a class="headerlink" href="#id96" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(Parameter)</em>: grfName.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">imgName</span></code> <em>(Parameter)</em>: imgName.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String)</em>: Name of the graph window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">imgName</span></code> <em>(String)</em>: Name of the image trace.</p></li>
 </ul>
 </section>
-<section id="id1">
-<h3><a class="toc-backref" href="#id12" role="doc-backlink">Returns</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<section id="id97">
+<h3><a class="toc-backref" href="#id270" role="doc-backlink">Returns</a><a class="headerlink" href="#id97" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Nonzero when logarithmic color mapping is enabled; otherwise zero.</p></li>
 </ul>
 </section>
 </section>
 <section id="sidam-imagecolorrgbmode">
-<h2><a class="toc-backref" href="#id13" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SIDAM_ImageColorRGBMode</span></code></a><a class="headerlink" href="#sidam-imagecolorrgbmode" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id271" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SIDAM_ImageColorRGBMode</span></code></a><a class="headerlink" href="#sidam-imagecolorrgbmode" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SIDAM_ImageColorRGBMode(<span class="kt">String</span><span class="w"> </span>grfName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>imgName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>key)
 </pre></div>
 </div>
-<p>Description of SIDAM_ImageColorRGBMode.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">SIDAM_ImageColorRGBMode</span></code>.</p>
-<section id="id2">
-<h3><a class="toc-backref" href="#id14" role="doc-backlink">Parameters</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Return the RGB color-mode code stored in an image’s recreation settings.</p>
+<section id="id98">
+<h3><a class="toc-backref" href="#id272" role="doc-backlink">Parameters</a><a class="headerlink" href="#id98" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(Parameter)</em>: grfName.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">imgName</span></code> <em>(Parameter)</em>: imgName.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">key</span></code> <em>(Parameter)</em>: key.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String)</em>: Name of the graph window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">imgName</span></code> <em>(String)</em>: Name of the image trace.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">key</span></code> <em>(String)</em>: Metadata or window-note key.</p></li>
 </ul>
 </section>
-<section id="id3">
-<h3><a class="toc-backref" href="#id15" role="doc-backlink">Returns</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<section id="id99">
+<h3><a class="toc-backref" href="#id273" role="doc-backlink">Returns</a><a class="headerlink" href="#id99" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor’s numeric RGB color-mode code.</p></li>
+</ul>
+</section>
+</section>
+<section id="sidam-imagecolorrgbvalues">
+<h2><a class="toc-backref" href="#id274" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SIDAM_ImageColorRGBValues</span></code></a><a class="headerlink" href="#sidam-imagecolorrgbvalues" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SIDAM_ImageColorRGBValues(<span class="kt">String</span><span class="w"> </span>grfName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>imgName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>key,<span class="w"> </span><span class="kt">STRUCT</span><span class="w"> </span>RGBColor<span class="w"> </span>&amp;s)
+</pre></div>
+</div>
+<p>Read or write RGB endpoint values in an image recreation string.</p>
+<section id="id100">
+<h3><a class="toc-backref" href="#id275" role="doc-backlink">Parameters</a><a class="headerlink" href="#id100" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">grfName</span></code> <em>(String)</em>: Name of the graph window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">imgName</span></code> <em>(String)</em>: Name of the image trace.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">key</span></code> <em>(String)</em>: Metadata or settings key.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT RGBColor)</em>: RGB color settings structure.</p></li>
+</ul>
+</section>
+<section id="id101">
+<h3><a class="toc-backref" href="#id276" role="doc-backlink">Returns</a><a class="headerlink" href="#id101" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Igor status code; zero indicates success and nonzero values report failure or cancellation.</p></li>
+</ul>
+</section>
+</section>
+<section id="sidamwavetostring">
+<h2><a class="toc-backref" href="#id277" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SIDAMWaveToString</span></code></a><a class="headerlink" href="#sidamwavetostring" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SIDAMWaveToString(<span class="kt">Wave</span>/Z<span class="w"> </span>w,<span class="w"> </span>[<span class="kt">int</span><span class="w"> </span>noquote])
+</pre></div>
+</div>
+<p>Serialize a numeric or text wave as an Igor expression.</p>
+<section id="id102">
+<h3><a class="toc-backref" href="#id278" role="doc-backlink">Parameters</a><a class="headerlink" href="#id102" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code> <em>(Wave/Z)</em>: Numeric or text wave to serialize.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">noquote</span></code> <em>(Integer, optional)</em>: If nonzero, omit quotes around text elements.</p></li>
+</ul>
+</section>
+<section id="id103">
+<h3><a class="toc-backref" href="#id279" role="doc-backlink">Returns</a><a class="headerlink" href="#id103" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: An Igor expression that reconstructs the wave’s values.</p></li>
 </ul>
 </section>
 </section>
 <section id="sidamclickcheckbox">
-<h2><a class="toc-backref" href="#id16" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBox</span></code></a><a class="headerlink" href="#sidamclickcheckbox" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id280" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBox</span></code></a><a class="headerlink" href="#sidamclickcheckbox" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SIDAMClickCheckBox(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>ctrlName)
 </pre></div>
 </div>
-<p>Description of SIDAMClickCheckBox.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBox</span></code>.</p>
-<section id="id4">
-<h3><a class="toc-backref" href="#id17" role="doc-backlink">Parameters</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>Handle the click checkbox action.</p>
+<p>S.mouseLoc.v = s.mouseLoc.h =.</p>
+<section id="id104">
+<h3><a class="toc-backref" href="#id281" role="doc-backlink">Parameters</a><a class="headerlink" href="#id104" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(Parameter)</em>: pnlName.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ctrlName</span></code> <em>(Parameter)</em>: ctrlName.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ctrlName</span></code> <em>(String)</em>: Name of the Igor control.</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3><a class="toc-backref" href="#id18" role="doc-backlink">Returns</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<section id="id105">
+<h3><a class="toc-backref" href="#id282" role="doc-backlink">Returns</a><a class="headerlink" href="#id105" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
 </ul>
 </section>
 </section>
 <section id="sidamclickcheckboxprototype">
-<h2><a class="toc-backref" href="#id19" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBoxPrototype</span></code></a><a class="headerlink" href="#sidamclickcheckboxprototype" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id283" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBoxPrototype</span></code></a><a class="headerlink" href="#sidamclickcheckboxprototype" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>SIDAMClickCheckBoxPrototype(<span class="kt">STRUCT</span><span class="w"> </span>WMCheckboxAction<span class="w"> </span>&amp;s)
 </pre></div>
 </div>
-<p>Description of SIDAMClickCheckBoxPrototype.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">SIDAMClickCheckBoxPrototype</span></code>.</p>
-<section id="id6">
-<h3><a class="toc-backref" href="#id20" role="doc-backlink">Parameters</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>Programmatically invoke a panel checkbox’s action procedure.</p>
+<p>Join elements of a text wave and return as a string.</p>
+<section id="id106">
+<h3><a class="toc-backref" href="#id284" role="doc-backlink">Parameters</a><a class="headerlink" href="#id106" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">&amp;s</span></code> <em>(Parameter)</em>: &amp;s.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code> <em>(STRUCT WMCheckboxAction)</em>: Igor action structure describing the control or window event.</p></li>
 </ul>
 </section>
-<section id="id7">
-<h3><a class="toc-backref" href="#id21" role="doc-backlink">Returns</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<section id="id107">
+<h3><a class="toc-backref" href="#id285" role="doc-backlink">Returns</a><a class="headerlink" href="#id107" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Igor callback status; nonzero indicates that the event was handled.</p></li>
+</ul>
+</section>
+</section>
+<section id="join">
+<h2><a class="toc-backref" href="#id286" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">join</span></code></a><a class="headerlink" href="#join" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>join(<span class="kt">Wave</span>/T<span class="w"> </span>tw,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>noquote)
+</pre></div>
+</div>
+<p>Join text-wave elements into an Igor list expression.</p>
+<section id="id108">
+<h3><a class="toc-backref" href="#id287" role="doc-backlink">Parameters</a><a class="headerlink" href="#id108" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tw</span></code> <em>(Wave/T)</em>: Text wave whose elements are joined.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">noquote</span></code> <em>(Integer)</em>: If nonzero, omit quotes around text elements.</p></li>
+</ul>
+</section>
+<section id="id109">
+<h3><a class="toc-backref" href="#id288" role="doc-backlink">Returns</a><a class="headerlink" href="#id109" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: The joined Igor list expression.</p></li>
+</ul>
+</section>
+</section>
+<section id="num2text">
+<h2><a class="toc-backref" href="#id289" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">num2text</span></code></a><a class="headerlink" href="#num2text" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>num2text(<span class="kt">Wave</span><span class="w"> </span>w)
+</pre></div>
+</div>
+<p>Convert a numeric wave to a text wave.</p>
+<section id="id110">
+<h3><a class="toc-backref" href="#id290" role="doc-backlink">Parameters</a><a class="headerlink" href="#id110" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code> <em>(Wave)</em>: Numeric wave to convert.</p></li>
+</ul>
+</section>
+<section id="id111">
+<h3><a class="toc-backref" href="#id291" role="doc-backlink">Returns</a><a class="headerlink" href="#id111" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Wave</strong>: Reference to the result wave; a null wave reference indicates failure where supported.</p></li>
+</ul>
+</section>
+</section>
+<section id="col">
+<h2><a class="toc-backref" href="#id292" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">col</span></code></a><a class="headerlink" href="#col" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>col(<span class="kt">Wave</span><span class="w"> </span>w,<span class="w"> </span><span class="kt">Variable</span><span class="w"> </span>index)
+</pre></div>
+</div>
+<p>Return one column of a two-dimensional wave.</p>
+<section id="id112">
+<h3><a class="toc-backref" href="#id293" role="doc-backlink">Parameters</a><a class="headerlink" href="#id112" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code> <em>(Wave)</em>: Two-dimensional source wave.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">index</span></code> <em>(Variable)</em>: Zero-based item index.</p></li>
+</ul>
+</section>
+<section id="id113">
+<h3><a class="toc-backref" href="#id294" role="doc-backlink">Returns</a><a class="headerlink" href="#id113" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Wave</strong>: Reference to the result wave; a null wave reference indicates failure where supported.</p></li>
+</ul>
+</section>
+</section>
+<section id="getactionfunctionname">
+<h2><a class="toc-backref" href="#id295" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">getActionFunctionName</span></code></a><a class="headerlink" href="#getactionfunctionname" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>getActionFunctionName(<span class="kt">String</span><span class="w"> </span>recreationStr)
+</pre></div>
+</div>
+<p>Extract an action-procedure name from a control recreation string.</p>
+<section id="id114">
+<h3><a class="toc-backref" href="#id296" role="doc-backlink">Parameters</a><a class="headerlink" href="#id114" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">recreationStr</span></code> <em>(String)</em>: Igor window or control recreation string.</p></li>
+</ul>
+</section>
+<section id="id115">
+<h3><a class="toc-backref" href="#id297" role="doc-backlink">Returns</a><a class="headerlink" href="#id115" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: The action-procedure name, or an empty string if the recreation string has none.</p></li>
+</ul>
+</section>
+</section>
+<section id="getwinrect">
+<h2><a class="toc-backref" href="#id298" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">getWinRect</span></code></a><a class="headerlink" href="#getwinrect" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>getWinRect(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">STRUCT</span><span class="w"> </span>Rect<span class="w"> </span>&amp;winRect)
+</pre></div>
+</div>
+<p>Return a panel window’s screen rectangle.</p>
+<section id="id116">
+<h3><a class="toc-backref" href="#id299" role="doc-backlink">Parameters</a><a class="headerlink" href="#id116" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">winRect</span></code> <em>(STRUCT Rect)</em>: Structure receiving the window rectangle.</p></li>
+</ul>
+</section>
+<section id="id117">
+<h3><a class="toc-backref" href="#id300" role="doc-backlink">Returns</a><a class="headerlink" href="#id117" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after populating <code class="docutils literal notranslate"><span class="pre">winRect</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="getctrlrect">
+<h2><a class="toc-backref" href="#id301" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">getCtrlRect</span></code></a><a class="headerlink" href="#getctrlrect" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>getCtrlRect(<span class="kt">String</span><span class="w"> </span>pnlName,<span class="w"> </span><span class="kt">String</span><span class="w"> </span>ctrlName,<span class="w"> </span><span class="kt">STRUCT</span><span class="w"> </span>Rect<span class="w"> </span>&amp;ctrlRect)
+</pre></div>
+</div>
+<p>Return a panel control’s rectangle.</p>
+<section id="id118">
+<h3><a class="toc-backref" href="#id302" role="doc-backlink">Parameters</a><a class="headerlink" href="#id118" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pnlName</span></code> <em>(String)</em>: Name of the panel window.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ctrlName</span></code> <em>(String)</em>: Name of the Igor control.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ctrlRect</span></code> <em>(STRUCT Rect)</em>: Structure receiving the control rectangle.</p></li>
+</ul>
+</section>
+<section id="id119">
+<h3><a class="toc-backref" href="#id303" role="doc-backlink">Returns</a><a class="headerlink" href="#id119" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: Zero after populating <code class="docutils literal notranslate"><span class="pre">ctrlRect</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="geteventmod">
+<h2><a class="toc-backref" href="#id304" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">getEventMod</span></code></a><a class="headerlink" href="#geteventmod" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>getEventMod()
+</pre></div>
+</div>
+<p>Return the current keyboard-modifier bit mask.</p>
+<section id="id120">
+<h3><a class="toc-backref" href="#id305" role="doc-backlink">Returns</a><a class="headerlink" href="#id120" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Variable</strong>: The current keyboard-modifier bit mask.</p></li>
 </ul>
 </section>
 </section>

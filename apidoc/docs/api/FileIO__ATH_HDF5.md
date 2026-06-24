@@ -20,13 +20,28 @@ related to ATH HDF5 functionality.
 ListHDF5Groups()
 ```
 
-Description of ListHDF5Groups.
+List HDF5 groups.
 
-Auto-generated documentation stub for function `ListHDF5Groups`.
+Uses Igor's HDF5 operations and reports or propagates file-format errors to the caller.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
+
+
+## `GetHDF5Groups`
+
+**Signature**
+
+```igorpro
+GetHDF5Groups()
+```
+
+Return the groups contained in a user-selected HDF5 file.
+
+### Returns
+
+- **String**: A semicolon-separated list of HDF5 groups, or an empty string after cancellation.
 
 
 ## `LoadHDF5File`
@@ -37,17 +52,17 @@ Auto-generated documentation stub for function `ListHDF5Groups`.
 LoadHDF5File(string filename)
 ```
 
-Description of LoadHDF5File.
+Load HDF5 file.
 
-Auto-generated documentation stub for function `LoadHDF5File`.
+Uses Igor's HDF5 operations and reports or propagates file-format errors to the caller.
 
 ### Parameters
 
-- `filename` *(Parameter)*: filename.
+- `filename` *(String)*: File name.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `LoadHDF5SpecificGroups`
@@ -58,17 +73,17 @@ Auto-generated documentation stub for function `LoadHDF5File`.
 LoadHDF5SpecificGroups(string groups)
 ```
 
-Description of LoadHDF5SpecificGroups.
+Load HDF5 specific groups.
 
-Auto-generated documentation stub for function `LoadHDF5SpecificGroups`.
+Uses Igor's HDF5 operations and reports or propagates file-format errors to the caller.
 
 ### Parameters
 
-- `groups` *(Parameter)*: groups.
+- `groups` *(String)*: Semicolon-separated list of HDF5 group names or indices to load.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `LoadHDF5SpecificGroupsNamesIndexed`
@@ -79,18 +94,18 @@ Auto-generated documentation stub for function `LoadHDF5SpecificGroups`.
 LoadHDF5SpecificGroupsNamesIndexed(string idxstr, [string strFix])
 ```
 
-Description of LoadHDF5SpecificGroupsNamesIndexed.
+Load HDF5 specific groups names indexed.
 
-Auto-generated documentation stub for function `LoadHDF5SpecificGroupsNamesIndexed`.
+String should be in the form "2-5,7,9-12,50" PRM: Assume entryXX as group name, change here if needed.
 
 ### Parameters
 
-- `idxstr` *(Parameter)*: idxstr.
-- `strFix]` *(Parameter)*: strFix].
+- `idxstr` *(String)*: Comma-separated group indices and inclusive index ranges.
+- `strFix` *(String, optional)*: Prefix prepended to each numeric group index.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `LoadHDF5SpecificGroupsFromPath`
@@ -101,18 +116,19 @@ Auto-generated documentation stub for function `LoadHDF5SpecificGroupsNamesIndex
 LoadHDF5SpecificGroupsFromPath(String groups, String filename_fullpathstr)
 ```
 
-Description of LoadHDF5SpecificGroupsFromPath.
+Load HDF5 specific groups from path.
 
-Auto-generated documentation stub for function `LoadHDF5SpecificGroupsFromPath`.
+String should be in the form "2-5,7,9-12,50". Load files faster from a specific file, you need to specify
+the full path to the datafile. PRM: Assure entryXX as group name, change here if needed.
 
 ### Parameters
 
-- `groups` *(Parameter)*: groups.
-- `filename_fullpathstr` *(Parameter)*: filename_fullpathstr.
+- `groups` *(String)*: Semicolon-separated list of HDF5 group names or indices to load.
+- `filename_fullpathstr` *(String)*: Full path of the HDF5 file to open.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `GetHDF5SingleFilePath`
@@ -123,9 +139,11 @@ Auto-generated documentation stub for function `LoadHDF5SpecificGroupsFromPath`.
 GetHDF5SingleFilePath()
 ```
 
+Prompt for one HDF5 file and return its full path.
+
 ### Returns
 
-- **String**
+- **String**: The selected HDF5 file path, or an empty string after cancellation.
 
 
 ## `ListHDF5GroupsFID`
@@ -136,17 +154,36 @@ GetHDF5SingleFilePath()
 ListHDF5GroupsFID(Variable fileid)
 ```
 
-Description of ListHDF5GroupsFID.
+Print a sorted list of groups in an open HDF5 file.
 
-Auto-generated documentation stub for function `ListHDF5GroupsFID`.
+Lists all entries in file.
 
 ### Parameters
 
-- `fileid` *(Parameter)*: fileid.
+- `fileid` *(Variable)*: Open HDF5 file identifier.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
+
+
+## `GetHDF5GroupsFID`
+
+**Signature**
+
+```igorpro
+GetHDF5GroupsFID(Variable fileid)
+```
+
+Return a sorted list of groups in an open HDF5 file.
+
+### Parameters
+
+- `fileid` *(Variable)*: Open HDF5 file identifier.
+
+### Returns
+
+- **String**: A sorted semicolon-separated list of groups in the open file.
 
 
 ## `LoadHDF5GroupFID`
@@ -157,18 +194,18 @@ Auto-generated documentation stub for function `ListHDF5GroupsFID`.
 LoadHDF5GroupFID(Variable fileid, String group)
 ```
 
-Description of LoadHDF5GroupFID.
+Load one group from an open HDF5 file.
 
-Auto-generated documentation stub for function `LoadHDF5GroupFID`.
+Uses Igor's HDF5 operations and reports or propagates file-format errors to the caller.
 
 ### Parameters
 
-- `fileid` *(Parameter)*: fileid.
-- `group` *(Parameter)*: group.
+- `fileid` *(Variable)*: Open HDF5 file identifier.
+- `group` *(String)*: Name or path of the HDF5 group.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `GetHDF5NumGroupsFID`
@@ -179,17 +216,18 @@ Auto-generated documentation stub for function `LoadHDF5GroupFID`.
 GetHDF5NumGroupsFID(Variable fileid)
 ```
 
-Description of GetHDF5NumGroupsFID.
+Return the number of groups in an open HDF5 file.
 
-Auto-generated documentation stub for function `GetHDF5NumGroupsFID`.
+Returns the number is entries in file. Functions to import datasets acquired at the I06 beamline at
+Diamond (UK).
 
 ### Parameters
 
-- `fileid` *(Parameter)*: fileid.
+- `fileid` *(Variable)*: Open HDF5 file identifier.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The number of groups in the open HDF5 file.
 
 
 ## `LoadNXSXMCDDataSet`
@@ -200,13 +238,14 @@ Auto-generated documentation stub for function `GetHDF5NumGroupsFID`.
 LoadNXSXMCDDataSet()
 ```
 
-Description of LoadNXSXMCDDataSet.
+Load XMCD/XAS datasets and metadata from an I06 NeXus file.
 
-Auto-generated documentation stub for function `LoadNXSXMCDDataSet`.
+Load XMCD data acquired at i06 beamline at Diamond along with basic metadada, STV and FoV. Imported waves
+are FoV-scaled.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `LoadNXSDataSets`
@@ -217,13 +256,14 @@ Auto-generated documentation stub for function `LoadNXSXMCDDataSet`.
 LoadNXSDataSets()
 ```
 
-Description of LoadNXSDataSets.
+Load beamline datasets and basic metadata from an I06 NeXus file.
 
-Auto-generated documentation stub for function `LoadNXSDataSets`.
+Load data acquired at i06 beamline at Diamond, XMCD or XAS along with basic metadada, STV and FoV. Rename
+the folder here to avoid overwriting.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `LoadTVIPSH5Data`
@@ -234,17 +274,18 @@ Auto-generated documentation stub for function `LoadNXSDataSets`.
 LoadTVIPSH5Data(string filename)
 ```
 
-Description of LoadTVIPSH5Data.
+Load tvipsh 5data.
 
-Auto-generated documentation stub for function `LoadTVIPSH5Data`.
+Function to load the h5 datasets. Here we check whether the Path MAXPEEM_USER_ROOT_FOLDER is set. load
+the file without opening the file browser.
 
 ### Parameters
 
-- `filename` *(Parameter)*: filename.
+- `filename` *(String)*: File name.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `LoadTVIPSH5Group`
@@ -255,18 +296,19 @@ Auto-generated documentation stub for function `LoadTVIPSH5Data`.
 LoadTVIPSH5Group(string filename, [string group])
 ```
 
-Description of LoadTVIPSH5Group.
+Load tvipsh5 group.
 
-Auto-generated documentation stub for function `LoadTVIPSH5Group`.
+Function to load the h5 datasets. Here we check whether the Path MAXPEEM_USER_ROOT_FOLDER is set. load
+the file without opening the file browser.
 
 ### Parameters
 
-- `filename` *(Parameter)*: filename.
-- `group]` *(Parameter)*: group].
+- `filename` *(String)*: File name.
+- `group` *(String, optional)*: Name or path of the HDF5 group.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `LoadTVIPSH5DataNetwork`
@@ -277,14 +319,15 @@ Auto-generated documentation stub for function `LoadTVIPSH5Group`.
 LoadTVIPSH5DataNetwork(variable scanID)
 ```
 
-Description of LoadTVIPSH5DataNetwork.
+Load tvipsh 5data network.
 
-Auto-generated documentation stub for function `LoadTVIPSH5DataNetwork`.
+Function to load the h5 datasets. Here we check whether the Path MAXPEEM_USER_ROOT_FOLDER is set. load
+the file without opening the file browser.
 
 ### Parameters
 
-- `scanID` *(Parameter)*: scanID.
+- `scanID` *(Variable)*: Beamline scan identifier.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.

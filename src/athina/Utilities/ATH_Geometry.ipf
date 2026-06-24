@@ -35,6 +35,13 @@
 /// @details
 /// This module belongs to the ATH Igor Pro toolkit and contains procedures
 /// related to ATH Geometry functionality.
+/// @function GetSinglePointWithDistanceFromLine
+/// @brief Calculate a point at a signed distance along a line through a reference point.
+/// @param x1 Second x coordinate.
+/// @param y1 Second y coordinate.
+/// @param s Slope of the line along which to offset the point.
+/// @param d Signed distance from the reference point.
+/// @returns The calculated x and y coordinates.
 static Function [variable x0, variable y0] GetSinglePointWithDistanceFromLine(variable x1, variable y1, variable s, variable d)
 	/// Return the coordinates of a point with distance d from line passing from A(x1, y1) with slope s.
 	/// Use positive or *negative* distance to get a point on either side of A.
@@ -44,6 +51,15 @@ static Function [variable x0, variable y0] GetSinglePointWithDistanceFromLine(va
 	return [x0, y0]
 End
 
+/// @function GetBothPointsWithDistanceFromLine
+/// @brief Calculate the two points separated by a requested distance along a line.
+/// @details
+/// The returned points lie on opposite sides of the reference point and are separated by `d`.
+/// @param x1 Second x coordinate.
+/// @param y1 Second y coordinate.
+/// @param s Slope of the line on which the returned points lie.
+/// @param d Distance separating the two returned points.
+/// @returns The x and y coordinates of both calculated points.
 static Function [variable xp0, variable yp0, variable xp1, variable yp1 ] GetBothPointsWithDistanceFromLine(variable x1, 
 																		  variable y1, variable s, variable d)
 	/// Return the coordinates of points with distance d from a line passing from A(x1, y1) with slope s.
@@ -68,15 +84,14 @@ static Function [variable xp0, variable yp0, variable xp1, variable yp1 ] GetBot
 End
 
 /// @function SlopePerpendicularToLineSegment
-/// @brief Description of SlopePerpendicularToLineSegment.
+/// @brief Calculate slope perpendicular to line segment.
 /// @details
-/// Auto-generated documentation stub for function `SlopePerpendicularToLineSegment`.
-/// @param x1 Parameter x1.
-/// @param y1 Parameter y1.
-/// @param x2 Parameter x2.
-/// @param y2 Parameter y2.
-/// @returns Variable Return value.
-
+/// Return the slope of a line perpendicular to the line segment defined by (x1, y1) and (x2, y2).
+/// @param x1 Second x coordinate or range bound.
+/// @param y1 Second y coordinate or range bound.
+/// @param x2 Second point's x coordinate.
+/// @param y2 Second point's y coordinate.
+/// @returns The calculated slope perpendicular to line segment.
 static Function SlopePerpendicularToLineSegment(variable x1, variable y1, variable x2, variable y2)
 	// Return the slope of a line perpendicular to the line segment defined by (x1, y1) and (x2, y2)
 	if (y1 == y2)
@@ -88,6 +103,14 @@ static Function SlopePerpendicularToLineSegment(variable x1, variable y1, variab
 	endif
 End
 
+/// @function GetVerticesPerpendicularToLine
+/// @brief Calculate the x and y offsets from a circle center to a line intersection.
+/// @details
+/// The offsets are the nonnegative x component and signed y component for a line through the origin
+/// intersecting a circle of the requested radius.
+/// @param radius Radius of the circle.
+/// @param slope Slope of the line through the circle center.
+/// @returns The x and y offsets from the circle center.
 static Function [variable xshift, variable yshift] GetVerticesPerpendicularToLine(variable radius, variable slope)
 	// Return the part of the solution of an intersection between a circle of radius = radius
 	// with a line with slope = slope. If the center has coordinates (x0, y0) the two point that
@@ -99,6 +122,16 @@ static Function [variable xshift, variable yshift] GetVerticesPerpendicularToLin
 	 return [xshift, yshift]
 End
 
+/// @function SymmetricLineShrink
+/// @brief Scale a line segment about its midpoint.
+/// @details
+/// A factor below one shortens the segment and a factor above one lengthens it without moving its midpoint.
+/// @param x1 Second x coordinate.
+/// @param y1 Second y coordinate.
+/// @param x2 Second endpoint's x coordinate.
+/// @param y2 Second endpoint's y coordinate.
+/// @param Sfactor Scale factor applied to the segment length about its midpoint.
+/// @returns The two endpoints of the scaled line segment.
 static Function [variable xn1, variable yn1, variable xn2, variable yn2] SymmetricLineShrink(variable x1, variable y1, 
 																		  variable x2, variable y2, variable Sfactor)
 	/// Returns the points (xn1, yn1) and (xn2, yn2) that define a line segnemt with
@@ -127,14 +160,14 @@ End
 //Function [variable xn, variable yn]  ATH_GetAntipodalPoint(variable x1, variable y1, variable x0, variable y0, int solution)
 
 /// @function GetAntipodalPoint
-/// @brief Description of GetAntipodalPoint.
+/// @brief Return antipodal point.
 /// @details
-/// Auto-generated documentation stub for function `GetAntipodalPoint`.
-/// @param x1 Parameter x1.
-/// @param y1 Parameter y1.
-/// @param x0 Parameter x0.
-/// @param y0 Parameter y0.
-/// @returns Variable Return value.
+/// Returns the antipodal point (xn, yn) of (x1, x2) of a circle with center (x0, y0) return [xn, yn].
+/// @param x1 Second x coordinate or range bound.
+/// @param y1 Second y coordinate or range bound.
+/// @param x0 First x coordinate or range bound.
+/// @param y0 First y coordinate or range bound.
+/// @returns Zero after completing the operation.
 static Function GetAntipodalPoint(variable x1, variable y1, variable x0, variable y0)
 
 	/// Returns the antipodal point (xn, yn) of (x1, x2) of a circle with center (x0, y0)
@@ -164,6 +197,13 @@ static Function GetAntipodalPoint(variable x1, variable y1, variable x0, variabl
 	//return [xn, yn]
 End
 
+/// @function LineEquationFromTwoPoints
+/// @brief Calculate slope and intercept for the line through two points.
+/// @param x0 First x coordinate.
+/// @param y0 First y coordinate.
+/// @param x1 Second x coordinate.
+/// @param y1 Second y coordinate.
+/// @returns The line slope and y intercept; a vertical line returns an infinite slope and zero intercept.
 static Function [variable slope, variable shift] LineEquationFromTwoPoints(variable x0,
 												 variable y0, variable x1, variable y1)
 	/// Returns A, B for y = A x + B passing through A(x0, y0), B(x1, y1)
@@ -178,15 +218,15 @@ static Function [variable slope, variable shift] LineEquationFromTwoPoints(varia
 End
 
 /// @function LineCoefficientsFromCursors
-/// @brief Description of LineCoefficientsFromCursors.
+/// @brief Line coefficients from cursors.
 /// @details
-/// Auto-generated documentation stub for function `LineCoefficientsFromCursors`.
-/// @param csr0 Parameter csr0.
-/// @param csr1 Parameter csr1.
-/// @param free Parameter free.
-/// @param grfName] Parameter grfName].
-/// @returns Wave Return value.
-
+/// Get a WAVE with the coefficients of a line defined by csr0 & csr1. N.B: Wave scaling is taken into
+/// account here! Use poly function to make the polynomial.
+/// @param csr0 Name or index of the first cursor.
+/// @param csr1 Name or index of the second cursor.
+/// @param free (optional) If nonzero, create a free wave rather than a data-folder wave.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Reference to the result wave; a null reference indicates failure where supported.
 static Function/WAVE LineCoefficientsFromCursors(string csr0, string csr1, [int free, string grfName])
 	//
 	// Get a WAVE with the coefficients of a line defined by csr0 & csr1.
@@ -228,15 +268,15 @@ static Function/WAVE LineCoefficientsFromCursors(string csr0, string csr1, [int 
 End
 
 /// @function GetLineFromCursors
-/// @brief Description of GetLineFromCursors.
+/// @brief Return line from cursors.
 /// @details
-/// Auto-generated documentation stub for function `GetLineFromCursors`.
-/// @param csr0 Parameter csr0.
-/// @param csr1 Parameter csr1.
-/// @param free Parameter free.
-/// @param grfName] Parameter grfName].
-/// @returns Wave Return value.
-
+/// Get a WAVE with the coefficients of a line defined by csr0 & csr1. N.B: Wave scaling is taken into
+/// account here! Use poly function to make the polynomial.
+/// @param csr0 Name or index of the first cursor.
+/// @param csr1 Name or index of the second cursor.
+/// @param free (optional) If nonzero, create a free wave rather than a data-folder wave.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Reference to the result wave; a null reference indicates failure where supported.
 static Function/WAVE GetLineFromCursors(string csr0, string csr1, [int free, string grfName])
 	//
 	// Get a WAVE with the coefficients of a line defined by csr0 & csr1.
@@ -270,6 +310,14 @@ static Function/WAVE GetLineFromCursors(string csr0, string csr1, [int free, str
 	endif
 End
 
+/// @function XYWavesOfLineFromTwoPoints
+/// @brief Create coordinate waves sampling the segment between two points.
+/// @param x0 First x coordinate.
+/// @param y0 First y coordinate.
+/// @param x1 Second x coordinate.
+/// @param y1 Second y coordinate.
+/// @param npts Number of output points or LOESS neighborhood size, as applicable.
+/// @returns Free waves containing the sampled x and y coordinates.
 static Function [WAVE wx, WAVE wy] XYWavesOfLineFromTwoPoints(variable x0, 
 								   variable y0, variable x1, variable y1, variable npts)
 	//

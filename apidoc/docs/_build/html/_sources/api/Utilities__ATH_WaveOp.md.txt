@@ -20,18 +20,18 @@ related to ATH WaveOp functionality.
 Make3DWaveUsingPattern(string wname3dStr, string pattern)
 ```
 
-Description of Make3DWaveUsingPattern.
+Create a 3D wave by stacking waves whose names match a pattern.
 
-Auto-generated documentation stub for function `Make3DWaveUsingPattern`.
+Make a 3d wave named wname3d using the RegEx pattern. Give "*" to match all waves.
 
 ### Parameters
 
-- `wname3dStr` *(Parameter)*: wname3dStr.
-- `pattern` *(Parameter)*: pattern.
+- `wname3dStr` *(String)*: Wname3d str.
+- `pattern` *(String)*: Pattern used to select names or files.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `ConcatenateWavesInDataBrowserSelection`
@@ -39,22 +39,21 @@ Auto-generated documentation stub for function `Make3DWaveUsingPattern`.
 **Signature**
 
 ```igorpro
-ConcatenateWavesInDataBrowserSelection(string wname3dStr, [variable makeInSourceDFR, variable autoPath])
+ConcatenateWavesInDataBrowserSelection(string wname3dStr)
 ```
 
-Description of ConcatenateWavesInDataBrowserSelection.
+Concatenate waves in Data Browser selection.
 
-Auto-generated documentation stub for function `ConcatenateWavesInDataBrowserSelection`.
+Concatenate wave from data folder selection. Use it to stack 2D, 3D waves. Returns a string with the name
+of the created wave, as wname3dStr.
 
 ### Parameters
 
-- `wname3dStr` *(Parameter)*: wname3dStr.
-- `makeInSourceDFR` *(Parameter)*: makeInSourceDFR.
-- `autoPath]` *(Parameter)*: autoPath].
+- `wname3dStr` *(String)*: Wname3d str.
 
 ### Returns
 
-- **String**: Return value.
+- **String**: The resulting string; an empty string indicates that no result was available.
 
 
 ## `WaveListStrToWaveRef`
@@ -65,18 +64,18 @@ Auto-generated documentation stub for function `ConcatenateWavesInDataBrowserSel
 WaveListStrToWaveRef(string wavelistStr, [int isFree])
 ```
 
-Description of WaveListStrToWaveRef.
+Convert a wave-name list into a wave-reference wave.
 
-Auto-generated documentation stub for function `WaveListStrToWaveRef`.
+Gets a wavelist and retuns a Wave reference Wave. Wave is free is isFree is set.
 
 ### Parameters
 
-- `wavelistStr` *(Parameter)*: wavelistStr.
-- `isFree]` *(Parameter)*: isFree].
+- `wavelistStr` *(String)*: Wave used by the operation.
+- `isFree` *(Integer, optional)*: If nonzero, create a free wave rather than a data-folder wave.
 
 ### Returns
 
-- **Wave**: Return value.
+- **Wave**: Reference to the result wave; a null reference indicates failure where supported.
 
 
 ## `UnpackLayersToSources`
@@ -87,17 +86,17 @@ Auto-generated documentation stub for function `WaveListStrToWaveRef`.
 UnpackLayersToSources(WAVE wRef)
 ```
 
-Description of UnpackLayersToSources.
+Unpack layers to sources.
 
-Auto-generated documentation stub for function `UnpackLayersToSources`.
+Unpack layers to destination waves as grabbed from wave note.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
+- `wRef` *(Wave)*: Input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `MakeSquare3DWave`
@@ -108,18 +107,19 @@ Auto-generated documentation stub for function `UnpackLayersToSources`.
 MakeSquare3DWave(WAVE w3d, [variable size])
 ```
 
-Description of MakeSquare3DWave.
+Create square 3D wave.
 
-Auto-generated documentation stub for function `MakeSquare3DWave`.
+Creates a 3d waves with the same rows, cols by interpolation of w3d. The wave scaling using the interval
+/I.
 
 ### Parameters
 
-- `w3d` *(Parameter)*: w3d.
-- `size]` *(Parameter)*: size].
+- `w3d` *(Wave)*: Input 3D wave or image stack.
+- `size` *(Variable, optional)*: Size.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `AverageImageStack`
@@ -130,18 +130,48 @@ Auto-generated documentation stub for function `MakeSquare3DWave`.
 AverageImageStack(WAVE wRef, [string outWaveStr])
 ```
 
-Description of AverageImageStack.
+Average image stack.
 
-Auto-generated documentation stub for function `AverageImageStack`.
+Average a 3d wave along z.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `outWaveStr]` *(Parameter)*: outWaveStr].
+- `wRef` *(Wave)*: Input wave.
+- `outWaveStr` *(String, optional)*: Wave used by the operation.
 
 ### Returns
 
-- **Wave**: Return value.
+- **Wave**: Reference to the result wave; a null reference indicates failure where supported.
+
+
+## `WavePartition`
+
+**Signature**
+
+```igorpro
+WavePartition(WAVE wRef, string partitionNameStr, variable aX, variable zX, variable aY, variable zY, [int evenNum, int square, int WaveFREE])
+```
+
+Partition a wave into regularly sized subwaves.
+
+Each output wave contains points `aX` through `zX`; successive partitions advance by `partitionIncrement`
+points.
+
+### Parameters
+
+- `wRef` *(Wave)*: Source wave to partition.
+- `partitionNameStr` *(String)*: Base name for generated partition waves.
+- `aX` *(Variable)*: First source index in the x dimension.
+- `zX` *(Variable)*: Last source index in the x dimension.
+- `aY` *(Variable)*: First source index in the y dimension.
+- `zY` *(Variable)*: Last source index in the y dimension.
+- `evenNum` *(Integer, optional)*: If nonzero, force an even number of partitions.
+- `square` *(Integer, optional)*: If nonzero, use equal x and y partition extents.
+- `WaveFREE` *(Integer, optional)*: destination wave used for each partition.
+
+### Returns
+
+- **Wave**: Reference to the result wave; a null wave reference indicates failure where supported.
 
 
 ## `ZapNaNAndInfWithValue`
@@ -152,18 +182,16 @@ Auto-generated documentation stub for function `AverageImageStack`.
 ZapNaNAndInfWithValue(WAVE waveRef, variable val)
 ```
 
-Description of ZapNaNAndInfWithValue.
-
-Auto-generated documentation stub for function `ZapNaNAndInfWithValue`.
+Replace NaN and infinite wave values with a specified value.
 
 ### Parameters
 
-- `waveRef` *(Parameter)*: waveRef.
-- `val` *(Parameter)*: val.
+- `waveRef` *(Wave)*: used by the operation.
+- `val` *(Variable)*: Scalar value to assign or compare.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `NormaliseWaveWithWave`
@@ -174,18 +202,39 @@ Auto-generated documentation stub for function `ZapNaNAndInfWithValue`.
 NormaliseWaveWithWave(WAVE wRef1, WAVE wRef2)
 ```
 
-Description of NormaliseWaveWithWave.
+Normalize wave with wave.
 
-Auto-generated documentation stub for function `NormaliseWaveWithWave`.
+Normalise a wave with another consistency check static Function NormaliseWaveToUnitRange(WAVE waveRef).
 
 ### Parameters
 
-- `wRef1` *(Parameter)*: wRef1.
-- `wRef2` *(Parameter)*: wRef2.
+- `wRef1` *(Wave)*: First wave to modify in place.
+- `wRef2` *(Wave)*: Second input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
+
+
+## `GetScalesP`
+
+**Signature**
+
+```igorpro
+GetScalesP(WAVE wRef)
+```
+
+Return wave dimension offsets and point intervals.
+
+Returns the offset and point interval for the first three dimensions of the input wave.
+
+### Parameters
+
+- `wRef` *(Wave)*: Input wave.
+
+### Returns
+
+- **Multiple values**: The x, y, and z dimension offsets followed by their point intervals.
 
 
 ## `SetScalesP`
@@ -196,23 +245,24 @@ Auto-generated documentation stub for function `NormaliseWaveWithWave`.
 SetScalesP(WAVE wRef, variable x0, variable y0, variable z0, variable dx, variable dy, variable dz)
 ```
 
-Description of SetScalesP.
+Set dimension offsets and intervals for a wave.
 
-Auto-generated documentation stub for function `SetScalesP`.
+Set scale of waves per point variable x0, y0, z0, dx, dy, dz [x0, y0, z0, dx, dy, dz] =
+ATH_GetScalesP(wRef).
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `x0` *(Parameter)*: x0.
-- `y0` *(Parameter)*: y0.
-- `z0` *(Parameter)*: z0.
-- `dx` *(Parameter)*: dx.
-- `dy` *(Parameter)*: dy.
-- `dz` *(Parameter)*: dz.
+- `wRef` *(Wave)*: to modify in place.
+- `x0` *(Variable)*: First x coordinate or range bound.
+- `y0` *(Variable)*: First y coordinate or range bound.
+- `z0` *(Variable)*: First layer coordinate or range bound.
+- `dx` *(Variable)*: Sampling interval along x.
+- `dy` *(Variable)*: Sampling interval along y.
+- `dz` *(Variable)*: Sampling interval along z.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `MakeWaveFromROI`
@@ -223,17 +273,17 @@ Auto-generated documentation stub for function `SetScalesP`.
 MakeWaveFromROI(WAVE wRef)
 ```
 
-Description of MakeWaveFromROI.
+Create wave from ROI.
 
-Auto-generated documentation stub for function `MakeWaveFromROI`.
+Extracts the ROI from wRef using the saved ROI coordinates in the database. Works with 2D and 3D waves.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
+- `wRef` *(Wave)*: Input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SetWaveOffsetZero`
@@ -244,40 +294,39 @@ Auto-generated documentation stub for function `MakeWaveFromROI`.
 SetWaveOffsetZero(WAVE wRef, [int dim])
 ```
 
-Description of SetWaveOffsetZero.
+Set wave offset zero.
 
-Auto-generated documentation stub for function `SetWaveOffsetZero`.
+Zero the offset for dimension dim.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `dim]` *(Parameter)*: dim].
+- `wRef` *(Wave)*: Input wave.
+- `dim` *(Integer, optional)*: Zero-based wave-dimension index.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
-## `Wave2DDimensionsEqualQ`
+## `AllWaves2DQ`
 
 **Signature**
 
 ```igorpro
-Wave2DDimensionsEqualQ(WAVE w1, WAVE w2)
+AllWaves2DQ(WAVE/WAVE wRefw)
 ```
 
-Description of Wave2DDimensionsEqualQ.
+Test whether all waves 2D.
 
-Auto-generated documentation stub for function `Wave2DDimensionsEqualQ`.
+Check whether all images have the same rows, cols.
 
 ### Parameters
 
-- `w1` *(Parameter)*: w1.
-- `w2` *(Parameter)*: w2.
+- `wRefw` *(Wave/WAVE)*: Reference wave supplying values or scaling.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `AllImagesEqualDimensionsQ`
@@ -288,17 +337,39 @@ Auto-generated documentation stub for function `Wave2DDimensionsEqualQ`.
 AllImagesEqualDimensionsQ(WAVE/WAVE wRefw)
 ```
 
-Description of AllImagesEqualDimensionsQ.
+Test whether all images equal dimensions.
 
-Auto-generated documentation stub for function `AllImagesEqualDimensionsQ`.
+Check whether all images have the same rows, cols.
 
 ### Parameters
 
-- `wRefw` *(Parameter)*: wRefw.
+- `wRefw` *(Wave/WAVE)*: Reference wave supplying values or scaling.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
+
+
+## `ImagesDimensionsEqualQ`
+
+**Signature**
+
+```igorpro
+ImagesDimensionsEqualQ(WAVE w1, WAVE w2)
+```
+
+Test whether wave dimensions equal.
+
+Return 1 if waves have the same num of elements in all dims. Works for any wave.
+
+### Parameters
+
+- `w1` *(Wave)*
+- `w2` *(Wave)*
+
+### Returns
+
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `WaveDimensionsEqualQ`
@@ -309,18 +380,39 @@ Auto-generated documentation stub for function `AllImagesEqualDimensionsQ`.
 WaveDimensionsEqualQ(WAVE w1, WAVE w2)
 ```
 
-Description of WaveDimensionsEqualQ.
+Test whether wave dimensions equal.
 
-Auto-generated documentation stub for function `WaveDimensionsEqualQ`.
+Return 1 if waves have the same num of elements in all dims. Works for any wave.
 
 ### Parameters
 
-- `w1` *(Parameter)*: w1.
-- `w2` *(Parameter)*: w2.
+- `w1` *(Wave)*: First input wave.
+- `w2` *(Wave)*: Second input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
+
+
+## `AllWavesEqualDimensionsQ`
+
+**Signature**
+
+```igorpro
+AllWavesEqualDimensionsQ(WAVE/WAVE wRefw)
+```
+
+Test whether wave dimensions equal.
+
+Return 1 if waves have the same num of elements in all dims. Works for any wave.
+
+### Parameters
+
+- `wRefw` *(Wave/WAVE)*
+
+### Returns
+
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `MatchWaveTypes`
@@ -331,18 +423,18 @@ Auto-generated documentation stub for function `WaveDimensionsEqualQ`.
 MatchWaveTypes(WAVE wRef, WAVE wDest)
 ```
 
-Description of MatchWaveTypes.
+Match wave types.
 
-Auto-generated documentation stub for function `MatchWaveTypes`.
+Change WaveType of wDest to the one of wRef.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `wDest` *(Parameter)*: wDest.
+- `wRef` *(Wave)*: Input wave.
+- `wDest` *(Wave)*: Destination wave to populate.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `WaveCasting`
@@ -353,18 +445,18 @@ Auto-generated documentation stub for function `MatchWaveTypes`.
 WaveCasting(WAVE wRef, int wType)
 ```
 
-Description of WaveCasting.
+Convert a numeric wave to a requested Igor wave type.
 
-Auto-generated documentation stub for function `WaveCasting`.
+Change to WaveType.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `wType` *(Parameter)*: wType.
+- `wRef` *(Wave)*: to modify in place.
+- `wType` *(Integer)*: Igor numeric wave-type code.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `LastDimVal`
@@ -375,18 +467,18 @@ Auto-generated documentation stub for function `WaveCasting`.
 LastDimVal(WAVE w, int dim)
 ```
 
-Description of LastDimVal.
+Return the scaled coordinate of a dimension's final point.
 
-Auto-generated documentation stub for function `LastDimVal`.
+Return the last value of dimension dim.
 
 ### Parameters
 
-- `w` *(Parameter)*: w.
-- `dim` *(Parameter)*: dim.
+- `w` *(Wave)*: Input wave.
+- `dim` *(Integer)*: Zero-based wave-dimension index.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The scaled coordinate of the final point along the selected dimension.
 
 
 ## `SizeOfWave`
@@ -397,17 +489,15 @@ Auto-generated documentation stub for function `LastDimVal`.
 SizeOfWave(wv)
 ```
 
-Description of SizeOfWave.
-
-Auto-generated documentation stub for function `SizeOfWave`.
+Size of wave.
 
 ### Parameters
 
-- `wv` *(Parameter)*: wv.
+- `wv` *(Variable)*: Wave whose memory footprint is calculated.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Size of wave.
 
 
 ## `SumLateralWaveDims`
@@ -418,17 +508,17 @@ Auto-generated documentation stub for function `SizeOfWave`.
 SumLateralWaveDims(WAVE w)
 ```
 
-Description of SumLateralWaveDims.
+Sum lateral dimensions to reduce a 2D or 3D wave to a 1D profile.
 
-Auto-generated documentation stub for function `SumLateralWaveDims`.
+Sum cols (assumed energy axis) in 2D or sum rows and cols in 3D waves to make a 1D wave.
 
 ### Parameters
 
-- `w` *(Parameter)*: w.
+- `w` *(Wave)*: Input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `GetWaveType`
@@ -439,17 +529,17 @@ Auto-generated documentation stub for function `SumLateralWaveDims`.
 GetWaveType(WAVE wRef)
 ```
 
-Description of GetWaveType.
+Return the number of bytes per wave element.
 
-Auto-generated documentation stub for function `GetWaveType`.
+Return the number of bytes per element of wave wRef.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
+- `wRef` *(Wave)*: Input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The wave type.
 
 
 ## `RemoveLineFromWave1D`
@@ -460,19 +550,20 @@ Auto-generated documentation stub for function `GetWaveType`.
 RemoveLineFromWave1D(WAVE wRef, [variable x0, variable x1])
 ```
 
-Description of RemoveLineFromWave1D.
+Remove line from wave 1d.
 
-Auto-generated documentation stub for function `RemoveLineFromWave1D`.
+Remove a line from a 1D wave. Line is defined from points x0 and x1. Here scaling is taken into account.
+The function is structured to give.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `x0` *(Parameter)*: x0.
-- `x1]` *(Parameter)*: x1].
+- `wRef` *(Wave)*: to modify in place.
+- `x0` *(Variable, optional)*: First x coordinate or range bound.
+- `x1` *(Variable, optional)*: Second x coordinate or range bound.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `RemoveZLineWave3D`
@@ -483,19 +574,20 @@ Auto-generated documentation stub for function `RemoveLineFromWave1D`.
 RemoveZLineWave3D(Wave wRef, [variable z0, variable z1])
 ```
 
-Description of RemoveZLineWave3D.
+Remove z line wave 3D.
 
-Auto-generated documentation stub for function `RemoveZLineWave3D`.
+Remove a line defined by z0, z1 for every wRef beam we use the wave scaling along z, but it's not needed.
+Unscaled wave will give the same results.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `z0` *(Parameter)*: z0.
-- `z1]` *(Parameter)*: z1].
+- `wRef` *(Wave)*: to modify in place.
+- `z0` *(Variable, optional)*: First layer coordinate or range bound.
+- `z1` *(Variable, optional)*: Second layer coordinate or range bound.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `GetWaveMinPos`
@@ -506,17 +598,17 @@ Auto-generated documentation stub for function `RemoveZLineWave3D`.
 GetWaveMinPos(WAVE wRef)
 ```
 
-Description of GetWaveMinPos.
+Return the scaled position of a wave's minimum value.
 
-Auto-generated documentation stub for function `GetWaveMinPos`.
+Return the position of the maximun value of wave.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
+- `wRef` *(Wave)*: to modify in place.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The wave min pos.
 
 
 ## `GetWaveMaxPos`
@@ -527,14 +619,79 @@ Auto-generated documentation stub for function `GetWaveMinPos`.
 GetWaveMaxPos(WAVE wRef)
 ```
 
-Description of GetWaveMaxPos.
+Return the scaled position of a wave's maximum value.
 
-Auto-generated documentation stub for function `GetWaveMaxPos`.
+Return the position of the maximun value of wave.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
+- `wRef` *(Wave)*: to modify in place.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The wave max pos.
+
+
+## `AverageEvenOddLayers`
+
+**Signature**
+
+```igorpro
+AverageEvenOddLayers(WAVE wRef, [variable offset])
+```
+
+Average even odd layers.
+
+Not absolute even/odd referenence when offset!=0.
+
+### Parameters
+
+- `wRef` *(Wave)*: Input wave.
+- `offset` *(Variable, optional)*: Offset.
+
+### Returns
+
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
+
+
+## `AverageSplitStack`
+
+**Signature**
+
+```igorpro
+AverageSplitStack(WAVE wRef)
+```
+
+Split an image stack into two halves and average each half.
+
+Creates sibling waves with suffixes `_half1` and `_half2`; an unmatched first layer is skipped for odd-sized stacks.
+
+### Parameters
+
+- `wRef` *(Wave)*: Input 3D image stack.
+
+### Returns
+
+- **Variable**: Zero on success; one if the input is not a multi-layer 3D wave.
+
+
+## `AverageRandomStackSample`
+
+**Signature**
+
+```igorpro
+AverageRandomStackSample(WAVE wRef, variable sampleN)
+```
+
+Average a random subset of layers from an image stack.
+
+Selects layers without replacement, records their indices in the result note, and preserves the input scaling.
+
+### Parameters
+
+- `wRef` *(Wave)*: Input 3D image stack.
+- `sampleN` *(Variable)*: Number of layers to sample; must not exceed 75 percent of the stack.
+
+### Returns
+
+- **Variable**: Zero on success; one if the input has no layers or the requested sample is too large.

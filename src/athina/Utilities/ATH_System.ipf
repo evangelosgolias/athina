@@ -14,10 +14,8 @@
 /// @brief Return the amount of free memory in GB
 ///
 /// @function GetFreeMemory
-/// @brief Description of GetFreeMemory.
-/// @details
-/// Auto-generated documentation stub for function `GetFreeMemory`.
-/// @returns Variable Return value.
+/// @brief Return free memory.
+/// @returns The returned value is free memory.
 static Function GetFreeMemory()
     variable freeMem
  

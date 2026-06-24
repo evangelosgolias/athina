@@ -39,11 +39,10 @@
 
 
 /// @function RangeMeanSigmaTopImage
-/// @brief Description of RangeMeanSigmaTopImage.
+/// @brief Set the top image's color range to its mean plus or minus three standard deviations.
 /// @details
-/// Auto-generated documentation stub for function `RangeMeanSigmaTopImage`.
-/// @returns Variable Return value.
-
+/// Autoscale image of the top grap.
+/// @returns Zero after updating the range; -1 when the top graph has no image wave.
 static Function RangeMeanSigmaTopImage()
 	// Autoscale image of the top grap
 	string winNameStr = WinName(0, 1, 1)
@@ -83,13 +82,10 @@ static Function RangeMeanSigmaTopImage()
 End
 
 /// @function GetLayerIndex
-/// @brief Description of GetLayerIndex.
-/// @details
-/// Auto-generated documentation stub for function `GetLayerIndex`.
-/// @param grfName Parameter grfName.
-/// @param w] Parameter w].
-/// @returns Variable Return value.
-
+/// @brief Return layer index.
+/// @param grfName Name of the graph window.
+/// @param w (optional) Input wave.
+/// @returns The zero-based index, or a negative value when no match is found.
 static Function GetLayerIndex(string grfName, [Wave/Z w])
 	if (ParamIsDefault(w))
 		WAVE/Z w = ATH_Graph#TopImageToWaveRef(grfName=grfName)
@@ -102,11 +98,10 @@ static Function GetLayerIndex(string grfName, [Wave/Z w])
 End
 
 /// @function AutoRangeTopImagePlane
-/// @brief Description of AutoRangeTopImagePlane.
+/// @brief Autoscale the color range of the displayed image plane.
 /// @details
-/// Auto-generated documentation stub for function `AutoRangeTopImagePlane`.
-/// @returns Variable Return value.
-
+/// Autoscale image of the top grap.
+/// @returns Zero after completing the operation.
 static Function AutoRangeTopImagePlane()
 	// Autoscale image of the top grap
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
@@ -119,11 +114,8 @@ static Function AutoRangeTopImagePlane()
 End
 
 /// @function SetZScaleOfImageStack
-/// @brief Description of SetZScaleOfImageStack.
-/// @details
-/// Auto-generated documentation stub for function `SetZScaleOfImageStack`.
-/// @returns Variable Return value.
-
+/// @brief Set the layer-axis scale of the image stack in the top graph.
+/// @returns Zero after completing the operation.
 static Function SetZScaleOfImageStack() // Uses top graph
 	string winNameStr = WinName(0, 1, 1)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -144,11 +136,10 @@ static Function SetZScaleOfImageStack() // Uses top graph
 End
 
 /// @function ImageSelectToCopyScale
-/// @brief Description of ImageSelectToCopyScale.
+/// @brief Copy dimension scales from a selected image to the top image.
 /// @details
-/// Auto-generated documentation stub for function `ImageSelectToCopyScale`.
-/// @returns Variable Return value.
-
+/// Select the first wave from browser selection.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function ImageSelectToCopyScale() // Uses top graph
 	WAVE wRef = ATH_Graph#TopImageToWaveRef()
 	// Select the first wave from browser selection
@@ -161,6 +152,11 @@ static Function ImageSelectToCopyScale() // Uses top graph
 	return 1
 End
 
+/// @function NormaliseImageStackWithImage
+/// @brief Divide every layer of an image stack by a two-dimensional reference image.
+/// @param w3dRef Input image stack.
+/// @param w2dRef Two-dimensional reference image used as the divisor.
+/// @returns The full path of the normalized output stack.
 static Function/S NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
 	// If you have 16-bit waves then Redimension/S to SP
 //	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
@@ -178,6 +174,11 @@ static Function/S NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
 	return normWaveStr
 End
 
+/// @function NormaliseImageStackWithImageStack
+/// @brief Divide an image stack pointwise by a second stack.
+/// @param w3dRef1 Input image stack.
+/// @param w3dRef2 Image stack used as the divisor.
+/// @returns The full path of the normalized output stack.
 static Function/S NormaliseImageStackWithImageStack(WAVE w3dRef1, WAVE w3dRef2)
 	// If you have 16-bit waves then Redimension/S to SP
 //	if(WaveType(w3dRef1) == 80 || WaveType(w3dRef1) == 16)
@@ -194,6 +195,11 @@ static Function/S NormaliseImageStackWithImageStack(WAVE w3dRef1, WAVE w3dRef2)
 	return normWaveStr
 End
 
+/// @function NormaliseImageStackWithProfile
+/// @brief Normalize each stack layer by the corresponding value of a one-dimensional profile.
+/// @param w3dRef Input image stack.
+/// @param profWaveRef One-dimensional normalization profile indexed by stack layer.
+/// @returns The full path of the normalized output stack.
 static Function/S NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
 	// Normalise a 3d wave (stack) with a line profile (1d wave) along the layer (z) direction
 //	if(WaveType(w3dRef) == 80 || WaveType(w3dRef) == 16)
@@ -230,14 +236,14 @@ static Function/S NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
 End
 
 /// @function GetScaledZoominImageWindow
-/// @brief Description of GetScaledZoominImageWindow.
+/// @brief Extract the visible graph region into a correctly scaled image wave.
 /// @details
-/// Auto-generated documentation stub for function `GetScaledZoominImageWindow`.
-/// @param grfName Parameter grfName.
-/// @param w3d Parameter w3d.
-/// @param evenNum] Parameter evenNum].
-/// @returns Variable Return value.
-
+/// Get a the current window view as a new image with appropriate scaling. Works for 2D/3D waves. Added om
+/// 12.05.2025.
+/// @param grfName (optional) Name of the graph window.
+/// @param w3d (optional) Input 3D wave or image stack.
+/// @param evenNum (optional) If nonzero, force an even number of rows and columns.
+/// @returns The scaled zoomin image window.
 static Function GetScaledZoominImageWindow([string grfName, variable w3d, int evenNum])
 	// Get a the current window view as a new image with appropriate scaling.
 	// Works for 2D/3D waves
@@ -304,11 +310,8 @@ static Function GetScaledZoominImageWindow([string grfName, variable w3d, int ev
 End
 
 /// @function GetLayerFromImageStack
-/// @brief Description of GetLayerFromImageStack.
-/// @details
-/// Auto-generated documentation stub for function `GetLayerFromImageStack`.
-/// @returns Variable Return value.
-
+/// @brief Return layer from image stack.
+/// @returns The zero-based index, or a negative value when no match is found.
 static Function GetLayerFromImageStack()
 	
 	string winNameStr = WinName(0, 1, 1)
@@ -328,14 +331,13 @@ static Function GetLayerFromImageStack()
 End
 
 /// @function RemoveImagesFromImageStack
-/// @brief Description of RemoveImagesFromImageStack.
+/// @brief Remove images from image stack.
 /// @details
-/// Auto-generated documentation stub for function `RemoveImagesFromImageStack`.
-/// @param wRef Parameter wRef.
-/// @param startLayer Parameter startLayer.
-/// @param nrLayers Parameter nrLayers.
-/// @returns Variable Return value.
-
+/// Remove nrLayers starting at startLayer from w3dRef. Use it to change wave notes.
+/// @param wRef Input wave.
+/// @param startLayer Lower or starting start layer.
+/// @param nrLayers Number of image-stack layers.
+/// @returns NaN if input validation fails; otherwise zero after completing the operation.
 static Function RemoveImagesFromImageStack(WAVE wRef, variable startLayer, variable nrLayers)
 	// Remove nrLayers starting at startLayer from w3dRef
 	variable nL = DimSize(wRef, 2)
@@ -360,13 +362,12 @@ static Function RemoveImagesFromImageStack(WAVE wRef, variable startLayer, varia
 End
 
 /// @function RemoveRangeOfImagesFromImageStack
-/// @brief Description of RemoveRangeOfImagesFromImageStack.
+/// @brief Remove range of images from image stack.
 /// @details
-/// Auto-generated documentation stub for function `RemoveRangeOfImagesFromImageStack`.
-/// @param wRef Parameter wRef.
-/// @param layerRangeList Parameter layerRangeList.
-/// @returns Variable Return value.
-
+/// You need to remove from the end if the list maybe you are trying to remove all the layers?.
+/// @param wRef Input wave.
+/// @param layerRangeList Layer range list.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function RemoveRangeOfImagesFromImageStack(WAVE wRef, string layerRangeList)
 	// You need to remove from the end if the list
 	// Tranlst
@@ -391,13 +392,14 @@ static Function RemoveRangeOfImagesFromImageStack(WAVE wRef, string layerRangeLi
 End
 
 /// @function InsertImagesToImageStack
-/// @brief Description of InsertImagesToImageStack.
+/// @brief Insert images to image stack.
 /// @details
-/// Auto-generated documentation stub for function `InsertImagesToImageStack`.
-/// @param wRef Parameter wRef.
-/// @param wIn Parameter wIn.
-/// @param layerN Parameter layerN.
-/// @returns Variable Return value.
+/// Insert an image at the position layerN of an image stack. Here the z dimension will change, as the
+/// DimDelta for rescaling. Note that the layerN stack will bethe first image after the insering stacks.
+/// @param wRef Wave to modify in place.
+/// @param wIn Input wave or window name, as required by the operation.
+/// @param layerN Zero-based image-stack layer index.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function InsertImagesToImageStack(WAVE wRef, WAVE wIn, variable layerN)
 	// Insert an image at the position layerN of an image stack.
 	// Here the z dimension will change, as the DimDelta for rescaling
@@ -432,13 +434,12 @@ static Function InsertImagesToImageStack(WAVE wRef, WAVE wIn, variable layerN)
 End
 
 /// @function AppendImagesToImageStack
-/// @brief Description of AppendImagesToImageStack.
+/// @brief Append images to image stack.
 /// @details
-/// Auto-generated documentation stub for function `AppendImagesToImageStack`.
-/// @param wRef Parameter wRef.
-/// @param waveListStr Parameter waveListStr.
-/// @returns Variable Return value.
-
+/// Append images in waveListStr to wRef.
+/// @param wRef Input wave.
+/// @param waveListStr Wave used by the operation.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function AppendImagesToImageStack(WAVE wRef, string waveListStr) 
 	//
 	// Append images in waveListStr to wRef
@@ -458,13 +459,12 @@ static Function AppendImagesToImageStack(WAVE wRef, string waveListStr)
 End
 
 /// @function ConcatenateImages
-/// @brief Description of ConcatenateImages.
+/// @brief Concatenate images.
 /// @details
-/// Auto-generated documentation stub for function `ConcatenateImages`.
-/// @param destWaveStr Parameter destWaveStr.
-/// @param waveListStr Parameter waveListStr.
-/// @returns Variable Return value.
-
+/// Concatenate wave to destWaveStr.
+/// @param destWaveStr Wave used by the operation.
+/// @param waveListStr Wave used by the operation.
+/// @returns Zero after completing the operation.
 static Function ConcatenateImages(string destWaveStr, string waveListStr) 
 	//
 	// Concatenate wave to destWaveStr
@@ -474,14 +474,14 @@ static Function ConcatenateImages(string destWaveStr, string waveListStr)
 End
 
 /// @function ImageEdgeDetectionToStack
-/// @brief Description of ImageEdgeDetectionToStack.
+/// @brief Apply an edge-detection command to every layer of an image stack.
 /// @details
-/// Auto-generated documentation stub for function `ImageEdgeDetectionToStack`.
-/// @param w3dref Parameter w3dref.
-/// @param method Parameter method.
-/// @param overwrite] Parameter overwrite].
-/// @returns Variable Return value.
-
+/// Applied the edge detection operation to w3dref and outputs a wave with name NameofWave(w3dref) + "_ed".
+/// You can optionally ovewrite the input wave.
+/// @param w3dref Input 3D image stack.
+/// @param cmd Igor command or operation string.
+/// @param overwrite (optional) If nonzero, replace the source or an existing destination.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function ImageEdgeDetectionToStack(WAVE w3dref, string cmd, [variable overwrite])
 	/// Applied the edge detection operation to w3dref
 	/// and outputs a wave with name NameofWave(w3dref) + "_ed"
@@ -535,15 +535,15 @@ static Function ImageEdgeDetectionToStack(WAVE w3dref, string cmd, [variable ove
 End
 
 /// @function ImageRotateAndScale
-/// @brief Description of ImageRotateAndScale.
+/// @brief Rotate and rescale an image while preserving its physical coordinates.
 /// @details
-/// Auto-generated documentation stub for function `ImageRotateAndScale`.
-/// @param wRef Parameter wRef.
-/// @param angle Parameter angle.
-/// @param backup Parameter backup.
-/// @param flipY] Parameter flipY].
-/// @returns Variable Return value.
-
+/// Math: If the side of the image is a, then the rotated image will have side a_rot = a * (cos(angle) +
+/// sin(angle)).
+/// @param wRef Wave to modify in place.
+/// @param angle Angle.
+/// @param backup (optional) If nonzero, preserve a backup of the source image.
+/// @param flipY (optional) If nonzero, flip the result along y.
+/// @returns Zero after completing the operation.
 static Function ImageRotateAndScale(WAVE wRef, variable angle, [variable backup, variable flipY])
 	/// Math: If the side of the image is a, then the rotated image
 	/// will have side a_rot = a * (cos(angle) + sin(angle))
@@ -586,11 +586,11 @@ static Function ImageRotateAndScale(WAVE wRef, variable angle, [variable backup,
 End
 
 /// @function BackupTopImage
-/// @brief Description of BackupTopImage.
+/// @brief Backup top image.
 /// @details
-/// Auto-generated documentation stub for function `BackupTopImage`.
-/// @returns Variable Return value.
-
+/// Backup wave in the top window, the backup is created in the sourcewave datafolder (to be able to
+/// restore).
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function BackupTopImage()
 	/// Backup wave in the top window, the backup is created in the 
 	/// sourcewave datafolder (to be able to restore)
@@ -617,13 +617,14 @@ static Function BackupTopImage()
 End
 
 /// @function RestoreTopImageFromBackup
-/// @brief Description of RestoreTopImageFromBackup.
+/// @brief Restore top image from backup.
 /// @details
-/// Auto-generated documentation stub for function `RestoreTopImageFromBackup`.
-/// @param grfName Parameter grfName.
-/// @param keepBackup] Parameter keepBackup].
-/// @returns Variable Return value.
-
+/// Restore an image from backup. When ParamIsDefault (wavenameStr = "") the image on the top window is used,
+/// otherwise WAVE $wavenameStr. Backup wave's name is *assummed* to be NameOfWave(wRef) +
+/// ksATHBackupWaveExtention.
+/// @param grfName (optional) Name of the graph window.
+/// @param keepBackup (optional) If nonzero, retain the backup after restoration.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function RestoreTopImageFromBackup([string grfName, variable keepBackup])
 	/// Restore an image from backup. When ParamIsDefault (wavenameStr = "")
 	/// the image on the top window is used, otherwise WAVE $wavenameStr.
@@ -664,6 +665,17 @@ static Function RestoreTopImageFromBackup([string grfName, variable keepBackup])
 	return 0
 End
 
+/// @function ExtractLayerRange
+/// @brief Extract a contiguous layer range as a new stack or as individual image waves.
+/// @details
+/// When `doStack` is nonzero, the result is a scaled 3D stack. Otherwise the layers are written into a new data
+/// folder, optionally using names stored in the source wave note.
+/// @param w3d Input 3D image stack.
+/// @param startL (optional) Zero-based first layer to extract.
+/// @param endL (optional) Zero-based last layer to extract, inclusive.
+/// @param doStack (optional) If nonzero, combine the selected layers into one 3D stack.
+/// @param nameNote (optional) If nonzero, name extracted layers from the source wave note when possible.
+/// @returns The full path of the output stack or data folder; an empty string indicates invalid bounds.
 static Function/S ExtractLayerRange(WAVE w3d, [variable startL, variable endL, 
 				variable doStack, variable nameNote])
 	// Extract layers to a new stack
@@ -737,14 +749,13 @@ static Function/S ExtractLayerRange(WAVE w3d, [variable startL, variable endL,
 End
 
 /// @function AverageImageRangeToStackOffset
-/// @brief Description of AverageImageRangeToStackOffset.
+/// @brief Average image range to stack offset.
 /// @details
-/// Auto-generated documentation stub for function `AverageImageRangeToStackOffset`.
-/// @param w3d Parameter w3d.
-/// @param NP0 Parameter NP0.
-/// @param NPL Parameter NPL.
-/// @returns Variable Return value.
-
+/// Average NPL image planes in stack starting from N0.
+/// @param w3d Input 3D wave or image stack.
+/// @param NP0 First point index.
+/// @param NPL Number of points or final point index.
+/// @returns Zero after completing the operation.
 static Function AverageImageRangeToStackOffset(WAVE w3d, variable NP0, variable NPL)
 	/// Average NPL image planes in stack starting from N0	
 	variable  nlayers = DimSize(w3d, 2), i
@@ -762,14 +773,13 @@ static Function AverageImageRangeToStackOffset(WAVE w3d, variable NP0, variable 
 End
 
 /// @function AverageImageRangeToStack
-/// @brief Description of AverageImageRangeToStack.
+/// @brief Average image range to stack.
 /// @details
-/// Auto-generated documentation stub for function `AverageImageRangeToStack`.
-/// @param w3d Parameter w3d.
-/// @param NP0 Parameter NP0.
-/// @param NP1 Parameter NP1.
-/// @returns Variable Return value.
-
+/// Average image range NP0-NP1, including endpoints.
+/// @param w3d Input 3D wave or image stack.
+/// @param NP0 First point index.
+/// @param NP1 Second point index.
+/// @returns Zero after completing the operation.
 static Function AverageImageRangeToStack(WAVE w3d, variable NP0, variable NP1)
 	/// Average image range NP0-NP1, including endpoints
 	variable  nlayers = DimSize(w3d, 2), i
@@ -790,14 +800,13 @@ static Function AverageImageRangeToStack(WAVE w3d, variable NP0, variable NP1)
 End
 
 /// @function HistogramShiftToGaussianCenter
-/// @brief Description of HistogramShiftToGaussianCenter.
+/// @brief Histogram shift to gaussian center.
 /// @details
-/// Auto-generated documentation stub for function `HistogramShiftToGaussianCenter`.
-/// @param w2d Parameter w2d.
-/// @param overwrite] Parameter overwrite].
-/// @returns Variable Return value.
-
-
+/// Move the histogram center to the center of the fitted gaussian. Useful for symmetrising XMCD/XMLD images.
+/// Add the value to w2d.
+/// @param w2d Input 2D image.
+/// @param overwrite (optional) If nonzero, replace the source or an existing destination.
+/// @returns Zero after completing the operation.
 static Function HistogramShiftToGaussianCenter(WAVE w2d, [variable overwrite])
 	/// Move the histogram center to the center of the fitted gaussian
 	/// Useful for symmetrising XMCD/XMLD images
@@ -832,13 +841,13 @@ static Function HistogramShiftToGaussianCenter(WAVE w2d, [variable overwrite])
 End
 
 /// @function HistogramShiftToGaussianCenterStack
-/// @brief Description of HistogramShiftToGaussianCenterStack.
+/// @brief Histogram shift to gaussian center stack.
 /// @details
-/// Auto-generated documentation stub for function `HistogramShiftToGaussianCenterStack`.
-/// @param w3d Parameter w3d.
-/// @param overwrite] Parameter overwrite].
-/// @returns Variable Return value.
-
+/// Move the histogram center to the center of the fitted gaussian. Useful for symmetrising XMCD/XMLD images.
+/// The function returns the applies shift.
+/// @param w3d Input 3D wave or image stack.
+/// @param overwrite (optional) If nonzero, replace the source or an existing destination.
+/// @returns The Gaussian-center shift applied to the final processed layer.
 static Function HistogramShiftToGaussianCenterStack(WAVE w3d, [variable overwrite])
 	/// Move the histogram center to the center of the fitted gaussian
 	/// Useful for symmetrising XMCD/XMLD images
@@ -881,12 +890,9 @@ static Function HistogramShiftToGaussianCenterStack(WAVE w3d, [variable overwrit
 End
 
 /// @function GrayToRGBImage
-/// @brief Description of GrayToRGBImage.
-/// @details
-/// Auto-generated documentation stub for function `GrayToRGBImage`.
-/// @param wRef Parameter wRef.
-/// @returns Variable Return value.
-
+/// @brief Convert a grayscale image into an RGB image using the Grays color table.
+/// @param wRef Input wave.
+/// @returns Zero after completing the operation.
 static Function GrayToRGBImage(WAVE wRef)
 	ColorTab2Wave Grays
 	WAVE M_Colors
@@ -901,12 +907,11 @@ static Function GrayToRGBImage(WAVE wRef)
 End
 
 /// @function RGB2Gray8Image
-/// @brief Description of RGB2Gray8Image.
+/// @brief Convert an RGB image to 8-bit grayscale.
 /// @details
-/// Auto-generated documentation stub for function `RGB2Gray8Image`.
-/// @param wRef Parameter wRef.
-/// @returns Variable Return value.
-
+/// Convert a 3D RGB image to grayscale (8-bit).
+/// @param wRef Input wave.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function RGB2Gray8Image(WAVE wRef)
 	// Convert a 3D RGB image to grayscale (8-bit)
 	if(WaveDims(wRef) != 3)
@@ -920,12 +925,12 @@ static Function RGB2Gray8Image(WAVE wRef)
 End
 
 /// @function RGB2Gray16Image
-/// @brief Description of RGB2Gray16Image.
+/// @brief Convert an RGB image to 16-bit grayscale.
 /// @details
-/// Auto-generated documentation stub for function `RGB2Gray16Image`.
-/// @param wRef Parameter wRef.
-/// @returns Variable Return value.
-
+/// Convert a 3D RGB image to grayscale (16-bit) /W/U. The RGB values are converted into the luminance Y of
+/// the YIQ standard using.
+/// @param wRef Wave to modify in place.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function RGB2Gray16Image(WAVE wRef)
 	// Convert a 3D RGB image to grayscale (16-bit) /W/U
 	//The RGB values are converted into the luminance Y of the YIQ standard using:
@@ -950,16 +955,14 @@ static Function RGB2Gray16Image(WAVE wRef)
 End
 
 /// @function FlattenImage
-/// @brief Description of FlattenImage.
-/// @details
-/// Auto-generated documentation stub for function `FlattenImage`.
-/// @param wRef Parameter wRef.
-/// @param method Parameter method.
-/// @param kernelN Parameter kernelN.
-/// @param iterN Parameter iterN.
-/// @param overwrite] Parameter overwrite].
-/// @returns Variable Return value.
-
+/// @brief Flatten image.
+/// @param wRef Wave to modify in place.
+/// @param method Algorithm or processing method to apply.
+/// @param kind Filter or morphology operation to apply.
+/// @param kernelN Kernel width in points.
+/// @param iterN Number of processing iterations.
+/// @param overwrite (optional) If nonzero, replace the source or an existing destination.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function FlattenImage(WAVE wRef, string method, string kind, variable kernelN, variable iterN, [int overwrite])
 	// Flatten image
 	overwrite = ParamIsDefault(overwrite) ? 0 : overwrite
@@ -1001,16 +1004,15 @@ static Function FlattenImage(WAVE wRef, string method, string kind, variable ker
 End
 
 /// @function ImgRemoveBackground
-/// @brief Description of ImgRemoveBackground.
+/// @brief Image remove background.
 /// @details
-/// Auto-generated documentation stub for function `ImgRemoveBackground`.
-/// @param wRef Parameter wRef.
-/// @param order Parameter order.
-/// @param useMask Parameter useMask.
-/// @param w3d Parameter w3d.
-/// @param layerN] Parameter layerN].
-/// @returns Variable Return value.
-
+/// Remove background of an image (default 1st order). Use order = n, n > 1 for higher order polynomial. Use
+/// overwite = 1 to overwite the original wave.
+/// @param wRef Wave to modify in place.
+/// @param order (optional) Interpolation or polynomial order.
+/// @param useMask (optional) If nonzero, restrict the calculation to the supplied mask.
+/// @param layerN (optional) Zero-based image-stack layer index.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, variable layerN])
 	// Remove background of an image (default 1st order)
 	// Use order = n, n > 1 for higher order polynomial
@@ -1084,13 +1086,13 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, var
 End
 
 /// @function ImgRemoveBackgroundCols
-/// @brief Description of ImgRemoveBackgroundCols.
+/// @brief Remove a fitted background independently from each image column.
 /// @details
-/// Auto-generated documentation stub for function `ImgRemoveBackgroundCols`.
-/// @param wRef Parameter wRef.
-/// @param orderN Parameter orderN.
-/// @returns Variable Return value.
-
+/// Image Remove 1-d background from each column. Make/O/N=(DimSize(wRef,1), orderN) fitCoeff fitCoeff[i][] =
+/// W_coef[q].
+/// @param wRef Wave to modify in place.
+/// @param orderN Interpolation or polynomial order.
+/// @returns Zero after completing the operation.
 static Function ImgRemoveBackgroundCols(WAVE wRef, variable orderN) //TODO! Fix it!
 	// Image Remove 1-d background from each column
 	//Make/O/N=(DimSize(wRef,1), orderN) fitCoeff
@@ -1121,16 +1123,14 @@ static Function ImgRemoveBackgroundCols(WAVE wRef, variable orderN) //TODO! Fix 
 End
 
 /// @function PixelateImage
-/// @brief Description of PixelateImage.
+/// @brief Pixelate image.
 /// @details
-/// Auto-generated documentation stub for function `PixelateImage`.
-/// @param wRef Parameter wRef.
-/// @param nx Parameter nx.
-/// @param ny Parameter ny.
-/// @param i16] Parameter i16].
-/// @returns Variable Return value.
-
-
+/// Pixalate a 2D image using a (nx, ny) binning. Set i16 to preserve a 16-bit integer wave.
+/// @param wRef Wave to modify in place.
+/// @param nx Number of points along the x dimension.
+/// @param ny Number of points along the y dimension.
+/// @param i16 (optional) If nonzero, produce a 16-bit integer image.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function PixelateImage(WAVE wRef, variable nx, variable ny, [variable i16])
 	/// Pixalate a 2D image using a (nx, ny) binning
 	/// Set i16 to preserve a 16-bit integer wave.
@@ -1155,16 +1155,15 @@ static Function PixelateImage(WAVE wRef, variable nx, variable ny, [variable i16
 End
 
 /// @function PixelateImageStack
-/// @brief Description of PixelateImageStack.
+/// @brief Pixelate image stack.
 /// @details
-/// Auto-generated documentation stub for function `PixelateImageStack`.
-/// @param wRef Parameter wRef.
-/// @param nx Parameter nx.
-/// @param ny Parameter ny.
-/// @param nz Parameter nz.
-/// @param i16] Parameter i16].
-/// @returns Variable Return value.
-
+/// Pixalate a 3D image stack using a (nx, ny, nz) binning. Set i16 to preserve a 16-bit integer wave.
+/// @param wRef Wave to modify in place.
+/// @param nx Number of points along the x dimension.
+/// @param ny Number of points along the y dimension.
+/// @param nz Number of points or layers along the z dimension.
+/// @param i16 (optional) If nonzero, produce a 16-bit integer image.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function PixelateImageStack(WAVE wRef, variable nx, variable ny, variable nz, [variable i16])
 	/// Pixalate a 3D image stack using a (nx, ny, nz) binning
 	/// Set i16 to preserve a 16-bit integer wave.
@@ -1201,17 +1200,16 @@ static Function PixelateImageStack(WAVE wRef, variable nx, variable ny, variable
 	return 0
 End
 
-/// @function MatrixFilter3D
-/// @brief Description of MatrixFilter3D.
+/// @function ImageFilter3D
+/// @brief Apply an Igor matrix filter independently to every layer of a 3D image stack.
 /// @details
-/// Auto-generated documentation stub for function `MatrixFilter3D`.
-/// @param wRef Parameter wRef.
-/// @param method Parameter method.
-/// @param size Parameter size.
-/// @param passes Parameter passes.
-/// @param overwite] Parameter overwite].
-/// @returns Variable Return value.
-
+/// Reassembles the filtered planes with the original scaling and wave note. By default the source is overwritten; otherwise a new wave with a `_filter` suffix is created.
+/// @param wRef Input 3D image stack.
+/// @param method Matrix-filter method: `gauss`, `avg`, `median`, `max`, or `min`.
+/// @param size Filter-kernel size in points.
+/// @param passes Number of filter passes.
+/// @param overwrite (optional) If nonzero, replace `wRef`; defaults to one.
+/// @returns Zero on success; -1 for an unsupported method or a non-3D input wave.
 static Function ImageFilter3D(WAVE wRef, string method, variable size, variable passes, [int overwrite])
 	/// Applies the MatrixFilter/N=size/P=passes method wRef
 	/// to each layer of wRef
@@ -1250,16 +1248,16 @@ static Function ImageFilter3D(WAVE wRef, string method, variable size, variable 
 End
 
 /// @function FlattenImage3D
-/// @brief Description of FlattenImage3D.
+/// @brief Flatten image 3D.
 /// @details
-/// Auto-generated documentation stub for function `FlattenImage3D`.
-/// @param wRef Parameter wRef.
-/// @param method Parameter method.
-/// @param size Parameter size.
-/// @param passes Parameter passes.
-/// @param overwrite] Parameter overwrite].
-/// @returns Variable Return value.
-
+/// Applies the MatrixFilter/N=size/P=passes method wRef to each layer of wRef. Restore scale here.
+/// @param wRef Input wave.
+/// @param method Algorithm or processing method to apply.
+/// @param kind Filter or morphology operation to apply.
+/// @param size Size.
+/// @param passes Number of filter passes to apply.
+/// @param overwrite (optional) If nonzero, replace the source or an existing destination.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function FlattenImage3D(WAVE wRef, string method, string kind, variable size, variable passes, [int overwrite])
 	/// Applies the MatrixFilter/N=size/P=passes method wRef
 	/// to each layer of wRef
@@ -1305,13 +1303,12 @@ static Function FlattenImage3D(WAVE wRef, string method, string kind, variable s
 End
 
 /// @function ImageWindow3D
-/// @brief Description of ImageWindow3D.
+/// @brief Image window 3D.
 /// @details
-/// Auto-generated documentation stub for function `ImageWindow3D`.
-/// @param wRef Parameter wRef.
-/// @param method Parameter method.
-/// @returns Variable Return value.
-
+/// Restore scale here.
+/// @param wRef Input wave.
+/// @param method Algorithm or processing method to apply.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function ImageWindow3D(WAVE wRef, string method)
 	string allmethods = "Hanning;Hamming;Bartlett;Blackman"
 	variable ifunc = WhichListItem(method, allmethods)
@@ -1336,6 +1333,19 @@ static Function ImageWindow3D(WAVE wRef, string method)
 	return 0
 End
 
+/// @function ImageResampling
+/// @brief Resample and translate an image with a selected interpolation method.
+/// @details
+/// Supported interpolation functions are `bilinear`, `nn`, `cubic`, `spline`, and `sinc`. Offsets and scale
+/// factors are passed to Igor's `ImageInterpolate` operation.
+/// @param wRef Input wave.
+/// @param func Interpolation function: `bilinear`, `nn`, `cubic`, `spline`, or `sinc`.
+/// @param xOffset Horizontal translation in source pixels.
+/// @param yOffset Vertical translation in source pixels.
+/// @param overwrite (optional) If nonzero, replace the source or existing destination.
+/// @param xscale (optional) Horizontal resampling factor.
+/// @param yscale (optional) Vertical resampling factor.
+/// @returns The full path of the resampled image, or an empty string for invalid input.
 static Function/S ImageResampling(WAVE wRef,  string func, variable xOffset, variable yOffset,
 							 [int overwrite, variable xscale, variable yscale])
 	// Calculate image interpolation using scaleShift and one of the following intepolating functions.
@@ -1391,14 +1401,11 @@ static Function/S ImageResampling(WAVE wRef,  string func, variable xOffset, var
 End
 
 /// @function ScaleImagePreserveDims
-/// @brief Description of ScaleImagePreserveDims.
-/// @details
-/// Auto-generated documentation stub for function `ScaleImagePreserveDims`.
-/// @param wRef Parameter wRef.
-/// @param factor Parameter factor.
-/// @param factorY] Parameter factorY].
-/// @returns Variable Return value.
-
+/// @brief Scale image preserve dims.
+/// @param wRef Input wave.
+/// @param factor Factor.
+/// @param factorY (optional) Factor y.
+/// @returns Zero after completing the operation.
 static Function ScaleImagePreserveDims(WAVE wRef, variable factor, [variable factorY])
 	
 	variable nrows = DimSize(wRef, 0), ncols = DimSize(wRef, 1)
@@ -1421,14 +1428,13 @@ static Function ScaleImagePreserveDims(WAVE wRef, variable factor, [variable fac
 End
 
 /// @function ScaleFoVWithFactor
-/// @brief Description of ScaleFoVWithFactor.
+/// @brief Scale an image's field of view by a multiplicative factor.
 /// @details
-/// Auto-generated documentation stub for function `ScaleFoVWithObjectiveCurrent`.
-/// @param wRef Parameter wRef.
-/// @param factor Parameter factor.
-/// @param interval] Parameter interval].
-/// @returns Variable Return value.
-
+/// Scale image with factor.
+/// @param wRef Wave to modify in place.
+/// @param factor Factor.
+/// @param interval (optional) Sampling interval for the generated or rescaled data.
+/// @returns Zero after completing the operation.
 static Function ScaleFoVWithFactor(WAVE wRef, variable factor,[int interval])
 	// Scale image with factor 
 	variable x0 = DimOffset(wRef, 0), y0 = DimOffset(wRef, 1)
@@ -1446,13 +1452,13 @@ static Function ScaleFoVWithFactor(WAVE wRef, variable factor,[int interval])
 End
 
 
-/// @function ComputeZScore
-/// @brief Description of ComputeZScore.
+/// @function ComputeImageZScore
+/// @brief Create a z-score-normalized copy of an image wave.
 /// @details
-/// Auto-generated documentation stub for function `ComputeZScore`.
-/// @param wRef Parameter wRef..
-/// @returns Variable Return value.
-
+/// Uses statistics from the graph ROI when one exists, or from the complete wave otherwise, and saves the result beside the source with a `_zscr` suffix.
+/// @param wRef Input image wave.
+/// @param grfName (optional) Graph containing the ROI; defaults to the active graph.
+/// @returns Zero after completing the operation.
 static Function ComputeImageZScore(Wave wRef, [string grfName])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	SetDrawLayer/W=$grfName ProgFront
@@ -1515,46 +1521,18 @@ End
 //End
 
 /// We will make the function MT as it can be slow
-/// @function ExecuteCommand3D
-/// @brief Description of ExecuteCommand3D.
+/// @function MultiThreadLoess3D
+/// @brief Apply LOESS smoothing to every image-stack layer using Igor's worker threads.
 /// @details
-/// Auto-generated documentation stub for function `ExecuteCommand3D`.
-/// @param wRef Parameter wRef.
-/// @param cmdStr String cmdStr.
-/// @param overwite] Parameter overwite].
-/// @returns Variable Return value.
-
-//static Function Loess3D(WAVE wRef, variable radius,variable order, variable passes
-//				 variable extrapolate, variable robust, [int overwrite])
-//	/// Applies the MatrixFilter/N=size/P=passes method wRef
-//	/// to each layer of wRef
-//	overwrite = ParamIsDefault(overwrite) ? 1 : overwrite // default overwite (used in drift correction)
-//	variable nlayers = DimSize(wRef, 2), i
-//	SetDataFolder NewFreeDataFolder()
-//	string waveNameStr, cmdExe
-//	for(i = 0; i < nlayers; i++)
-//		waveNameStr = "getStacklayer_" + num2str(i)
-//		MatrixOP $waveNameStr = layer(wRef, i)
-//		sprintf cmdExe, cmdStr, GetWavesDataFolder($waveNameStr,2)
-//		Execute/P/Q cmdExe
-//	endfor
-//	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
-//	WAVE M_Stack
-//	DFREF saveDF = GetWavesDataFolderDFR(wRef)
-//	// Restore scale here
-//	CopyScales wRef, M_Stack
-//	Note M_stack, note(wRef)
-//	if(overwrite)
-//		Duplicate/O M_Stack, saveDF:$NameofWave(wRef)
-//	else
-//		string newWaveNameStr = CreateDataObjectName(saveDF, NameofWave(wRef) + "_loess", 1, 0, 1)
-//		Duplicate/O M_Stack, saveDF:$newWaveNameStr
-//	endif
-//	SetDataFolder currDF
-//	return 0
-//End
-
-// Added for ATH_Launch#ImageRegistrationStack()
+/// Collects the free waves returned by `Loess3D_Worker`, concatenates them into a 3D result, and preserves the source note.
+/// @param wRef Input 3D image stack.
+/// @param npts LOESS neighborhood size.
+/// @param order Polynomial order used by LOESS.
+/// @param passes Number of robust-fitting passes.
+/// @param extrapolate Extrapolation mode passed to Igor's `Loess` operation.
+/// @param robust Robust-fitting mode passed to Igor's `Loess` operation.
+/// @param overwrite (optional) If nonzero, replace the input stack; otherwise create a wave with a `_loess` suffix.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S MultiThreadLoess3D(WAVE wRef, variable npts,variable order, variable passes,
 				 variable extrapolate, variable robust, [variable overwrite])
 
@@ -1590,6 +1568,16 @@ static Function/S MultiThreadLoess3D(WAVE wRef, variable npts,variable order, va
 	return returnWave
 End
 
+/// @function Loess3D_Worker
+/// @brief Apply LOESS smoothing to one image-stack layer.
+/// @param wRef Input wave.
+/// @param npts Number of output points or LOESS neighborhood size, as applicable.
+/// @param order Polynomial order used by LOESS.
+/// @param passes Number of robust-fitting passes.
+/// @param extrapolate Extrapolation mode passed to Igor's `Loess` operation.
+/// @param robust Robust-fitting mode passed to Igor's `Loess` operation.
+/// @param plane Zero-based image-stack plane index.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 ThreadSafe static Function/WAVE Loess3D_Worker(WAVE wRef, variable npts,variable order, variable passes,
 				 variable extrapolate, variable robust, variable plane)
 	

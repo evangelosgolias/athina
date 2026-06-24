@@ -57,6 +57,17 @@ static strConstant SIDAM_CTAB = "CartoColors;CET;cmocean;ColorBrewer;Matplotlib;
 //		* !0: Any error in input parameters
 //@
 
+/// @function applycmap
+/// @brief Apply a color map to one or more target images.
+/// @param grfName (optional) Name of the graph window.
+/// @param imgList (optional) Semicolon-separated image names to modify.
+/// @param ctable (optional) Igor color-table name.
+/// @param rev (optional) If nonzero, reverse the color table or order.
+/// @param log (optional) If nonzero, use logarithmic color mapping.
+/// @param minRGB (optional) RGB values for the lower color-range endpoint.
+/// @param maxRGB (optional) RGB values for the upper color-range endpoint.
+/// @param history (optional) If nonzero, print the generated command to Igor history.
+/// @returns Zero on success; a nonzero value if the target graph or parameters are invalid.
 static Function applycmap([String grfName, String imgList, String ctable, int rev,
 	int log, Wave minRGB, Wave maxRGB, int history])
 
@@ -121,6 +132,10 @@ Static Structure paramSubStruct
 	STRUCT RGBColor clr
 EndStructure
 
+/// @function defaultValues
+/// @brief Populate missing color-panel options with their defaults.
+/// @param s Color-table parameter structure populated with default values.
+/// @returns Zero after completing the operation.
 Static Function defaultValues(STRUCT paramStruct &s)
 	String imgName = StringFromList(0, s.imgList)
 	s.ctable = WM_ColorTableForImage(s.grfName, imgName)
@@ -164,6 +179,10 @@ Static Function defaultValues(STRUCT paramStruct &s)
 	endswitch
 End
 
+/// @function validateInputs
+/// @brief Validate color-table parameters and target images.
+/// @param s Color-table parameter structure to validate and normalize.
+/// @returns Igor status code; zero indicates success and nonzero values report failure or cancellation.
 Static Function validateInputs(STRUCT paramStruct &s)
 
 	if (!strlen(s.grfName))
@@ -225,6 +244,11 @@ Static Function validateInputs(STRUCT paramStruct &s)
 	return 0
 End
 
+/// @function printHistory
+/// @brief Print a reproducible color-table command to Igor history.
+/// @param s Color-table parameters used to construct the command.
+/// @param base Reference parameter structure used to identify changed settings.
+/// @returns Zero after completing the operation.
 Static Function printHistory(STRUCT paramStruct &s, STRUCT paramStruct &base)
 	String str0 = "", str1 = ""
 	if (CmpStr(s.ctable,base.ctable))
@@ -253,6 +277,11 @@ Static Function printHistory(STRUCT paramStruct &s, STRUCT paramStruct &base)
 End
 
 //	Apply color table to an image in the list
+/// @function applyColorTable
+/// @brief Apply the configured color table to one target image.
+/// @param s Color-table parameters to apply.
+/// @param i Zero-based target-image index.
+/// @returns Igor status code; zero indicates success and nonzero values report failure or cancellation.
 Static Function applyColorTable(STRUCT paramStruct &s, int i)
 
 	String imgName = StringFromList(i, s.imgList)
@@ -343,6 +372,10 @@ Structure SIDAMPrefs
 	double		last
 EndStructure
 
+/// @function pnl
+/// @brief Create and initialize the module's control panel.
+/// @param grfName Name of the graph window.
+/// @returns Zero after completing the operation.
 Static Function pnl(String grfName)
 	String targetWin = StringFromList(0,grfName,"#")
 	if (ATH_Range#SIDAMWindowExists(targetWin+"#Color"))
@@ -487,6 +520,11 @@ End
 //-----------------------------------------------------------------------
 //	Show an overlay when waves are being loaded
 //-----------------------------------------------------------------------
+/// @function showLoading
+/// @brief Show or hide the color-panel loading indicator.
+/// @param pnlName Name of the panel window.
+/// @param isOpen Nonzero while the loading indicator should be visible.
+/// @returns Zero after completing the operation.
 Static Function showLoading(String pnlName, int isOpen)
 	String name = "loading"
 	Variable top = topMargin
@@ -514,6 +552,10 @@ End
 //-----------------------------------------------------------------------
 //	Delete the overlay when waves are being loaded
 //-----------------------------------------------------------------------
+/// @function deleteLoading
+/// @brief Remove the color-panel loading indicator.
+/// @param pnlName Name of the panel window.
+/// @returns Zero after completing the operation.
 Static Function deleteLoading(String pnlName)
 	String name = "loading"
 	DrawAction/L=Overlay/W=$pnlName getgroup=$name, delete
@@ -522,6 +564,15 @@ End
 //-----------------------------------------------------------------------
 //	Create components in each group
 //-----------------------------------------------------------------------
+/// @function pnlGroupComponents
+/// @brief Update visibility and state for one group of color-panel controls.
+/// @param pnlName Name of the panel window.
+/// @param group Panel-control group number.
+/// @param hide (optional) If nonzero, hide the selected control group.
+/// @param rev (optional) If nonzero, reverse the color table or order.
+/// @param log (optional) If nonzero, use logarithmic color mapping.
+/// @param selected (optional) Name of the control that should remain selected.
+/// @returns Zero after completing the operation.
 Static Function pnlGroupComponents(String pnlName, int group, [int hide, int rev, int log, String selected])
 	hide = ParamIsDefault(hide) ? 0 : hide
 	rev = ParamIsDefault(rev) ? 0 : rev
@@ -590,6 +641,10 @@ End
 //	Return a string containing a list of absolulte paths of all waves
 //	under dfr including subdatafolder
 //-----------------------------------------------------------------------
+/// @function fetchWavepathList
+/// @brief Return image-wave paths found below a data folder.
+/// @param dfr Data-folder reference.
+/// @returns A semicolon-separated list of image-wave paths found below the data folder.
 Static Function/S fetchWavepathList(DFREF dfr)
 	if (!DataFolderRefStatus(dfr))
 		return ""
@@ -615,6 +670,11 @@ End
 //-----------------------------------------------------------------------
 //	Return group number where the present color scale is included
 //-----------------------------------------------------------------------
+/// @function findGroup
+/// @brief Return the color-panel group containing a graph image.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @returns The panel group number containing the image, or a negative value if it is not found.
 Static Function findGroup(String grfName, String imgName)
 	String ctab = ATH_Range#SIDAM_ColorTableForImage(grfName,imgName)
 	if (strsearch(ctab,":",0) == -1)	//	Igor
@@ -628,6 +688,11 @@ End
 //	Return name of checkbox corresponding to the color scale
 //	used for imgName in pnlName
 //-----------------------------------------------------------------------
+/// @function findCheckBox
+/// @brief Return the checkbox associated with an image.
+/// @param pnlName Name of the panel window.
+/// @param imgName Name of the image trace.
+/// @returns The control name of the checkbox associated with the image, or an empty string if absent.
 Static Function/S findCheckBox(String pnlName, String imgName)
 	String grfName = GetUserData(pnlName,"","grf")
 	String ctabName = ATH_Range#SIDAM_ColorTableForImage(grfName,imgName)
@@ -643,6 +708,10 @@ Static Function/S findCheckBox(String pnlName, String imgName)
 	endif
 End
 
+/// @function checkBoxNameList
+/// @brief Return the image-selection checkboxes in a color panel.
+/// @param pnlName Name of the panel window.
+/// @returns A semicolon-separated list of image-selection checkbox names.
 Static Function/S checkBoxNameList(String pnlName)
 	String childPnlList = ChildWindowList(pnlName), childPnlName
 	String list = ""
@@ -669,6 +738,10 @@ Static Structure paramSubStructLite
 	STRUCT RGBColor clr
 EndStructure
 
+/// @function saveInitialColor
+/// @brief Save the initial color settings for every image controlled by a panel.
+/// @param pnlName Name of the panel window.
+/// @returns Zero after completing the operation.
 Static Function saveInitialColor(String pnlName)
 	String grfName = GetUserData(pnlName,"","grf")
 	String imgList = ImageNameList(grfName,";")
@@ -708,6 +781,10 @@ End
 //-------------------------------------------------------------
 //	Hook function for the panel
 //-------------------------------------------------------------
+/// @function pnlHook
+/// @brief Handle panel hook events.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Static Function pnlHook(STRUCT WMWinHookStruct &s)
 	switch (s.eventCode)
 		case 2:	//	kill
@@ -737,6 +814,10 @@ Static Function pnlHook(STRUCT WMWinHookStruct &s)
 	endswitch
 End
 
+/// @function pnlHookClose
+/// @brief Clean up color-panel state when the panel closes.
+/// @param pnlName Name of the panel window.
+/// @returns Zero after completing the operation.
 Static Function pnlHookClose(String pnlName)
 	SetWindow $StringFromList(0,pnlName,"#") hook(ATH_ColorPnl)=$""
 	if (!strlen(GetUserData(pnlName,"","norevert")))
@@ -744,6 +825,11 @@ Static Function pnlHookClose(String pnlName)
 	endif
 End
 
+/// @function pnlHookArrows
+/// @brief Move the color-panel selection in response to arrow keys.
+/// @param pnlName Name of the panel window.
+/// @param keycode Igor key code for the keyboard event.
+/// @returns Zero after completing the operation.
 Static Function pnlHookArrows(String pnlName, int keycode)
 	int presentGroup, presentBox
 	ControlInfo/W=$pnlName imageP
@@ -813,14 +899,28 @@ Static Function pnlHookArrows(String pnlName, int keycode)
 	selectGroup(pnlName, nextGroup)
 End
 
+/// @function numOfCheckBoxes
+/// @brief Count image-selection checkboxes in a panel group.
+/// @param pnlName Name of the panel window.
+/// @param group Panel-control group number.
+/// @returns The number of image-selection checkboxes in the group.
 Static Function numOfCheckBoxes(String pnlName, int group)
 	return ItemsInList(ControlNameList(pnlName+"#P_"+num2istr(group),";","cb_*"))
 End
 
+/// @function isDoubleColumns
+/// @brief Test whether a checkbox group is arranged in two columns.
+/// @param pnlName Name of the panel window.
+/// @param group Panel-control group number.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 Static Function isDoubleColumns(String pnlName, int group)
 	return numOfCheckBoxes(pnlName,group) > ctabsInColumn
 End
 
+/// @function pnlHookWheel
+/// @brief Handle mouse-wheel changes in the color panel.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 Static Function pnlHookWheel(STRUCT WMWinHookStruct &s)
 	String pnlName = s.winName
 	if (ItemsInList(pnlName,"#") > 2)		//	when the mouse cursor in a subwindow
@@ -838,6 +938,10 @@ End
 //	Hook function for the parent window.
 //	Reflect changes made outside of the panel to the panel.
 //-------------------------------------------------------------
+/// @function pnlHookParent
+/// @brief Handle changes in the color panel's parent graph.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 Static Function pnlHookParent(STRUCT WMWinHookStruct &s)
 	if (s.eventCode != 8)	//	modified only
 		return 0
@@ -858,6 +962,10 @@ End
 //	Controls
 //******************************************************************************
 //	ListBox
+/// @function pnlList
+/// @brief Handle color-panel list-box events.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Static Function pnlList(STRUCT WMListboxAction &s)
 	if (s.eventCode != 4)	//	Cell selection only (mouse or arrow keys)
 		return 0
@@ -870,6 +978,10 @@ Static Function pnlList(STRUCT WMListboxAction &s)
 End
 
 //	Checkbox
+/// @function pnlCheck
+/// @brief Handle the panel checkbox action.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Static Function pnlCheck(STRUCT  WMCheckboxAction &s)
 	if (s.eventCode != 2)
 		return 0
@@ -899,6 +1011,10 @@ Static Function pnlCheck(STRUCT  WMCheckboxAction &s)
 End
 
 //	Checkbox (radio buttons)
+/// @function pnlCheckRadio
+/// @brief Handle color-panel radio-button changes.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 Static Function pnlCheckRadio(STRUCT WMCheckboxAction &s)
 	if (s.eventCode != 2)
 		return 0
@@ -936,6 +1052,10 @@ Static Function pnlCheckRadio(STRUCT WMCheckboxAction &s)
 End
 
 //	Checkbox (color table buttons)
+/// @function pnlCheckCtab
+/// @brief Handle color-table checkbox changes.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 Static Function pnlCheckCtab(STRUCT WMCheckboxAction &s)
 	if (s.eventCode != 2)
 		return 0
@@ -953,6 +1073,10 @@ Static Function pnlCheckCtab(STRUCT WMCheckboxAction &s)
 End
 
 //	Popup
+/// @function pnlPopup
+/// @brief Handle the panel pop-up action.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Static Function pnlPopup(STRUCT WMPopupAction &s)
 
 	if (s.eventCode != 2)
@@ -986,6 +1110,10 @@ Static Function pnlPopup(STRUCT WMPopupAction &s)
 End
 
 //	Button
+/// @function pnlButton
+/// @brief Handle the panel button action.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Static Function pnlButton(STRUCT WMButtonAction &s)
 	if (s.eventCode != 2)
 		return 0
@@ -1034,6 +1162,10 @@ End
 //	Return a list of images to be modified, depending on
 //	the status of allC
 //-------------------------------------------------------------
+/// @function targetImageList
+/// @brief Return the graph images currently targeted by the color panel.
+/// @param pnlName Name of the panel window.
+/// @returns A semicolon-separated list of target image names.
 Static Function/S targetImageList(String pnlName)
 	String grfName = GetUserData(pnlName,"","grf")
 	ControlInfo/W=$pnlName allC
@@ -1049,6 +1181,11 @@ End
 //	Show color tables and checkboxes of the selected group,
 //	and hide the others
 //-------------------------------------------------------------
+/// @function selectGroup
+/// @brief Select one image group in the color panel.
+/// @param pnlName Name of the panel window.
+/// @param group Panel-control group number.
+/// @returns Zero after completing the operation.
 Static Function selectGroup(String pnlName, int group)
 	ListBox ctabgroupL selRow=group, win=$pnlName
 	ControlInfo/W=$pnlName ctabgroupL
@@ -1072,6 +1209,10 @@ End
 //-------------------------------------------------------------
 //	Update color scales of all images
 //-------------------------------------------------------------
+/// @function updateAllImaeges
+/// @brief Apply a color-setting change to every selected image.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 Static Function updateAllImaeges(STRUCT  WMCheckboxAction &s)
 	String grfName = GetUserData(s.win,"","grf")
 	String imgList = ImageNameList(grfName,";")
@@ -1088,6 +1229,11 @@ End
 //	Update the control about rev, log, minRGB, and maxRGB in the panel
 //	so that they reflect the status of the image.
 //--------------------------------------------------------------------
+/// @function updateOptionCheckboxes
+/// @brief Update reverse and logarithmic option checkboxes from an image.
+/// @param pnlName Name of the panel window.
+/// @param imgName Name of the image trace.
+/// @returns Zero after completing the operation.
 Static Function updateOptionCheckboxes(String pnlName, String imgName)
 	String grfName = GetUserData(pnlName,"","grf")
 	CheckBox op_revC value=WM_ColorTableReversed(grfName,imgName),win=$pnlName
@@ -1117,6 +1263,10 @@ End
 //	Update the color scales shown in the panel so that they
 //	reflect the status of op_revC and op_logC.
 //-------------------------------------------------------------
+/// @function updateColorscalesInPnl
+/// @brief Refresh all color-scale controls in a panel.
+/// @param pnlName Name of the panel window.
+/// @returns Zero after completing the operation.
 Static Function updateColorscalesInPnl(String pnlName)
 	Wave cw = ATH_Range#SIDAMGetCtrlValues(pnlName,"op_revC;op_logC")
 	String subPnlList = ChildWindowList(pnlName)	//	P_0, P_1, ...
@@ -1126,6 +1276,12 @@ Static Function updateColorscalesInPnl(String pnlName)
 	endfor
 End
 
+/// @function updateColorscalesInSubpnl
+/// @brief Refresh the color scales inside one image subpanel.
+/// @param subPnlNameFull Full name of the image subpanel.
+/// @param rev If nonzero, reverse the color table or order.
+/// @param log If nonzero, use logarithmic color mapping.
+/// @returns Zero after completing the operation.
 Static Function updateColorscalesInSubpnl(String subPnlNameFull, int rev, int log)
 	//	e.g., subPnlNameFull = Graph0#Color#P_0
 	String columnList = ChildWindowList(subPnlNameFull)	//	G0, G1
@@ -1148,6 +1304,11 @@ End
 //---------------------------------------------------------------------
 //	Check a checkbox and uncheck the other checkboxes in the same group
 //---------------------------------------------------------------------
+/// @function selectCheckBox
+/// @brief Select one image checkbox and clear incompatible selections.
+/// @param pnlName Name of the panel window.
+/// @param ctrlName Name of the Igor control.
+/// @returns Zero after completing the operation.
 Static Function selectCheckBox(String pnlName, String ctrlName)
 	if (!strlen(ctrlName))
 		return 0
@@ -1173,6 +1334,11 @@ Static Function selectCheckBox(String pnlName, String ctrlName)
 	CheckBox $ctrlName value=1, win=$pnlName
 End
 
+/// @function selectCtabCheckBox
+/// @brief Select one color-table checkbox.
+/// @param pnlName Name of the panel window.
+/// @param ctrlName Name of the Igor control.
+/// @returns Zero after completing the operation.
 Static Function selectCtabCheckBox(String pnlName, String ctrlName)
 	String clrPnlName, ctabPnlName
 	if (ItemsInList(pnlName,"#") == 3)
@@ -1202,6 +1368,10 @@ End
 //-------------------------------------------------------------
 //	Return path to selected color table wave
 //-------------------------------------------------------------
+/// @function findSelectedColortable
+/// @brief Return the color table selected in the panel.
+/// @param pnlName Name of the panel window.
+/// @returns The selected Igor color-table name, or an empty string if none is selected.
 Static Function/S findSelectedColortable(String pnlName)
 	String cbList = ControlNameList(pnlName,";","cb_*")
 	Wave/Z cw = ATH_Range#SIDAMGetCtrlValues(pnlName, cbList)
@@ -1228,6 +1398,10 @@ End
 //-------------------------------------------------------------
 //	Revert changes and restore colors when the panel was opened
 //-------------------------------------------------------------
+/// @function revertImageColor
+/// @brief Restore the images' color settings saved when the panel opened.
+/// @param pnlName Name of the panel window.
+/// @returns Zero after completing the operation.
 Static Function revertImageColor(String pnlName)
 	String grfName = GetUserData(pnlName,"","grf")
 	String imgList = ImageNameList(grfName,";")
@@ -1247,6 +1421,10 @@ Static Function revertImageColor(String pnlName)
 	endfor
 End
 
+/// @function makeRGBWave
+/// @brief Create an RGB color wave from lightweight color parameters.
+/// @param s Lightweight color parameters containing the RGB endpoints.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 Static Function/WAVE makeRGBWave(STRUCT paramStructLite &s)
 	switch (s.min.mode)
 		case 0:
@@ -1274,11 +1452,22 @@ Static Function/WAVE makeRGBWave(STRUCT paramStructLite &s)
 	return ww
 End
 
+/// @function getRGBFromPanel
+/// @brief Read the current minimum and maximum RGB values from a color panel.
+/// @param pnlName Name of the panel window.
+/// @param s Color-table parameter structure that receives both RGB endpoints.
+/// @returns Zero after reading both RGB endpoints.
 Static Function getRGBFromPanel(String pnlName, STRUCT paramStruct &s)
 	getRGBFromPanelHelper(pnlName, s, 0)
 	getRGBFromPanelHelper(pnlName, s, 1)
 End
 
+/// @function getRGBFromPanelHelper
+/// @brief Read one RGB endpoint from a color panel.
+/// @param pnlName Name of the panel window.
+/// @param s Color-table parameter structure that receives one RGB endpoint.
+/// @param mode Operation mode selector.
+/// @returns Zero after reading the requested RGB endpoint.
 Static Function getRGBFromPanelHelper(String pnlName, STRUCT paramStruct &s, int mode)
 	String list
 	if (mode == 0)
@@ -1315,6 +1504,10 @@ Static Function getRGBFromPanelHelper(String pnlName, STRUCT paramStruct &s, int
 	endif
 End
 
+/// @function printHistoryAfterPressingButton
+/// @brief Print the color command after an apply-button action.
+/// @param pnlName Name of the panel window.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Static Function printHistoryAfterPressingButton(String pnlName)
 
 	STRUCT paramStruct s
@@ -1342,6 +1535,12 @@ Static Function printHistoryAfterPressingButton(String pnlName)
 	endfor
 End
 
+/// @function findChangedParameters
+/// @brief Determine which color parameters differ from their initial values.
+/// @param pnlName Name of the panel window.
+/// @param s Current color-table parameters to compare.
+/// @param base Reference parameter structure used to identify changed settings.
+/// @returns The matching changed parameters, or a negative value if no match is found.
 Static Function findChangedParameters(String pnlName, STRUCT paramStruct &s,
 	STRUCT paramStruct &base)
 
@@ -1390,6 +1589,10 @@ Static Function findChangedParameters(String pnlName, STRUCT paramStruct &s,
 	endfor
 End
 
+/// @function fetchPresentParameters
+/// @brief Read the current color parameters from the target image.
+/// @param s Color-table parameter structure populated from the displayed image.
+/// @returns Zero after completing the operation.
 Static Function fetchPresentParameters(STRUCT paramStruct &s)
 
 	String	imgName = s.imgList
@@ -1403,6 +1606,11 @@ Static Function fetchPresentParameters(STRUCT paramStruct &s)
 	Wave s.min.w = ww[0], s.max.w = ww[1]
 End
 
+/// @function fetchInitParameters
+/// @brief Read initial color parameters from a saved recreation string.
+/// @param infoStr Igor recreation or metadata string.
+/// @param s Color-table parameter structure populated from the saved recreation string.
+/// @returns Zero after completing the operation.
 Static Function fetchInitParameters(String infoStr, STRUCT paramStruct &s)
 
 	String sepStr = num2char(31)
@@ -1424,6 +1632,9 @@ End
 //-----------------------------------------------------------------------
 //	Load all color table ibw files
 //-----------------------------------------------------------------------
+/// @function loadColorTableAll
+/// @brief Load all supported user color-table wave files.
+/// @returns Zero after completing the operation.
 Static Function loadColorTableAll() // Change here to add more directories
 
 	string datasetPathStr = ParseFilePath(1,FunctionPath("ATH_XPSData#XPSReferenceData"),":",1,1) + "Datasets:ctab:"
@@ -1459,6 +1670,11 @@ End
 //-----------------------------------------------------------------------
 //	Load color table ibw files under a directory given by pathStr
 //-----------------------------------------------------------------------
+/// @function loadColorTableIbwFiles
+/// @brief Load color-table IBW files from one symbolic path.
+/// @param dfStr Destination data-folder path.
+/// @param pathStr Symbolic or file-system path.
+/// @returns Zero after completing the operation.
 Static Function loadColorTableIbwFiles(String dfStr, String pathStr)
 	int i, n
 
@@ -1490,6 +1706,11 @@ Static Function loadColorTableIbwFiles(String dfStr, String pathStr)
 	SetDataFolder dfrSav
 End
 
+/// @function divide3Dto1D
+/// @brief Split 3D color-table waves into individual 1D color tables.
+/// @param w Three-dimensional wave containing one or more color tables.
+/// @param makesubdir If nonzero, create a subfolder for each converted table.
+/// @returns Zero after completing the operation.
 Static Function divide3Dto1D(Wave w, int makesubdir)
 	if (WaveDims(w) != 3)
 		return 0
@@ -1520,6 +1741,11 @@ End
 //-----------------------------------------------------------------------
 //	Return whether a ibw file is a color table wave
 //-----------------------------------------------------------------------
+/// @function isCtabWave
+/// @brief Test whether a wave has the dimensions required for a color table.
+/// @param pathName Name of an Igor symbolic path.
+/// @param wName Wave name.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 Static Function isCtabWave(String pathName, String wName)
 
 	Variable refNum
@@ -1564,10 +1790,10 @@ EndStructure
 //-----------------------------------------------------------------------
 
 /// @function ATH_ColorKillWaves
-/// @brief Description of ATH_ColorKillWaves.
+/// @brief Remove temporary color-table waves created by the color panel.
 /// @details
-/// Auto-generated documentation stub for function `ATH_ColorKillWaves`.
-/// @returns Variable Return value.
+/// Waves when the panel is opened next time.
+/// @returns Zero after completing the operation.
 Function ATH_ColorKillWaves()
 	int status = ATH_Range#SIDAMKillDataFolder($ATH_DF_CTAB)
 	if (status != 3)
@@ -1589,6 +1815,9 @@ End
 //	Backward compatibility
 //	Use color table waves instead of color index wave (rev. 944)
 //=====================================================================================================
+/// @function cindexWave2ctabWave
+/// @brief Convert indexed color waves into Igor color-table waves.
+/// @returns Zero after completing the operation.
 Static Function cindexWave2ctabWave()
 
 	String list0 = fetchWavepathList($(ATH_DF_CTAB+"SIDAM"))
@@ -1653,12 +1882,10 @@ End
 //@
 
 /// @function SIDAM_ColorTableLog
-/// @brief Description of SIDAM_ColorTableLog.
-/// @details
-/// Auto-generated documentation stub for function `SIDAM_ColorTableLog`.
-/// @param grfName Parameter grfName.
-/// @param imgName Parameter imgName.
-/// @returns Variable Return value.
+/// @brief Test whether an image uses logarithmic color mapping.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @returns Nonzero when logarithmic color mapping is enabled; otherwise zero.
 static Function SIDAM_ColorTableLog(String grfName, String imgName)
 	String info = ImageInfo(grfName, imgName, 0)
 	if (GetRTError(1))
@@ -1688,13 +1915,11 @@ End
 //@
 
 /// @function SIDAM_ImageColorRGBMode
-/// @brief Description of SIDAM_ImageColorRGBMode.
-/// @details
-/// Auto-generated documentation stub for function `SIDAM_ImageColorRGBMode`.
-/// @param grfName Parameter grfName.
-/// @param imgName Parameter imgName.
-/// @param key Parameter key.
-/// @returns Variable Return value.
+/// @brief Return the RGB color-mode code stored in an image's recreation settings.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @param key Metadata or window-note key.
+/// @returns Igor's numeric RGB color-mode code.
 static Function SIDAM_ImageColorRGBMode(String grfName, String imgName, String key)
 	String info = ImageInfo(grfName, imgName, 0)
 	if (GetRTError(1))
@@ -1735,6 +1960,13 @@ End
 //		* 0: No error
 //		* !0: Any error
 //@
+/// @function SIDAM_ImageColorRGBValues
+/// @brief Read or write RGB endpoint values in an image recreation string.
+/// @param grfName Name of the graph window.
+/// @param imgName Name of the image trace.
+/// @param key Metadata or settings key.
+/// @param s RGB color settings structure.
+/// @returns Igor status code; zero indicates success and nonzero values report failure or cancellation.
 Function SIDAM_ImageColorRGBValues(String grfName, String imgName, String key,
 	STRUCT RGBColor &s)
 
@@ -1763,6 +1995,11 @@ End
 ///	@param w			A 1D text wave, a 1D/2D numeric wave
 ///	@param noquote	Elements of a text wave are returned without quotation marks
 //******************************************************************************
+/// @function SIDAMWaveToString
+/// @brief Serialize a numeric or text wave as an Igor expression.
+/// @param w Numeric or text wave to serialize.
+/// @param noquote (optional) If nonzero, omit quotes around text elements.
+/// @returns An Igor expression that reconstructs the wave's values.
 static Function/S SIDAMWaveToString(Wave/Z w, [int noquote])
 	if (!WaveExists(w))
 		return ""
@@ -1792,12 +2029,12 @@ End
 //******************************************************************************
 
 /// @function SIDAMClickCheckBox
-/// @brief Description of SIDAMClickCheckBox.
+/// @brief Handle the click checkbox action.
 /// @details
-/// Auto-generated documentation stub for function `SIDAMClickCheckBox`.
-/// @param pnlName Parameter pnlName.
-/// @param ctrlName Parameter ctrlName.
-/// @returns Variable Return value.
+/// S.mouseLoc.v = s.mouseLoc.h =.
+/// @param pnlName Name of the panel window.
+/// @param ctrlName Name of the Igor control.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SIDAMClickCheckBox(String pnlName, String ctrlName)
 	if (!ATH_Range#SIDAMWindowExists(pnlName))
 		return 1
@@ -1842,15 +2079,20 @@ End
 //-------------------------------------------------------------
 
 /// @function SIDAMClickCheckBoxPrototype
-/// @brief Description of SIDAMClickCheckBoxPrototype.
+/// @brief Programmatically invoke a panel checkbox's action procedure.
 /// @details
-/// Auto-generated documentation stub for function `SIDAMClickCheckBoxPrototype`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
+/// Join elements of a text wave and return as a string.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 Function SIDAMClickCheckBoxPrototype(STRUCT WMCheckboxAction &s)
 End
 
 //	Join elements of a text wave and return as a string
+/// @function join
+/// @brief Join text-wave elements into an Igor list expression.
+/// @param tw Text wave whose elements are joined.
+/// @param noquote If nonzero, omit quotes around text elements.
+/// @returns The joined Igor list expression.
 Static Function/S join(Wave/T tw, int noquote)
 	int i, n = numpnts(tw)
 	String str = ""
@@ -1868,12 +2110,21 @@ Static Function/S join(Wave/T tw, int noquote)
 End
 
 //	Convert a 1D numeric wave to a 1D text wave
+/// @function num2text
+/// @brief Convert a numeric wave to a text wave.
+/// @param w Numeric wave to convert.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 Static Function/WAVE num2text(Wave w)
 	Make/T/N=(numpnts(w))/FREE txtw = num2str(w[p])
 	return txtw
 End
 
 //	Return a column of a numeric wave
+/// @function col
+/// @brief Return one column of a two-dimensional wave.
+/// @param w Two-dimensional source wave.
+/// @param index Zero-based item index.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 Static Function/WAVE col(Wave w, Variable index)
 	MatrixOP/FREE cw = col(w,index)
 	return cw
@@ -1882,6 +2133,10 @@ End
 //-------------------------------------------------------------
 //	Return a name of procedure for a control
 //-------------------------------------------------------------
+/// @function getActionFunctionName
+/// @brief Extract an action-procedure name from a control recreation string.
+/// @param recreationStr Igor window or control recreation string.
+/// @returns The action-procedure name, or an empty string if the recreation string has none.
 Static Function/S getActionFunctionName(String recreationStr)
 	int i0 = strsearch(recreationStr,"proc=",0)
 	if (i0 == -1)
@@ -1899,6 +2154,11 @@ End
 //-------------------------------------------------------------
 //	Put coordinates of a window
 //-------------------------------------------------------------
+/// @function getWinRect
+/// @brief Return a panel window's screen rectangle.
+/// @param pnlName Name of the panel window.
+/// @param winRect Structure receiving the window rectangle.
+/// @returns Zero after populating `winRect`.
 Static Function getWinRect(String pnlName, STRUCT Rect &winRect)
 	GetWindow $pnlName wsizeDC
 	winRect.top = V_top
@@ -1909,6 +2169,12 @@ End
 //-------------------------------------------------------------
 //	Put coordinates of a control to a structure
 //-------------------------------------------------------------
+/// @function getCtrlRect
+/// @brief Return a panel control's rectangle.
+/// @param pnlName Name of the panel window.
+/// @param ctrlName Name of the Igor control.
+/// @param ctrlRect Structure receiving the control rectangle.
+/// @returns Zero after populating `ctrlRect`.
 Static Function getCtrlRect(String pnlName, String ctrlName, STRUCT Rect &ctrlRect)
 	ControlInfo/W=$pnlName $ctrlName
 	ctrlRect.top = V_top
@@ -1920,6 +2186,9 @@ End
 //-------------------------------------------------------------
 //	Return eventMod
 //-------------------------------------------------------------
+/// @function getEventMod
+/// @brief Return the current keyboard-modifier bit mask.
+/// @returns The current keyboard-modifier bit mask.
 Static Function getEventMod()
 	int key = GetKeyState(1)
 	int isCtrlPressed = !!(key & 1)

@@ -38,11 +38,11 @@
 /// related to ATH iImageOps functionality.
 
 /// @function MainMenu
-/// @brief Description of MainMenu.
+/// @brief Launch the interactive two-image operations workflow.
 /// @details
-/// Auto-generated documentation stub for function `MainMenu`.
-/// @returns Variable Return value.
-
+/// Static Function to interactively drift images and get an updated graph of the XMC(L)D contrast.
+/// S_fileName is a carriage-return-separated list of full paths to one or more files.
+/// @returns NaN if input validation fails; otherwise zero after completing the operation.
 static Function MainMenu()
 	/// static Function to interactively drift images and get an updated
 	/// graph of the XMC(L)D contrast.
@@ -120,12 +120,9 @@ static Function MainMenu()
 End
 
 /// @function CreateiOpsImgsCalculationPanel
-/// @brief Description of CreateiOpsImgsCalculationPanel.
-/// @details
-/// Auto-generated documentation stub for function `CreateiOpsImgsCalculationPanel`.
-/// @param wOpResult Parameter wOpResult.
-/// @returns Variable Return value.
-
+/// @brief Create the interactive two-image calculation panel.
+/// @param wOpResult Wave that receives the operation result.
+/// @returns Zero after completing the operation.
 static Function CreateiOpsImgsCalculationPanel(WAVE wOpResult)
 	DFREF dfr = GetWavesDataFolderDFR(wOpResult) // Recover the dfr	
 	NVAR/SDFR=dfr gATH_driftStep
@@ -152,12 +149,11 @@ static Function CreateiOpsImgsCalculationPanel(WAVE wOpResult)
 End
 
 /// @function WindowHook
-/// @brief Description of WindowHook.
+/// @brief Handle window hook events.
 /// @details
-/// Auto-generated documentation stub for function `WindowHook`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Duplicate/O w2_undo, $wName2Str + " dy:" + num2str(gATH_dy) + " of " + wName2Str. Note w2, note2ImgStr.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function WindowHook(STRUCT WMWinHookStruct &s)
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_iImgOpsDFPath"))
 	DFREF saveDFR = GetDataFolderDFR()
@@ -230,12 +226,11 @@ static Function WindowHook(STRUCT WMWinHookStruct &s)
 End
 
 /// @function RestoreImagesButton
-/// @brief Description of RestoreImagesButton.
+/// @brief Handle the restore images button action.
 /// @details
-/// Auto-generated documentation stub for function `RestoreImagesButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -261,12 +256,11 @@ static Function RestoreImagesButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 End
 
 /// @function SaveOpResultButton
-/// @brief Description of SaveOpResultButton.
+/// @brief Handle the save op result button action.
 /// @details
-/// Auto-generated documentation stub for function `SaveOpResultButton`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -293,12 +287,11 @@ static Function SaveOpResultButton(STRUCT WMButtonAction &B_Struct): ButtonContr
 End
 
 /// @function SetDriftStepVar
-/// @brief Description of SetDriftStepVar.
+/// @brief Set drift step var.
 /// @details
-/// Auto-generated documentation stub for function `SetDriftStepVar`.
-/// @param &sva Parameter &sva.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param sva Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
 	switch (sva.eventCode)
@@ -318,12 +311,11 @@ static Function SetDriftStepVar(STRUCT WMSetVariableAction &sva) : SetVariableCo
 End
 
 /// @function SetOpFormula
-/// @brief Description of SetOpFormula.
+/// @brief Store the primary image-operation formula selected in the panel.
 /// @details
-/// Auto-generated documentation stub for function `SetOpFormula`.
-/// @param &sva Parameter &sva.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param sva Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SetOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
 	switch (sva.eventCode)
@@ -343,12 +335,11 @@ static Function SetOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableContr
 End
 
 /// @function SetSecOpFormula
-/// @brief Description of SetSecOpFormula.
+/// @brief Store the optional secondary image-operation formula.
 /// @details
-/// Auto-generated documentation stub for function `SetSecOpFormula`.
-/// @param &sva Parameter &sva.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param sva Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SetSecOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
 	switch (sva.eventCode)
@@ -368,12 +359,11 @@ static Function SetSecOpFormula(STRUCT WMSetVariableAction &sva) : SetVariableCo
 End
 
 /// @function CheckBoxSecOp
-/// @brief Description of CheckBoxSecOp.
+/// @brief Enable or disable the secondary image operation.
 /// @details
-/// Auto-generated documentation stub for function `CheckBoxSecOp`.
-/// @param cb Parameter cb.
-/// @returns Variable Return value.
-
+/// Create the twinwave plot.
+/// @param cb Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function CheckBoxSecOp(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_iImgOpsDFPath"))

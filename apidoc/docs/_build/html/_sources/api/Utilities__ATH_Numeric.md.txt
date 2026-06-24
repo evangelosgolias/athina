@@ -20,18 +20,19 @@ related to ATH Numeric functionality.
 NumSignDigits(variable num, variable sigDigits)
 ```
 
-Description of NumSignDigits.
+Round a number to a requested count of significant digits.
 
-Auto-generated documentation stub for function `NumSignDigits`.
+Return the num with sigDigits significant digits NOTE: Six is the maximum numnbers of sigDigits the
+function can handle.
 
 ### Parameters
 
-- `num` *(Parameter)*: num.
-- `sigDigits` *(Parameter)*: sigDigits.
+- `num` *(Variable)*: Numeric input value.
+- `sigDigits` *(Variable)*: Number of significant digits to retain.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Num sign digits.
 
 
 ## `IntegerQ`
@@ -42,17 +43,17 @@ Auto-generated documentation stub for function `NumSignDigits`.
 IntegerQ(variable num)
 ```
 
-Description of IntegerQ.
+Test whether integer.
 
-Auto-generated documentation stub for function `IntegerQ`.
+Check in a number is integer.
 
 ### Parameters
 
-- `num` *(Parameter)*: num.
+- `num` *(Variable)*: Numeric input value.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `WaveIsFloatQ`
@@ -63,17 +64,17 @@ Auto-generated documentation stub for function `IntegerQ`.
 WaveIsFloatQ(WAVE wRef)
 ```
 
-Description of WaveIsFloatQ.
+Test whether wave is float.
 
-Auto-generated documentation stub for function `WaveIsFloatQ`.
+Returns true of wRef is 32 or 64 bit float wave.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
+- `wRef` *(Wave)*: Input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `WaveIsFloat32Q`
@@ -84,17 +85,17 @@ Auto-generated documentation stub for function `WaveIsFloatQ`.
 WaveIsFloat32Q(WAVE wRef)
 ```
 
-Description of WaveIsFloat32Q.
+Test whether wave is float32.
 
-Auto-generated documentation stub for function `WaveIsFloat32Q`.
+Returns true of wRef is 32 bit float wave.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
+- `wRef` *(Wave)*: Input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `WaveIsFloat64Q`
@@ -105,17 +106,17 @@ Auto-generated documentation stub for function `WaveIsFloat32Q`.
 WaveIsFloat64Q(WAVE wRef)
 ```
 
-Description of WaveIsFloat64Q.
+Test whether wave is float64.
 
-Auto-generated documentation stub for function `WaveIsFloat64Q`.
+Returns true of wRef is 64 bit float wave.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
+- `wRef` *(Wave)*: Input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `NextPowerOfTwo`
@@ -126,17 +127,17 @@ Auto-generated documentation stub for function `WaveIsFloat64Q`.
 NextPowerOfTwo(variable num)
 ```
 
-Description of NextPowerOfTwo.
+Return the smallest power of two greater than or equal to a value.
 
-Auto-generated documentation stub for function `NextPowerOfTwo`.
+Return the first power of two after num.
 
 ### Parameters
 
-- `num` *(Parameter)*: num.
+- `num` *(Variable)*: Numeric input value.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Next power of two.
 
 
 ## `IsNumberInWaveRangeQ`
@@ -147,18 +148,18 @@ Auto-generated documentation stub for function `NextPowerOfTwo`.
 IsNumberInWaveRangeQ(WAVE w, variable n)
 ```
 
-Description of IsNumberInWaveRangeQ.
+Test whether number in wave range.
 
-Auto-generated documentation stub for function `IsNumberInWaveRangeQ`.
+Returns 1 if n between min(w) & max(w) or 0 otherwise.
 
 ### Parameters
 
-- `w` *(Parameter)*: w.
-- `n` *(Parameter)*: n.
+- `w` *(Wave)*: Input wave.
+- `n` *(Variable)*: Numeric value to test or transform.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Nonzero when the condition is satisfied; otherwise zero.
 
 
 ## `RunningMeanDifferenceZapNaN`
@@ -169,20 +170,21 @@ Auto-generated documentation stub for function `IsNumberInWaveRangeQ`.
 RunningMeanDifferenceZapNaN(WAVE wRef, [variable dim, variable rowN, variable colN])
 ```
 
-Description of RunningMeanDifferenceZapNaN.
+Calculate the mean adjacent-point difference after removing NaN values.
 
-Auto-generated documentation stub for function `RunningMeanDifferenceZapNaN`.
+Finds the mean value of differences for of elements (i+1) - i. dim, int are used when you want to pick up
+a specific row, col or beam.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `dim` *(Parameter)*: dim.
-- `rowN` *(Parameter)*: rowN.
-- `colN]` *(Parameter)*: colN].
+- `wRef` *(Wave)*: Input wave.
+- `dim` *(Variable, optional)*: Zero-based wave-dimension index.
+- `rowN` *(Variable, optional)*: Zero-based row index.
+- `colN` *(Variable, optional)*: Zero-based column index.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The mean adjacent-point difference after removing NaN values.
 
 
 ## `WaveBeamMeanZapNaN`
@@ -193,18 +195,19 @@ Auto-generated documentation stub for function `RunningMeanDifferenceZapNaN`.
 WaveBeamMeanZapNaN(WAVE wRef, [variable dim, variable rowN, variable colN, int recQ])
 ```
 
-Description of WaveBeamMeanZapNaN.
+Calculate a NaN-free mean, or mean reciprocal, along a selected wave beam.
 
-Auto-generated documentation stub for function `WaveBeamMeanZapNaN`.
+Finds the mean value of a beam along any dimension set recQ to non zero value to find mean of inverse
+(reciprocals).
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `dim` *(Parameter)*: dim.
-- `rowN` *(Parameter)*: rowN.
-- `colN` *(Parameter)*: colN.
-- `recQ]` *(Parameter)*: recQ].
+- `wRef` *(Wave)*: Input wave.
+- `dim` *(Variable, optional)*: Zero-based wave-dimension index.
+- `rowN` *(Variable, optional)*: Zero-based row index.
+- `colN` *(Variable, optional)*: Zero-based column index.
+- `recQ` *(Integer, optional)*: If nonzero, average reciprocal values instead of the values themselves.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The mean of the selected beam after removing NaNs, or the mean reciprocal when `recQ` is nonzero.

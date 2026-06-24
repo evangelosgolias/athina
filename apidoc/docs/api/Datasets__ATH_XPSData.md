@@ -20,13 +20,62 @@ related to ATH XPSData functionality.
 XPSReferenceData()
 ```
 
-Description of XPSReferenceData.
+Create and display the XPS reference-data selection panel.
 
-Auto-generated documentation stub for function `XPSReferenceData`.
+New folder and display panel bring an existing panel forward.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
+
+
+## `PTInitGlobals`
+
+**Signature**
+
+```igorpro
+PTInitGlobals(ptpig)
+```
+
+Initialize global state for the periodic-table panel.
+
+### Parameters
+
+- `ptpig` *(Variable)*: Periodic-table panel state structure.
+
+### Returns
+
+- **Variable**: Zero after completing the operation.
+
+
+## `PTInitPanel`
+
+**Signature**
+
+```igorpro
+PTInitPanel()
+```
+
+Create the periodic-table element-selection panel.
+
+### Returns
+
+- **Variable**: The Igor panel-creation status.
+
+
+## `PTDisplayPanel`
+
+**Signature**
+
+```igorpro
+PTDisplayPanel()
+```
+
+Display and populate the periodic-table panel.
+
+### Returns
+
+- **Variable**: Zero after completing the operation.
 
 
 ## `SetVariableFunction`
@@ -37,17 +86,17 @@ Auto-generated documentation stub for function `XPSReferenceData`.
 SetVariableFunction(STRUCT WMSetVariableAction& sv)
 ```
 
-Description of SetVariableFunction.
+Handle changes to the panel set-variable control.
 
-Auto-generated documentation stub for function `SetVariableFunction`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `sv` *(Parameter)*: sv.
+- `sv` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `PTResizePanel`
@@ -58,17 +107,17 @@ Auto-generated documentation stub for function `SetVariableFunction`.
 PTResizePanel(pa)
 ```
 
-Description of PTResizePanel.
+Resize and reposition the periodic-table selection panel.
 
-Auto-generated documentation stub for function `PTResizePanel`.
+Wait for mouse up event store current states redraw panel at new scale factor.
 
 ### Parameters
 
-- `pa` *(Parameter)*: pa.
+- `pa` *(Variable)*: Igor control-action structure.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `GetAtNr`
@@ -79,17 +128,15 @@ Auto-generated documentation stub for function `PTResizePanel`.
 GetAtNr(Estr)
 ```
 
-Description of GetAtNr.
-
-Auto-generated documentation stub for function `GetAtNr`.
+Return the atomic number for an element symbol.
 
 ### Parameters
 
-- `Estr` *(Parameter)*: Estr.
+- `Estr` *(Variable)*: Text containing the estr.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The the atomic number for an element symbol.
 
 
 ## `ShowButtonProc`
@@ -100,17 +147,17 @@ Auto-generated documentation stub for function `GetAtNr`.
 ShowButtonProc(STRUCT WMButtonAction &ba)
 ```
 
-Description of ShowButtonProc.
+Handle the continue button for show.
 
-Auto-generated documentation stub for function `ShowButtonProc`.
+CAUTION: Tiling hard-coded, change /A=(x, y) if you like.
 
 ### Parameters
 
-- `&ba` *(Parameter)*: &ba.
+- `ba` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `ClearButtonProc`
@@ -121,17 +168,17 @@ Auto-generated documentation stub for function `ShowButtonProc`.
 ClearButtonProc(STRUCT WMButtonAction &ba)
 ```
 
-Description of ClearButtonProc.
+Handle the continue button for clear.
 
-Auto-generated documentation stub for function `ClearButtonProc`.
+Kill graphs. Clear selected button in the panel and reset ElemSelect wave.
 
 ### Parameters
 
-- `&ba` *(Parameter)*: &ba.
+- `ba` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `KEButtonProc`
@@ -142,17 +189,17 @@ Auto-generated documentation stub for function `ClearButtonProc`.
 KEButtonProc(STRUCT WMButtonAction &ba)
 ```
 
-Description of KEButtonProc.
+Handle the continue button for kinetic energy.
 
-Auto-generated documentation stub for function `KEButtonProc`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&ba` *(Parameter)*: &ba.
+- `ba` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `PTGetState`
@@ -163,17 +210,56 @@ Auto-generated documentation stub for function `KEButtonProc`.
 PTGetState(STRUCT WMButtonAction &bs)
 ```
 
-Description of PTGetState.
+Read the current element selections from the periodic-table panel.
 
-Auto-generated documentation stub for function `PTGetState`.
+DimLabels for the dataset.
 
 ### Parameters
 
-- `&bs` *(Parameter)*: &bs.
+- `bs` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
+
+
+## `GetSelectedElementsStr`
+
+**Signature**
+
+```igorpro
+GetSelectedElementsStr(WAVE/T symbolsW, WAVE selw)
+```
+
+Return the chemical symbols selected in the periodic-table panel.
+
+### Parameters
+
+- `symbolsW` *(Wave/T)*: Text wave containing chemical-element symbols.
+- `selw` *(Wave)*: Selection-state wave for periodic-table elements.
+
+### Returns
+
+- **String**: A semicolon-separated list of selected element symbols.
+
+
+## `GetColumnOrderFromSelectedElement`
+
+**Signature**
+
+```igorpro
+GetColumnOrderFromSelectedElement(string elementStr)
+```
+
+Return the table-column ordering for a selected element.
+
+### Parameters
+
+- `elementStr` *(String)*: Chemical-element symbol.
+
+### Returns
+
+- **String**: The column-order specification associated with the element.
 
 
 ## `PlotPhCrossSectionOfElement`
@@ -184,17 +270,36 @@ Auto-generated documentation stub for function `PTGetState`.
 PlotPhCrossSectionOfElement(string elementStr)
 ```
 
-Description of PlotPhCrossSectionOfElement.
+Plot ph cross section of element.
 
-Auto-generated documentation stub for function `PlotPhCrossSectionOfElement`.
+Change colors for traces. Add legends.
 
 ### Parameters
 
-- `elementStr` *(Parameter)*: elementStr.
+- `elementStr` *(String)*: Text containing the element str.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
+
+
+## `SetTraceColor`
+
+**Signature**
+
+```igorpro
+SetTraceColor(variable colorIndex)
+```
+
+Return the RGB values assigned to a trace color index.
+
+### Parameters
+
+- `colorIndex` *(Variable)*: Zero-based index into the standard trace-color palette.
+
+### Returns
+
+- **Multiple values**: The red, green, and blue values for the selected trace-color index.
 
 
 ## `CreateElemSelectCoreLevels`
@@ -205,19 +310,19 @@ Auto-generated documentation stub for function `PlotPhCrossSectionOfElement`.
 CreateElemSelectCoreLevels([int KE, variable hv, variable wf])
 ```
 
-Description of CreateElemSelectCoreLevels.
+Create elem select core levels.
 
-Auto-generated documentation stub for function `CreateElemSelectCoreLevels`.
+Not the most effective fuction having to call GetCrossSectionAtPhotonEnergy.
 
 ### Parameters
 
-- `KE` *(Parameter)*: KE.
-- `hv` *(Parameter)*: hv.
-- `wf]` *(Parameter)*: wf].
+- `KE` *(Integer, optional)*: Kinetic energy in electronvolts.
+- `hv` *(Variable, optional)*: Photon energy in electronvolts.
+- `wf` *(Variable, optional)*: Work function in electronvolts.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `CreateElemSelectCSAtPhotonEnergy`
@@ -228,20 +333,21 @@ Auto-generated documentation stub for function `CreateElemSelectCoreLevels`.
 CreateElemSelectCSAtPhotonEnergy(WAVE wRef, variable hv, [int normalise, int maskExc])
 ```
 
-Description of CreateElemSelectCSAtPhotonEnergy.
+Create elem select csat photon energy.
 
-Auto-generated documentation stub for function `CreateElemSelectCSAtPhotonEnergy`.
+WRef here is root:Packages:ATH_DataFolder:XPSReferenceData:CoreLevelsSelect RSF p3/2 = RSFp * 2/3 RSF
+p1/2 = RSFp * 1/3.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `hv` *(Parameter)*: hv.
-- `normalise` *(Parameter)*: normalise.
-- `maskExc]` *(Parameter)*: maskExc].
+- `wRef` *(Wave)*: Input wave.
+- `hv` *(Variable)*: Photon energy in electronvolts.
+- `normalise` *(Integer, optional)*: If nonzero, normalize the calculated values.
+- `maskExc` *(Integer, optional)*: If nonzero, mask excluded energy values.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `GetCrossSectionAtPhotonEnergy`
@@ -252,19 +358,20 @@ Auto-generated documentation stub for function `CreateElemSelectCSAtPhotonEnergy
 GetCrossSectionAtPhotonEnergy(string elem, string orb, variable hv)
 ```
 
-Description of GetCrossSectionAtPhotonEnergy.
+Return cross section at photon energy.
 
-Auto-generated documentation stub for function `GetCrossSectionAtPhotonEnergy`.
+Get the ionisation cross-section, use DimLavels. Orb might be given as 2p1/2 but PhCS is given for the
+subshell, 2p.
 
 ### Parameters
 
-- `elem` *(Parameter)*: elem.
-- `orb` *(Parameter)*: orb.
-- `hv` *(Parameter)*: hv.
+- `elem` *(String)*: Chemical-element symbol.
+- `orb` *(String)*: Atomic orbital label.
+- `hv` *(Variable)*: Photon energy in electronvolts.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The returned value is cross section at photon energy.
 
 
 ## `soRSF`
@@ -275,14 +382,70 @@ Auto-generated documentation stub for function `GetCrossSectionAtPhotonEnergy`.
 soRSF(string orbital)
 ```
 
-Description of soRSF.
+Return the spin-orbit relative sensitivity factor for an orbital.
 
-Auto-generated documentation stub for function `soRSF`.
+Return relative sensitivity factor orbital is a string of the for 2p, 2p3/2 N.B No checks for valid
+inputs!!!!.
 
 ### Parameters
 
-- `orbital` *(Parameter)*: orbital.
+- `orbital` *(String)*: Atomic orbital label, including spin-orbit component when applicable.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The the spin-orbit relative sensitivity factor for an orbital.
+
+
+## `CoreLevelsInEnergyRange`
+
+**Signature**
+
+```igorpro
+CoreLevelsInEnergyRange(variable Elow, variable Ehigh, [int KE, variable hv, variable wf, string elements, variable core, variable auger])
+```
+
+List core levels and Auger transitions inside an energy range.
+
+The range can be interpreted as binding or kinetic energy and can include photoelectron core levels, Auger
+transitions, or both.
+
+### Parameters
+
+- `Elow` *(Variable)*: Lower energy bound in electronvolts.
+- `Ehigh` *(Variable)*: Upper energy bound in electronvolts.
+- `KE` *(Integer, optional)*: If nonzero, interpret the range as kinetic energy.
+- `hv` *(Variable, optional)*: Photon energy in electronvolts.
+- `wf` *(Variable, optional)*: Work function in electronvolts.
+- `elements` *(String, optional)*: element-symbol filter.
+- `core` *(Variable, optional)*: If nonzero, include photoelectron core levels.
+- `auger` *(Variable, optional)*: If nonzero, include Auger transitions.
+
+### Returns
+
+- **String**: A formatted list of matching transitions and energies.
+
+
+## `ShowNotebookCoreLevelsInEnergyRange`
+
+**Signature**
+
+```igorpro
+ShowNotebookCoreLevelsInEnergyRange(variable Elow, variable Ehigh, [int KE, variable hv, variable wf, string elements, variable core, variable auger])
+```
+
+Show matching core levels and Auger transitions in a notebook.
+
+### Parameters
+
+- `Elow` *(Variable)*: Lower energy bound in electronvolts.
+- `Ehigh` *(Variable)*: Upper energy bound in electronvolts.
+- `KE` *(Integer, optional)*: If nonzero, interpret the range as kinetic energy.
+- `hv` *(Variable, optional)*: Photon energy in electronvolts.
+- `wf` *(Variable, optional)*: Work function in electronvolts.
+- `elements` *(String, optional)*: element-symbol filter.
+- `core` *(Variable, optional)*: If nonzero, include photoelectron core levels.
+- `auger` *(Variable, optional)*: If nonzero, include Auger transitions.
+
+### Returns
+
+- **Variable**: Igor status code; zero indicates success and nonzero values report failure or cancellation.

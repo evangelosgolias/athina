@@ -38,11 +38,11 @@
 /// related to ATH iImageRotation functionality.
 
 /// @function CreatePanel
-/// @brief Description of CreatePanel.
+/// @brief Create panel.
 /// @details
-/// Auto-generated documentation stub for function `CreatePanel`.
-/// @returns Variable Return value.
-
+/// Check if you have already created the panel. Duplicate the wave for backup. Create the global variables
+/// for panel.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function CreatePanel()
 	
 	string winNameStr = WinName(0, 1, 1)
@@ -106,12 +106,11 @@ static Function CreatePanel()
 End
 
 /// @function FlipRowsCheckBox
-/// @brief Description of FlipRowsCheckBox.
+/// @brief Handle the flip rows checkbox action.
 /// @details
-/// Auto-generated documentation stub for function `FlipRowsCheckBox`.
-/// @param cb Parameter cb.
-/// @returns Variable Return value.
-
+/// Added 17.06.2026. That's ugly.
+/// @param cb Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function FlipRowsCheckBox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_iRotateFolder"))
 	NVAR/SDFR=dfr gATH_FlipCols
@@ -139,12 +138,11 @@ static Function FlipRowsCheckBox(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 /// @function GraphHookFunction
-/// @brief Description of GraphHookFunction.
+/// @brief Handle panel hook events.
 /// @details
-/// Auto-generated documentation stub for function `GraphHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 
 	switch(s.eventCode)
@@ -164,12 +162,11 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 /// @function PanelHookFunction
-/// @brief Description of PanelHookFunction.
+/// @brief Handle panel hook events.
 /// @details
-/// Auto-generated documentation stub for function `PanelHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when graph is closed
 
 	switch(s.eventCode)
@@ -191,12 +188,11 @@ static Function PanelHookFunction(STRUCT WMWinHookStruct &s) // Cleanup when gra
 End
 
 /// @function SliderProc
-/// @brief Description of SliderProc.
+/// @brief Handle changes to the panel slider.
 /// @details
-/// Auto-generated documentation stub for function `SliderProc`.
-/// @param &sa Parameter &sa.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param sa Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function SliderProc(STRUCT WMSliderAction &sa) : SliderControl
 
 	switch( sa.eventCode )
@@ -221,12 +217,11 @@ static Function SliderProc(STRUCT WMSliderAction &sa) : SliderControl
 End
 
 /// @function SetAngle
-/// @brief Description of SetAngle.
+/// @brief Set angle.
 /// @details
-/// Auto-generated documentation stub for function `SetAngle`.
-/// @param &sva Parameter &sva.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param sva Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SetAngle(STRUCT WMSetVariableAction &sva) : SetVariableControl
 
 	switch( sva.eventCode )
@@ -249,12 +244,11 @@ static Function SetAngle(STRUCT WMSetVariableAction &sva) : SetVariableControl
 End
 
 /// @function iRotButton
-/// @brief Description of iRotButton.
+/// @brief Handle the i rot button action.
 /// @details
-/// Auto-generated documentation stub for function `iRotButton`.
-/// @param &ba Parameter &ba.
-/// @returns Variable Return value.
-
+/// Creates a separate result wave, leaving the input wave available to the caller.
+/// @param ba Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 
 	if (ba.eventCode != 2)
@@ -306,16 +300,14 @@ static Function iRotButton(STRUCT WMButtonAction &ba) : ButtonControl
 End
 
 /// @function ImageRestoreAndRotate
-/// @brief Description of ImageRestoreAndRotate.
+/// @brief Image restore and rotate.
 /// @details
-/// Auto-generated documentation stub for function `ImageRestoreAndRotate`.
-/// @param source Parameter source.
-/// @param dest Parameter dest.
-/// @param angle Parameter angle.
-/// @param flipY] Parameter flipY].
-/// @returns Variable Return value.
-
-
+/// Rotate dest, restore source.
+/// @param source Source wave, path, or coordinate array.
+/// @param dest Destination wave, path, or coordinate array.
+/// @param angle Angle.
+/// @param flipY (optional) If nonzero, flip the result along y.
+/// @returns Zero after completing the operation.
 static Function ImageRestoreAndRotate(WAVE source, WAVE dest, variable angle, [int flipY])
 	/// Rotate dest, restore source
 	Duplicate/O source, dest

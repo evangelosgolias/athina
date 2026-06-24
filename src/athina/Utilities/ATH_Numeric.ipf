@@ -11,13 +11,13 @@
 /// related to ATH Numeric functionality.
 
 /// @function NumSignDigits
-/// @brief Description of NumSignDigits.
+/// @brief Round a number to a requested count of significant digits.
 /// @details
-/// Auto-generated documentation stub for function `NumSignDigits`.
-/// @param num Parameter num.
-/// @param sigDigits Parameter sigDigits.
-/// @returns Variable Return value.
-
+/// Return the num with sigDigits significant digits NOTE: Six is the maximum numnbers of sigDigits the
+/// function can handle.
+/// @param num Numeric input value.
+/// @param sigDigits Number of significant digits to retain.
+/// @returns Num sign digits.
 static Function NumSignDigits(variable num, variable sigDigits)
 	/// Return the num with sigDigits significant digits
 	/// NOTE: Six is the maximum numnbers of sigDigits 
@@ -28,12 +28,11 @@ static Function NumSignDigits(variable num, variable sigDigits)
 End
 
 /// @function IntegerQ
-/// @brief Description of IntegerQ.
+/// @brief Test whether integer.
 /// @details
-/// Auto-generated documentation stub for function `IntegerQ`.
-/// @param num Parameter num.
-/// @returns Variable Return value.
-
+/// Check in a number is integer.
+/// @param num Numeric input value.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function IntegerQ(variable num)
 	/// Check in a number is integer
 	if(num == trunc(num))
@@ -44,48 +43,44 @@ static Function IntegerQ(variable num)
 End
 
 /// @function WaveIsFloatQ
-/// @brief Description of WaveIsFloatQ.
+/// @brief Test whether wave is float.
 /// @details
-/// Auto-generated documentation stub for function `WaveIsFloatQ`.
-/// @param wRef Parameter wRef.
-/// @returns Variable Return value.
-
+/// Returns true of wRef is 32 or 64 bit float wave.
+/// @param wRef Input wave.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function WaveIsFloatQ(WAVE wRef)
 	// Returns true of wRef is 32 or 64 bit float wave
 	return ((WaveType(wRef) & 0x02) || (WaveType(wRef) & 0x04))
 End
 
 /// @function WaveIsFloat32Q
-/// @brief Description of WaveIsFloat32Q.
+/// @brief Test whether wave is float32.
 /// @details
-/// Auto-generated documentation stub for function `WaveIsFloat32Q`.
-/// @param wRef Parameter wRef.
-/// @returns Variable Return value.
-
+/// Returns true of wRef is 32 bit float wave.
+/// @param wRef Input wave.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function WaveIsFloat32Q(WAVE wRef)
 	// Returns true of wRef is 32 bit float wave
 	return WaveType(wRef) & 0x02 
 End
 
 /// @function WaveIsFloat64Q
-/// @brief Description of WaveIsFloat64Q.
+/// @brief Test whether wave is float64.
 /// @details
-/// Auto-generated documentation stub for function `WaveIsFloat64Q`.
-/// @param wRef Parameter wRef.
-/// @returns Variable Return value.
-
+/// Returns true of wRef is 64 bit float wave.
+/// @param wRef Input wave.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function WaveIsFloat64Q(WAVE wRef)
 	// Returns true of wRef is 64 bit float wave
 	return WaveType(wRef) & 0x04 
 End
 
 /// @function NextPowerOfTwo
-/// @brief Description of NextPowerOfTwo.
+/// @brief Return the smallest power of two greater than or equal to a value.
 /// @details
-/// Auto-generated documentation stub for function `NextPowerOfTwo`.
-/// @param num Parameter num.
-/// @returns Variable Return value.
-
+/// Return the first power of two after num.
+/// @param num Numeric input value.
+/// @returns Next power of two.
 static Function NextPowerOfTwo(variable num)
 	 /// Return the first power of two after num.
 	 /// @param num double 
@@ -98,13 +93,12 @@ static Function NextPowerOfTwo(variable num)
 End
 
 /// @function IsNumberInWaveRangeQ
-/// @brief Description of IsNumberInWaveRangeQ.
+/// @brief Test whether number in wave range.
 /// @details
-/// Auto-generated documentation stub for function `IsNumberInWaveRangeQ`.
-/// @param w Parameter w.
-/// @param n Parameter n.
-/// @returns Variable Return value.
-
+/// Returns 1 if n between min(w) & max(w) or 0 otherwise.
+/// @param w Input wave.
+/// @param n Numeric value to test or transform.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function IsNumberInWaveRangeQ(WAVE w, variable n)
 	// Returns 1 if n between min(w) & max(w)
 	// or 0 otherwise
@@ -118,15 +112,15 @@ static Function IsNumberInWaveRangeQ(WAVE w, variable n)
 End
 
 /// @function RunningMeanDifferenceZapNaN
-/// @brief Description of RunningMeanDifferenceZapNaN.
+/// @brief Calculate the mean adjacent-point difference after removing NaN values.
 /// @details
-/// Auto-generated documentation stub for function `RunningMeanDifferenceZapNaN`.
-/// @param wRef Parameter wRef.
-/// @param dim Parameter dim.
-/// @param rowN Parameter rowN.
-/// @param colN] Parameter colN].
-/// @returns Variable Return value.
-
+/// Finds the mean value of differences for of elements (i+1) - i. dim, int are used when you want to pick up
+/// a specific row, col or beam.
+/// @param wRef Input wave.
+/// @param dim (optional) Zero-based wave-dimension index.
+/// @param rowN (optional) Zero-based row index.
+/// @param colN (optional) Zero-based column index.
+/// @returns The mean adjacent-point difference after removing NaN values.
 static Function RunningMeanDifferenceZapNaN(WAVE wRef, [variable dim, variable rowN, variable colN])
 	// Finds the mean value of differences for
 	// of elements (i+1) - i.
@@ -165,16 +159,16 @@ static Function RunningMeanDifferenceZapNaN(WAVE wRef, [variable dim, variable r
 End
 
 /// @function WaveBeamMeanZapNaN
-/// @brief Description of WaveBeamMeanZapNaN.
+/// @brief Calculate a NaN-free mean, or mean reciprocal, along a selected wave beam.
 /// @details
-/// Auto-generated documentation stub for function `WaveBeamMeanZapNaN`.
-/// @param wRef Parameter wRef.
-/// @param dim Parameter dim.
-/// @param rowN Parameter rowN.
-/// @param colN Parameter colN.
-/// @param recQ] Parameter recQ].
-/// @returns Variable Return value.
-
+/// Finds the mean value of a beam along any dimension set recQ to non zero value to find mean of inverse
+/// (reciprocals).
+/// @param wRef Input wave.
+/// @param dim (optional) Zero-based wave-dimension index.
+/// @param rowN (optional) Zero-based row index.
+/// @param colN (optional) Zero-based column index.
+/// @param recQ (optional) If nonzero, average reciprocal values instead of the values themselves.
+/// @returns The mean of the selected beam after removing NaNs, or the mean reciprocal when `recQ` is nonzero.
 static Function WaveBeamMeanZapNaN(WAVE wRef, [variable dim, variable rowN, variable colN, int recQ])
 	// Finds the mean value of a beam along any dimension
 	// set recQ to non zero value to find mean of inverse (reciprocals)

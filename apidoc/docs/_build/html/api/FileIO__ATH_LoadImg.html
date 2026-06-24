@@ -49,10 +49,12 @@
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_Transform.html">ATH_Transform</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XMCD.html">ATH_XMCD</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Analysis__ATH_XPSBackgroundRemoval.html">ATH_XPSBackgroundRemoval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Constants.html">ATH_Constants</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Dialog.html">ATH_Dialog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Launch.html">ATH_Launch</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Customization__ATH_Menus.html">ATH_Menus</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Datasets__ATH_XPSData.html">ATH_XPSData</a></li>
+<li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Asylum.html">ATH_Asylum</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Beamtime.html">ATH_Beamtime</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_Export.html">ATH_Export_Repeat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="FileIO__ATH_HDF5.html">ATH_HDF5</a></li>
@@ -67,9 +69,14 @@
 <li class="toctree-l3"><a class="reference internal" href="#id2">Returns</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#peem3files"><code class="docutils literal notranslate"><span class="pre">PEEM3Files</span></code></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#peem3file"><code class="docutils literal notranslate"><span class="pre">PEEM3File</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id3">Parameters</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id4">Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#peem3files"><code class="docutils literal notranslate"><span class="pre">PEEM3Files</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Returns</a></li>
 </ul>
 </li>
 </ul>
@@ -141,91 +148,117 @@
 related to ATH LoadImg functionality.</p>
 <nav class="contents local" id="contents">
 <ul class="simple">
-<li><p><a class="reference internal" href="#loadtiff" id="id5"><code class="docutils literal notranslate"><span class="pre">Loadtiff</span></code></a></p>
+<li><p><a class="reference internal" href="#loadtiff" id="id7"><code class="docutils literal notranslate"><span class="pre">Loadtiff</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#parameters" id="id6">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#returns" id="id7">Returns</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id8">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#returns" id="id9">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#loadtiffs" id="id8"><code class="docutils literal notranslate"><span class="pre">Loadtiffs</span></code></a></p>
+<li><p><a class="reference internal" href="#loadtiffs" id="id10"><code class="docutils literal notranslate"><span class="pre">Loadtiffs</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id1" id="id9">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id2" id="id10">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id1" id="id11">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id12">Returns</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#peem3files" id="id11"><code class="docutils literal notranslate"><span class="pre">PEEM3Files</span></code></a></p>
+<li><p><a class="reference internal" href="#peem3file" id="id13"><code class="docutils literal notranslate"><span class="pre">PEEM3File</span></code></a></p>
 <ul>
-<li><p><a class="reference internal" href="#id3" id="id12">Parameters</a></p></li>
-<li><p><a class="reference internal" href="#id4" id="id13">Returns</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id14">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id15">Returns</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#peem3files" id="id16"><code class="docutils literal notranslate"><span class="pre">PEEM3Files</span></code></a></p>
+<ul>
+<li><p><a class="reference internal" href="#id5" id="id17">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#id6" id="id18">Returns</a></p></li>
 </ul>
 </li>
 </ul>
 </nav>
 <section id="loadtiff">
-<h2><a class="toc-backref" href="#id5" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Loadtiff</span></code></a><a class="headerlink" href="#loadtiff" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id7" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Loadtiff</span></code></a><a class="headerlink" href="#loadtiff" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>Loadtiff(<span class="kt">string</span><span class="w"> </span>filepathStr,<span class="w"> </span><span class="kt">string</span><span class="w"> </span>waveNameStr,<span class="w"> </span>[<span class="kt">int</span><span class="w"> </span>displayImg,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>overwrite])
 </pre></div>
 </div>
-<p>Description of Loadtiff.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">Loadtiff</span></code>.</p>
+<p>Load TIFF.</p>
+<p>Guess the dimenions.</p>
 <section id="parameters">
-<h3><a class="toc-backref" href="#id6" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">filepathStr</span></code> <em>(Parameter)</em>: filepathStr.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">waveNameStr</span></code> <em>(Parameter)</em>: waveNameStr.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">displayImg</span></code> <em>(Parameter)</em>: displayImg.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">overwrite]</span></code> <em>(Parameter)</em>: overwrite].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filepathStr</span></code> <em>(String)</em>: Filepath str.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">waveNameStr</span></code> <em>(String)</em>: Wave used by the operation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">displayImg</span></code> <em>(Integer, optional)</em>: If nonzero, display the result image.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">overwrite</span></code> <em>(Integer, optional)</em>: If nonzero, replace the source or an existing destination.</p></li>
 </ul>
 </section>
 <section id="returns">
-<h3><a class="toc-backref" href="#id7" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Returns</a><a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: Zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>
 <section id="loadtiffs">
-<h2><a class="toc-backref" href="#id8" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Loadtiffs</span></code></a><a class="headerlink" href="#loadtiffs" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id10" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">Loadtiffs</span></code></a><a class="headerlink" href="#loadtiffs" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>Loadtiffs([<span class="kt">int</span><span class="w"> </span>numImages,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>displayImg,<span class="w"> </span><span class="kt">int</span><span class="w"> </span>stack3d])
 </pre></div>
 </div>
-<p>Description of Loadtiffs.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">Loadtiffs</span></code>.</p>
+<p>Load tiffs.</p>
 <section id="id1">
-<h3><a class="toc-backref" href="#id9" role="doc-backlink">Parameters</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Parameters</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">numImages</span></code> <em>(Parameter)</em>: numImages.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">displayImg</span></code> <em>(Parameter)</em>: displayImg.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">stack3d]</span></code> <em>(Parameter)</em>: stack3d].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">numImages</span></code> <em>(Integer, optional)</em>: Maximum number of images to load.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">displayImg</span></code> <em>(Integer, optional)</em>: If nonzero, display the result image.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stack3d</span></code> <em>(Integer, optional)</em>: Input 3D image stack.</p></li>
 </ul>
 </section>
 <section id="id2">
-<h3><a class="toc-backref" href="#id10" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id12" role="doc-backlink">Returns</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: One when the requested condition or operation succeeds; otherwise zero.</p></li>
+</ul>
+</section>
+</section>
+<section id="peem3file">
+<h2><a class="toc-backref" href="#id13" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">PEEM3File</span></code></a><a class="headerlink" href="#peem3file" title="Link to this heading"></a></h2>
+<p><strong>Signature</strong></p>
+<div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>PEEM3File(<span class="kt">string</span><span class="w"> </span>filepathStr,<span class="w"> </span>[<span class="kt">variable</span><span class="w"> </span>mkdir])
+</pre></div>
+</div>
+<p>Load a PEEM3 image file and its metadata.</p>
+<section id="id3">
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">filepathStr</span></code> <em>(String)</em>: Full path of the input file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mkdir</span></code> <em>(Variable, optional)</em>: If nonzero, create a destination data folder for the loaded file.</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>String</strong>: The name of the loaded image wave, or an empty string if file selection is cancelled.</p></li>
 </ul>
 </section>
 </section>
 <section id="peem3files">
-<h2><a class="toc-backref" href="#id11" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">PEEM3Files</span></code></a><a class="headerlink" href="#peem3files" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id16" role="doc-backlink"><code class="docutils literal notranslate"><span class="pre">PEEM3Files</span></code></a><a class="headerlink" href="#peem3files" title="Link to this heading"></a></h2>
 <p><strong>Signature</strong></p>
 <div class="highlight-igorpro notranslate"><div class="highlight"><pre><span></span>PEEM3Files([<span class="kt">int</span><span class="w"> </span>stack3d])
 </pre></div>
 </div>
-<p>Description of PEEM3Files.</p>
-<p>Auto-generated documentation stub for function <code class="docutils literal notranslate"><span class="pre">PEEM3Files</span></code>.</p>
-<section id="id3">
-<h3><a class="toc-backref" href="#id12" role="doc-backlink">Parameters</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>Load PEEM3 image files into Igor waves.</p>
+<p>Get the first wave to have the scale.</p>
+<section id="id5">
+<h3><a class="toc-backref" href="#id17" role="doc-backlink">Parameters</a><a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">stack3d]</span></code> <em>(Parameter)</em>: stack3d].</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stack3d</span></code> <em>(Integer, optional)</em>: Input 3D image stack.</p></li>
 </ul>
 </section>
-<section id="id4">
-<h3><a class="toc-backref" href="#id13" role="doc-backlink">Returns</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<section id="id6">
+<h3><a class="toc-backref" href="#id18" role="doc-backlink">Returns</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <ul class="simple">
-<li><p><strong>Variable</strong>: Return value.</p></li>
+<li><p><strong>Variable</strong>: NaN if input validation fails; otherwise zero after completing the operation.</p></li>
 </ul>
 </section>
 </section>

@@ -20,13 +20,13 @@ related to ATH ImageOp functionality.
 RangeMeanSigmaTopImage()
 ```
 
-Description of RangeMeanSigmaTopImage.
+Set the top image's color range to its mean plus or minus three standard deviations.
 
-Auto-generated documentation stub for function `RangeMeanSigmaTopImage`.
+Autoscale image of the top grap.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after updating the range; -1 when the top graph has no image wave.
 
 
 ## `GetLayerIndex`
@@ -37,18 +37,16 @@ Auto-generated documentation stub for function `RangeMeanSigmaTopImage`.
 GetLayerIndex(string grfName, [Wave/Z w])
 ```
 
-Description of GetLayerIndex.
-
-Auto-generated documentation stub for function `GetLayerIndex`.
+Return layer index.
 
 ### Parameters
 
-- `grfName` *(Parameter)*: grfName.
-- `w]` *(Parameter)*: w].
+- `grfName` *(String)*: Name of the graph window.
+- `w` *(Wave/Z, optional)*: Input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The zero-based index, or a negative value when no match is found.
 
 
 ## `AutoRangeTopImagePlane`
@@ -59,13 +57,13 @@ Auto-generated documentation stub for function `GetLayerIndex`.
 AutoRangeTopImagePlane()
 ```
 
-Description of AutoRangeTopImagePlane.
+Autoscale the color range of the displayed image plane.
 
-Auto-generated documentation stub for function `AutoRangeTopImagePlane`.
+Autoscale image of the top grap.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `SetZScaleOfImageStack`
@@ -76,13 +74,11 @@ Auto-generated documentation stub for function `AutoRangeTopImagePlane`.
 SetZScaleOfImageStack()
 ```
 
-Description of SetZScaleOfImageStack.
-
-Auto-generated documentation stub for function `SetZScaleOfImageStack`.
+Set the layer-axis scale of the image stack in the top graph.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `ImageSelectToCopyScale`
@@ -93,13 +89,73 @@ Auto-generated documentation stub for function `SetZScaleOfImageStack`.
 ImageSelectToCopyScale()
 ```
 
-Description of ImageSelectToCopyScale.
+Copy dimension scales from a selected image to the top image.
 
-Auto-generated documentation stub for function `ImageSelectToCopyScale`.
+Select the first wave from browser selection.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
+
+
+## `NormaliseImageStackWithImage`
+
+**Signature**
+
+```igorpro
+NormaliseImageStackWithImage(WAVE w3dRef, WAVE w2dRef)
+```
+
+Divide every layer of an image stack by a two-dimensional reference image.
+
+### Parameters
+
+- `w3dRef` *(Wave)*: Input image stack.
+- `w2dRef` *(Wave)*: Two-dimensional reference image used as the divisor.
+
+### Returns
+
+- **String**: The full path of the normalized output stack.
+
+
+## `NormaliseImageStackWithImageStack`
+
+**Signature**
+
+```igorpro
+NormaliseImageStackWithImageStack(WAVE w3dRef1, WAVE w3dRef2)
+```
+
+Divide an image stack pointwise by a second stack.
+
+### Parameters
+
+- `w3dRef1` *(Wave)*: Input image stack.
+- `w3dRef2` *(Wave)*: Image stack used as the divisor.
+
+### Returns
+
+- **String**: The full path of the normalized output stack.
+
+
+## `NormaliseImageStackWithProfile`
+
+**Signature**
+
+```igorpro
+NormaliseImageStackWithProfile(WAVE w3dRef, WAVE profWaveRef)
+```
+
+Normalize each stack layer by the corresponding value of a one-dimensional profile.
+
+### Parameters
+
+- `w3dRef` *(Wave)*: Input image stack.
+- `profWaveRef` *(Wave)*: One-dimensional normalization profile indexed by stack layer.
+
+### Returns
+
+- **String**: The full path of the normalized output stack.
 
 
 ## `GetScaledZoominImageWindow`
@@ -110,19 +166,20 @@ Auto-generated documentation stub for function `ImageSelectToCopyScale`.
 GetScaledZoominImageWindow([string grfName, variable w3d, int evenNum])
 ```
 
-Description of GetScaledZoominImageWindow.
+Extract the visible graph region into a correctly scaled image wave.
 
-Auto-generated documentation stub for function `GetScaledZoominImageWindow`.
+Get a the current window view as a new image with appropriate scaling. Works for 2D/3D waves. Added om
+12.05.2025.
 
 ### Parameters
 
-- `grfName` *(Parameter)*: grfName.
-- `w3d` *(Parameter)*: w3d.
-- `evenNum]` *(Parameter)*: evenNum].
+- `grfName` *(String, optional)*: Name of the graph window.
+- `w3d` *(Variable, optional)*: Input 3D wave or image stack.
+- `evenNum` *(Integer, optional)*: If nonzero, force an even number of rows and columns.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The scaled zoomin image window.
 
 
 ## `GetLayerFromImageStack`
@@ -133,13 +190,11 @@ Auto-generated documentation stub for function `GetScaledZoominImageWindow`.
 GetLayerFromImageStack()
 ```
 
-Description of GetLayerFromImageStack.
-
-Auto-generated documentation stub for function `GetLayerFromImageStack`.
+Return layer from image stack.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The zero-based index, or a negative value when no match is found.
 
 
 ## `RemoveImagesFromImageStack`
@@ -150,19 +205,19 @@ Auto-generated documentation stub for function `GetLayerFromImageStack`.
 RemoveImagesFromImageStack(WAVE wRef, variable startLayer, variable nrLayers)
 ```
 
-Description of RemoveImagesFromImageStack.
+Remove images from image stack.
 
-Auto-generated documentation stub for function `RemoveImagesFromImageStack`.
+Remove nrLayers starting at startLayer from w3dRef. Use it to change wave notes.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `startLayer` *(Parameter)*: startLayer.
-- `nrLayers` *(Parameter)*: nrLayers.
+- `wRef` *(Wave)*: Input wave.
+- `startLayer` *(Variable)*: Lower or starting start layer.
+- `nrLayers` *(Variable)*: Number of image-stack layers.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: NaN if input validation fails; otherwise zero after completing the operation.
 
 
 ## `RemoveRangeOfImagesFromImageStack`
@@ -173,18 +228,18 @@ Auto-generated documentation stub for function `RemoveImagesFromImageStack`.
 RemoveRangeOfImagesFromImageStack(WAVE wRef, string layerRangeList)
 ```
 
-Description of RemoveRangeOfImagesFromImageStack.
+Remove range of images from image stack.
 
-Auto-generated documentation stub for function `RemoveRangeOfImagesFromImageStack`.
+You need to remove from the end if the list maybe you are trying to remove all the layers?.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `layerRangeList` *(Parameter)*: layerRangeList.
+- `wRef` *(Wave)*: Input wave.
+- `layerRangeList` *(String)*: Layer range list.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `InsertImagesToImageStack`
@@ -195,19 +250,20 @@ Auto-generated documentation stub for function `RemoveRangeOfImagesFromImageStac
 InsertImagesToImageStack(WAVE wRef, WAVE wIn, variable layerN)
 ```
 
-Description of InsertImagesToImageStack.
+Insert images to image stack.
 
-Auto-generated documentation stub for function `InsertImagesToImageStack`.
+Insert an image at the position layerN of an image stack. Here the z dimension will change, as the
+DimDelta for rescaling. Note that the layerN stack will bethe first image after the insering stacks.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `wIn` *(Parameter)*: wIn.
-- `layerN` *(Parameter)*: layerN.
+- `wRef` *(Wave)*: to modify in place.
+- `wIn` *(Wave)*: Input wave or window name, as required by the operation.
+- `layerN` *(Variable)*: Zero-based image-stack layer index.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `AppendImagesToImageStack`
@@ -218,18 +274,18 @@ Auto-generated documentation stub for function `InsertImagesToImageStack`.
 AppendImagesToImageStack(WAVE wRef, string waveListStr)
 ```
 
-Description of AppendImagesToImageStack.
+Append images to image stack.
 
-Auto-generated documentation stub for function `AppendImagesToImageStack`.
+Append images in waveListStr to wRef.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `waveListStr` *(Parameter)*: waveListStr.
+- `wRef` *(Wave)*: Input wave.
+- `waveListStr` *(String)*: Wave used by the operation.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `ConcatenateImages`
@@ -240,18 +296,18 @@ Auto-generated documentation stub for function `AppendImagesToImageStack`.
 ConcatenateImages(string destWaveStr, string waveListStr)
 ```
 
-Description of ConcatenateImages.
+Concatenate images.
 
-Auto-generated documentation stub for function `ConcatenateImages`.
+Concatenate wave to destWaveStr.
 
 ### Parameters
 
-- `destWaveStr` *(Parameter)*: destWaveStr.
-- `waveListStr` *(Parameter)*: waveListStr.
+- `destWaveStr` *(String)*: Wave used by the operation.
+- `waveListStr` *(String)*: Wave used by the operation.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `ImageEdgeDetectionToStack`
@@ -259,22 +315,23 @@ Auto-generated documentation stub for function `ConcatenateImages`.
 **Signature**
 
 ```igorpro
-ImageEdgeDetectionToStack(WAVE w3dref, string method, [variable overwrite])
+ImageEdgeDetectionToStack(WAVE w3dref, string cmd, [variable overwrite])
 ```
 
-Description of ImageEdgeDetectionToStack.
+Apply an edge-detection command to every layer of an image stack.
 
-Auto-generated documentation stub for function `ImageEdgeDetectionToStack`.
+Applied the edge detection operation to w3dref and outputs a wave with name NameofWave(w3dref) + "_ed".
+You can optionally ovewrite the input wave.
 
 ### Parameters
 
-- `w3dref` *(Parameter)*: w3dref.
-- `method` *(Parameter)*: method.
-- `overwrite]` *(Parameter)*: overwrite].
+- `w3dref` *(Wave)*: Input 3D image stack.
+- `cmd` *(String)*: Igor command or operation string.
+- `overwrite` *(Variable, optional)*: If nonzero, replace the source or an existing destination.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `ImageRotateAndScale`
@@ -285,20 +342,21 @@ Auto-generated documentation stub for function `ImageEdgeDetectionToStack`.
 ImageRotateAndScale(WAVE wRef, variable angle, [variable backup, variable flipY])
 ```
 
-Description of ImageRotateAndScale.
+Rotate and rescale an image while preserving its physical coordinates.
 
-Auto-generated documentation stub for function `ImageRotateAndScale`.
+Math: If the side of the image is a, then the rotated image will have side a_rot = a * (cos(angle) +
+sin(angle)).
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `angle` *(Parameter)*: angle.
-- `backup` *(Parameter)*: backup.
-- `flipY]` *(Parameter)*: flipY].
+- `wRef` *(Wave)*: to modify in place.
+- `angle` *(Variable)*: Angle.
+- `backup` *(Variable, optional)*: If nonzero, preserve a backup of the source image.
+- `flipY` *(Variable, optional)*: If nonzero, flip the result along y.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `BackupTopImage`
@@ -309,13 +367,14 @@ Auto-generated documentation stub for function `ImageRotateAndScale`.
 BackupTopImage()
 ```
 
-Description of BackupTopImage.
+Backup top image.
 
-Auto-generated documentation stub for function `BackupTopImage`.
+Backup wave in the top window, the backup is created in the sourcewave datafolder (to be able to
+restore).
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `RestoreTopImageFromBackup`
@@ -326,18 +385,46 @@ Auto-generated documentation stub for function `BackupTopImage`.
 RestoreTopImageFromBackup([string grfName, variable keepBackup])
 ```
 
-Description of RestoreTopImageFromBackup.
+Restore top image from backup.
 
-Auto-generated documentation stub for function `RestoreTopImageFromBackup`.
+Restore an image from backup. When ParamIsDefault (wavenameStr = "") the image on the top window is used,
+otherwise WAVE $wavenameStr. Backup wave's name is *assummed* to be NameOfWave(wRef) +
+ksATHBackupWaveExtention.
 
 ### Parameters
 
-- `grfName` *(Parameter)*: grfName.
-- `keepBackup]` *(Parameter)*: keepBackup].
+- `grfName` *(String, optional)*: Name of the graph window.
+- `keepBackup` *(Variable, optional)*: If nonzero, retain the backup after restoration.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
+
+
+## `ExtractLayerRange`
+
+**Signature**
+
+```igorpro
+ExtractLayerRange(WAVE w3d, [variable startL, variable endL, variable doStack, variable nameNote])
+```
+
+Extract a contiguous layer range as a new stack or as individual image waves.
+
+When `doStack` is nonzero, the result is a scaled 3D stack. Otherwise the layers are written into a new data
+folder, optionally using names stored in the source wave note.
+
+### Parameters
+
+- `w3d` *(Wave)*: Input 3D image stack.
+- `startL` *(Variable, optional)*: Zero-based first layer to extract.
+- `endL` *(Variable, optional)*: Zero-based last layer to extract, inclusive.
+- `doStack` *(Variable, optional)*: If nonzero, combine the selected layers into one 3D stack.
+- `nameNote` *(Variable, optional)*: If nonzero, name extracted layers from the source wave note when possible.
+
+### Returns
+
+- **String**: The full path of the output stack or data folder; an empty string indicates invalid bounds.
 
 
 ## `AverageImageRangeToStackOffset`
@@ -348,19 +435,19 @@ Auto-generated documentation stub for function `RestoreTopImageFromBackup`.
 AverageImageRangeToStackOffset(WAVE w3d, variable NP0, variable NPL)
 ```
 
-Description of AverageImageRangeToStackOffset.
+Average image range to stack offset.
 
-Auto-generated documentation stub for function `AverageImageRangeToStackOffset`.
+Average NPL image planes in stack starting from N0.
 
 ### Parameters
 
-- `w3d` *(Parameter)*: w3d.
-- `NP0` *(Parameter)*: NP0.
-- `NPL` *(Parameter)*: NPL.
+- `w3d` *(Wave)*: Input 3D wave or image stack.
+- `NP0` *(Variable)*: First point index.
+- `NPL` *(Variable)*: Number of points or final point index.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `AverageImageRangeToStack`
@@ -371,19 +458,19 @@ Auto-generated documentation stub for function `AverageImageRangeToStackOffset`.
 AverageImageRangeToStack(WAVE w3d, variable NP0, variable NP1)
 ```
 
-Description of AverageImageRangeToStack.
+Average image range to stack.
 
-Auto-generated documentation stub for function `AverageImageRangeToStack`.
+Average image range NP0-NP1, including endpoints.
 
 ### Parameters
 
-- `w3d` *(Parameter)*: w3d.
-- `NP0` *(Parameter)*: NP0.
-- `NP1` *(Parameter)*: NP1.
+- `w3d` *(Wave)*: Input 3D wave or image stack.
+- `NP0` *(Variable)*: First point index.
+- `NP1` *(Variable)*: Second point index.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `HistogramShiftToGaussianCenter`
@@ -394,18 +481,19 @@ Auto-generated documentation stub for function `AverageImageRangeToStack`.
 HistogramShiftToGaussianCenter(WAVE w2d, [variable overwrite])
 ```
 
-Description of HistogramShiftToGaussianCenter.
+Histogram shift to gaussian center.
 
-Auto-generated documentation stub for function `HistogramShiftToGaussianCenter`.
+Move the histogram center to the center of the fitted gaussian. Useful for symmetrising XMCD/XMLD images.
+Add the value to w2d.
 
 ### Parameters
 
-- `w2d` *(Parameter)*: w2d.
-- `overwrite]` *(Parameter)*: overwrite].
+- `w2d` *(Wave)*: Input 2D image.
+- `overwrite` *(Variable, optional)*: If nonzero, replace the source or an existing destination.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `HistogramShiftToGaussianCenterStack`
@@ -416,18 +504,19 @@ Auto-generated documentation stub for function `HistogramShiftToGaussianCenter`.
 HistogramShiftToGaussianCenterStack(WAVE w3d, [variable overwrite])
 ```
 
-Description of HistogramShiftToGaussianCenterStack.
+Histogram shift to gaussian center stack.
 
-Auto-generated documentation stub for function `HistogramShiftToGaussianCenterStack`.
+Move the histogram center to the center of the fitted gaussian. Useful for symmetrising XMCD/XMLD images.
+The function returns the applies shift.
 
 ### Parameters
 
-- `w3d` *(Parameter)*: w3d.
-- `overwrite]` *(Parameter)*: overwrite].
+- `w3d` *(Wave)*: Input 3D wave or image stack.
+- `overwrite` *(Variable, optional)*: If nonzero, replace the source or an existing destination.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The Gaussian-center shift applied to the final processed layer.
 
 
 ## `GrayToRGBImage`
@@ -438,17 +527,15 @@ Auto-generated documentation stub for function `HistogramShiftToGaussianCenterSt
 GrayToRGBImage(WAVE wRef)
 ```
 
-Description of GrayToRGBImage.
-
-Auto-generated documentation stub for function `GrayToRGBImage`.
+Convert a grayscale image into an RGB image using the Grays color table.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
+- `wRef` *(Wave)*: Input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `RGB2Gray8Image`
@@ -459,17 +546,17 @@ Auto-generated documentation stub for function `GrayToRGBImage`.
 RGB2Gray8Image(WAVE wRef)
 ```
 
-Description of RGB2Gray8Image.
+Convert an RGB image to 8-bit grayscale.
 
-Auto-generated documentation stub for function `RGB2Gray8Image`.
+Convert a 3D RGB image to grayscale (8-bit).
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
+- `wRef` *(Wave)*: Input wave.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `RGB2Gray16Image`
@@ -480,17 +567,18 @@ Auto-generated documentation stub for function `RGB2Gray8Image`.
 RGB2Gray16Image(WAVE wRef)
 ```
 
-Description of RGB2Gray16Image.
+Convert an RGB image to 16-bit grayscale.
 
-Auto-generated documentation stub for function `RGB2Gray16Image`.
+Convert a 3D RGB image to grayscale (16-bit) /W/U. The RGB values are converted into the luminance Y of
+the YIQ standard using.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
+- `wRef` *(Wave)*: to modify in place.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `FlattenImage`
@@ -498,24 +586,23 @@ Auto-generated documentation stub for function `RGB2Gray16Image`.
 **Signature**
 
 ```igorpro
-FlattenImage(WAVE wRef, string method, variable kernelN, variable iterN, [int overwrite])
+FlattenImage(WAVE wRef, string method, string kind, variable kernelN, variable iterN, [int overwrite])
 ```
 
-Description of FlattenImage.
-
-Auto-generated documentation stub for function `FlattenImage`.
+Flatten image.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `method` *(Parameter)*: method.
-- `kernelN` *(Parameter)*: kernelN.
-- `iterN` *(Parameter)*: iterN.
-- `overwrite]` *(Parameter)*: overwrite].
+- `wRef` *(Wave)*: to modify in place.
+- `method` *(String)*: Algorithm or processing method to apply.
+- `kind` *(String)*: Filter or morphology operation to apply.
+- `kernelN` *(Variable)*: Kernel width in points.
+- `iterN` *(Variable)*: Number of processing iterations.
+- `overwrite` *(Integer, optional)*: If nonzero, replace the source or an existing destination.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `ImgRemoveBackground`
@@ -523,24 +610,24 @@ Auto-generated documentation stub for function `FlattenImage`.
 **Signature**
 
 ```igorpro
-ImgRemoveBackground(WAVE wRef, [variable order, int useMask, int w3d, variable layerN])
+ImgRemoveBackground(WAVE wRef, [variable order, int useMask, variable layerN])
 ```
 
-Description of ImgRemoveBackground.
+Image remove background.
 
-Auto-generated documentation stub for function `ImgRemoveBackground`.
+Remove background of an image (default 1st order). Use order = n, n > 1 for higher order polynomial. Use
+overwite = 1 to overwite the original wave.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `order` *(Parameter)*: order.
-- `useMask` *(Parameter)*: useMask.
-- `w3d` *(Parameter)*: w3d.
-- `layerN]` *(Parameter)*: layerN].
+- `wRef` *(Wave)*: to modify in place.
+- `order` *(Variable, optional)*: Interpolation or polynomial order.
+- `useMask` *(Integer, optional)*: If nonzero, restrict the calculation to the supplied mask.
+- `layerN` *(Variable, optional)*: Zero-based image-stack layer index.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
 
 
 ## `ImgRemoveBackgroundCols`
@@ -551,18 +638,19 @@ Auto-generated documentation stub for function `ImgRemoveBackground`.
 ImgRemoveBackgroundCols(WAVE wRef, variable orderN)
 ```
 
-Description of ImgRemoveBackgroundCols.
+Remove a fitted background independently from each image column.
 
-Auto-generated documentation stub for function `ImgRemoveBackgroundCols`.
+Image Remove 1-d background from each column. Make/O/N=(DimSize(wRef,1), orderN) fitCoeff fitCoeff[i][] =
+W_coef[q].
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `orderN` *(Parameter)*: orderN.
+- `wRef` *(Wave)*: to modify in place.
+- `orderN` *(Variable)*: Interpolation or polynomial order.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `PixelateImage`
@@ -573,20 +661,20 @@ Auto-generated documentation stub for function `ImgRemoveBackgroundCols`.
 PixelateImage(WAVE wRef, variable nx, variable ny, [variable i16])
 ```
 
-Description of PixelateImage.
+Pixelate image.
 
-Auto-generated documentation stub for function `PixelateImage`.
+Pixalate a 2D image using a (nx, ny) binning. Set i16 to preserve a 16-bit integer wave.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `nx` *(Parameter)*: nx.
-- `ny` *(Parameter)*: ny.
-- `i16]` *(Parameter)*: i16].
+- `wRef` *(Wave)*: to modify in place.
+- `nx` *(Variable)*: Number of points along the x dimension.
+- `ny` *(Variable)*: Number of points along the y dimension.
+- `i16` *(Variable, optional)*: If nonzero, produce a 16-bit integer image.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `PixelateImageStack`
@@ -597,46 +685,46 @@ Auto-generated documentation stub for function `PixelateImage`.
 PixelateImageStack(WAVE wRef, variable nx, variable ny, variable nz, [variable i16])
 ```
 
-Description of PixelateImageStack.
+Pixelate image stack.
 
-Auto-generated documentation stub for function `PixelateImageStack`.
+Pixalate a 3D image stack using a (nx, ny, nz) binning. Set i16 to preserve a 16-bit integer wave.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `nx` *(Parameter)*: nx.
-- `ny` *(Parameter)*: ny.
-- `nz` *(Parameter)*: nz.
-- `i16]` *(Parameter)*: i16].
+- `wRef` *(Wave)*: to modify in place.
+- `nx` *(Variable)*: Number of points along the x dimension.
+- `ny` *(Variable)*: Number of points along the y dimension.
+- `nz` *(Variable)*: Number of points or layers along the z dimension.
+- `i16` *(Variable, optional)*: If nonzero, produce a 16-bit integer image.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
-## `MatrixFilter3D`
+## `ImageFilter3D`
 
 **Signature**
 
 ```igorpro
-MatrixFilter3D(WAVE wRef, string method, variable size, variable passes, [int overwite])
+ImageFilter3D(WAVE wRef, string method, variable size, variable passes, [int overwrite])
 ```
 
-Description of MatrixFilter3D.
+Apply an Igor matrix filter independently to every layer of a 3D image stack.
 
-Auto-generated documentation stub for function `MatrixFilter3D`.
+Reassembles the filtered planes with the original scaling and wave note. By default the source is overwritten; otherwise a new wave with a `_filter` suffix is created.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `method` *(Parameter)*: method.
-- `size` *(Parameter)*: size.
-- `passes` *(Parameter)*: passes.
-- `overwite]` *(Parameter)*: overwite].
+- `wRef` *(Wave)*: Input 3D image stack.
+- `method` *(String)*: Matrix-filter method: `gauss`, `avg`, `median`, `max`, or `min`.
+- `size` *(Variable)*: Filter-kernel size in points.
+- `passes` *(Variable)*: Number of filter passes.
+- `overwrite` *(Integer, optional)*: If nonzero, replace `wRef`; defaults to one.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero on success; -1 for an unsupported method or a non-3D input wave.
 
 
 ## `FlattenImage3D`
@@ -644,24 +732,25 @@ Auto-generated documentation stub for function `MatrixFilter3D`.
 **Signature**
 
 ```igorpro
-FlattenImage3D(WAVE wRef, string method, variable size, variable passes, [int overwrite])
+FlattenImage3D(WAVE wRef, string method, string kind, variable size, variable passes, [int overwrite])
 ```
 
-Description of FlattenImage3D.
+Flatten image 3D.
 
-Auto-generated documentation stub for function `FlattenImage3D`.
+Applies the MatrixFilter/N=size/P=passes method wRef to each layer of wRef. Restore scale here.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `method` *(Parameter)*: method.
-- `size` *(Parameter)*: size.
-- `passes` *(Parameter)*: passes.
-- `overwrite]` *(Parameter)*: overwrite].
+- `wRef` *(Wave)*: Input wave.
+- `method` *(String)*: Algorithm or processing method to apply.
+- `kind` *(String)*: Filter or morphology operation to apply.
+- `size` *(Variable)*: Size.
+- `passes` *(Variable)*: Number of filter passes to apply.
+- `overwrite` *(Integer, optional)*: If nonzero, replace the source or an existing destination.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 
 
 ## `ImageWindow3D`
@@ -672,18 +761,46 @@ Auto-generated documentation stub for function `FlattenImage3D`.
 ImageWindow3D(WAVE wRef, string method)
 ```
 
-Description of ImageWindow3D.
+Image window 3D.
 
-Auto-generated documentation stub for function `ImageWindow3D`.
+Restore scale here.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `method` *(Parameter)*: method.
+- `wRef` *(Wave)*: Input wave.
+- `method` *(String)*: Algorithm or processing method to apply.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
+
+
+## `ImageResampling`
+
+**Signature**
+
+```igorpro
+ImageResampling(WAVE wRef,  string func, variable xOffset, variable yOffset, [int overwrite, variable xscale, variable yscale])
+```
+
+Resample and translate an image with a selected interpolation method.
+
+Supported interpolation functions are `bilinear`, `nn`, `cubic`, `spline`, and `sinc`. Offsets and scale
+factors are passed to Igor's `ImageInterpolate` operation.
+
+### Parameters
+
+- `wRef` *(Wave)*: Input wave.
+- `func` *(String)*: Interpolation function: `bilinear`, `nn`, `cubic`, `spline`, or `sinc`.
+- `xOffset` *(Variable)*: Horizontal translation in source pixels.
+- `yOffset` *(Variable)*: Vertical translation in source pixels.
+- `overwrite` *(Integer, optional)*: If nonzero, replace the source or existing destination.
+- `xscale` *(Variable, optional)*: Horizontal resampling factor.
+- `yscale` *(Variable, optional)*: Vertical resampling factor.
+
+### Returns
+
+- **String**: The full path of the resampled image, or an empty string for invalid input.
 
 
 ## `ScaleImagePreserveDims`
@@ -694,39 +811,111 @@ Auto-generated documentation stub for function `ImageWindow3D`.
 ScaleImagePreserveDims(WAVE wRef, variable factor, [variable factorY])
 ```
 
-Description of ScaleImagePreserveDims.
-
-Auto-generated documentation stub for function `ScaleImagePreserveDims`.
+Scale image preserve dims.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `factor` *(Parameter)*: factor.
-- `factorY]` *(Parameter)*: factorY].
+- `wRef` *(Wave)*: Input wave.
+- `factor` *(Variable)*: Factor.
+- `factorY` *(Variable, optional)*: Factor y.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
-## `ScaleFoVWithObjectiveCurrent`
+## `ScaleFoVWithFactor`
 
 **Signature**
 
 ```igorpro
-ScaleFoVWithObjectiveCurrent(WAVE wRef, variable mobj,[int interval])
+ScaleFoVWithFactor(WAVE wRef, variable factor,[int interval])
 ```
 
-Description of ScaleFoVWithObjectiveCurrent.
+Scale an image's field of view by a multiplicative factor.
 
-Auto-generated documentation stub for function `ScaleFoVWithObjectiveCurrent`.
+Scale image with factor.
 
 ### Parameters
 
-- `wRef` *(Parameter)*: wRef.
-- `mobj` *(Parameter)*: mobj.
-- `interval]` *(Parameter)*: interval].
+- `wRef` *(Wave)*: to modify in place.
+- `factor` *(Variable)*: Factor.
+- `interval` *(Integer, optional)*: Sampling interval for the generated or rescaled data.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
+
+
+## `ComputeImageZScore`
+
+**Signature**
+
+```igorpro
+ComputeImageZScore(Wave wRef, [string grfName])
+```
+
+Create a z-score-normalized copy of an image wave.
+
+Uses statistics from the graph ROI when one exists, or from the complete wave otherwise, and saves the result beside the source with a `_zscr` suffix.
+
+### Parameters
+
+- `wRef` *(Wave)*: Input image wave.
+- `grfName` *(String, optional)*: Graph containing the ROI; defaults to the active graph.
+
+### Returns
+
+- **Variable**: Zero after completing the operation.
+
+
+## `MultiThreadLoess3D`
+
+**Signature**
+
+```igorpro
+MultiThreadLoess3D(WAVE wRef, variable npts,variable order, variable passes, variable extrapolate, variable robust, [variable overwrite])
+```
+
+Apply LOESS smoothing to every image-stack layer using Igor's worker threads.
+
+Collects the free waves returned by `Loess3D_Worker`, concatenates them into a 3D result, and preserves the source note.
+
+### Parameters
+
+- `wRef` *(Wave)*: Input 3D image stack.
+- `npts` *(Variable)*: LOESS neighborhood size.
+- `order` *(Variable)*: Polynomial order used by LOESS.
+- `passes` *(Variable)*: Number of robust-fitting passes.
+- `extrapolate` *(Variable)*: Extrapolation mode passed to Igor's `Loess` operation.
+- `robust` *(Variable)*: Robust-fitting mode passed to Igor's `Loess` operation.
+- `overwrite` *(Variable, optional)*: If nonzero, replace the input stack; otherwise create a wave with a `_loess` suffix.
+
+### Returns
+
+- **String**: The resulting string; an empty string indicates that no result was available.
+
+
+## `Loess3D_Worker`
+
+**Signature**
+
+```igorpro
+Loess3D_Worker(WAVE wRef, variable npts,variable order, variable passes, variable extrapolate, variable robust, variable plane)
+```
+
+Apply LOESS smoothing to one image-stack layer.
+
+### Parameters
+
+- `wRef` *(Wave)*: Input wave.
+- `npts` *(Variable)*: Number of output points or LOESS neighborhood size, as applicable.
+- `order` *(Variable)*: Polynomial order used by LOESS.
+- `passes` *(Variable)*: Number of robust-fitting passes.
+- `extrapolate` *(Variable)*: Extrapolation mode passed to Igor's `Loess` operation.
+- `robust` *(Variable)*: Robust-fitting mode passed to Igor's `Loess` operation.
+- `plane` *(Variable)*: Zero-based image-stack plane index.
+
+### Returns
+
+- **Wave**: Reference to the result wave; a null wave reference indicates failure where supported.

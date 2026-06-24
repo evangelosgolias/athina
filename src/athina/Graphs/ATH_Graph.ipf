@@ -39,12 +39,12 @@
 
 
 /// @function DuplicateWaveAndDisplayOfTopImage
-/// @brief Description of DuplicateWaveAndDisplayOfTopImage.
+/// @brief Duplicate the top image wave and display the copy in a new graph.
 /// @details
-/// Auto-generated documentation stub for function `DuplicateWaveAndDisplayOfTopImage`.
-/// @param grfName] Parameter grfName].
-/// @returns Variable Return value.
-
+/// Duplicate the graph of an image (2d, 3d wave) along with the wave at its data folder (not cwd). Function
+/// DuplicateTopImage([string grfName]).
+/// @param grfName (optional) Name of the graph window.
+/// @returns Zero after completing the operation.
 static Function DuplicateWaveAndDisplayOfTopImage([string grfName])
 	/// Duplicate the graph of an image (2d, 3d wave) along with the wave at its
 	/// data folder (not cwd). 
@@ -90,14 +90,14 @@ End
 //End
 
 /// @function TextAnnotationOnTopGraph
-/// @brief Description of TextAnnotationOnTopGraph.
+/// @brief Add a text annotation to the active graph.
 /// @details
-/// Auto-generated documentation stub for function `TextAnnotationOnTopGraph`.
-/// @param text Parameter text.
-/// @param fSize Parameter fSize.
-/// @param color] Parameter color].
-/// @returns Variable Return value.
-
+/// Add text on the top graph. Optionally you can set fSize and text color. Defaults are fSize = 12 and color
+/// = black. Block using winNameStr.
+/// @param text Text to display or process.
+/// @param fSize (optional) F size.
+/// @param color (optional) Color specification.
+/// @returns Zero after completing the operation.
 static Function TextAnnotationOnTopGraph(string text, [variable fSize, string color])
 	/// Add text on the top graph. Optionally you can set fSize and text color.
 	/// Defaults are fSize = 12 and color = black.
@@ -134,6 +134,10 @@ static Function TextAnnotationOnTopGraph(string text, [variable fSize, string co
 	return 0
 End
 
+/// @function GetColor
+/// @brief Return the RGB triplet for a standard trace-color index.
+/// @param colorIndex Zero-based index into the standard trace-color palette.
+/// @returns The red, green, and blue values for the selected palette index.
 static Function [variable red, variable green, variable blue] GetColor(variable colorIndex)
 	/// Give a RGB triplet for 16 distinct colors.
 	/// https://www.wavemetrics.com/forum/general/different-colors-different-waves
@@ -196,12 +200,11 @@ static Function [variable red, variable green, variable blue] GetColor(variable 
 End
 
 /// @function GetgLayer
-/// @brief Description of GetgLayer.
+/// @brief Return the displayed layer index for a 3D image wave.
 /// @details
-/// Auto-generated documentation stub for function `GetgLayer`.
-/// @param grfName Parameter grfName.
-/// @returns Variable Return value.
-
+/// Returns the /P=num plane displayed in windowNameStr.
+/// @param grfName Name of the graph window.
+/// @returns The zero-based index, or a negative value when no match is found.
 static Function GetgLayer(string grfName)
 	// Returns the /P=num plane displayed in windowNameStr
 	if(!strlen(grfName))
@@ -217,6 +220,10 @@ static Function GetgLayer(string grfName)
 	endif
 End
 
+/// @function GetAxes
+/// @brief Return the x and y axes used by a graph image.
+/// @param grfName (optional) Name of the graph window.
+/// @returns The horizontal and vertical axis names used by the graph image.
 static Function [string axisX, string axisY] GetAxes([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
 	GetAxis/Q/W=$grfName top
@@ -256,19 +263,20 @@ static Function [string axisX, variable minVX, variable maxVX, string axisY,
 	return [axisX, minVX, maxVX, axisY, minVY, maxVY]
 End
 
+/// @function GetGraphCtabStr
+/// @brief Return the color-table portion of an image recreation string.
+/// @param grfName (optional) Name of the graph window.
+/// @returns The image's `ctab` recreation-string field, or an empty string if unavailable.
 static Function/S GetGraphCtabStr([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName), grfName, "")
 	return StringByKey("RECREATION",ImageInfo(grfName, StringFromList(0, ImageNameList(grfName,";")), 0))
 End
 
 /// @function SetGraphCtabStr
-/// @brief Description of SetGraphCtabStr.
-/// @details
-/// Auto-generated documentation stub for function `SetGraphCtabStr`.
-/// @param ctabStr Parameter ctabStr.
-/// @param grfName] Parameter grfName].
-/// @returns Variable Return value.
-
+/// @brief Apply an Igor color-table recreation string to a graph image.
+/// @param ctabStr Text containing the color table str.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Zero after completing the operation.
 static Function SetGraphCtabStr(string ctabStr, [string grfName])
 	grfName = SelectString(ParamIsDefault(grfName), grfName, "")	
 	string cmdStr = "ModifyImage "
@@ -279,6 +287,12 @@ static Function SetGraphCtabStr(string ctabStr, [string grfName])
 End
 
 
+/// @function AxisValToRel2D
+/// @brief Convert image-axis coordinates to relative graph coordinates.
+/// @param w Displayed image wave used to resolve graph axes and bounds.
+/// @param xv X-axis coordinate.
+/// @param yv Y-axis coordinate.
+/// @returns The relative x and y coordinates in the graph image rectangle.
 static Function [variable relx, variable rely] AxisValToRel2D(WAVE w, variable xv, variable yv)
 	// Convert for axis to relative coordinates [0, 1]
 	if(!(WaveDims(w)==2 || WaveDims(w)==3))
@@ -292,6 +306,12 @@ static Function [variable relx, variable rely] AxisValToRel2D(WAVE w, variable x
 	return [relx, rely]
 End
 
+/// @function RelToAxisVal2D
+/// @brief Convert relative graph coordinates to image-axis coordinates.
+/// @param w Displayed image wave used to resolve graph axes and bounds.
+/// @param xr Relative x coordinate in the range 0–1.
+/// @param yr Relative y coordinate in the range 0–1.
+/// @returns The corresponding x and y graph-axis values.
 static Function [variable px, variable py] RelToAxisVal2D(WAVE w, variable xr, variable yr)
 	// Convert from relative to axis coordinates
 	// if xr or yr are outside of [0,1] NaN is returned
@@ -307,6 +327,10 @@ static Function [variable px, variable py] RelToAxisVal2D(WAVE w, variable xr, v
 	return [px, py]
 End
 
+/// @function TopImageToWaveRef
+/// @brief Return a reference to the top image in a graph.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 static Function/WAVE TopImageToWaveRef([string grfName])
 	// Return a wave reference from the top graph
 	
@@ -321,6 +345,10 @@ static Function/WAVE TopImageToWaveRef([string grfName])
 	endif
 End
 
+/// @function TopImageName
+/// @brief Return the name of the top image in a graph.
+/// @param grfName (optional) Name of the graph window.
+/// @returns The top image name, or an empty string if the graph contains no image.
 Function/S TopImageName([string grfName])
 	// Name of top graph's image. Or grfName's image!
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
@@ -332,6 +360,10 @@ Function/S TopImageName([string grfName])
 	endif
 end
 
+/// @function TopGraphToWaveRef
+/// @brief Return the primary wave displayed in the top graph.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 static Function/WAVE TopGraphToWaveRef([string grfName])
 	// Return a wave reference from the top graph
 	
@@ -346,12 +378,11 @@ static Function/WAVE TopGraphToWaveRef([string grfName])
 End
 
 /// @function LinkGraphSliders
-/// @brief Description of LinkGraphSliders.
+/// @brief Link the image-layer sliders of multiple graphs.
 /// @details
-/// Auto-generated documentation stub for function `LinkGraphSliders`.
-/// @param grfName] Parameter grfName].
-/// @returns Variable Return value.
-
+/// Link the sliders of two graphs. Have you already set a link between graph sliders.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function LinkGraphSliders([string grfName])
 	// Link the sliders of two graphs
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
@@ -385,12 +416,11 @@ static Function LinkGraphSliders([string grfName])
 End
 
 /// @function LinkedImgSliderHook
-/// @brief Description of LinkedImgSliderHook.
+/// @brief Handle linked image slider hook events.
 /// @details
-/// Auto-generated documentation stub for function `LinkedImgSliderHook`.
-/// @param &sa Parameter &sa.
-/// @returns Variable Return value.
-
+/// Remove metadata from the linked graph.
+/// @param sa Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function LinkedImgSliderHook(STRUCT WMSliderAction &sa) : SliderControl
 	//
 	if (sa.eventCode & 9) // Mouse moved or arrow key moved the slider & Value Set
@@ -418,11 +448,11 @@ End
 // ----- Link Axes range
 
 /// @function LinkGraphRanges
-/// @brief Description of LinkGraphRanges.
+/// @brief Link axis ranges across multiple graph windows.
 /// @details
-/// Auto-generated documentation stub for function `LinkGraphRanges`.
-/// @param grfName] Parameter grfName].
-/// @returns Variable Return value.
+/// Have you already set a link between graph sliders.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Zero after completing the operation.
 static Function LinkGraphRanges([string grfName])
 	// 
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
@@ -465,12 +495,12 @@ static Function LinkGraphRanges([string grfName])
 End
 
 /// @function LinkedGraphAxesRangeHook
-/// @brief Description of LinkedGraphAxesRangeHook.
+/// @brief Handle linked graph axes range hook events.
 /// @details
-/// Auto-generated documentation stub for function `LinkedGraphAxesRangeHook`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Note: On Windows, you have to mouse-click to enable it. Catch vertical expansion static Function
+/// ShowZScaleInGraph(STRUCT WMWinHookStruct &s).
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function LinkedGraphAxesRangeHook(STRUCT WMWinHookStruct &s)
 	variable hookResult
 	if(cmpstr(s.cursorName, "-"))

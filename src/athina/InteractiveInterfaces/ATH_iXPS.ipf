@@ -45,12 +45,10 @@
 static constant kATHEnergyPerPixel =   0.00558659 // energy per pixel - default setting 02.09.2024 [2K image]
 
 /// @function MainMenu
-/// @brief Description of MainMenu.
+/// @brief Launch the interactive XPS profiling workflow from the active image.
 /// @details
-/// Auto-generated documentation stub for function `MainMenu`.
-/// @returns Variable Return value.
-
-
+/// Cursors to set the scale. Cursors to get the profile.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function MainMenu()
 	
 	string winNameStr = WinName(0, 1, 1)
@@ -82,6 +80,10 @@ static Function MainMenu()
 	return 0
 End
 
+/// @function InitialiseFolder
+/// @brief Create the data folder and state used by an interactive XPS profile window.
+/// @param winNameStr Name of the target graph or panel window.
+/// @returns Reference to the resulting data folder.
 static Function/DF InitialiseFolder(string winNameStr)
 	/// All initialisation happens here. Folders, waves and local/global variables
 	/// needed are created here. Use the 3D wave in top window.
@@ -167,12 +169,11 @@ static Function/DF InitialiseFolder(string winNameStr)
 End
 
 /// @function InitialiseGraph
-/// @brief Description of InitialiseGraph.
+/// @brief Initialize the graph used by the interactive XPS profiler.
 /// @details
-/// Auto-generated documentation stub for function `InitialiseGraph`.
-/// @param dfr Parameter dfr.
-/// @returns Variable Return value.
-
+/// Here we will create the profile plot and graph and plot the profile.
+/// @param dfr Reference to the data folder to inspect or modify.
+/// @returns Zero after completing the operation.
 static Function InitialiseGraph(DFREF dfr)
 	/// Here we will create the profile plot and graph and plot the profile
 	string plotNameStr = "ATH_XPSProf_" + GetDataFolder(0, dfr)
@@ -185,12 +186,11 @@ static Function InitialiseGraph(DFREF dfr)
 End
 
 /// @function XPSPlot
-/// @brief Description of XPSPlot.
+/// @brief Create or update the interactive XPS profile plot.
 /// @details
-/// Auto-generated documentation stub for function `XPSPlot`.
-/// @param dfr Parameter dfr.
-/// @returns Variable Return value.
-
+/// Let's set SaveProfileButton to red if nothing is set or green otherwise.
+/// @param dfr Reference to the data folder to inspect or modify.
+/// @returns Zero after completing the operation.
 static Function XPSPlot(DFREF dfr)
 	string rootFolderStr = GetDataFolder(1, dfr)
 	SVAR/SDFR=dfr gATH_WindowNameStr
@@ -259,11 +259,8 @@ static Function XPSPlot(DFREF dfr)
 End
 
 /// @function ClearXPSMarkings
-/// @brief Description of ClearXPSMarkings.
-/// @details
-/// Auto-generated documentation stub for function `ClearXPSMarkings`.
-/// @returns Variable Return value.
-
+/// @brief Clear cursor and width markings used by the XPS profiler.
+/// @returns Zero after completing the operation.
 static Function ClearXPSMarkings()
 	SetDrawLayer UserFront
 	DrawAction delete
@@ -272,12 +269,12 @@ static Function ClearXPSMarkings()
 End
 
 /// @function CursorHookFunction
-/// @brief Description of CursorHookFunction.
+/// @brief Handle cursor hook events.
 /// @details
-/// Auto-generated documentation stub for function `CursorHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Window hook function. The XPS profile is plotted from E to F. Activate window, e.g after pressing
+/// "Restore Settings".
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 	/// Window hook function
 	/// The XPS profile is plotted from E to F
@@ -428,12 +425,13 @@ static Function CursorHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 /// @function GraphHookFunction
-/// @brief Description of GraphHookFunction.
+/// @brief Handle panel hook events.
 /// @details
-/// Auto-generated documentation stub for function `GraphHookFunction`.
-/// @param &s Parameter &s.
-/// @returns Variable Return value.
-
+/// Window is about to be killed. When using case 2 then I cannot KillWindow and KillDataFolder. See the
+/// discussion with Wavemetrics. If you want to use case 2, then you need to invoke. Execute/P cmdStr. I do
+/// not see any issue in using here case 17 (14.12.2023).
+/// @param s Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 	string parentGraphWin = GetUserData(s.winName, "", "ATH_parentGraphWin")
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(s.winName, "", "ATH_rootdfrStr"))
@@ -463,13 +461,12 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 End
 
 /// @function SaveProfile
-/// @brief Description of SaveProfile.
+/// @brief Save profile.
 /// @details
-/// Auto-generated documentation stub for function `SaveProfile`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
-
+/// String and wave references. Numeric variables from the data folder. It has to come first, it is used to
+/// scale to BE.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 
@@ -544,12 +541,11 @@ static Function SaveProfile(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 /// @function SaveDefaultSettings
-/// @brief Description of SaveDefaultSettings.
+/// @brief Save default settings.
 /// @details
-/// Auto-generated documentation stub for function `SaveDefaultSettings`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// From main data folder. From default settings folder.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 
@@ -595,12 +591,11 @@ static Function SaveDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonCont
 End
 
 /// @function RestoreDefaultSettings
-/// @brief Description of RestoreDefaultSettings.
+/// @brief Restore default settings.
 /// @details
-/// Auto-generated documentation stub for function `RestoreDefaultSettings`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Current settings. Default settings. Use the same local variables for the second line.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -667,12 +662,11 @@ static Function RestoreDefaultSettings(STRUCT WMButtonAction &B_Struct): ButtonC
 End
 
 /// @function ShowProfileWidth
-/// @brief Description of ShowProfileWidth.
+/// @brief Show profile width.
 /// @details
-/// Auto-generated documentation stub for function `ShowProfileWidth`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// We have to find the vertices of the polygon representing.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(B_Struct.win, "", "ATH_rootdfrStr"))
 	SVAR/Z WindowNameStr= dfr:gATH_WindowNameStr
@@ -733,12 +727,9 @@ static Function ShowProfileWidth(STRUCT WMButtonAction &B_Struct): ButtonControl
 End
 
 /// @function PlotProfile
-/// @brief Description of PlotProfile.
-/// @details
-/// Auto-generated documentation stub for function `PlotProfile`.
-/// @param cb Parameter cb.
-/// @returns Variable Return value.
-
+/// @brief Plot profile.
+/// @param cb Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function PlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
@@ -755,12 +746,9 @@ static Function PlotProfile(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 /// @function Layer3D
-/// @brief Description of Layer3D.
-/// @details
-/// Auto-generated documentation stub for function `Layer3D`.
-/// @param cb Parameter cb.
-/// @returns Variable Return value.
-
+/// @brief Layer 3D.
+/// @param cb Igor action structure describing the control or window event.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function Layer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
 	NVAR/Z selectedLayer = dfr:gATH_selectedLayer
@@ -786,12 +774,11 @@ static Function Layer3D(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 /// @function SetProfileWidth
-/// @brief Description of SetProfileWidth.
+/// @brief Set profile width.
 /// @details
-/// Auto-generated documentation stub for function `SetProfileWidth`.
-/// @param sv Parameter sv.
-/// @returns Variable Return value.
-
+/// Numeric variables. String and wave references. Local variables.
+/// @param sv Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableControl
 
 	switch(sv.eventCode)
@@ -835,13 +822,12 @@ static Function SetProfileWidth(STRUCT WMSetVariableAction& sv) : SetVariableCon
 End
 
 /// @function SetCursorsGH
-/// @brief Description of SetCursorsGH.
+/// @brief Set the profile cursors from the stored graph coordinates.
 /// @details
-/// Auto-generated documentation stub for function `SetCursorsGH`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
-
+/// Numeric variables. Use the same local variables for the second line. Draw the midpoint using the same
+/// lcoal variable.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SetCursorsGH(STRUCT WMButtonAction &B_Struct): ButtonControl)
 
 
@@ -913,12 +899,9 @@ static Function SetCursorsGH(STRUCT WMButtonAction &B_Struct): ButtonControl)
 End
 
 /// @function UseBE
-/// @brief Description of UseBE.
-/// @details
-/// Auto-generated documentation stub for function `UseBE`.
-/// @param cb Parameter cb.
-/// @returns Variable Return value.
-	
+/// @brief Use binding energy.
+/// @param cb Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function UseBE(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 	
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(cb.win, "", "ATH_rootdfrStr"))
@@ -940,12 +923,11 @@ static Function UseBE(STRUCT WMCheckboxAction& cb) : CheckBoxControl
 End
 
 /// @function Sethv
-/// @brief Description of Sethv.
+/// @brief Set photon energy.
 /// @details
-/// Auto-generated documentation stub for function `Sethv`.
-/// @param sv Parameter sv.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param sv Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function Sethv(STRUCT WMSetVariableAction& sv) : SetVariableControl	
 
 	switch(sv.eventCode)
@@ -959,12 +941,11 @@ static Function Sethv(STRUCT WMSetVariableAction& sv) : SetVariableControl
 End
 
 /// @function SetWf
-/// @brief Description of SetWf.
+/// @brief Set work function.
 /// @details
-/// Auto-generated documentation stub for function `SetWf`.
-/// @param sv Parameter sv.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param sv Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SetWf(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	switch(sv.eventCode)
@@ -978,12 +959,11 @@ static Function SetWf(STRUCT WMSetVariableAction& sv) : SetVariableControl
 End
 
 /// @function SetEPP
-/// @brief Description of SetEPP.
+/// @brief Set energy per point.
 /// @details
-/// Auto-generated documentation stub for function `SetEPP`.
-/// @param sv Parameter sv.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param sv Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SetEPP(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 
@@ -998,12 +978,11 @@ static Function SetEPP(STRUCT WMSetVariableAction& sv) : SetVariableControl
 End
 
 /// @function SetSTV
-/// @brief Description of SetSTV.
+/// @brief Set stv.
 /// @details
-/// Auto-generated documentation stub for function `SetSTV`.
-/// @param sv Parameter sv.
-/// @returns Variable Return value.
-
+/// This is used to for waves selected in the DB, not here.
+/// @param sv Igor action structure describing the control or window event.
+/// @returns Zero after completing the operation.
 static Function SetSTV(STRUCT WMSetVariableAction& sv) : SetVariableControl
 	
 	switch(sv.eventCode)
@@ -1019,12 +998,12 @@ End
 // This is used to for waves selected in the DB, not here
 
 /// @function GetProfileUsingDefaults
-/// @brief Description of GetProfileUsingDefaults.
+/// @brief Return profile using defaults.
 /// @details
-/// Auto-generated documentation stub for function `GetProfileUsingDefaults`.
-/// @param wRef Parameter wRef.
-/// @param BEscaleQ] Parameter BEscaleQ].
-/// @returns Variable Return value.
+/// Get a profile from wRef using the default saved settings.
+/// @param wRef Input wave.
+/// @param BEscaleQ (optional) B escale q.
+/// @returns The profile using defaults.
 static Function GetProfileUsingDefaults(WAVE wRef, [variable BEscaleQ])
 	/// Get a profile from wRef using the default saved settings
 	/// BEscaleQ = 1 is default. If BEscaleQ = 0 scale with KE

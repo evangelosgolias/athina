@@ -39,12 +39,12 @@
 
 
 /// @function Make3DWaveUsingPattern
-/// @brief Description of Make3DWaveUsingPattern.
+/// @brief Create a 3D wave by stacking waves whose names match a pattern.
 /// @details
-/// Auto-generated documentation stub for function `Make3DWaveUsingPattern`.
-/// @param wname3dStr Parameter wname3dStr.
-/// @param pattern Parameter pattern.
-/// @returns Variable Return value.
+/// Make a 3d wave named wname3d using the RegEx pattern. Give "*" to match all waves.
+/// @param wname3dStr Wname3d str.
+/// @param pattern Pattern used to select names or files.
+/// @returns Zero after completing the operation.
 static Function Make3DWaveUsingPattern(string wname3dStr, string pattern)
 	// Make a 3d wave named wname3d using the RegEx pattern
 	// Give "*" to match all waves
@@ -76,14 +76,12 @@ static Function Make3DWaveUsingPattern(string wname3dStr, string pattern)
 End
 
 /// @function ConcatenateWavesInDataBrowserSelection
-/// @brief Description of ConcatenateWavesInDataBrowserSelection.
+/// @brief Concatenate waves in Data Browser selection.
 /// @details
-/// Auto-generated documentation stub for function `ConcatenateWavesInDataBrowserSelection`.
-/// @param wname3dStr Parameter wname3dStr.
-/// @param makeInSourceDFR Parameter makeInSourceDFR.
-/// @param autoPath] Parameter autoPath].
-/// @returns String Return value.
-
+/// Concatenate wave from data folder selection. Use it to stack 2D, 3D waves. Returns a string with the name
+/// of the created wave, as wname3dStr.
+/// @param wname3dStr Wname3d str.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr)
 	// Concatenate wave from data folder selection
 	// For 2D, 3D waves:
@@ -150,13 +148,12 @@ static Function/S ConcatenateWavesInDataBrowserSelection(string wname3dStr)
 End
 
 /// @function WaveListStrToWaveRef
-/// @brief Description of WaveListStrToWaveRef.
+/// @brief Convert a wave-name list into a wave-reference wave.
 /// @details
-/// Auto-generated documentation stub for function `WaveListStrToWaveRef`.
-/// @param wavelistStr Parameter wavelistStr.
-/// @param isFree] Parameter isFree].
-/// @returns Wave Return value.
-
+/// Gets a wavelist and retuns a Wave reference Wave. Wave is free is isFree is set.
+/// @param wavelistStr Wave used by the operation.
+/// @param isFree (optional) If nonzero, create a free wave rather than a data-folder wave.
+/// @returns Reference to the result wave; a null reference indicates failure where supported.
 static Function/WAVE WaveListStrToWaveRef(string wavelistStr, [int isFree])
 	// Gets a wavelist and retuns a Wave reference Wave.
 	// Wave is free is isFree is set
@@ -179,12 +176,11 @@ static Function/WAVE WaveListStrToWaveRef(string wavelistStr, [int isFree])
 End
 
 /// @function UnpackLayersToSources
-/// @brief Description of UnpackLayersToSources.
+/// @brief Unpack layers to sources.
 /// @details
-/// Auto-generated documentation stub for function `UnpackLayersToSources`.
-/// @param wRef Parameter wRef.
-/// @returns Variable Return value.
-
+/// Unpack layers to destination waves as grabbed from wave note.
+/// @param wRef Input wave.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function UnpackLayersToSources(WAVE wRef)
 	// Unpack layers to destination waves
 	// as grabbed from wave note.
@@ -211,13 +207,13 @@ static Function UnpackLayersToSources(WAVE wRef)
 End
 
 /// @function MakeSquare3DWave
-/// @brief Description of MakeSquare3DWave.
+/// @brief Create square 3D wave.
 /// @details
-/// Auto-generated documentation stub for function `MakeSquare3DWave`.
-/// @param w3d Parameter w3d.
-/// @param size] Parameter size].
-/// @returns Variable Return value.
-
+/// Creates a 3d waves with the same rows, cols by interpolation of w3d. The wave scaling using the interval
+/// /I.
+/// @param w3d Input 3D wave or image stack.
+/// @param size (optional) Size.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function MakeSquare3DWave(WAVE w3d, [variable size])
 	/// Creates a 3d waves with the same rows, cols by interpolation of w3d.
 	/// The wave scaling using the interval /I.
@@ -233,13 +229,12 @@ static Function MakeSquare3DWave(WAVE w3d, [variable size])
 End
 
 /// @function AverageImageStack
-/// @brief Description of AverageImageStack.
+/// @brief Average image stack.
 /// @details
-/// Auto-generated documentation stub for function `AverageImageStack`.
-/// @param wRef Parameter wRef.
-/// @param outWaveStr] Parameter outWaveStr].
-/// @returns Wave Return value.
-
+/// Average a 3d wave along z.
+/// @param wRef Input wave.
+/// @param outWaveStr (optional) Wave used by the operation.
+/// @returns Reference to the result wave; a null reference indicates failure where supported.
 static Function/WAVE AverageImageStack(WAVE wRef, [string outWaveStr])
 	/// Average a 3d wave along z.
 	/// @param w3d WAVE Wave name to average (3d wave)
@@ -257,6 +252,21 @@ static Function/WAVE AverageImageStack(WAVE wRef, [string outWaveStr])
 	return $outWaveStr
 End
 
+/// @function WavePartition
+/// @brief Partition a wave into regularly sized subwaves.
+/// @details
+/// Each output wave contains points `aX` through `zX`; successive partitions advance by `partitionIncrement`
+/// points.
+/// @param wRef Source wave to partition.
+/// @param partitionNameStr Base name for generated partition waves.
+/// @param aX First source index in the x dimension.
+/// @param zX Last source index in the x dimension.
+/// @param aY First source index in the y dimension.
+/// @param zY Last source index in the y dimension.
+/// @param evenNum (optional) If nonzero, force an even number of partitions.
+/// @param square (optional) If nonzero, use equal x and y partition extents.
+/// @param WaveFREE (optional) Optional destination wave used for each partition.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable aX, variable zX,
 	variable aY, variable zY, [int evenNum, int square, int WaveFREE])
 	///
@@ -351,26 +361,22 @@ static Function/WAVE WavePartition(WAVE wRef, string partitionNameStr, variable 
 End
 
 /// @function ZapNaNAndInfWithValue
-/// @brief Description of ZapNaNAndInfWithValue.
-/// @details
-/// Auto-generated documentation stub for function `ZapNaNAndInfWithValue`.
-/// @param waveRef Parameter waveRef.
-/// @param val Parameter val.
-/// @returns Variable Return value.
-
+/// @brief Replace NaN and infinite wave values with a specified value.
+/// @param waveRef Wave used by the operation.
+/// @param val Scalar value to assign or compare.
+/// @returns Zero after completing the operation.
 static Function ZapNaNAndInfWithValue(WAVE waveRef, variable val)
 	//numtype = 1, 2 for NaN, Inf
 	waveRef= (numtype(waveRef)) ? val : waveRef
 End
 
 /// @function NormaliseWaveWithWave
-/// @brief Description of NormaliseWaveWithWave.
+/// @brief Normalize wave with wave.
 /// @details
-/// Auto-generated documentation stub for function `NormaliseWaveWithWave`.
-/// @param wRef1 Parameter wRef1.
-/// @param wRef2 Parameter wRef2.
-/// @returns Variable Return value.
-
+/// Normalise a wave with another consistency check static Function NormaliseWaveToUnitRange(WAVE waveRef).
+/// @param wRef1 First wave to modify in place.
+/// @param wRef2 Second input wave.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function NormaliseWaveWithWave(WAVE wRef1, WAVE wRef2)
 	/// Normalise a wave with another
 	// consistency check
@@ -401,6 +407,12 @@ End
 //	CopyScales waveRef, $normWaveNameStr
 //End
 
+/// @function GetScalesP
+/// @brief Return wave dimension offsets and point intervals.
+/// @details
+/// Returns the offset and point interval for the first three dimensions of the input wave.
+/// @param wRef Input wave.
+/// @returns The x, y, and z dimension offsets followed by their point intervals.
 static Function [variable x0, variable y0, variable z0, variable dx, variable dy, variable dz] GetScalesP(WAVE wRef)
 	// Get the scales of waves per point. 
 	x0 = DimOffset(wRef, 0)
@@ -413,18 +425,18 @@ static Function [variable x0, variable y0, variable z0, variable dx, variable dy
 End
 
 /// @function SetScalesP
-/// @brief Description of SetScalesP.
+/// @brief Set dimension offsets and intervals for a wave.
 /// @details
-/// Auto-generated documentation stub for function `SetScalesP`.
-/// @param wRef Parameter wRef.
-/// @param x0 Parameter x0.
-/// @param y0 Parameter y0.
-/// @param z0 Parameter z0.
-/// @param dx Parameter dx.
-/// @param dy Parameter dy.
-/// @param dz Parameter dz.
-/// @returns Variable Return value.
-
+/// Set scale of waves per point variable x0, y0, z0, dx, dy, dz [x0, y0, z0, dx, dy, dz] =
+/// ATH_GetScalesP(wRef).
+/// @param wRef Wave to modify in place.
+/// @param x0 First x coordinate or range bound.
+/// @param y0 First y coordinate or range bound.
+/// @param z0 First layer coordinate or range bound.
+/// @param dx Sampling interval along x.
+/// @param dy Sampling interval along y.
+/// @param dz Sampling interval along z.
+/// @returns Zero after completing the operation.
 static Function SetScalesP(WAVE wRef, variable x0, variable y0, variable z0, variable dx, variable dy, variable dz)
 	// Set scale of waves per point
 	// Usage:
@@ -438,12 +450,11 @@ static Function SetScalesP(WAVE wRef, variable x0, variable y0, variable z0, var
 End
 
 /// @function MakeWaveFromROI
-/// @brief Description of MakeWaveFromROI.
+/// @brief Create wave from ROI.
 /// @details
-/// Auto-generated documentation stub for function `MakeWaveFromROI`.
-/// @param wRef Parameter wRef.
-/// @returns Variable Return value.
-
+/// Extracts the ROI from wRef using the saved ROI coordinates in the database. Works with 2D and 3D waves.
+/// @param wRef Input wave.
+/// @returns Zero after completing the operation.
 static Function MakeWaveFromROI(WAVE wRef)
 	// Extracts the ROI from wRef using the saved ROI coordinates in the database
 	// Works with 2D and 3D waves
@@ -475,13 +486,12 @@ static Function MakeWaveFromROI(WAVE wRef)
 End
 
 /// @function SetWaveOffsetZero
-/// @brief Description of SetWaveOffsetZero.
+/// @brief Set wave offset zero.
 /// @details
-/// Auto-generated documentation stub for function `SetWaveOffsetZero`.
-/// @param wRef Parameter wRef.
-/// @param dim] Parameter dim].
-/// @returns Variable Return value.
-
+/// Zero the offset for dimension dim.
+/// @param wRef Input wave.
+/// @param dim (optional) Zero-based wave-dimension index.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function SetWaveOffsetZero(WAVE wRef, [int dim])
 	// Zero the offset for dimension dim
 	dim = ParamIsDefault(dim) ? 0: dim
@@ -500,12 +510,11 @@ End
 
 
 /// @function AllWaves2DQ
-/// @brief Description of AllWaves2DQ.
-/// @details Are all waves 2D?
-/// Auto-generated documentation stub for function `AllWaves2DQ`.
-/// @param wRefw Parameter wRefw.
-/// @returns Variable Return value.
-
+/// @brief Test whether all waves 2D.
+/// @details
+/// Check whether all images have the same rows, cols.
+/// @param wRefw Reference wave supplying values or scaling.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function AllWaves2DQ(WAVE/WAVE wRefw)
 	// Check whether all images have the same rows, cols
 	for(WAVE w: wRefW)
@@ -518,12 +527,11 @@ End
 
 
 /// @function AllImagesEqualDimensionsQ
-/// @brief Description of AllImagesEqualDimensionsQ.
+/// @brief Test whether all images equal dimensions.
 /// @details
-/// Auto-generated documentation stub for function `AllImagesEqualDimensionsQ`.
-/// @param wRefw Parameter wRefw.
-/// @returns Variable Return value.
-
+/// Check whether all images have the same rows, cols.
+/// @param wRefw Reference wave supplying values or scaling.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function AllImagesEqualDimensionsQ(WAVE/WAVE wRefw)
 	// Check whether all images have the same rows, cols
 	variable nwaves = DimSize(wRefw, 0), i
@@ -541,13 +549,10 @@ static Function AllImagesEqualDimensionsQ(WAVE/WAVE wRefw)
 End
 
 /// @function WaveDimensionsEqualQ
-/// @brief Description of WaveDimensionsEqualQ.
+/// @brief Test whether wave dimensions equal.
 /// @details
-/// Auto-generated documentation stub for function `WaveDimensionsEqualQ`.
-/// @param w1 Parameter w1.
-/// @param w2 Parameter w2.
-/// @returns Variable Return value.
-
+/// Return 1 if waves have the same num of elements in all dims. Works for any wave.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function ImagesDimensionsEqualQ(WAVE w1, WAVE w2)
 	// Return 1 if waves have the same num of elements in all dims
 	// Works for any wave
@@ -555,13 +560,12 @@ static Function ImagesDimensionsEqualQ(WAVE w1, WAVE w2)
 End
 
 /// @function WaveDimensionsEqualQ
-/// @brief Description of WaveDimensionsEqualQ.
+/// @brief Test whether wave dimensions equal.
 /// @details
-/// Auto-generated documentation stub for function `WaveDimensionsEqualQ`.
-/// @param w1 Parameter w1.
-/// @param w2 Parameter w2.
-/// @returns Variable Return value.
-
+/// Return 1 if waves have the same num of elements in all dims. Works for any wave.
+/// @param w1 First input wave.
+/// @param w2 Second input wave.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function WaveDimensionsEqualQ(WAVE w1, WAVE w2)
 	// Return 1 if waves have the same num of elements in all dims
 	// Works for any wave
@@ -570,13 +574,12 @@ static Function WaveDimensionsEqualQ(WAVE w1, WAVE w2)
 End
 
 /// @function WaveDimensionsEqualQ
-/// @brief Description of WaveDimensionsEqualQ.
+/// @brief Test whether wave dimensions equal.
 /// @details
-/// Auto-generated documentation stub for function `WaveDimensionsEqualQ`.
-/// @param w1 Parameter w1.
-/// @param w2 Parameter w2.
-/// @returns Variable Return value.
-
+/// Return 1 if waves have the same num of elements in all dims. Works for any wave.
+/// @param w1 First input wave.
+/// @param w2 Second input wave.
+/// @returns Nonzero when the condition is satisfied; otherwise zero.
 static Function AllWavesEqualDimensionsQ(WAVE/WAVE wRefw)
 	// Return 1 if waves have the same num of elements in all dims
 	// Works for any wave
@@ -592,13 +595,12 @@ static Function AllWavesEqualDimensionsQ(WAVE/WAVE wRefw)
 End
 
 /// @function MatchWaveTypes
-/// @brief Description of MatchWaveTypes.
+/// @brief Match wave types.
 /// @details
-/// Auto-generated documentation stub for function `MatchWaveTypes`.
-/// @param wRef Parameter wRef.
-/// @param wDest Parameter wDest.
-/// @returns Variable Return value.
-
+/// Change WaveType of wDest to the one of wRef.
+/// @param wRef Input wave.
+/// @param wDest Destination wave to populate.
+/// @returns Zero after completing the operation.
 static Function MatchWaveTypes(WAVE wRef, WAVE wDest)
 	// Change WaveType of wDest to the one of wRef
 	variable wTypeRef = WaveType(wRef)
@@ -638,13 +640,12 @@ static Function MatchWaveTypes(WAVE wRef, WAVE wDest)
 End
 
 /// @function WaveCasting
-/// @brief Description of WaveCasting.
+/// @brief Convert a numeric wave to a requested Igor wave type.
 /// @details
-/// Auto-generated documentation stub for function `WaveCasting`.
-/// @param wRef Parameter wRef.
-/// @param wType Parameter wType.
-/// @returns Variable Return value.
-
+/// Change to WaveType.
+/// @param wRef Wave to modify in place.
+/// @param wType Igor numeric wave-type code.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function WaveCasting(WAVE wRef, int wType)
 	// Change to WaveType
 	switch(wType)
@@ -687,25 +688,21 @@ static Function WaveCasting(WAVE wRef, int wType)
 End
 
 /// @function LastDimVal
-/// @brief Description of LastDimVal.
+/// @brief Return the scaled coordinate of a dimension's final point.
 /// @details
-/// Auto-generated documentation stub for function `LastDimVal`.
-/// @param w Parameter w.
-/// @param dim Parameter dim.
-/// @returns Variable Return value.
-
+/// Return the last value of dimension dim.
+/// @param w Input wave.
+/// @param dim Zero-based wave-dimension index.
+/// @returns The scaled coordinate of the final point along the selected dimension.
 static Function LastDimVal(WAVE w, int dim)
 	// Return the last value of dimension dim
 	return DimOffSet(w, dim) + DimDelta(w, dim) * (DimSize(w, dim) - 1 ) 
 End
 
 /// @function SizeOfWave
-/// @brief Description of SizeOfWave.
-/// @details
-/// Auto-generated documentation stub for function `SizeOfWave`.
-/// @param wv Parameter wv.
-/// @returns Variable Return value.
-
+/// @brief Size of wave.
+/// @param wv Wave whose memory footprint is calculated.
+/// @returns Size of wave.
 static Function SizeOfWave(wv)
     wave/Z wv
 
@@ -729,12 +726,11 @@ static Function SizeOfWave(wv)
 End
 
 /// @function SumLateralWaveDims
-/// @brief Description of SumLateralWaveDims.
+/// @brief Sum lateral dimensions to reduce a 2D or 3D wave to a 1D profile.
 /// @details
-/// Auto-generated documentation stub for function `SumLateralWaveDims`.
-/// @param w Parameter w.
-/// @returns Variable Return value.
-
+/// Sum cols (assumed energy axis) in 2D or sum rows and cols in 3D waves to make a 1D wave.
+/// @param w Input wave.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 Function SumLateralWaveDims(WAVE w)
 	// Sum cols (assumed energy axis) in 2D or
 	// sum rows and cols in 3D waves to make a 1D  wave.
@@ -755,12 +751,11 @@ Function SumLateralWaveDims(WAVE w)
 End
 
 /// @function GetWaveType
-/// @brief Description of GetWaveType.
+/// @brief Return the number of bytes per wave element.
 /// @details
-/// Auto-generated documentation stub for function `GetWaveType`.
-/// @param wRef Parameter wRef.
-/// @returns Variable Return value.
-
+/// Return the number of bytes per element of wave wRef.
+/// @param wRef Input wave.
+/// @returns The wave type.
 static Function GetWaveType(WAVE wRef)
 	// Return the number of bytes per element of wave wRef
 	variable wTypeRef = WaveType(wRef)
@@ -790,14 +785,14 @@ static Function GetWaveType(WAVE wRef)
 End
 
 /// @function RemoveLineFromWave1D
-/// @brief Description of RemoveLineFromWave1D.
+/// @brief Remove line from wave 1d.
 /// @details
-/// Auto-generated documentation stub for function `RemoveLineFromWave1D`.
-/// @param wRef Parameter wRef.
-/// @param x0 Parameter x0.
-/// @param x1] Parameter x1].
-/// @returns Variable Return value.
-
+/// Remove a line from a 1D wave. Line is defined from points x0 and x1. Here scaling is taken into account.
+/// The function is structured to give.
+/// @param wRef Wave to modify in place.
+/// @param x0 (optional) First x coordinate or range bound.
+/// @param x1 (optional) Second x coordinate or range bound.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function RemoveLineFromWave1D(WAVE wRef, [variable x0, variable x1])
 	
 	//
@@ -829,14 +824,14 @@ static Function RemoveLineFromWave1D(WAVE wRef, [variable x0, variable x1])
 End
 
 /// @function RemoveZLineWave3D
-/// @brief Description of RemoveZLineWave3D.
+/// @brief Remove z line wave 3D.
 /// @details
-/// Auto-generated documentation stub for function `RemoveZLineWave3D`.
-/// @param wRef Parameter wRef.
-/// @param z0 Parameter z0.
-/// @param z1] Parameter z1].
-/// @returns Variable Return value.
-
+/// Remove a line defined by z0, z1 for every wRef beam we use the wave scaling along z, but it's not needed.
+/// Unscaled wave will give the same results.
+/// @param wRef Wave to modify in place.
+/// @param z0 (optional) First layer coordinate or range bound.
+/// @param z1 (optional) Second layer coordinate or range bound.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function RemoveZLineWave3D(Wave wRef, [variable z0, variable z1])
 	// Remove a line defined by z0, z1 for every wRef beam
 	// we use the wave scaling along z, but it's not needed. 
@@ -870,12 +865,11 @@ static Function RemoveZLineWave3D(Wave wRef, [variable z0, variable z1])
 End
 
 /// @function GetWaveMinPos
-/// @brief Description of GetWaveMinPos.
+/// @brief Return the scaled position of a wave's minimum value.
 /// @details
-/// Auto-generated documentation stub for function `GetWaveMinPos`.
-/// @param wRef Parameter wRef.
-/// @returns Variable Return value.
-
+/// Return the position of the maximun value of wave.
+/// @param wRef Wave to modify in place.
+/// @returns The wave min pos.
 static Function GetWaveMinPos(WAVE wRef)
 	// Return the position of the maximun value of wave
 	variable items = numpnts(WRef), i, imim
@@ -889,12 +883,11 @@ static Function GetWaveMinPos(WAVE wRef)
 End
 
 /// @function GetWaveMaxPos
-/// @brief Description of GetWaveMaxPos.
+/// @brief Return the scaled position of a wave's maximum value.
 /// @details
-/// Auto-generated documentation stub for function `GetWaveMaxPos`.
-/// @param wRef Parameter wRef.
-/// @returns Variable Return value.
-
+/// Return the position of the maximun value of wave.
+/// @param wRef Wave to modify in place.
+/// @returns The wave max pos.
 static Function GetWaveMaxPos(WAVE wRef)
 	// Return the position of the maximun value of wave
 	variable items = numpnts(WRef), i, imax
@@ -908,13 +901,12 @@ static Function GetWaveMaxPos(WAVE wRef)
 End
 
 /// @function AverageEvenOddLayers
-/// @brief Description of AverageEvenOddLayers.
+/// @brief Average even odd layers.
 /// @details
-/// Auto-generated documentation stub for function `AverageEvenOddLayers`.
-/// @param wRef Parameter wRef.
-/// @param offset Parameter offset.
-/// @returns Variable Return value.
-
+/// Not absolute even/odd referenence when offset!=0.
+/// @param wRef Input wave.
+/// @param offset (optional) Offset.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function AverageEvenOddLayers(WAVE wRef, [variable offset])
 	// Not absolute even/odd referenence when offset!=0
 	if(WaveDims(wRef) != 3)
@@ -944,11 +936,11 @@ static Function AverageEvenOddLayers(WAVE wRef, [variable offset])
 End
 
 /// @function AverageSplitStack
-/// @brief Splits a stack of images and averages the two parts
+/// @brief Split an image stack into two halves and average each half.
 /// @details
-/// Two waves are created for the first half (_half1) and the second half (_half2)
-/// @param wRef Parameter wRef.
-/// @returns Variable 0 if all ok, 1 if the wave is not 3D)
+/// Creates sibling waves with suffixes `_half1` and `_half2`; an unmatched first layer is skipped for odd-sized stacks.
+/// @param wRef Input 3D image stack.
+/// @returns Zero on success; one if the input is not a multi-layer 3D wave.
 
 static Function AverageSplitStack(WAVE wRef)
 	// Not absolute even/odd referenence when offset!=0
@@ -972,12 +964,12 @@ static Function AverageSplitStack(WAVE wRef)
 End
 
 /// @function AverageRandomStackSample
-/// @brief Splits a stack of images and averages the two parts
+/// @brief Average a random subset of layers from an image stack.
 /// @details
-/// Random sample N layers from stack (M) when N < M/2
-/// @param wRef Parameter wRef.
-/// @param sampleN Parameter sampleN.
-/// @returns Variable 0 if all ok, 1 if the wave is not 3D)
+/// Selects layers without replacement, records their indices in the result note, and preserves the input scaling.
+/// @param wRef Input 3D image stack.
+/// @param sampleN Number of layers to sample; must not exceed 75 percent of the stack.
+/// @returns Zero on success; one if the input has no layers or the requested sample is too large.
 
 static Function AverageRandomStackSample(WAVE wRef, variable sampleN)
 
@@ -1010,4 +1002,3 @@ static Function AverageRandomStackSample(WAVE wRef, variable sampleN)
 	SetDataFolder dfr
 	return 0
 End
-

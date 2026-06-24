@@ -20,17 +20,15 @@ related to ATH CalcPad functionality.
 PrefsSetDefaults(STRUCT PackagePrefs &prefs)
 ```
 
-Description of PrefsSetDefaults.
-
-Auto-generated documentation stub for function `PrefsSetDefaults`.
+Initialize calculator preferences with their default values.
 
 ### Parameters
 
-- `&prefs` *(Parameter)*: &prefs.
+- `prefs` *(STRUCT PackagePrefs)*: Input/output structure carrying the operation's settings and results.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `LoadPrefs`
@@ -41,17 +39,15 @@ Auto-generated documentation stub for function `PrefsSetDefaults`.
 LoadPrefs(STRUCT PackagePrefs &prefs)
 ```
 
-Description of LoadPrefs.
-
-Auto-generated documentation stub for function `LoadPrefs`.
+Load prefs.
 
 ### Parameters
 
-- `&prefs` *(Parameter)*: &prefs.
+- `prefs` *(STRUCT PackagePrefs)*: Input/output structure carrying the operation's settings and results.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `CalcPad`
@@ -62,13 +58,11 @@ Auto-generated documentation stub for function `LoadPrefs`.
 CalcPad()
 ```
 
-Description of CalcPad.
-
-Auto-generated documentation stub for function `CalcPad`.
+Create or bring forward the calculator pad.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
 
 
 ## `CalcPadHook`
@@ -79,17 +73,17 @@ Auto-generated documentation stub for function `CalcPad`.
 CalcPadHook(STRUCT WMWinHookStruct &H_Struct)
 ```
 
-Description of CalcPadHook.
+Handle calc pad hook events.
 
-Auto-generated documentation stub for function `CalcPadHook`.
+Make sure that we're typing on the last line store position find last paragraph.
 
 ### Parameters
 
-- `&H_Struct` *(Parameter)*: &H_Struct.
+- `H_Struct` *(STRUCT WMWinHookStruct)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `PreventPaste`
@@ -100,13 +94,13 @@ Auto-generated documentation stub for function `CalcPadHook`.
 PreventPaste()
 ```
 
-Description of PreventPaste.
+Prevent paste.
 
-Auto-generated documentation stub for function `PreventPaste`.
+Store position find last paragraph restore current position.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
 
 
 ## `SaveWindow`
@@ -117,17 +111,17 @@ Auto-generated documentation stub for function `PreventPaste`.
 SaveWindow(string strWin)
 ```
 
-Description of SaveWindow.
+Save window.
 
-Auto-generated documentation stub for function `SaveWindow`.
+Save window position save window magnification.
 
 ### Parameters
 
-- `strWin` *(Parameter)*: strWin.
+- `strWin` *(String)*: Name of the target window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `makePrefsPanel`
@@ -138,13 +132,11 @@ Auto-generated documentation stub for function `SaveWindow`.
 makePrefsPanel()
 ```
 
-Description of makePrefsPanel.
-
-Auto-generated documentation stub for function `makePrefsPanel`.
+Create the calculator preferences panel.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `ButtonProc`
@@ -155,17 +147,17 @@ Auto-generated documentation stub for function `makePrefsPanel`.
 ButtonProc(STRUCT WMButtonAction &s)
 ```
 
-Description of ButtonProc.
+Handle the continue button for the panel.
 
-Auto-generated documentation stub for function `ButtonProc`.
+Reset controls.
 
 ### Parameters
 
-- `&s` *(Parameter)*: &s.
+- `s` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `CheckProc`
@@ -176,17 +168,15 @@ Auto-generated documentation stub for function `ButtonProc`.
 CheckProc(STRUCT WMCheckboxAction &cba)
 ```
 
-Description of CheckProc.
-
-Auto-generated documentation stub for function `CheckProc`.
+Handle the panel checkbox action.
 
 ### Parameters
 
-- `&cba` *(Parameter)*: &cba.
+- `cba` *(STRUCT WMCheckboxAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `SetVarProc`
@@ -197,17 +187,17 @@ Auto-generated documentation stub for function `CheckProc`.
 SetVarProc(STRUCT WMSetVariableAction &sva)
 ```
 
-Description of SetVarProc.
+Handle changes to the panel set-variable control.
 
-Auto-generated documentation stub for function `SetVarProc`.
+Dispatches the relevant Igor control event and ignores unsupported event codes.
 
 ### Parameters
 
-- `&sva` *(Parameter)*: &sva.
+- `sva` *(STRUCT WMSetVariableAction)*: Igor action structure describing the control or window event.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.
 
 
 ## `PopMenuProc`
@@ -218,14 +208,12 @@ Auto-generated documentation stub for function `SetVarProc`.
 PopMenuProc(STRUCT WMPopupAction &pa)
 ```
 
-Description of PopMenuProc.
-
-Auto-generated documentation stub for function `PopMenuProc`.
+Handle the panel pop-up menu action.
 
 ### Parameters
 
-- `&pa` *(Parameter)*: &pa.
+- `pa` *(STRUCT WMPopupAction)*: Igor control-action structure.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Igor callback status; nonzero indicates that the event was handled.

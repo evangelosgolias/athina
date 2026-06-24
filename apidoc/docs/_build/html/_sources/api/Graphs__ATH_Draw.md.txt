@@ -20,19 +20,19 @@ related to ATH Draw functionality.
 DrawLineUsingCursors(string C1, string C2, [string layer])
 ```
 
-Description of DrawLineUsingCursors.
+Draw line using cursors.
 
-Auto-generated documentation stub for function `DrawLineUsingCursors`.
+Draw a line using cursor C1 & C2. Draws in Overlay layer if layer optional argument is not given.
 
 ### Parameters
 
-- `C1` *(Parameter)*: C1.
-- `C2` *(Parameter)*: C2.
-- `layer]` *(Parameter)*: layer].
+- `C1` *(String)*: Name of the first graph cursor.
+- `C2` *(String)*: Name of the second graph cursor.
+- `layer` *(String, optional)*: Igor drawing or image layer to use.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `DrawCircleUsingAntinodalCursors`
@@ -43,19 +43,20 @@ Auto-generated documentation stub for function `DrawLineUsingCursors`.
 DrawCircleUsingAntinodalCursors(string C1, string C2, [string layer])
 ```
 
-Description of DrawCircleUsingAntinodalCursors.
+Draw circle using antinodal cursors.
 
-Auto-generated documentation stub for function `DrawCircleUsingAntinodalCursors`.
+Draw a circle with antinodal points at C1 & C2. Draws in Overlay layer if layer optional argument is not
+given change now left, right, top, bottom.
 
 ### Parameters
 
-- `C1` *(Parameter)*: C1.
-- `C2` *(Parameter)*: C2.
-- `layer]` *(Parameter)*: layer].
+- `C1` *(String)*: Name of the first graph cursor.
+- `C2` *(String)*: Name of the second graph cursor.
+- `layer` *(String, optional)*: Igor drawing or image layer to use.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `DrawCircleUsingCenterAndPointCursors`
@@ -66,19 +67,20 @@ Auto-generated documentation stub for function `DrawCircleUsingAntinodalCursors`
 DrawCircleUsingCenterAndPointCursors(string C1, string C2, [string layer])
 ```
 
-Description of DrawCircleUsingCenterAndPointCursors.
+Draw circle using center and point cursors.
 
-Auto-generated documentation stub for function `DrawCircleUsingCenterAndPointCursors`.
+Draw a circle with center at C1 that passed from C2. Draws in Overlay layer if layer optional argument is
+not given. Draw scale bar.
 
 ### Parameters
 
-- `C1` *(Parameter)*: C1.
-- `C2` *(Parameter)*: C2.
-- `layer]` *(Parameter)*: layer].
+- `C1` *(String)*: Name of the first graph cursor.
+- `C2` *(String)*: Name of the second graph cursor.
+- `layer` *(String, optional)*: Igor drawing or image layer to use.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `ImageScaleBar`
@@ -89,15 +91,16 @@ Auto-generated documentation stub for function `DrawCircleUsingCenterAndPointCur
 ImageScaleBar(variable barlen, [string grfName])
 ```
 
-Description of ImageScaleBar.
+Draw a scale bar on an image graph and return its relative width.
 
-Auto-generated documentation stub for function `ImageScaleBar`.
+Here the function returns the factor barlen/xlen which is the number we need to adjust so that the scale
+bar corresponds to the size of the visible range.
 
 ### Parameters
 
-- `barlen` *(Parameter)*: barlen.
-- `grfName]` *(Parameter)*: grfName].
+- `barlen` *(Variable)*: Requested scale-bar length in axis units.
+- `grfName` *(String, optional)*: Name of the graph window.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Scale-bar width as a fraction of the visible x-axis range.

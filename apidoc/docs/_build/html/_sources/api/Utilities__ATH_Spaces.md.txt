@@ -45,13 +45,11 @@ CTRL+click (CMD+click on MacOS): link space to the selected data folder in Data 
 MenuLaunch()
 ```
 
-Description of MenuLaunch.
-
-Launch Spaces named ATH_Spaces#MenuLaunch().
+Menu launch.
 
 ### Returns
 
-- **Variable**: 0
+- **Variable**: Zero after completing the operation.
 
 
 ## `MakePanel`
@@ -72,6 +70,47 @@ as ATH_Spaces#MakePanel().
 - **Variable**: Returns 0 if all ok
 
 
+## `SpacesButton`
+
+**Signature**
+
+```igorpro
+SpacesButton(STRUCT WMButtonAction &s)
+```
+
+Handle creation, deletion, and visibility commands in the ATH Spaces panel.
+
+### Parameters
+
+- `s` *(STRUCT WMButtonAction)*: Igor action structure describing the control or window event.
+
+### Returns
+
+- **Variable**: Zero after handling the button event.
+
+
+## `ListBoxFunction`
+
+**Signature**
+
+```igorpro
+ListBoxFunction(STRUCT WMListboxAction &LB_Struct)
+```
+
+Handle selecting, renaming, linking, pinning, and unpinning ATH spaces.
+
+Modifier-clicks associate the top window with a space, pin it to every space, or remove its space
+assignment. Double-clicking renames a space.
+
+### Parameters
+
+- `LB_Struct` *(STRUCT WMListboxAction)*: Igor action structure describing the control or window event.
+
+### Returns
+
+- **Variable**: Igor list-box callback status; nonzero indicates that the event was handled.
+
+
 ## `ShowWindowsOfSpaceTag`
 
 **Signature**
@@ -87,7 +126,7 @@ Show or hide windows that have a tag on them. Control show/hide using the parame
 ### Parameters
 
 - `spaceTagStr` *(String)*: Name of the tag
-- `showSwitch` *(Variable)*: show = 0 or 1
+- `show` *(Variable)*
 
 ### Returns
 
@@ -110,7 +149,7 @@ The function is used by Spaces when a space is renamed. Do not call the function
 ### Parameters
 
 - `oldspaceTagStr` *(String)*: Current space name
-- `newspaceTagStr` *(Parameter)*: New space name
+- `newspaceTagStr` *(String)*: New space name.
 
 ### Returns
 
@@ -154,7 +193,7 @@ The function checks is the name of a space is not already in the list of existin
 
 ### Parameters
 
-- `textW` *(Wave/T)*: textW.
+- `textW` *(Wave/T)*: Wave/T textW.
 - `spaceNameStr` *(String)*: spaceNameStr
 
 ### Returns
@@ -220,7 +259,7 @@ Show orphan windows, i.e. windows without any tag.
 
 ### Parameters
 
-- `showSwitch` *(Variable)*: show = 0 or 1
+- `show` *(Variable)*
 
 ### Returns
 

@@ -40,15 +40,13 @@
 
 
 /// @function DrawLineUsingCursors
-/// @brief Description of DrawLineUsingCursors.
+/// @brief Draw line using cursors.
 /// @details
-/// Auto-generated documentation stub for function `DrawLineUsingCursors`.
-/// @param C1 Parameter C1.
-/// @param C2 Parameter C2.
-/// @param layer] Parameter layer].
-/// @returns Variable Return value.
-
-
+/// Draw a line using cursor C1 & C2. Draws in Overlay layer if layer optional argument is not given.
+/// @param C1 Name of the first graph cursor.
+/// @param C2 Name of the second graph cursor.
+/// @param layer (optional) Igor drawing or image layer to use.
+/// @returns Zero after completing the operation.
 static Function DrawLineUsingCursors(string C1, string C2, [string layer])
 	// Draw a line using cursor C1 & C2
 	// Draws in Overlay layer if layer optional argument is not given
@@ -62,14 +60,14 @@ static Function DrawLineUsingCursors(string C1, string C2, [string layer])
 End
 
 /// @function DrawCircleUsingAntinodalCursors
-/// @brief Description of DrawCircleUsingAntinodalCursors.
+/// @brief Draw circle using antinodal cursors.
 /// @details
-/// Auto-generated documentation stub for function `DrawCircleUsingAntinodalCursors`.
-/// @param C1 Parameter C1.
-/// @param C2 Parameter C2.
-/// @param layer] Parameter layer].
-/// @returns Variable Return value.
-
+/// Draw a circle with antinodal points at C1 & C2. Draws in Overlay layer if layer optional argument is not
+/// given change now left, right, top, bottom.
+/// @param C1 Name of the first graph cursor.
+/// @param C2 Name of the second graph cursor.
+/// @param layer (optional) Igor drawing or image layer to use.
+/// @returns Zero after completing the operation.
 static Function DrawCircleUsingAntinodalCursors(string C1, string C2, [string layer])
 	// Draw a circle with antinodal points at C1 & C2
 	// Draws in Overlay layer if layer optional argument is not given
@@ -99,14 +97,14 @@ static Function DrawCircleUsingAntinodalCursors(string C1, string C2, [string la
 End
 
 /// @function DrawCircleUsingCenterAndPointCursors
-/// @brief Description of DrawCircleUsingCenterAndPointCursors.
+/// @brief Draw circle using center and point cursors.
 /// @details
-/// Auto-generated documentation stub for function `DrawCircleUsingCenterAndPointCursors`.
-/// @param C1 Parameter C1.
-/// @param C2 Parameter C2.
-/// @param layer] Parameter layer].
-/// @returns Variable Return value.
-
+/// Draw a circle with center at C1 that passed from C2. Draws in Overlay layer if layer optional argument is
+/// not given. Draw scale bar.
+/// @param C1 Name of the first graph cursor.
+/// @param C2 Name of the second graph cursor.
+/// @param layer (optional) Igor drawing or image layer to use.
+/// @returns Zero after completing the operation.
 static Function DrawCircleUsingCenterAndPointCursors(string C1, string C2, [string layer])
 	// Draw a circle with center at C1 that passed from C2
 	// Draws in Overlay layer if layer optional argument is not given
@@ -136,13 +134,13 @@ End
 // Draw scale bar
 
 /// @function ImageScaleBar
-/// @brief Description of ImageScaleBar.
+/// @brief Draw a scale bar on an image graph and return its relative width.
 /// @details
-/// Auto-generated documentation stub for function `ImageScaleBar`.
-/// @param barlen Parameter barlen.
-/// @param grfName] Parameter grfName].
-/// @returns Variable Return value.
-
+/// Here the function returns the factor barlen/xlen which is the number we need to adjust so that the scale
+/// bar corresponds to the size of the visible range.
+/// @param barlen Requested scale-bar length in axis units.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Scale-bar width as a fraction of the visible x-axis range.
 static Function ImageScaleBar(variable barlen, [string grfName]) 
 	// Here the function returns the factor barlen/xlen which is the 
 	// number we need to adjust so that the scale bar corresponds to the

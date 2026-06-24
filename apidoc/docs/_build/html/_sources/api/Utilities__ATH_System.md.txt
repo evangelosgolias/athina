@@ -20,10 +20,8 @@ related to ATH System functionality.
 GetFreeMemory()
 ```
 
-Description of GetFreeMemory.
-
-Auto-generated documentation stub for function `GetFreeMemory`.
+Return free memory.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: The returned value is free memory.

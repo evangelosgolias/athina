@@ -20,14 +20,11 @@ related to ATH Beamtime functionality.
 SetOrResetBeamtimeRootFolder()
 ```
 
-Module ATH_Beamtime.
-
-This module belongs to the ATH Igor Pro toolkit and contains procedures
-related to ATH Beamtime functionality.
+Select or clear the beamtime root folder used by file-loading helpers.
 
 ### Returns
 
-- **String**
+- **String**: The selected beamtime root path, or an empty string after reset or cancellation.
 
 
 ## `LoadNewestFileInRaw`
@@ -38,17 +35,17 @@ related to ATH Beamtime functionality.
 LoadNewestFileInRaw(string extension)
 ```
 
-Description of LoadNewestFileInRaw.
+Load newest file in raw.
 
-Auto-generated documentation stub for function `LoadNewestFileInRaw`.
+Load the last file found in the directory tree with root at pathName. Return UNC.
 
 ### Parameters
 
-- `extension` *(Parameter)*: extension.
+- `extension` *(String)*: File-name extension.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
 
 
 ## `LoadFileFromRaw`
@@ -59,17 +56,39 @@ Auto-generated documentation stub for function `LoadNewestFileInRaw`.
 LoadFileFromRaw(variable scanID)
 ```
 
-Description of LoadFileFromRaw.
-
-Auto-generated documentation stub for function `LoadFileFromRaw`.
+Load file from raw.
 
 ### Parameters
 
-- `scanID` *(Parameter)*: scanID.
+- `scanID` *(Variable)*: Beamline scan identifier.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
+
+
+## `GetNewestCreatedFileInPathTree`
+
+**Signature**
+
+```igorpro
+GetNewestCreatedFileInPathTree(string pathName, string extension, string &latestfile, variable &latestctime, variable recurse, variable level)
+```
+
+Find the newest matching file in a folder tree.
+
+### Parameters
+
+- `pathName` *(String)*: Name of an Igor symbolic path.
+- `extension` *(String)*: File-name extension filter.
+- `latestfile` *(String)*: Input/output path of the newest file found so far.
+- `latestctime` *(Variable)*: Input/output creation-time value for the newest item.
+- `recurse` *(Variable)*: If nonzero, recurse into subfolders.
+- `level` *(Variable)*: Current recursion depth.
+
+### Returns
+
+- **String**: The full path of the newest matching file.
 
 
 ## `LoadNewestFolderInPathTreeAndDisplay`
@@ -80,13 +99,35 @@ Auto-generated documentation stub for function `LoadFileFromRaw`.
 LoadNewestFolderInPathTreeAndDisplay()
 ```
 
-Description of LoadNewestFolderInPathTreeAndDisplay.
+Load newest folder in path tree and display.
 
-Auto-generated documentation stub for function `LoadNewestFolderInPathTreeAndDisplay`.
+Load the last file found in the directory tree with root at pathName will pop to set pathName. The path
+name is saved as pATH_LoadLastFileIgorPath.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: Zero after completing the operation.
+
+
+## `GetNewestCreatedFolderInPathTree`
+
+**Signature**
+
+```igorpro
+GetNewestCreatedFolderInPathTree(string pathName, string &latestfolder, variable &latestctime)
+```
+
+Find the newest folder in a folder tree.
+
+### Parameters
+
+- `pathName` *(String)*: Name of an Igor symbolic path.
+- `latestfolder` *(String)*: Input/output path of the newest folder found so far.
+- `latestctime` *(Variable)*: Input/output creation-time value for the newest item.
+
+### Returns
+
+- **String**: The full path of the newest folder.
 
 
 ## `LoadNewestFileInPathTreeAndDisplayPython`
@@ -97,14 +138,35 @@ Auto-generated documentation stub for function `LoadNewestFolderInPathTreeAndDis
 LoadNewestFileInPathTreeAndDisplayPython(string ext)
 ```
 
-Description of LoadNewestFileInPathTreeAndDisplayPython.
+Load newest file in path tree and display python.
 
-Auto-generated documentation stub for function `LoadNewestFileInPathTreeAndDisplayPython`.
+Load the last file found in the directory tree with root set at pathName will pop to set pathName. The
+path name is saved as pATH_LoadLastFileIgorPath.
 
 ### Parameters
 
-- `ext` *(Parameter)*: ext.
+- `ext` *(String)*: File-name extension.
 
 ### Returns
 
-- **Variable**: Return value.
+- **Variable**: One when the requested condition or operation succeeds; otherwise zero.
+
+
+## `GetLastSavedFileInFolderTreePython`
+
+**Signature**
+
+```igorpro
+GetLastSavedFileInFolderTreePython(string pathName, string ext)
+```
+
+Find the most recently saved matching file using the Python helper.
+
+### Parameters
+
+- `pathName` *(String)*: Name of an Igor symbolic path.
+- `ext` *(String)*: File-name extension filter.
+
+### Returns
+
+- **String**: The full path of the most recently saved matching file.

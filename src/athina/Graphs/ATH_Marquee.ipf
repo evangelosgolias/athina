@@ -47,11 +47,11 @@ Structure sUserMarqueePositions
 EndStructure
 
 /// @function MarqueeToMask
-/// @brief Description of MarqueeToMask.
+/// @brief Convert the active graph marquee into a numeric ROI mask.
 /// @details
-/// Auto-generated documentation stub for function `MarqueeToMask`.
-/// @returns Variable Return value.
-
+/// Reads the current graph interaction state and applies the requested operation to that selection.
+/// @param grfName (optional) Name of the graph window.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S MarqueeToMask([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName) // Empty case will be handled below
 	string axisX, axisY
@@ -64,6 +64,20 @@ static Function/S MarqueeToMask([string grfName])
 	return maskPathStr // return the path of M_ROIMask
 End
 
+/// @function CoordinatesToROIMask
+/// @brief Create an ROI mask from numeric rectangle coordinates.
+/// @details
+/// The rectangle is interpreted in graph-axis coordinates and converted to a mask matching the displayed image
+/// or `spw`.
+/// @param left Left region bound.
+/// @param top Top region bound.
+/// @param right Right region bound.
+/// @param bottom Bottom region bound.
+/// @param interior (optional) Mask value assigned inside the ROI.
+/// @param exterior (optional) Mask value assigned outside the ROI.
+/// @param spW (optional) Optional wave whose dimensions and scaling define the mask.
+/// @param grfName (optional) Name of the graph window.
+/// @returns The full path of the generated ROI mask wave.
 static Function/S CoordinatesToROIMask(variable left, variable top, variable right, variable bottom, 
 				[variable interior, variable exterior, variable spW, string grfName])
 	/// Generate a Mask from Marquee
@@ -112,6 +126,18 @@ static Function/S CoordinatesToROIMask(variable left, variable top, variable rig
 	return maskPathStr // "" if mask fails, otherwise the pathname of M_ROIMask
 End
 
+/// @function WAVECoordinatesToROIMask
+/// @brief Create an ROI mask from coordinate waves.
+/// @details
+/// The coordinate waves describe the ROI boundary in graph-axis coordinates; the mask inherits dimensions and
+/// scaling from the displayed image or `spw`.
+/// @param left Left region bound.
+/// @param top Top region bound.
+/// @param right Right region bound.
+/// @param bottom Bottom region bound.
+/// @param interior (optional) Mask value assigned inside the ROI.
+/// @param exterior (optional) Mask value assigned outside the ROI.
+/// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 static Function/WAVE WAVECoordinatesToROIMask(variable left, variable top, variable right, 
 											  variable bottom, [variable interior, variable exterior])
 	/// Creates the wave M_ROIMask
@@ -134,13 +160,13 @@ static Function/WAVE WAVECoordinatesToROIMask(variable left, variable top, varia
 End
 
 /// @function PartitionRegion
-/// @brief Description of PartitionRegion.
+/// @brief Partition the active marquee region into a stack of image tiles.
 /// @details
-/// Auto-generated documentation stub for function `PartitionRegion`.
-/// @param evenNum Parameter evenNum.
-/// @param square] Parameter square].
-/// @returns Variable Return value.
-
+/// Use NameOfWave(waveRef) instead of imgNameTopGraphStr as the ' ' will be replace by _! CopyScales/P
+/// waveRef, wavePRT.
+/// @param evenNum (optional) If nonzero, force an even number of rows and columns.
+/// @param square (optional) If nonzero, constrain the partitioned region to a square.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function PartitionRegion([int evenNum, int square])
 	evenNum = ParamIsDefault(evenNum) ? 1 : evenNum
 	square = ParamIsDefault(square) ? 0 : square
@@ -163,6 +189,12 @@ static Function PartitionRegion([int evenNum, int square])
 	return 0
 End
 
+/// @function GetMarqueeToIndex
+/// @brief Convert the active graph marquee to wave-index bounds.
+/// @param grfName (optional) Name of the graph window.
+/// @param axisX (optional) Name of the horizontal graph axis.
+/// @param axisY (optional) Name of the vertical graph axis.
+/// @returns A validity flag followed by the left, right, top, and bottom wave-index bounds.
 static Function [variable flag, variable leftR, variable rightR, variable topR, variable bottomR] GetMarqueeToIndex([string grfName, string axisX, string axisY])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	axisX = SelectString(ParamIsDefault(axisX) ? 0: 1,"left", axisX)
@@ -184,11 +216,11 @@ static Function [variable flag, variable leftR, variable rightR, variable topR, 
 End
 
 /// @function GetMarqueeWaveStats
-/// @brief Description of GetMarqueeWaveStats.
+/// @brief Return marquee wave stats.
 /// @details
-/// Auto-generated documentation stub for function `GetMarqueeWaveStats`.
-/// @returns Variable Return value.
-
+/// Wavestats for a marquee region in a 2D wave. In case of a 3D wave the stats are calculated for all
+/// layers.
+/// @returns The marquee wave stats.
 static Function GetMarqueeWaveStats()
 	/// Wavestats for a marquee region in a 2D wave. In case of a 3D wave the stats
 	/// are calculated for all layers.
@@ -220,13 +252,10 @@ static Function GetMarqueeWaveStats()
 End
 
 /// @function CheckActiveAxis
-/// @brief Description of CheckActiveAxis.
-/// @details
-/// Auto-generated documentation stub for function `CheckActiveAxis`.
-/// @param graphname Parameter graphname.
-/// @param axis Parameter axis.
-/// @returns Variable Return value.
-
+/// @brief Check active axis.
+/// @param graphname Name of the graph window.
+/// @param axis Name of the graph axis.
+/// @returns One when the requested condition or operation succeeds; otherwise zero.
 static Function CheckActiveAxis(string graphname, string axis)
 	/// If axis is present, return 1 otherwise 0
 	/// graphnname = "" we refer to the top window
@@ -238,12 +267,12 @@ static Function CheckActiveAxis(string graphname, string axis)
 End
 
 /// @function SaveROICoordinatesToDatabase
-/// @brief Description of SaveROICoordinatesToDatabase.
+/// @brief Save ROI coordinates selected with the graph marquee.
 /// @details
-/// Auto-generated documentation stub for function `SaveROICoordinatesToDatabase`.
-/// @param rect] Parameter rect].
-/// @returns Variable Return value.
-
+/// Save ROI to database and draw it on image's UserFront. The following three function let you select an
+/// area on a 2d/3d wave and return the coordinates.
+/// @param rect (optional) Rectangle coordinates receiving or defining the selected region.
+/// @returns Zero after completing the operation.
 static Function SaveROICoordinatesToDatabase([variable rect])
 	// Save ROI to database and draw it on image's UserFront
 	rect = ParamIsDefault(rect) ? 0: rect
@@ -266,6 +295,10 @@ static Function SaveROICoordinatesToDatabase([variable rect])
 End
 
 // The following three function let you select an area on a 2d/3d wave and return the coordinates.
+/// @function UserGetMarqueePositions
+/// @brief Pause for the user to define a graph marquee.
+/// @param s Input/output structure containing graph, axis, and marquee settings.
+/// @returns The left, right, top, and bottom graph coordinates selected by the user.
 static Function [variable leftR, variable rightR, variable topR, variable bottomR] UserGetMarqueePositions(STRUCT sUserMarqueePositions &s)
 	//
 	string winNameStr = WinName(0, 1, 1)	
@@ -302,12 +335,11 @@ static Function [variable leftR, variable rightR, variable topR, variable bottom
 End
 
 /// @function UserSetMarquee_ContButtonProc
-/// @brief Description of UserSetMarquee_ContButtonProc.
+/// @brief Handle the continue button for user set marquee.
 /// @details
-/// Auto-generated documentation stub for function `UserSetMarquee_ContButtonProc`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// Dispatches the relevant Igor control event and ignores unsupported event codes.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function UserSetMarquee_ContButtonProc(STRUCT WMButtonAction &B_Struct): ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch
@@ -332,12 +364,11 @@ static Function UserSetMarquee_ContButtonProc(STRUCT WMButtonAction &B_Struct): 
 End
 
 /// @function UserSetMarquee_CancelBProc
-/// @brief Description of UserSetMarquee_CancelBProc.
+/// @brief Handle the cancel button for user set marquee.
 /// @details
-/// Auto-generated documentation stub for function `UserSetMarquee_CancelBProc`.
-/// @param &B_Struct Parameter &B_Struct.
-/// @returns Variable Return value.
-
+/// End of marquee coordinates.
+/// @param B_Struct Igor action structure describing the control or window event.
+/// @returns Igor callback status; nonzero indicates that the event was handled.
 static Function UserSetMarquee_CancelBProc(STRUCT WMButtonAction &B_Struct) : ButtonControl
 
 	switch(B_Struct.eventCode)	// numeric switch

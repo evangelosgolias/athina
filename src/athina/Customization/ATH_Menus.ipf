@@ -63,9 +63,9 @@ Menu "athina"
 			".nxs NeXus files (Diamond) ...",/Q, ATH_HDF5#LoadNXSDataSets()
 		End
 		
-		//Submenu "Asylum"
-		//	".ibw ...", /Q, ATH_Asylum#LoadAsylumIBW()
-		//End
+		Submenu "Asylum (PFM)"
+			".ibw ...", /Q, ATH_Asylum#LoadAsylumIBW()
+		End
 	End
 	
 	Submenu "Image Operations"

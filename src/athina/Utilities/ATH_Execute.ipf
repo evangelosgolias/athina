@@ -38,15 +38,14 @@
 /// related to ATH Execute functionality.
 
 /// @function ExecuteShellCommand
-/// @brief Description of ExecuteShellCommand.
+/// @brief Execute shell command.
 /// @details
-/// Auto-generated documentation stub for function `ExecuteShellCommand`.
-/// @param uCommand Parameter uCommand.
-/// @param printCommandInHistory Parameter printCommandInHistory.
-/// @param [ Parameter [.
-/// @param asAdmin] Parameter asAdmin].
-/// @returns String Return value.
-
+/// Copy of Wavemetrics procedure.
+/// @param uCommand Igor command to execute.
+/// @param printCommandInHistory If nonzero, echo the command to Igor's history.
+/// @param printResultInHistory (optional) If nonzero, print the command result to history.
+/// @param asAdmin (optional) If nonzero, request administrator execution where supported.
+/// @returns The resulting string; an empty string indicates that no result was available.
 static Function/S ExecuteShellCommand(uCommand, printCommandInHistory, printResultInHistory [, asAdmin])
 	// Copy of Wavemetrics procedure
 	String uCommand					// Unix command to execute
@@ -77,13 +76,13 @@ static Function/S ExecuteShellCommand(uCommand, printCommandInHistory, printResu
 End
 
 /// @function CmdExecutionUsingRange
-/// @brief Description of CmdExecutionUsingRange.
+/// @brief Cmd execution using range.
 /// @details
-/// Auto-generated documentation stub for function `CmdExecutionUsingRange`.
-/// @param cmdStr Parameter cmdStr.
-/// @param rangeStr Parameter rangeStr.
-/// @returns Variable Return value.
-
+/// Execute cmdStr with parameters the numbers in rangeStr. See ATH_ExpandRangeStr doc string. e.g.:
+/// ATH_CmdExecutionUsingRange("NewDataFolder 'FLDR#%s'", "2,3,11-14").
+/// @param cmdStr Text containing the cmd str.
+/// @param rangeStr Range str.
+/// @returns Zero after completing the operation.
 static Function CmdExecutionUsingRange(string cmdStr, string rangeStr)
 	/// Execute cmdStr with parameters the numbers in rangeStr
 	/// See ATH_ExpandRangeStr doc string.
@@ -100,13 +99,13 @@ static Function CmdExecutionUsingRange(string cmdStr, string rangeStr)
 End
 
 /// @function CmdExecutionInFolderWithPattern
-/// @brief Description of CmdExecutionInFolderWithPattern.
+/// @brief Cmd execution in folder with pattern.
 /// @details
-/// Auto-generated documentation stub for function `CmdExecutionInFolderWithPattern`.
-/// @param cmdStr Parameter cmdStr.
-/// @param pattern Parameter pattern.
-/// @returns Variable Return value.
-
+/// Execute cmdStr for wavelist using pattern e.g.: ATH_CmdExecutionInFolderWithPattern("NewDataFolder",
+/// "waveP*").
+/// @param cmdStr Text containing the cmd str.
+/// @param pattern Pattern used to select names or files.
+/// @returns Zero after completing the operation.
 static Function CmdExecutionInFolderWithPattern(string cmdStr, string pattern)
 	/// Execute cmdStr for wavelist using pattern
 	/// e.g.: ATH_CmdExecutionInFolderWithPattern("NewDataFolder", "waveP*")
@@ -123,12 +122,11 @@ static Function CmdExecutionInFolderWithPattern(string cmdStr, string pattern)
 End
 
 /// @function HandleSimpleError
-/// @brief Description of HandleSimpleError.
+/// @brief Handle simple error.
 /// @details
-/// Auto-generated documentation stub for function `HandleSimpleError`.
-/// @param funName Parameter funName.
-/// @returns Variable Return value.
-
+/// Handle execution error, clear and print a message.
+/// @param funName Fun name.
+/// @returns Igor status code: zero on completion; nonzero reports cancellation, invalid input, or failure.
 static Function HandleSimpleError(string funName)
 	// Handle execution error, clear and print a message.
 	string msg=GetErrMessage(GetRTError(0),3); variable err=GetRTError(1)
@@ -140,15 +138,14 @@ static Function HandleSimpleError(string funName)
 End
 
 /// @function GetAndExecuteNoteEntry
-/// @brief Description of GetAndExecuteNoteEntry.
+/// @brief Return and execute note entry.
 /// @details
-/// Auto-generated documentation stub for function `GetAndExecuteNoteEntry`.
-/// @param wRef Parameter wRef.
-/// @param entry Parameter entry.
-/// @param sep Parameter sep.
-/// @param listsep] Parameter listsep].
-/// @returns Variable Return value.
-
+/// Retrieve string entry from wRef note (use sep).
+/// @param wRef Input wave.
+/// @param entry Wave-note key or entry to retrieve and execute.
+/// @param sep (optional) Delimiter used between list items.
+/// @param listsep (optional) Delimiter used by the input or output list.
+/// @returns Zero after completing the operation.
 static Function GetAndExecuteNoteEntry(WAVE wRef, string entry, [string sep, string listsep])
 	/// Retrieve string entry from wRef note (use sep)
 	sep = SelectString(ParamIsDefault(sep) ? 0: 1, ":", sep)		
