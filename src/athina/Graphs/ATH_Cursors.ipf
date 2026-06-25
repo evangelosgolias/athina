@@ -562,6 +562,7 @@ Structure sUserCursorPositions
 	variable ystart
 	variable xend
 	variable yend
+	variable usePoints
 	variable canceled
 EndStructure
 
@@ -570,7 +571,8 @@ EndStructure
 /// @brief Pause for the user to position cursors A and B.
 /// @param s Input/output structure containing graph, axis, and cursor settings.
 /// @returns The start and end coordinates selected with cursors A and B.
-static Function [variable xstart, variable ystart , variable xend, variable yend] UserGetABCursorPositions(STRUCT sUserCursorPositions &s)
+static Function [variable xstart, variable ystart , variable xend, variable yend] UserGetCursorPositions(STRUCT sUserCursorPositions &s,
+				 string cs1, string cs2, [variable usePoints])
 	//
 	string winNameStr = WinName(0, 1, 1)	
 	DoWindow/F $winNameStr			// Bring graph to front
@@ -581,9 +583,9 @@ static Function [variable xstart, variable ystart , variable xend, variable yend
 	string panelNameStr = UniqueName("PauseforABCursors", 9, 0)
 	NewPanel/N=$panelNameStr/K=2/W=(139,341,382,450) as "Set marquee on image"
 	AutoPositionWindow/E/M=1/R=$winNameStr			// Put panel near the graph
-	
+	s.usePoints = usePoints
 	StructPut /S s, structStr
-	DrawText 15,20,"Set cursors A, B and press continue..."
+	DrawText 15,20,"Set cursors and press continue..."
 	DrawText 15,35,"Can also use a marquee to zoom-in"
 	Button buttonContinue, win=$panelNameStr, pos={80,50},size={92,20}, title="Continue", proc=ATH_Cursors#UserGetCursorsPositions_ContButtonProc 
 	Button buttonCancel, win=$panelNameStr, pos={80,80},size={92,20}, title="Cancel", proc=ATH_Cursors#UserGetCursorsPositions_CancelBProc
@@ -591,12 +593,14 @@ static Function [variable xstart, variable ystart , variable xend, variable yend
 	SetWindow $winNameStr userdata(sATH_ABpanelNameStr)= panelNameStr
 	SetWindow $panelNameStr userdata(sATH_ABwinNameStr) = winNameStr 
 	SetWindow $panelNameStr userdata(sATH_ABpanelNameStr) = panelNameStr
+	SetWindow $panelNameStr userdata(sATH_cs1_str) = cs1
+	SetWindow $panelNameStr userdata(sATH_cs2_str) = cs2		
 	PauseForUser $panelNameStr, $winNameStr
 	StructGet/S s, GetUserData(winNameStr, "", "sATH_ABCoords")
 	
 	if(s.canceled)
-		Cursor/W=$winNameStr/K A
-		Cursor/W=$winNameStr/K B
+		Cursor/W=$winNameStr/K $cs1
+		Cursor/W=$winNameStr/K $cs2
 		Abort
 	endif
 	xstart = s.xstart
@@ -620,17 +624,26 @@ static Function UserGetCursorsPositions_ContButtonProc(STRUCT WMButtonAction &B_
 			string winNameStr = GetUserData(B_Struct.win, "", "sATH_ABwinNameStr")
 			StructGet/S s, GetUserData(winNameStr, "", "sATH_ABCoords")
 			string structStr
-			GetMarquee/W=$winNameStr/K left, top
-			s.xstart = hcsr(A, winNameStr)
-			s.ystart = vcsr(A, winNameStr)
-			s.xend   = hcsr(B, winNameStr)
-			s.yend   = vcsr(B, winNameStr)
-			s.canceled = 0
+			string cs1 = GetUserData(B_Struct.win, "", "sATH_cs1_str")
+			string cs2 = GetUserData(B_Struct.win, "", "sATH_cs2_str")
+			if(s.usePoints)
+				s.xstart = pcsr($cs1, winNameStr)
+				s.ystart = qcsr($cs1, winNameStr)
+				s.xend   = pcsr($cs2, winNameStr)
+				s.yend   = qcsr($cs2, winNameStr)
+				s.canceled = 0
+			else
+				s.xstart = hcsr($cs1, winNameStr)
+				s.ystart = vcsr($cs1, winNameStr)
+				s.xend   = hcsr($cs2, winNameStr)
+				s.yend   = vcsr($cs2, winNameStr)
+				s.canceled = 0
+			endif
 			StructPut/S s, structStr
 			SetWindow $winNameStr userdata(sATH_ABCoords) = structStr
 			KillWindow/Z $GetUserData(B_Struct.win, "", "sATH_ABpanelNameStr")
-			Cursor/W=$winNameStr/K A
-			Cursor/W=$winNameStr/K B
+			Cursor/W=$winNameStr/K $cs1
+			Cursor/W=$winNameStr/K $cs2
 			break
 	endswitch
 	return 0
