@@ -2,7 +2,7 @@
 #pragma rtGlobals=3				// Use modern global access method and strict wave access
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
-#pragma ModuleName = ATH_Background
+#pragma ModuleName = ATH_BackgroundRemoval
 #pragma version = 1.01
 
 // ------------------------------------------------------- //
@@ -299,9 +299,9 @@ static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, vari
     Redimension/D wBackground
     wBackground = 0
 
-    Duplicate/O/D w, wBackgroundCount
-    Redimension/D wBackgroundCount
-    wBackgroundCount = 0
+//    Duplicate/O/D w, wBackgroundCount
+//    Redimension/D wBackgroundCount
+//    wBackgroundCount = 0
 
     // One row of coefficients is stored per successfully fitted support line.
     Make/FREE/D/N=(numberOfLines, polynomialTerms) coefficientTable = 0
@@ -310,8 +310,10 @@ static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, vari
     // ImageLineProfile's named destination flags were added in Igor Pro 10.
     // For Igor Pro 9 compatibility, run it in a free data folder
     // and use its standard W_ImageLineProfile/W_LineProfileX/Y outputs.
-    DFREF savedDFR = GetDataFolderDFR()
-	SetDataFolder NewFreeDataFolder()
+    
+    //  Launcher will deal with these
+	//  DFREF savedDFR = GetDataFolderDFR()
+	//	SetDataFolder NewFreeDataFolder()
     Make/FREE/D/N=2 xTrace, yTrace
     Make/FREE/D/N=1 alongWave
 
@@ -461,7 +463,7 @@ static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, vari
             xIndex = min(max(xIndex, 0), nx - 1)
             yIndex = min(max(yIndex, 0), ny - 1)
 
-            wBackgroundCount[xIndex][yIndex] += 1
+            //wBackgroundCount[xIndex][yIndex] += 1
         endfor
 
         fittedLines += 1
@@ -531,11 +533,64 @@ static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, vari
         endfor
     endif
 
-    SetDataFolder savedDFR
+    // SetDataFolder savedDFR
 
-    if (skippedLines > 0)
-        printf "BuildPolynomialLineBackground: fitted %d line(s); skipped %d invalid or undersampled line(s).\r", fittedLines, skippedLines
-    endif
+//    if (skippedLines > 0)
+//        printf "BuildPolynomialLineBackground: fitted %d line(s); skipped %d invalid or undersampled line(s).\r", fittedLines, skippedLines
+//    endif
 
     return fittedLines
+End
+
+// ----- Launcher ------ //
+
+/// @function RemovePolynomialLineFitBackground
+/// @brief Remove fitted polynimial background along user selected angles.
+/// @param grfName (optional) Name of the graph window.
+/// @returns Zero after completing the operation.
+static Function RemovePolynomialLineFitBackground([string grfName])
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
+
+	variable order = 1, density = 0
+	if(WaveDims(wRef) == 2)
+		Prompt order, "Background polynomial order (constant = 0, line = 1, ...)"
+		Prompt density, "Line density percentage [e.g. 0.25 (25%). Set 0 or 1 for 100%]"
+		DoPrompt "Use E, F cursors to define the line for background subtraction ", order, density
+	else
+		print "You need a 2D wave (single image) for this operation"
+		return -1
+	endif
+	density = 0 < density < 1 ? density : 0
+	order = trunc(order)
+	if(V_flag || order < 1 || order > 12)
+		return -1
+	endif
+	ATH_DFR#BackupWaveInWaveDFQ(wRef)
+	string noteStr = note(wRef)
+	// No need to kill anything
+	variable eExists= strlen(CsrInfo(E)) > 0
+	variable fExists= strlen(CsrInfo(F)) > 0
+	if(eExists || fExists)
+		print "The operation user cursors E & F, disable them to proceeed"
+		return -1
+	endif
+	// Drop two cursors and wait
+	variable nrows = DimSize(wRef,0), ncols = DimSize(wRef,1)
+	Cursor/I/C=(65535,65535,0)/S=1/N=1/P E $NameOfWave(wRef) round(1.3 * nrows/2), round(0.7 * ncols/2)
+	Cursor/I/C=(65535,65535,0)/S=1/N=1/P F $NameOfWave(wRef) round(0.7 * nrows/2), round(1.3 * ncols/2)	
+	variable c1x, c1y, c2x, c2y
+	STRUCT sUserCursorPositions sc
+	[c1x, c1y, c2x, c2y] = ATH_Cursors#UserGetCursorPositions(sc, "E", "F", usePoints = 1)
+	variable angleDeg = tan((c2y-c1y)/(c2x-c1x))* 180/pi
+	
+	DFREF savedDFR = GetDataFolderDFR()
+	SetDataFolder NewFreeDataFolder()
+	MakeAngledImageLines(wRef, angleDeg, density)
+	WAVE wx ,wy
+	BuildPolynomialLineBackgroundCore(wRef, wx, wy, order)
+	WAVE wBackground
+	SetDataFolder savedDFR
+	wRef -= wBackground
+	return 0
 End

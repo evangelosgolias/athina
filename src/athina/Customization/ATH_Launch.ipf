@@ -456,8 +456,8 @@ static Function LinearDriftCorrestionStackABCursors()
 		return -1
 	endif
 	
-	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P A $imgNameTopGraphStr 0.25, 0.5
-	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0,30000)/N=1/P B $imgNameTopGraphStr 0.75, 0.5
+	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0)/N=1/P A $imgNameTopGraphStr 0.25, 0.5
+	Cursor/I/A=1/F/H=1/S=1/C=(0,65535,0)/N=1/P B $imgNameTopGraphStr 0.75, 0.5
 	variable slope, shift
 	
 	string backupWavePathStr = ATH_DFR#BackupWaveInWaveDF(wRef)	
