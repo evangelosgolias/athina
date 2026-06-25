@@ -210,7 +210,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 			switch(s.keycode)
 				case 66: // B
 					if(s.eventMod & 2) // works with SHIFT + B only!
-						ATH_BackgroundRemoval#RemovePolynomialLineFitBackground() // works with SHIFT + B only!
+						ATH_ImgOp#RestoreTopImageFromBackup() // works with SHIFT + B only!
 						hookResult = 1															
 					endif
 					break			
@@ -278,7 +278,7 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					break										
 				case 82: // R
 					if(s.eventMod & 2) // works with SHIFT + R only!
-						ATH_ImgOp#RestoreTopImageFromBackup()
+						ATH_Launch#ImageResample()
 						hookResult = 1										
 					endif
 					break

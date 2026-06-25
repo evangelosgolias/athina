@@ -31,7 +31,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **s** : set saved axes range. 
 - **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
 - **z** : launch z profiler *if marquee is present on the graph*.
-- **SHIFT + b** : fit lines along set direction and remove background.
+- **SHIFT + b** : restore image from backup (if it exists).
 - **SHIFT + c** : select color map.
 - **SHIFT + d** : launch manual drift correction.
 - **SHIFT + e** : Extract stack layers (many options).
@@ -40,7 +40,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **SHIFT + m** : launch mirror cursor values.
 - **SHIFT + n** : add text annotation.
 - **SHIFT + o** : a copy of the wave in TG is created and displayed.
-- **SHIFT + r** : restore image from backup (if it exists).
+- **SHIFT + r** : resample image.
 - **SHIFT + s** : Save current axes range and ctab.
 - **SHIFT + CTLR + u** : Unpack stack layers to source waves (as read from wavenote)!!! (Experts only, SHIFT+CMD on Mac)
 - **SHIFT + Q : apply the last saved axes range to all visible graphs

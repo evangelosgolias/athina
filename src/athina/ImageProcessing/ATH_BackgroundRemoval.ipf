@@ -299,10 +299,6 @@ static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, vari
     Redimension/D wBackground
     wBackground = 0
 
-//    Duplicate/O/D w, wBackgroundCount
-//    Redimension/D wBackgroundCount
-//    wBackgroundCount = 0
-
     // One row of coefficients is stored per successfully fitted support line.
     Make/FREE/D/N=(numberOfLines, polynomialTerms) coefficientTable = 0
     Make/FREE/D/N=(numberOfLines) lineOffsets = 0
@@ -437,16 +433,12 @@ static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, vari
         // wBackground itself will be evaluated everywhere below.
         for (sampleIndex = 0; sampleIndex < numberOfSamples; sampleIndex += 1)
             if (numtype(profile[sampleIndex] + profileX[sampleIndex] + profileY[sampleIndex]) != 0)
-
                 continue
             endif
-
             xIndex = ScaleToIndex(w, profileX[sampleIndex], 0)
             yIndex = ScaleToIndex(w, profileY[sampleIndex], 1)
             xIndex = min(max(xIndex, 0), nx - 1)
             yIndex = min(max(yIndex, 0), ny - 1)
-
-            //wBackgroundCount[xIndex][yIndex] += 1
         endfor
 
         fittedLines += 1
@@ -535,7 +527,7 @@ static Function RemovePolynomialLineFitBackground([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
 
-	variable order = 1, density = 0.5
+	variable order = 1, density = 1
 	if(WaveDims(wRef) == 2)
 		Prompt order, "Background polynomial order (constant = 0, line = 1, ...)"
 		Prompt density, "Line density percentage [e.g. 0.25 (25%). Set 0 or 1 for 100%]"
@@ -544,9 +536,9 @@ static Function RemovePolynomialLineFitBackground([string grfName])
 		print "You need a 2D wave (single image) for this operation"
 		return -1
 	endif
-	density = 0 < density < 1 ? density : 0
+	density = (density > 0 && density < 1) ? density : 0
 	order = trunc(order)
-	if(V_flag || order < 1 || order > 12)
+	if(V_flag || order < 0 || order > 12)
 		return -1
 	endif
 	ATH_DFR#BackupWaveInWaveDFQ(wRef)
@@ -573,7 +565,7 @@ static Function RemovePolynomialLineFitBackground([string grfName])
 	WAVE wx ,wy
 	BuildPolynomialLineBackgroundCore(wRef, wx, wy, order)
 	WAVE wBackground
-	Duplicate/O wBackground, root:wBackground
+	// Duplicate/O wBackground, root:wBackground // Debug
 	SetDataFolder savedDFR
 	wRef -= wBackground
 	return 0
