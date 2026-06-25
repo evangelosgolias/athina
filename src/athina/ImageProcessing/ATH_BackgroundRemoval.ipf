@@ -255,7 +255,7 @@ static Function AddUniqueLineHit(hitX, hitY, numberOfHits, xValue, yValue, toler
     return numberOfHits
 End
 
-static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, variable polynomialOrder, [variable coordinatesArePoints])
+static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, variable polynomialOrder)
 
     if (WaveDims(w) != 2 || WaveType(w, 1) != 1)
         print "BuildPolynomialLineBackground: w must be a numeric 2-D wave."
@@ -310,7 +310,6 @@ static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, vari
     // ImageLineProfile's named destination flags were added in Igor Pro 10.
     // For Igor Pro 9 compatibility, run it in a free data folder
     // and use its standard W_ImageLineProfile/W_LineProfileX/Y outputs.
-    
     //  Launcher will deal with these
 	//  DFREF savedDFR = GetDataFolderDFR()
 	//	SetDataFolder NewFreeDataFolder()
@@ -326,27 +325,15 @@ static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, vari
     variable lowerValue, upperValue, backgroundValue, offsetSpan
 
     for (lineIndex = 0; lineIndex < numberOfLines; lineIndex += 1)
-        if (coordinatesArePoints)
-            xPoint0 = wx[lineIndex][0]
-            xPoint1 = wx[lineIndex][1]
-            yPoint0 = wy[lineIndex][0]
-            yPoint1 = wy[lineIndex][1]
+    	xPoint0 = wx[lineIndex][0]
+        xPoint1 = wx[lineIndex][1]
+        yPoint0 = wy[lineIndex][0]
+        yPoint1 = wy[lineIndex][1]
 
-            xTrace[0] = DimOffset(w, 0) + xScaleDelta * xPoint0
-            xTrace[1] = DimOffset(w, 0) + xScaleDelta * xPoint1
-            yTrace[0] = DimOffset(w, 1) + yScaleDelta * yPoint0
-            yTrace[1] = DimOffset(w, 1) + yScaleDelta * yPoint1
-        else
-            xTrace[0] = wx[lineIndex][0]
-            xTrace[1] = wx[lineIndex][1]
-            yTrace[0] = wy[lineIndex][0]
-            yTrace[1] = wy[lineIndex][1]
-
-            xPoint0 = (xTrace[0] - DimOffset(w, 0)) / xScaleDelta
-            xPoint1 = (xTrace[1] - DimOffset(w, 0)) / xScaleDelta
-            yPoint0 = (yTrace[0] - DimOffset(w, 1)) / yScaleDelta
-            yPoint1 = (yTrace[1] - DimOffset(w, 1)) / yScaleDelta
-        endif
+        xTrace[0] = DimOffset(w, 0) + xScaleDelta * xPoint0
+        xTrace[1] = DimOffset(w, 0) + xScaleDelta * xPoint1
+        yTrace[0] = DimOffset(w, 1) + yScaleDelta * yPoint0
+        yTrace[1] = DimOffset(w, 1) + yScaleDelta * yPoint1
 
         if (numtype(xPoint0 + xPoint1 + yPoint0 + yPoint1) != 0)
             skippedLines += 1
@@ -393,7 +380,6 @@ static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, vari
 
         numberOfSamples = DimSize(profile, 0)
         if (DimSize(profileX, 0) != numberOfSamples || DimSize(profileY, 0) != numberOfSamples)
-
             skippedLines += 1
             continue
         endif
@@ -422,14 +408,12 @@ static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, vari
         CurveFit/Q/M=2/W=0 poly (polynomialTerms), profile /X=alongWave
         Wave/Z/D fitCoefficients = W_coef
         if (!WaveExists(fitCoefficients) || DimSize(fitCoefficients, 0) != polynomialTerms)
-
             skippedLines += 1
             continue
         endif
 
         coefficientsAreFinite = 1
         for (coefficientIndex = 0; coefficientIndex < polynomialTerms; coefficientIndex += 1)
-
             if (numtype(fitCoefficients[coefficientIndex]) != 0)
                 coefficientsAreFinite = 0
                 break
@@ -444,7 +428,6 @@ static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, vari
 
         lineOffsets[fittedLines] = lineOffset
         for (coefficientIndex = 0; coefficientIndex < polynomialTerms; coefficientIndex += 1)
-
             coefficientTable[fittedLines][coefficientIndex] = fitCoefficients[coefficientIndex]
         endfor
 
@@ -552,7 +535,7 @@ static Function RemovePolynomialLineFitBackground([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
 
-	variable order = 1, density = 0
+	variable order = 1, density = 0.5
 	if(WaveDims(wRef) == 2)
 		Prompt order, "Background polynomial order (constant = 0, line = 1, ...)"
 		Prompt density, "Line density percentage [e.g. 0.25 (25%). Set 0 or 1 for 100%]"
@@ -582,7 +565,7 @@ static Function RemovePolynomialLineFitBackground([string grfName])
 	variable c1x, c1y, c2x, c2y
 	STRUCT sUserCursorPositions sc
 	[c1x, c1y, c2x, c2y] = ATH_Cursors#UserGetCursorPositions(sc, "E", "F", usePoints = 1)
-	variable angleDeg = tan((c2y-c1y)/(c2x-c1x))* 180/pi
+	variable angleDeg = atan((c2y-c1y)/(c2x-c1x))* 180/pi
 	
 	DFREF savedDFR = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
@@ -590,6 +573,7 @@ static Function RemovePolynomialLineFitBackground([string grfName])
 	WAVE wx ,wy
 	BuildPolynomialLineBackgroundCore(wRef, wx, wy, order)
 	WAVE wBackground
+	Duplicate/O wBackground, root:wBackground
 	SetDataFolder savedDFR
 	wRef -= wBackground
 	return 0
