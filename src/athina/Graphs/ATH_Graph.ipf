@@ -361,7 +361,7 @@ Function/S TopImageName([string grfName])
 end
 
 /// @function TopGraphToWaveRef
-/// @brief Return the primary wave displayed in the top graph.
+/// @brief Return the primary wave displayed in the top graph, unless grfName is set.
 /// @param grfName (optional) Name of the graph window.
 /// @returns Reference to the result wave; a null wave reference indicates failure where supported.
 static Function/WAVE TopGraphToWaveRef([string grfName])
