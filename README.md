@@ -2,7 +2,7 @@
 
 ## Introduction
 
-**athina** is a data analysis package for the analysis of image-based data and has special features for analyzing datasets from spectromicroscopy and microspectroscopy experiments. It can handle data from experimental techniques such as:
+**athina** is a data analysis package for the analysis of image-based data and has special features for analyzing datasets from spectromicroscopy experiments. It can handle data from experimental techniques such as:
 
 -   (X)PEEM / LEEM
 -   XMCD / XMLD-PEEM
