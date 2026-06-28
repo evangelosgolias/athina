@@ -1,7 +1,7 @@
 #pragma TextEncoding	= "UTF-8"
 #pragma rtGlobals 		= 3
 #pragma IgorVersion		= 9
-#pragma ModuleName		= BackgroundRemover
+#pragma ModuleName		= ATH_BackgroundRemover
 #pragma version			= 1.51
 #pragma DefaultTab		= {3,20,4}		// set default tab width in Igor Pro 9 and later
 
@@ -119,7 +119,7 @@ EndStructure
 /// @brief Initialize background removal for a selected spectrum.
 /// @param bs Background-model settings structure.
 /// @returns Zero after completing the operation.
-Function BackRemoveInitialize(bs)
+static Function BackRemoveInitialize(bs)
 	STRUCT BackRemoveStruct &bs
 	bs.FuncType		= "Constant"
 	bs.avgPercent	= 0.5
@@ -150,7 +150,7 @@ End
 /// @param from (optional) Lower x coordinate of the background range.
 /// @param to (optional) Upper x coordinate of the background range.
 /// @returns An empty string on success; otherwise a message describing invalid input or calculation failure.
-Function/S GenerateBackground(s, inwave, backwave, [from, to])
+static Function/S GenerateBackground(s, inwave, backwave, [from, to])
 	STRUCT BackRemoveStruct &s
 	Wave, inwave, backwave
 	Variable from, to
@@ -395,7 +395,7 @@ End
 /// @function BackgroundSubtractGUI
 /// @brief Launch the interactive XPS background-subtraction panel.
 /// @returns Zero after opening the panel; a negative value if the input wave is invalid.
-Function BackgroundSubtractGUI() //BackgroundSubtractGUI(inwave)
+static Function BackgroundSubtractGUI() //BackgroundSubtractGUI(inwave)
 	string winNameStr = WinName(0, 1, 1)
 	string graphNameStr = StringFromList(0, TraceNameList(winNameStr, ";", 1),";")
 	WAVE inwave = TraceNameToWaveRef(winNameStr, graphNameStr) // /Z for debug needed
@@ -475,9 +475,9 @@ Function BackgroundSubtractGUI() //BackgroundSubtractGUI(inwave)
 	SetVariable VarExpScale		,pos={575,35}	,size={95,23}		,title="Scale Result:"		,help={"Scales the exponential function to match the spectrum."}
 	PopUpMenu VarCSData			,pos={735,35}	,size={140,20}		,title="CS Data:"			,help={"Select a wave with correct cross section data for the material."}
 	//+++++++++++++++++++++++++++++++++++ control modifiers ++++++++++++++++++++++++++++++++++++		
-	ModifyControlList ControlNameList(gName,";","B*")							,proc=BackRem_ButtonAction
-	PopUpMenu BackSelect		,bodywidth=110	,value=kBackgroundTypes			,proc=BackRem_ModeSelect
-	PopUpMenu VarCSData			,bodywidth=140	,value=BackRem_CSWaveList()		,proc=BackRem_CSWaveSelect
+	ModifyControlList ControlNameList(gName,";","B*")							,proc=ATH_BackgroundRemover#BackRem_ButtonAction
+	PopUpMenu BackSelect		,bodywidth=110	,value=kBackgroundTypes			,proc=ATH_BackgroundRemover#BackRem_ModeSelect
+	PopUpMenu VarCSData			,bodywidth=140	,value=BackRem_CSWaveList()		,proc=ATH_BackgroundRemover#BackRem_CSWaveSelect
 	
 	STRUCT BackRemoveStruct bs
 	BackRem_InitLoadSettings(bs, inwave, gName)													// loads default settings or settings from a previous file and sets initial cursors
@@ -493,30 +493,30 @@ Function BackgroundSubtractGUI() //BackgroundSubtractGUI(inwave)
 		ModifyControlList ControlNameList(gName,";","*") fsize=10
 	endif
 	
-	SetVariable ValA			,bodywidth=75	,limits={left,right,inset}		,format="%g" + unit	,proc=BackRem_VarChange		,disable=2*(1-flip)
-	SetVariable ValB			,bodywidth=75	,limits={left,right,inset}		,format="%g" + unit	,proc=BackRem_VarChange		,disable=2*(flip)
-	SetVariable averageCurloc	,bodywidth=75	,limits={0,50,0.1}				,format="%g %"		,proc=BackRem_VarChange		,value=_NUM:bs.avgPercent
-	SetVariable VarStepPos		,bodywidth=65	,limits={0.1,50,0.1}			,format="%g" + unit	,proc=BackRem_VarChange		,value=_NUM:bs.stepPos
-	SetVariable VarStepSmooth	,bodywidth=65	,limits={0.01,inset*50,inset}	,format="%g" + unit	,proc=BackRem_VarChange		,value=_NUM:bs.stepSmooth
-	SetVariable VarSmoothData	,bodywidth=65	,limits={0,500,1}				,format="%g"		,proc=BackRem_VarChange		,value=_NUM:bs.smoothData
-	SetVariable VarTougaardB	,bodywidth=65	,limits={1,inf,10}				,format="%g"		,proc=BackRem_VarChange		,value=_NUM:bs.TouB
-	SetVariable VarTougaardC	,bodywidth=65	,limits={1,inf,10}				,format="%g"		,proc=BackRem_VarChange		,value=_NUM:bs.TouC
-	SetVariable VarTougaardD	,bodywidth=65	,limits={0,inf,10}				,format="%g"		,proc=BackRem_VarChange		,value=_NUM:bs.TouD
-	SetVariable VarTougaardCtoD	,bodywidth=55	,limits={0,inf,10}				,format="%g"		,proc=BackRem_VarChange		,value=_NUM:0			,fColor=(30000,30000,30000) ,valueColor=(30000,30000,30000)
-	SetVariable VarTougaardT	,bodywidth=65	,limits={0,100,1}				,format="%g"		,proc=BackRem_VarChange		,value=_NUM:bs.TouT
-	SetVariable VarTouSmooth	,bodywidth=65	,limits={0.0001,100,0.1}		,format="%g" + unit	,proc=BackRem_VarChange		,value=_NUM:bs.TouSmooth
-	SetVariable VarCSScale		,bodywidth=65	,limits={0.001,inf,0.05}		,format="%g"		,proc=BackRem_VarChange		,value=_NUM:bs.CSscale
-	SetVariable VarExpScale		,bodywidth=65	,limits={0.05,inf,0.05}			,format="%g"		,proc=BackRem_VarChange		,value=_NUM:bs.expScale
-	SetVariable VarPolyDegree	,bodywidth=65	,limits={2,19,1}				,format="%g"		,proc=BackRem_VarChange		,value=_NUM:bs.polyDegree
-	CheckBox VarFullLinear																			,proc=BackRem_CheckAction	,value=bs.fullLinear
-	CheckBox VarFollowData														,side=1				,proc=BackRem_CheckAction	,value=bs.followData
+	SetVariable ValA			,bodywidth=75	,limits={left,right,inset}		,format="%g" + unit	,proc=ATH_BackgroundRemover#BackRem_VarChange		,disable=2*(1-flip)
+	SetVariable ValB			,bodywidth=75	,limits={left,right,inset}		,format="%g" + unit	,proc=ATH_BackgroundRemover#BackRem_VarChange		,disable=2*(flip)
+	SetVariable averageCurloc	,bodywidth=75	,limits={0,50,0.1}				,format="%g %"		,proc=ATH_BackgroundRemover#BackRem_VarChange		,value=_NUM:bs.avgPercent
+	SetVariable VarStepPos		,bodywidth=65	,limits={0.1,50,0.1}			,format="%g" + unit	,proc=ATH_BackgroundRemover#BackRem_VarChange		,value=_NUM:bs.stepPos
+	SetVariable VarStepSmooth	,bodywidth=65	,limits={0.01,inset*50,inset}	,format="%g" + unit	,proc=ATH_BackgroundRemover#BackRem_VarChange		,value=_NUM:bs.stepSmooth
+	SetVariable VarSmoothData	,bodywidth=65	,limits={0,500,1}				,format="%g"		,proc=ATH_BackgroundRemover#BackRem_VarChange		,value=_NUM:bs.smoothData
+	SetVariable VarTougaardB	,bodywidth=65	,limits={1,inf,10}				,format="%g"		,proc=ATH_BackgroundRemover#BackRem_VarChange		,value=_NUM:bs.TouB
+	SetVariable VarTougaardC	,bodywidth=65	,limits={1,inf,10}				,format="%g"		,proc=ATH_BackgroundRemover#BackRem_VarChange		,value=_NUM:bs.TouC
+	SetVariable VarTougaardD	,bodywidth=65	,limits={0,inf,10}				,format="%g"		,proc=ATH_BackgroundRemover#BackRem_VarChange		,value=_NUM:bs.TouD
+	SetVariable VarTougaardCtoD	,bodywidth=55	,limits={0,inf,10}				,format="%g"		,proc=ATH_BackgroundRemover#BackRem_VarChange		,value=_NUM:0			,fColor=(30000,30000,30000) ,valueColor=(30000,30000,30000)
+	SetVariable VarTougaardT	,bodywidth=65	,limits={0,100,1}				,format="%g"		,proc=ATH_BackgroundRemover#BackRem_VarChange		,value=_NUM:bs.TouT
+	SetVariable VarTouSmooth	,bodywidth=65	,limits={0.0001,100,0.1}		,format="%g" + unit	,proc=ATH_BackgroundRemover#BackRem_VarChange		,value=_NUM:bs.TouSmooth
+	SetVariable VarCSScale		,bodywidth=65	,limits={0.001,inf,0.05}		,format="%g"		,proc=ATH_BackgroundRemover#BackRem_VarChange		,value=_NUM:bs.CSscale
+	SetVariable VarExpScale		,bodywidth=65	,limits={0.05,inf,0.05}			,format="%g"		,proc=ATH_BackgroundRemover#BackRem_VarChange		,value=_NUM:bs.expScale
+	SetVariable VarPolyDegree	,bodywidth=65	,limits={2,19,1}				,format="%g"		,proc=ATH_BackgroundRemover#BackRem_VarChange		,value=_NUM:bs.polyDegree
+	CheckBox VarFullLinear																			,proc=ATH_BackgroundRemover#BackRem_CheckAction	,value=bs.fullLinear
+	CheckBox VarFollowData														,side=1				,proc=ATH_BackgroundRemover#BackRem_CheckAction	,value=bs.followData
 
 	ModifyControlList ControlNameList(gName,";","Var*")		,disable=1							// hide all controls special controls
 	BackRem_SwitchModeControls(bs.FuncType, gName)
 	PopUpMenu BackSelect		,popmatch=bs.FuncType
 	PopUpMenu VarCSData			,popmatch=bs.CSdata
 	
-	SetWindow $gName hook(BackCalcAction)=BackRem_WindowHook									// link the function call to the window (after the cursors has been set; otherwise eventCode == 7 will trigger)
+	SetWindow $gName hook(BackCalcAction)=ATH_BackgroundRemover#BackRem_WindowHook									// link the function call to the window (after the cursors has been set; otherwise eventCode == 7 will trigger)
 	BackRem_BackCalc(gName)																		// initial background calculation
 	DoWindow/F $gName
 	return 0
@@ -544,7 +544,7 @@ End
 /// @brief Handle window events for the XPS background-removal graph.
 /// @param s Igor window-hook event structure.
 /// @returns Igor callback status; nonzero indicates that the event was handled.
-Function BackRem_WindowHook(s)																	// main window hook
+static Function BackRem_WindowHook(s)																	// main window hook
 	STRUCT WMWinHookStruct &s
 	Variable HookTakeover = 0, Objects = 1
 	
@@ -721,7 +721,7 @@ End
 /// @brief Handle selection of a background model.
 /// @param s Igor action structure describing the control or window event.
 /// @returns Igor callback status; nonzero indicates that the event was handled.
-Function BackRem_ModeSelect(s) : PopupMenuControl
+static Function BackRem_ModeSelect(s) : PopupMenuControl
 	STRUCT WMPopupAction &s
 	if (s.eventCode == 2)
 		BackRem_SwitchModeControls(s.popStr, s.win)
@@ -734,7 +734,7 @@ End
 /// @brief Recalculate the background after a checkbox change.
 /// @param s Igor action structure describing the control or window event.
 /// @returns Igor callback status; nonzero indicates that the event was handled.
-Function BackRem_CheckAction (s) : CheckBoxControl
+static Function BackRem_CheckAction (s) : CheckBoxControl
 	STRUCT WMCheckboxAction &s
 	if (s.eventCode == 2)
 		BackRem_BackCalc(s.win)
@@ -746,7 +746,7 @@ End
 /// @brief Recalculate the background after selecting a cross-section wave.
 /// @param s Igor action structure describing the control or window event.
 /// @returns Igor callback status; nonzero indicates that the event was handled.
-Function BackRem_CSWaveSelect(s) : PopupMenuControl
+static Function BackRem_CSWaveSelect(s) : PopupMenuControl
 	STRUCT WMPopupAction &s
 	if (s.eventCode == 2)
 		BackRem_BackCalc(s.win)
@@ -757,7 +757,7 @@ End
 /// @function BackRem_CSWaveList
 /// @brief Return the one-dimensional waves available as scattering cross sections.
 /// @returns A semicolon-separated list of one-dimensional waves.
-Function/S BackRem_CSWaveList()																	// create wave list for the drop down menu
+static Function/S BackRem_CSWaveList()																	// create wave list for the drop down menu
 	String list = "none;" + WaveList("*",";", "DIMS:1")
 	return list
 End
@@ -766,7 +766,7 @@ End
 /// @brief Handle subtract, undo, save, and close actions in the background-removal panel.
 /// @param s Igor action structure describing the control or window event.
 /// @returns Igor callback status; nonzero indicates that the event was handled.
-Function BackRem_ButtonAction(STRUCT WMButtonAction &s) : ButtonControl
+static Function BackRem_ButtonAction(STRUCT WMButtonAction &s) : ButtonControl
 	
 	if (s.eventCode != 2)
 		return 0
@@ -842,7 +842,7 @@ End
 /// @brief Update cursors or recalculate the background after a control value changes.
 /// @param s Igor action structure describing the control or window event.
 /// @returns Igor callback status; nonzero indicates that the event was handled.
-Function BackRem_VarChange(s) : SetVariableControl
+static Function BackRem_VarChange(s) : SetVariableControl
 	STRUCT WMSetVariableAction &s
 	
 	if (s.eventCode == 1 || s.eventCode == 2)

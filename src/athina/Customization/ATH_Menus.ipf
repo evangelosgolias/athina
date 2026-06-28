@@ -128,12 +128,12 @@ Menu "athina"
 	Submenu "Analysis"
 		Submenu "Fitting"
 			"Fast Fitting (1D, 2D, 3D)", /Q, FastFit#Initialise()
-			"Remove Baselines (1D)", /Q, Baselines#Initialise()
+			"Remove Baselines (1D)", /Q, ATH_Baselines#Initialise()
 		End
 		Submenu "XPS"
 			"Extract XPS profile from image (TG, 2D)", /Q, ATH_iXPS#MainMenu()
 			"Extract XPS profile from saved settings (DB, 2D)", /Q, ATH_Launch#XPSProfileFromDefaultSettings()
-			"Subtract background(TG, 1D) ", /Q, BackgroundSubtractGUI()
+			"Subtract background(TG, 1D) ", /Q, ATH_BackgroundRemover#BackgroundSubtractGUI()
 		End
 	End	
 	
@@ -212,7 +212,7 @@ Menu "GraphPopup" // Right click not on a trace or in the margin of an image
 	"ATH Clear UserFront layer" ,/Q, ATH_ZProfile#ClearROIMarkingsUserFront("")
 	"ATH Text Annotation (TG)", /Q, ATH_Launch#QuickTextAnnotation()
 	"ATH SetDataFolder (TG)", /Q, ATH_Launch#SetTopGraphDF()
-	"ATH Remove baselines" ,/Q, Baselines#Initialise()
+	"ATH Remove baselines" ,/Q, ATH_Baselines#Initialise()
 	"ATH Measure Distance (TG)", /Q, ATH_Cursors#MeasureDistanceUsingFreeCursors()
 	
 

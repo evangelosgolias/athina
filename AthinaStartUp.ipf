@@ -55,8 +55,8 @@ Function ATH_AthinaLauncher()
 		Execute/P "INSERTINCLUDE \"ATH_Export\""
 		Execute/P "INSERTINCLUDE \"ATH_System\""
 		Execute/P "INSERTINCLUDE \"ATH_MagDomains\""		
-		Execute/P "INSERTINCLUDE \"IE_Baselines\""
-		Execute/P "INSERTINCLUDE \"IE_FastFitting\""
+		Execute/P "INSERTINCLUDE \"ATH_Baselines\""
+		Execute/P "INSERTINCLUDE \"ATH_FastFitting\""
 		Execute/P "COMPILEPROCEDURES "
 	else
 		Execute/P "DELETEINCLUDE \"ATH_Func\""
@@ -107,8 +107,8 @@ Function ATH_AthinaLauncher()
 		Execute/P "DELETEINCLUDE \"ATH_Export\""
 		Execute/P "DELETEINCLUDE \"ATH_MagDomains\""		
 		Execute/P "DELETEINCLUDE \"ATH_System\""		
-		Execute/P "DELETEINCLUDE \"IE_Baselines\""
-		Execute/P "DELETEINCLUDE \"IE_FastFitting\""
+		Execute/P "DELETEINCLUDE \"ATH_Baselines\""
+		Execute/P "DELETEINCLUDE \"ATH_FastFitting\""
 		Execute/P "COMPILEPROCEDURES "
 	endif
 	return 0

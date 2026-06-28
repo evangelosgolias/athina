@@ -43,7 +43,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **SHIFT + r** : resample image.
 - **SHIFT + s** : Save current axes range and ctab.
 - **SHIFT + CTLR + u** : Unpack stack layers to source waves (as read from wavenote)!!! (Experts only, SHIFT+CMD on Mac)
-- **SHIFT + Q : apply the last saved axes range to all visible graphs
+- **SHIFT + Q **: apply the last saved axes range to all visible graphs
 - **SHIFT + x** : launch interactive PES (XPS) extractor
 - **SHIFT + mousewheel** : zoom image centered at the cursor.
 

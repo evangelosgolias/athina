@@ -3,7 +3,12 @@
 #pragma DefaultTab={3,20,4}
 #pragma IgorVersion=8
 #pragma version=1.01
-#pragma ModuleName=FastFit
+#pragma ModuleName=ATH_FastFit
+
+
+// Program copied from user tony (Tony Withers)
+// https://www.wavemetrics.com/node/22409
+
 
 #include <WaveSelectorWidget>
 #include "Baselines", optional // this is an add-on for baselines
@@ -74,11 +79,11 @@ static strconstant ksFilterListbox = "lbSelector"
 //#define dev
 // 
 //menu "DataBrowserObjectsPopup"
-//	"Fast Fit", /Q, FastFit#BrowserInit()
+//	"Fast Fit", /Q, ATH_FastFit#BrowserInit()
 //end
 
 //menu "Analysis"
-//	"Fast Fitting...", /Q, FastFit#Initialise()
+//	"Fast Fitting...", /Q, ATH_FastFit#Initialise()
 //end
 
 static function BrowserInit()
@@ -837,12 +842,12 @@ threadsafe static function/wave ffMaskedWorker(STRUCT ffstruct &ffs, wave w, wav
 			Make/O/D/N=(numCoef) w_coef = 1 / (x+1)
 			if (ChebyshevType == 2)
 				if (dofit)
-					FuncFit/Q/N FastFit#ChebyshevSeries2 w_coef wData /M=wMask/X=w_relx/NWOK; CFerror = GetRTError(1)
+					FuncFit/Q/N ATH_FastFit#ChebyshevSeries2 w_coef wData /M=wMask/X=w_relx/NWOK; CFerror = GetRTError(1)
 				endif
 				ChebyshevSeries2(w_coef, wBase, w_relx)
 			else
 				if (dofit)
-					FuncFit/Q/N FastFit#ChebyshevSeries w_coef wData /M=wMask/X=w_relx/NWOK; CFerror = GetRTError(1)
+					FuncFit/Q/N ATH_FastFit#ChebyshevSeries w_coef wData /M=wMask/X=w_relx/NWOK; CFerror = GetRTError(1)
 				endif
 				ChebyshevSeries(w_coef, wBase, w_relx)
 			endif
@@ -878,16 +883,16 @@ threadsafe static function/wave ffMaskedWorker(STRUCT ffstruct &ffs, wave w, wav
 				// FuncFit won't work with the funcref
 				switch (ffs.wavelength)
 					case 2:
-						FuncFit/Q/N FastFit#PlanckmuM w_coef wData /M=wMask/X=w_x/NWOK; CFerror = GetRTError(1)
+						FuncFit/Q/N ATH_FastFit#PlanckmuM w_coef wData /M=wMask/X=w_x/NWOK; CFerror = GetRTError(1)
 						break
 					case 3:
-						FuncFit/Q/N FastFit#PlanckWN w_coef wData /M=wMask/X=w_x/NWOK; CFerror = GetRTError(1)
+						FuncFit/Q/N ATH_FastFit#PlanckWN w_coef wData /M=wMask/X=w_x/NWOK; CFerror = GetRTError(1)
 						break
 					case 4:
-						FuncFit/Q/N FastFit#PlanckAngstrom w_coef wData /M=wMask/X=w_x/NWOK; CFerror = GetRTError(1)
+						FuncFit/Q/N ATH_FastFit#PlanckAngstrom w_coef wData /M=wMask/X=w_x/NWOK; CFerror = GetRTError(1)
 						break
 					default:
-						FuncFit/Q/N FastFit#Planck w_coef wData /M=wMask/X=w_x/NWOK; CFerror = GetRTError(1)
+						FuncFit/Q/N ATH_FastFit#Planck w_coef wData /M=wMask/X=w_x/NWOK; CFerror = GetRTError(1)
 				endswitch
 			endif
 			if (WaveExists(w_x))
@@ -1470,7 +1475,7 @@ threadsafe static function/wave GetCommonTangentCoefs(wave wEdgesP, wave wData, 
 		
 	// this fails in igor 8 when multithreading is enabled
 	// error: The function (not available) has the wrong parameter types or the wrong number of parameters.
-	FindRoots/H=(crossingX+delta)/L=(crossingX-delta)/Q FastFit#TangentDistance, w_9coef
+	FindRoots/H=(crossingX+delta)/L=(crossingX-delta)/Q ATH_FastFit#TangentDistance, w_9coef
 	if (V_flag)
 		return $""
 	endif
@@ -1612,11 +1617,11 @@ static function Initialise([string selection, int dims])
 	string strTitle, strHelp
 	
 	variable x0 = 10, y0 = 10
-	PopupMenu popDims, win=ffPanel, pos={x0,y0}, size={50,20}, title="", value="1D;2D;3D;", mode=ffs.dims, fsize=fs, Proc=FastFit#ffPopups
+	PopupMenu popDims, win=ffPanel, pos={x0,y0}, size={50,20}, title="", value="1D;2D;3D;", mode=ffs.dims, fsize=fs, Proc=ATH_FastFit#ffPopups
 	PopupMenu popDims, win=ffPanel, help={"Select from one-, two- or three-dimensional input waves"}
 	string strValue = SelectString(ffs.dims - 2, "\"Rows;\"", "\"Rows;Columns;\"", "\"Rows;Columns;Layers;\"")
 	
-	PopupMenu popDataDim, win=ffPanel, pos={70,y0}, size={200,20}, title="dimension", value=#strValue, mode=ffs.dims, fsize=fs, Proc=FastFit#ffPopups //, disable=2*(!(ffs.options & 32))
+	PopupMenu popDataDim, win=ffPanel, pos={70,y0}, size={200,20}, title="dimension", value=#strValue, mode=ffs.dims, fsize=fs, Proc=ATH_FastFit#ffPopups //, disable=2*(!(ffs.options & 32))
 	PopupMenu popDataDim, win=ffPanel, help={"Select the wave dimension for fitting"}
 	y0 += 25
 	
@@ -1638,7 +1643,7 @@ static function Initialise([string selection, int dims])
 	endif
 	y0 += selectorheight + 59
 	
-	SetVariable svXwave,pos={x0,y0},size={200,14},title="X wave",value=_STR:"", fsize=fs, Proc=FastFit#ffSetvars
+	SetVariable svXwave,pos={x0,y0},size={200,14},title="X wave",value=_STR:"", fsize=fs, Proc=ATH_FastFit#ffSetvars
 	SetVariable svXwave, help={"For X-Y fitting, select an X-wave with the same number of points as the data waves/data dimension"}
 		
 
@@ -1646,13 +1651,13 @@ static function Initialise([string selection, int dims])
 	x0 = 220
 	y0 = 10
 	
-	Button btnHelp, pos={x0+190,5}, size={15,15}, title="", Picture=FastFit#pHelp, labelBack=0
-	Button btnHelp, help={"Click for help"}, focusRing=0, Proc=FastFit#ffButtons//, disable=2
+	Button btnHelp, pos={x0+190,5}, size={15,15}, title="", Picture=ATH_FastFit#pHelp, labelBack=0
+	Button btnHelp, help={"Click for help"}, focusRing=0, Proc=ATH_FastFit#ffButtons//, disable=2
 	
-	Button btnInfo, pos={x0+170,5}, size={15,15}, Proc=FastFit#ffButtons, title=""
+	Button btnInfo, pos={x0+170,5}, size={15,15}, Proc=ATH_FastFit#ffButtons, title=""
 	Button btnInfo, help={"Show Info"}, Picture=updater#pInfo
 	
-//	Button btnSettings, pos={x0+185,y0}, size={15,15}, title="", Picture=FastFit#pCog, labelBack=0
+//	Button btnSettings, pos={x0+185,y0}, size={15,15}, title="", Picture=ATH_FastFit#pCog, labelBack=0
 //	Button btnSettings, help={"Change Settings"}, focusRing=0 // , Proc=
 	
 	
@@ -1661,14 +1666,14 @@ static function Initialise([string selection, int dims])
 //	#if exists("baselines#initialise") != 6
 //	strHelp += "\r       *** Requires baselines.ipf ***"
 //	#endif
-//	Button btnSetup, pos={x0+5,y0}, size={195,20}, title="Set Up Fit in Baselines Panel", Proc=FastFit#ffButtons
+//	Button btnSetup, pos={x0+5,y0}, size={195,20}, title="Set Up Fit in Baselines Panel", Proc=ATH_FastFit#ffButtons
 //	Button btnSetup, help={strHelp}
 //	y0 += 25
 //	strHelp = "Import the fitting settings for ALL tabs from the baselines GUI"
 //	#if exists("baselines#initialise") != 6
 //	strHelp += "\r       *** Requires baselines.ipf ***"
 //	#endif
-//	Button btnRead, pos={x0+5,y0}, size={195,20}, title="Read Values from Baselines UI", Proc=FastFit#ffButtons
+//	Button btnRead, pos={x0+5,y0}, size={195,20}, title="Read Values from Baselines UI", Proc=ATH_FastFit#ffButtons
 //	Button btnRead, help={strHelp}
 //	y0 += 30
 	
@@ -1677,7 +1682,7 @@ static function Initialise([string selection, int dims])
 		
 	// tabs
 	int tabsY0 = y0
-	TabControl tabs,pos={x0,tabsY0},size={205,160},Proc=FastFit#ffTabs
+	TabControl tabs,pos={x0,tabsY0},size={205,160},Proc=ATH_FastFit#ffTabs
 	TabControl tabs,labelBack=(61166,61166,61166),tabLabel(0)="Mask"
 	TabControl tabs,tabLabel(1)="Man",tabLabel(2)="Auto",value=ffs.tab	
 	y0 += 30
@@ -1688,7 +1693,7 @@ static function Initialise([string selection, int dims])
 	y0 += 23
 	strTitle = SelectString(blfit, "Select fit function", "Select baseline type")
 	PopupMenu popType, win=ffPanel, pos={x0+20,y0}, size={100,20}, title="", fSize=fs
-	PopupMenu popType, win=ffPanel, help={strTitle}, Proc=FastFit#ffPopups	
+	PopupMenu popType, win=ffPanel, help={strTitle}, Proc=ATH_FastFit#ffPopups	
 //	y0 += 37
 	
 	
@@ -1702,11 +1707,11 @@ static function Initialise([string selection, int dims])
 	#else
 	strModifiers = "\rHold shift/option to increase/decrease increment"
 	#endif
-	SetVariable svSD, win=ffPanel, help={"Estimate of noise for smoothing spline" + strModifiers}, Proc=FastFit#ffSetvars
+	SetVariable svSD, win=ffPanel, help={"Estimate of noise for smoothing spline" + strModifiers}, Proc=ATH_FastFit#ffSetvars
 
 	SetVariable svDepth_tab2, win=ffPanel, pos={x0+120,y0}, size={65,16}, title="", fSize=fs, focusring=0
 	SetVariable svDepth_tab2, win=ffPanel, limits={-Inf,Inf,abs(ffs.depth/10)+(ffs.depth==0)}, value=_NUM:ffs.depth
-	SetVariable svDepth_tab2, win=ffPanel, help={"Depth of arc" + strModifiers}, Proc=FastFit#ffSetvars
+	SetVariable svDepth_tab2, win=ffPanel, help={"Depth of arc" + strModifiers}, Proc=ATH_FastFit#ffSetvars
 	
 	// appears in tabs 0, 1, 2
 	SetVariable svPoly, win=ffPanel, pos={x0+85,y0}, size={100,16}, bodyWidth=40, title="Order", fSize=fs, focusring=0
@@ -1714,7 +1719,7 @@ static function Initialise([string selection, int dims])
 	#if igorversion() >= 9
 	SetVariable svPoly, win=ffPanel, textAlign=1
 	#endif
-	SetVariable svPoly, win=ffPanel, help={"Polynomial order"}, Proc=FastFit#ffSetvars
+	SetVariable svPoly, win=ffPanel, help={"Polynomial order"}, Proc=ATH_FastFit#ffSetvars
 	
 	// appears in tabs 0, 2
 	SetVariable svChebOrder, win=ffPanel, pos={x0+85,y0}, size={100,16}, bodyWidth=40, title="", fSize=fs
@@ -1722,39 +1727,39 @@ static function Initialise([string selection, int dims])
 	#if igorversion() >= 9
 	SetVariable svChebOrder, win=ffPanel, textAlign=1
 	#endif
-	SetVariable svChebOrder, win=ffPanel, help={"Maximum polynomial order in Chebyshev series"}, Proc=FastFit#ffSetvars
+	SetVariable svChebOrder, win=ffPanel, help={"Maximum polynomial order in Chebyshev series"}, Proc=ATH_FastFit#ffSetvars
 	
 	// appears in tabs 0 and 2
-	CheckBox chkPeak, win=ffPanel, pos={x0+135,y0+2*isWin}, title="Peak", fSize=fs, Proc=FastFit#ffCheckboxes
+	CheckBox chkPeak, win=ffPanel, pos={x0+135,y0+2*isWin}, title="Peak", fSize=fs, Proc=ATH_FastFit#ffCheckboxes
 	CheckBox chkPeak, win=ffPanel, help={"Peak function with vertical offset tabsY0 fixed at baseline zero value"}, value=ffs.peak
 	
 	// appears in tabs 0 and 2
-	PopupMenu popPlanck, win=ffPanel, pos={x0+115,y0}, title="", fSize=fs, Proc=FastFit#ffPopups
+	PopupMenu popPlanck, win=ffPanel, pos={x0+115,y0}, title="", fSize=fs, Proc=ATH_FastFit#ffPopups
 	PopupMenu popPlanck, win=ffPanel, help={"select wavelength units"}, mode=ffs.wavelength, value="nm;μm;cm^-1;Å;"
 	
 		
 	y0 = tabsY0 + 90
 	// tab 0
-	SetVariable svMask_tab0,pos={x0+15,y0},size={180,14},title="Mask",value=_STR:"", fsize=fs, Proc=FastFit#ffSetvars
+	SetVariable svMask_tab0,pos={x0+15,y0},size={180,14},title="Mask",value=_STR:"", fsize=fs, Proc=ATH_FastFit#ffSetvars
 	
 	// tab 1
 	ResetCoefListwave(ffs)
 	wave/T/SDFR=dfr coeflist
 	wave/SDFR=dfr coefsel
 	ListBox listCoef_tab1, pos={x0+30,y0}, size={150,55}
-	ListBox listCoef_tab1, fSize=9, focusRing=0, widths={10,20}, listwave=coeflist, selwave=coefsel, Proc=FastFit#ffListbox
+	ListBox listCoef_tab1, fSize=9, focusRing=0, widths={10,20}, listwave=coeflist, selwave=coefsel, Proc=ATH_FastFit#ffListbox
 	
 
 	y0 = tabsY0+85	
 	// tab 2, auto
 	SetVariable svSmooth_tab2, win=ffPanel, pos={x0+25,y0}, size={130,16}, title="Pre-smooth", fSize=fs, focusring=0
 	SetVariable svSmooth_tab2, win=ffPanel, limits={0,32767,1}, value=_NUM:ffs.smoothing
-	SetVariable svSmooth_tab2, win=ffPanel, help={"Binomial pre-smoothing factor for baseline calculation"}, Proc=FastFit#ffSetvars
+	SetVariable svSmooth_tab2, win=ffPanel, help={"Binomial pre-smoothing factor for baseline calculation"}, Proc=ATH_FastFit#ffSetvars
 	y0 += 25
-	CheckBox chkNeg_tab2, win=ffPanel, pos={x0+25,y0+2*isWin}, title="Negative peaks", fSize=fs, Proc=FastFit#ffCheckboxes
+	CheckBox chkNeg_tab2, win=ffPanel, pos={x0+25,y0+2*isWin}, title="Negative peaks", fSize=fs, Proc=ATH_FastFit#ffCheckboxes
 	CheckBox chkNeg_tab2, win=ffPanel, help={"Fit baseline to top of spectrum"}, value=ffs.options&8
 	y0 += 20
-	CheckBox chkHull_tab2, win=ffPanel, pos={x0+25,y0+2*isWin}, title="Use convex hull at start", fSize=fs, Proc=FastFit#ffCheckboxes
+	CheckBox chkHull_tab2, win=ffPanel, pos={x0+25,y0+2*isWin}, title="Use convex hull at start", fSize=fs, Proc=ATH_FastFit#ffCheckboxes
 	CheckBox chkHull_tab2, win=ffPanel, help={"Use convex hull for first iteration"}, value=ffs.hull
 	
 	ShowTab(ffs)		
@@ -1768,13 +1773,13 @@ static function Initialise([string selection, int dims])
 	#if exists("baselines#initialise") != 6
 	strHelp += "\r       *** Requires baselines.ipf ***"
 	#endif
-	Button btnSetup, pos={x0+17,y0}, size={75,20}, title="Set Up Fit", Proc=FastFit#ffButtons
+	Button btnSetup, pos={x0+17,y0}, size={75,20}, title="Set Up Fit", Proc=ATH_FastFit#ffButtons
 	Button btnSetup, help={strHelp}
 	strHelp = "Import the fitting settings displayed in the baselines GUI"
 	#if exists("baselines#initialise") != 6
 	strHelp += "\r       *** Requires baselines.ipf ***"
 	#endif
-	Button btnRead, pos={x0+102,y0}, size={85,20}, title="Read Values", Proc=FastFit#ffButtons
+	Button btnRead, pos={x0+102,y0}, size={85,20}, title="Read Values", Proc=ATH_FastFit#ffButtons
 	Button btnRead, help={strHelp}		
 	y0 += 33
 		
@@ -1784,8 +1789,8 @@ static function Initialise([string selection, int dims])
 	GroupBox grpOutput,fSize=fs
 	y0 += 25
 	strTitle = SelectString(blfit, "Fits", "Baselines")
-	CheckBox chkBL,pos={230,y0},size={100,50}, title=strTitle, fsize=fs, value=ffs.options&1, Proc=FastFit#ffCheckboxes
-	SetVariable svBLsuff,pos={320,y0},size={80,14},title="Suffix:",value=_STR:ffs.blsuff, fsize=fs, Proc=FastFit#ffSetvars
+	CheckBox chkBL,pos={230,y0},size={100,50}, title=strTitle, fsize=fs, value=ffs.options&1, Proc=ATH_FastFit#ffCheckboxes
+	SetVariable svBLsuff,pos={320,y0},size={80,14},title="Suffix:",value=_STR:ffs.blsuff, fsize=fs, Proc=ATH_FastFit#ffSetvars
 	strHelp = "Suffix is appended to output fit wave names"
 	if (blfit)
 		strHelp = "Suffix is appended to output baseline wave names"
@@ -1793,15 +1798,15 @@ static function Initialise([string selection, int dims])
 	SetVariable svBLsuff, help={strHelp}
 	y0 += 20	
 	strTitle = SelectString(blfit, "Residuals", "Subtracted")
-	CheckBox chkSub,pos={230,y0},size={100,50}, title=strTitle, fsize=fs, value=ffs.options&2, Proc=FastFit#ffCheckboxes
-	SetVariable svSubsuff,pos={320,y0},size={80,14},title="Suffix:",value=_STR:ffs.subsuff, fsize=fs, Proc=FastFit#ffSetvars
+	CheckBox chkSub,pos={230,y0},size={100,50}, title=strTitle, fsize=fs, value=ffs.options&2, Proc=ATH_FastFit#ffCheckboxes
+	SetVariable svSubsuff,pos={320,y0},size={80,14},title="Suffix:",value=_STR:ffs.subsuff, fsize=fs, Proc=ATH_FastFit#ffSetvars
 	strHelp = "Suffix is appended to residual wave names"
 	if (blfit)
 		strHelp = "Suffix is appended to output baseline-subtracted wave names"
 	endif
 	SetVariable svSubsuff, help={strHelp}
 	y0 += 20		
-	CheckBox chkOverwrite,pos={230,y0},size={100,50}, title="Overwrite", fsize=fs, value=ffs.options&4, Proc=FastFit#ffCheckboxes
+	CheckBox chkOverwrite,pos={230,y0},size={100,50}, title="Overwrite", fsize=fs, value=ffs.options&4, Proc=ATH_FastFit#ffCheckboxes
 	strHelp = "Overwrite fit and residual waves without warning"
 	if (blfit)
 		strHelp = "Overwrite baseline and baseline-subtracted waves without warning"
@@ -1810,15 +1815,15 @@ static function Initialise([string selection, int dims])
 	y0 += 20	
 	TitleBox tbOutput, title="Output Data Folder:", pos={x0+10, y0}, fSize=fs, frame=0
 	y0 += 20	
-	CheckBox chkCurrentDF, pos={x0+10, y0}, title="Current", mode=1, fSize=fs, Proc=FastFit#ffCheckboxes, value=ffs.options&256
-	CheckBox chkSourceDF, pos={x0+75, y0}, title="Same as Source", mode=1, fSize=fs, Proc=FastFit#ffCheckboxes, value=!(ffs.options&256)	
+	CheckBox chkCurrentDF, pos={x0+10, y0}, title="Current", mode=1, fSize=fs, Proc=ATH_FastFit#ffCheckboxes, value=ffs.options&256
+	CheckBox chkSourceDF, pos={x0+75, y0}, title="Same as Source", mode=1, fSize=fs, Proc=ATH_FastFit#ffCheckboxes, value=!(ffs.options&256)	
 	y0 += 30
 	
 	// extension function selection
 	GroupBox grpExt,pos={x0,y0},size={205,50},title="Post-fit user function"
 	GroupBox grpExt,fSize=fs, help={"User functions extend functionality by operating on output waves"}
 	y0 += 22
-	PopupMenu popExtension, win=ffPanel, pos={230,y0}, size={140,20}, title="", bodywidth=140, mode=1, value=fastfit#fList(), fsize=fs, Proc=FastFit#ffPopups
+	PopupMenu popExtension, win=ffPanel, pos={230,y0}, size={140,20}, title="", bodywidth=140, mode=1, value=ATH_FastFit#fList(), fsize=fs, Proc=ATH_FastFit#ffPopups
 	strHelp = "User functions must take three waves (data, fit, and residual) as parameters."
 	if (blfit)
 		strHelp = "User functions must take three waves (input,\rbaseline, and subtracted) as parameters. They\r"
@@ -1826,14 +1831,14 @@ static function Initialise([string selection, int dims])
 	strHelp += "can be used to create additional output waves."
 	PopupMenu popExtension, win=ffPanel, help={"Select function for extended analysis.\r" + strHelp}
 	
-	Button btnEdit, pos={x0+155,y0}, size={40,18}, Proc=FastFit#ffButtons
+	Button btnEdit, pos={x0+155,y0}, size={40,18}, Proc=ATH_FastFit#ffButtons
 	Button btnEdit, help={"Open the procedure window to edit the selected function"}
 	Button btnEdit, title="Edit", disable=2
 	//	Button btnEdit, title="New"
 	y0+=33
 	
 
-	Button btnDoIt, pos={370,y0}, size={50,20}, title="Do It", Proc=FastFit#ffButtons
+	Button btnDoIt, pos={370,y0}, size={50,20}, title="Do It", Proc=ATH_FastFit#ffButtons
 	Button btnDoIt, help={"Fit the selected waves"}
 	
 	if (!blfit)
@@ -1843,7 +1848,7 @@ static function Initialise([string selection, int dims])
 		StructPut ffs dfr:w_ffstruct
 	endif
 		
-	SetWindow ffPanel hook(hCleanup)=FastFit#hookCleanup
+	SetWindow ffPanel hook(hCleanup)=ATH_FastFit#hookCleanup
 end
 
 static function/S fList()
@@ -2541,7 +2546,7 @@ end
 
 // this is the prototype fast-fitting extension function
 function FastFitExtensionPrototype(wave yw, wave base, wave sub)
-//function FastFitExtensionPrototype(wave yw, wave base, wave sub, wave coef, STRUCT FastFit#ffstruct &s)
+//function FastFitExtensionPrototype(wave yw, wave base, wave sub, wave coef, STRUCT ATH_FastFit#ffstruct &s)
 // do not edit this function.
 // copy this function into another procedure window and edit to
 // create your own extension function.
@@ -2986,13 +2991,13 @@ static function InsertWaveSelectorWidget(STRUCT ffstruct &ffs, variable left, va
 	
 	// make a Button for clearing text in notebook subwindow
 	Button ButtonClear, win=$ksPanel, pos={left+width-16,top+height+7}, size={15,15}, title=""
-	Button ButtonClear, win=$ksPanel, Picture=FastFit#ClearTextPicture, Proc=FastFit#filterButtonProc, disable=1
+	Button ButtonClear, win=$ksPanel, Picture=ATH_FastFit#ClearTextPicture, Proc=ATH_FastFit#filterButtonProc, disable=1
 	
 	// insert a listbox for wave selector widget
 	// filter will apply to this listbox
 	ListBox $ksFilterListbox, win=$ksPanel, pos={left,top}, size={width,height}, focusRing=0
-	MakeListIntoWaveSelector(ksPanel, ksFilterListbox, content=WMWS_Waves, selectionmode=WMWS_SelectionNonContiguous, nameFilterProc="FastFit#FilterForWaveSelector")
-	WS_SetNotificationProc(ksPanel, ksFilterListbox, "FastFit#WS_NotificationProc")
+	MakeListIntoWaveSelector(ksPanel, ksFilterListbox, content=WMWS_Waves, selectionmode=WMWS_SelectionNonContiguous, nameFilterProc="ATH_FastFit#FilterForWaveSelector")
+	WS_SetNotificationProc(ksPanel, ksFilterListbox, "ATH_FastFit#WS_NotificationProc")
 	WS_OpenAFolderFully(ksPanel, ksFilterListbox, GetDataFolder(1))
 	
 	string options = SelectString(ffs.dims - 2, "DIMS:1", "DIMS:2", "DIMS:3")
@@ -3003,7 +3008,7 @@ static function InsertWaveSelectorWidget(STRUCT ffstruct &ffs, variable left, va
 	PopupMenu popSortOrder, win=$ksPanel, pos={left,top+height+30}, size={100,30}, mode=1, title="Sort order"
 	MakePopupIntoWaveSelectorSort(ksPanel, ksFilterListbox, "popSortOrder")
 		
-	SetWindow $ksPanel hook(hFilterNB)=FastFit#hookFilterNB
+	SetWindow $ksPanel hook(hFilterNB)=ATH_FastFit#hookFilterNB
 end
 
 // function used by WaveSelectorWidget

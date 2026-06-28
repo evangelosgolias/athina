@@ -321,7 +321,27 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	return 0
 End
 
-//-----
+// ---- Multithreading XMLDMapFit ----//
+
+//ThreadSafe static Function XMLDFit_Worker(WAVE wRef, variable j, string fitFunc, variable firstAngle, 
+//variable angleStep, variable fastFit, WAVE/T Constraints, [WAVE/Z initialGuessW])
+//	DFREF dfSav= GetDataFolderDFR()
+//
+//	// Create a free data folder and set it as the current data folder
+//	SetDataFolder NewFreeDataFolder()
+//	ImageTransform/P=(plane) getPlane w3D
+//	Wave M_ImagePlane
+//	ImageRegistration/Q/CONV=1/TRNS={1,1,1}/ROT={0,0,1}/PRDL=1/TSTM=0/BVAL=0 refwave = wRef, testwave = M_ImagePlane
+//	WAVE M_RegOut	
+//	// Restore the current data folder
+//	SetDataFolder dfSav
+//
+//	return M_RegOut		// Return a reference to the free M_RegOut wave
+//	
+//End
+
+// ---- Multithreading XMLDMapFit ----//
+
 
 /// @function SortMapPerPolarAngle
 /// @brief Reorder an angular map by increasing polar angle.

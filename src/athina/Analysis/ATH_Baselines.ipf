@@ -2,9 +2,13 @@
 #pragma rtGlobals=3
 #pragma version=5.13
 #pragma IgorVersion=7
-#pragma ModuleName=Baselines
+#pragma ModuleName=ATH_Baselines
 #pragma DefaultTab={3,20,4}
 #pragma hide=1
+
+
+// Program copied from user tony (Tony Withers)
+// https://www.wavemetrics.com/project/Baselines
 
 // Project Updater header
 static constant kProjectID=348 // the project node on IgorExchange
@@ -86,7 +90,7 @@ static strconstant ksShortTitle="Baselines" // the project short title on IgorEx
 //       peaks.
 // 4.65  Fix for manual sigmoid when cursor G is at higher x value than cursor H
 // 4.62  Adds option to choose tab and fit type from commandline:
-//       baselines#initialise(tab=2,type=15,trace="foo") restarts with an
+//       ATH_Baselines#initialise(tab=2,type=15,trace="foo") restarts with an
 //       'arc hull' baseline.
 // 4.60  Bug fix for Igor 8, interpolate2 error when initialising spline nodes.
 //       Check for category traces when compiling list of eligible traces.
@@ -190,12 +194,12 @@ static constant    kPrefsVersion   = 120
 // *** menus ***
 
 //menu "Analysis"
-//	"Baselines", /Q, baselines#Initialise()
+//	"Baselines", /Q, ATH_Baselines#Initialise()
 //end
 
 #if IgorVersion() >= 9
 //menu "DataBrowserObjectsPopup"
-//	"Start Baseline Correction", /Q, Baselines#BrowserInit()
+//	"Start Baseline Correction", /Q, ATH_Baselines#BrowserInit()
 //end
 
 static function BrowserInit()
@@ -238,10 +242,10 @@ end
 
 #ifdef MarqueeMenus
 menu "GraphMarquee", dynamic
-	baselines#MarqueeMenuString("-")
-	baselines#MarqueeMenuString("Add Region to Fit"), /Q, baselines#MaskAddOrRemoveSelection(1)
-	baselines#MarqueeMenuString("Remove Region From Fit"), /Q, baselines#MaskAddOrRemoveSelection(0)
-	baselines#MarqueeMenuString("Clear All Fit Regions"), /Q, baselines#SetBaselineRegion(-Inf, Inf, 0); SetMarquee 0, 0, 0, 0
+	ATH_Baselines#MarqueeMenuString("-")
+	ATH_Baselines#MarqueeMenuString("Add Region to Fit"), /Q, ATH_Baselines#MaskAddOrRemoveSelection(1)
+	ATH_Baselines#MarqueeMenuString("Remove Region From Fit"), /Q, ATH_Baselines#MaskAddOrRemoveSelection(0)
+	ATH_Baselines#MarqueeMenuString("Clear All Fit Regions"), /Q, ATH_Baselines#SetBaselineRegion(-Inf, Inf, 0); SetMarquee 0, 0, 0, 0
 	"-"
 end
 #endif
@@ -615,8 +619,8 @@ static function MakePrefsPanel(STRUCT WMButtonAction &s)
 	
 	GroupBox groupGen, pos={vL-15,top}, size={groupw,110}, title="General Settings",fSize=font
 	TitleBox txt1, title="Panel on", pos={vL, top+20}, fSize=font, frame=0
-	CheckBox chkLHS, pos={vL+60, top+20}, title="Left", mode=1, fSize=font, Proc=baselines#BaselineCheckboxes
-	CheckBox chkRHS, pos={vL+110, top+20}, title="Right", mode=1, fSize=font, Proc=baselines#BaselineCheckboxes
+	CheckBox chkLHS, pos={vL+60, top+20}, title="Left", mode=1, fSize=font, Proc=ATH_Baselines#BaselineCheckboxes
+	CheckBox chkRHS, pos={vL+110, top+20}, title="Right", mode=1, fSize=font, Proc=ATH_Baselines#BaselineCheckboxes
 	CheckBox chkColor, pos={vL, top+40}, fSize=font, title="Recolor Traces"
 	CheckBox chkColor, help={"Highlight working traces by making others grey"}
 
@@ -639,19 +643,19 @@ static function MakePrefsPanel(STRUCT WMButtonAction &s)
 	CheckBox chkParams, help={"Print baseline parameters after subtracting"}
 	
 	TitleBox txt2, title="Output Data Folder:", pos={vL2, top+120}, fSize=font, frame=0
-	CheckBox chkCurrentDF, pos={vL2, top+140}, title="Current", mode=1, fSize=font, Proc=baselines#BaselineCheckboxes
-	CheckBox chkSourceDF, pos={vL2+65, top+140}, title="Same as Source", mode=1, fSize=font, Proc=baselines#BaselineCheckboxes
+	CheckBox chkCurrentDF, pos={vL2, top+140}, title="Current", mode=1, fSize=font, Proc=ATH_Baselines#BaselineCheckboxes
+	CheckBox chkSourceDF, pos={vL2+65, top+140}, title="Same as Source", mode=1, fSize=font, Proc=ATH_Baselines#BaselineCheckboxes
 	CheckBox chkSubfolders, pos={vL2, top+160}, title="Save Waves in Subfolders", mode=0, fSize=font
 	CheckBox chkSubfolders, help={"Save output waves in separate subfolder for each baseline type"}
 	
-	SetVariable svBLsuff, pos={vL2,top+180}, size={165,16}, title="Baseline Suffix", Proc=baselines#BaselineSetvars
+	SetVariable svBLsuff, pos={vL2,top+180}, size={165,16}, title="Baseline Suffix", Proc=ATH_Baselines#BaselineSetvars
 	SetVariable svBLsuff, help={"Baseline suffix is appended to output baseline wave names"}, fSize=font, bodyWidth=60
-	SetVariable svSubSuff, pos={vL2,top+200}, size={165,16}, title="Subtracted Suffix", Proc=baselines#BaselineSetvars
+	SetVariable svSubSuff, pos={vL2,top+200}, size={165,16}, title="Subtracted Suffix", Proc=ATH_Baselines#BaselineSetvars
 	SetVariable svSubSuff, help={"Subtracted suffix is appended to output baseline-subtracted wave names"}, fSize=font, bodyWidth=60
 	
 	CheckBox chkMask, pos={vL2, top+220}, title="Save Mask:", fSize=font
 	CheckBox chkMask, help={"Save a copy of mask wave"}
-	SetVariable svMaskSuff, pos={vL2,top+220}, size={165,16}, title="", Proc=baselines#BaselineSetvars
+	SetVariable svMaskSuff, pos={vL2,top+220}, size={165,16}, title="", Proc=ATH_Baselines#BaselineSetvars
 	SetVariable svMaskSuff, help={"Mask suffix is appended to output mask wave names"}, fSize=font, bodyWidth=60
 	
 	CheckBox chkAllowSubSel, pos={vL2, top+240}, title="Allow Selection of Outputs", mode=0, fSize=font
@@ -661,9 +665,9 @@ static function MakePrefsPanel(STRUCT WMButtonAction &s)
 	GroupBox groupMask, pos={vL-15,top}, size={groupw,70}, title="Mask Settings", fSize=font
 	CheckBox chkRegions, pos={vL, top+20}, fSize=font, title="Print SetRegion Commands"
 	CheckBox chkRegions, help={"Provides hint for using commandline to set masked regions"}
-	SetVariable svKeyplus, pos={vL,top+40}, size={85,16}, title="Keys:  Add", Proc=baselines#BaselineSetvars
+	SetVariable svKeyplus, pos={vL,top+40}, size={85,16}, title="Keys:  Add", Proc=ATH_Baselines#BaselineSetvars
 	SetVariable svKeyplus, help={"Shortcut for adding selection to masked regions"}, fSize=font
-	SetVariable svKeyminus, pos={vL+95,top+40}, size={72,16}, title="Remove", Proc=baselines#BaselineSetvars
+	SetVariable svKeyminus, pos={vL+95,top+40}, size={72,16}, title="Remove", Proc=ATH_Baselines#BaselineSetvars
 	SetVariable svKeyminus, help={"Shortcut for removing selection from masked regions"}, fSize=font
 	
 	top = 185
@@ -674,16 +678,16 @@ static function MakePrefsPanel(STRUCT WMButtonAction &s)
 	SetVariable svNodes, help={"Default number of nodes to create when nodes are reset"}
 	
 	top=275
-	Button btnDefaults, pos={vL-10,top}, size={110,22}, title="Revert Settings", Proc=baselines#PrefsButtonProc
+	Button btnDefaults, pos={vL-10,top}, size={110,22}, title="Revert Settings", Proc=ATH_Baselines#PrefsButtonProc
 	Button btnDefaults, help={"Set all controls to default values"}
 	
-	Button btnImport, pos={vL+110,top}, size={50,22}, title="Import", Proc=baselines#PrefsButtonProc
+	Button btnImport, pos={vL+110,top}, size={50,22}, title="Import", Proc=ATH_Baselines#PrefsButtonProc
 	Button btnImport, help={"Load settings from a file"}
-	Button btnExport, pos={vL+170,top}, size={50,22}, title="Export", Proc=baselines#PrefsButtonProc
+	Button btnExport, pos={vL+170,top}, size={50,22}, title="Export", Proc=ATH_Baselines#PrefsButtonProc
 	Button btnExport, help={"Save currently displayed settings to a file"}
 	
-	Button btnCancel, pos={vL2+60,top}, size={60,22}, title="Cancel", Proc=baselines#PrefsButtonProc
-	Button btnSave, pos={vL2+130,top}, size={50,22}, title="Save", Proc=baselines#PrefsButtonProc
+	Button btnCancel, pos={vL2+60,top}, size={60,22}, title="Cancel", Proc=ATH_Baselines#PrefsButtonProc
+	Button btnSave, pos={vL2+130,top}, size={50,22}, title="Save", Proc=ATH_Baselines#PrefsButtonProc
 	
 	SetControlValuesFromPrefs(bls)
 	
@@ -1041,7 +1045,7 @@ static function/DF CreatePackageFolder()
 	Make/O/N=1 dfr:w_spline_dependency /wave=w_spline_dependency
 	// set a dependency to trigger interpolation and update graph when we
 	// adjust a node position
-	w_spline_dependency := baselines#DoSplineFit(root:Packages:Baselines:w_nodesY)
+	w_spline_dependency := ATH_Baselines#DoSplineFit(root:Packages:Baselines:w_nodesY)
 	Make/O/N=0/T dfr:w_traces
 	Make/O/I/U/N=(0,3) dfr:w_colors
 	Make/O/N=2 dfr:dummy /wave=dummy = {1, 100}
@@ -1079,7 +1083,7 @@ end
 // type = zero-based numeric index for baseline type
 // trace = name of trace to select at startup;
 // EditMode = set edit mode when starting with tab=3 (defaults to 0)
-// Example: Baselines#Initialise(graph="MySpectra", tab=3, type=5, trace="Spectrum3", EditMode=0)
+// Example: ATH_Baselines#Initialise(graph="MySpectra", tab=3, type=5, trace="Spectrum3", EditMode=0)
 // See also ImportSettings() and ImportNodes() functions.
 static function Initialise([string Graph, int tab, int type, string trace, int EditMode])
 	DFREF dfr = GetPackageDFREF()
@@ -1214,17 +1218,17 @@ static function MakeBaselinesPanel(STRUCT BLstruct &bls)
 	isWin = 1
 	#endif
 	
-	Button btnSettings, win=$panelStr, pos={180,top}, size={15,15}, title="", Picture=Baselines#pCog, labelBack=0
-	Button btnSettings, win=$panelStr, Proc=Baselines#MakePrefsPanel, help={"Change Settings"}, focusRing=0
-	Button btnHelp, win=$panelStr, pos={160,top}, size={15,15}, title="", Picture=Baselines#pHelp, labelBack=0
-	Button btnHelp, win=$panelStr, Proc=Baselines#baselineButtons, help={"Click for help"}, focusRing=0//, disable=2
-	Button btnInfo, pos={140,top}, size={15,15}, Proc=Baselines#baselineButtons, title=""
-	Button btnInfo, help={"Show Info"}, Picture=Baselines#pInfo
+	Button btnSettings, win=$panelStr, pos={180,top}, size={15,15}, title="", Picture=ATH_Baselines#pCog, labelBack=0
+	Button btnSettings, win=$panelStr, Proc=ATH_Baselines#MakePrefsPanel, help={"Change Settings"}, focusRing=0
+	Button btnHelp, win=$panelStr, pos={160,top}, size={15,15}, title="", Picture=ATH_Baselines#pHelp, labelBack=0
+	Button btnHelp, win=$panelStr, Proc=ATH_Baselines#baselineButtons, help={"Click for help"}, focusRing=0//, disable=2
+	Button btnInfo, pos={140,top}, size={15,15}, Proc=ATH_Baselines#baselineButtons, title=""
+	Button btnInfo, help={"Show Info"}, Picture=ATH_Baselines#pInfo
 	
 	top = 10
 	GroupBox groupTrace, win=$panelStr, pos={vL-15,top}, size={groupw,50}, title="Data wave", fSize=font
-	PopupMenu popTrace, win=$panelStr, pos={vL,top+25}, size={155,20}, title="", mode=1, Value=baselines#GetTracesForPopup()
-	PopupMenu popTrace, win=$panelStr, help={"Select data wave" }, Proc=baselines#BaselinePopups, bodywidth=155
+	PopupMenu popTrace, win=$panelStr, pos={vL,top+25}, size={155,20}, title="", mode=1, Value=ATH_Baselines#GetTracesForPopup()
+	PopupMenu popTrace, win=$panelStr, help={"Select data wave" }, Proc=ATH_Baselines#BaselinePopups, bodywidth=155
 	
 	if (WhichListItem(bls.trace, traces) == -1) // if we are rebuilding the panel we keep current selection
 		bls.trace = StringFromList(0, traces)
@@ -1236,13 +1240,13 @@ static function MakeBaselinesPanel(STRUCT BLstruct &bls)
 	top = 65
 	TabControl tabs, win=$panelStr, pos={0,top}, size={205,200}, labelBack=(0xEEEE,0xEEEE,0xEEEE)
 	TabControl tabs, win=$panelStr, tabLabel(0)="Mask", tabLabel(1)="Man", tabLabel(2)="Auto", tabLabel(3)="Nodes"
-	TabControl tabs, win=$panelStr, value=bls.tab, Proc=baselines#BaselineTabs
+	TabControl tabs, win=$panelStr, value=bls.tab, Proc=ATH_Baselines#BaselineTabs
 	
 	// all tabs, controls within the 'baseline type' groupbox
 	top = 95
 	GroupBox groupType, win=$panelStr, pos={vL-15,top}, size={groupw,50}, title="Baseline type", fSize=font
 	PopupMenu popType, win=$panelStr, pos={vL,top+25}, size={100,20}, title="", fSize=font
-	PopupMenu popType, win=$panelStr, help={"Select baseline type" }, Proc=baselines#BaselinePopups
+	PopupMenu popType, win=$panelStr, help={"Select baseline type" }, Proc=ATH_Baselines#BaselinePopups
 	SetVariable svSD, win=$panelStr, pos={vL+40,top+25}, size={120,16}, title="SD", fSize=font, focusring=0
 	SetVariable svSD, win=$panelStr, limits={0,Inf,1}, value=_NUM:bls.sd, bodyWidth=60
 	string strModifiers
@@ -1251,41 +1255,41 @@ static function MakeBaselinesPanel(STRUCT BLstruct &bls)
 	#else
 	strModifiers = "\rHold shift/option to increase/decrease increment"
 	#endif
-	SetVariable svSD, win=$panelStr, help={"Estimate of noise for smoothing spline" + strModifiers}, Proc=baselines#BaselineSetvars
+	SetVariable svSD, win=$panelStr, help={"Estimate of noise for smoothing spline" + strModifiers}, Proc=ATH_Baselines#BaselineSetvars
 	SetVariable svCycles_tab1, win=$panelStr, pos={vL+65,top+25}, size={90,16}, title="Cycles", fSize=font, focusring=0
 	SetVariable svCycles_tab1, win=$panelStr, limits={0,1000,1}, value=_NUM:bls.cycles
-	SetVariable svCycles_tab1, win=$panelStr, help={"Select desired number of complete cycles between cursors"}, Proc=baselines#BaselineSetvars
+	SetVariable svCycles_tab1, win=$panelStr, help={"Select desired number of complete cycles between cursors"}, Proc=ATH_Baselines#BaselineSetvars
 	SetVariable svDepth_tab2, win=$panelStr, pos={vL+95,top+25}, size={65,16}, title="", fSize=font, focusring=0
 	SetVariable svDepth_tab2, win=$panelStr, limits={-Inf,Inf,abs(bls.depth/10)+(bls.depth==0)}, value=_NUM:bls.depth
-	SetVariable svDepth_tab2, win=$panelStr, help={"Depth of arc" + strModifiers}, Proc=baselines#BaselineSetvars
+	SetVariable svDepth_tab2, win=$panelStr, help={"Depth of arc" + strModifiers}, Proc=ATH_Baselines#BaselineSetvars
 		
 	SetVariable svARSits_tab2, win=$panelStr, pos={vL+63,top+25}, size={50,16}, title="its", fSize=font, focusring=0
 	SetVariable svARSits_tab2, win=$panelStr, value=_NUM:bls.arsits, limits={1,100,0}
-	SetVariable svARSits_tab2, win=$panelStr, help={"Iterations"}, Proc=baselines#BaselineSetvars
+	SetVariable svARSits_tab2, win=$panelStr, help={"Iterations"}, Proc=ATH_Baselines#BaselineSetvars
 	SetVariable svARSsd_tab2, win=$panelStr, pos={vL+115,top+25}, size={50,16}, title="sd", fSize=font, focusring=0
 	SetVariable svARSsd_tab2, win=$panelStr, value=_NUM:bls.arssd, limits={1,100,0}
-	SetVariable svARSsd_tab2, win=$panelStr, help={"SD for smoothing"}, Proc=baselines#BaselineSetvars
+	SetVariable svARSsd_tab2, win=$panelStr, help={"SD for smoothing"}, Proc=ATH_Baselines#BaselineSetvars
 	
 	SetVariable svF_tab3, win=$panelStr, pos={vL+105,top+25}, size={50,16}, title="", fSize=font, bodyWidth=50, focusring=0
 	SetVariable svF_tab3, win=$panelStr, value=_NUM:bls.flagF, limits={0,Inf,1}
-	SetVariable svF_tab3, win=$panelStr, help={"Smoothing factor"}, Proc=Baselines#BaselineSetvars
+	SetVariable svF_tab3, win=$panelStr, help={"Smoothing factor"}, Proc=ATH_Baselines#BaselineSetvars
 	
 	// appears in tabs 0, 1, 2
 	SetVariable svPoly, win=$panelStr, pos={vL+80,top+25}, size={80,16}, title="Order", fSize=font, focusring=0
 	SetVariable svPoly, win=$panelStr, value=_NUM:bls.polyorder // , limits={3,20,1}
-	SetVariable svPoly, win=$panelStr, help={"Polynomial order"}, Proc=baselines#BaselineSetvars
+	SetVariable svPoly, win=$panelStr, help={"Polynomial order"}, Proc=ATH_Baselines#BaselineSetvars
 	
 	// appears in tabs 0, 2, 3
 	SetVariable svChebOrder, win=$panelStr, pos={vL+60,top+25}, size={100,16}, title="", fSize=font, focusring=0
 	SetVariable svChebOrder, win=$panelStr, limits={0,30,1}, value=_NUM:bls.cheborder, bodyWidth=40
-	SetVariable svChebOrder, win=$panelStr, help={"Maximum polynomial order in Chebyshev series"}, Proc=baselines#BaselineSetvars
+	SetVariable svChebOrder, win=$panelStr, help={"Maximum polynomial order in Chebyshev series"}, Proc=ATH_Baselines#BaselineSetvars
 	
 	// appears in tabs 0 and 2
-	CheckBox chkPeak, win=$panelStr, pos={vL+110,top+25+2*isWin}, title="Peak", fSize=font, Proc=Baselines#BaselineCheckboxes
+	CheckBox chkPeak, win=$panelStr, pos={vL+110,top+25+2*isWin}, title="Peak", fSize=font, Proc=ATH_Baselines#BaselineCheckboxes
 	CheckBox chkPeak, win=$panelStr, help={"Peak function with vertical offset y0 fixed at baseline zero value"}, value=bls.peak
 	
 	// appears in tabs 0 and 2
-	PopupMenu popPlanck, win=$panelStr, pos={vL+90,top+25}, title="", fSize=font, Proc=baselines#BaselinePopups
+	PopupMenu popPlanck, win=$panelStr, pos={vL+90,top+25}, title="", fSize=font, Proc=ATH_Baselines#BaselinePopups
 	PopupMenu popPlanck, win=$panelStr, help={"select wavelength units"}, mode=bls.wavelength, value="nm;μm;cm^-1;Å;"
 		
 	// tab 0, mask region group
@@ -1293,31 +1297,31 @@ static function MakeBaselinesPanel(STRUCT BLstruct &bls)
 	GroupBox groupMaskRegions_tab0, win=$panelStr, pos={vL-15,top}, size={groupw,85}, title="Fit regions"
 	GroupBox groupMaskRegions_tab0, win=$panelStr, fSize=font
 	SetVariable svL_tab0, win=$panelStr, pos={vL,top+25}, size={70,16}, title="", fsize=font, value=_STR:"", focusring=0
-	SetVariable svL_tab0, win=$panelStr, limits={-Inf,Inf,0}, Proc=baselines#BaselineSetvars
+	SetVariable svL_tab0, win=$panelStr, limits={-Inf,Inf,0}, Proc=ATH_Baselines#BaselineSetvars
 	SetVariable svL_tab0, win=$panelStr, help={"Click and drag in graph window or type a pair\rof values here to select a region for fitting"}
 	SetVariable svR_tab0, win=$panelStr, pos={vC+10,top+25}, size={70,16}, title="-", fsize=font, value=_STR:"", focusring=0
-	SetVariable svR_tab0, win=$panelStr, limits={-Inf,Inf,0}, bodyWidth=70, Proc=baselines#BaselineSetvars
+	SetVariable svR_tab0, win=$panelStr, limits={-Inf,Inf,0}, bodyWidth=70, Proc=ATH_Baselines#BaselineSetvars
 	SetVariable svR_tab0, win=$panelStr, help={"Click and drag in graph window or type a pair\rof values here to select a region for fitting"}
-	Button btnAdd_tab0, win=$panelStr, pos={vL+125,top+50}, size={30,26}, title="\sa-04+", Proc=baselines#BaselineButtons
+	Button btnAdd_tab0, win=$panelStr, pos={vL+125,top+50}, size={30,26}, title="\sa-04+", Proc=ATH_Baselines#BaselineButtons
 	Button btnAdd_tab0, win=$panelStr, help={"Add marquee range to fit region"}, fSize=20, fColor=(49151,65535,49151)
-	Button btnRemove_tab0, win=$panelStr, pos={vL+85,top+50}, size={30,26}, title="\sa-04-", Proc=baselines#BaselineButtons
+	Button btnRemove_tab0, win=$panelStr, pos={vL+85,top+50}, size={30,26}, title="\sa-04-", Proc=ATH_Baselines#BaselineButtons
 	Button btnRemove_tab0, win=$panelStr, help={"Remove marquee range from fit region"}, fSize=20, fColor=(65535,49151,49151)
-	Button btnClear_tab0, win=$panelStr, pos={vL,top+53}, size={60,20}, title="Clear All", Proc=baselines#BaselineButtons
+	Button btnClear_tab0, win=$panelStr, pos={vL,top+53}, size={60,20}, title="Clear All", Proc=ATH_Baselines#BaselineButtons
 	Button btnClear_tab0, win=$panelStr, help={"Clear all fit regions"}, fSize=font
 	
 	// tab 1, manual
 	top = 150
 	Button btnResetCsrs_tab1, win=$panelStr, pos={vC-25,top+85}, size={50,20}, title="Reset", fSize=font
-	Button btnResetCsrs_tab1, win=$panelStr, help={"Reset cursor positions"}, Proc=baselines#BaselineButtons
+	Button btnResetCsrs_tab1, win=$panelStr, help={"Reset cursor positions"}, Proc=ATH_Baselines#BaselineButtons
 		
 	// tab 2, auto
 	top = 155
 	SetVariable svSmooth_tab2, win=$panelStr, pos={vL,top}, size={130,16}, title="Pre-smooth", fSize=font, focusring=0
 	SetVariable svSmooth_tab2, win=$panelStr, limits={0,32767,1},value=_NUM:bls.smoothing
-	SetVariable svSmooth_tab2, win=$panelStr, help={"Binomial pre-smoothing factor for baseline calculation"}, Proc=baselines#BaselineSetvars
-	CheckBox chkNeg_tab2, win=$panelStr, pos={vL,top+25+2*isWin}, title="Negative peaks", fSize=font, Proc=Baselines#BaselineCheckboxes
+	SetVariable svSmooth_tab2, win=$panelStr, help={"Binomial pre-smoothing factor for baseline calculation"}, Proc=ATH_Baselines#BaselineSetvars
+	CheckBox chkNeg_tab2, win=$panelStr, pos={vL,top+25+2*isWin}, title="Negative peaks", fSize=font, Proc=ATH_Baselines#BaselineCheckboxes
 	CheckBox chkNeg_tab2, win=$panelStr, help={"Fit baseline to top of spectrum, also\raffects node positions for splines"}, value=bls.options&8
-	CheckBox chkHull_tab2, win=$panelStr, pos={vL,top+45+2*isWin}, title="Use convex hull at start", fSize=font, Proc=Baselines#BaselineCheckboxes
+	CheckBox chkHull_tab2, win=$panelStr, pos={vL,top+45+2*isWin}, title="Use convex hull at start", fSize=font, Proc=ATH_Baselines#BaselineCheckboxes
 	CheckBox chkHull_tab2, win=$panelStr, help={"Use convex hull for first iteration"}, value=bls.hull
 	// define guides for ARS graph subwindow
 	DefineGuide/W=$panelStr gLeft={FL,5}
@@ -1329,30 +1333,30 @@ static function MakeBaselinesPanel(STRUCT BLstruct &bls)
 	top = 150
 	GroupBox groupNodes_tab3, win=$panelStr, pos={vL-15,top}, size={groupw,100}, title="Node control", fSize=font
 	CheckBox chkEdit_tab3, win=$panelStr, pos={vL+35,top+20}, title="Edit mode ", fSize=font, value=bls.editmode, side=1
-	CheckBox chkEdit_tab3, win=$panelStr, mode=0,help={"Toggle to edit nodes"}, Proc=Baselines#BaselineCheckboxes
+	CheckBox chkEdit_tab3, win=$panelStr, mode=0,help={"Toggle to edit nodes"}, Proc=ATH_Baselines#BaselineCheckboxes
 	TitleBox text_tab3 win=$panelStr, pos={vL, top+35}, frame=0, fSize=font
 	#ifdef WINDOWS
 	TitleBox text_tab3 win=$panelStr, title="Control- or alt-click in\rgraph to add or zap nodes"
 	#else
 	TitleBox text_tab3 win=$panelStr, title="Control- or option-click in\rgraph to add or zap nodes"
 	#endif
-	Button btnResetNodes_tab3, win=$panelStr, pos={vL-5,top+70}, size={45,20}, title="Reset", Proc=Baselines#BaselineButtons
+	Button btnResetNodes_tab3, win=$panelStr, pos={vL-5,top+70}, size={45,20}, title="Reset", Proc=ATH_Baselines#BaselineButtons
 	Button btnResetNodes_tab3, win=$panelStr, help={"Distribute nodes over x-range of graph\rShift-click to snap to trace"}, fSize=font
-	Button btnLoadNodes_tab3, win=$panelStr, pos={vL+45,top+70}, size={50,20}, title="Load...", Proc=Baselines#BaselineButtons
+	Button btnLoadNodes_tab3, win=$panelStr, pos={vL+45,top+70}, size={50,20}, title="Load...", Proc=ATH_Baselines#BaselineButtons
 	Button btnLoadNodes_tab3, win=$panelStr, help={"Load nodes used in a previous fit"} , fSize=font
-	Button btnExportNodes_tab3, win=$panelStr, pos={vL+100,top+70}, size={60,20}, title="Export...", Proc=Baselines#BaselineButtons
+	Button btnExportNodes_tab3, win=$panelStr, pos={vL+100,top+70}, size={60,20}, title="Export...", Proc=ATH_Baselines#BaselineButtons
 	Button btnExportNodes_tab3, win=$panelStr, help={"Save node positions in external file"}, fSize=font
 	
 	// subrange group, all tabs
 	top = 265
 	GroupBox groupSubrange, win=$panelStr, pos={vL-15,top}, size={groupw,50}, title="Subrange", fSize=font
-	CheckBox chkRange, win=$panelStr, pos={vL,top+25+2*isWin}, title="", fSize=font, Proc=Baselines#BaselineCheckboxes
+	CheckBox chkRange, win=$panelStr, pos={vL,top+25+2*isWin}, title="", fSize=font, Proc=ATH_Baselines#BaselineCheckboxes
 	CheckBox chkRange, win=$panelStr, help={"Calculate baseline between cursors"}, value=bls.subrange
 	SetVariable svL, win=$panelStr, pos={vL+25,top+25}, size={55,16}, title="", fsize=font, value=_STR:"", focusring=0
-	SetVariable svL, win=$panelStr, limits={-Inf,Inf,0}, Proc=baselines#BaselineSetvars, disable=2
+	SetVariable svL, win=$panelStr, limits={-Inf,Inf,0}, Proc=ATH_Baselines#BaselineSetvars, disable=2
 	SetVariable svL, win=$panelStr, help={"Type a value or drag vertical cursor to set subrange for baseline subtraction"}
 	SetVariable svR, win=$panelStr, pos={vC+5,top+25}, size={67,16}, title="-", fsize=font, value=_STR:"", focusring=0
-	SetVariable svR, win=$panelStr, limits={-Inf,Inf,0}, Proc=baselines#BaselineSetvars, bodyWidth=55, disable=2
+	SetVariable svR, win=$panelStr, limits={-Inf,Inf,0}, Proc=ATH_Baselines#BaselineSetvars, bodyWidth=55, disable=2
 	SetVariable svR, win=$panelStr, help={"Type a value or drag vertical cursor to set subrange for baseline subtraction"}
 	if (bls.subrange)
 		SetVariable svL, win=$panelStr, value=_NUM:bls.csr.C.x, disable=0
@@ -1362,36 +1366,36 @@ static function MakeBaselinesPanel(STRUCT BLstruct &bls)
 	// info readout area, all tabs
 	top = 320
 	CheckBox chkInfo, win=$panelStr, pos={vL-15,top+2*isWin}, size={37,16}, value=bls.info, mode=2, title="", fsize=font
-	CheckBox chkInfo, win=$panelStr, Proc=Baselines#BaselineCheckboxes, help={"Show/Hide Baseline Info"}
+	CheckBox chkInfo, win=$panelStr, Proc=ATH_Baselines#BaselineCheckboxes, help={"Show/Hide Baseline Info"}
 	string strTitle = selectstring(bls.info, "show baseline info", "hide baseline info")
-	Button btnBLInfo, win=$panelStr, pos={vL+5,top+1}, size={85,15}, title=strTitle, labelBack=0, Picture=Baselines#transparent
-	Button btnBLInfo, win=$panelStr, help={"Show/Hide Baseline Info"}, focusRing=0, Proc=Baselines#BaselineButtons, fsize=9 // , disable=bls.info
+	Button btnBLInfo, win=$panelStr, pos={vL+5,top+1}, size={85,15}, title=strTitle, labelBack=0, Picture=ATH_Baselines#transparent
+	Button btnBLInfo, win=$panelStr, help={"Show/Hide Baseline Info"}, focusRing=0, Proc=ATH_Baselines#BaselineButtons, fsize=9 // , disable=bls.info
 	top += 20
 	wave/SDFR=GetPackageDFREF() listwave
 	ListBox listInfo, win=$panelStr, pos={vL-15,top}, size={188.00,50.00}, focusRing=0
-	ListBox listInfo, win=$panelStr, listWave=listwave, widths={10,17}, disable=!bls.info, fsize=font-3, Proc=baselines#BaselineListbox
+	ListBox listInfo, win=$panelStr, listWave=listwave, widths={10,17}, disable=!bls.info, fsize=font-3, Proc=ATH_Baselines#BaselineListbox
 	#if IgorVersion() >= 8
 	ListBox listInfo, win=$panelStr, helpWave=listwave
 	#endif
 	// subtract button, all tabs
 	top += 60 * bls.info
-	CheckBox chkFitAll, win=$panelStr, pos={vL,top+2}, size={65,20}, title="All Traces", fSize=font, Proc=baselines#BaselineCheckboxes
+	CheckBox chkFitAll, win=$panelStr, pos={vL,top+2}, size={65,20}, title="All Traces", fSize=font, Proc=ATH_Baselines#BaselineCheckboxes
 	CheckBox chkFitAll, win=$panelStr, help={"Subtract baseline from all traces"}
-	Button btnSub, win=$panelStr, pos={Vc+20,top}, size={65,20}, title="Subtract", Proc=baselines#BaselineButtons
+	Button btnSub, win=$panelStr, pos={Vc+20,top}, size={65,20}, title="Subtract", Proc=ATH_Baselines#BaselineButtons
 	Button btnSub, win=$panelStr, help={"Subtract baseline"}, fSize=font
 		
 	// Button for graph window
 	Button btnEdit_graph, win=$bls.Graph, pos={70,20}, size={140,30}, title="\\K(0,65535,0)Edit mode", fSize=20, fColor=(0,0,0), focusRing=0
-	Button btnEdit_graph, win=$bls.Graph, Proc=Baselines#BaselineButtons, help={"Click to toggle edit mode"}, Picture=baselines#transparent
+	Button btnEdit_graph, win=$bls.Graph, Proc=ATH_Baselines#BaselineButtons, help={"Click to toggle edit mode"}, Picture=ATH_Baselines#transparent
 	#if (IgorVersion() >= 9)
 	Button btnEdit_graph, win=$bls.Graph, labelBack=(0xFFFF,0xFFFF,0xFFFF,0)
 	#endif
 	ModifyGraph/W=$bls.graph axisOnTop=1
 	ClearMarquee(bls)
 	
-	SetWindow $bls.graph hook(hBaselines)=baselines#hookBaselines
-	SetWindow $bls.graph hook(hCleanup)=baselines#hookCleanup
-	SetWindow $panelStr hook(hCleanup)=baselines#hookCleanup
+	SetWindow $bls.graph hook(hBaselines)=ATH_Baselines#hookBaselines
+	SetWindow $bls.graph hook(hCleanup)=ATH_Baselines#hookCleanup
+	SetWindow $panelStr hook(hCleanup)=ATH_Baselines#hookCleanup
 	
 	ShowTab(bls)
 
@@ -2133,7 +2137,7 @@ static function ShowARSgraph(STRUCT BLstruct &bls, int show)
 	
 	if (show && WinType(graphStr)!=1)
 		MakeARSgraph(bls)
-		SetWindow $panelStr hook(hARS)=baselines#HookARS
+		SetWindow $panelStr hook(hARS)=ATH_Baselines#HookARS
 	elseif (show == 0)
 		KillWindow/Z $graphStr
 		SetWindow $panelStr hook(hARS)=$""
@@ -2498,12 +2502,12 @@ static function SetMarqueeButtons(STRUCT BLstruct &bls, variable vL, variable vT
 	variable buttonsize = 30
 	variable font = 30
 	Button btnAdd_graph, win=$bls.Graph, pos={vR+4,vT+(height-buttonsize)/2}, size={buttonsize,buttonsize}, fSize=font, title="\sa-10+", fColor=(0xBFFF,0xFFFF,0xBFFF), focusRing=0
-	Button btnAdd_graph, win=$bls.Graph, Proc=Baselines#BaselineButtons
+	Button btnAdd_graph, win=$bls.Graph, Proc=ATH_Baselines#BaselineButtons
 	Button btnRemove_graph, win=$bls.Graph, pos={vL-buttonsize-4,vT+(height-buttonsize)/2}, size={buttonsize,buttonsize}, fSize=font, title="\sa-10-", fColor=(0xFFFF,0xBFFF,0xBFFF), focusRing=0
-	Button btnRemove_graph, win=$bls.Graph, Proc=Baselines#BaselineButtons
+	Button btnRemove_graph, win=$bls.Graph, Proc=ATH_Baselines#BaselineButtons
 	#if (IgorVersion() >= 9)
-	Button btnAdd_graph, win=$bls.Graph, Picture=baselines#transparent, labelBack=(0xFFFF,0xFFFF,0xFFFF,0), title="+"
-	Button btnRemove_graph, win=$bls.Graph, Picture=baselines#transparent, labelBack=(0xFFFF,0xFFFF,0xFFFF,0), title="-"
+	Button btnAdd_graph, win=$bls.Graph, Picture=ATH_Baselines#transparent, labelBack=(0xFFFF,0xFFFF,0xFFFF,0), title="+"
+	Button btnRemove_graph, win=$bls.Graph, Picture=ATH_Baselines#transparent, labelBack=(0xFFFF,0xFFFF,0xFFFF,0), title="-"
 	#endif
 	return 1
 end
@@ -2632,7 +2636,7 @@ static function RedrawPicture(STRUCT BLstruct &bls)
 	
 	SetDrawLayer/W=$panelStr ProgBack
 	SetDrawEnv/W=$panelStr gstart, gname=ManPic
-	string picName = "baselines#p" + ReplaceString(" ", bls.fitfunc, "_")
+	string picName = "ATH_Baselines#p" + ReplaceString(" ", bls.fitfunc, "_")
 	variable scale = ScreenResolution > 72 ? 0.3 * ScreenResolution / 72 : 0.3
 	DrawPICT/W=$panelStr 45, 150, scale, scale, $picName
 	SetDrawEnv/W=$panelStr gstop, gname=ManPic
@@ -2870,7 +2874,7 @@ static function SetCursorsForManFit(STRUCT BLstruct &bls)
 		default: // or constant
 			Cursor/F/W=$bls.graph/N=1/H=0/S=1/C=(rgb[0],rgb[1],rgb[2]) G $bls.trace bls.csr.G.x, bls.csr.G.y
 	endswitch
-	SetWindow $bls.graph hook(hBaselines)=baselines#hookBaselines
+	SetWindow $bls.graph hook(hBaselines)=ATH_Baselines#hookBaselines
 end
 
 static function ResetCursorsForSubrange(STRUCT BLstruct &bls)
@@ -2908,7 +2912,7 @@ static function ResetCursorsForSubrange(STRUCT BLstruct &bls)
 	SetWindow $bls.graph hook(hBaselines)=$""
 	Cursor/F/W=$bls.graph/N=1/H=2/S=2/C=(rgb[0],rgb[1],rgb[2]) C $bls.trace range[0], 0
 	Cursor/F/W=$bls.graph/N=1/H=2/S=2/C=(rgb[0],rgb[1],rgb[2]) D $bls.trace range[1], 0
-	SetWindow $bls.graph hook(hBaselines)=baselines#hookBaselines
+	SetWindow $bls.graph hook(hBaselines)=ATH_Baselines#hookBaselines
 end
 
 static function GetPointsFromCursors(STRUCT BLstruct &bls)
@@ -3930,7 +3934,7 @@ static function FitCommonTangent(wave wTangentCoef, wave wEdgesP, wave wEdgesX, 
 	endif
 				
 	variable delta = 2 * abs(deltax(w_deltaY))
-	FindRoots/H=(crossingX+delta)/L=(crossingX-delta)/Q baselines#TangentDistance, w_9coef
+	FindRoots/H=(crossingX+delta)/L=(crossingX-delta)/Q ATH_Baselines#TangentDistance, w_9coef
 	if (V_flag)
 		wTangentCoef = {NaN, NaN}
 		return 0
@@ -4642,16 +4646,16 @@ static function FitFuncs(STRUCT BLstruct &bls,
 					// FuncFit won't work with the funcref
 					switch (bls.wavelength)
 						case 2:
-							FuncFit/Q/N baselines#PlanckmuM w_coef w_data /M=w_mask/X=w_x/NWOK; AbortOnRTE
+							FuncFit/Q/N ATH_Baselines#PlanckmuM w_coef w_data /M=w_mask/X=w_x/NWOK; AbortOnRTE
 							break
 						case 3:
-							FuncFit/Q/N baselines#PlanckWN w_coef w_data /M=w_mask/X=w_x/NWOK; AbortOnRTE
+							FuncFit/Q/N ATH_Baselines#PlanckWN w_coef w_data /M=w_mask/X=w_x/NWOK; AbortOnRTE
 							break
 						case 4:
-							FuncFit/Q/N baselines#PlanckAngstrom w_coef w_data /M=w_mask/X=w_x/NWOK; AbortOnRTE
+							FuncFit/Q/N ATH_Baselines#PlanckAngstrom w_coef w_data /M=w_mask/X=w_x/NWOK; AbortOnRTE
 							break
 						default:
-							FuncFit/Q/N baselines#Planck w_coef w_data /M=w_mask/X=w_x/NWOK; AbortOnRTE
+							FuncFit/Q/N ATH_Baselines#Planck w_coef w_data /M=w_mask/X=w_x/NWOK; AbortOnRTE
 					endswitch
 				endif
 				if (bls.datalength > kMultithreadCutoff)
@@ -4712,10 +4716,10 @@ static function FitFuncs(STRUCT BLstruct &bls,
 
 				Make/O/D/N=(numCoef) w_coef = 1 / (x+1)
 				if (ChebyshevType == 2)
-					FuncFit/Q/N baselines#ChebyshevSeries2 w_coef w_data /M=w_mask/X=w_relx/NWOK; AbortOnRTE
+					FuncFit/Q/N ATH_Baselines#ChebyshevSeries2 w_coef w_data /M=w_mask/X=w_relx/NWOK; AbortOnRTE
 					ChebyshevSeries2(w_coef, w_base, w_relx)
 				else
-					FuncFit/Q/N baselines#ChebyshevSeries w_coef w_data /M=w_mask/X=w_relx/NWOK; AbortOnRTE
+					FuncFit/Q/N ATH_Baselines#ChebyshevSeries w_coef w_data /M=w_mask/X=w_relx/NWOK; AbortOnRTE
 					ChebyshevSeries(w_coef, w_base, w_relx)
 				endif
 				
@@ -4805,9 +4809,9 @@ static function FitChebyshevSeries(int order, int type, wave w_nodesX, wave w_no
 	Make/O/D/N=(min(order + 1, numpnts(w_nodesX))) w_coef = 1 / (x+1)
 	try
 		if (type == 2)
-			FuncFit/Q/N baselines#ChebyshevSeries2 w_coef w_nodesY /X=w_relx/NWOK; AbortOnRTE
+			FuncFit/Q/N ATH_Baselines#ChebyshevSeries2 w_coef w_nodesY /X=w_relx/NWOK; AbortOnRTE
 		else
-			FuncFit/Q/N baselines#ChebyshevSeries w_coef w_nodesY /X=w_relx/NWOK; AbortOnRTE
+			FuncFit/Q/N ATH_Baselines#ChebyshevSeries w_coef w_nodesY /X=w_relx/NWOK; AbortOnRTE
 		endif
 	catch
 		if (V_AbortCode == -4)
@@ -5022,7 +5026,7 @@ static function GetMulOffsetFromInfoString(string s, int axis)
 	return axis ? yOffset : xOffset
 end
 
-// execute Baselines#makeSpectrum() to create a fake spectrum for demo
+// execute ATH_Baselines#makeSpectrum() to create a fake spectrum for demo
 static function MakeSpectrum([int n, int points])
 
 	n = ParamIsDefault(n) ? 1 : n
