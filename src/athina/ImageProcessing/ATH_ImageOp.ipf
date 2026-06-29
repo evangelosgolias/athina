@@ -1054,23 +1054,16 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, var
 	// If you have a 3D wave
 	if(WaveDims(wRef) == 3)
 		if(layerN < 0) // layerN < 0 to apply to all layers
-			variable i
-			DFREF saveDF = GetDataFolderDFR()
-			SetDataFolder NewFreeDataFolder()
-			string buffer = "layer_", waveNameStr
-			for(i = 0; i < nlayers; i++)
-				waveNameStr = buffer + num2str(i)
-				MatrixOP/O $waveNameStr = layer(wRef, i)
-				WAVE w = $waveNameStr
-				ImageRemoveBackground/O/R=maskW/P=(order) w
-			endfor
-			ImageTransform/NP=(nlayers) stackImages $"layer_0"
-			WAVE M_Stack
-			// Restore scale here
-			CopyScales wRef, M_Stack
-			Duplicate/O M_Stack, wRef
-			Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + maskNote			
-			SetDataFolder saveDF
+			Make/WAVE/N=(nlayers) ww	
+			MultiThreadingControl setMode=0	
+			MultiThread ww = ImageRemoveBackground3D_Worker(wRef, p, order, maskW)
+			MultiThreadingControl setMode=1	
+			variable x0, y0, z0, dx, dy, dz
+			[x0, y0, z0, dx, dy, dz] = ATH_WaveOp#GetScalesP(wRef)			
+			Concatenate/O {ww}, $GetWavesDataFolder(wRef,2)
+			ATH_WaveOp#SetScalesP(wRef,x0, y0, z0, dx, dy, dz)
+			Note wRef, "\nImageRemoveBackground/P=" + num2str(order) + "\n" + maskNote
+			KillWaves ww					
 		elseif(layerN < nlayers)
 			// Code to replace plane in 3d wave
 			MatrixOP/FREE getLayer = layer(wRef, layerN)
@@ -1085,41 +1078,17 @@ static Function ImgRemoveBackground(WAVE wRef, [variable order, int useMask, var
 	return 0
 End
 
-/// @function ImgRemoveBackgroundCols
-/// @brief Remove a fitted background independently from each image column.
-/// @details
-/// Image Remove 1-d background from each column. Make/O/N=(DimSize(wRef,1), orderN) fitCoeff fitCoeff[i][] =
-/// W_coef[q].
-/// @param wRef Wave to modify in place.
-/// @param orderN Interpolation or polynomial order.
-/// @returns Zero after completing the operation.
-static Function ImgRemoveBackgroundCols(WAVE wRef, variable orderN) //TODO! Fix it!
-	// Image Remove 1-d background from each column
-	//Make/O/N=(DimSize(wRef,1), orderN) fitCoeff
-	if(WaveType(wRef) & 0x10) // If WORD (int16)
-		Redimension/S wRef
-	endif
-	variable y0 = DimSize(wRef, 1); variable dy = DimDelta(wRef, 1)
-	variable i, imax =DimSize(wRef,1)
-	Wave/Z W_coef
-	variable fitErrorCode
-	DFREF saveDF = GetDataFolderDFR()
+ThreadSafe static Function/WAVE ImageRemoveBackground3D_Worker(WAVE wRef, variable j, 
+						   variable order, WAVE ROIMask)
+	DFREF dfSav= GetDataFolderDFR()
+
+	// Create a free data folder and set it as the current data folder
 	SetDataFolder NewFreeDataFolder()
-	MatrixOP/FREE getCol = col(wRef, 0) // Get one and scale it.
-	SetScale/I x, y0, dy, getCol
-	for(i=0;i<imax;i++)
-		MatrixOP/S/FREE getCol = col(wRef, i) // /S prevent scaling
-		CurveFit/Q/M=0/W=2 poly_XOffset orderN, getCol/D
-		NVAR/Z V_fitError
-		fitErrorCode = V_fitError
-		if(fitErrorCode)
-			print "FitError col:", num2str(i)
-		endif
-		//fitCoeff[i][] = W_coef[q]
-		wRef[i][] -= poly(W_coef, x)
-	endfor
-	SetDataFolder saveDF
-	return 0
+	MatrixOP/FREE getLayer = layer(wRef, j)
+	ImageRemoveBackground/O/R=ROIMask/P=(order) getLayer
+	SetDataFolder dfSav
+
+	return getLayer		// Return a reference to the wave
 End
 
 /// @function PixelateImage
@@ -1219,34 +1188,43 @@ static Function ImageFilter3D(WAVE wRef, string method, variable size, variable 
 	if(ifunc == -1 || WaveDims(wRef) != 3)
 		return -1
 	endif
-	variable nlayers = DimSize(wRef, 2), i
-	DFREF currDF = GetDataFolderDFR()
-	SetDataFolder NewFreeDataFolder()
-	string buffer = "getStacklayer_", waveNameStr
-	for(i = 0; i < nlayers; i++)
-		waveNameStr = buffer + num2str(i)
-		MatrixOP $waveNameStr = layer(wRef, i)
-		MatrixFilter/N=(size)/P=(passes) $method $waveNameStr
-	endfor
-	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
-	WAVE M_Stack
-	DFREF saveDF = GetWavesDataFolderDFR(wRef)
-	// Restore scale here
-	CopyScales wRef, M_Stack
-	Note M_Stack, note(wRef) // Get the note of the wave, see ATH_String#WaveLogging below
-	string noteStr = "Applied MatrixFilter/N="+num2str(size)+"/P="+num2str(passes)+ " " + method + " " + NameofWave(wRef)
+	variable nlayers = DimSize(wRef, 2)
+	Make/WAVE/N=(nlayers) ww	
+	// Get the reference layer from the partitioned wave
+	// Release the threads.
+	MultiThreadingControl setMode=0	
+	MultiThread ww = ImageFilter3D_Worker(wRef, p, method, size, passes)
+	MultiThreadingControl setMode=1	
+	variable x0, y0, z0, dx, dy, dz
+	[x0, y0, z0, dx, dy, dz] = ATH_WaveOp#GetScalesP(wRef)
+	string noteStr = "Applied MatrixFilter/N="+num2str(size)+"/P="+num2str(passes)+ " " + method + " " + NameofWave(wRef)	
 	if(overwrite)
-		Duplicate/O M_Stack, saveDF:$NameofWave(wRef)
-		ATH_String#WaveLogging(saveDF:$NameofWave(wRef), noteStr, prepend=1)
+		Concatenate/O {ww}, $GetWavesDataFolder(wRef,2)
+		WAVE wOut = $GetWavesDataFolder(wRef,2)
 	else
-		string newWaveNameStr = CreateDataObjectName(saveDF, NameofWave(wRef) + "_filter", 1, 0, 1)
-		Duplicate/O M_Stack, saveDF:$newWaveNameStr
-		ATH_String#WaveLogging(saveDF:$newWaveNameStr, noteStr,prepend=1)
+		string newWaveNameStr = CreateDataObjectName(GetDataFolderDFR(), NameofWave(wRef) + "_filter", 1, 0, 1)
+		Concatenate/O {ww}, $(GetWavesDataFolder(wRef,1)+ newWaveNameStr)
+		WAVE wOut = $(GetWavesDataFolder(wRef,1)+ newWaveNameStr)
 	endif
-	SetDataFolder currDF
+	ATH_WaveOp#SetScalesP(wOut,x0, y0, z0, dx, dy, dz)
+	ATH_String#WaveLogging(wOut, noteStr, prepend=1)	
+	KillWaves ww
 	return 0
 End
 
+ThreadSafe static Function/WAVE ImageFilter3D_Worker(WAVE wRef, variable j, string method, 
+						         variable size, variable passes)
+	DFREF dfSav= GetDataFolderDFR()
+
+	// Create a free data folder and set it as the current data folder
+	SetDataFolder NewFreeDataFolder()
+	MatrixOP/FREE/O getLayer = layer(wRef, j)
+	MatrixFilter/N=(size)/P=(passes) $method getLayer
+	
+	SetDataFolder dfSav
+
+	return getLayer		// Return a reference to the wave
+End
 /// @function FlattenImage3D
 /// @brief Flatten image 3D.
 /// @details
@@ -1270,36 +1248,49 @@ static Function FlattenImage3D(WAVE wRef, string method, string kind, variable s
 	if(ifunc == -1 || WaveDims(wRef) != 3)
 		return -1
 	endif
-	variable nlayers = DimSize(wRef, 2), i
-	DFREF saveDF = GetDataFolderDFR()
-	SetDataFolder NewFreeDataFolder()
-	string buffer = "getStacklayer_", waveNameStr
-	for(i = 0; i < nlayers; i++)
-		waveNameStr = buffer + num2str(i)
-		MatrixOP/FREE/O layerFree = layer(wRef, i)
-		MatrixFilter/N=(size)/P=(passes) $method layerFree		
-		if(ikind) // 1
-			WaveStats/Q/M=1 layerFree
-			layerFree = (layerFree-V_min)/(V_max-V_min)
-			WaveStats/Q/M=1 layerFree
-			MatrixOP/O layerFree = layerFree+V_avg*equal(layerFree,0)
-			MatrixOP $waveNameStr = layer(wRef, i) / layerFree
-		else // 0
-			MatrixOP $waveNameStr = layer(wRef, i) - layerFree
-		endif
-	endfor
-	ImageTransform/NP=(nlayers) stackImages $"getStacklayer_0"
-	WAVE M_Stack
-	// Restore scale here
-	CopyScales wRef, M_Stack
+	variable nlayers = DimSize(wRef, 2)
+	Make/WAVE/N=(nlayers) ww	
+	// Get the reference layer from the partitioned wave
+	// Release the threads.
+	MultiThreadingControl setMode=0	
+	MultiThread ww = FlattenImage3D_Worker(wRef, p, method, ikind, size, passes)
+	MultiThreadingControl setMode=1	
+	variable x0, y0, z0, dx, dy, dz
+	[x0, y0, z0, dx, dy, dz] = ATH_WaveOp#GetScalesP(wRef)
 	if(overwrite)
-		Duplicate/O M_Stack, saveDF:$NameofWave(wRef)
+		Concatenate/O {ww}, $GetWavesDataFolder(wRef,2)
+		WAVE wOut = $GetWavesDataFolder(wRef,2)
 	else
-		string newWaveNameStr = NameofWave(wRef) + "_flt"
-		Duplicate/O M_Stack, saveDF:$newWaveNameStr
+		Concatenate/O {ww}, $(GetWavesDataFolder(wRef,2)+ "_flt")
+		WAVE wOut = $(GetWavesDataFolder(wRef,2)+ "_flt")
 	endif
-	SetDataFolder saveDF
+	ATH_WaveOp#SetScalesP(wOut,x0, y0, z0, dx, dy, dz)
+	KillWaves ww
 	return 0
+End
+
+ThreadSafe static Function/WAVE FlattenImage3D_Worker(WAVE wRef, variable j, string method, 
+						   variable kind, variable size, variable passes)
+	DFREF dfSav= GetDataFolderDFR()
+
+	// Create a free data folder and set it as the current data folder
+	SetDataFolder NewFreeDataFolder()
+	MatrixOP/FREE/O layerFree = layer(wRef, j)
+	MatrixFilter/N=(size)/P=(passes) $method layerFree
+	if(kind) // 1
+		WaveStats/Q/M=1 layerFree
+		layerFree = (layerFree-V_min)/(V_max-V_min)
+		WaveStats/Q/M=1 layerFree
+		MatrixOP/FREE/O layerFree = layerFree+V_avg*equal(layerFree,0)
+		MatrixOP/FREE fltWave = layer(wRef, j) / layerFree
+	else // 0
+		MatrixOP fltWave = layer(wRef, j) - layerFree		
+	// Restore the current data folder
+	endif
+	
+	SetDataFolder dfSav
+
+	return fltWave		// Return a reference to the wave
 End
 
 /// @function ImageWindow3D

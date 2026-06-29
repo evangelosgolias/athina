@@ -309,11 +309,6 @@ static Function ImageRegistrationStack()
 	string wRef_backStr = ATH_DFR#BackupWaveInWaveDF(wRef)
 	variable layerN = ATH_Graph#GetgLayer("")
 	string waveNoteStr = note(wRef)
-//	#if IgorVersion() >= 10
-//		ATH_ImgAlign#MultiThreadImageRegistration(wRef, layerN)
-//	#else
-//		ATH_ImgAlign#ImgStackRegistration(wRef, layerN)
-//	#endif
 	ATH_ImgAlign#MultiThreadImageRegistration(wRef, layerN)
 	Note wRef, waveNoteStr
 	CopyScales $wRef_backStr, wRef
