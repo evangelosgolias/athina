@@ -3,7 +3,7 @@
 #pragma IgorVersion  = 9
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma ModuleName = ATH_MagDom
-#pragma version = 1.0
+#pragma version = 2.0
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -90,33 +90,28 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	/// Use the FoVRot = θ value (in deg) as set in the metadata to set the -90 or 90 (LV light) light orientation in the lab reference to
 	/// -90 + θ, 90 + θ, respectively. In this setting the LH axis will be at θ or 180+θ. The resulting NameOfWave(wRef)+"_map" wave will 
 	/// have the axis x corresponsing to φ = 0 for the spin axis.
-	
+	///
+	/// Update 29.06.2026: Function is now MT, see previous commits for the ST mode.
 	fastFit = ParamIsDefault(fastFit) ? 1 : fastFit
 	
 	variable firstAngleRad = ParamIsDefault(firstAngle) ? -90 * pi/180 : firstAngle * pi/180
 	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180 : angleStep * pi/180
+	
 	// Which model do you like to fit? Check functions in the module ATH_FuncFit
 	if(ParamIsDefault(fitFunc))
 		fitFunc = "ATH_FuncFit#XMLDCos2xIntensity" // default
 	endif
-	// Calculate the angular offset, rotate by -FoVRotRad and apply mirror operation over x-axis
 	
-	variable rows = DimSize(wRef, 0)
-	variable cols = DimSize(wRef, 1)
-	variable layers = DimSize(wRef, 2)
-
+	variable rows = DimSize(wRef, 0), cols = DimSize(wRef, 1), layers = DimSize(wRef, 2)
+	
 	if(!layers)
 		return 1
 	endif
-	variable i, j, k, cnt
+	
 	string mapBaseNameStr = NameofWave(wRef) + "_map"
 	string mapNameStr = CreateDataObjectName(dfr, mapBaseNameStr, 1, 0 ,1)
-	Make/N=(rows, cols) $mapNameStr, $(mapNameStr+"_offset"), $(mapNameStr+"_amplitude")
-	WAVE wphase = $mapNameStr
-	WAVE woff = $(mapNameStr+"_offset")
-	WAVE wfact = $(mapNameStr+"_amplitude")
+
 	// Make the fitting waves:  K0 + K1 * Cos(2*(x + K2))
-	Make/FREE/D/N=3 ATH_Coef
 	// Fit can be very sensity to contrains! Read the manual!
 	// ********************YOU NEED TO TUNE HERE************************
 	//
@@ -124,76 +119,80 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	// as K1->0 reduces the functional dependency to a constant function!
 	// We will assume of K1 hits the lowest value then K2 == 0!
 	//
-	Make/FREE/N=(layers) freeData // Get data per beam to fit
-	SetScale/P x, firstAngleRad, angleStepRad, freeData // Set the scale, and FoVRot
-	Make/O/D/N=(rows, cols, 3) ATH_FitCoeff // Fit coefficients per pixel
-	variable V_FitError
-	variable errorCnt = 0
-	// *****************************************************************	
+	Make/FREE/N=(layers) xScale = (firstAngleRad + p * angleStepRad)
+	// *****************************************************************
+	// Use it only for the wave note
 	Make/FREE/T ATH_Constraints = {"K1>1e-3","K2 > -pi/2", "K2 <= pi/2"} // N.B: Set here constrains
-	// Let's fit all pixels in the image
+	// ThreadSafe Function needs CMatrix, DVector (see CurveFit/FuncFit doc). To get the correct matrix run
+	// FuncFit/C ATH_FuncFit#XMLDCos2xIntensity, kwCWave=ATH_Coef, dataW /D /C=ATH_Constraints
+	// variable nParam = 3 // How many fitting parameters? Drop and hard code them
+	Make/FREE CMatrix = {{0,0,0}, {-1,0,0},{0,-1,1}} 
+	Make/FREE DVector = {-1e-03, pi/2, pi/2}
+	// End of preparation stage
+	
+	// Flatted 0 & 1 dims to use MultiThread w = f(p). Make the destination wave and a dummy one to iterate.
+	Make/FREE/D/N=(rows*cols, 3) fitCoeff, dummy
+	Duplicate/FREE wRef, wRef_flat
+	Redimension/E=1/N=(rows*cols, layers) wRef_flat
+	MultiThreadingControl setMode=0		
 	if(fastFit)
-		for(i = 0; i < rows; i++)
-			for(j = 0; j < cols; j++)
-				// /S keeps scaling in MatrixOP
-				// N.B. If you add /FREE here the scaling will be lost!!!
-				MatrixOP/O/S freeData = beam(wRef, i, j)
-				WaveStats/M=1/Q freeData // Makes it slower, but initial guess is better. Is it helpful?
-				V_FitError = 0 // Set it to zero before the fit
-				ATH_Coef = {V_avg, 0.5*(V_max-V_min),0.1} // N.B!! You might need to play a bit with the initial guess
-				FuncFit/Q $fitFunc, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
-				if(V_FitError)
-					// Deal with error here....
-					errorCnt++
-				endif
-				ATH_FitCoeff[i][j][] = ATH_Coef[r]
-			endfor
-		endfor
-	else
+		MultiThread dummy = ATH_MagDom#XMLDFit_Worker(wRef_flat, p, fitFunc, fastfit, xScale, CMatrix, DVector, fitCoeff) // Use dummy to iterate
+	else	
 		// *****************************************************************
 		// How many initial guesses for phase do you want to try?
 		// Enter the values in curly brackets.
 		// ******************************************************
-		Make/FREE initialGuessPhaseW = {-pi/4,0,pi/4}; // <<<<<<<
-		// ******************************************************
-		variable kmax = numpnts(initialGuessPhaseW)
-		Make/FREE/N=(kmax) chisqList
-		Make/FREE/N=(kmax,3) coeffW
-		for(i = 0; i < rows; i++)
-			for(j = 0; j < cols; j++)
-				// /S keeps scaling in MatrixOP
-				// N.B. If you add /FREE here the scaling will be lost!!!
-				MatrixOP/O/S freeData = beam(wRef, i, j)
-				WaveStats/M=1/Q freeData // Makes it slower, but initial guess is better.
-				V_FitError = 0 // Set it to zero before the fit
-				for(k=0;k<kmax;k++)
-					ATH_Coef = {V_avg, 0.5*(V_max-V_min),initialGuessPhaseW[k]} // N.B!! You might need to play a bit with the initial guess
-					FuncFit/Q $fitFunc, kwCWave=ATH_Coef, freeData /D /C=ATH_Constraints
-					coeffW[k][] = ATH_Coef[q]
-					chisqList[k] = V_chisq // Goodness of fit
-				endfor
-				if(V_FitError)
-					// Deal with error here....
-					errorCnt++
-				endif
-				ATH_FitCoeff[i][j][] = coeffW[ATH_WaveOp#GetWaveMinPos(chisqList)][r] // Get the fitted coeff with the lower V_chisq
-			endfor
-		endfor
+		Make/FREE guessW = {-pi/4,0,pi/4}; // <<<<<<<
+		MultiThread dummy = ATH_MagDom#XMLDFit_Worker(wRef_flat, p, fitFunc, fastfit, xScale, CMatrix, DVector, fitCoeff, guessW=guessW) // Use dummy to iterate
 	endif
-	// Write the coefficients to waves
-	woff[][] =  ATH_FitCoeff[p][q][0]
-	wfact[][] = ATH_FitCoeff[p][q][1]
-	wphase[][] = ATH_FitCoeff[p][q][2]*57.29577951 // From rad to deg
-	print "Total fit errors ", errorCnt
+	
+	MultiThreadingControl setMode=1
+	// Produce the output waves
+	Redimension/E=1/N=(rows, cols, 3) fitCoeff
+	MatrixOP $(mapNameStr+"_amplitude") = layer(fitCoeff,0)
+	MatrixOP $(mapNameStr+"_offset") = layer(fitCoeff,1)		
+	MatrixOP $mapNameStr = layer(fitCoeff,2)*57.29577951 // From rad to deg
+	// Add metadata
 	string metadata = "FuncFit: "+ fitFunc + "."
 	metadata += "Fitting constrains: {"+RemoveEnding(ATH_TWave#TextWaveToString(ATH_Constraints, sep=","))+"}."
 	metadata += "Function parameters: firstAngle="+num2str(firstangle)+" ,angleStep="+num2str(angleStep)
-	metadata += ", fastFit="+num2str(fastFit)+". Total fit errors: "+num2str(errorCnt)	
-	Note wphase, metadata
-	Note wfact, metadata
-	Note woff, metadata
-	CopyScales wRef, wphase, wfact, woff
-	KillWaves/Z W_sigma, ATH_FitCoeff, fit__free_ // Cleanup the garbage
+	metadata += ", fastFit="+num2str(fastFit)
+	Note $mapNameStr, metadata
+	Note $(mapNameStr+"_offset"), metadata
+	Note $(mapNameStr+"_amplitude"), metadata
+	// Restore scaling
+	CopyScales wRef, $mapNameStr, $(mapNameStr+"_offset"), $(mapNameStr+"_amplitude")
+	return 0
+End
+
+ThreadSafe static Function XMLDFit_Worker(WAVE wRef, variable j, string fitFunc, variable fastfit,
+						   WAVE xScale,WAVE CMatrix, WAVE DVector, WAVE fitCoeff, [WAVE/Z guessW])
+	// Get the data in a row
+	MatrixOP/FREE getdata = row(wRef, j)^t
+	WaveStats/M=1/Q getdata
+	if(fastfit)
+		Make/D/FREE ATH_Coef = {V_avg, 0.5*(V_max-V_min),0.1} // N.B!! You might need to play a bit with the initial guess
+		FuncFit/Q $fitFunc, kwCWave=ATH_Coef, getdata /D /C={CMatrix, DVector} /X=xScale
+		fitCoeff[j][] = ATH_Coef[q]
+	else
+		variable imax = numpnts(guessW), i = 0
+		Make/FREE/D/N=(imax, 3) ATH_Coef_list
+		Make/FREE/N=3 chisqW
+		for(i = 0; i < imax; i+=1)
+			Make/O/D/FREE ATH_Coef = {V_avg, 0.5*(V_max-V_min),guessW[i]}
+			FuncFit/Q $fitFunc, kwCWave=ATH_Coef, getdata /D /C={CMatrix, DVector} /X=xScale
+			ATH_Coef_list[i][] = ATH_Coef[q]
+			chisqW[i] = V_chisq
+		endfor
+		variable imim = chisqW[0]
+		for(i=1;i<3;i+=1) // 3 is hardcoded here
+			if(chisqW[i] < imim)
+			imim = wRef[i]
+			endif
+		endfor
+		fitCoeff[j][] = ATH_Coef_list[imim][q]
+	endif
+	return 0		// Return a reference to the free M_RegOut wave
 End
 
 
@@ -320,28 +319,6 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	TextBox/W=$plotNameStr/C/F=0/N=phaseTag "\\Z16φ="+num2str(phase)		
 	return 0
 End
-
-// ---- Multithreading XMLDMapFit ----//
-
-//ThreadSafe static Function XMLDFit_Worker(WAVE wRef, variable j, string fitFunc, variable firstAngle, 
-//variable angleStep, variable fastFit, WAVE/T Constraints, [WAVE/Z initialGuessW])
-//	DFREF dfSav= GetDataFolderDFR()
-//
-//	// Create a free data folder and set it as the current data folder
-//	SetDataFolder NewFreeDataFolder()
-//	ImageTransform/P=(plane) getPlane w3D
-//	Wave M_ImagePlane
-//	ImageRegistration/Q/CONV=1/TRNS={1,1,1}/ROT={0,0,1}/PRDL=1/TSTM=0/BVAL=0 refwave = wRef, testwave = M_ImagePlane
-//	WAVE M_RegOut	
-//	// Restore the current data folder
-//	SetDataFolder dfSav
-//
-//	return M_RegOut		// Return a reference to the free M_RegOut wave
-//	
-//End
-
-// ---- Multithreading XMLDMapFit ----//
-
 
 /// @function SortMapPerPolarAngle
 /// @brief Reorder an angular map by increasing polar angle.

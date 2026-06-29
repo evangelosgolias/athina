@@ -49,7 +49,7 @@ static constant k_B = 8.617333262e-5 // Boltzmann constant in eV/K
 /// @param x Variable Energy value at which the model is evaluated.
 /// @returns Variable Model value at `x`.
 ///
-static Function FitFermiEdge(WAVE w, variable x) : FitFunc
+ThreadSafe static Function FitFermiEdge(WAVE w, variable x) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ f(E) = y0 + 1 / (exp((E - Ef)/kT) + 1)
 	//CurveFitDialog/ 
@@ -71,7 +71,7 @@ End
 /// @param x Variable Energy value at which the model is evaluated.
 /// @returns Variable Model value at `x`.
 ///
-static Function FitFermiEdgeTimesLine(WAVE w, variable x) : FitFunc
+ThreadSafe static Function FitFermiEdgeTimesLine(WAVE w, variable x) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ f(E) = y0 + (a * E + b) / (exp((E - Ef)/kT) + 1)
 	//CurveFitDialog/ 
@@ -96,7 +96,7 @@ End
 /// @param E Variable Energy value at which the model is evaluated.
 /// @returns Variable Model value at `E`.
 ///
-static Function FitXASStepBackground(WAVE w, variable E) : FitFunc
+ThreadSafe static Function FitXASStepBackground(WAVE w, variable E) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) = w[0] + w[1]/3 * (1 + 2/pi * atan((E-w[2])/w[3]) + w[1]/6 * (1 + 2/pi * atan((E-w[4])/w[5])
 	//CurveFitDialog/ 	
@@ -125,7 +125,7 @@ End
 /// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
 /// @note `yw` is overwritten. Temporary waves are created during convolution.
 ///
-static Function FitFermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+ThreadSafe static Function FitFermiEdgeGaussianConvolution(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	/// FitFunc shared by Emile Rienks (BESSY-II, 1^3)
 	//
 	// pw[0] = offset
@@ -168,7 +168,7 @@ End
 /// @param xw Wave Angular coordinate wave.
 /// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
 ///
-static Function XMLDSinSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+ThreadSafe static Function XMLDSinSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(x - yw[2])^2
 	//CurveFitDialog/ 	
@@ -188,7 +188,7 @@ End
 /// @param xw Wave Angular coordinate wave.
 /// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
 ///
-static Function XMLDCosSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+ThreadSafe static Function XMLDCosSqIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) =pw[0] + pw[1] * cos(x - yw[2])^2
 	//CurveFitDialog/ 	
@@ -208,7 +208,7 @@ End
 /// @param xw Wave Angular coordinate wave.
 /// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
 ///
-static Function XMLDSin2xIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+ThreadSafe static Function XMLDSin2xIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) =pw[0] + pw[1] * sin(2*(x + yw[2]))
 	//CurveFitDialog/ 	
@@ -228,7 +228,7 @@ End
 /// @param xw Wave Angular coordinate wave.
 /// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
 ///
-static Function XMLDCos2xIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+ThreadSafe static Function XMLDCos2xIntensity(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) =pw[0] + pw[1] * cos(2*(x + yw[2]))
 	//CurveFitDialog/ 	
@@ -248,7 +248,7 @@ End
 /// @param xw Wave Angular coordinate wave.
 /// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
 ///
-static Function XMLDIntensityWtGradient(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+ThreadSafe static Function XMLDIntensityWtGradient(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ I(E) = pw[0] + pw[1] * sin(x + yw[2])^2
 	//CurveFitDialog/ 	
@@ -273,7 +273,7 @@ End
 /// @param wy Wave Y coordinate wave.
 /// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
 ///
-static Function Gaussian2D(WAVE pw, WAVE yw, WAVE wx, WAVE wy) : Fitfunc
+ThreadSafe static Function Gaussian2D(WAVE pw, WAVE yw, WAVE wx, WAVE wy) : Fitfunc
 
 	//pw[0]: const bck
 	//pw[1]: Amplitude
@@ -307,7 +307,7 @@ End
 /// @param xw Wave Input STV values.
 /// @returns Variable FitFunc output as required by Igor; the computed values are written to `yw`.
 ///
-static Function FocusSTV(WAVE pw, WAVE yw, WAVE xw) : FitFunc
+ThreadSafe static Function FocusSTV(WAVE pw, WAVE yw, WAVE xw) : FitFunc
 	//CurveFitDialog/ Equation:
 	//CurveFitDialog/ f(STV) = f0 + a * sqrt(STV)
 	//CurveFitDialog/ 
