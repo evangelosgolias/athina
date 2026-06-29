@@ -321,18 +321,22 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 End
 
 /// @function SortMapPerPolarAngle
-/// @brief Reorder an angular map by increasing polar angle.
-/// @param wRef Angular map whose rows are reordered in place.
-/// @param angleRange (optional) Angular interval represented by the map.
+/// @brief Reorder an angular map by increasing polar angle. Work
+/// for XMLD maps with an 180 deg angular range.
+/// @param wRef Angular map (2D) whose rows are reordered in place (in a duplicate).
+/// @param angle start angle.
+/// @param step angle step.
+/// @param nBins Number of bins.
 /// @returns Zero after completing the operation.
-static Function SortMapPerPolarAngle(WAVE wRef, [variable angleRange])
+static Function SortMapPerPolarAngle(WAVE wRef, variable angle, variable step, variable nBins)
 	// Sort spin axis angles to create a polar plot
-	// angle will come from spin axis and will be set in the x-wave scaling
-	// 90, 180 or 360. The radius will be another wave you select, for example 
-	// amplitutde or XMLD singnal (default). The latter should come from another wave.
-	angleRange = ParamIsDefault(angleRange) ? 180 : angleRange
-	
-	// You need to wrap a histogram around, if its
-	
-	// Check /P option of Histogram
+	// ATH_MagDom#SortMapPerPolarAngle(w_map, -90, 10, 18)
+	Duplicate/FREE wRef, hist
+	Redimension/N=(DimSize(wRef,0)*DimSize(wRef,1)) hist
+	Histogram/B={angle, step, nBins}/DEST=ath__hist hist
+	Duplicate/FREE ath__hist, ath__hist_copy
+	string waveNameStr = CreateDataObjectName(GetDataFolderDFR(), NameofWave(wRef)+"_polarHist", 1, 0 ,1)
+	Concatenate/NP=0 {ath__hist,ath__hist_copy}, $waveNameStr
+	KillWaves ath__hist
+	return 0
 End
