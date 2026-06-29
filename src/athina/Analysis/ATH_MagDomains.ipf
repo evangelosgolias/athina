@@ -149,8 +149,8 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	MultiThreadingControl setMode=1
 	// Produce the output waves
 	Redimension/E=1/N=(rows, cols, 3) fitCoeff
-	MatrixOP $(mapNameStr+"_amplitude") = layer(fitCoeff,0)
-	MatrixOP $(mapNameStr+"_offset") = layer(fitCoeff,1)		
+	MatrixOP $(mapNameStr+"_offset") = layer(fitCoeff,0)
+	MatrixOP $(mapNameStr+"_amplitude") = layer(fitCoeff,1)		
 	MatrixOP $mapNameStr = layer(fitCoeff,2)*57.29577951 // From rad to deg
 	// Add metadata
 	string metadata = "FuncFit: "+ fitFunc + "."
