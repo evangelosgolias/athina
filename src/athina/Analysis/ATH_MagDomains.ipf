@@ -74,7 +74,7 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	/// |-------------   |----------|--------|-------------------------------------------------------------------------------------------------------|
 	/// | **wRef**       | WAVE     |    -   | 3-D wave whose *z* dimension lists the inclination angles in ascending order (typically −90° to +90°) |
 	/// | **fitFunx   ** | string   | Cos(2x)| Fuction to fit, defaults to ATH_FuncFit#XMLDCos2xIntensity, see ATH_FuncFit module for more options   |                                             |	
-	/// | **firstAngle** | variable | −90 °  | Inclination (degrees) corresponding to the first plane of the stack                                                |
+	/// | **firstAngle** | variable | −90 °  | Inclination (degrees) corresponding to the first plane of the stack                                   |
 	/// | **angleStep**  | variable |  10 °  | Angular increment (degrees) between successive *z* planes                                             |
 	/// | **fastFit**    | variable |    0   | If non-zero, tests several phase values and keeps the one with the lowest χ² (≈ N × slower)           |
 	///

@@ -230,11 +230,11 @@ static Function SetAngle(STRUCT WMSetVariableAction &sva) : SetVariableControl
 		case 3: // Live update
 			DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF(GetUserData(sva.win, "", "ATH_iRotateFolder"))
 			SVAR/SDFR=dfr gATH_wPathname, gATH_wBackupPathNameStr
-			NVAR/SDFR=dfr gATH_Angle
+			NVAR/SDFR=dfr gATH_Angle, gATH_FlipCols
 			WAVE wRef = $gATH_wPathname
 			WAVE wRefbck = $gATH_wBackupPathNameStr
 			gATH_Angle = sva.dval
-			ImageRestoreAndRotate(wRefbck, wRef, gATH_Angle)
+			ImageRestoreAndRotate(wRefbck, wRef, gATH_Angle, flipY=gATH_FlipCols)
 			break
 		case -1: // control being killed
 			break
