@@ -477,7 +477,7 @@ static Function BackgroundSubtractGUI() //BackgroundSubtractGUI(inwave)
 	//+++++++++++++++++++++++++++++++++++ control modifiers ++++++++++++++++++++++++++++++++++++		
 	ModifyControlList ControlNameList(gName,";","B*")							,proc=ATH_BackgroundRemover#BackRem_ButtonAction
 	PopUpMenu BackSelect		,bodywidth=110	,value=kBackgroundTypes			,proc=ATH_BackgroundRemover#BackRem_ModeSelect
-	PopUpMenu VarCSData			,bodywidth=140	,value=BackRem_CSWaveList()		,proc=ATH_BackgroundRemover#BackRem_CSWaveSelect
+	PopUpMenu VarCSData			,bodywidth=140	,value=ATH_BackgroundRemover#BackRem_CSWaveList(),proc=ATH_BackgroundRemover#BackRem_CSWaveSelect
 	
 	STRUCT BackRemoveStruct bs
 	BackRem_InitLoadSettings(bs, inwave, gName)													// loads default settings or settings from a previous file and sets initial cursors
