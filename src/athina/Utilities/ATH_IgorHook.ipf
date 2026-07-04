@@ -111,6 +111,7 @@ Function AfterCompiledHook()
 		return -1
 	endif	
 	ModifyBrowser appendUserButton={$"Stack Waves", "Execute/P/Q \"ATH_Launch#BrowserActionMakeStack()\""}
+	ModifyBrowser appendUserButton={$"Display Image", "Execute/P/Q \"ATH_Launch#BrowserActionNewImg()\""}	
 	ModifyBrowser echoCommands=0
 	return 0
 End

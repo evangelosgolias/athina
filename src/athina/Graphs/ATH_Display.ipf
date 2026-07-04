@@ -351,14 +351,14 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 					hookResult = 1										
 					break
 				case 113: // q
-						if(!strlen(GetUserData(s.winName, "ATH_W3DSlider", "ATH_StackedWaveList")))
-							string waveListToTitle = ATH_String#GetStackNamesFromNote(w)
-							ModifyControl ATH_W3DSlider win=$s.winName, userdata(ATH_StackedWaveList) = waveListToTitle
-						else
-							ModifyControl ATH_W3DSlider win=$s.winName, userdata(ATH_StackedWaveList) = ""
-							DoWindow/T $s.winName, GetWavesDataFolder(w,2)
-						endif
-						hookResult = 1		
+					if(!strlen(GetUserData(s.winName, "ATH_W3DSlider", "ATH_StackedWaveList")))
+						string waveListToTitle = ATH_String#GetStackNamesFromNote(w)
+						ModifyControl ATH_W3DSlider win=$s.winName, userdata(ATH_StackedWaveList) = waveListToTitle
+					else
+						ModifyControl ATH_W3DSlider win=$s.winName, userdata(ATH_StackedWaveList) = ""
+						DoWindow/T $s.winName, GetWavesDataFolder(w,2)
+					endif
+					hookResult = 1		
 					break			
 				case 114: // r
 					ATH_Range#pnl(s.winName)

@@ -42,6 +42,20 @@
 /// @function BrowserActionDoXMDC
 /// @brief Calculate XMCD from the two waves selected in the Data Browser.
 /// @returns NaN if input validation fails; otherwise zero after completing the operation.
+Function BrowserActionNewImg()
+	string img = GetBrowserSelection(0)
+	if(!strlen(img))
+		return NaN
+	endif
+	WAVE wRef = $GetBrowserSelection(0)
+	if(WAVEExists(wRef)) // works only with two selected waves
+		ATH_Display#NewImg(wRef)
+	endif
+End
+
+/// @function BrowserActionDoXMDC
+/// @brief Calculate XMCD from the two waves selected in the Data Browser.
+/// @returns NaN if input validation fails; otherwise zero after completing the operation.
 Function BrowserActionDoXMDC()
 	string img1, img2
 	img1 = GetBrowserSelection(0)

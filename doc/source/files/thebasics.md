@@ -27,6 +27,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **l** : launch image line profiler.
 - **n** : Toggle square image on/off.
 - **p** : launch plane z profiler.
+- **q** : show label of displayed layer (pathname or scale, depends on the parent stack operation)
 - **r** : show range panel (contrast).
 - **s** : set saved axes range. 
 - **x** : calculate XMC(L)D [*only if you have an image stack with 2 layers*].
@@ -43,7 +44,7 @@ If you use "ATH NewImage" operation you can use the following keyboard shortcuts
 - **SHIFT + r** : resample image.
 - **SHIFT + s** : Save current axes range and ctab.
 - **SHIFT + CTLR + u** : Unpack stack layers to source waves (as read from wavenote)!!! (Experts only, SHIFT+CMD on Mac)
-- **SHIFT + Q **: apply the last saved axes range to all visible graphs
+- **SHIFT + Q**: apply the last saved axes range to all visible graphs
 - **SHIFT + x** : launch interactive PES (XPS) extractor
 - **SHIFT + mousewheel** : zoom image centered at the cursor.
 
