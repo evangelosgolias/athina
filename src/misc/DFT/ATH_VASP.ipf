@@ -29,11 +29,11 @@ static Function/S LoadVASPHDF([string groupname])
 	return fullDFPathStr
 End
 
-static Function LoadVASPBandStructure([int plotQ, int eFermi])
+static Function LoadVASPBandStructure([int plotQ, int Ef])
 	plotQ = ParamIsDefault(plotQ) ? 0 : plotQ
-	eFermi = ParamIsDefault(eFermi) ? 1 : eFermi
+	Ef = ParamIsDefault(Ef) ? 1 : Ef
 	string basepathStr = ATH_VASP#LoadVASPHDF() // N.B. ends with : 
-	eFermi = ATH_VASP#GetEFermi(basepathStr)
+	Ef = ATH_VASP#GetEFermi(basepathStr)
 	
 	if(DataFolderExists(basepathStr+"electron_eigenvalues_kpoints_opt"))
 		DFREF eigenDF = $(basepathStr+"electron_eigenvalues_kpoints_opt")
@@ -44,10 +44,10 @@ static Function LoadVASPBandStructure([int plotQ, int eFermi])
 		return -1
 	endif
 	WAVE/SDFR=eigenDF eigenvalues
-	if(eFermi)
-		eigenvalues -= eFermi
+	if(Ef)
+		eigenvalues -= Ef
 	endif
-	string waveNoteStr = NameOfWave(eigenvalues) + " -= " + num2str(efermi)
+	string waveNoteStr = NameOfWave(eigenvalues) + " -= " + num2str(Ef)
 	Note eigenvalues, waveNoteStr
 	if(plotQ)
 		ATH_VASP#PlotBandStructure(eigenvalues)

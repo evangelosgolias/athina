@@ -258,17 +258,33 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 		pmax = min(V_MaxRowLoc + fitWidthPixels, rows-1)
 		qmin = max(0, V_MaxColLoc - fitWidthPixels)
 		qmax = min(V_MaxColLoc + fitWidthPixels, cols-1)
-		CurveFit/Q Gauss2D  correlationW[pmin,pmax][qmin,qmax] /D 
-		WAVE W_coef
-		pdrift = refP - W_coef[2]
-		qdrift = refQ - W_coef[4]
-		//print "SP: ", pdrift, qdrift, refP, W_coef[2], refQ, W_coef[4]		
+		try
+			variable V_FitError = 0
+			variable V_FitQuitReason = 0
+			CurveFit/Q Gauss2D  correlationW[pmin,pmax][qmin,qmax] /D; AbortOnRTE
+			WAVE W_coef
+			pdrift = refP - W_coef[2]
+			qdrift = refQ - W_coef[4]
+		catch
+			variable err = GetRTError(1)
+			print "Curve fit runtime error in layer " + num2str(plane),   GetErrMessage(err, 3)
+			qdrift = refP - V_MaxRowLoc
+			qdrift = refQ - V_MaxColLoc
+		endtry
+		// V_FitQuitReason is zero if the fit terminated normally, 
+		// 1 if the iteration limit was reached, 
+		// 2 if the user stopped the fit, or 
+		// 3 if the limit of passes without decreasing chi-square was reached.
+		if(V_FitError)
+			print "Fit error code = " , V_FitQuitReason, " in plane ", num2str(plane)
+			qdrift = refP - V_MaxRowLoc
+			qdrift = refQ - V_MaxColLoc
+		endif		
 	else
 		pdrift = refP - V_MaxRowLoc
 		qdrift = refQ - V_MaxColLoc
-		//print "P: ", pdrift, qdrift, refP, V_MaxRowLoc, refQ, V_MaxColLoc
 	endif
-	
+    	
 	if(WaveExists(wDC))
 		wDC[0][plane] = pdrift
 		wDC[1][plane] = qdrift
@@ -322,15 +338,31 @@ ThreadSafe static Function/WAVE DriftPhaseCorrelationPartition_Worker(WAVE w3D, 
 		pmax = min(V_MaxRowLoc + fitWidthPixels, rows-1)
 		qmin = max(0, V_MaxColLoc - fitWidthPixels)
 		qmax = min(V_MaxColLoc + fitWidthPixels, cols-1)
-		CurveFit/Q Gauss2D  invfft[pmin,pmax][qmin,qmax] /D 
-		WAVE W_coef
-		pdrift = W_coef[2] - rows/2
-		qdrift = W_coef[4] - cols/2
-		//print "SP: ", pdrift, qdrift, rows/2, W_coef[2], cols/2, W_coef[4]
+		try	
+			variable V_FitError = 0
+			variable V_FitQuitReason = 0		
+			CurveFit/Q Gauss2D  invfft[pmin,pmax][qmin,qmax] /D; AbortOnRTE
+			WAVE W_coef
+			pdrift = W_coef[2] - rows/2
+			qdrift = W_coef[4] - cols/2			
+		catch
+			variable err = GetRTError(1)
+			print "Curve fit runtime error in layer " + num2str(plane),   GetErrMessage(err, 3)
+			pdrift = V_MaxRowLoc - rows/2
+			qdrift = V_MaxColLoc - cols/2
+		endtry
+		// V_FitQuitReason is zero if the fit terminated normally, 
+		// 1 if the iteration limit was reached, 
+		// 2 if the user stopped the fit, or 
+		// 3 if the limit of passes without decreasing chi-square was reached.
+		if(V_FitError)
+			print "Fit error code = " , V_FitQuitReason, " in plane ", num2str(plane)
+			qdrift = V_MaxRowLoc - rows/2
+			qdrift = V_MaxColLoc - cols/2
+		endif			
 	else
 		pdrift = V_MaxRowLoc - rows/2
 		qdrift = V_MaxColLoc - cols/2
-		//print "P: ", pdrift, qdrift, rows/2, V_MaxRowLoc, cols/2, V_MaxColLoc
 	endif
 	if(WaveExists(wDC))
 		wDC[0][plane] = pdrift
