@@ -601,7 +601,7 @@ static Function MultiThreadImageRegistration(WAVE w3D, variable ref)
 	Make/WAVE/N=(numPlanes) ww	
 	// Get the reference layer from the partitioned wave
 	ImageTransform/P=(ref) getPlane w3D
-	Wave M_ImagePlane // Reference layer
+	WAVE M_ImagePlane // Reference layer
 	// Release the threads.
 	MultiThreadingControl setMode=0	
 	MultiThread ww = ImageRegistration_Worker(w3D, M_ImagePlane, p)
@@ -630,7 +630,7 @@ ThreadSafe static Function/WAVE ImageRegistration_Worker(WAVE w3D, WAVE wRef, va
 	// Create a free data folder and set it as the current data folder
 	SetDataFolder NewFreeDataFolder()
 	ImageTransform/P=(plane) getPlane w3D
-	Wave M_ImagePlane
+	WAVE M_ImagePlane
 	ImageRegistration/Q/CONV=1/TRNS={1,1,1}/ROT={0,0,1}/PRDL=1/TSTM=0/BVAL=0 refwave = wRef, testwave = M_ImagePlane
 	WAVE M_RegOut	
 	// Restore the current data folder

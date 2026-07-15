@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_BackgroundRemoval
-#pragma version = 1.02
+#pragma version = 1.1
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -232,7 +232,7 @@ static Function AddUniqueLineHit(hitX, hitY, numberOfHits, xValue, yValue, toler
 	return numberOfHits
 End
 
-static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, variable polynomialOrder)
+ThreadSafe static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, variable polynomialOrder)
 	if (WaveDims(w) != 2 || WaveType(w, 1) != 1)
 		print "BuildPolynomialLineBackground: w must be a numeric 2-D wave."
 		return -1
@@ -457,18 +457,18 @@ End
 ///
 /// @param grfName Optional graph window name.
 /// @returns Zero after completing the operation, negative on error.
-Function RemovePolynomialLineFitBackground([string grfName])
+static Function RemovePolynomialLineFitBackground([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0 : 1, WinName(0, 1, 1), grfName)
 	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
 
 	variable order = 1, density = 1
 	
-	if (WaveDims(wRef) == 2)
+	if (WaveDims(wRef) == 2 || WaveDims(wRef) == 3)
 		Prompt order, "Background polynomial order (constant = 0, line = 1, ... 5th order poly max)"
 		Prompt density, "Line density percentage [e.g. 0.25 (25%). Set 0 or 1 for 100%]"
 		DoPrompt "Set E, F cursors to define the line for background subtraction. Optional use marquee to define active fitting area", order, density
 	else
-		print "You need a 2D wave (single image) for this operation"
+		print "This operations needs a image or a stack of images."
 		return -1
 	endif
 
@@ -497,7 +497,7 @@ Function RemovePolynomialLineFitBackground([string grfName])
 
 	variable hasMarquee = 0, left = 0, right = 0, top = 0, bottom = 0
 	[hasMarquee, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex()
-	
+		
 	variable fitX0 = 0, fitX1 = nrows - 1, fitY0 = 0, fitY1 = ncols - 1
 	if (hasMarquee)
 
@@ -527,20 +527,64 @@ Function RemovePolynomialLineFitBackground([string grfName])
 	endif
 
 	WAVE wx, wy
-	variable fittedLines = BuildPolynomialLineBackgroundCore(wRef, wx, wy, order)
-	if (fittedLines < 1)
-		SetDataFolder savedDFR
-		print "Could not fit a background in the selected area."
-		return -1
+	
+	if(WaveDims(wRef) == 2)
+	
+		variable fittedLines = BuildPolynomialLineBackgroundCore(wRef, wx, wy, order)
+		if (fittedLines < 1)
+			SetDataFolder savedDFR
+			print "Could not fit a background in the selected area."
+			return -1
+		endif
+		WAVE wBackground
+		
+		ATH_DFR#BackupWaveInWaveDFQ(wRef)
+		wRef -= wBackground	
+	else // stack
+		Make/O/WAVE/N=(DimSize(wRef,2)) ww
+		ATH_DFR#BackupWaveInWaveDFQ(wRef)
+		MultiThreadingControl setMode=0	
+		MultiThread ww = RemovePolynomialLineFitBackgroundMT_Worker(wRef, p, order, wx, wy)
+		MultiThreadingControl setMode=1	
+		// At this point, ww holds wave references to numplanes free waves
+		// created by DriftCorrelation_Worker.
+		// So, now repack all layers.
+		Concatenate/O {ww}, $GetWavesDataFolder(wRef,2)
+		KillWaves ww
 	endif
-	WAVE wBackground
 	SetDataFolder savedDFR
-	ATH_DFR#BackupWaveInWaveDFQ(wRef)
-	wRef -= wBackground
 	string note2Wwave = "Applie RemovePolynomialLineFitBackground(order = " + num2str(order) + ", density = "+num2str(density) + ")\n"
 	if(hasMarquee)
 		note2Wwave       += "Used marquee [" + num2str(fitX0)+","+ num2str(fitY0)+","+ num2str(fitX1)+","+num2str(fitY1)+"]"
 	endif
 	Note wRef, note2Wwave
 	return 0
+End
+
+
+/// @function RemovePolynomialLineFitBackground
+/// @brief Remove fitted polynomial background along a user-selected angle.
+///
+/// If a marquee exists on the top image, the
+/// background profiles are fitted only inside the marquee rectangle. The fitted
+/// background is still evaluated over the full image and subtracted from `wRef`.
+///
+/// @param grfName Optional graph window name.
+/// @returns Zero after completing the operation, negative on error.
+ThreadSafe static Function/WAVE RemovePolynomialLineFitBackgroundMT_Worker(WAVE wRef, variable plane,
+							variable order, WAVE wx, WAVE wy)
+
+	DFREF dfSav= GetDataFolderDFR()
+
+	// Create a free data folder and set it as the current data folder
+	SetDataFolder NewFreeDataFolder()
+	ImageTransform/P=(plane) getPlane wRef
+	WAVE M_ImagePlane	
+	BuildPolynomialLineBackgroundCore(M_ImagePlane, wx, wy, order)
+	WAVE wBackground
+	
+	M_ImagePlane -= wBackground
+
+	SetDataFolder dfSav	
+	return M_ImagePlane
 End

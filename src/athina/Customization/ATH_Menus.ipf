@@ -86,7 +86,7 @@ Menu "athina"
 		"Rotate image from metadata (TG, 2D, 3D)", /Q, ATH_Launch#ImageRotateAndScaleFromMetadata()
 		"Remove background (TG, 2D, 3D)", /Q, ATH_Launch#ImgRemoveBackground()
 		"Remove background flattening (TG, 2D, 3D)", /Q, ATH_Launch#FlattenImage()
-		"Remove background along lines (fit) (TG, 2D)",/Q, ATH_BackgroundRemoval#RemovePolynomialLineFitBackground() 	
+		"Remove background along lines (fit) (TG, 2D, 3D)",/Q, ATH_BackgroundRemoval#RemovePolynomialLineFitBackground() 	
 		"RGB to gray 16-bit (DB, 3D)", /Q, ATH_Launch#ImgRGB2Gray16()
 		"Duplicate image and data (TG, 2D, 3D)", /Q, ATH_Graph#DuplicateWaveAndDisplayOfTopImage()
 		"Backup Image (TG)", /Q, ATH_ImgOp#BackupTopImage()	
@@ -127,7 +127,7 @@ Menu "athina"
 		
 	Submenu "Analysis"
 		Submenu "Fitting"
-			"Fast Fitting (1D, 2D, 3D)", /Q, FastFit#Initialise()
+			"Fast Fitting (1D, 2D, 3D)", /Q, ATH_FastFit#Initialise()
 			"Remove Baselines (1D)", /Q, ATH_Baselines#Initialise()
 		End
 		Submenu "XPS"
