@@ -163,7 +163,7 @@ static Function MeasureDistanceUsingFreeCursorsHook(STRUCT WMWinHookStruct &s)
 					SetDrawEnv/W=$s.winName linefgc = (65535,0,0), fillpat = 0, linethick = 1, xcoord = $axisX, ycoord = axrel
 					SetDrawEnv/W=$s.winName xcoord= $axisX,ycoord= axrel
 					xVal = AxisValFromPixel(s.winName, axisX, s.mouseLoc.h)
-					DrawLine xVal, 0, xVal, 1
+					DrawLine/W=$s.winName xVal, 0, xVal, 1
 					//SetDrawEnv/W=$s.winName xcoord= axrel,ycoord= $axisY
 					//yVal = AxisValFromPixel(s.winName, axisY, s.mouseLoc.v)
 					//DrawLine 0, yVal, 1, yVal
