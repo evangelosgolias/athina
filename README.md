@@ -28,7 +28,7 @@ including:
 Igor Pro 9 requires: - Windows 7 or later
 - macOS 10.15 (Catalina) or later
 
-**Note**: If you are using *Igor Pro 10 v 10.03* or ealier you will need to updates to the [latest nightly build](https://www.wavemetrics.net/Downloads/latest10/) due to a bug affecting athina's core operations (such as drift correction). Download the latest nightly build here:
+**Note**: If you are using **Igor Pro 10.03** or ealier you need to update to the [latest nightly build](https://www.wavemetrics.net/Downloads/latest10/) due to a bug affecting core multithreaded operations (such as drift correction).
 
 For more information about Igor Pro, visit:
 https://www.wavemetrics.com
