@@ -3,7 +3,7 @@
 #pragma DefaultTab={3,20,4}		// Set default tab width in Igor Pro 9 and later
 #pragma IgorVersion = 9
 #pragma ModuleName = ATH_BackgroundRemoval
-#pragma version = 1.1
+#pragma version = 1.2
 
 // ------------------------------------------------------- //
 // Copyright (c) 2022 Evangelos Golias.
@@ -232,7 +232,7 @@ static Function AddUniqueLineHit(hitX, hitY, numberOfHits, xValue, yValue, toler
 	return numberOfHits
 End
 
-ThreadSafe static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, variable polynomialOrder)
+ThreadSafe static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WAVE wy, WAVE fitMask, variable polynomialOrder)
 	if (WaveDims(w) != 2 || WaveType(w, 1) != 1)
 		print "BuildPolynomialLineBackground: w must be a numeric 2-D wave."
 		return -1
@@ -259,6 +259,10 @@ ThreadSafe static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WA
 	endif
 
 	variable nx = DimSize(w, 0), ny = DimSize(w, 1)
+	if (WaveDims(fitMask) != 2 || DimSize(fitMask, 0) != nx || DimSize(fitMask, 1) != ny)
+		print "BuildPolynomialLineBackground: fitMask must match the first two dimensions of w."
+		return -1
+	endif
 	variable polynomialTerms = polynomialOrder + 1
 	variable xScaleDelta = DimDelta(w, 0), yScaleDelta = DimDelta(w, 1)
 	if (xScaleDelta == 0 || yScaleDelta == 0)
@@ -347,6 +351,11 @@ ThreadSafe static Function BuildPolynomialLineBackgroundCore(WAVE w, WAVE wx, WA
 
 		finiteSamples = 0
 		for (sampleIndex = 0; sampleIndex < numberOfSamples; sampleIndex += 1)
+			xIndex = round((profileX[sampleIndex] - DimOffset(w, 0)) / xScaleDelta)
+			yIndex = round((profileY[sampleIndex] - DimOffset(w, 1)) / yScaleDelta)
+			if (xIndex < 0 || xIndex >= nx || yIndex < 0 || yIndex >= ny || !fitMask[xIndex][yIndex])
+				profile[sampleIndex] = NaN
+			endif
 			if (numtype(profile[sampleIndex] + alongWave[sampleIndex]) == 0)
 				finiteSamples += 1
 			endif
@@ -451,9 +460,9 @@ End
 /// @function RemovePolynomialLineFitBackground
 /// @brief Remove fitted polynomial background along a user-selected angle.
 ///
-/// If a marquee exists on the top image, the
-/// background profiles are fitted only inside the marquee rectangle. The fitted
-/// background is still evaluated over the full image and subtracted from `wRef`.
+/// The fit can use the current rectangular marquee or an enhanced polygonal
+/// marquee. Subtraction can then be applied to the full image or only inside
+/// the selected region.
 ///
 /// @param grfName Optional graph window name.
 /// @returns Zero after completing the operation, negative on error.
@@ -461,12 +470,14 @@ static Function RemovePolynomialLineFitBackground([string grfName])
 	grfName = SelectString(ParamIsDefault(grfName) ? 0 : 1, WinName(0, 1, 1), grfName)
 	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
 
-	variable order = 1, density = 1
+	variable order = 1, density = 1, selectionMode = 1, applicationMode = 1
 	
 	if (WaveDims(wRef) == 2 || WaveDims(wRef) == 3)
 		Prompt order, "Background polynomial order (constant = 0, line = 1, ... 5th order poly max)"
 		Prompt density, "Line density percentage [e.g. 0.25 (25%). Set 0 or 1 for 100%]"
-		DoPrompt "Set E, F cursors to define the line for background subtraction. Optional use marquee to define active fitting area", order, density
+		Prompt selectionMode, "Fit selection", popup, "Full image;Current rectangular marquee;Enhanced marquee (click vertices);Use last enhanced selection"
+		Prompt applicationMode, "Apply subtraction", popup, "Entire image;Selected region only"
+		DoPrompt "Set E, F cursors to define the line for background subtraction", order, density, selectionMode, applicationMode
 	else
 		print "This operations needs a image or a stack of images."
 		return -1
@@ -487,6 +498,10 @@ static Function RemovePolynomialLineFitBackground([string grfName])
 	endif
 	
 	variable nrows = DimSize(wRef, 0), ncols = DimSize(wRef, 1)
+	if (nrows < 2 || ncols < 2)
+		print "The image is too small for line background removal."
+		return -1
+	endif
 	Cursor/I/C=(65535,65535,0)/S=1/N=1/P E $NameOfWave(wRef) round(1.3 * nrows / 2), round(0.7 * ncols / 2)
 	Cursor/I/C=(65535,65535,0)/S=1/N=1/P F $NameOfWave(wRef) round(0.7 * nrows / 2), round(1.3 * ncols / 2)
 
@@ -495,30 +510,63 @@ static Function RemovePolynomialLineFitBackground([string grfName])
 	[c1x, c1y, c2x, c2y] = ATH_Cursors#UserGetCursorPositions(sc, "E", "F", usePoints = 1)
 	variable angleDeg = atan2(c2y - c1y,c2x - c1x) * 180 / pi
 
-	variable hasMarquee = 0, left = 0, right = 0, top = 0, bottom = 0
-	[hasMarquee, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex()
-		
-	variable fitX0 = 0, fitX1 = nrows - 1, fitY0 = 0, fitY1 = ncols - 1
-	if (hasMarquee)
-
-		fitX0 = min(left, right)
-		fitX1 = max(left, right)
-		fitY0 = min(top, bottom)
-		fitY1 = max(top, bottom)
-
-		fitX0 = min(max(round(fitX0), 0), nrows - 1)
-		fitX1 = min(max(round(fitX1), 0), nrows - 1)
-		fitY0 = min(max(round(fitY0), 0), ncols - 1)
-		fitY1 = min(max(round(fitY1), 0), ncols - 1)
-
-		if (fitX1 <= fitX0 || fitY1 <= fitY0)
-			print "The marquee fit area is too small."
-			return -1
-		endif
-	endif
-	
 	DFREF savedDFR = GetDataFolderDFR()
 	SetDataFolder NewFreeDataFolder()
+	Make/O/B/U/N=(nrows, ncols) fitMask = 1
+	variable hasSelection = selectionMode != 1
+	variable left = 0, right = 0, top = 0, bottom = 0
+	variable fitX0 = 0, fitX1 = nrows - 1, fitY0 = 0, fitY1 = ncols - 1
+	if (selectionMode == 2)
+		variable hasMarquee = 0
+		[hasMarquee, left, right, top, bottom] = ATH_Marquee#GetMarqueeToIndex(grfName=grfName)
+		if (!hasMarquee)
+			SetDataFolder savedDFR
+			print "Draw a rectangular marquee first, or choose Enhanced marquee."
+			return -1
+		endif
+		fitX0 = min(max(round(min(left, right)), 0), nrows - 1)
+		fitX1 = min(max(round(max(left, right)), 0), nrows - 1)
+		fitY0 = min(max(round(min(top, bottom)), 0), ncols - 1)
+		fitY1 = min(max(round(max(top, bottom)), 0), ncols - 1)
+		fitMask = p >= fitX0 && p <= fitX1 && q >= fitY0 && q <= fitY1
+	elseif (selectionMode == 3 || selectionMode == 4)
+		SetDataFolder savedDFR
+		variable enhancedMarqueeResult = 1
+		if (selectionMode == 3)
+			enhancedMarqueeResult = ATH_Marquee#UserCreateEnhancedMarqueeMask(grfName=grfName)
+			if (enhancedMarqueeResult == 2)
+				enhancedMarqueeResult = ATH_Marquee#RestoreLastEnhancedMarqueeMask(grfName=grfName)
+			endif
+		else
+			enhancedMarqueeResult = ATH_Marquee#RestoreLastEnhancedMarqueeMask(grfName=grfName)
+		endif
+		DFREF imageDFR = GetWavesDataFolderDFR(wRef)
+		WAVE/Z enhancedMask = imageDFR:M_EnhancedROIMask
+		if (enhancedMarqueeResult != 1 || !WaveExists(enhancedMask) || DimSize(enhancedMask, 0) != nrows || DimSize(enhancedMask, 1) != ncols || sum(enhancedMask) < 3)
+			print "The enhanced marquee was canceled, has too few pixels, or no saved enhanced selection is available for this image."
+			return -1
+		endif
+		SetDataFolder NewFreeDataFolder()
+		Make/O/B/U/N=(nrows, ncols) fitMask = enhancedMask
+	endif
+
+	variable xIndex, yIndex, selectedPixels = 0
+	fitX0 = nrows - 1; fitX1 = 0; fitY0 = ncols - 1; fitY1 = 0
+	for (xIndex = 0; xIndex < nrows; xIndex += 1)
+		for (yIndex = 0; yIndex < ncols; yIndex += 1)
+			if (fitMask[xIndex][yIndex])
+				fitX0 = min(fitX0, xIndex); fitX1 = max(fitX1, xIndex)
+				fitY0 = min(fitY0, yIndex); fitY1 = max(fitY1, yIndex)
+				selectedPixels += 1
+			endif
+		endfor
+	endfor
+	if (selectedPixels < 3 || fitX1 <= fitX0 || fitY1 <= fitY0)
+		SetDataFolder savedDFR
+		print "The selected fitting area is too small."
+		return -1
+	endif
+
 	variable generatedLines = MakeAngledImageLinesInArea(wRef, angleDeg, density, fitX0 - 0.5, fitX1 + 0.5, fitY0 - 0.5, fitY1 + 0.5)
 	if (generatedLines < 1)
 		SetDataFolder savedDFR
@@ -530,7 +578,7 @@ static Function RemovePolynomialLineFitBackground([string grfName])
 	
 	if(WaveDims(wRef) == 2)
 	
-		variable fittedLines = BuildPolynomialLineBackgroundCore(wRef, wx, wy, order)
+		variable fittedLines = BuildPolynomialLineBackgroundCore(wRef, wx, wy, fitMask, order)
 		if (fittedLines < 1)
 			SetDataFolder savedDFR
 			print "Could not fit a background in the selected area."
@@ -539,12 +587,16 @@ static Function RemovePolynomialLineFitBackground([string grfName])
 		WAVE wBackground
 		
 		ATH_DFR#BackupWaveInWaveDFQ(wRef)
-		wRef -= wBackground	
+		if (applicationMode == 2 && hasSelection)
+			wRef -= wBackground * fitMask
+		else
+			wRef -= wBackground
+		endif
 	else // stack
 		Make/O/WAVE/N=(DimSize(wRef,2)) ww
 		ATH_DFR#BackupWaveInWaveDFQ(wRef)
 		MultiThreadingControl setMode=0	
-		MultiThread ww = RemovePolynomialLineFitBackgroundMT_Worker(wRef, p, order, wx, wy)
+		MultiThread ww = RemovePolynomialLineFitBackgroundMT_Worker(wRef, p, order, wx, wy, fitMask, applicationMode == 2 && hasSelection)
 		MultiThreadingControl setMode=1	
 		// At this point, ww holds wave references to numplanes free waves
 		// created by DriftCorrelation_Worker.
@@ -553,9 +605,10 @@ static Function RemovePolynomialLineFitBackground([string grfName])
 		KillWaves ww
 	endif
 	SetDataFolder savedDFR
-	string note2Wwave = "Applie RemovePolynomialLineFitBackground(order = " + num2str(order) + ", density = "+num2str(density) + ")\n"
-	if(hasMarquee)
-		note2Wwave       += "Used marquee [" + num2str(fitX0)+","+ num2str(fitY0)+","+ num2str(fitX1)+","+num2str(fitY1)+"]"
+	string note2Wwave = "Applied RemovePolynomialLineFitBackground(order = " + num2str(order) + ", density = "+num2str(density) + ")\n"
+	note2Wwave += "Fit selection: " + StringFromList(selectionMode - 1, "full image;rectangle marquee;enhanced marquee;last enhanced marquee") + "; subtraction: " + SelectString(applicationMode == 2 && hasSelection, "entire image", "selected region only") + ".\n"
+	if (hasSelection)
+		note2Wwave += "Selection bounds [" + num2str(fitX0)+","+ num2str(fitY0)+","+ num2str(fitX1)+","+num2str(fitY1)+"]"
 	endif
 	Note wRef, note2Wwave
 	return 0
@@ -565,14 +618,12 @@ End
 /// @function RemovePolynomialLineFitBackground
 /// @brief Remove fitted polynomial background along a user-selected angle.
 ///
-/// If a marquee exists on the top image, the
-/// background profiles are fitted only inside the marquee rectangle. The fitted
-/// background is still evaluated over the full image and subtracted from `wRef`.
+/// Fits with the supplied selection mask, then applies the requested scope.
 ///
 /// @param grfName Optional graph window name.
 /// @returns Zero after completing the operation, negative on error.
 ThreadSafe static Function/WAVE RemovePolynomialLineFitBackgroundMT_Worker(WAVE wRef, variable plane,
-							variable order, WAVE wx, WAVE wy)
+							variable order, WAVE wx, WAVE wy, WAVE fitMask, variable selectedRegionOnly)
 
 	DFREF dfSav= GetDataFolderDFR()
 
@@ -580,10 +631,14 @@ ThreadSafe static Function/WAVE RemovePolynomialLineFitBackgroundMT_Worker(WAVE 
 	SetDataFolder NewFreeDataFolder()
 	ImageTransform/P=(plane) getPlane wRef
 	WAVE M_ImagePlane	
-	BuildPolynomialLineBackgroundCore(M_ImagePlane, wx, wy, order)
+	BuildPolynomialLineBackgroundCore(M_ImagePlane, wx, wy, fitMask, order)
 	WAVE wBackground
 	
-	M_ImagePlane -= wBackground
+	if (selectedRegionOnly)
+		M_ImagePlane -= wBackground * fitMask
+	else
+		M_ImagePlane -= wBackground
+	endif
 
 	SetDataFolder dfSav	
 	return M_ImagePlane

@@ -342,7 +342,8 @@ static Function DisplayHookFunction(STRUCT WMWinHookStruct &s)
 						ModifyGraph width = 0, height = 0
 					else
 						SetWindow $s.winName, userdata(ATH_isPlanQ) = "1"
-						ModifyGraph width={Plan,1,top,left}
+						[axisX, axisY] = ATH_Graph#GetAxes(grfName=s.WinName)
+						ModifyGraph width={Plan,1,$axisX,$axisY}
 					endif
 					hookResult = 1								
 					break

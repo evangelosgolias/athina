@@ -29,11 +29,11 @@ static Function/S LoadVASPHDF([string groupname])
 	return fullDFPathStr
 End
 
-static Function LoadVASPBandStructure([int plotQ, int Ef])
+static Function LoadVASPBandStructure([int plotQ, variable Ef])
 	plotQ = ParamIsDefault(plotQ) ? 0 : plotQ
 	Ef = ParamIsDefault(Ef) ? 1 : Ef
 	string basepathStr = ATH_VASP#LoadVASPHDF() // N.B. ends with : 
-	Ef = ATH_VASP#GetEFermi(basepathStr)
+	variable efermi = ATH_VASP#GetEFermi(basepathStr)
 	
 	if(DataFolderExists(basepathStr+"electron_eigenvalues_kpoints_opt"))
 		DFREF eigenDF = $(basepathStr+"electron_eigenvalues_kpoints_opt")
@@ -45,10 +45,11 @@ static Function LoadVASPBandStructure([int plotQ, int Ef])
 	endif
 	WAVE/SDFR=eigenDF eigenvalues
 	if(Ef)
-		eigenvalues -= Ef
+		eigenvalues -= efermi
+		string waveNoteStr = NameOfWave(eigenvalues) + " -= " + num2str(efermi)
+		Note eigenvalues, waveNoteStr		
 	endif
-	string waveNoteStr = NameOfWave(eigenvalues) + " -= " + num2str(Ef)
-	Note eigenvalues, waveNoteStr
+
 	if(plotQ)
 		ATH_VASP#PlotBandStructure(eigenvalues)
 	endif
@@ -71,9 +72,7 @@ static Function PlotBandStructure(WAVE bw, [WAVE kw, string tracename, string gr
 	// Eigenvalues have bands at cols!
 	variable nbands = DimSize(bw, 1), i
 	string cmd	
-	// Set the kw if set using UserData
-	
-	
+	// Set the kw if set using UserData	
 	if(ParamIsDefault(grfName))
 		grfName = UniqueName("BandStructure", 6, 0)
 		Display/N=$grfName
@@ -120,6 +119,16 @@ static Function Direct2Cartesian(WAVE latticeV, WAVE ionPos)
 	return 0
 End
 
+static Function Kpoints2ReciprocalLV(WAVE lv, WAVE kp[, variable length])
+	//
+	MatrixOP/FREE reclv = 2*pi*inv(lv)
+	MatrixOP/O kpts = recLv x kp^t
+	if(length)
+		MatrixOP/O kpts_len = sqrt(sumCols(kpts * kpts))
+	endif
+	return 0
+End
+
 //// ELECTRONIC STRUCTURE CALCULATIONS ////
 //// PROCAR, LORBIT = 11 ////
 //// EXAMPLE HOW TO PLOT PROJECTED BAND STRUCTURE ////
@@ -132,7 +141,7 @@ End
 static Function FixOrbitalProjectionsFormat(WAVE w4D)
 	/// FORMAT:
 	/// Change to band, kpoint, orb, atom (rows, cols, layers, chunks)
-	///
+	/// Default name for VASP6 is par
 	DFREF dfr = GetWavesDataFolderDFR(w4D)
 	DFREF saveDF = GetDataFolderDFR()
 	SetDataFolder dfr
@@ -229,17 +238,37 @@ static Function RemoveTracesFromGraph(string grfName, variable nbands, string tr
 	return 0
 End
 
-static Function ProjectedBandStructure(WAVE wRef, WAVE wProj, [string tracename, 
+// ------------------------------------------------------------------------
+//
+// How to plot projection BS:
+//
+// 1. ATH_VASP#FixOrbitalProjectionsFormat(:results:projectors_kpoints_opt:par)
+// 2. ATH_VASP#ExtractOrbitalsOfAtoms(:results:projectors_kpoints_opt:par, "0-8","12-15", "Name_of_proj")
+// 3. ATH_VASP#ProjectedBandStructure(:results:electron_eigenvalues_kpoints_opt:eigenvalues, :results:projectors_kpoints_opt:Name_of_proj)
+//
+// ------------------------------------------------------------------------
+
+static Function ProjectedBandStructure(WAVE wRef, WAVE wProj, [string tracename, variable style,
+		 string cmap, variable revcmap, variable cl, variable ch, variable ml, variable mh,
 		 variable red, variable green, variable blue])
 	// wRef in the wave band structure (eigenvalues)
 	// wProj is the wave created with ExtractOrbitalsOfAtoms
 	///
 	// wProj have a fixed structure bands x kpoints
+	// style  = 0, zcolor otherwise marker
+	// cl, ch: min and max values  for color scales or marker sizes (weights)
+	// mk, mh min and max values for marker size
 	variable nbands = DimSize(wProj, 0), i
-	
 	string projWaveNameStr = NameOfWave(wProj), bsPlotNameStr, cmd
 	string grfName = UniqueName("OrbitalProjection", 6, 0)
-	
+	revcmap = ParamIsDefault(revcmap) ? 0 : revcmap	
+	cl = ParamIsDefault(cl) ? 0 : cl
+	ch = ParamIsDefault(ch) ? 1 : ch
+	ml = ParamIsDefault(cl) ? 0 : ml
+	mh = ParamIsDefault(ch) ? 5 : mh		
+	if(ParamIsDefault(cmap))
+		cmap = "Spectrum"
+	endif
 	if(ParamIsDefault(tracename))
 		bsPlotNameStr = "eigenvalues"
 	else
@@ -263,17 +292,31 @@ static Function ProjectedBandStructure(WAVE wRef, WAVE wProj, [string tracename,
 	// ModifyGraph/W=$grfName mode=3,marker=8
 
 	// Run the zeroth wave - ill defined
-	sprintf cmd, "ModifyGraph/W="+grfName+" mode("+bsPlotNameStr+")=3,marker("+bsPlotNameStr+")=8, rgb("+bsPlotNameStr+")=(%d,%d,%d)", red, green, blue
-	Execute cmd	
-	sprintf cmd, "ModifyGraph/W="+grfName+" zmrkSize("+bsPlotNameStr+")={"+(dfrStr+projWaveNameStr)+"[0][*],0,1,0,10}"
-	Execute cmd	
-	
+	if(style)
+		sprintf cmd, "ModifyGraph/W="+grfName+" mode("+bsPlotNameStr+")=3,marker("+bsPlotNameStr+")=8, rgb("+bsPlotNameStr+")=(%d,%d,%d)", red, green, blue
+		Execute cmd	
+		sprintf cmd, "ModifyGraph/W="+grfName+" zmrkSize("+bsPlotNameStr+")={"+(dfrStr+projWaveNameStr)+"[0][*],%f,%f,%f,%f}", cl, ch,ml,mh
+		Execute cmd		
+	else
+		sprintf cmd, "ModifyGraph/W="+grfName+" mode("+bsPlotNameStr+")=0,lsize("+bsPlotNameStr+")=2"
+		Execute cmd	
+		sprintf cmd, "ModifyGraph/W="+grfName+" zColor("+bsPlotNameStr+")={"+(dfrStr+projWaveNameStr)+"[0][*],%f,%f,%s,%f}",cl,ch,cmap,revcmap
+		Execute cmd			
+	endif
 	// Modify the rest
 	for (i = 1; i< nbands;i+=1)
-		sprintf cmd, "ModifyGraph/W="+grfName+" mode("+bsPlotNameStr+"#%d)=3,marker("+bsPlotNameStr+"#%d)=8, rgb("+bsPlotNameStr+"#%d)=(%d,%d,%d)", i, i, i, red, green, blue
-		Execute cmd
-		sprintf cmd, "ModifyGraph/W="+grfName+" zmrkSize("+bsPlotNameStr+"#%d)={"+(dfrStr+projWaveNameStr)+"[%d][*],0,1,0,10}", i, i
-		Execute cmd
+
+		if(style)
+			sprintf cmd, "ModifyGraph/W="+grfName+" mode("+bsPlotNameStr+"#%d)=3,marker("+bsPlotNameStr+"#%d)=8, rgb("+bsPlotNameStr+"#%d)=(%d,%d,%d)", i, i, i, red, green, blue
+			Execute cmd
+			sprintf cmd, "ModifyGraph/W="+grfName+" zmrkSize("+bsPlotNameStr+"#%d)={"+(dfrStr+projWaveNameStr)+"[%d][*],%f,%f,%f,%f}", i, i, cl, ch,ml,mh
+			Execute cmd
+		else
+			sprintf cmd, "ModifyGraph/W="+grfName+" mode("+bsPlotNameStr+"#%d)=0,lsize("+bsPlotNameStr+"#%d)=2" , i, i
+			Execute cmd
+			sprintf cmd, "ModifyGraph/W="+grfName+" zColor("+bsPlotNameStr+"#%d)={"+(dfrStr+projWaveNameStr)+"[%d][*],%f,%f,%s,%f}", i, i, cl,ch,cmap,revcmap
+			Execute cmd		
+		endif
 	endfor
 
 	// 
