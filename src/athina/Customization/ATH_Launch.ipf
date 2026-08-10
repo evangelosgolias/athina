@@ -338,7 +338,7 @@ End
 static Function ImageStackAlignmentUsingAFeature() // Key function for the package
 	//
 	WAVE wRef = ATH_Graph#TopGraphToWaveRef()
-	if(!WaveExists(wRef))
+	if(!WaveExists(wRef) || WaveDims(wRef) < 3)
 		return NaN
 	endif
 	
