@@ -99,7 +99,7 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	
 	// Which model do you like to fit? Check functions in the module ATH_FuncFit
 	if(ParamIsDefault(fitFunc))
-		fitFunc = "ATH_FuncFit#XMLDCos2xIntensity" // default
+		fitFunc = "ATH_FuncFit#XMLDSin2xIntensity" // default
 	endif
 	
 	variable rows = DimSize(wRef, 0), cols = DimSize(wRef, 1), layers = DimSize(wRef, 2)
