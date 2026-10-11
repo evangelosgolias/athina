@@ -160,10 +160,8 @@ End
 // -------------------------------------------------------
 
 Menu "GraphMarquee"
-	"ATH Z-profiler: Set rectangular ROI  (3D)", /Q, ATH_ZProfile#GraphMarqueeLaunchRectangle()	
-	"ATH Z-profiler: Set oval ROI  (3D)", /Q, ATH_ZProfile#GraphMarqueeLaunchOval()	
+	"ATH Z-profiler (3D)", /Q, ATH_ZProfile#GraphMarqueeLaunchRectangle()	
 	"ATH Save Rect ROI (2D, 3D)", /Q, ATH_Marquee#SaveROICoordinatesToDatabase(rect = 1)		
-	"ATH Save Oval ROI (2D, 3D)", /Q, ATH_Marquee#SaveROICoordinatesToDatabase()
 	"ATH Print ROI stats (2D, 3D)", /Q, ATH_Marquee#GetMarqueeWaveStats()	
 	"ATH Partition region (2D, 3D)", /Q, ATH_Marquee#PartitionRegion(evenNum=1)
 	"ATH Partition square region (2D, 3D)", /Q, ATH_Marquee#PartitionRegion(square=1)		
