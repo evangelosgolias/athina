@@ -222,7 +222,7 @@ static Function CreatePlot(DFREF dfr)
 	CheckBox PlotProfiles,pos={19,40},size={98,17},title="Plot profiles ",fSize=14,value=1,side=1,proc=ATH_LineProfile#CheckboxPlotProfile
 	CheckBox MarkLines,pos={127,40},size={86,17},title="Mark lines ",fSize=14,value=1,side=1,proc=ATH_LineProfile#CheckboxMarkLines
 	CheckBox ProfileLayer3D,pos={227,40},size={86,17},title="Stack layer ",fSize=14,side=1,value=1,proc=ATH_LineProfile#ProfileLayer3D
-	SetVariable setWidth,pos={331,40},size={123,20},title="Width", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1}
+	SetVariable setWidth,pos={331,40},size={123,20},title="Sampling", fSize=14,fColor=(65535,0,0),value=profileWidth,limits={0,inf,1}
 	SetVariable setWidth, help={"Sampling is 2 * (width + 0.5) points equidistant from the line"},proc=ATH_LineProfile#SetVariableWidth
 	return 0
 End
@@ -385,6 +385,61 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			endif
 			Execute/P/Q/Z ("KillDataFolder/Z " + GetUserData(s.winName, "","ATH_LineProfRootDF"))
 			break
+		case 4: // Mouse moved
+			if(!(s.eventMod & 2)) // Shift key is not down
+				DrawAction/W=$parentImageWinStr getgroup = ATH_LineProfileDot
+				DrawAction/W=$parentImageWinStr delete = V_startPos, V_endPos
+				break
+			endif
+			if(WinType(parentImageWinStr) != 1)
+				break
+			endif
+
+			DFREF dfr = $GetUserData(s.winName, "", "ATH_LineProfRootDF")
+			WAVE/Z/SDFR=dfr W_LineProfileDisplacement
+			variable profnpts = numpnts(W_LineProfileDisplacement)
+			if(profnpts < 2)
+				break
+			endif
+
+			// Position along the displayed profile, from E (0) to F (1).
+			variable profileX = AxisValFromPixel(s.winName, "bottom", s.mouseLoc.h)
+			variable profileStart = W_LineProfileDisplacement[0]
+			variable profileRange = W_LineProfileDisplacement[profnpts-1] - profileStart
+			if(numtype(profileX) || numtype(profileRange) || profileRange == 0)
+				break
+			endif
+			variable fraction = (profileX - profileStart) / profileRange
+			fraction = max(0, min(1, fraction))
+
+			// Interpolate the parent image coordinates between E and F.
+			variable C1x = hcsr(E, parentImageWinStr)
+			variable C1y = vcsr(E, parentImageWinStr)
+			variable C2x = hcsr(F, parentImageWinStr)
+			variable C2y = vcsr(F, parentImageWinStr)
+			variable x = C1x + fraction * (C2x - C1x)
+			variable y = C1y + fraction * (C2y - C1y)
+			if(numtype(x) || numtype(y))
+				break
+			endif
+
+			// Replace only the previous dot.
+			SetDrawLayer/W=$parentImageWinStr ProgFront
+			DrawAction/W=$parentImageWinStr getgroup = ATH_LineProfileDot
+			if(V_flag)
+				DrawAction/W=$parentImageWinStr delete = V_startPos, V_endPos
+			endif
+
+			// Anchor in image-axis coordinates; draw a fixed-size red dot.
+			SetDrawEnv/W=$parentImageWinStr push
+			SetDrawEnv/W=$parentImageWinStr gstart, gname = ATH_LineProfileDot
+			SetDrawEnv/W=$parentImageWinStr xcoord = top, ycoord = left
+			SetDrawEnv/W=$parentImageWinStr origin = x,y
+			SetDrawEnv/W=$parentImageWinStr xcoord = abs, ycoord = abs,linefgc = (65535,0,0), fillfgc = (65535,0,0), fillpat = 1, linethick = 0
+			DrawOval/W=$parentImageWinStr -4,-4,4,4
+			SetDrawEnv/W=$parentImageWinStr gstop
+			SetDrawEnv/W=$parentImageWinStr pop
+			break
 	endswitch
 End
 
@@ -502,7 +557,8 @@ static Function SetLineProfileScale(STRUCT WMButtonAction &B_Struct): ButtonCont
 			   	WAVE wRef = dfr:W_LineProfileDisplacement
 			   	SVAR/Z/SDFR=dfr gATH_ImagePathname
 			   	WAVE imgWaveRef = $gATH_ImagePathname
-			   	if(DimDelta(imgWaveRef,0) != DimDelta(imgWaveRef,1))
+			   	// DimDelta(imgWaveRef,0)!=DimDelta(imgWaveRef,1) fails in some cases even printed values look the same (rounding issues)
+			   	if(abs(DimDelta(imgWaveRef,0) - DimDelta(imgWaveRef,1)) > 1e-10) 
 				   	gATH_scalingFactor = 0 // Leave nominal scale
 			   		Button ScaleLineProfile, fcolor=(65535,0,0), disable = 2
 			   		return -1

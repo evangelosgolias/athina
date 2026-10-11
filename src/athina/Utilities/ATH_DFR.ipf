@@ -411,8 +411,9 @@ static Function/S BackupWaveInWaveDF(WAVE wref)
 	if(!WaveExists($backupWavePathStr))
 		Duplicate wref, $backupWavePathStr
 		return backupWavePathStr
+	else
+		return backupWavePathStr // if it exists return its name
 	endif
-	return ""
 End
 
 /// @function BackupWaveInWaveDFQ
