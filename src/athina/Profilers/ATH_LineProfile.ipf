@@ -387,11 +387,10 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 			break
 		case 4: // Mouse moved
 			if(!(s.eventMod & 2)) // Shift key is not down
-				DrawAction/W=$parentImageWinStr getgroup = ATH_LineProfileDot
-				DrawAction/W=$parentImageWinStr delete = V_startPos, V_endPos
-				break
-			endif
-			if(WinType(parentImageWinStr) != 1)
+				DrawAction/W=$parentImageWinStr/L=ProgFront getgroup = ATH_LineProfileDot
+				if(V_flag)
+					DrawAction/W=$parentImageWinStr/L=ProgFront delete = V_startPos, V_endPos
+				endif
 				break
 			endif
 
@@ -425,11 +424,11 @@ static Function GraphHookFunction(STRUCT WMWinHookStruct &s)
 
 			// Replace only the previous dot.
 			SetDrawLayer/W=$parentImageWinStr ProgFront
-			DrawAction/W=$parentImageWinStr getgroup = ATH_LineProfileDot
+			DrawAction/W=$parentImageWinStr/L=ProgFront getgroup = ATH_LineProfileDot
 			if(V_flag)
-				DrawAction/W=$parentImageWinStr delete = V_startPos, V_endPos
+				DrawAction/W=$parentImageWinStr/L=ProgFront delete = V_startPos, V_endPos
 			endif
-
+			
 			// Anchor in image-axis coordinates; draw a fixed-size red dot.
 			SetDrawEnv/W=$parentImageWinStr push
 			SetDrawEnv/W=$parentImageWinStr gstart, gname = ATH_LineProfileDot
