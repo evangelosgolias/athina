@@ -75,7 +75,7 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	/// | **wRef**       | WAVE     |    -   | 3-D wave whose *z* dimension lists the inclination angles in ascending order (typically −90° to +90°) |
 	/// | **fitFunx   ** | string   | Cos(2x)| Fuction to fit, defaults to ATH_FuncFit#XMLDCos2xIntensity, see ATH_FuncFit module for more options   |                                             |	
 	/// | **firstAngle** | variable | −90 °  | Inclination (degrees) corresponding to the first plane of the stack                                   |
-	/// | **angleStep**  | variable |  10 °  | Angular increment (degrees) between successive *z* planes                                             |
+	/// | **angleStep**  | variable |  15 °  | Angular increment (degrees) between successive *z* planes                                             |
 	/// | **fastFit**    | variable |    0   | If non-zero, tests several phase values and keeps the one with the lowest χ² (≈ N × slower)           |
 	///
 	/// ---
@@ -95,7 +95,7 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	fastFit = ParamIsDefault(fastFit) ? 1 : fastFit
 	
 	variable firstAngleRad = ParamIsDefault(firstAngle) ? -90 * pi/180 : firstAngle * pi/180
-	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180 : angleStep * pi/180
+	variable angleStepRad = ParamIsDefault(angleStep) ? 15 * pi/180 : angleStep * pi/180
 	
 	// Which model do you like to fit? Check functions in the module ATH_FuncFit
 	if(ParamIsDefault(fitFunc))
@@ -219,7 +219,7 @@ static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef,[variable firs
 	// WAVE wRef - Wave calculated using CalculateXMLDMap
 	//
 	variable firstAngleRad = ParamIsDefault(firstAngle) ? -90 * pi/180 : firstAngle * pi/180
-	variable angleStepRad = ParamIsDefault(angleStep) ? 10*pi/180 : angleStep * pi/180
+	variable angleStepRad = ParamIsDefault(angleStep) ? 15 * pi/180 : angleStep * pi/180
 		
 	string winNameStr = ATH_Display#NewImg(wRef)
 	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
@@ -303,18 +303,18 @@ static Function CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	MatrixOP/O dfr:cursorBeamProfile = beam(wSrc, p0, q0)
 	WAVE wOff = wdfr:$(NameOfWave(wRef)+"_offset")
 	WAVE wA = wdfr:$(NameOfWave(wRef)+"_amplitude")
-	Make/O dfr:fitPlotW /WAVE=wcos // 128 points, that's why SetScal/I
+	Make/O dfr:fitPlotW /WAVE=wsin2x // 128 points, that's why SetScale/I
 	variable lastAngleRad = gATH_firstAngleRad + gATH_angleStepRad * (numpnts(dfr:cursorBeamProfile)-1)
-	SetScale/I x, gATH_firstAngleRad, lastAngleRad, wcos, dfr:cursorBeamProfile
+	SetScale/I x, gATH_firstAngleRad, lastAngleRad, wsin2x, dfr:cursorBeamProfile
 	variable x0 = wOff[p0][q0]
 	variable A = wA[p0][q0]
 	variable phase = wRef[p0][q0] // in degrees!
 	// N.B: Change here if you change the fitting function
-	wcos = x0 + A * cos(2*(x + phase*0.01745329)) // Phase to rad
+	wsin2x = x0 + A * sin(2*(x + phase*0.01745329)) // Phase to rad
 	RemoveFromGraph/W=$plotNameStr/ALL
 	AppendToGraph/W=$plotNameStr dfr:cursorBeamProfile
 	ModifyGraph/W=$plotNameStr mode(cursorBeamProfile)=3,marker(cursorBeamProfile)=19,msize(cursorBeamProfile)=4
-	AppendToGraph/W=$plotNameStr wcos 
+	AppendToGraph/W=$plotNameStr wsin2x 
 	ModifyGraph/W=$plotNameStr lsize(fitPlotW)=2,rgb(fitPlotW)=(1,16019,65535)
 	TextBox/W=$plotNameStr/C/F=0/N=phaseTag "\\Z16φ="+num2str(phase)		
 	return 0
