@@ -45,9 +45,9 @@
 /// For each `(row, column)` beam in the 3D input wave, this routine fits an XMLD
 /// angular model along the layer axis and generates three 2D output maps:
 /// phase, offset, and amplitude. By default it uses
-/// `ATH_FuncFit#XMLDCos2xIntensity`.
+/// `ATH_FuncFit#XMLDSin2xIntensity`.
 /// @param wRef Wave Input 3D wave whose third dimension contains images acquired at different angles.
-/// @param fitFunc (optional) String Optional fully qualified fit-function name. Defaults to `ATH_FuncFit#XMLDCos2xIntensity`.
+/// @param fitFunc (optional) String Optional fully qualified fit-function name. Defaults to `ATH_FuncFit#XMLDSin2xIntensity`.
 /// @param firstAngle (optional) Variable Optional angle in degrees assigned to the first layer. Defaults to -90.
 /// @param angleStep (optional) Variable Optional angular increment in degrees between successive layers. Defaults to 10.
 /// @param fastFit (optional) Variable Optional flag controlling the fitting strategy. Non-zero uses one initial phase guess; zero tests multiple initial phases.
@@ -65,7 +65,7 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	///
 	/// The model assumes that the XMLD signal follows:
 	///
-	///     I(x) = A + B·cos(2(x + φ)) // default, user can set any function
+	///     I(x) = A + B·sin(2(x + φ)) // default, user can set any function
 	///
 	/// with *A*, *B*, and *φ* as the fitting parameters.
 	///
@@ -73,7 +73,7 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	/// | Name           | Type     | Default| Description                                                                                           |
 	/// |-------------   |----------|--------|-------------------------------------------------------------------------------------------------------|
 	/// | **wRef**       | WAVE     |    -   | 3-D wave whose *z* dimension lists the inclination angles in ascending order (typically −90° to +90°) |
-	/// | **fitFunx   ** | string   | Cos(2x)| Fuction to fit, defaults to ATH_FuncFit#XMLDCos2xIntensity, see ATH_FuncFit module for more options   |                                             |	
+	/// | **fitFunx   ** | string   | Sin(2x)| Fuction to fit, defaults to ATH_FuncFit#XMLDSin2xIntensity, see ATH_FuncFit module for more options   |                                             |	
 	/// | **firstAngle** | variable | −90 °  | Inclination (degrees) corresponding to the first plane of the stack                                   |
 	/// | **angleStep**  | variable |  15 °  | Angular increment (degrees) between successive *z* planes                                             |
 	/// | **fastFit**    | variable |    0   | If non-zero, tests several phase values and keeps the one with the lowest χ² (≈ N × slower)           |
@@ -111,7 +111,7 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	string mapBaseNameStr = NameofWave(wRef) + "_map"
 	string mapNameStr = CreateDataObjectName(dfr, mapBaseNameStr, 1, 0 ,1)
 
-	// Make the fitting waves:  K0 + K1 * Cos(2*(x + K2))
+	// Make the fitting waves:  K0 + K1 * Sin(2*(x + K2))
 	// Fit can be very sensity to contrains! Read the manual!
 	// ********************YOU NEED TO TUNE HERE************************
 	//
@@ -124,7 +124,7 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	// Use it only for the wave note
 	Make/FREE/T ATH_Constraints = {"K1>1e-3","K2 > -pi/2", "K2 <= pi/2"} // N.B: Set here constrains
 	// ThreadSafe Function needs CMatrix, DVector (see CurveFit/FuncFit doc). To get the correct matrix run
-	// FuncFit/C ATH_FuncFit#XMLDCos2xIntensity, kwCWave=ATH_Coef, dataW /D /C=ATH_Constraints
+	// FuncFit/C ATH_FuncFit#XMLDSin2xIntensity, kwCWave=ATH_Coef, dataW /D /C=ATH_Constraints
 	// variable nParam = 3 // How many fitting parameters? Drop and hard code them
 	Make/FREE CMatrix = {{0,0,0}, {-1,0,0},{0,-1,1}} 
 	Make/FREE DVector = {-1e-03, pi/2, pi/2}
