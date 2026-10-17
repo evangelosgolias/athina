@@ -123,6 +123,7 @@ Menu "athina"
 		"XMC(L)D (2D[2]) ... ", /Q, ATH_Launch#CalculationXMCD()
 		"XMC(L)D (3Dx2) ... ", /Q, ATH_Launch#CalculationXMCD3D()
 		"XMC(L)D combinations (3Dx1) ...", /Q, ATH_Launch#XMCDCombinations()
+		"XM(N)LD map fitting (3D)",/Q, ATH_Launch#XMLDMapFit()
 	End	
 		
 	Submenu "Analysis"

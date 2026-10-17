@@ -1960,3 +1960,22 @@ static Function SmoothWave([string grfName])
 	
 	return 0
 End
+
+static Function XMLDMapFit([string grfName])
+	
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
+	
+	string msg = "Fit XM(N)L map"
+	variable firstAngle = -90, anglestep = 15, fastfit = 1	
+	Prompt firstAngle, "First angle in stack (deg)"
+	Prompt anglestep, "Angle step (deg)"
+	Prompt fastfit, "Fast fit?", popup, "Yes;No" // Yes = 1, No = 2!	
+	DoPrompt msg, firstAngle, anglestep, fastfit
+	
+	if(V_flag)
+		return 0
+	endif
+	ATH_MagDom#FitXMLDMap(wRef, firstAngle = firstAngle, anglestep = anglestep, fastfit = fastfit)
+	return 0
+End
