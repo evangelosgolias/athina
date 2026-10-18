@@ -20,6 +20,14 @@ including:
 - P3B
 - NeXus files
 
+## Citation
+
+If you use athina for your data analysis, please cite it using something like:
+
+"Data analysis was done using the athina package[ref]"
+
+[ref] https://doi.org/10.5281/zenodo.23357840
+
 ## System Requirements
 
 -   **Operating Systems:** Windows, macOS

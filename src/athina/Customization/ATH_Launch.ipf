@@ -1967,14 +1967,17 @@ static Function XMLDMapFit([string grfName])
 	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
 	
 	string msg = "Fit XM(N)L map"
-	variable firstAngle = -90, anglestep = 15, fastfit = 1	
+	variable firstAngle = -90, anglestep = 15, fastfit = 1, FoVRot = 0
 	Prompt firstAngle, "First angle in stack (deg)"
 	Prompt anglestep, "Angle step (deg)"
-	Prompt fastfit, "Fast fit?", popup, "Yes;No" // Yes = 1, No = 2!	
-	DoPrompt msg, firstAngle, anglestep, fastfit
-	
+	Prompt fastfit, "Fast fit?", popup, "Yes;No" // Yes = 1, No = 2!
+	Prompt FoVRot, "FoV rotation"
+	DoPrompt msg, firstAngle, anglestep, fastfit, FoVRot
 	if(V_flag)
 		return 0
+	endif
+	if(FoVRot)
+		firstAngle += FoVRot
 	endif
 	ATH_MagDom#FitXMLDMap(wRef, firstAngle = firstAngle, anglestep = anglestep, fastfit = fastfit)
 	return 0
