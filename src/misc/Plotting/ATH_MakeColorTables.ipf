@@ -4,10 +4,11 @@
 
 // Routine copied from:
 // https://www.wavemetrics.com/forum/general/circular-colorscale
-// You can find useful info also here:
+// You can find useful info also here
 //
 // https://www.wavemetrics.com/forum/general/viridis-igor-and-other-custom-color-maps
 // https://github.com/quantixed/IgorColorTables
+// Currently works only with twilight_shifted from matplotlib
 
 Menu "Graph"
 	"Make Angle Color Legend"

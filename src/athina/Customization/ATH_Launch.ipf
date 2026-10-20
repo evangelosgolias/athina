@@ -1994,7 +1994,15 @@ static Function InteractiveXMLDFitInpection([string grfName])
 	string noteStr = note(wRef), sourceStr
 	string firstAngleStr, angleStepStr
 	SplitString/E="firstAngle\\s*=\\s*([^,]+)" noteStr, firstAngleStr
+	if(!V_flag)
+		print "Cannot match firstAngleStr from note of wave " + GetWavesDataFolder(wRef,2)
+		return -1
+	endif
 	SplitString/E="angleStep\\s*=\\s*([^,]+)" noteStr, angleStepStr
+	if(!V_flag)
+		print "Cannot match angleStepStr from note of wave " + GetWavesDataFolder(wRef,2)
+		return -1		
+	endif	
 	variable firstAngle = str2num(firstAngleStr)
 	variable angleStep = str2num(angleStepStr)
 	//Launch here

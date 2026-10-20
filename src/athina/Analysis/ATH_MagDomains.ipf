@@ -224,8 +224,19 @@ static Function InteractiveXMLDFitInspection(WAVE wRef,[variable firstAngle, var
 	string winNameStr = WinName(0, 1, 1)//ATH_Display#NewImg(wRef)
 	string imgNameTopGraphStr = ATH_Graph#TopImageName(grfName=winNameStr)
 	variable nrows = DimSize(wRef, 0)
-	variable ncols = DimSize(wRef, 1)	
-	Cursor/I/C=(65535,65535,0)/S=1/P/N=1 J $imgNameTopGraphStr nrows/2, ncols/2
+	variable ncols = DimSize(wRef, 1)
+	string axisX, axisY
+	[axisX, axisY] = ATH_Graph#GetAxes(grfName=winNameStr)
+	string cmdStr, axisStr, dumpStr, val1Str, val2Str
+	string axisTopRangeStr = StringByKey("SETAXISCMD", AxisInfo("", axisX))
+	SplitString/E="\s*([A-Z,a-z,^a-zA-Z0-9]*)\s*([A-Z,a-z]*)\s*([-]?[0-9]*[.]?[0-9]+)\s*(,)\s*([-]?[0-9]*[.]?[0-9]+)\s*"\
+	axisTopRangeStr, cmdStr, axisStr, val1Str, dumpStr, val2Str
+	variable midOfImageX = 0.5 * (str2num(val1Str) + str2num(val2Str))
+	string axisLeftRangeStr = StringByKey("SETAXISCMD", AxisInfo("", axisY))
+	SplitString/E="\s*([A-Z,a-z,^a-zA-Z0-9]*)\s*([A-Z,a-z]*)\s*([-]?[0-9]*[.]?[0-9]+)\s*(,)\s*([-]?[0-9]*[.]?[0-9]+)\s*"\
+	axisLeftRangeStr, cmdStr, axisStr, val1Str, dumpStr, val2Str
+	variable midOfImageY = 0.5 * (str2num(val1Str) + str2num(val2Str))	
+	Cursor/I/C=(65535,65535,0)/S=1/N=1 J $imgNameTopGraphStr midOfImageX, midOfImageY
 	// Make folder in database
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr) // Root folder here
 	// Store globals
