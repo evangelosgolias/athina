@@ -1965,7 +1965,10 @@ static Function XMLDMapFit([string grfName])
 	
 	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
 	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
-	
+	DoAlert/T="Fit XM(N)LD map" 1, "Make sure you are trying to fit the correct image stack.\nDo you want to continue?"
+	if(V_flag==2)
+		return 1 // User cancelled
+	endif	
 	string msg = "Fit XM(N)L map"
 	variable firstAngle = -90, anglestep = 15, fastfit = 1, FoVRot = 0
 	Prompt firstAngle, "First angle in stack (deg)"
