@@ -1982,3 +1982,22 @@ static Function XMLDMapFit([string grfName])
 	ATH_MagDom#FitXMLDMap(wRef, firstAngle = firstAngle, anglestep = anglestep, fastfit = fastfit)
 	return 0
 End
+
+static Function InteractiveXMLDFitInpection([string grfName])
+	
+	grfName = SelectString(ParamIsDefault(grfName) ? 0: 1, WinName(0, 1, 1), grfName)
+	WAVE wRef = ATH_Graph#TopGraphToWaveRef(grfName=grfName)
+	if(DimSize(wRef,2))
+		return 1 // this is not the map
+	endif
+	// Extract the parameters
+	string noteStr = note(wRef), sourceStr
+	string firstAngleStr, angleStepStr
+	SplitString/E="firstAngle\\s*=\\s*([^,]+)" noteStr, firstAngleStr
+	SplitString/E="angleStep\\s*=\\s*([^,]+)" noteStr, angleStepStr
+	variable firstAngle = str2num(firstAngleStr)
+	variable angleStep = str2num(angleStepStr)
+	//Launch here
+	ATH_MagDom#InteractiveXMLDFitInspection(wRef, firstAngle = firstAngle, angleStep = angleStep)
+	return 0
+End

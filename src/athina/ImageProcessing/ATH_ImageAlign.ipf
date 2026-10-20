@@ -631,7 +631,7 @@ ThreadSafe static Function/WAVE ImageRegistration_Worker(WAVE w3D, WAVE wRef, va
 	SetDataFolder NewFreeDataFolder()
 	ImageTransform/P=(plane) getPlane w3D
 	WAVE M_ImagePlane
-	ImageRegistration/Q/CONV=1/TRNS={1,1,1}/ROT={0,0,1}/PRDL=1/TSTM=0/BVAL=0 refwave = wRef, testwave = M_ImagePlane
+	ImageRegistration/Q/CONV=1/TRNS={1,1,0}/ISOS/ROT={0,0,1}/PRDL=1/TSTM=0/BVAL=0 refwave = wRef, testwave = M_ImagePlane
 	WAVE M_RegOut	
 	// Restore the current data folder
 	SetDataFolder dfSav

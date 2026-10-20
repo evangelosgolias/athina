@@ -153,8 +153,8 @@ static Function FitXMLDMap(WAVE wRef, [string fitFunc,
 	MatrixOP $(mapNameStr+"_amplitude") = layer(fitCoeff,1)		
 	MatrixOP $mapNameStr = layer(fitCoeff,2)*57.29577951 // From rad to deg
 	// Add metadata
-	string metadata = "FuncFit: "+ fitFunc + "."
-	metadata += "Fitting constrains: {"+RemoveEnding(ATH_TWave#TextWaveToString(ATH_Constraints, sep=","))+"}."
+	string metadata = "Source: "+ GetWavesDataFolder(wRef,2) + "\nFuncFit: "+ fitFunc + ". "
+	metadata += "Fitting constrains: {"+RemoveEnding(ATH_TWave#TextWaveToString(ATH_Constraints, sep=","))+"}. "
 	metadata += "Function parameters: firstAngle="+num2str(firstangle)+" ,angleStep="+num2str(angleStep)
 	metadata += ", fastFit="+num2str(fastFit)
 	Note $mapNameStr, metadata
@@ -211,18 +211,18 @@ End
 /// @param angleStep (optional) Variable Optional angle increment in degrees. Defaults to 10.
 /// @returns Variable Returns 0 on completion.
 ///
-static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef,[variable firstAngle, variable angleStep])
+static Function InteractiveXMLDFitInspection(WAVE wRef,[variable firstAngle, variable angleStep])
 	/// Interactive operation using a callback function
 	/// ATH_Cursors#CursorCallBack(WAVE wSrc, WAVE wRef, variable p0, variable q0)
 	//
-	// WAVE wSrc - 3D Wave with XMLD images for different angles
 	// WAVE wRef - Wave calculated using CalculateXMLDMap
 	//
+	// WAVE wSrc is read from wRef wavenote
 	variable firstAngleRad = ParamIsDefault(firstAngle) ? -90 * pi/180 : firstAngle * pi/180
 	variable angleStepRad = ParamIsDefault(angleStep) ? 15 * pi/180 : angleStep * pi/180
-		
-	string winNameStr = ATH_Display#NewImg(wRef)
-	string imgNameTopGraphStr = StringFromList(0, ImageNameList(winNameStr, ";"),";")
+	
+	string winNameStr = WinName(0, 1, 1)//ATH_Display#NewImg(wRef)
+	string imgNameTopGraphStr = ATH_Graph#TopImageName(grfName=winNameStr)
 	variable nrows = DimSize(wRef, 0)
 	variable ncols = DimSize(wRef, 1)	
 	Cursor/I/C=(65535,65535,0)/S=1/P/N=1 J $imgNameTopGraphStr nrows/2, ncols/2
@@ -230,17 +230,37 @@ static Function InteractiveXMLDFitInspection(WAVE wSrc, WAVE wRef,[variable firs
 	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr) // Root folder here
 	// Store globals
 	string/G dfr:gATH_wRefPath = GetWavesDataFolder(wRef, 2)
-	string/G dfr:gATH_wSrcPath = GetWavesDataFolder(wSrc, 2)
+	string sourceStr
+	SplitString/E="Source:[ \\t]*([^\\r\\n]+)" note(wRef), sourceStr
+	string/G dfr:gATH_wSrcPath = TrimString(sourceStr)
 	variable/G dfr:gATH_firstAngleRad = firstAngleRad
 	variable/G dfr:gATH_angleStepRad = angleStepRad
 	// Hook and metadata
 	SetWindow $winNameStr, hook(MyiCursorActionHook) = ATH_MagDom#iCursorUsingCallbackHookFunction // Set the hook
 	SetWindow $winNameStr, userdata(MyiCursorWin) = winNameStr
 	SetWindow $winNameStr, userdata(ATH_iCursorDFR) = "root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr
-	Display/N=$(winNameStr + "_iFitPlot")/K=1
-	DoWindow/F $winNameStr
+	Display/N=$(winNameStr + "_iFitPlot")/K=1	
+	SetWindow $(winNameStr + "_iFitPlot"), userdata(ParentImageWindow) = winNameStr
+	SetWindow $(winNameStr + "_iFitPlot"), hook(fitFunctionGraph) = ATH_MagDom#FitFunctionGraph		
 	SetWindow $winNameStr, userdata(MyiplotWin) = winNameStr + "_iFitPlot"
+	DoWindow/F $winNameStr	
 	return 0
+End
+
+static Function FitFunctionGraph(STRUCT WMWinHookStruct &s)
+	variable hookResult = 0
+	string imgNameTopGraphStr = StringFromList(0, ImageNameList(s.WinName, ";"),";")
+	DFREF dfr = ATH_DFR#CreateDataFolderGetDFREF("root:Packages:ATH_DataFolder:iCursorAction:" + imgNameTopGraphStr)
+	string winNameStr = GetUserData(s.winName, "", "ParentImageWindow")
+	//Get the parent window
+	switch(s.eventCode)
+		case 2:
+			SetWindow $winNameStr, hook(MyiCursorActionHook) = $"" // it should be first, avoid triggering the callback!
+			Cursor/K/W=$winNameStr J			
+			KillDataFolder/Z dfr
+			break
+	endswitch
+	return hookResult       // 0 if nothing done, else 1
 End
 
 /// @function iCursorUsingCallbackHookFunction
@@ -267,16 +287,9 @@ static Function iCursorUsingCallbackHookFunction(STRUCT WMWinHookStruct &s)
 		case 7: // cursor moved
 			if(!cmpstr(s.cursorName, "J")) // It should work only with E, F you might have other cursors on the image
 				CursorCallBack(wSrc, wRef, s.pointNumber, s.ypointNumber) // Function using row, column
-				//CursorCallBack3(wRef, s.pointNumber, s.ypointNumber) // Function using row, column
 			endif
 			//hookResult = 1
 			break
-		case 11: // Keyboard event
-			if(s.specialKeyCode == 204) //  Esc
-				SetWindow $s.winName, hook(MyiCursorActionHook) = $""
-				Cursor/K/W=$s.winName B
-				KillDataFolder/Z dfr
-			endif
 	endswitch
 	return hookResult       // 0 if nothing done, else 1
 End
