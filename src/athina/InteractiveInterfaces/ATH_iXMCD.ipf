@@ -265,7 +265,7 @@ static Function SaveXMCDImageButton(STRUCT WMButtonAction &B_Struct): ButtonCont
 			DFREF sourceDF = GetWavesDataFolderDFR($wName2Str)
 			string savexmcdWaveStr = CreatedataObjectName(sourceDF, "iXMCD", 1, 0, 1)
 			Duplicate wXMCD, sourceDF:$savexmcdWaveStr
-			Note sourceDF:$savexmcdWaveStr, note2WaveStr
+			ATH_String#WaveLogging(sourceDF:$savexmcdWaveStr, note2WaveStr, prepend = 1)
 			break
 	endswitch
 	return 0
@@ -328,10 +328,10 @@ static Function SetIntensityScale(STRUCT WMSetVariableAction &sva) : SetVariable
 			
 			if(flag)
 				variable avg1, avg2
-				WaveStats/Q/M=1/RMD=[left, right][top, bottom] wImg2	
-				avg1 = V_avg
 				WaveStats/Q/M=1/RMD=[left, right][top, bottom] wImg1
-				avg2 = V_avg
+				avg1 = V_avg
+				WaveStats/Q/M=1/RMD=[left, right][top, bottom] wImg2	
+				avg2 = V_avg				
 				//
 				// Grab normalisation region
 				//

@@ -268,7 +268,7 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 		catch
 			variable err = GetRTError(1)
 			print "Curve fit runtime error in layer " + num2str(plane),   GetErrMessage(err, 3)
-			qdrift = refP - V_MaxRowLoc
+			pdrift = refP - V_MaxRowLoc
 			qdrift = refQ - V_MaxColLoc
 		endtry
 		// V_FitQuitReason is zero if the fit terminated normally, 
@@ -277,7 +277,7 @@ ThreadSafe static Function/WAVE DriftCorrelationPartition_Worker(WAVE w3D, WAVE 
 		// 3 if the limit of passes without decreasing chi-square was reached.
 		if(V_FitError)
 			print "Fit error code = " , V_FitQuitReason, " in plane ", num2str(plane)
-			qdrift = refP - V_MaxRowLoc
+			pdrift = refP - V_MaxRowLoc
 			qdrift = refQ - V_MaxColLoc
 		endif		
 	else
